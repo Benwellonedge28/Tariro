@@ -95,6 +95,13 @@ pub struct DataMirroringSystemConfig {
     pub managed_files_sync_interval_seconds: u64,
 }
 
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct SandboxedEnvironmentModuleConfig {
+    pub max_optimization_cycles: u32,
+    pub auto_deprovision_sandbox: bool,
+    pub enable_autonomous_deployment: bool,
+}
+
 // AppConfig will hold configurations for all modules
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AppConfig {
@@ -106,7 +113,8 @@ pub struct AppConfig {
     pub performance_profiler: Option<PerformanceProfilerConfig>,
     pub ethical_compliance_monitor: Option<EthicalComplianceMonitorConfig>,
     pub deployment_manager: Option<DeploymentManagerConfig>,
-    pub data_mirroring_system: Option<DataMirroringSystemConfig>, // Added this line
+    pub data_mirroring_system: Option<DataMirroringSystemConfig>,
+    pub sandboxed_environment_module: Option<SandboxedEnvironmentModuleConfig>, // Added this line
     // Add other module configs here as they are defined
 }
 
@@ -123,7 +131,8 @@ impl AppConfig {
             performance_profiler: Some(PerformanceProfilerConfig::default()),
             ethical_compliance_monitor: Some(EthicalComplianceMonitorConfig::default()),
             deployment_manager: Some(DeploymentManagerConfig::default()),
-            data_mirroring_system: Some(DataMirroringSystemConfig::default()), // Added this line
+            data_mirroring_system: Some(DataMirroringSystemConfig::default()),
+            sandboxed_environment_module: Some(SandboxedEnvironmentModuleConfig::default()), // Added this line
         })
     }
 }
