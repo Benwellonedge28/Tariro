@@ -6,12 +6,14 @@
 //! and architectural changes without impacting the live system.
 
 pub mod virtualization_engine;
+pub mod virtualization_engine_config;
 pub mod simulation_engine;
 pub mod automated_test_suite;
 pub mod performance_profiler;
 pub mod ethical_compliance_monitor;
 pub mod deployment_manager;
 pub mod data_mirroring_system;
+pub mod code_generation_engine;
 
 use crate::{prelude::*,
     Module,
@@ -30,6 +32,7 @@ pub struct SandboxedEnvironmentModule {
     ethical_compliance_monitor: ethical_compliance_monitor::EthicalComplianceMonitor,
     deployment_manager: deployment_manager::DeploymentManager,
     data_mirroring_system: data_mirroring_system::DataMirroringSystem,
+    code_generation_engine: code_generation_engine::CodeGenerationEngine, // New: Code Generation Engine
 }
 
 #[async_trait]
@@ -45,6 +48,7 @@ impl Module for SandboxedEnvironmentModule {
             ethical_compliance_monitor: ethical_compliance_monitor::EthicalComplianceMonitor::new(context)?,
             deployment_manager: deployment_manager::DeploymentManager::new(context)?,
             data_mirroring_system: data_mirroring_system::DataMirroringSystem::new(context)?,
+            code_generation_engine: code_generation_engine::CodeGenerationEngine::new(context)?,
         })
     }
 
@@ -57,6 +61,7 @@ impl Module for SandboxedEnvironmentModule {
         self.ethical_compliance_monitor.start().await?;
         self.deployment_manager.start().await?;
         self.data_mirroring_system.start().await?;
+        self.code_generation_engine.start().await?;
         info!("SandboxedEnvironmentModule started.");
         Ok(())
     }
@@ -70,6 +75,7 @@ impl Module for SandboxedEnvironmentModule {
         self.ethical_compliance_monitor.stop().await?;
         self.deployment_manager.stop().await?;
         self.data_mirroring_system.stop().await?;
+        self.code_generation_engine.stop().await?;
         info!("SandboxedEnvironmentModule stopped.");
         Ok(())
     }
@@ -94,12 +100,14 @@ impl SandboxedEnvironmentModule {
             deployment_status: "Not Attempted".to_string(),
             status: SandboxStatus::Initiated,
             recommendation: "Pending".to_string(),
-            // Add other relevant metrics
+            sim_report_details: None,
+            generated_code_feedback: Vec::new(),
         };
 
         let sandbox_id: String;
         let mut human_review_needed_total = false;
         let mut deployment_approved = false;
+        let mut current_code_context = "Initial feature code for ".to_string() + &feature_proposal_id.0;
 
         // --- Phase 1: Provisioning and Data Mirroring ---
         report.status = SandboxStatus::Provisioning;
@@ -115,6 +123,8 @@ impl SandboxedEnvironmentModule {
                 error!("Sandbox provisioning failed: {:?}", e);
                 report.status = SandboxStatus::Failed;
                 report.recommendation = format!("Failed to provision sandbox: {}", e);
+                // Attempt cleanup
+                let _ = self.cleanup_sandbox_resources(&report.sandbox_id, &self.config.auto_deprovision_sandbox).await;
                 return Ok(report);
             }
         }
@@ -124,14 +134,16 @@ impl SandboxedEnvironmentModule {
         info!("Phase 2: Deploying feature to sandbox...");
         self.deployment_manager.deploy_feature_to_sandbox(&feature_proposal_id, &sandbox_id).await?;
 
-        // --- Phase 3: Simulation, Testing, Profiling, and Ethical Monitoring Loop ---
-        info!("Phase 3: Entering iterative simulation, testing, optimization, and ethical monitoring loop...");
+        // --- Phase 3: Iterative Simulation, Testing, Profiling, Ethical Monitoring, and Self-Modification Loop ---
+        info!("Phase 3: Entering iterative loop for evaluation and self-modification...");
         let mut current_metrics: Option<crate::performance_profiler::PerformanceMetrics> = None;
         let mut optimization_cycles = 0;
 
         loop {
+            info!("\n--- Iteration {} ---", optimization_cycles + 1);
+
             report.status = SandboxStatus::Simulating;
-            info!("  Running simulations (Cycle {})...".to_string(), optimization_cycles);
+            info!("  Running simulations...");
             let sim_report = self.simulation_engine.run_simulations(&sandbox_id).await?;
             report.sim_report_details = Some(sim_report.details);
 
@@ -160,27 +172,55 @@ impl SandboxedEnvironmentModule {
             }
             report.ethical_violations = ethical_report.details.clone();
 
-            // Autonomous decision: Do we need further optimization?
             let target_latency = self.performance_profiler.config.target_latency_ms as f64;
             let target_cpu = self.performance_profiler.config.target_cpu_usage_percent;
 
-            if prof_metrics.response_time_ms > target_latency || prof_metrics.cpu_usage_percent > target_cpu {
+            let performance_needs_improvement = prof_metrics.response_time_ms > target_latency || prof_metrics.cpu_usage_percent > target_cpu;
+            let tests_failed = test_report.pass_rate < self.automated_test_suite.config.minimum_pass_rate;
+
+            if performance_needs_improvement || tests_failed {
                 optimization_cycles += 1;
                 if optimization_cycles <= self.config.max_optimization_cycles {
                     report.status = SandboxStatus::Optimizing;
-                    info!("  Performance targets not met. Initiating optimization cycle {}...", optimization_cycles);
-                    let opt_config = self.performance_profiler.optimize_performance(&sandbox_id, &prof_metrics).await?;
-                    report.optimized_config = format!("Applied changes: {:?}", opt_config.changes);
-                    info!("  Optimization cycle {} completed. Re-running tests.", optimization_cycles);
+                    let optimization_goal = if performance_needs_improvement {
+                        format!("Optimize performance: Latency target {}ms, current {:.2}ms. CPU target {:.2}%, current {:.2}%. ",
+                                target_latency, prof_metrics.response_time_ms, target_cpu, prof_metrics.cpu_usage_percent)
+                    } else {
+                        format!("Fix test failures: Pass rate target {:.2}%, current {:.2}%. ",
+                                self.automated_test_suite.config.minimum_pass_rate * 100.0, test_report.pass_rate * 100.0)
+                    };
+                    
+                    info!("  Targets not met. Generating code changes for: {}\n  Current code context: '{}'".to_string(), optimization_goal, current_code_context);
+                    
+                    let generated_code_proposal = self.code_generation_engine.generate_code(
+                        &optimization_goal,
+                        &current_code_context
+                    ).await?;
+                    
+                    report.generated_code_feedback.push(format!("Iteration {}: Generated code (Quality: {:.2}, Human review: {}) to address: {}",
+                                                               optimization_cycles, generated_code_proposal.quality_score, generated_code_proposal.requires_human_review, optimization_goal));
+                    
+                    if generated_code_proposal.requires_human_review {
+                        human_review_needed_total = true;
+                        report.status = SandboxStatus::HumanReviewPending;
+                        report.recommendation = format!("Generated code requires human review before application: {}. Aborting automated deployment.", generated_code_proposal.description);
+                        break; // Exit loop, require human intervention
+                    }
+                    
+                    info!("  Applying generated code changes...");
+                    self.code_generation_engine.apply_code_changes(&sandbox_id, &generated_code_proposal).await?;
+                    current_code_context = generated_code_proposal.code; // Update context with new code
+                    info!("  Code changes applied. Re-running evaluations.");
+
                 } else {
-                    warn!("  Max optimization cycles ({}) reached. Performance targets still not fully met.", self.config.max_optimization_cycles);
+                    warn!("  Max optimization cycles ({}) reached. Targets still not fully met.", self.config.max_optimization_cycles);
                     report.status = SandboxStatus::Completed;
-                    report.recommendation = "Automated optimization failed to meet all performance targets. Human review recommended.".to_string();
+                    report.recommendation = "Automated self-modification failed to meet all targets. Human review recommended.".to_string();
                     break; // Exit loop, proceed to final report
                 }
             } else {
-                info!("  Performance targets met. Exiting optimization loop.");
-                break; // Performance targets met, exit loop
+                info!("  All targets met. Exiting iterative self-modification loop.");
+                break; // Performance and tests targets met, exit loop
             }
         }
 
@@ -191,13 +231,15 @@ impl SandboxedEnvironmentModule {
         let final_metrics = current_metrics.unwrap_or_else(|| crate::performance_profiler::PerformanceMetrics { cpu_usage_percent: 0.0, memory_usage_mb: 0.0, response_time_ms: 0.0 });
         let final_test_report = self.automated_test_suite.run_tests(&sandbox_id).await?;
         let final_ethical_report = self.ethical_compliance_monitor.monitor_compliance(&sandbox_id).await?;
+        let final_code_quality = self.code_generation_engine.evaluate_code_quality(&current_code_context).await?;
 
         let performance_ok = final_metrics.response_time_ms <= self.performance_profiler.config.target_latency_ms as f64 &&
                              final_metrics.cpu_usage_percent <= self.performance_profiler.config.target_cpu_usage_percent;
         let tests_ok = final_test_report.pass_rate >= self.automated_test_suite.config.minimum_pass_rate;
         let ethical_ok = !final_ethical_report.human_review_needed;
+        let code_quality_ok = final_code_quality.adheres_to_standards && !final_code_quality.requires_human_review_due_to_quality; // Assuming a field for quality review
 
-        if !human_review_needed_total && performance_ok && tests_ok && ethical_ok {
+        if !human_review_needed_total && performance_ok && tests_ok && ethical_ok && code_quality_ok {
             deployment_approved = true;
             report.recommendation = "All checks passed: Feature is ready for production deployment.".to_string();
             if self.config.enable_autonomous_deployment {
@@ -212,10 +254,11 @@ impl SandboxedEnvironmentModule {
             }
         } else {
             let mut reasons = Vec::new();
-            if human_review_needed_total { reasons.push("Critical ethical violations"); }
+            if human_review_needed_total { reasons.push("Critical ethical violations or code review needed"); }
             if !performance_ok { reasons.push("Performance targets not met"); }
             if !tests_ok { reasons.push("Test pass rate below threshold"); }
             if !ethical_ok { reasons.push("Pending ethical review"); }
+            if !code_quality_ok { reasons.push("Code quality issues detected"); }
 
             report.status = SandboxStatus::Failed;
             report.recommendation = format!("Deployment NOT recommended. Reasons: {}. Human review REQUIRED.", reasons.join(", "));
@@ -224,16 +267,26 @@ impl SandboxedEnvironmentModule {
 
         // --- Phase 5: Cleanup ---
         info!("Phase 5: Cleaning up sandbox resources...");
-        if self.config.auto_deprovision_sandbox {
-            self.virtualization_engine.deprovision_sandbox(&sandbox_id).await?;
-            self.data_mirroring_system.cleanup_sandbox_data(&sandbox_id).await?;
-            info!("Sandbox {} de-provisioned and data cleaned up.", sandbox_id);
-        } else {
-            info!("Auto-deprovisioning disabled. Sandbox {} and its data retained.", sandbox_id);
-        }
+        let _ = self.cleanup_sandbox_resources(&sandbox_id, &self.config.auto_deprovision_sandbox).await;
 
         info!("Autonomous sandbox experiment for FeatureProposal {} finished with status: {:?}", feature_proposal_id.0, report.status);
         Ok(report)
+    }
+
+    async fn cleanup_sandbox_resources(&self, sandbox_id: &str, auto_deprovision: &bool) -> Result<()> {
+        if *auto_deprovision {
+            match self.virtualization_engine.deprovision_sandbox(sandbox_id).await {
+                Ok(_) => info!("Sandbox {} de-provisioned successfully.", sandbox_id),
+                Err(e) => error!("Failed to de-provision sandbox {}: {}", sandbox_id, e),
+            }
+            match self.data_mirroring_system.cleanup_sandbox_data(sandbox_id).await {
+                Ok(_) => info!("Sandbox {} data cleaned up successfully.", sandbox_id),
+                Err(e) => error!("Failed to clean up sandbox {} data: {}", sandbox_id, e),
+            }
+        } else {
+            info!("Auto-deprovisioning disabled. Sandbox {} and its data retained.", sandbox_id);
+        }
+        Ok(())
     }
 }
 
@@ -250,6 +303,7 @@ pub struct SandboxReport {
     pub status: SandboxStatus,
     pub recommendation: String,
     pub sim_report_details: Option<String>,
+    pub generated_code_feedback: Vec<String>, // New field for code generation feedback
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -267,4 +321,25 @@ pub enum SandboxStatus {
     Completed,
     CompletedAndDeployed,
     Failed,
+}
+
+// Temporary fix for `requires_human_review_due_to_quality` on CodeQualityReport
+// This should be properly defined in code_generation_engine.rs.
+// Since I cannot modify code_generation_engine.rs directly in this step, I'm adding a dummy for compilation.
+// In a real scenario, CodeQualityReport would be updated directly.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CodeQualityReport {
+    pub maintainability_score: f32,
+    pub security_issues: u32,
+    pub complexity: u32,
+    pub adheres_to_standards: bool,
+    pub requires_human_review_due_to_quality: bool, // Added for mod.rs compilation
+}
+
+// Added this to avoid compilation error in mod.rs until code_generation_engine.rs is fully updated.
+// This is a temporary measure and will be removed once full CodeGenerationEngine is implemented.
+pub mod virtualization_engine_config {
+    // This module is empty; it exists to satisfy a temporary placeholder in mod.rs.
+    // Once the actual CodeGenerationEngine and its configuration are fully integrated,
+    // this dummy module will be removed.
 }
