@@ -9,6 +9,7 @@ pub use async_trait::async_trait;
 pub use log::{info, warn, error, debug};
 pub use uuid;
 pub use chrono;
+pub use serde::{Serialize, Deserialize};
 
 // Define the core Module trait that all Tariro modules must implement.
 // This ensures a consistent interface for module lifecycle management.
@@ -36,16 +37,50 @@ impl ModuleContext {
     }
 }
 
-// Placeholder for application-wide configuration
+// Placeholder for FeatureProposalId (from the data model)
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct FeatureProposalId(pub String);
+
+// --- Configuration Structures ---
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct VirtualizationEngineConfig {
+    pub sandbox_base_image: String,
+    pub network_prefix: String,
+    pub resource_limits_cpu: String,
+    pub resource_limits_memory: String,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct SimulationEngineConfig {
+    pub historical_data_path: String,
+    pub ai_workload_generator_endpoint: String,
+    pub simulation_duration_minutes: u64,
+    pub traffic_multiplier: f32,
+}
+
+// AppConfig will hold configurations for all modules
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AppConfig {
     pub log_level: String,
     pub database_url: String,
-    // Other global settings
+    pub virtualization_engine: Option<VirtualizationEngineConfig>,
+    pub simulation_engine: Option<SimulationEngineConfig>,
+    // Add other module configs here as they are defined
 }
 
-// Placeholder for FeatureProposalId (from the data model)
-pub struct FeatureProposalId(pub String);
+impl AppConfig {
+    pub fn load_from_env() -> Result<Self> {
+        // Placeholder for loading configuration from environment variables or a file.
+        // In a real application, you'd use a library like `config` or `dotenv`.
+        Ok(AppConfig {
+            log_level: std::env::var("TARIRO_LOG_LEVEL").unwrap_or_else(|_| "info".to_string()),
+            database_url: std::env::var("TARIRO_DATABASE_URL").unwrap_or_else(|_| "sqlite://tariro.db".to_string()),
+            virtualization_engine: Some(VirtualizationEngineConfig::default()),
+            simulation_engine: Some(SimulationEngineConfig::default()),
+        })
+    }
+}
 
 // Declare the modules within this crate
 pub mod modules;
-
