@@ -17,10 +17,12 @@ use crate::{prelude::*,
     Module,
     ModuleContext,
     FeatureProposalId,
+    SandboxedEnvironmentModuleConfig,
 };
 
 /// Represents the core Sandboxed Environment Module.
 pub struct SandboxedEnvironmentModule {
+    config: SandboxedEnvironmentModuleConfig,
     virtualization_engine: virtualization_engine::VirtualizationEngine,
     simulation_engine: simulation_engine::SimulationEngine,
     automated_test_suite: automated_test_suite::AutomatedTestSuite,
@@ -28,13 +30,14 @@ pub struct SandboxedEnvironmentModule {
     ethical_compliance_monitor: ethical_compliance_monitor::EthicalComplianceMonitor,
     deployment_manager: deployment_manager::DeploymentManager,
     data_mirroring_system: data_mirroring_system::DataMirroringSystem,
-    // Add any module-level configuration or state here
 }
 
 #[async_trait]
 impl Module for SandboxedEnvironmentModule {
     fn new(context: &ModuleContext) -> Result<Self> {
+        let config = context.config.sandboxed_environment_module.clone().unwrap_or_default();
         Ok(Self {
+            config,
             virtualization_engine: virtualization_engine::VirtualizationEngine::new(context)?,
             simulation_engine: simulation_engine::SimulationEngine::new(context)?,
             automated_test_suite: automated_test_suite::AutomatedTestSuite::new(context)?,
@@ -74,66 +77,194 @@ impl Module for SandboxedEnvironmentModule {
     fn name(&self) -> &'static str {
         "SandboxedEnvironmentModule"
     }
+}
 
+impl SandboxedEnvironmentModule {
     // Example of a core method to trigger a sandbox run
-    async fn run_sandbox_experiment(&self, feature_proposal_id: &FeatureProposalId) -> Result<SandboxReport> {
-        info!("Initiating sandbox experiment for FeatureProposal: {}", feature_proposal_id.0);
+    pub async fn run_sandbox_experiment(&self, feature_proposal_id: FeatureProposalId) -> Result<SandboxReport> {
+        info!("Initiating autonomous sandbox experiment for FeatureProposal: {}", feature_proposal_id.0);
 
-        // 1. Snapshot and provision sandbox environment
-        let sandbox_id = self.virtualization_engine.provision_sandbox(feature_proposal_id).await?;
-        self.data_mirroring_system.snapshot_production_data(&sandbox_id).await?;
-
-        // 2. Deploy feature and run simulations
-        self.deployment_manager.deploy_feature_to_sandbox(feature_proposal_id, &sandbox_id).await?;
-        self.simulation_engine.run_simulations(&sandbox_id).await?;
-
-        // 3. Execute automated tests
-        let test_results = self.automated_test_suite.run_tests(&sandbox_id).await?;
-
-        // 4. Profile performance and optimize iteratively
-        let initial_performance = self.performance_profiler.profile_performance(&sandbox_id).await?;
-        let optimized_config = self.performance_profiler.optimize_performance(&sandbox_id, &initial_performance).await?;
-
-        // 5. Monitor ethical compliance
-        let ethical_violations = self.ethical_compliance_monitor.monitor_compliance(&sandbox_id).await?;
-
-        // 6. Generate report
-        let report = SandboxReport {
-            sandbox_id,
+        let mut report = SandboxReport {
+            sandbox_id: "".to_string(),
             feature_proposal_id: feature_proposal_id.clone(),
-            test_results,
-            initial_performance,
-            optimized_config,
-            ethical_violations,
-            status: SandboxStatus::Completed,
+            test_results: "N/A".to_string(),
+            initial_performance: "N/A".to_string(),
+            optimized_config: "N/A".to_string(),
+            ethical_violations: "N/A".to_string(),
+            deployment_status: "Not Attempted".to_string(),
+            status: SandboxStatus::Initiated,
+            recommendation: "Pending".to_string(),
             // Add other relevant metrics
         };
 
-        info!("Sandbox experiment completed for FeatureProposal: {}. Report: {:?}", feature_proposal_id.0, report);
+        let sandbox_id: String;
+        let mut human_review_needed_total = false;
+        let mut deployment_approved = false;
+
+        // --- Phase 1: Provisioning and Data Mirroring ---
+        report.status = SandboxStatus::Provisioning;
+        info!("Phase 1: Provisioning sandbox and mirroring data...");
+        match self.virtualization_engine.provision_sandbox(&feature_proposal_id).await {
+            Ok(id) => {
+                sandbox_id = id;
+                report.sandbox_id = sandbox_id.clone();
+                self.data_mirroring_system.snapshot_production_data(&sandbox_id).await?;
+                self.data_mirroring_system.load_data_snapshot(&sandbox_id, "latest_prod_snapshot").await?;
+            },
+            Err(e) => {
+                error!("Sandbox provisioning failed: {:?}", e);
+                report.status = SandboxStatus::Failed;
+                report.recommendation = format!("Failed to provision sandbox: {}", e);
+                return Ok(report);
+            }
+        }
+
+        // --- Phase 2: Feature Deployment to Sandbox ---
+        report.status = SandboxStatus::DeployingFeature;
+        info!("Phase 2: Deploying feature to sandbox...");
+        self.deployment_manager.deploy_feature_to_sandbox(&feature_proposal_id, &sandbox_id).await?;
+
+        // --- Phase 3: Simulation, Testing, Profiling, and Ethical Monitoring Loop ---
+        info!("Phase 3: Entering iterative simulation, testing, optimization, and ethical monitoring loop...");
+        let mut current_metrics: Option<crate::performance_profiler::PerformanceMetrics> = None;
+        let mut optimization_cycles = 0;
+
+        loop {
+            report.status = SandboxStatus::Simulating;
+            info!("  Running simulations (Cycle {})...".to_string(), optimization_cycles);
+            let sim_report = self.simulation_engine.run_simulations(&sandbox_id).await?;
+            report.sim_report_details = Some(sim_report.details);
+
+            report.status = SandboxStatus::Testing;
+            info!("  Running automated tests...");
+            let test_report = self.automated_test_suite.run_tests(&sandbox_id).await?;
+            report.test_results = format!("Passed: {}/{}, Rate: {:.2}%", test_report.passed, test_report.total_tests, test_report.pass_rate * 100.0);
+
+            report.status = SandboxStatus::Profiling;
+            info!("  Profiling performance...");
+            let prof_metrics = self.performance_profiler.profile_performance(&sandbox_id).await?;
+            report.initial_performance = format!("CPU: {:.2}%, Mem: {:.2}MB, Latency: {:.2}ms", prof_metrics.cpu_usage_percent, prof_metrics.memory_usage_mb, prof_metrics.response_time_ms);
+            current_metrics = Some(prof_metrics.clone());
+
+            report.status = SandboxStatus::EthicalMonitoring;
+            info!("  Monitoring ethical compliance...");
+            let ethical_report = self.ethical_compliance_monitor.monitor_compliance(&sandbox_id).await?;
+            if ethical_report.human_review_needed {
+                human_review_needed_total = true;
+                report.ethical_violations = ethical_report.details.clone();
+                warn!("Critical ethical flags raised in sandbox {}. Human review REQUIRED.", sandbox_id);
+                self.ethical_compliance_monitor.generate_audit_trail(&sandbox_id).await?;
+                report.status = SandboxStatus::HumanReviewPending;
+                report.recommendation = "Human review required due to critical ethical violations. Aborting automated deployment.".to_string();
+                break; // Exit loop, require human intervention
+            }
+            report.ethical_violations = ethical_report.details.clone();
+
+            // Autonomous decision: Do we need further optimization?
+            let target_latency = self.performance_profiler.config.target_latency_ms as f64;
+            let target_cpu = self.performance_profiler.config.target_cpu_usage_percent;
+
+            if prof_metrics.response_time_ms > target_latency || prof_metrics.cpu_usage_percent > target_cpu {
+                optimization_cycles += 1;
+                if optimization_cycles <= self.config.max_optimization_cycles {
+                    report.status = SandboxStatus::Optimizing;
+                    info!("  Performance targets not met. Initiating optimization cycle {}...", optimization_cycles);
+                    let opt_config = self.performance_profiler.optimize_performance(&sandbox_id, &prof_metrics).await?;
+                    report.optimized_config = format!("Applied changes: {:?}", opt_config.changes);
+                    info!("  Optimization cycle {} completed. Re-running tests.", optimization_cycles);
+                } else {
+                    warn!("  Max optimization cycles ({}) reached. Performance targets still not fully met.", self.config.max_optimization_cycles);
+                    report.status = SandboxStatus::Completed;
+                    report.recommendation = "Automated optimization failed to meet all performance targets. Human review recommended.".to_string();
+                    break; // Exit loop, proceed to final report
+                }
+            } else {
+                info!("  Performance targets met. Exiting optimization loop.");
+                break; // Performance targets met, exit loop
+            }
+        }
+
+        // --- Phase 4: Final Evaluation and Deployment Decision ---
+        report.status = SandboxStatus::FinalEvaluation;
+        info!("Phase 4: Final Evaluation and Autonomous Deployment Decision...");
+
+        let final_metrics = current_metrics.unwrap_or_else(|| crate::performance_profiler::PerformanceMetrics { cpu_usage_percent: 0.0, memory_usage_mb: 0.0, response_time_ms: 0.0 });
+        let final_test_report = self.automated_test_suite.run_tests(&sandbox_id).await?;
+        let final_ethical_report = self.ethical_compliance_monitor.monitor_compliance(&sandbox_id).await?;
+
+        let performance_ok = final_metrics.response_time_ms <= self.performance_profiler.config.target_latency_ms as f64 &&
+                             final_metrics.cpu_usage_percent <= self.performance_profiler.config.target_cpu_usage_percent;
+        let tests_ok = final_test_report.pass_rate >= self.automated_test_suite.config.minimum_pass_rate;
+        let ethical_ok = !final_ethical_report.human_review_needed;
+
+        if !human_review_needed_total && performance_ok && tests_ok && ethical_ok {
+            deployment_approved = true;
+            report.recommendation = "All checks passed: Feature is ready for production deployment.".to_string();
+            if self.config.enable_autonomous_deployment {
+                info!("Autonomous deployment enabled. Initiating production deployment...");
+                self.deployment_manager.deploy_to_production(&feature_proposal_id).await?;
+                report.deployment_status = "Deployed to Production".to_string();
+                report.status = SandboxStatus::CompletedAndDeployed;
+            } else {
+                info!("Autonomous deployment disabled. Recommending manual production deployment.");
+                report.recommendation.push_str(" (Manual deployment required)");
+                report.status = SandboxStatus::Completed;
+            }
+        } else {
+            let mut reasons = Vec::new();
+            if human_review_needed_total { reasons.push("Critical ethical violations"); }
+            if !performance_ok { reasons.push("Performance targets not met"); }
+            if !tests_ok { reasons.push("Test pass rate below threshold"); }
+            if !ethical_ok { reasons.push("Pending ethical review"); }
+
+            report.status = SandboxStatus::Failed;
+            report.recommendation = format!("Deployment NOT recommended. Reasons: {}. Human review REQUIRED.", reasons.join(", "));
+            error!("Sandbox experiment for {} completed with issues: {}.", feature_proposal_id.0, report.recommendation);
+        }
+
+        // --- Phase 5: Cleanup ---
+        info!("Phase 5: Cleaning up sandbox resources...");
+        if self.config.auto_deprovision_sandbox {
+            self.virtualization_engine.deprovision_sandbox(&sandbox_id).await?;
+            self.data_mirroring_system.cleanup_sandbox_data(&sandbox_id).await?;
+            info!("Sandbox {} de-provisioned and data cleaned up.", sandbox_id);
+        } else {
+            info!("Auto-deprovisioning disabled. Sandbox {} and its data retained.", sandbox_id);
+        }
+
+        info!("Autonomous sandbox experiment for FeatureProposal {} finished with status: {:?}", feature_proposal_id.0, report.status);
         Ok(report)
     }
 }
 
 /// Placeholder for SandboxReport
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SandboxReport {
     pub sandbox_id: String,
     pub feature_proposal_id: FeatureProposalId,
-    pub test_results: String, // Simplified for draft
-    pub initial_performance: String, // Simplified
-    pub optimized_config: String, // Simplified
-    pub ethical_violations: String, // Simplified
+    pub test_results: String, // Consolidated from AutomatedTestSuite
+    pub initial_performance: String, // Consolidated from PerformanceProfiler
+    pub optimized_config: String, // Consolidated from PerformanceProfiler
+    pub ethical_violations: String, // Consolidated from EthicalComplianceMonitor
+    pub deployment_status: String,
     pub status: SandboxStatus,
+    pub recommendation: String,
+    pub sim_report_details: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SandboxStatus {
+    Initiated,
     Provisioning,
+    DeployingFeature,
     Simulating,
     Testing,
+    Profiling,
     Optimizing,
     EthicalMonitoring,
+    FinalEvaluation,
+    HumanReviewPending,
     Completed,
+    CompletedAndDeployed,
     Failed,
-    // ...
 }
