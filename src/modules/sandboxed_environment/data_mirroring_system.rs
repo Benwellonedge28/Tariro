@@ -5,8 +5,10 @@
 //! (`ManagedFile`, `KnowledgeItem`, `LearningInsight`, etc.) for use within the sandbox,
 //! ensuring realistic testing without data contamination.
 
-use crate::prelude::*;
-use async_trait::async_trait;
+use crate::{prelude::*,
+    Module,
+    ModuleContext,
+};
 
 /// Represents the Data Mirroring System responsible for snapshotting and managing data for sandboxes.
 pub struct DataMirroringSystem {
@@ -75,24 +77,3 @@ pub struct DataMirroringSystemConfig {
     // e.g., db_connection_string: String,
     //       file_storage_path: String,
 }
-
-// Dummy implementations for traits/structs used in this file but defined elsewhere
-// In a real project, these would be in common crates or the main lib.rs
-pub mod prelude {
-    pub use anyhow::{Result, Error};
-    pub use log::{info, warn, error, debug};
-    pub use async_trait::async_trait;
-    pub use chrono; // Assuming chrono crate is used for timestamps
-}
-
-// Re-declare Module trait and ModuleContext here for standalone compilation during draft
-// In final code, these would be imported from a central definition
-#[async_trait]
-pub trait Module: Send + Sync {
-    fn new(context: &ModuleContext) -> Result<Self> where Self: Sized;
-    async fn start(&self) -> Result<()>;
-    async fn stop(&self) -> Result<()>;
-    fn name(&self) -> &'static str;
-}
-
-pub struct ModuleContext;
