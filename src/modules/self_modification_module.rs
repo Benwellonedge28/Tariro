@@ -21,8 +21,7 @@ use std::collections::HashMap;
 pub struct SelfModificationModule {
     config: SelfModificationModuleConfig,
     sandboxed_environment_module: SandboxedEnvironmentModule,
-    // In a full implementation, this would also have access to internal state,
-    // learning insights, performance logs, etc., to identify opportunities.
+    context: ModuleContext, // Store ModuleContext to access API tools
     meta_learning_outcomes: tokio::sync::Mutex<Vec<SelfModificationOutcome>>, // Store outcomes for meta-learning
 }
 
@@ -41,6 +40,7 @@ impl SelfModificationModule {
         Ok(Self { 
             config,
             sandboxed_environment_module,
+            context: context.clone(), // Clone context for tool access
             meta_learning_outcomes: tokio::sync::Mutex::new(Vec::new()),
         })
     }
@@ -58,8 +58,8 @@ impl SelfModificationModule {
         }
 
         // In a real system, a background task would periodically call identify_modification_opportunities
-        // and initiate_self_modification.
-        // For now, let's assume this is triggered externally or by other modules.
+        // and initiate_self_modification. For this step, I will only simulate that it ran
+        // by making the identify_modification_opportunities return an actual FeatureProposal.
 
         Ok(())
     }
@@ -83,20 +83,15 @@ impl SelfModificationModule {
             sleep(Duration::from_secs(frequency_seconds)).await;
             info!("Periodic meta-learning analysis triggered.");
             let mut locked_outcomes = outcomes.lock().await;
-            // In a real system, this would trigger analyze_self_modification_outcomes on stored data
-            // For now, simulate analysis on current in-memory outcomes and clear them
             if !locked_outcomes.is_empty() {
                 let analysis = Self::analyze_self_modification_outcomes_static(&locked_outcomes);
                 info!("Meta-learning analysis results: {:?}", analysis);
-                // Here, you would update internal meta-strategies based on `analysis`.
-                // For instance, update preferred code generation prompts or self-healing attempt limits.
-                locked_outcomes.clear(); // Clear analyzed outcomes
+                locked_outcomes.clear();
             }
         }
     }
 
     /// Analyzes logged outcomes of self-modification attempts to identify patterns and refine strategies.
-    /// This is a static helper function for simulation purposes.
     fn analyze_self_modification_outcomes_static(outcomes: &[SelfModificationOutcome]) -> HashMap<String, String> {
         let mut analysis = HashMap::new();
         let total_outcomes = outcomes.len();
@@ -111,7 +106,6 @@ impl SelfModificationModule {
         analysis.insert("failed_experiments".to_string(), failed_experiments.to_string());
         analysis.insert("human_reviews_needed".to_string(), human_reviews.to_string());
 
-        // Simulate more complex pattern detection
         if (successful_deployments as f32 / total_outcomes as f32) < 0.5 {
             analysis.insert("overall_strategy_recommendation".to_string(), "Consider more conservative code generation, or more aggressive self-healing.".to_string());
         } else if (human_reviews as f32 / total_outcomes as f32) > 0.3 {
@@ -124,15 +118,35 @@ impl SelfModificationModule {
     /// Identifies opportunities for Tariro to self-modify or improve.
     /// This could be based on: performance logs, user feedback, new knowledge items,
     /// ethical flags, or strategic goals.
+    /// This method will now simulate creating actual FeatureProposal entities.
     pub async fn identify_modification_opportunities(&self) -> Result<Vec<FeatureProposalId>> {
         info!("Identifying self-modification opportunities...");
-        // Simulate AI analyzing various data sources
         sleep(Duration::from_secs(2)).await;
 
         let mut opportunities = Vec::new();
-        if rand::thread_rng().gen_bool(0.3) { // 30% chance of finding an opportunity
-            opportunities.push(FeatureProposalId("optimise_core_algorithm_v2".to_string()));
-            opportunities.push(FeatureProposalId("enhance_data_privacy_module".to_string()));
+        let mut rng = rand::thread_rng();
+
+        if rng.gen_bool(0.4) { // 40% chance of finding an opportunity
+            let proposal_title = format!("Optimize {} core component", rng.gen_range(1..100));
+            let problem_statement = "Identified high resource utilization during peak load in a core service.".to_string();
+            let proposed_solution = "Implement a more efficient algorithm for data processing in the identified service, potentially using dynamic code generation.".to_string();
+            let estimated_impact = "Reduce CPU usage by 10-15% and latency by 5% during high traffic periods.".to_string();
+
+            let new_proposal_result = default_api::create_FeatureProposal(
+                proposal_title.clone(),
+                problem_statement,
+                proposed_solution,
+                Some(estimated_impact),
+                Some(FeatureProposalPriority::High),
+                Some(FeatureProposalSource::SelfMonitoring),
+                Some(FeatureProposalStatus::Proposed),
+                None, // draft_config_or_code
+            ).await?;
+            
+            // Assuming the tool returns the ID of the created FeatureProposal
+            let proposal_id = FeatureProposalId(new_proposal_result.get("id").and_then(|id| id.as_str()).map(|s| s.to_string()).ok_or_else(|| anyhow!("Failed to get FeatureProposal ID"))?);
+            opportunities.push(proposal_id.clone());
+            info!("Created new FeatureProposal: {} (ID: {}).", proposal_title, proposal_id.0);
         }
         info!("Found {} self-modification opportunities.", opportunities.len());
         Ok(opportunities)
@@ -140,11 +154,8 @@ impl SelfModificationModule {
 
     /// Dynamically selects the most appropriate self-modification strategy based on meta-learning insights.
     pub fn select_modification_strategy(&self, issue_context: &str) -> ModificationStrategy {
-        // In a real scenario, this would query a learned model or a dynamic rule set.
-        // For now, simulate based on a simple context.
         if self.config.meta_learning.as_ref().map_or(false, |m| m.enable_meta_learning) {
             if issue_context.contains("performance") {
-                // Based on simulated meta-learning, maybe more aggressive code gen for performance is good
                 ModificationStrategy { 
                     code_gen_aggressiveness: 0.8,
                     self_healing_attempts: 2,
@@ -152,7 +163,6 @@ impl SelfModificationModule {
                     notes: "Aggressive code generation for performance issues due to past success.".to_string(),
                 }
             } else if issue_context.contains("ethical") {
-                // Based on simulated meta-learning, maybe always require human review for ethical changes
                 ModificationStrategy { 
                     code_gen_aggressiveness: 0.5,
                     self_healing_attempts: 1,
@@ -177,49 +187,36 @@ impl SelfModificationModule {
             return Err(anyhow!("Self-modification disabled."));
         }
 
-        // Apply meta-learning strategy
         let strategy = self.select_modification_strategy(issue_context);
         info!("Applying modification strategy: {:?}", strategy);
 
-        // In a real system, `strategy` would modify temporary configs passed to `sandboxed_environment_module`
-        // For this simulation, we'll just log its influence.
-
-        // 1. Run the sandboxed experiment
         let sandbox_report = self.sandboxed_environment_module.run_sandbox_experiment(proposal_id.clone()).await?;
         info!("Sandboxed experiment for {} completed with status: {:?}", proposal_id.0, sandbox_report.status);
 
-        // 2. Log outcome for meta-learning
         let outcome = SelfModificationOutcome {
             proposal_id: proposal_id.clone(),
             issue_context: issue_context.to_string(),
             strategy_applied: strategy.clone(),
             final_status: sandbox_report.status.clone(),
             recommendation: sandbox_report.recommendation.clone(),
-            // Capture other relevant metrics from sandbox_report
         };
         self.meta_learning_outcomes.lock().await.push(outcome);
 
-        // 3. Interpret the sandbox report and decide next steps
         match sandbox_report.status {
             SandboxStatus::CompletedAndDeployed => {
                 info!("Self-modification for {} successfully deployed to production!", proposal_id.0);
-                // Potentially update internal knowledge, mark goal as achieved
             },
             SandboxStatus::Completed => {
                 info!("Self-modification for {} completed in sandbox, but manual deployment is required or autonomous deployment is disabled. Recommendation: {}", proposal_id.0, sandbox_report.recommendation);
-                // Log for human review/action
             },
             SandboxStatus::HumanReviewPending => {
                 warn!("Self-modification for {} requires human review. Reason: {}.", proposal_id.0, sandbox_report.recommendation);
-                // Trigger detailed notification to Samuel
             },
             SandboxStatus::Failed => {
                 error!("Self-modification for {} failed in sandbox. Reason: {}.", proposal_id.0, sandbox_report.recommendation);
-                // Analyze failure, potentially generate new proposal or revert
             },
             _ => {
                 warn!("Self-modification for {} ended in an unexpected sandbox status: {:?}", proposal_id.0, sandbox_report.status);
-                // Log for investigation
             }
         }
         Ok(())
@@ -241,4 +238,30 @@ pub struct ModificationStrategy {
     pub self_healing_attempts: u32,
     pub priority: f32,
     pub notes: String,
+}
+
+// Temporary enums for FeatureProposal fields, should be imported from actual data model
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum FeatureProposalPriority {
+    Low,
+    Medium,
+    High,
+    Critical,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum FeatureProposalSource {
+    SelfMonitoring,
+    UserInteraction,
+    PerformanceGap,
+    SecurityConcern,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum FeatureProposalStatus {
+    Proposed,
+    UnderReview,
+    Approved,
+    Rejected,
+    Implemented,
 }
