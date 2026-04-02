@@ -59,6 +59,13 @@ pub struct SimulationEngineConfig {
     pub traffic_multiplier: f32,
 }
 
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct AutomatedTestSuiteConfig {
+    pub test_case_definitions_path: String,
+    pub enable_ai_test_generation: bool,
+    pub minimum_pass_rate: f32,
+}
+
 // AppConfig will hold configurations for all modules
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AppConfig {
@@ -66,6 +73,7 @@ pub struct AppConfig {
     pub database_url: String,
     pub virtualization_engine: Option<VirtualizationEngineConfig>,
     pub simulation_engine: Option<SimulationEngineConfig>,
+    pub automated_test_suite: Option<AutomatedTestSuiteConfig>, // Added this line
     // Add other module configs here as they are defined
 }
 
@@ -78,6 +86,7 @@ impl AppConfig {
             database_url: std::env::var("TARIRO_DATABASE_URL").unwrap_or_else(|_| "sqlite://tariro.db".to_string()),
             virtualization_engine: Some(VirtualizationEngineConfig::default()),
             simulation_engine: Some(SimulationEngineConfig::default()),
+            automated_test_suite: Some(AutomatedTestSuiteConfig::default()), // Added this line
         })
     }
 }
