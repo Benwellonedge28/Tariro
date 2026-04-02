@@ -4,37 +4,65 @@
 //! Its primary responsibility is to create and manage isolated, full-stack replicas of Tariro's
 //! current production environment for safe testing.
 
-use crate::{prelude::*,
-    Module,
-    ModuleContext,
-    FeatureProposalId,
-};
+use crate::{prelude::*, Module, ModuleContext, FeatureProposalId};
+use async_trait::async_trait;
+use std::process::Command;
+use tokio::io::{AsyncBufReadExt, BufReader};
+use tokio::process::Command as TokioCommand;
 
 /// Represents the Virtualization Engine responsible for managing sandbox instances.
 pub struct VirtualizationEngine {
-    // Configuration for virtualization provider (e.g., Docker, KVM, custom micro-VM orchestration)
-    // Connection pools or clients for managing virtual resources
     config: VirtualizationEngineConfig,
+    // In a real implementation, this would be a client to a container/VM orchestration system
+    // e.g., `docker_cli: DockerClient` or `kubernetes_client: KubeClient`
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct VirtualizationEngineConfig {
+    pub sandbox_base_image: String,
+    pub network_prefix: String,
+    pub resource_limits_cpu: String,
+    pub resource_limits_memory: String,
+}
+
+impl Default for VirtualizationEngineConfig {
+    fn default() -> Self {
+        VirtualizationEngineConfig {
+            sandbox_base_image: "tariro/core-latest".to_string(),
+            network_prefix: "172.28.".to_string(), // Example for isolated Docker networks
+            resource_limits_cpu: "1.0".to_string(), // 1 CPU core
+            resource_limits_memory: "2g".to_string(), // 2 GB RAM
+        }
+    }
 }
 
 #[async_trait]
 impl Module for VirtualizationEngine {
     fn new(context: &ModuleContext) -> Result<Self> {
-        // Load configuration from context or default values
-        let config = VirtualizationEngineConfig { /* ... */ }; // Placeholder
+        // Load configuration from context. If not found, use defaults.
+        let config = context.config.virtualization_engine.clone().unwrap_or_default();
         Ok(Self { config })
     }
 
     async fn start(&self) -> Result<()> {
         info!("VirtualizationEngine starting...");
-        // Initialize connections to virtualization backend, check status
+        // Validate Docker or other virtualization dependencies are available
+        match Command::new("docker").arg("info").output() {
+            Ok(output) if output.status.success() => {
+                info!("Docker daemon is running and accessible.");
+            }
+            _ => {
+                error!("Docker daemon not found or not running. VirtualizationEngine cannot start.");
+                return Err(anyhow!("Docker daemon not available."));
+            }
+        }
         info!("VirtualizationEngine started.");
         Ok(())
     }
 
     async fn stop(&self) -> Result<()> {
         info!("VirtualizationEngine stopping...");
-        // Clean up resources, close connections
+        // No specific stop logic for a client, active sandboxes would be handled by deprovision_sandbox
         info!("VirtualizationEngine stopped.");
         Ok(())
     }
@@ -45,53 +73,105 @@ impl Module for VirtualizationEngine {
 }
 
 impl VirtualizationEngine {
-    /// Provisions a new isolated sandbox environment.
+    /// Provisions a new isolated sandbox environment using Docker.
     /// This involves creating a replica of the Tariro production environment.
     pub async fn provision_sandbox(&self, feature_proposal_id: &FeatureProposalId) -> Result<String> {
-        info!("Provisioning sandbox for feature proposal: {}", feature_proposal_id.0);
-        // Placeholder for actual virtualization logic:
-        // 1. Determine resource requirements
-        // 2. Select virtualization technology (Docker, VM, etc.)
-        // 3. Create isolated network
-        // 4. Deploy Tariro core services and any dependent modules
-        // 5. Return a unique sandbox ID
-        let sandbox_id = format!("sandbox_{}", uuid::Uuid::new_v4());
-        info!("Sandbox {} provisioned successfully.", sandbox_id);
+        let sandbox_id = format!("tariro-sandbox-{}-{}", feature_proposal_id.0, uuid::Uuid::new_v4().to_string().splitn(2, '-').next().unwrap_or("unknown"));
+        info!("Provisioning sandbox '{}' for feature proposal: {}", sandbox_id, feature_proposal_id.0);
+
+        // 1. Create an isolated Docker network for the sandbox
+        let network_name = format!("{}-net", sandbox_id);
+        let network_create_output = TokioCommand::new("docker")
+            .args(&["network", "create", "--driver", "bridge", &network_name])
+            .output()
+            .await?;
+
+        if !network_create_output.status.success() {
+            error!("Failed to create Docker network {}: {}", network_name, String::from_utf8_lossy(&network_create_output.stderr));
+            return Err(anyhow!("Failed to create sandbox network."));
+        }
+        info!("Created Docker network: {}", network_name);
+
+        // 2. Run the sandbox container
+        let container_name = format!("{}-container", sandbox_id);
+        let mut cmd = TokioCommand::new("docker");
+        cmd.args(&["run", "-d",
+            "--name", &container_name,
+            "--network", &network_name,
+            "--hostname", &sandbox_id,
+            "--cpus", &self.config.resource_limits_cpu,
+            "--memory", &self.config.resource_limits_memory,
+            &self.config.sandbox_base_image,
+            // Command to keep the container running and Tariro AGI core active
+            "sh", "-c", "while true; do sleep 10; done"
+        ]);
+
+        info!("Running docker command: {:?}", cmd);
+        let container_run_output = cmd.output().await?;
+
+        if !container_run_output.status.success() {
+            error!("Failed to run sandbox container {}: {}", container_name, String::from_utf8_lossy(&container_run_output.stderr));
+            // Attempt to clean up the network if container creation failed
+            let _ = TokioCommand::new("docker").args(&["network", "rm", &network_name]).output().await;
+            return Err(anyhow!("Failed to run sandbox container."));
+        }
+        let container_id = String::from_utf8_lossy(&container_run_output.stdout).trim().to_string();
+        info!("Sandbox container '{}' (ID: {}) provisioned successfully.", container_name, container_id);
+
         Ok(sandbox_id)
     }
 
     /// De-provisions an existing sandbox environment, releasing its resources.
     pub async fn deprovision_sandbox(&self, sandbox_id: &str) -> Result<()> {
         info!("De-provisioning sandbox: {}", sandbox_id);
-        // Placeholder for actual de-provisioning logic:
-        // 1. Shut down services in sandbox
-        // 2. Destroy virtual resources (containers, VMs, networks)
+
+        let container_name = format!("{}-container", sandbox_id);
+        let network_name = format!("{}-net", sandbox_id);
+
+        // 1. Stop and remove the container
+        let stop_output = TokioCommand::new("docker").args(&["rm", "-f", &container_name]).output().await?;
+        if !stop_output.status.success() {
+            warn!("Failed to stop/remove container {}: {}", container_name, String::from_utf8_lossy(&stop_output.stderr));
+            // Don't fail entirely if container already gone, but log it
+        } else {
+            info!("Container {} stopped and removed.", container_name);
+        }
+
+        // 2. Remove the network
+        let network_rm_output = TokioCommand::new("docker").args(&["network", "rm", &network_name]).output().await?;
+        if !network_rm_output.status.success() {
+            error!("Failed to remove Docker network {}: {}", network_name, String::from_utf8_lossy(&network_rm_output.stderr));
+            return Err(anyhow!("Failed to remove sandbox network."));
+        }
+        info!("Network {} removed.", network_name);
+
         info!("Sandbox {} de-provisioned successfully.", sandbox_id);
         Ok(())
     }
 
     /// Snapshots the current state of the production environment for consistent sandbox initialization.
+    /// This could involve creating a Docker image from the running production Tariro instance
+    /// or saving configuration files and data. For this example, we'll focus on the image.
     pub async fn snapshot_production_environment(&self) -> Result<String> {
         info!("Taking snapshot of production environment...");
-        // Placeholder for logic to capture production config, binary versions, etc.
-        let snapshot_id = format!("prod_snapshot_{}", chrono::Utc::now().format("%Y%m%d%H%M%S"));
-        info!("Production environment snapshot {} created.", snapshot_id);
-        Ok(snapshot_id)
+        
+        // In a real scenario, we'd get the actual production container ID.
+        // For now, let's assume a 'tariro-production' container exists.
+        let prod_container_name = "tariro-production"; // This needs to be dynamically determined
+        let snapshot_tag = format!("tariro/production-snapshot-{}", chrono::Utc::now().format("%Y%m%d%H%M%S"));
+
+        // Commit the production container to a new image
+        let commit_output = TokioCommand::new("docker")
+            .args(&["commit", prod_container_name, &snapshot_tag])
+            .output()
+            .await?;
+
+        if !commit_output.status.success() {
+            error!("Failed to commit production container {}: {}", prod_container_name, String::from_utf8_lossy(&commit_output.stderr));
+            return Err(anyhow!("Failed to snapshot production environment."));
+        }
+        info!("Production environment snapshot image '{}' created.", snapshot_tag);
+        
+        Ok(snapshot_tag)
     }
-}
-
-// Placeholder configuration struct for the VirtualizationEngine
-pub struct VirtualizationEngineConfig {
-    // e.g., docker_daemon_url: String,
-    //       vm_template_path: String,
-}
-
-// Dummy implementations for traits/structs used in this file but defined elsewhere
-// In a real project, these would be in common crates or the main lib.rs
-pub mod prelude {
-    pub use anyhow::{Result, Error};
-    pub use log::{info, warn, error, debug};
-    pub use async_trait::async_trait;
-    pub use uuid; // Assuming uuid crate is used for generating IDs
-    pub use chrono; // Assuming chrono crate is used for timestamps
 }
