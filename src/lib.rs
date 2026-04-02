@@ -74,6 +74,13 @@ pub struct PerformanceProfilerConfig {
     pub optimization_iterations: u32,
 }
 
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct EthicalComplianceMonitorConfig {
+    pub evas_rules_path: String,
+    pub ethical_ai_model_endpoint: String,
+    pub human_review_threshold: f32,
+}
+
 // AppConfig will hold configurations for all modules
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AppConfig {
@@ -82,7 +89,8 @@ pub struct AppConfig {
     pub virtualization_engine: Option<VirtualizationEngineConfig>,
     pub simulation_engine: Option<SimulationEngineConfig>,
     pub automated_test_suite: Option<AutomatedTestSuiteConfig>,
-    pub performance_profiler: Option<PerformanceProfilerConfig>, // Added this line
+    pub performance_profiler: Option<PerformanceProfilerConfig>,
+    pub ethical_compliance_monitor: Option<EthicalComplianceMonitorConfig>, // Added this line
     // Add other module configs here as they are defined
 }
 
@@ -96,7 +104,8 @@ impl AppConfig {
             virtualization_engine: Some(VirtualizationEngineConfig::default()),
             simulation_engine: Some(SimulationEngineConfig::default()),
             automated_test_suite: Some(AutomatedTestSuiteConfig::default()),
-            performance_profiler: Some(PerformanceProfilerConfig::default()), // Added this line
+            performance_profiler: Some(PerformanceProfilerConfig::default()),
+            ethical_compliance_monitor: Some(EthicalComplianceMonitorConfig::default()), // Added this line
         })
     }
 }
