@@ -110,12 +110,14 @@ impl SandboxedEnvironmentModule {
             recommendation: "Pending".to_string(),
             sim_report_details: None,
             generated_code_feedback: Vec::new(),
+            fault_injection_results: None, // New field
         };
 
         let sandbox_id: String;
         let mut human_review_needed_total = false;
         let mut deployment_approved = false;
         let mut current_code_context = "Initial feature code for ".to_string() + &feature_proposal_id.0;
+        let fault_injection_config = self.context.config.fault_injection.clone().unwrap_or_default();
 
         // --- Phase 1: Provisioning and Data Mirroring ---
         report.status = SandboxStatus::Provisioning;
@@ -146,6 +148,7 @@ impl SandboxedEnvironmentModule {
         info!("Phase 3: Entering iterative loop for evaluation and self-modification...");
         let mut current_metrics: Option<crate::performance_profiler::PerformanceMetrics> = None;
         let mut optimization_cycles = 0;
+        let mut resilience_failures = 0;
 
         loop {
             info!("\n--- Iteration {} ---", optimization_cycles + 1);
@@ -180,23 +183,52 @@ impl SandboxedEnvironmentModule {
             }
             report.ethical_violations = ethical_report.details.clone();
 
+            // --- Fault Injection Phase ---
+            if fault_injection_config.enable_fault_injection && optimization_cycles == 0 { // Only inject fault once per experiment for simplicity
+                report.status = SandboxStatus::InjectingFault;
+                info!("  Injecting fault for resilience testing...");
+                let fault_type = fault_injection_config.fault_types.get(0).cloned().unwrap_or_else(|| "process_crash".to_string());
+                let fault_target = fault_injection_config.fault_targets.get(0).cloned().unwrap_or_else(|| "tariro-service-core".to_string());
+                
+                match self.virtualization_engine.inject_fault(&sandbox_id, &fault_type, &fault_target).await {
+                    Ok(_) => {
+                        info!("  Fault injected. Monitoring resilience...");
+                        sleep(Duration::from_secs(10)).await; // Allow system to react to fault
+                        // Re-run a quick simulation/test to see impact
+                        let post_fault_sim_report = self.simulation_engine.run_simulations(&sandbox_id).await?;
+                        let post_fault_test_report = self.automated_test_suite.run_tests(&sandbox_id).await?;
+                        if !post_fault_test_report.success {
+                            resilience_failures += 1;
+                            warn!("  Sandbox {} showed resilience failure after fault injection.", sandbox_id);
+                        }
+                        report.fault_injection_results = Some(FaultInjectionReport {
+                            fault_type: fault_type.clone(),
+                            target: fault_target.clone(),
+                            resilience_score: if resilience_failures == 0 { 1.0 } else { 0.0 }, // Simple score
+                            details: format!("Simulated fault '{}' targeting '{}'. Test pass rate after fault: {:.2}%.", fault_type, fault_target, post_fault_test_report.pass_rate * 100.0),
+                        });
+                    },
+                    Err(e) => error!("  Failed to inject fault: {:?}", e),
+                }
+            }
+            // --- End Fault Injection Phase ---
+
             let target_latency = self.performance_profiler.config.target_latency_ms as f64;
             let target_cpu = self.performance_profiler.config.target_cpu_usage_percent;
 
             let performance_needs_improvement = prof_metrics.response_time_ms > target_latency || prof_metrics.cpu_usage_percent > target_cpu;
             let tests_failed = test_report.pass_rate < self.automated_test_suite.config.minimum_pass_rate;
+            let resilience_poor = resilience_failures >= fault_injection_config.resilience_threshold_failures;
 
-            if performance_needs_improvement || tests_failed {
+            if performance_needs_improvement || tests_failed || resilience_poor {
                 optimization_cycles += 1;
                 if optimization_cycles <= self.config.max_optimization_cycles {
                     report.status = SandboxStatus::Optimizing;
-                    let optimization_goal = if performance_needs_improvement {
-                        format!("Optimize performance: Latency target {}ms, current {:.2}ms. CPU target {:.2}%, current {:.2}%. ",
-                                target_latency, prof_metrics.response_time_ms, target_cpu, prof_metrics.cpu_usage_percent)
-                    } else {
-                        format!("Fix test failures: Pass rate target {:.2}%, current {:.2}%. ",
-                                self.automated_test_suite.config.minimum_pass_rate * 100.0, test_report.pass_rate * 100.0)
-                    };
+                    let mut optimization_goal_parts = Vec::new();
+                    if performance_needs_improvement { optimization_goal_parts.push(format!("Optimize performance: Latency target {}ms, current {:.2}ms. CPU target {:.2}%, current {:.2}%. ", target_latency, prof_metrics.response_time_ms, target_cpu, prof_metrics.cpu_usage_percent)); }
+                    if tests_failed { optimization_goal_parts.push(format!("Fix test failures: Pass rate target {:.2}%, current {:.2}%. ", self.automated_test_suite.config.minimum_pass_rate * 100.0, test_report.pass_rate * 100.0)); }
+                    if resilience_poor { optimization_goal_parts.push(format!("Improve resilience: {} resilience failures detected.", resilience_failures)); }
+                    let optimization_goal = optimization_goal_parts.join(" ");
                     
                     info!("  Targets not met. Generating code changes for: {}\n  Current code context: '{}'".to_string(), optimization_goal, current_code_context);
                     
@@ -246,8 +278,9 @@ impl SandboxedEnvironmentModule {
         let tests_ok = final_test_report.pass_rate >= self.automated_test_suite.config.minimum_pass_rate;
         let ethical_ok = !final_ethical_report.human_review_needed;
         let code_quality_ok = final_code_quality.adheres_to_standards && !final_code_quality.requires_human_review_due_to_quality; // Corrected access
+        let resilience_ok = resilience_failures < fault_injection_config.resilience_threshold_failures;
 
-        if !human_review_needed_total && performance_ok && tests_ok && ethical_ok && code_quality_ok {
+        if !human_review_needed_total && performance_ok && tests_ok && ethical_ok && code_quality_ok && resilience_ok {
             deployment_approved = true;
             report.recommendation = "All checks passed: Feature is ready for production deployment.".to_string();
             if self.config.enable_autonomous_deployment {
@@ -267,6 +300,7 @@ impl SandboxedEnvironmentModule {
             if !tests_ok { reasons.push("Test pass rate below threshold"); }
             if !ethical_ok { reasons.push("Pending ethical review"); }
             if !code_quality_ok { reasons.push("Code quality issues detected"); }
+            if !resilience_ok { reasons.push("Resilience targets not met"); }
 
             report.status = SandboxStatus::Failed;
             report.recommendation = format!("Deployment NOT recommended. Reasons: {}. Human review REQUIRED.", reasons.join(", "));
@@ -312,6 +346,7 @@ pub struct SandboxReport {
     pub recommendation: String,
     pub sim_report_details: Option<String>,
     pub generated_code_feedback: Vec<String>, // New field for code generation feedback
+    pub fault_injection_results: Option<FaultInjectionReport>, // New field
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -324,6 +359,7 @@ pub enum SandboxStatus {
     Profiling,
     Optimizing,
     EthicalMonitoring,
+    InjectingFault, // New status
     FinalEvaluation,
     HumanReviewPending,
     Completed,
@@ -331,6 +367,10 @@ pub enum SandboxStatus {
     Failed,
 }
 
-// Temporary module for VirtualizationEngineConfig was causing issues due to duplicate definition in mod.rs and lib.rs.
-// Removed as VirtualizationEngineConfig is defined in lib.rs and directly imported where needed.
-pub mod virtualization_engine_config;
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FaultInjectionReport {
+    pub fault_type: String,
+    pub target: String,
+    pub resilience_score: f32,
+    pub details: String,
+}
