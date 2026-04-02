@@ -52,11 +52,21 @@ pub struct VirtualizationEngineConfig {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct ExternalServiceMockConfig {
+    pub service_name: String,
+    pub endpoint_path: String,
+    pub response_body: String,
+    pub status_code: u16,
+    pub delay_ms: u64,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct SimulationEngineConfig {
     pub historical_data_path: String,
     pub ai_workload_generator_endpoint: String,
     pub simulation_duration_minutes: u64,
     pub traffic_multiplier: f32,
+    pub external_service_mocks: Vec<ExternalServiceMockConfig>, // Added this line
 }
 
 #[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
@@ -131,7 +141,7 @@ pub struct AppConfig {
     pub data_mirroring_system: Option<DataMirroringSystemConfig>,
     pub sandboxed_environment_module: Option<SandboxedEnvironmentModuleConfig>,
     pub code_generation_engine: Option<CodeGenerationEngineConfig>,
-    pub fault_injection: Option<FaultInjectionConfig>, // Added this line
+    pub fault_injection: Option<FaultInjectionConfig>,
     // Add other module configs here as they are defined
 }
 
@@ -151,7 +161,7 @@ impl AppConfig {
             data_mirroring_system: Some(DataMirroringSystemConfig::default()),
             sandboxed_environment_module: Some(SandboxedEnvironmentModuleConfig::default()),
             code_generation_engine: Some(CodeGenerationEngineConfig::default()),
-            fault_injection: Some(FaultInjectionConfig::default()), // Added this line
+            fault_injection: Some(FaultInjectionConfig::default()),
         })
     }
 }
