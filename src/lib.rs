@@ -110,7 +110,7 @@ pub struct SandboxedEnvironmentModuleConfig {
     pub max_optimization_cycles: u32,
     pub auto_deprovision_sandbox: bool,
     pub enable_autonomous_deployment: bool,
-    pub enable_self_healing_attempts: bool, // New field
+    pub enable_self_healing_attempts: bool,
 }
 
 #[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
@@ -143,6 +143,14 @@ pub struct SelfHealingEngineConfig {
     pub enable_cache_clearing: bool,
 }
 
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct ProductionLearningConfig {
+    pub enable_production_data_ingestion: bool,
+    pub production_telemetry_source_url: String,
+    pub production_log_source_url: String,
+    pub data_anonymization_level: String, // e.g., "full", "partial", "none"
+}
+
 // AppConfig will hold configurations for all modules
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AppConfig {
@@ -159,7 +167,8 @@ pub struct AppConfig {
     pub code_generation_engine: Option<CodeGenerationEngineConfig>,
     pub fault_injection: Option<FaultInjectionConfig>,
     pub telemetry: Option<TelemetryConfig>,
-    pub self_healing_engine: Option<SelfHealingEngineConfig>, // Added this line
+    pub self_healing_engine: Option<SelfHealingEngineConfig>,
+    pub production_learning: Option<ProductionLearningConfig>, // Added this line
     // Add other module configs here as they are defined
 }
 
@@ -181,7 +190,8 @@ impl AppConfig {
             code_generation_engine: Some(CodeGenerationEngineConfig::default()),
             fault_injection: Some(FaultInjectionConfig::default()),
             telemetry: Some(TelemetryConfig::default()),
-            self_healing_engine: Some(SelfHealingEngineConfig::default()), // Added this line
+            self_healing_engine: Some(SelfHealingEngineConfig::default()),
+            production_learning: Some(ProductionLearningConfig::default()), // Added this line
         })
     }
 }
