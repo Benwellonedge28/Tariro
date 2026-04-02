@@ -1,0 +1,3 @@
+The Configurable & Secure External Service Integration Framework is an `AutonomyPolicy`-governed system that allows Tariro to connect to and interact with a diverse range of external services and APIs (e.g., email, calendar, smart home devices, messaging platforms, productivity suites, financial tools). 
+
+Crucially, the owner would grant permissions to these services explicitly, just as they manage Tariro's internal autonomy. This framework enables Tariro to not just integrate with these services but to do so with its advanced reasoning, workflow automation, and ethical alignment, proactively suggesting better actions based on complex contextual understanding.
