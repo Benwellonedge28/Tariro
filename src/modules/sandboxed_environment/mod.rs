@@ -15,6 +15,7 @@ pub mod data_mirroring_system;
 pub mod code_generation_engine;
 pub mod self_healing_engine;
 pub mod production_learning_system;
+pub mod human_in_the_loop_orchestrator;
 
 use crate::{prelude::*,
     Module,
@@ -37,7 +38,8 @@ pub struct SandboxedEnvironmentModule {
     data_mirroring_system: data_mirroring_system::DataMirroringSystem,
     code_generation_engine: code_generation_engine::CodeGenerationEngine,
     self_healing_engine: self_healing_engine::SelfHealingEngine,
-    production_learning_system: production_learning_system::ProductionLearningSystem, // New: Production Learning System
+    production_learning_system: production_learning_system::ProductionLearningSystem,
+    human_in_the_loop_orchestrator: human_in_the_loop_orchestrator::HumanInTheLoopOrchestrator, // New
 }
 
 #[async_trait]
@@ -63,6 +65,7 @@ impl SandboxedEnvironmentModule {
             code_generation_engine: code_generation_engine::CodeGenerationEngine::new(context)?,
             self_healing_engine: self_healing_engine::SelfHealingEngine::new(context)?,
             production_learning_system: production_learning_system::ProductionLearningSystem::new(context)?,
+            human_in_the_loop_orchestrator: human_in_the_loop_orchestrator::HumanInTheLoopOrchestrator::new(context)?,
         })
     }
 
@@ -78,6 +81,7 @@ impl SandboxedEnvironmentModule {
         self.code_generation_engine.start().await?;
         self.self_healing_engine.start().await?;
         self.production_learning_system.start().await?;
+        self.human_in_the_loop_orchestrator.start().await?;
         info!("SandboxedEnvironmentModule started.");
         Ok(())
     }
@@ -94,6 +98,7 @@ impl SandboxedEnvironmentModule {
         self.code_generation_engine.stop().await?;
         self.self_healing_engine.stop().await?;
         self.production_learning_system.stop().await?;
+        self.human_in_the_loop_orchestrator.stop().await?;
         info!("SandboxedEnvironmentModule stopped.");
         Ok(())
     }
@@ -112,7 +117,8 @@ impl SandboxedEnvironmentModule {
         let sandboxed_env_config = self.context.config.sandboxed_environment_module.clone().unwrap_or_default();
         let fault_injection_config = self.context.config.fault_injection.clone().unwrap_or_default();
         let simulation_engine_config = self.context.config.simulation_engine.clone().unwrap_or_default();
-        let production_learning_config = self.context.config.production_learning.clone().unwrap_or_default(); // New
+        let production_learning_config = self.context.config.production_learning.clone().unwrap_or_default();
+        let human_in_the_loop_config = self.context.config.human_in_the_loop.clone().unwrap_or_default(); // New
 
         let mut report = SandboxReport {
             sandbox_id: "".to_string(),
@@ -130,7 +136,9 @@ impl SandboxedEnvironmentModule {
             external_mock_interaction_issues: None,
             telemetry_enabled_for_experiment: telemetry_config.enable_telemetry_export,
             self_healing_attempts: Vec::new(),
-            production_learning_insights: None, // New
+            production_learning_insights: None,
+            human_review_requested: false, // New
+            proactive_suggestions_made: Vec::new(), // New
         };
 
         let sandbox_id: String;
@@ -138,7 +146,7 @@ impl SandboxedEnvironmentModule {
         let mut deployment_approved = false;
         let mut current_code_context = "Initial feature code for ".to_string() + &feature_proposal_id.0;
         
-        // --- Phase 0.5: Dynamic Learning from Production (New Phase) ---
+        // --- Phase 0.5: Dynamic Learning from Production ---
         if production_learning_config.enable_production_data_ingestion {
             report.status = SandboxStatus::LearningFromProduction;
             info!("Phase 0.5: Learning from production data...");
@@ -229,6 +237,15 @@ impl SandboxedEnvironmentModule {
                 report.ethical_violations = ethical_report.details.clone();
                 warn!("Critical ethical flags raised in sandbox {}. Human review REQUIRED.", sandbox_id);
                 self.ethical_compliance_monitor.generate_audit_trail(&sandbox_id).await?;
+                // Request human review via orchestrator
+                if human_in_the_loop_config.enable_manual_override {
+                    self.human_in_the_loop_orchestrator.request_human_review(
+                        &sandbox_id,
+                        &format!("Critical ethical violations detected: {}", ethical_report.details),
+                        &human_in_the_loop_config.review_dashboard_url
+                    ).await?;
+                    report.human_review_requested = true;
+                }
                 report.status = SandboxStatus::HumanReviewPending;
                 report.recommendation = "Human review required due to critical ethical violations. Aborting automated deployment.".to_string();
                 break; // Exit loop, require human intervention
@@ -315,6 +332,15 @@ impl SandboxedEnvironmentModule {
                     
                     if generated_code_proposal.requires_human_review {
                         human_review_needed_total = true;
+                        // Request human review via orchestrator
+                        if human_in_the_loop_config.enable_manual_override {
+                            self.human_in_the_loop_orchestrator.request_human_review(
+                                &sandbox_id,
+                                &format!("Generated code requires review: {}", generated_code_proposal.description),
+                                &human_in_the_loop_config.review_dashboard_url
+                            ).await?;
+                            report.human_review_requested = true;
+                        }
                         report.status = SandboxStatus::HumanReviewPending;
                         report.recommendation = format!("Generated code requires human review before application: {}. Aborting automated deployment.", generated_code_proposal.description);
                         break; // Exit loop, require human intervention
@@ -330,6 +356,14 @@ impl SandboxedEnvironmentModule {
                     warn!("  Max optimization cycles ({}) reached. Targets still not fully met.", self.config.max_optimization_cycles);
                     report.status = SandboxStatus::Completed;
                     report.recommendation = "Automated self-modification failed to meet all targets. Human review recommended.".to_string();
+                    // Proactive suggestion for Samuel
+                    let suggestion = self.human_in_the_loop_orchestrator.proactive_suggestion(
+                        &sandbox_id, 
+                        &format!("Max optimization cycles reached, targets not met for {}.", feature_proposal_id.0),
+                        0.8 // High urgency score
+                    ).await?;
+                    if suggestion != "No proactive suggestion generated." { report.proactive_suggestions_made.push(suggestion); }
+
                     break; // Exit loop, proceed to final report
                 }
             } else {
@@ -381,6 +415,15 @@ impl SandboxedEnvironmentModule {
             report.status = SandboxStatus::Failed;
             report.recommendation = format!("Deployment NOT recommended. Reasons: {}. Human review REQUIRED.", reasons.join(", "));
             error!("Sandbox experiment for {} completed with issues: {}.", feature_proposal_id.0, report.recommendation);
+            // Always request human review if deployment not recommended
+            if human_in_the_loop_config.enable_manual_override {
+                self.human_in_the_loop_orchestrator.request_human_review(
+                    &sandbox_id,
+                    &format!("Deployment NOT recommended. Reasons: {}.", reasons.join(", ")),
+                    &human_in_the_loop_config.review_dashboard_url
+                ).await?;
+                report.human_review_requested = true;
+            }
         }
 
         // --- Phase 5: Cleanup ---
@@ -427,6 +470,8 @@ pub struct SandboxReport {
     pub telemetry_enabled_for_experiment: bool, // New field
     pub self_healing_attempts: Vec<self_healing_engine::HealingAttemptReport>, // New field
     pub production_learning_insights: Option<String>, // New field
+    pub human_review_requested: bool, // New field
+    pub proactive_suggestions_made: Vec<String>, // New field
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -442,7 +487,7 @@ pub enum SandboxStatus {
     EthicalMonitoring,
     InjectingFault,
     SelfHealing,
-    LearningFromProduction, // New status
+    LearningFromProduction,
     FinalEvaluation,
     HumanReviewPending,
     Completed,
