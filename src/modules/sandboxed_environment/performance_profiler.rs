@@ -8,6 +8,7 @@ use crate::{prelude::*,
     Module,
     ModuleContext,
     PerformanceProfilerConfig,
+    TelemetryConfig,
 };
 use async_trait::async_trait;
 use tokio::time::{sleep, Duration};
@@ -16,20 +17,23 @@ use rand::Rng;
 /// Represents the Performance Profiler & Optimizer.
 pub struct PerformanceProfiler {
     config: PerformanceProfilerConfig,
+    telemetry_config: TelemetryConfig,
 }
-
-// PerformanceProfilerConfig is now defined in lib.rs, removed from here.
 
 #[async_trait]
 impl Module for PerformanceProfiler {
     fn new(context: &ModuleContext) -> Result<Self> {
         let config = context.config.performance_profiler.clone().unwrap_or_default();
-        Ok(Self { config })
+        let telemetry_config = context.config.telemetry.clone().unwrap_or_default();
+        Ok(Self { config, telemetry_config })
     }
 
     async fn start(&self) -> Result<()> {
         info!("PerformanceProfiler starting...");
         // Initialize connections to profiling infrastructure, load baseline metrics
+        if self.telemetry_config.enable_telemetry_export {
+            info!("PerformanceProfiler configured to export telemetry to {}.", self.telemetry_config.telemetry_endpoint);
+        }
         info!("PerformanceProfiler started.");
         Ok(())
     }
@@ -59,13 +63,21 @@ impl PerformanceProfiler {
         let memory = rng.gen_range(512.0..4096.0);
         let latency = rng.gen_range(50.0..500.0);
 
-        info!("Performance profiling completed for sandbox: {}. CPU: {:.2}%, Mem: {:.2}MB, Latency: {:.2}ms",
-              sandbox_id, cpu, memory, latency);
-        Ok(PerformanceMetrics {
+        let metrics = PerformanceMetrics {
             cpu_usage_percent: cpu,
             memory_usage_mb: memory,
             response_time_ms: latency,
-        })
+        };
+
+        if self.telemetry_config.enable_telemetry_export {
+            info!("Exporting performance metrics for sandbox {} to {}: CPU:{:.2}%, Mem:{:.2}MB, Latency:{:.2}ms",
+                  sandbox_id, self.telemetry_config.telemetry_endpoint, metrics.cpu_usage_percent, metrics.memory_usage_mb, metrics.response_time_ms);
+            // In a real system, this would be an actual HTTP POST to a telemetry endpoint
+        }
+
+        info!("Performance profiling completed for sandbox: {}. CPU: {:.2}%, Mem: {:.2}MB, Latency: {:.2}ms",
+              sandbox_id, cpu, memory, latency);
+        Ok(metrics)
     }
 
     /// Iteratively optimizes the configuration or implementation of the feature
