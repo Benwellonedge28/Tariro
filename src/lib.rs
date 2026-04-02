@@ -151,6 +151,14 @@ pub struct ProductionLearningConfig {
     pub data_anonymization_level: String, // e.g., "full", "partial", "none"
 }
 
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct HumanInTheLoopConfig {
+    pub enable_manual_override: bool,
+    pub review_dashboard_url: String,
+    pub notification_email: String,
+    pub proactive_suggestions_threshold: f32,
+}
+
 // AppConfig will hold configurations for all modules
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AppConfig {
@@ -168,7 +176,8 @@ pub struct AppConfig {
     pub fault_injection: Option<FaultInjectionConfig>,
     pub telemetry: Option<TelemetryConfig>,
     pub self_healing_engine: Option<SelfHealingEngineConfig>,
-    pub production_learning: Option<ProductionLearningConfig>, // Added this line
+    pub production_learning: Option<ProductionLearningConfig>,
+    pub human_in_the_loop: Option<HumanInTheLoopConfig>, // Added this line
     // Add other module configs here as they are defined
 }
 
@@ -191,7 +200,8 @@ impl AppConfig {
             fault_injection: Some(FaultInjectionConfig::default()),
             telemetry: Some(TelemetryConfig::default()),
             self_healing_engine: Some(SelfHealingEngineConfig::default()),
-            production_learning: Some(ProductionLearningConfig::default()), // Added this line
+            production_learning: Some(ProductionLearningConfig::default()),
+            human_in_the_loop: Some(HumanInTheLoopConfig::default()), // Added this line
         })
     }
 }
