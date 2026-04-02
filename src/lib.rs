@@ -88,6 +88,13 @@ pub struct DeploymentManagerConfig {
     pub production_cluster_id: String,
 }
 
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct DataMirroringSystemConfig {
+    pub database_snapshot_tool: String,
+    pub data_storage_path: String,
+    pub managed_files_sync_interval_seconds: u64,
+}
+
 // AppConfig will hold configurations for all modules
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AppConfig {
@@ -98,7 +105,8 @@ pub struct AppConfig {
     pub automated_test_suite: Option<AutomatedTestSuiteConfig>,
     pub performance_profiler: Option<PerformanceProfilerConfig>,
     pub ethical_compliance_monitor: Option<EthicalComplianceMonitorConfig>,
-    pub deployment_manager: Option<DeploymentManagerConfig>, // Added this line
+    pub deployment_manager: Option<DeploymentManagerConfig>,
+    pub data_mirroring_system: Option<DataMirroringSystemConfig>, // Added this line
     // Add other module configs here as they are defined
 }
 
@@ -114,7 +122,8 @@ impl AppConfig {
             automated_test_suite: Some(AutomatedTestSuiteConfig::default()),
             performance_profiler: Some(PerformanceProfilerConfig::default()),
             ethical_compliance_monitor: Some(EthicalComplianceMonitorConfig::default()),
-            deployment_manager: Some(DeploymentManagerConfig::default()), // Added this line
+            deployment_manager: Some(DeploymentManagerConfig::default()),
+            data_mirroring_system: Some(DataMirroringSystemConfig::default()), // Added this line
         })
     }
 }
