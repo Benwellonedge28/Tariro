@@ -4,8 +4,10 @@
 //! Its purpose is to measure, analyze, and iteratively improve the efficiency and resource utilization
 //! of sandboxed features and system configurations, aiming for optimal performance.
 
-use crate::prelude::*;
-use async_trait::async_trait;
+use crate::{prelude::*,
+    Module,
+    ModuleContext,
+};
 
 /// Represents the Performance Profiler & Optimizer.
 pub struct PerformanceProfiler {
@@ -95,25 +97,5 @@ pub struct OptimizedConfiguration {
 
 // Placeholder for a benchmark report
 pub struct BenchmarkReport {
-    // Comparison results, pass/fail against targets
+    // Metrics like latency, throughput, resource consumption
 }
-
-// Dummy implementations for traits/structs used in this file but defined elsewhere
-// In a real project, these would be in common crates or the main lib.rs
-pub mod prelude {
-    pub use anyhow::{Result, Error};
-    pub use log::{info, warn, error, debug};
-    pub use async_trait::async_trait;
-}
-
-// Re-declare Module trait and ModuleContext here for standalone compilation during draft
-// In final code, these would be imported from a central definition
-#[async_trait]
-pub trait Module: Send + Sync {
-    fn new(context: &ModuleContext) -> Result<Self> where Self: Sized;
-    async fn start(&self) -> Result<()>;
-    async fn stop(&self) -> Result<()>;
-    fn name(&self) -> &'static str;
-}
-
-pub struct ModuleContext;
