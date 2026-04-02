@@ -7,24 +7,29 @@
 use crate::{prelude::*,
     Module,
     ModuleContext,
+    EthicalComplianceMonitorConfig,
 };
+use async_trait::async_trait;
+use tokio::time::{sleep, Duration};
+use rand::Rng;
 
 /// Represents the Ethical Compliance Monitor (ECM).
 pub struct EthicalComplianceMonitor {
-    // Configuration for E.V.A.S. rules, ethical AI frameworks, policy interpretation models
     config: EthicalComplianceMonitorConfig,
 }
+
+// EthicalComplianceMonitorConfig is now defined in lib.rs, removed from here.
 
 #[async_trait]
 impl Module for EthicalComplianceMonitor {
     fn new(context: &ModuleContext) -> Result<Self> {
-        let config = EthicalComplianceMonitorConfig { /* ... */ }; // Placeholder
+        let config = context.config.ethical_compliance_monitor.clone().unwrap_or_default();
         Ok(Self { config })
     }
 
     async fn start(&self) -> Result<()> {
         info!("EthicalComplianceMonitor starting...");
-        // Load E.V.A.S. rules, initialize ethical reasoning models
+        // Load E.V.A.S. rules, initialize ethical reasoning models (placeholders)
         info!("EthicalComplianceMonitor started.");
         Ok(())
     }
@@ -45,36 +50,47 @@ impl EthicalComplianceMonitor {
     /// Continuously monitors the behavior of a feature within the sandbox for E.V.A.S. violations.
     pub async fn monitor_compliance(&self, sandbox_id: &str) -> Result<EthicalComplianceReport> {
         info!("Monitoring ethical compliance in sandbox: {}", sandbox_id);
-        // Placeholder for actual compliance monitoring logic:
-        // 1. Intercept actions and decisions made by the sandboxed feature
-        // 2. Evaluate against predefined E.V.A.S. rules and ethical principles
-        // 3. Use ethical reasoning models to identify potential harmful outcomes or biases
-        info!("Ethical compliance monitoring completed for sandbox: {}", sandbox_id);
-        Ok(EthicalComplianceReport { violations_found: 0, details: "No violations detected.".to_string(), human_review_needed: false })
+        // Simulate monitoring and evaluation against E.V.A.S. principles
+        sleep(Duration::from_secs(3)).await; // Simulate monitoring duration
+
+        let mut rng = rand::thread_rng();
+        let violations_found = rng.gen_range(0..=3); // Simulate 0 to 3 violations
+        let human_review_needed = violations_found as f32 > self.config.human_review_threshold;
+
+        let details = if violations_found > 0 {
+            format!("Detected {} potential E.V.A.S. violations. Severity: {}.", violations_found, if human_review_needed {"HIGH"} else {"LOW"})
+        } else {
+            "No significant E.V.A.S. violations detected.".to_string()
+        };
+
+        if human_review_needed {
+            warn!("Human review RECOMMENDED for sandbox {} due to ethical flags.", sandbox_id);
+        }
+
+        info!("Ethical compliance monitoring completed for sandbox: {}. Violations: {}, Review needed: {}",
+              sandbox_id, violations_found, human_review_needed);
+        Ok(EthicalComplianceReport { violations_found, details, human_review_needed })
     }
 
     /// Generates a detailed ethical audit trail for human review.
     pub async fn generate_audit_trail(&self, sandbox_id: &str) -> Result<String> {
         info!("Generating ethical audit trail for sandbox: {}", sandbox_id);
-        // Log all decisions, inputs, and potential ethical conflicts for review
-        Ok("Detailed ethical audit trail generated.".to_string())
+        // In a real implementation, this would collect logs, decisions, inputs, and model outputs.
+        sleep(Duration::from_secs(2)).await; // Simulate generation time
+        Ok(format!("Generated comprehensive ethical audit trail for sandbox {}. Review at: /audits/{}", sandbox_id, sandbox_id))
     }
 
     /// Provides an explanation for why certain actions were flagged as ethically questionable.
     pub async fn explain_flagged_action(&self, action_id: &str) -> Result<String> {
         info!("Explaining flagged action: {}", action_id);
-        // Use internal models to provide human-interpretable reasoning
-        Ok("Explanation of ethical flag.".to_string())
+        // This would involve querying an ethical AI model or a rule-based system
+        sleep(Duration::from_millis(500)).await; // Simulate explanation generation
+        Ok(format!("Action '{}' was flagged due to potential bias in data processing leading to inequitable outcome. Refer to E.V.A.S. Rule 4.2.", action_id))
     }
 }
 
-// Placeholder configuration struct for the EthicalComplianceMonitor
-pub struct EthicalComplianceMonitorConfig {
-    // e.g., evas_rules_path: String,
-    //       ethical_model_version: String,
-}
-
 // Placeholder for an ethical compliance report
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EthicalComplianceReport {
     pub violations_found: u32,
     pub details: String,
