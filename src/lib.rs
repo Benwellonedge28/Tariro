@@ -159,6 +159,13 @@ pub struct HumanInTheLoopConfig {
     pub proactive_suggestions_threshold: f32,
 }
 
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct SelfModificationModuleConfig {
+    pub enable_self_modification: bool,
+    pub modification_frequency_seconds: u64,
+    pub change_review_threshold: f32,
+}
+
 // AppConfig will hold configurations for all modules
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AppConfig {
@@ -177,7 +184,8 @@ pub struct AppConfig {
     pub telemetry: Option<TelemetryConfig>,
     pub self_healing_engine: Option<SelfHealingEngineConfig>,
     pub production_learning: Option<ProductionLearningConfig>,
-    pub human_in_the_loop: Option<HumanInTheLoopConfig>, // Added this line
+    pub human_in_the_loop: Option<HumanInTheLoopConfig>,
+    pub self_modification_module: Option<SelfModificationModuleConfig>, // Added this line
     // Add other module configs here as they are defined
 }
 
@@ -201,7 +209,8 @@ impl AppConfig {
             telemetry: Some(TelemetryConfig::default()),
             self_healing_engine: Some(SelfHealingEngineConfig::default()),
             production_learning: Some(ProductionLearningConfig::default()),
-            human_in_the_loop: Some(HumanInTheLoopConfig::default()), // Added this line
+            human_in_the_loop: Some(HumanInTheLoopConfig::default()),
+            self_modification_module: Some(SelfModificationModuleConfig::default()), // Added this line
         })
     }
 }
