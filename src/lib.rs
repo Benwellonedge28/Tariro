@@ -66,6 +66,14 @@ pub struct AutomatedTestSuiteConfig {
     pub minimum_pass_rate: f32,
 }
 
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct PerformanceProfilerConfig {
+    pub profiling_tool_path: String,
+    pub target_latency_ms: u32,
+    pub target_cpu_usage_percent: f64,
+    pub optimization_iterations: u32,
+}
+
 // AppConfig will hold configurations for all modules
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AppConfig {
@@ -73,7 +81,8 @@ pub struct AppConfig {
     pub database_url: String,
     pub virtualization_engine: Option<VirtualizationEngineConfig>,
     pub simulation_engine: Option<SimulationEngineConfig>,
-    pub automated_test_suite: Option<AutomatedTestSuiteConfig>, // Added this line
+    pub automated_test_suite: Option<AutomatedTestSuiteConfig>,
+    pub performance_profiler: Option<PerformanceProfilerConfig>, // Added this line
     // Add other module configs here as they are defined
 }
 
@@ -86,7 +95,8 @@ impl AppConfig {
             database_url: std::env::var("TARIRO_DATABASE_URL").unwrap_or_else(|_| "sqlite://tariro.db".to_string()),
             virtualization_engine: Some(VirtualizationEngineConfig::default()),
             simulation_engine: Some(SimulationEngineConfig::default()),
-            automated_test_suite: Some(AutomatedTestSuiteConfig::default()), // Added this line
+            automated_test_suite: Some(AutomatedTestSuiteConfig::default()),
+            performance_profiler: Some(PerformanceProfilerConfig::default()), // Added this line
         })
     }
 }
