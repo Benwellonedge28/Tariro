@@ -4,7 +4,12 @@
 //! Its primary responsibility is to create and manage isolated, full-stack replicas of Tariro's
 //! current production environment for safe testing.
 
-use crate::{prelude::*, Module, ModuleContext, FeatureProposalId};
+use crate::{prelude::*,
+    Module,
+    ModuleContext,
+    FeatureProposalId,
+    VirtualizationEngineConfig, // Import from lib.rs
+};
 use async_trait::async_trait;
 use std::process::Command;
 use tokio::io::{AsyncBufReadExt, BufReader};
@@ -17,24 +22,7 @@ pub struct VirtualizationEngine {
     // e.g., `docker_cli: DockerClient` or `kubernetes_client: KubeClient`
 }
 
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct VirtualizationEngineConfig {
-    pub sandbox_base_image: String,
-    pub network_prefix: String,
-    pub resource_limits_cpu: String,
-    pub resource_limits_memory: String,
-}
-
-impl Default for VirtualizationEngineConfig {
-    fn default() -> Self {
-        VirtualizationEngineConfig {
-            sandbox_base_image: "tariro/core-latest".to_string(),
-            network_prefix: "172.28.".to_string(), // Example for isolated Docker networks
-            resource_limits_cpu: "1.0".to_string(), // 1 CPU core
-            resource_limits_memory: "2g".to_string(), // 2 GB RAM
-        }
-    }
-}
+// VirtualizationEngineConfig is now defined in lib.rs, removed from here.
 
 #[async_trait]
 impl Module for VirtualizationEngine {
