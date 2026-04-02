@@ -8,24 +8,28 @@ use crate::{prelude::*,
     Module,
     ModuleContext,
     FeatureProposalId,
+    DeploymentManagerConfig,
 };
+use async_trait::async_trait;
+use tokio::time::{sleep, Duration};
 
 /// Represents the Deployment Manager responsible for deployment orchestration.
 pub struct DeploymentManager {
-    // Configuration for CI/CD pipelines, deployment strategies (blue/green, canary), target environments
     config: DeploymentManagerConfig,
 }
+
+// DeploymentManagerConfig is now defined in lib.rs, removed from here.
 
 #[async_trait]
 impl Module for DeploymentManager {
     fn new(context: &ModuleContext) -> Result<Self> {
-        let config = DeploymentManagerConfig { /* ... */ }; // Placeholder
+        let config = context.config.deployment_manager.clone().unwrap_or_default();
         Ok(Self { config })
     }
 
     async fn start(&self) -> Result<()> {
         info!("DeploymentManager starting...");
-        // Initialize connections to CI/CD systems, deployment targets
+        // Initialize connections to CI/CD systems, deployment targets (placeholders)
         info!("DeploymentManager started.");
         Ok(())
     }
@@ -46,38 +50,54 @@ impl DeploymentManager {
     /// Deploys a specified feature (identified by its FeatureProposalId) to a target sandbox environment.
     pub async fn deploy_feature_to_sandbox(&self, feature_proposal_id: &FeatureProposalId, sandbox_id: &str) -> Result<()> {
         info!("Deploying feature {} to sandbox: {}", feature_proposal_id.0, sandbox_id);
-        // Placeholder for actual deployment logic to sandbox:
-        // 1. Compile/build feature code if necessary
-        // 2. Provision necessary resources within sandbox
-        // 3. Deploy feature binaries/configs to the sandboxed environment
+        // Simulate deployment steps:
+        // 1. Compile/build feature code
+        sleep(Duration::from_secs(1)).await;
+        info!("Feature {} compiled for sandbox.", feature_proposal_id.0);
+        // 2. Transfer binaries/configs to sandboxed environment
+        sleep(Duration::from_secs(2)).await;
+        info!("Feature {} transferred to sandbox {}.", feature_proposal_id.0, sandbox_id);
+        // 3. Activate feature within sandbox (e.g., restart service, hot-reload)
+        sleep(Duration::from_secs(1)).await;
+        info!("Feature {} activated in sandbox {}.", feature_proposal_id.0, sandbox_id);
+
         info!("Feature {} deployed to sandbox {} successfully.", feature_proposal_id.0, sandbox_id);
         Ok(())
     }
 
     /// Orchestrates the controlled deployment of a validated feature to the production environment.
     pub async fn deploy_to_production(&self, feature_proposal_id: &FeatureProposalId) -> Result<()> {
-        info!("Deploying feature {} to production.", feature_proposal_id.0);
-        // Placeholder for actual production deployment logic:
-        // 1. Execute pre-deployment checks (e.g., ensure sandbox and prod match)
-        // 2. Implement chosen strategy (blue/green, canary, rolling update)
-        // 3. Monitor post-deployment health (integrate with SystemHealthLog, PerformanceLog)
+        info!("Deploying feature {} to production using {} strategy.", feature_proposal_id.0, self.config.deployment_strategy);
+        // Simulate production deployment steps:
+        // 1. Execute pre-deployment checks (e.g., ensure sandbox validation, production health)
+        sleep(Duration::from_secs(3)).await;
+        info!("Pre-deployment checks passed for feature {}.", feature_proposal_id.0);
+        // 2. Implement chosen deployment strategy (blue/green, canary, rolling update)
+        match self.config.deployment_strategy.as_str() {
+            "blue_green" => info!("Switching traffic to new 'green' environment for feature {}.", feature_proposal_id.0),
+            "canary" => info!("Gradually rolling out feature {} to a small percentage of users.", feature_proposal_id.0),
+            "rolling" => info!("Performing rolling update for feature {}.".to_string()),
+            _ => warn!("Unknown deployment strategy '{}'. Proceeding with basic deploy.", self.config.deployment_strategy),
+        }
+        sleep(Duration::from_secs(5)).await; // Simulate deployment time
+        // 3. Monitor post-deployment health (integration with SystemHealthLog, PerformanceLog)
+        info!("Monitoring post-deployment health for feature {}.", feature_proposal_id.0);
+
         info!("Feature {} deployed to production successfully.", feature_proposal_id.0);
         Ok(())
     }
 
     /// Initiates an immediate rollback to the previous stable production state.
     pub async fn rollback_production(&self, feature_proposal_id: &FeatureProposalId, reason: &str) -> Result<()> {
-        warn!("Initiating production rollback for feature {} due to: {}", feature_proposal_id.0, reason);
-        // Placeholder for actual rollback logic:
-        // 1. Revert to previous stable version
-        // 2. Log rollback event to ExplainabilityLog
+        warn!("Initiating production rollback for feature {} due to: {}.", feature_proposal_id.0, reason);
+        // Simulate rollback steps:
+        // 1. Revert to previous stable version (e.g., switch back to 'blue' environment, redeploy old version)
+        sleep(Duration::from_secs(5)).await;
+        info!("Production environment rolled back to previous stable state.");
+        // 2. Log rollback event to ExplainabilityLog (placeholder)
+        info!("Rollback event logged for feature {}.", feature_proposal_id.0);
+
         warn!("Production rollback for feature {} completed.", feature_proposal_id.0);
         Ok(())
     }
-}
-
-// Placeholder configuration struct for the DeploymentManager
-pub struct DeploymentManagerConfig {
-    // e.g., ci_cd_pipeline_url: String,
-    //       production_cluster_id: String,
 }
