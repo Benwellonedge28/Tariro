@@ -66,7 +66,7 @@ pub struct SimulationEngineConfig {
     pub ai_workload_generator_endpoint: String,
     pub simulation_duration_minutes: u64,
     pub traffic_multiplier: f32,
-    pub external_service_mocks: Vec<ExternalServiceMockConfig>, // Added this line
+    pub external_service_mocks: Vec<ExternalServiceMockConfig>,
 }
 
 #[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
@@ -127,6 +127,14 @@ pub struct FaultInjectionConfig {
     pub resilience_threshold_failures: u32,
 }
 
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct TelemetryConfig {
+    pub enable_telemetry_export: bool,
+    pub telemetry_endpoint: String, // e.g., "http://prometheus:9090/api/v1/write"
+    pub tracing_enabled: bool,
+    pub metrics_collection_interval_ms: u64,
+}
+
 // AppConfig will hold configurations for all modules
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AppConfig {
@@ -142,6 +150,7 @@ pub struct AppConfig {
     pub sandboxed_environment_module: Option<SandboxedEnvironmentModuleConfig>,
     pub code_generation_engine: Option<CodeGenerationEngineConfig>,
     pub fault_injection: Option<FaultInjectionConfig>,
+    pub telemetry: Option<TelemetryConfig>, // Added this line
     // Add other module configs here as they are defined
 }
 
@@ -162,6 +171,7 @@ impl AppConfig {
             sandboxed_environment_module: Some(SandboxedEnvironmentModuleConfig::default()),
             code_generation_engine: Some(CodeGenerationEngineConfig::default()),
             fault_injection: Some(FaultInjectionConfig::default()),
+            telemetry: Some(TelemetryConfig::default()), // Added this line
         })
     }
 }
