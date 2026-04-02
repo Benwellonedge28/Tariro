@@ -160,10 +160,18 @@ pub struct HumanInTheLoopConfig {
 }
 
 #[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct MetaLearningConfig {
+    pub enable_meta_learning: bool,
+    pub meta_learning_data_storage_path: String,
+    pub strategy_evaluation_frequency_seconds: u64,
+}
+
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct SelfModificationModuleConfig {
     pub enable_self_modification: bool,
     pub modification_frequency_seconds: u64,
     pub change_review_threshold: f32,
+    pub meta_learning: Option<MetaLearningConfig>, // Added this line
 }
 
 // AppConfig will hold configurations for all modules
@@ -185,8 +193,8 @@ pub struct AppConfig {
     pub self_healing_engine: Option<SelfHealingEngineConfig>,
     pub production_learning: Option<ProductionLearningConfig>,
     pub human_in_the_loop: Option<HumanInTheLoopConfig>,
-    pub self_modification_module: Option<SelfModificationModuleConfig>, // Added this line
-    // Add other module configs here as they are defined
+    pub self_modification_module: Option<SelfModificationModuleConfig>, 
+    // Add other module configs here as they are developed
 }
 
 impl AppConfig {
@@ -210,7 +218,7 @@ impl AppConfig {
             self_healing_engine: Some(SelfHealingEngineConfig::default()),
             production_learning: Some(ProductionLearningConfig::default()),
             human_in_the_loop: Some(HumanInTheLoopConfig::default()),
-            self_modification_module: Some(SelfModificationModuleConfig::default()), // Added this line
+            self_modification_module: Some(SelfModificationModuleConfig::default()),
         })
     }
 }
