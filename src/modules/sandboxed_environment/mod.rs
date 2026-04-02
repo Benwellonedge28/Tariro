@@ -110,7 +110,8 @@ impl SandboxedEnvironmentModule {
             recommendation: "Pending".to_string(),
             sim_report_details: None,
             generated_code_feedback: Vec::new(),
-            fault_injection_results: None, // New field
+            fault_injection_results: None,
+            external_mock_interaction_issues: None, // New field
         };
 
         let sandbox_id: String;
@@ -118,6 +119,7 @@ impl SandboxedEnvironmentModule {
         let mut deployment_approved = false;
         let mut current_code_context = "Initial feature code for ".to_string() + &feature_proposal_id.0;
         let fault_injection_config = self.context.config.fault_injection.clone().unwrap_or_default();
+        let simulation_engine_config = self.context.config.simulation_engine.clone().unwrap_or_default();
 
         // --- Phase 1: Provisioning and Data Mirroring ---
         report.status = SandboxStatus::Provisioning;
@@ -139,6 +141,16 @@ impl SandboxedEnvironmentModule {
             }
         }
 
+        // --- Phase 1.5: Configure External Service Mocks (New Phase) ---
+        if !simulation_engine_config.external_service_mocks.is_empty() {
+            report.status = SandboxStatus::ConfiguringMocks;
+            info!("Phase 1.5: Configuring external service mocks...");
+            for mock_config in &simulation_engine_config.external_service_mocks {
+                self.simulation_engine.mock_external_service(&sandbox_id, mock_config).await?;
+            }
+            info!("External service mocks configured for sandbox {}.", sandbox_id);
+        }
+
         // --- Phase 2: Feature Deployment to Sandbox ---
         report.status = SandboxStatus::DeployingFeature;
         info!("Phase 2: Deploying feature to sandbox...");
@@ -149,6 +161,7 @@ impl SandboxedEnvironmentModule {
         let mut current_metrics: Option<crate::performance_profiler::PerformanceMetrics> = None;
         let mut optimization_cycles = 0;
         let mut resilience_failures = 0;
+        let mut external_mock_issues_count = 0;
 
         loop {
             info!("\n--- Iteration {} ---", optimization_cycles + 1);
@@ -156,7 +169,13 @@ impl SandboxedEnvironmentModule {
             report.status = SandboxStatus::Simulating;
             info!("  Running simulations...");
             let sim_report = self.simulation_engine.run_simulations(&sandbox_id).await?;
-            report.sim_report_details = Some(sim_report.details);
+            report.sim_report_details = Some(sim_report.details.clone());
+            // Simulate detecting issues with external mocks during simulation
+            if sim_report.details.contains("external_api_call") && sim_report.details.contains("error") {
+                external_mock_issues_count += 1;
+                warn!("  Simulated external mock interaction issue detected in sandbox {}.", sandbox_id);
+                report.external_mock_interaction_issues = Some(format!("Simulated external API errors detected: {}.", sim_report.details));
+            }
 
             report.status = SandboxStatus::Testing;
             info!("  Running automated tests...");
@@ -193,7 +212,7 @@ impl SandboxedEnvironmentModule {
                 match self.virtualization_engine.inject_fault(&sandbox_id, &fault_type, &fault_target).await {
                     Ok(_) => {
                         info!("  Fault injected. Monitoring resilience...");
-                        sleep(Duration::from_secs(10)).await; // Allow system to react to fault
+                        tokio::time::sleep(Duration::from_secs(10)).await; // Allow system to react to fault
                         // Re-run a quick simulation/test to see impact
                         let post_fault_sim_report = self.simulation_engine.run_simulations(&sandbox_id).await?;
                         let post_fault_test_report = self.automated_test_suite.run_tests(&sandbox_id).await?;
@@ -219,8 +238,9 @@ impl SandboxedEnvironmentModule {
             let performance_needs_improvement = prof_metrics.response_time_ms > target_latency || prof_metrics.cpu_usage_percent > target_cpu;
             let tests_failed = test_report.pass_rate < self.automated_test_suite.config.minimum_pass_rate;
             let resilience_poor = resilience_failures >= fault_injection_config.resilience_threshold_failures;
+            let external_mock_issues_present = external_mock_issues_count > 0;
 
-            if performance_needs_improvement || tests_failed || resilience_poor {
+            if performance_needs_improvement || tests_failed || resilience_poor || external_mock_issues_present {
                 optimization_cycles += 1;
                 if optimization_cycles <= self.config.max_optimization_cycles {
                     report.status = SandboxStatus::Optimizing;
@@ -228,6 +248,7 @@ impl SandboxedEnvironmentModule {
                     if performance_needs_improvement { optimization_goal_parts.push(format!("Optimize performance: Latency target {}ms, current {:.2}ms. CPU target {:.2}%, current {:.2}%. ", target_latency, prof_metrics.response_time_ms, target_cpu, prof_metrics.cpu_usage_percent)); }
                     if tests_failed { optimization_goal_parts.push(format!("Fix test failures: Pass rate target {:.2}%, current {:.2}%. ", self.automated_test_suite.config.minimum_pass_rate * 100.0, test_report.pass_rate * 100.0)); }
                     if resilience_poor { optimization_goal_parts.push(format!("Improve resilience: {} resilience failures detected.", resilience_failures)); }
+                    if external_mock_issues_present { optimization_goal_parts.push(format!("Resolve external mock interaction issues: {} detected.", external_mock_issues_count)); }
                     let optimization_goal = optimization_goal_parts.join(" ");
                     
                     info!("  Targets not met. Generating code changes for: {}\n  Current code context: '{}'".to_string(), optimization_goal, current_code_context);
@@ -277,10 +298,11 @@ impl SandboxedEnvironmentModule {
                              final_metrics.cpu_usage_percent <= self.performance_profiler.config.target_cpu_usage_percent;
         let tests_ok = final_test_report.pass_rate >= self.automated_test_suite.config.minimum_pass_rate;
         let ethical_ok = !final_ethical_report.human_review_needed;
-        let code_quality_ok = final_code_quality.adheres_to_standards && !final_code_quality.requires_human_review_due_to_quality; // Corrected access
+        let code_quality_ok = final_code_quality.adheres_to_standards && !final_code_quality.requires_human_review_due_to_quality; 
         let resilience_ok = resilience_failures < fault_injection_config.resilience_threshold_failures;
+        let external_mock_interactions_ok = external_mock_issues_count == 0;
 
-        if !human_review_needed_total && performance_ok && tests_ok && ethical_ok && code_quality_ok && resilience_ok {
+        if !human_review_needed_total && performance_ok && tests_ok && ethical_ok && code_quality_ok && resilience_ok && external_mock_interactions_ok {
             deployment_approved = true;
             report.recommendation = "All checks passed: Feature is ready for production deployment.".to_string();
             if self.config.enable_autonomous_deployment {
@@ -301,6 +323,7 @@ impl SandboxedEnvironmentModule {
             if !ethical_ok { reasons.push("Pending ethical review"); }
             if !code_quality_ok { reasons.push("Code quality issues detected"); }
             if !resilience_ok { reasons.push("Resilience targets not met"); }
+            if !external_mock_interactions_ok { reasons.push("External mock interaction issues detected"); }
 
             report.status = SandboxStatus::Failed;
             report.recommendation = format!("Deployment NOT recommended. Reasons: {}. Human review REQUIRED.", reasons.join(", "));
@@ -347,19 +370,21 @@ pub struct SandboxReport {
     pub sim_report_details: Option<String>,
     pub generated_code_feedback: Vec<String>, // New field for code generation feedback
     pub fault_injection_results: Option<FaultInjectionReport>, // New field
+    pub external_mock_interaction_issues: Option<String>, // New field
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SandboxStatus {
     Initiated,
     Provisioning,
+    ConfiguringMocks, // New status
     DeployingFeature,
     Simulating,
     Testing,
     Profiling,
     Optimizing,
     EthicalMonitoring,
-    InjectingFault, // New status
+    InjectingFault,
     FinalEvaluation,
     HumanReviewPending,
     Completed,
