@@ -81,6 +81,13 @@ pub struct EthicalComplianceMonitorConfig {
     pub human_review_threshold: f32,
 }
 
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct DeploymentManagerConfig {
+    pub ci_cd_pipeline_url: String,
+    pub deployment_strategy: String, // e.g., "blue_green", "canary", "rolling"
+    pub production_cluster_id: String,
+}
+
 // AppConfig will hold configurations for all modules
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AppConfig {
@@ -90,7 +97,8 @@ pub struct AppConfig {
     pub simulation_engine: Option<SimulationEngineConfig>,
     pub automated_test_suite: Option<AutomatedTestSuiteConfig>,
     pub performance_profiler: Option<PerformanceProfilerConfig>,
-    pub ethical_compliance_monitor: Option<EthicalComplianceMonitorConfig>, // Added this line
+    pub ethical_compliance_monitor: Option<EthicalComplianceMonitorConfig>,
+    pub deployment_manager: Option<DeploymentManagerConfig>, // Added this line
     // Add other module configs here as they are defined
 }
 
@@ -105,7 +113,8 @@ impl AppConfig {
             simulation_engine: Some(SimulationEngineConfig::default()),
             automated_test_suite: Some(AutomatedTestSuiteConfig::default()),
             performance_profiler: Some(PerformanceProfilerConfig::default()),
-            ethical_compliance_monitor: Some(EthicalComplianceMonitorConfig::default()), // Added this line
+            ethical_compliance_monitor: Some(EthicalComplianceMonitorConfig::default()),
+            deployment_manager: Some(DeploymentManagerConfig::default()), // Added this line
         })
     }
 }
