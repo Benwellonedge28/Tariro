@@ -87,13 +87,15 @@ impl CodeGenerationEngine {
         let maintainability_score = rng.gen_range(0.7..0.95);
         let security_issues = rng.gen_range(0..=1);
         let complexity = rng.gen_range(5..=20);
+        let quality_issue_detected = rng.gen_bool(0.1); // 10% chance of a quality issue
 
         info!("Code quality evaluation completed. Maintainability: {:.2}, Security issues: {}.", maintainability_score, security_issues);
         Ok(CodeQualityReport {
             maintainability_score,
             security_issues,
             complexity,
-            adheres_to_standards: maintainability_score > 0.75 && security_issues == 0,
+            adheres_to_standards: maintainability_score > 0.75 && security_issues == 0 && !quality_issue_detected,
+            requires_human_review_due_to_quality: quality_issue_detected || maintainability_score < 0.7 || security_issues > 0,
         })
     }
 }
@@ -112,4 +114,5 @@ pub struct CodeQualityReport {
     pub security_issues: u32,
     pub complexity: u32,
     pub adheres_to_standards: bool,
+    pub requires_human_review_due_to_quality: bool, // Added this field
 }
