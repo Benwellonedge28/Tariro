@@ -13,8 +13,11 @@ pub mod ethical_compliance_monitor;
 pub mod deployment_manager;
 pub mod data_mirroring_system;
 
-use crate::prelude::*; // Assuming a common prelude for error handling, logging etc.
-use async_trait::async_trait;
+use crate::{prelude::*,
+    Module,
+    ModuleContext,
+    FeatureProposalId,
+};
 
 /// Represents the core Sandboxed Environment Module.
 pub struct SandboxedEnvironmentModule {
@@ -74,7 +77,7 @@ impl Module for SandboxedEnvironmentModule {
 
     // Example of a core method to trigger a sandbox run
     async fn run_sandbox_experiment(&self, feature_proposal_id: &FeatureProposalId) -> Result<SandboxReport> {
-        info!("Initiating sandbox experiment for FeatureProposal: {}", feature_proposal_id);
+        info!("Initiating sandbox experiment for FeatureProposal: {}", feature_proposal_id.0);
 
         // 1. Snapshot and provision sandbox environment
         let sandbox_id = self.virtualization_engine.provision_sandbox(feature_proposal_id).await?;
@@ -106,29 +109,10 @@ impl Module for SandboxedEnvironmentModule {
             // Add other relevant metrics
         };
 
-        info!("Sandbox experiment completed for FeatureProposal: {}. Report: {:?}", feature_proposal_id, report);
+        info!("Sandbox experiment completed for FeatureProposal: {}. Report: {:?}", feature_proposal_id.0, report);
         Ok(report)
     }
 }
-
-/// Placeholder for a Module trait that all Tariro modules would implement
-/// This would typically live in a `tariro_core::module` crate or similar
-#[async_trait]
-pub trait Module: Send + Sync {
-    fn new(context: &ModuleContext) -> Result<Self> where Self: Sized;
-    async fn start(&self) -> Result<()>;
-    async fn stop(&self) -> Result<()>;
-    fn name(&self) -> &'static str;
-}
-
-/// Placeholder for ModuleContext
-/// Provides access to configuration, logging, database, other modules etc.
-pub struct ModuleContext {
-    // ...
-}
-
-/// Placeholder for FeatureProposalId (from the data model)
-pub struct FeatureProposalId(String); // Replace with actual ID type
 
 /// Placeholder for SandboxReport
 #[derive(Debug)]
@@ -152,12 +136,4 @@ pub enum SandboxStatus {
     Completed,
     Failed,
     // ...
-}
-
-// You would likely have a `prelude.rs` in your `src` directory
-// for common imports like this.
-pub mod prelude {
-    pub use anyhow::{Result, Error};
-    pub use log::{info, warn, error, debug};
-    // pub use crate::module::{Module, ModuleContext}; // Example if Module trait is in core
 }
