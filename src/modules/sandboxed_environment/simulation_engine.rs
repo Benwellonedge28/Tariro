@@ -4,8 +4,10 @@
 //! Its role is to generate realistic workloads, user interactions, and external data feeds
 //! within a sandbox, simulating the operating conditions of the live system.
 
-use crate::prelude::*;
-use async_trait::async_trait;
+use crate::{prelude::*,
+    Module,
+    ModuleContext,
+};
 
 /// Represents the Simulation Engine responsible for generating and running simulations.
 pub struct SimulationEngine {
@@ -88,23 +90,3 @@ pub struct SyntheticWorkload {
     pub events: Vec<String>,
     // ... other workload parameters
 }
-
-// Dummy implementations for traits/structs used in this file but defined elsewhere
-// In a real project, these would be in common crates or the main lib.rs
-pub mod prelude {
-    pub use anyhow::{Result, Error};
-    pub use log::{info, warn, error, debug};
-    pub use async_trait::async_trait;
-}
-
-// Re-declare Module trait and ModuleContext here for standalone compilation during draft
-// In final code, these would be imported from a central definition
-#[async_trait]
-pub trait Module: Send + Sync {
-    fn new(context: &ModuleContext) -> Result<Self> where Self: Sized;
-    async fn start(&self) -> Result<()>;
-    async fn stop(&self) -> Result<()>;
-    fn name(&self) -> &'static str;
-}
-
-pub struct ModuleContext;
