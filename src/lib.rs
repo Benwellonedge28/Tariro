@@ -110,6 +110,7 @@ pub struct SandboxedEnvironmentModuleConfig {
     pub max_optimization_cycles: u32,
     pub auto_deprovision_sandbox: bool,
     pub enable_autonomous_deployment: bool,
+    pub enable_self_healing_attempts: bool, // New field
 }
 
 #[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
@@ -127,12 +128,19 @@ pub struct FaultInjectionConfig {
     pub resilience_threshold_failures: u32,
 }
 
-#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, Default, serde::Serialize, Deserialize)]
 pub struct TelemetryConfig {
     pub enable_telemetry_export: bool,
     pub telemetry_endpoint: String, // e.g., "http://prometheus:9090/api/v1/write"
     pub tracing_enabled: bool,
     pub metrics_collection_interval_ms: u64,
+}
+
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct SelfHealingEngineConfig {
+    pub max_healing_attempts_per_issue: u32,
+    pub enable_automated_restarts: bool,
+    pub enable_cache_clearing: bool,
 }
 
 // AppConfig will hold configurations for all modules
@@ -150,7 +158,8 @@ pub struct AppConfig {
     pub sandboxed_environment_module: Option<SandboxedEnvironmentModuleConfig>,
     pub code_generation_engine: Option<CodeGenerationEngineConfig>,
     pub fault_injection: Option<FaultInjectionConfig>,
-    pub telemetry: Option<TelemetryConfig>, // Added this line
+    pub telemetry: Option<TelemetryConfig>,
+    pub self_healing_engine: Option<SelfHealingEngineConfig>, // Added this line
     // Add other module configs here as they are defined
 }
 
@@ -171,7 +180,8 @@ impl AppConfig {
             sandboxed_environment_module: Some(SandboxedEnvironmentModuleConfig::default()),
             code_generation_engine: Some(CodeGenerationEngineConfig::default()),
             fault_injection: Some(FaultInjectionConfig::default()),
-            telemetry: Some(TelemetryConfig::default()), // Added this line
+            telemetry: Some(TelemetryConfig::default()),
+            self_healing_engine: Some(SelfHealingEngineConfig::default()), // Added this line
         })
     }
 }
