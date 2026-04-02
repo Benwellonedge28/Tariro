@@ -4,8 +4,10 @@
 //! Its purpose is to continuously monitor and evaluate proposed feature behavior within the sandbox
 //! against Tariro's E.V.A.S. (Ethical & Value Alignment System) principles.
 
-use crate::prelude::*;
-use async_trait::async_trait;
+use crate::{prelude::*,
+    Module,
+    ModuleContext,
+};
 
 /// Represents the Ethical Compliance Monitor (ECM).
 pub struct EthicalComplianceMonitor {
@@ -79,23 +81,3 @@ pub struct EthicalComplianceReport {
     pub human_review_needed: bool,
     // List of specific violations, severity, etc.
 }
-
-// Dummy implementations for traits/structs used in this file but defined elsewhere
-// In a real project, these would be in common crates or the main lib.rs
-pub mod prelude {
-    pub use anyhow::{Result, Error};
-    pub use log::{info, warn, error, debug};
-    pub use async_trait::async_trait;
-}
-
-// Re-declare Module trait and ModuleContext here for standalone compilation during draft
-// In final code, these would be imported from a central definition
-#[async_trait]
-pub trait Module: Send + Sync {
-    fn new(context: &ModuleContext) -> Result<Self> where Self: Sized;
-    async fn start(&self) -> Result<()>;
-    async fn stop(&self) -> Result<()>;
-    fn name(&self) -> &'static str;
-}
-
-pub struct ModuleContext;
