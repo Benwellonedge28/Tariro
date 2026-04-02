@@ -23,6 +23,7 @@ pub struct SelfModificationModule {
     sandboxed_environment_module: SandboxedEnvironmentModule,
     context: ModuleContext, // Store ModuleContext to access API tools
     meta_learning_outcomes: tokio::sync::Mutex<Vec<SelfModificationOutcome>>, // Store outcomes for meta-learning
+    goal_monitor: GoalMonitor, // New: Goal Monitor
 }
 
 #[async_trait]
@@ -37,17 +38,20 @@ impl SelfModificationModule {
     fn new(context: &ModuleContext) -> Result<Self> {
         let config = context.config.self_modification_module.clone().unwrap_or_default();
         let sandboxed_environment_module = SandboxedEnvironmentModule::new(context)?;
+        let goal_monitor = GoalMonitor::new(context); // Initialize GoalMonitor
         Ok(Self { 
             config,
             sandboxed_environment_module,
             context: context.clone(), // Clone context for tool access
             meta_learning_outcomes: tokio::sync::Mutex::new(Vec::new()),
+            goal_monitor, 
         })
     }
 
     async fn start(&self) -> Result<()> {
         info!("SelfModificationModule starting...");
         self.sandboxed_environment_module.start().await?;
+        self.goal_monitor.start().await?;
         info!("SelfModificationModule started. Self-modification enabled: {}. Frequency: {}s.",
               self.config.enable_self_modification, self.config.modification_frequency_seconds);
 
@@ -56,17 +60,13 @@ impl SelfModificationModule {
             let freq = self.config.meta_learning.as_ref().unwrap().strategy_evaluation_frequency_seconds;
             tokio::spawn(Self::run_periodic_meta_learning_analysis(self.meta_learning_outcomes.clone(), freq));
         }
-
-        // In a real system, a background task would periodically call identify_modification_opportunities
-        // and initiate_self_modification. For this step, I will only simulate that it ran
-        // by making the identify_modification_opportunities return an actual FeatureProposal.
-
         Ok(())
     }
 
     async fn stop(&self) -> Result<()> {
         info!("SelfModificationModule stopping...");
         self.sandboxed_environment_module.stop().await?;
+        self.goal_monitor.stop().await?;
         info!("SelfModificationModule stopped.");
         Ok(())
     }
@@ -118,7 +118,7 @@ impl SelfModificationModule {
     /// Identifies opportunities for Tariro to self-modify or improve.
     /// This could be based on: performance logs, user feedback, new knowledge items,
     /// ethical flags, or strategic goals.
-    /// This method will now simulate creating actual FeatureProposal entities.
+    /// This method now simulates creating actual FeatureProposal entities, potentially linked to goals.
     pub async fn identify_modification_opportunities(&self) -> Result<Vec<FeatureProposalId>> {
         info!("Identifying self-modification opportunities...");
         sleep(Duration::from_secs(2)).await;
@@ -126,11 +126,22 @@ impl SelfModificationModule {
         let mut opportunities = Vec::new();
         let mut rng = rand::thread_rng();
 
-        if rng.gen_bool(0.4) { // 40% chance of finding an opportunity
-            let proposal_title = format!("Optimize {} core component", rng.gen_range(1..100));
-            let problem_statement = "Identified high resource utilization during peak load in a core service.".to_string();
+        // Get active goals to identify areas for improvement
+        let active_goals = self.goal_monitor.get_active_goals().await?;
+
+        if rng.gen_bool(0.6) { // Increased chance of finding an opportunity if goals are present
+            let target_goal = if !active_goals.is_empty() {
+                // Pick a random active goal to link the proposal to
+                let goal = &active_goals[rng.gen_range(0..active_goals.len())];
+                Some(goal.clone())
+            } else { None };
+
+            let proposal_title = format!("Optimize {} core component ({})", rng.gen_range(1..100), target_goal.as_ref().map_or("General Improvement".to_string(), |g| g.title.clone()));
+            let problem_statement = format!("Identified high resource utilization during peak load in a core service. This impacts goal: {}.", 
+                                            target_goal.as_ref().map_or("N/A".to_string(), |g| g.title.clone()));
             let proposed_solution = "Implement a more efficient algorithm for data processing in the identified service, potentially using dynamic code generation.".to_string();
-            let estimated_impact = "Reduce CPU usage by 10-15% and latency by 5% during high traffic periods.".to_string();
+            let estimated_impact = format!("Reduce CPU usage by 10-15% and latency by 5% during high traffic periods, thereby accelerating progress on goal: {}.",
+                                           target_goal.as_ref().map_or("N/A".to_string(), |g| g.title.clone()));
 
             let new_proposal_result = default_api::create_FeatureProposal(
                 proposal_title.clone(),
@@ -143,7 +154,6 @@ impl SelfModificationModule {
                 None, // draft_config_or_code
             ).await?;
             
-            // Assuming the tool returns the ID of the created FeatureProposal
             let proposal_id = FeatureProposalId(new_proposal_result.get("id").and_then(|id| id.as_str()).map(|s| s.to_string()).ok_or_else(|| anyhow!("Failed to get FeatureProposal ID"))?);
             opportunities.push(proposal_id.clone());
             info!("Created new FeatureProposal: {} (ID: {}).", proposal_title, proposal_id.0);
@@ -264,4 +274,71 @@ pub enum FeatureProposalStatus {
     Approved,
     Rejected,
     Implemented,
+}
+
+// --- Goal Monitoring Sub-Module --- (Internal to SelfModificationModule for now)
+pub struct GoalMonitor {
+    _context: ModuleContext, // Context might be useful for future enhancements
+}
+
+impl GoalMonitor {
+    pub fn new(context: &ModuleContext) -> Self {
+        Self { _context: context.clone() }
+    }
+
+    pub async fn start(&self) -> Result<()> {
+        info!("GoalMonitor starting...");
+        info!("GoalMonitor started.");
+        Ok(())
+    }
+
+    pub async fn stop(&self) -> Result<()> {
+        info!("GoalMonitor stopping...");
+        info!("GoalMonitor stopped.");
+        Ok(())
+    }
+
+    /// Retrieves a list of active goals that could be targets for self-modification.
+    pub async fn get_active_goals(&self) -> Result<Vec<Goal>> {
+        info!("Retrieving active goals...");
+        // Use the default_api to read Goal entities
+        let goals_response = default_api::read_Goal(
+            Some(serde_json::to_string(&json!({ "status": "active" })).unwrap()),
+            Some(vec!["id", "title", "description", "progress_pct", "priority"]),
+            None, None, None // No limit, skip, sort for now
+        ).await?;
+        
+        let goals_data = goals_response.get("data").ok_or_else(|| anyhow!("No data field in read_Goal response"))?;
+        let goals_json: Vec<serde_json::Value> = serde_json::from_value(goals_data.clone())?;
+
+        let mut active_goals = Vec::new();
+        for goal_json in goals_json {
+            let goal_id = goal_json.get("_id").and_then(|id| id.as_str()).map(|s| s.to_string()).ok_or_else(|| anyhow!("Goal missing ID"))?;
+            let title = goal_json.get("title").and_then(|t| t.as_str()).map(|s| s.to_string()).ok_or_else(|| anyhow!("Goal missing title"))?;
+            let description = goal_json.get("description").and_then(|d| d.as_str()).map(|s| s.to_string()).unwrap_or_default();
+            let progress_pct = goal_json.get("progress_pct").and_then(|p| p.as_f64()).unwrap_or(0.0);
+            let priority_str = goal_json.get("priority").and_then(|p| p.as_str()).map(|s| s.to_string()).unwrap_or_default();
+
+            active_goals.push(Goal {
+                id: goal_id,
+                title,
+                description,
+                progress_pct: progress_pct as f32,
+                priority: priority_str, // Storing as String for simplicity
+            });
+        }
+
+        info!("Retrieved {} active goals.", active_goals.len());
+        Ok(active_goals)
+    }
+}
+
+// Simplified Goal structure for internal use in SelfModificationModule
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Goal {
+    pub id: String,
+    pub title: String,
+    pub description: String,
+    pub progress_pct: f32,
+    pub priority: String,
 }
