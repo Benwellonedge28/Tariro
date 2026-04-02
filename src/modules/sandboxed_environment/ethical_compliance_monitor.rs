@@ -8,6 +8,7 @@ use crate::{prelude::*,
     Module,
     ModuleContext,
     EthicalComplianceMonitorConfig,
+    TelemetryConfig,
 };
 use async_trait::async_trait;
 use tokio::time::{sleep, Duration};
@@ -16,20 +17,30 @@ use rand::Rng;
 /// Represents the Ethical Compliance Monitor (ECM).
 pub struct EthicalComplianceMonitor {
     config: EthicalComplianceMonitorConfig,
+    telemetry_config: TelemetryConfig,
 }
 
-// EthicalComplianceMonitorConfig is now defined in lib.rs, removed from here.
-
 #[async_trait]
-impl Module for EthicalComplianceMonitor {
+pub trait Module: Send + Sync {
+    fn new(context: &ModuleContext) -> Result<Self> where Self: Sized;
+    async fn start(&self) -> Result<()>;
+    async fn stop(&self) -> Result<()>;
+    fn name(&self) -> &'static str;
+}
+
+impl EthicalComplianceMonitor {
     fn new(context: &ModuleContext) -> Result<Self> {
         let config = context.config.ethical_compliance_monitor.clone().unwrap_or_default();
-        Ok(Self { config })
+        let telemetry_config = context.config.telemetry.clone().unwrap_or_default();
+        Ok(Self { config, telemetry_config })
     }
 
     async fn start(&self) -> Result<()> {
         info!("EthicalComplianceMonitor starting...");
         // Load E.V.A.S. rules, initialize ethical reasoning models (placeholders)
+        if self.telemetry_config.enable_telemetry_export {
+            info!("EthicalComplianceMonitor configured to export telemetry to {}.", self.telemetry_config.telemetry_endpoint);
+        }
         info!("EthicalComplianceMonitor started.");
         Ok(())
     }
@@ -63,13 +74,17 @@ impl EthicalComplianceMonitor {
             "No significant E.V.A.S. violations detected.".to_string()
         };
 
-        if human_review_needed {
-            warn!("Human review RECOMMENDED for sandbox {} due to ethical flags.", sandbox_id);
+        let report = EthicalComplianceReport { violations_found, details, human_review_needed };
+
+        if self.telemetry_config.enable_telemetry_export {
+            info!("Exporting ethical compliance event for sandbox {} to {}: Violations: {}, Review needed: {}",
+                  sandbox_id, self.telemetry_config.telemetry_endpoint, report.violations_found, report.human_review_needed);
+            // In a real system, this would be an actual HTTP POST to a telemetry endpoint
         }
 
         info!("Ethical compliance monitoring completed for sandbox: {}. Violations: {}, Review needed: {}",
               sandbox_id, violations_found, human_review_needed);
-        Ok(EthicalComplianceReport { violations_found, details, human_review_needed })
+        Ok(report)
     }
 
     /// Generates a detailed ethical audit trail for human review.
