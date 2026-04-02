@@ -4,8 +4,11 @@
 //! Its primary responsibility is to create and manage isolated, full-stack replicas of Tariro's
 //! current production environment for safe testing.
 
-use crate::prelude::*;
-use async_trait::async_trait;
+use crate::{prelude::*,
+    Module,
+    ModuleContext,
+    FeatureProposalId,
+};
 
 /// Represents the Virtualization Engine responsible for managing sandbox instances.
 pub struct VirtualizationEngine {
@@ -92,17 +95,3 @@ pub mod prelude {
     pub use uuid; // Assuming uuid crate is used for generating IDs
     pub use chrono; // Assuming chrono crate is used for timestamps
 }
-
-// Re-declare Module trait, ModuleContext, FeatureProposalId here for standalone compilation during draft
-// In final code, these would be imported from a central definition
-#[async_trait]
-pub trait Module: Send + Sync {
-    fn new(context: &ModuleContext) -> Result<Self> where Self: Sized;
-    async fn start(&self) -> Result<()>;
-    async fn stop(&self) -> Result<()>;
-    fn name(&self) -> &'static str;
-}
-
-pub struct ModuleContext;
-
-pub struct FeatureProposalId(pub String);
