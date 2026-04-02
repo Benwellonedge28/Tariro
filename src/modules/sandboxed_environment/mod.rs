@@ -14,6 +14,7 @@ pub mod deployment_manager;
 pub mod data_mirroring_system;
 pub mod code_generation_engine;
 pub mod self_healing_engine;
+pub mod production_learning_system;
 
 use crate::{prelude::*,
     Module,
@@ -35,7 +36,8 @@ pub struct SandboxedEnvironmentModule {
     deployment_manager: deployment_manager::DeploymentManager,
     data_mirroring_system: data_mirroring_system::DataMirroringSystem,
     code_generation_engine: code_generation_engine::CodeGenerationEngine,
-    self_healing_engine: self_healing_engine::SelfHealingEngine, // New: Self Healing Engine
+    self_healing_engine: self_healing_engine::SelfHealingEngine,
+    production_learning_system: production_learning_system::ProductionLearningSystem, // New: Production Learning System
 }
 
 #[async_trait]
@@ -60,6 +62,7 @@ impl SandboxedEnvironmentModule {
             data_mirroring_system: data_mirroring_system::DataMirroringSystem::new(context)?,
             code_generation_engine: code_generation_engine::CodeGenerationEngine::new(context)?,
             self_healing_engine: self_healing_engine::SelfHealingEngine::new(context)?,
+            production_learning_system: production_learning_system::ProductionLearningSystem::new(context)?,
         })
     }
 
@@ -74,6 +77,7 @@ impl SandboxedEnvironmentModule {
         self.data_mirroring_system.start().await?;
         self.code_generation_engine.start().await?;
         self.self_healing_engine.start().await?;
+        self.production_learning_system.start().await?;
         info!("SandboxedEnvironmentModule started.");
         Ok(())
     }
@@ -89,6 +93,7 @@ impl SandboxedEnvironmentModule {
         self.data_mirroring_system.stop().await?;
         self.code_generation_engine.stop().await?;
         self.self_healing_engine.stop().await?;
+        self.production_learning_system.stop().await?;
         info!("SandboxedEnvironmentModule stopped.");
         Ok(())
     }
@@ -105,6 +110,9 @@ impl SandboxedEnvironmentModule {
 
         let telemetry_config = self.context.config.telemetry.clone().unwrap_or_default();
         let sandboxed_env_config = self.context.config.sandboxed_environment_module.clone().unwrap_or_default();
+        let fault_injection_config = self.context.config.fault_injection.clone().unwrap_or_default();
+        let simulation_engine_config = self.context.config.simulation_engine.clone().unwrap_or_default();
+        let production_learning_config = self.context.config.production_learning.clone().unwrap_or_default(); // New
 
         let mut report = SandboxReport {
             sandbox_id: "".to_string(),
@@ -121,15 +129,29 @@ impl SandboxedEnvironmentModule {
             fault_injection_results: None,
             external_mock_interaction_issues: None,
             telemetry_enabled_for_experiment: telemetry_config.enable_telemetry_export,
-            self_healing_attempts: Vec::new(), // New field
+            self_healing_attempts: Vec::new(),
+            production_learning_insights: None, // New
         };
 
         let sandbox_id: String;
         let mut human_review_needed_total = false;
         let mut deployment_approved = false;
         let mut current_code_context = "Initial feature code for ".to_string() + &feature_proposal_id.0;
-        let fault_injection_config = self.context.config.fault_injection.clone().unwrap_or_default();
-        let simulation_engine_config = self.context.config.simulation_engine.clone().unwrap_or_default();
+        
+        // --- Phase 0.5: Dynamic Learning from Production (New Phase) ---
+        if production_learning_config.enable_production_data_ingestion {
+            report.status = SandboxStatus::LearningFromProduction;
+            info!("Phase 0.5: Learning from production data...");
+            let telemetry_data = self.production_learning_system.ingest_production_telemetry().await?;
+            let log_data = self.production_learning_system.ingest_production_logs().await?;
+            let insights = self.production_learning_system.analyze_production_feedback(&telemetry_data, &log_data).await?;
+            report.production_learning_insights = Some(insights.insights.join("; "));
+            info!("Derived simulation parameters: {}. Derived test cases: {}.
+                  These will be used to dynamically adapt simulation and test suite configuration.",
+                  insights.derived_simulation_params, insights.derived_test_cases);
+            // In a real scenario, these insights would modify simulation_engine.config and automated_test_suite.config
+            // For now, we simulate their influence.
+        }
 
         // --- Phase 1: Provisioning and Data Mirroring ---
         report.status = SandboxStatus::Provisioning;
@@ -382,7 +404,7 @@ impl SandboxedEnvironmentModule {
         } else {
             info!("Auto-deprovisioning disabled. Sandbox {} and its data retained.", sandbox_id);
         }
-        Ok(())s
+        Ok(())
     }
 }
 
@@ -404,6 +426,7 @@ pub struct SandboxReport {
     pub external_mock_interaction_issues: Option<String>, // New field
     pub telemetry_enabled_for_experiment: bool, // New field
     pub self_healing_attempts: Vec<self_healing_engine::HealingAttemptReport>, // New field
+    pub production_learning_insights: Option<String>, // New field
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -418,7 +441,8 @@ pub enum SandboxStatus {
     Optimizing,
     EthicalMonitoring,
     InjectingFault,
-    SelfHealing, // New status
+    SelfHealing,
+    LearningFromProduction, // New status
     FinalEvaluation,
     HumanReviewPending,
     Completed,
