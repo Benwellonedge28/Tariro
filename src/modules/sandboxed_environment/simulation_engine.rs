@@ -4,7 +4,12 @@
 //! Its role is to generate realistic workloads, user interactions, and external data feeds
 //! within a sandbox, simulating the operating conditions of the live system.
 
-use crate::{prelude::*, Module, ModuleContext, SimulationEngineConfig, AppConfig};
+use crate::{prelude::*,
+    Module,
+    ModuleContext,
+    SimulationEngineConfig,
+    ExternalServiceMockConfig, // Import new config
+};
 use async_trait::async_trait;
 use tokio::process::Command as TokioCommand;
 use tokio::time::{sleep, Duration};
@@ -14,8 +19,6 @@ pub struct SimulationEngine {
     config: SimulationEngineConfig,
     // In a real implementation, this would hold clients for AI models, data generators, etc.
 }
-
-// SimulationEngineConfig is now defined in lib.rs, removed from here.
 
 #[async_trait]
 impl Module for SimulationEngine {
@@ -61,30 +64,37 @@ impl SimulationEngine {
         }
         info!("Found container ID '{}' for sandbox '{}'.", container_id, sandbox_id);
 
-        // 1. Generate synthetic workload
+        // 1. Setup external service mocks if configured
+        for mock_config in &self.config.external_service_mocks {
+            self.mock_external_service(&sandbox_id, mock_config).await?;
+        }
+        info!("External service mocks configured for sandbox {}.", sandbox_id);
+
+        // 2. Generate synthetic workload
         let workload = self.generate_synthetic_workload(None).await?;
         info!("Generated synthetic workload with {} events.", workload.events.len());
 
-        // 2. Inject workload into the sandboxed Tariro instance
-        // This is a placeholder for sending requests to the sandboxed Tariro instance
+        // 3. Inject workload into the sandboxed Tariro instance
         info!("Injecting workload into sandbox container...");
-        // For demonstration, we'll just simulate the work being done.
         for (i, event) in workload.events.iter().enumerate() {
             debug!("Sandbox {}: Processing event [{}/{}] {}", sandbox_id, i+1, workload.events.len(), event);
-            // In a real scenario, this would be an actual HTTP request to the sandbox API
-            // or a direct method call to the sandboxed Tariro process.
+            // Simulate HTTP request to sandboxed Tariro instance, potentially involving external mocks
+            if event.contains("external_api_call") {
+                debug!("  Simulating external API call for event {}", event);
+                sleep(Duration::from_millis(100)).await; // Simulate external call latency
+            }
             sleep(Duration::from_millis(50)).await; // Simulate processing time
         }
 
-        // 3. Monitor for a specified duration
+        // 4. Monitor for a specified duration
         info!("Simulating for {} minutes...", self.config.simulation_duration_minutes);
         sleep(Duration::from_secs(self.config.simulation_duration_minutes * 60)).await;
 
-        // 4. Collect basic metrics (placeholder - actual metrics would come from profiler/monitor)
+        // 5. Collect basic metrics (placeholder - actual metrics would come from profiler/monitor)
         info!("Simulations completed for sandbox: {}", sandbox_id);
         Ok(SimulationReport {
             success: true,
-            details: format!("{} events processed over {} minutes.", workload.events.len(), self.config.simulation_duration_minutes),
+            details: format!("{} events processed over {} minutes, with {} external mocks.", workload.events.len(), self.config.simulation_duration_minutes, self.config.external_service_mocks.len()),
             total_events: workload.events.len() as u64,
             duration_minutes: self.config.simulation_duration_minutes,
             // More detailed metrics would be collected here or via PerformanceProfiler
@@ -93,14 +103,16 @@ impl SimulationEngine {
 
     /// Generates synthetic user interaction patterns based on learned profiles.
     /// This could eventually query an internal AI model for complex sequence generation.
+    /// Enhanced to include external API calls.
     pub async fn generate_synthetic_workload(&self, profile_id: Option<&str>) -> Result<SyntheticWorkload> {
         info!("Generating synthetic workload for profile: {:?}", profile_id);
-        // Simulate a call to an AI workload generator endpoint or use internal logic
         let mut events = Vec::new();
         for i in 0..(100 * self.config.traffic_multiplier as u32) {
             events.push(format!("user_query_{}", i));
             if i % 10 == 0 { events.push("tool_call_web_search".to_string()); }
             if i % 25 == 0 { events.push("tool_call_file_write".to_string()); }
+            // Introduce simulated external API calls
+            if i % 15 == 0 { events.push("external_api_call:payment_gateway_check".to_string()); }
         }
         Ok(SyntheticWorkload { events })
     }
@@ -115,15 +127,12 @@ impl SimulationEngine {
 
         match scenario_type {
             "network_latency" => {
-                // Example: Add 100ms latency to network interface (inside container)
                 docker_exec_cmd.args(&["sh", "-c", &format!("tc qdisc add dev eth0 root netem delay {}ms", parameter)]);
             },
             "cpu_spike" => {
-                // Example: Run a CPU-intensive command for some duration (inside container)
                 docker_exec_cmd.args(&["sh", "-c", &format!("timeout {} stress-ng --cpu 1 --timeout 60s", parameter)]);
             },
             "api_failure" => {
-                // Example: Simulate an external API endpoint failure by blocking traffic
                 docker_exec_cmd.args(&["sh", "-c", &format!("iptables -A OUTPUT -d {} -j DROP", parameter)]);
             }
             _ => {
@@ -140,6 +149,35 @@ impl SimulationEngine {
         info!("Scenario '{}' injected successfully into sandbox {}."), scenario_type, sandbox_id);
         Ok(())
     }
+
+    /// Configures a mock for an external service within the sandboxed environment.
+    /// This could involve running a simple mock server or configuring proxy rules.
+    pub async fn mock_external_service(&self, sandbox_id: &str, mock_config: &ExternalServiceMockConfig) -> Result<()> {
+        info!("Setting up mock for external service '{}' at path '{}' in sandbox {}.",
+              mock_config.service_name, mock_config.endpoint_path, sandbox_id);
+
+        let container_name = format!("{}-container", sandbox_id);
+        // Example: Using `curl` to simulate configuring a simple mock server (e.g., json-server or mockoon lite)
+        // This is a highly simplified example. In reality, you'd likely deploy a dedicated mock server
+        // to the sandbox or configure a proxy.
+        let mock_setup_command = format!(
+            "curl -X POST -H \"Content-Type: application/json\" -d '{{\"path\": \"{}\", \"response\": \"{}\", \"status\": {}}}' http://localhost:8080/mocks",
+            mock_config.endpoint_path, mock_config.response_body, mock_config.status_code
+        );
+
+        let output = TokioCommand::new("docker")
+            .args(&["exec", &container_name, "sh", "-c", &mock_setup_command])
+            .output()
+            .await?;
+
+        if !output.status.success() {
+            error!("Failed to setup mock for service '{}' in sandbox {}: {}",
+                   mock_config.service_name, sandbox_id, String::from_utf8_lossy(&output.stderr));
+            return Err(anyhow!("External service mock setup failed."));
+        }
+        info!("Mock for external service '{}' configured successfully in sandbox {}."), mock_config.service_name, sandbox_id);
+        Ok(())
+    }
 }
 
 // Placeholder for a detailed simulation report
@@ -151,4 +189,8 @@ pub struct SimulationReport {
     // Add more metrics like error rates, response times, resource usage under simulation
 }
 
-// AppConfig and VirtualizationEngineConfig are now defined in lib.rs, removed from here.
+// Placeholder for synthetic workload data
+pub struct SyntheticWorkload {
+    pub events: Vec<String>,
+    // ... other workload parameters
+}
