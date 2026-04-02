@@ -109,6 +109,14 @@ pub struct CodeGenerationEngineConfig {
     pub code_review_threshold: f32,
 }
 
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct FaultInjectionConfig {
+    pub enable_fault_injection: bool,
+    pub fault_types: Vec<String>, // e.g., "process_crash", "network_partition", "disk_full"
+    pub fault_targets: Vec<String>, // e.g., "tariro-service-a", "50", "10"
+    pub resilience_threshold_failures: u32,
+}
+
 // AppConfig will hold configurations for all modules
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AppConfig {
@@ -122,7 +130,8 @@ pub struct AppConfig {
     pub deployment_manager: Option<DeploymentManagerConfig>,
     pub data_mirroring_system: Option<DataMirroringSystemConfig>,
     pub sandboxed_environment_module: Option<SandboxedEnvironmentModuleConfig>,
-    pub code_generation_engine: Option<CodeGenerationEngineConfig>, // Added this line
+    pub code_generation_engine: Option<CodeGenerationEngineConfig>,
+    pub fault_injection: Option<FaultInjectionConfig>, // Added this line
     // Add other module configs here as they are defined
 }
 
@@ -141,7 +150,8 @@ impl AppConfig {
             deployment_manager: Some(DeploymentManagerConfig::default()),
             data_mirroring_system: Some(DataMirroringSystemConfig::default()),
             sandboxed_environment_module: Some(SandboxedEnvironmentModuleConfig::default()),
-            code_generation_engine: Some(CodeGenerationEngineConfig::default()), // Added this line
+            code_generation_engine: Some(CodeGenerationEngineConfig::default()),
+            fault_injection: Some(FaultInjectionConfig::default()), // Added this line
         })
     }
 }
