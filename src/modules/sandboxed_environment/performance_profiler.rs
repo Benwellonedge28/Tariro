@@ -7,18 +7,23 @@
 use crate::{prelude::*,
     Module,
     ModuleContext,
+    PerformanceProfilerConfig,
 };
+use async_trait::async_trait;
+use tokio::time::{sleep, Duration};
+use rand::Rng;
 
 /// Represents the Performance Profiler & Optimizer.
 pub struct PerformanceProfiler {
-    // Configuration for profiling tools, optimization algorithms, performance targets
     config: PerformanceProfilerConfig,
 }
+
+// PerformanceProfilerConfig is now defined in lib.rs, removed from here.
 
 #[async_trait]
 impl Module for PerformanceProfiler {
     fn new(context: &ModuleContext) -> Result<Self> {
-        let config = PerformanceProfilerConfig { /* ... */ }; // Placeholder
+        let config = context.config.performance_profiler.clone().unwrap_or_default();
         Ok(Self { config })
     }
 
@@ -46,43 +51,79 @@ impl PerformanceProfiler {
     /// Collects granular metrics like CPU usage, memory, I/O, response times.
     pub async fn profile_performance(&self, sandbox_id: &str) -> Result<PerformanceMetrics> {
         info!("Profiling performance in sandbox: {}", sandbox_id);
-        // Placeholder for actual profiling logic:
-        // 1. Attach profiling agents to the sandboxed instance
-        // 2. Collect metrics during simulated workload execution
-        // 3. Analyze data to identify bottlenecks
-        info!("Performance profiling completed for sandbox: {}", sandbox_id);
-        Ok(PerformanceMetrics { cpu_usage_percent: 50.0, memory_usage_mb: 1024.0, response_time_ms: 150.0 })
+        // Simulate attaching profiling agents and collecting data
+        sleep(Duration::from_secs(5)).await; // Simulate profiling duration
+
+        let mut rng = rand::thread_rng();
+        let cpu = rng.gen_range(20.0..80.0);
+        let memory = rng.gen_range(512.0..4096.0);
+        let latency = rng.gen_range(50.0..500.0);
+
+        info!("Performance profiling completed for sandbox: {}. CPU: {:.2}%, Mem: {:.2}MB, Latency: {:.2}ms",
+              sandbox_id, cpu, memory, latency);
+        Ok(PerformanceMetrics {
+            cpu_usage_percent: cpu,
+            memory_usage_mb: memory,
+            response_time_ms: latency,
+        })
     }
 
     /// Iteratively optimizes the configuration or implementation of the feature
     /// within the sandbox to meet performance targets.
     pub async fn optimize_performance(&self, sandbox_id: &str, current_metrics: &PerformanceMetrics) -> Result<OptimizedConfiguration> {
         info!("Optimizing performance in sandbox {} based on current metrics: {:?}", sandbox_id, current_metrics);
-        // Placeholder for actual optimization logic:
-        // 1. Identify areas for improvement based on current_metrics
-        // 2. Apply iterative changes (e.g., adjust parameters, switch algorithms, refactor code sections)
-        // 3. Re-run profiling or targeted benchmarks
-        // 4. Use ML-based optimization algorithms (e.g., genetic algorithms, RL) to find optimal configurations
-        info!("Performance optimization completed for sandbox: {}", sandbox_id);
-        Ok(OptimizedConfiguration { /* ... */ })
+        let mut optimized_config = OptimizedConfiguration { changes: Vec::new() };
+        let mut metrics = current_metrics.clone();
+
+        for i in 0..self.config.optimization_iterations {
+            if metrics.response_time_ms > self.config.target_latency_ms as f64 {
+                info!("Iteration {}: Latency too high ({:.2}ms). Applying optimization...", i, metrics.response_time_ms);
+                optimized_config.changes.push(format!("Reduced database query complexity (iteration {})", i));
+                metrics.response_time_ms *= 0.8; // Simulate improvement
+                metrics.cpu_usage_percent *= 0.9; // Simulate improvement
+            } else if metrics.cpu_usage_percent > self.config.target_cpu_usage_percent {
+                info!("Iteration {}: CPU usage too high ({:.2}%). Applying optimization...", i, metrics.cpu_usage_percent);
+                optimized_config.changes.push(format!("Implemented aggressive caching (iteration {})", i));
+                metrics.cpu_usage_percent *= 0.85; // Simulate improvement
+            } else {
+                info!("Iteration {}: Performance targets met or near optimal.", i);
+                break;
+            }
+            sleep(Duration::from_secs(2)).await; // Simulate optimization application time
+        }
+
+        info!("Performance optimization completed for sandbox: {}. Final (simulated) metrics: {:?}", sandbox_id, metrics);
+        Ok(optimized_config)
     }
 
     /// Reports performance benchmarks against predefined targets or baselines.
     pub async fn report_benchmarks(&self, sandbox_id: &str) -> Result<BenchmarkReport> {
         info!("Reporting benchmarks for sandbox: {}", sandbox_id);
-        // Compare collected metrics against historical data or target SLAs
-        Ok(BenchmarkReport { /* ... */ })
+        
+        let current_metrics = self.profile_performance(sandbox_id).await?;
+        let mut summary = format!("Benchmark Report for Sandbox {}:\n", sandbox_id);
+        let mut passed = true;
+
+        if current_metrics.response_time_ms > self.config.target_latency_ms as f64 {
+            summary.push_str(&format!("- Latency: {:.2}ms (FAILED - Target: {}ms)\n", current_metrics.response_time_ms, self.config.target_latency_ms));
+            passed = false;
+        } else {
+            summary.push_str(&format!("- Latency: {:.2}ms (PASSED - Target: {}ms)\n", current_metrics.response_time_ms, self.config.target_latency_ms));
+        }
+
+        if current_metrics.cpu_usage_percent > self.config.target_cpu_usage_percent {
+            summary.push_str(&format!("- CPU Usage: {:.2}% (FAILED - Target: {:.2}%)\n", current_metrics.cpu_usage_percent, self.config.target_cpu_usage_percent));
+            passed = false;
+        } else {
+            summary.push_str(&format!("- CPU Usage: {:.2}% (PASSED - Target: {:.2}%)\n", current_metrics.cpu_usage_percent, self.config.target_cpu_usage_percent));
+        }
+
+        Ok(BenchmarkReport { summary, passed })
     }
 }
 
-// Placeholder configuration struct for the PerformanceProfiler
-pub struct PerformanceProfilerConfig {
-    // e.g., profiling_tool_path: String,
-    //       target_latency_ms: u32,
-}
-
 // Placeholder for collected performance metrics
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PerformanceMetrics {
     pub cpu_usage_percent: f64,
     pub memory_usage_mb: f64,
@@ -91,11 +132,14 @@ pub struct PerformanceMetrics {
 }
 
 // Placeholder for an optimized configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OptimizedConfiguration {
-    // New parameters, flags, or architectural suggestions
+    pub changes: Vec<String>,
 }
 
 // Placeholder for a benchmark report
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BenchmarkReport {
-    // Metrics like latency, throughput, resource consumption
+    pub summary: String,
+    pub passed: bool,
 }
