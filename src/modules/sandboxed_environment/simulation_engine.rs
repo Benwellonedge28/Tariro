@@ -4,7 +4,7 @@
 //! Its role is to generate realistic workloads, user interactions, and external data feeds
 //! within a sandbox, simulating the operating conditions of the live system.
 
-use crate::{prelude::*, Module, ModuleContext};
+use crate::{prelude::*, Module, ModuleContext, SimulationEngineConfig, AppConfig};
 use async_trait::async_trait;
 use tokio::process::Command as TokioCommand;
 use tokio::time::{sleep, Duration};
@@ -15,24 +15,7 @@ pub struct SimulationEngine {
     // In a real implementation, this would hold clients for AI models, data generators, etc.
 }
 
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct SimulationEngineConfig {
-    pub historical_data_path: String,
-    pub ai_workload_generator_endpoint: String,
-    pub simulation_duration_minutes: u64,
-    pub traffic_multiplier: f32,
-}
-
-impl Default for SimulationEngineConfig {
-    fn default() -> Self {
-        SimulationEngineConfig {
-            historical_data_path: "/app/data/historical_interactions.json".to_string(),
-            ai_workload_generator_endpoint: "http://localhost:8081/generate_workload".to_string(),
-            simulation_duration_minutes: 5,
-            traffic_multiplier: 1.0,
-        }
-    }
-}
+// SimulationEngineConfig is now defined in lib.rs, removed from here.
 
 #[async_trait]
 impl Module for SimulationEngine {
@@ -168,50 +151,4 @@ pub struct SimulationReport {
     // Add more metrics like error rates, response times, resource usage under simulation
 }
 
-// Placeholder for synthetic workload data
-pub struct SyntheticWorkload {
-    pub events: Vec<String>,
-    // ... other workload parameters
-}
-
-// Placeholder config type for ModuleContext
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct AppConfig {
-    pub log_level: String,
-    pub database_url: String,
-    pub virtualization_engine: Option<VirtualizationEngineConfig>,
-    pub simulation_engine: Option<SimulationEngineConfig>,
-    // Add other module configs here
-}
-
-impl Default for AppConfig {
-    fn default() -> Self {
-        AppConfig {
-            log_level: "info".to_string(),
-            database_url: "sqlite://tariro.db".to_string(),
-            virtualization_engine: Some(VirtualizationEngineConfig::default()),
-            simulation_engine: Some(SimulationEngineConfig::default()),
-        }
-    }
-}
-
-// Re-define VirtualizationEngineConfig here for AppConfig to work.
-// In a real structure, this would be imported.
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct VirtualizationEngineConfig {
-    pub sandbox_base_image: String,
-    pub network_prefix: String,
-    pub resource_limits_cpu: String,
-    pub resource_limits_memory: String,
-}
-
-impl Default for VirtualizationEngineConfig {
-    fn default() -> Self {
-        VirtualizationEngineConfig {
-            sandbox_base_image: "tariro/core-latest".to_string(),
-            network_prefix: "172.28.".to_string(), // Example for isolated Docker networks
-            resource_limits_cpu: "1.0".to_string(), // 1 CPU core
-            resource_limits_memory: "2g".to_string(), // 2 GB RAM
-        }
-    }
-}
+// AppConfig and VirtualizationEngineConfig are now defined in lib.rs, removed from here.
