@@ -6,7 +6,6 @@
 //! and architectural changes without impacting the live system.
 
 pub mod virtualization_engine;
-pub mod virtualization_engine_config;
 pub mod simulation_engine;
 pub mod automated_test_suite;
 pub mod performance_profiler;
@@ -20,6 +19,8 @@ use crate::{prelude::*,
     ModuleContext,
     FeatureProposalId,
     SandboxedEnvironmentModuleConfig,
+    // Import CodeQualityReport directly from its module
+    code_generation_engine::CodeQualityReport,
 };
 
 /// Represents the core Sandboxed Environment Module.
@@ -32,11 +33,18 @@ pub struct SandboxedEnvironmentModule {
     ethical_compliance_monitor: ethical_compliance_monitor::EthicalComplianceMonitor,
     deployment_manager: deployment_manager::DeploymentManager,
     data_mirroring_system: data_mirroring_system::DataMirroringSystem,
-    code_generation_engine: code_generation_engine::CodeGenerationEngine, // New: Code Generation Engine
+    code_generation_engine: code_generation_engine::CodeGenerationEngine,
 }
 
 #[async_trait]
-impl Module for SandboxedEnvironmentModule {
+pub trait Module: Send + Sync {
+    fn new(context: &ModuleContext) -> Result<Self> where Self: Sized;
+    async fn start(&self) -> Result<()>;
+    async fn stop(&self) -> Result<()>;
+    fn name(&self) -> &'static str;
+}
+
+impl SandboxedEnvironmentModule {
     fn new(context: &ModuleContext) -> Result<Self> {
         let config = context.config.sandboxed_environment_module.clone().unwrap_or_default();
         Ok(Self {
@@ -237,7 +245,7 @@ impl SandboxedEnvironmentModule {
                              final_metrics.cpu_usage_percent <= self.performance_profiler.config.target_cpu_usage_percent;
         let tests_ok = final_test_report.pass_rate >= self.automated_test_suite.config.minimum_pass_rate;
         let ethical_ok = !final_ethical_report.human_review_needed;
-        let code_quality_ok = final_code_quality.adheres_to_standards && !final_code_quality.requires_human_review_due_to_quality; // Assuming a field for quality review
+        let code_quality_ok = final_code_quality.adheres_to_standards && !final_code_quality.requires_human_review_due_to_quality; // Corrected access
 
         if !human_review_needed_total && performance_ok && tests_ok && ethical_ok && code_quality_ok {
             deployment_approved = true;
@@ -323,23 +331,6 @@ pub enum SandboxStatus {
     Failed,
 }
 
-// Temporary fix for `requires_human_review_due_to_quality` on CodeQualityReport
-// This should be properly defined in code_generation_engine.rs.
-// Since I cannot modify code_generation_engine.rs directly in this step, I'm adding a dummy for compilation.
-// In a real scenario, CodeQualityReport would be updated directly.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CodeQualityReport {
-    pub maintainability_score: f32,
-    pub security_issues: u32,
-    pub complexity: u32,
-    pub adheres_to_standards: bool,
-    pub requires_human_review_due_to_quality: bool, // Added for mod.rs compilation
-}
-
-// Added this to avoid compilation error in mod.rs until code_generation_engine.rs is fully updated.
-// This is a temporary measure and will be removed once full CodeGenerationEngine is implemented.
-pub mod virtualization_engine_config {
-    // This module is empty; it exists to satisfy a temporary placeholder in mod.rs.
-    // Once the actual CodeGenerationEngine and its configuration are fully integrated,
-    // this dummy module will be removed.
-}
+// Temporary module for VirtualizationEngineConfig was causing issues due to duplicate definition in mod.rs and lib.rs.
+// Removed as VirtualizationEngineConfig is defined in lib.rs and directly imported where needed.
+pub mod virtualization_engine_config;
