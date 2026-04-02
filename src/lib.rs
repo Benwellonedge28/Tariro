@@ -49,6 +49,8 @@ pub struct VirtualizationEngineConfig {
     pub network_prefix: String,
     pub resource_limits_cpu: String,
     pub resource_limits_memory: String,
+    pub distributed_clusters: Vec<String>, // New: e.g., "aws-us-east-1", "gcp-europe-west1"
+    pub default_cluster: String, // New
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -171,7 +173,7 @@ pub struct SelfModificationModuleConfig {
     pub enable_self_modification: bool,
     pub modification_frequency_seconds: u64,
     pub change_review_threshold: f32,
-    pub meta_learning: Option<MetaLearningConfig>, // Added this line
+    pub meta_learning: Option<MetaLearningConfig>,
 }
 
 // AppConfig will hold configurations for all modules
@@ -204,7 +206,11 @@ impl AppConfig {
         Ok(AppConfig {
             log_level: std::env::var("TARIRO_LOG_LEVEL").unwrap_or_else(|_| "info".to_string()),
             database_url: std::env::var("TARIRO_DATABASE_URL").unwrap_or_else(|_| "sqlite://tariro.db".to_string()),
-            virtualization_engine: Some(VirtualizationEngineConfig::default()),
+            virtualization_engine: Some(VirtualizationEngineConfig {
+                distributed_clusters: vec!["aws-us-east-1".to_string(), "gcp-europe-west1".to_string()],
+                default_cluster: "aws-us-east-1".to_string(),
+                ..Default::default()
+            }),
             simulation_engine: Some(SimulationEngineConfig::default()),
             automated_test_suite: Some(AutomatedTestSuiteConfig::default()),
             performance_profiler: Some(PerformanceProfilerConfig::default()),
