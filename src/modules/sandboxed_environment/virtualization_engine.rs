@@ -8,12 +8,13 @@ use crate::{prelude::*,
     Module,
     ModuleContext,
     FeatureProposalId,
-    VirtualizationEngineConfig, // Import from lib.rs
+    VirtualizationEngineConfig,
 };
 use async_trait::async_trait;
 use std::process::Command;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command as TokioCommand;
+use tokio::time::{sleep, Duration};
 
 /// Represents the Virtualization Engine responsible for managing sandbox instances.
 pub struct VirtualizationEngine {
@@ -22,12 +23,9 @@ pub struct VirtualizationEngine {
     // e.g., `docker_cli: DockerClient` or `kubernetes_client: KubeClient`
 }
 
-// VirtualizationEngineConfig is now defined in lib.rs, removed from here.
-
 #[async_trait]
 impl Module for VirtualizationEngine {
     fn new(context: &ModuleContext) -> Result<Self> {
-        // Load configuration from context. If not found, use defaults.
         let config = context.config.virtualization_engine.clone().unwrap_or_default();
         Ok(Self { config })
     }
@@ -161,5 +159,46 @@ impl VirtualizationEngine {
         info!("Production environment snapshot image '{}' created.", snapshot_tag);
         
         Ok(snapshot_tag)
+    }
+
+    /// Injects various faults into the sandboxed environment to test resilience.
+    pub async fn inject_fault(&self, sandbox_id: &str, fault_type: &str, target: &str) -> Result<()> {
+        info!("Injecting '{}' fault into sandbox '{}' targeting '{}'.", fault_type, sandbox_id, target);
+        let container_name = format!("{}-container", sandbox_id);
+
+        let mut docker_exec_cmd = TokioCommand::new("docker");
+        docker_exec_cmd.arg("exec").arg(&container_name);
+
+        match fault_type {
+            "process_crash" => {
+                // Simulate crashing a process (e.g., a web server process)
+                // Target could be a process name or PID. For simplicity, we'll use a dummy command.
+                docker_exec_cmd.args(&["sh", "-c", &format!("killall -9 {}", target)]);
+                info!("Simulating process crash for target '{}'.", target);
+            },
+            "network_partition" => {
+                // Simulate network isolation or high packet loss to a target IP/port
+                // Using `tc` (traffic control) for Linux containers.
+                docker_exec_cmd.args(&["sh", "-c", &format!("tc qdisc add dev eth0 root netem loss {}%", target)]);
+                info!("Simulating network loss of {}% on eth0.", target);
+            },
+            "disk_full" => {
+                // Simulate a disk full scenario by creating a large dummy file
+                docker_exec_cmd.args(&["sh", "-c", &format!("fallocate -l {}G /tmp/dummy_disk_hog", target)]);
+                info!("Simulating disk full with {}GB dummy file.", target);
+            },
+            _ => {
+                warn!("Unknown fault type: {}", fault_type);
+                return Err(anyhow!("Unsupported fault type."));
+            }
+        }
+
+        let output = docker_exec_cmd.output().await?;
+        if !output.status.success() {
+            error!("Failed to inject fault '{}' into sandbox {}: {}", fault_type, sandbox_id, String::from_utf8_lossy(&output.stderr));
+            return Err(anyhow!("Fault injection failed."));
+        }
+        info!("Fault '{}' injected successfully into sandbox {}."), fault_type, sandbox_id);
+        Ok(())
     }
 }
