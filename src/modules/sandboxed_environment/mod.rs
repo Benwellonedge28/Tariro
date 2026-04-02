@@ -13,6 +13,7 @@ pub mod ethical_compliance_monitor;
 pub mod deployment_manager;
 pub mod data_mirroring_system;
 pub mod code_generation_engine;
+pub mod self_healing_engine;
 
 use crate::{prelude::*,
     Module,
@@ -34,6 +35,7 @@ pub struct SandboxedEnvironmentModule {
     deployment_manager: deployment_manager::DeploymentManager,
     data_mirroring_system: data_mirroring_system::DataMirroringSystem,
     code_generation_engine: code_generation_engine::CodeGenerationEngine,
+    self_healing_engine: self_healing_engine::SelfHealingEngine, // New: Self Healing Engine
 }
 
 #[async_trait]
@@ -57,6 +59,7 @@ impl SandboxedEnvironmentModule {
             deployment_manager: deployment_manager::DeploymentManager::new(context)?,
             data_mirroring_system: data_mirroring_system::DataMirroringSystem::new(context)?,
             code_generation_engine: code_generation_engine::CodeGenerationEngine::new(context)?,
+            self_healing_engine: self_healing_engine::SelfHealingEngine::new(context)?,
         })
     }
 
@@ -70,6 +73,7 @@ impl SandboxedEnvironmentModule {
         self.deployment_manager.start().await?;
         self.data_mirroring_system.start().await?;
         self.code_generation_engine.start().await?;
+        self.self_healing_engine.start().await?;
         info!("SandboxedEnvironmentModule started.");
         Ok(())
     }
@@ -84,6 +88,7 @@ impl SandboxedEnvironmentModule {
         self.deployment_manager.stop().await?;
         self.data_mirroring_system.stop().await?;
         self.code_generation_engine.stop().await?;
+        self.self_healing_engine.stop().await?;
         info!("SandboxedEnvironmentModule stopped.");
         Ok(())
     }
@@ -99,6 +104,7 @@ impl SandboxedEnvironmentModule {
         info!("Initiating autonomous sandbox experiment for FeatureProposal: {}", feature_proposal_id.0);
 
         let telemetry_config = self.context.config.telemetry.clone().unwrap_or_default();
+        let sandboxed_env_config = self.context.config.sandboxed_environment_module.clone().unwrap_or_default();
 
         let mut report = SandboxReport {
             sandbox_id: "".to_string(),
@@ -114,7 +120,8 @@ impl SandboxedEnvironmentModule {
             generated_code_feedback: Vec::new(),
             fault_injection_results: None,
             external_mock_interaction_issues: None,
-            telemetry_enabled_for_experiment: telemetry_config.enable_telemetry_export, // New field
+            telemetry_enabled_for_experiment: telemetry_config.enable_telemetry_export,
+            self_healing_attempts: Vec::new(), // New field
         };
 
         let sandbox_id: String;
@@ -139,12 +146,12 @@ impl SandboxedEnvironmentModule {
                 report.status = SandboxStatus::Failed;
                 report.recommendation = format!("Failed to provision sandbox: {}", e);
                 // Attempt cleanup
-                let _ = self.cleanup_sandbox_resources(&report.sandbox_id, &self.config.auto_deprovision_sandbox).await;
+                let _ = self.cleanup_sandbox_resources(&report.sandbox_id, &sandboxed_env_config.auto_deprovision_sandbox).await;
                 return Ok(report);
             }
         }
 
-        // --- Phase 1.5: Configure External Service Mocks (New Phase) ---
+        // --- Phase 1.5: Configure External Service Mocks ---
         if !simulation_engine_config.external_service_mocks.is_empty() {
             report.status = SandboxStatus::ConfiguringMocks;
             info!("Phase 1.5: Configuring external service mocks...");
@@ -159,12 +166,13 @@ impl SandboxedEnvironmentModule {
         info!("Phase 2: Deploying feature to sandbox...");
         self.deployment_manager.deploy_feature_to_sandbox(&feature_proposal_id, &sandbox_id).await?;
 
-        // --- Phase 3: Iterative Simulation, Testing, Profiling, Ethical Monitoring, and Self-Modification Loop ---
-        info!("Phase 3: Entering iterative loop for evaluation and self-modification...");
+        // --- Phase 3: Iterative Simulation, Testing, Profiling, Ethical Monitoring, Self-Healing, and Self-Modification Loop ---
+        info!("Phase 3: Entering iterative loop for evaluation, self-healing, and self-modification...");
         let mut current_metrics: Option<crate::performance_profiler::PerformanceMetrics> = None;
         let mut optimization_cycles = 0;
         let mut resilience_failures = 0;
         let mut external_mock_issues_count = 0;
+        let mut self_healing_attempted_in_cycle = false;
 
         loop {
             info!("\n--- Iteration {} ---", optimization_cycles + 1);
@@ -206,7 +214,7 @@ impl SandboxedEnvironmentModule {
             report.ethical_violations = ethical_report.details.clone();
 
             // --- Fault Injection Phase ---
-            if fault_injection_config.enable_fault_injection && optimization_cycles == 0 { // Only inject fault once per experiment for simplicity
+            if fault_injection_config.enable_fault_injection && optimization_cycles == 0 && !self_healing_attempted_in_cycle { // Only inject fault once per experiment for simplicity
                 report.status = SandboxStatus::InjectingFault;
                 info!("  Injecting fault for resilience testing...");
                 let fault_type = fault_injection_config.fault_types.get(0).cloned().unwrap_or_else(|| "process_crash".to_string());
@@ -244,6 +252,25 @@ impl SandboxedEnvironmentModule {
             let external_mock_issues_present = external_mock_issues_count > 0;
 
             if performance_needs_improvement || tests_failed || resilience_poor || external_mock_issues_present {
+                // Check for self-healing opportunities first
+                if sandboxed_env_config.enable_self_healing_attempts && !self_healing_attempted_in_cycle {
+                    report.status = SandboxStatus::SelfHealing;
+                    info!("  Issues detected. Attempting self-healing...");
+                    let issue_summary = format!("Performance: {} (target {}), Tests: {} (target {}), Resilience: {} (target {}), External Mocks: {}.",
+                                                performance_needs_improvement, target_latency, tests_failed, self.automated_test_suite.config.minimum_pass_rate, resilience_poor, fault_injection_config.resilience_threshold_failures,
+                                                external_mock_issues_present);
+                    let healing_report = self.self_healing_engine.diagnose_and_heal(&sandbox_id, &issue_summary).await?;
+                    report.self_healing_attempts.push(healing_report.clone());
+
+                    if healing_report.healing_successful {
+                        info!("  Self-healing successful. Re-evaluating sandbox.");
+                        self_healing_attempted_in_cycle = true; // Mark healing attempted for this cycle
+                        continue; // Re-run the current loop iteration to re-evaluate after healing
+                    } else {
+                        warn!("  Self-healing attempted but not successful. Proceeding to code generation if needed.");
+                    }
+                }
+
                 optimization_cycles += 1;
                 if optimization_cycles <= self.config.max_optimization_cycles {
                     report.status = SandboxStatus::Optimizing;
@@ -275,6 +302,7 @@ impl SandboxedEnvironmentModule {
                     self.code_generation_engine.apply_code_changes(&sandbox_id, &generated_code_proposal).await?;
                     current_code_context = generated_code_proposal.code; // Update context with new code
                     info!("  Code changes applied. Re-running evaluations.");
+                    self_healing_attempted_in_cycle = false; // Reset for next optimization cycle
 
                 } else {
                     warn!("  Max optimization cycles ({}) reached. Targets still not fully met.", self.config.max_optimization_cycles);
@@ -308,7 +336,7 @@ impl SandboxedEnvironmentModule {
         if !human_review_needed_total && performance_ok && tests_ok && ethical_ok && code_quality_ok && resilience_ok && external_mock_interactions_ok {
             deployment_approved = true;
             report.recommendation = "All checks passed: Feature is ready for production deployment.".to_string();
-            if self.config.enable_autonomous_deployment {
+            if sandboxed_env_config.enable_autonomous_deployment {
                 info!("Autonomous deployment enabled. Initiating production deployment...");
                 self.deployment_manager.deploy_to_production(&feature_proposal_id).await?;
                 report.deployment_status = "Deployed to Production".to_string();
@@ -335,7 +363,7 @@ impl SandboxedEnvironmentModule {
 
         // --- Phase 5: Cleanup ---
         info!("Phase 5: Cleaning up sandbox resources...");
-        let _ = self.cleanup_sandbox_resources(&sandbox_id, &self.config.auto_deprovision_sandbox).await;
+        let _ = self.cleanup_sandbox_resources(&sandbox_id, &sandboxed_env_config.auto_deprovision_sandbox).await;
 
         info!("Autonomous sandbox experiment for FeatureProposal {} finished with status: {:?}", feature_proposal_id.0, report.status);
         Ok(report)
@@ -354,7 +382,7 @@ impl SandboxedEnvironmentModule {
         } else {
             info!("Auto-deprovisioning disabled. Sandbox {} and its data retained.", sandbox_id);
         }
-        Ok(())
+        Ok(())s
     }
 }
 
@@ -375,13 +403,14 @@ pub struct SandboxReport {
     pub fault_injection_results: Option<FaultInjectionReport>, // New field
     pub external_mock_interaction_issues: Option<String>, // New field
     pub telemetry_enabled_for_experiment: bool, // New field
+    pub self_healing_attempts: Vec<self_healing_engine::HealingAttemptReport>, // New field
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SandboxStatus {
     Initiated,
     Provisioning,
-    ConfiguringMocks, // New status
+    ConfiguringMocks,
     DeployingFeature,
     Simulating,
     Testing,
@@ -389,6 +418,7 @@ pub enum SandboxStatus {
     Optimizing,
     EthicalMonitoring,
     InjectingFault,
+    SelfHealing, // New status
     FinalEvaluation,
     HumanReviewPending,
     Completed,
