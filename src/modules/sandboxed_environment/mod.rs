@@ -98,6 +98,8 @@ impl SandboxedEnvironmentModule {
     pub async fn run_sandbox_experiment(&self, feature_proposal_id: FeatureProposalId) -> Result<SandboxReport> {
         info!("Initiating autonomous sandbox experiment for FeatureProposal: {}", feature_proposal_id.0);
 
+        let telemetry_config = self.context.config.telemetry.clone().unwrap_or_default();
+
         let mut report = SandboxReport {
             sandbox_id: "".to_string(),
             feature_proposal_id: feature_proposal_id.clone(),
@@ -111,7 +113,8 @@ impl SandboxedEnvironmentModule {
             sim_report_details: None,
             generated_code_feedback: Vec::new(),
             fault_injection_results: None,
-            external_mock_interaction_issues: None, // New field
+            external_mock_interaction_issues: None,
+            telemetry_enabled_for_experiment: telemetry_config.enable_telemetry_export, // New field
         };
 
         let sandbox_id: String;
@@ -371,6 +374,7 @@ pub struct SandboxReport {
     pub generated_code_feedback: Vec<String>, // New field for code generation feedback
     pub fault_injection_results: Option<FaultInjectionReport>, // New field
     pub external_mock_interaction_issues: Option<String>, // New field
+    pub telemetry_enabled_for_experiment: bool, // New field
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
