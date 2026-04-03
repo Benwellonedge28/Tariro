@@ -7,11 +7,12 @@
 pub use anyhow::{Result, Error};
 pub use async_trait::async_trait;
 pub use log::{info, warn, error, debug};
-pub use uuid;
+pub use uuid::Uuid; // Changed from uuid
 pub use chrono;
 pub use serde::{Serialize, Deserialize};
 use std::collections::HashMap; // Added for HashMap in DeploymentManagerConfig
 use sqlx::PgPool; // Added for CognitiveConfig::new signature
+use tracing::{info, warn}; // Added for MeshNetwork
 
 // Define the core Module trait that all Tariro modules must implement.
 // This ensures a consistent interface for module lifecycle management.
@@ -314,6 +315,78 @@ impl KnowledgeSynthesisConfig {
     }
 }
 
+// NEW STRUCT: MeshNetwork
+#[derive(Debug)] // Derive Debug trait
+pub struct MeshNetwork {
+    // Configuration options for the mesh network
+    pub node_id: Uuid,
+    pub peer_discovery_enabled: bool,
+    pub communication_protocol: String, // e.g., "QUIC", "libp2p"
+    // Add other relevant fields here, e.g., a list of connected peers
+}
+
+impl MeshNetwork {
+    pub fn new(_pool: Option<PgPool>) -> Self {
+        MeshNetwork {
+            node_id: Uuid::new_v4(),
+            peer_discovery_enabled: true,
+            communication_protocol: "QUIC".to_string(),
+        }
+    }
+
+    // Conceptual method for sending a message to a peer
+    pub async fn send_message(&self, recipient_id: Uuid, message: String) -> Result<String> {
+        info!("MeshNetwork: Sending message from {} to {}: {}", self.node_id, recipient_id, message);
+        // Simulate network communication
+        tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
+        Ok(format!("Message sent to {}: {}", recipient_id, message))
+    }
+
+    // Conceptual method for discovering peers
+    pub async fn discover_peers(&self) -> Result<Vec<Uuid>> {
+        info!("MeshNetwork: Discovering peers...");
+        // Simulate peer discovery
+        tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+        Ok(vec![Uuid::new_v4(), Uuid::new_v4()]) // Return some dummy peer IDs
+    }
+}
+
+// NEW STRUCT: ResourceManagerConfig
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct ResourceManagerConfig {
+    pub enabled: bool,
+    pub proactive_optimization_enabled: bool,
+    pub monitoring_interval_seconds: u64,
+    pub threshold_cpu_usage: f32,
+    pub threshold_memory_usage: f32,
+}
+
+impl ResourceManagerConfig {
+    pub fn new(_pool: Option<PgPool>) -> Self {
+        ResourceManagerConfig {
+            enabled: true,
+            proactive_optimization_enabled: true,
+            monitoring_interval_seconds: 300, // Every 5 minutes
+            threshold_cpu_usage: 0.8, // 80%
+            threshold_memory_usage: 0.7, // 70%
+        }
+    }
+
+    // Conceptual method for monitoring resources (returns dummy data for now)
+    pub async fn monitor_resources(&self) -> Result<(f32, f32)> {
+        info!("ResourceManager: Monitoring resources...");
+        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+        Ok((0.75, 0.60)) // Example: 75% CPU, 60% Memory
+    }
+
+    // Conceptual method for applying resource optimization
+    pub async fn apply_optimization(&self, _optimization_plan: &str) -> Result<String> {
+        info!("ResourceManager: Applying optimization plan: {}", _optimization_plan);
+        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+        Ok(format!("Optimization plan '{}' applied successfully.", _optimization_plan))
+    }
+}
+
 
 // AppConfig will hold configurations for all modules
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -342,6 +415,7 @@ pub struct AppConfig {
     pub digital_twin_config: Option<DigitalTwinConfig>, // NEW FIELD - Added to AppConfig
     pub refactor_engine_config: Option<RefactorEngineConfig>, // NEW FIELD - Added to AppConfig
     pub knowledge_synthesis_config: Option<KnowledgeSynthesisConfig>, // NEW FIELD - Added to AppConfig
+    pub resource_manager_config: Option<ResourceManagerConfig>, // NEW FIELD - Added to AppConfig
     // Add other module configs here as they are developed
 }
 
@@ -378,6 +452,7 @@ impl AppConfig {
             digital_twin_config: Some(DigitalTwinConfig::new(None)), // NEW: Initialize DigitalTwinConfig
             refactor_engine_config: Some(RefactorEngineConfig::new(None)), // NEW: Initialize RefactorEngineConfig
             knowledge_synthesis_config: Some(KnowledgeSynthesisConfig::new(None)), // NEW: Initialize KnowledgeSynthesisConfig
+            resource_manager_config: Some(ResourceManagerConfig::new(None)), // NEW: Initialize ResourceManagerConfig
             // Add other module configs here as they are developed
         })
     }
