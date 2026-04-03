@@ -186,6 +186,14 @@ pub struct IDPTEModuleConfig {
     pub autonomous_commit_message_generation: bool,
 }
 
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct OmegaOSKernelConfig {
+    pub kernel_code_path: String,
+    pub bootloader_path: String,
+    pub self_compilation_target: String, // e.g., "x86_64", "aarch64", "wasm"
+    pub enable_self_modification_of_kernel: bool,
+}
+
 // AppConfig will hold configurations for all modules
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AppConfig {
@@ -207,6 +215,7 @@ pub struct AppConfig {
     pub human_in_the_loop: Option<HumanInTheLoopConfig>,
     pub self_modification_module: Option<SelfModificationModuleConfig>, 
     pub idpte_module: Option<IDPTEModuleConfig>,
+    pub omega_os_kernel_module: Option<OmegaOSKernelConfig>, // Added this line
     // Add other module configs here as they are developed
 }
 
@@ -245,6 +254,7 @@ impl AppConfig {
             human_in_the_loop: Some(HumanInTheLoopConfig::default()),
             self_modification_module: Some(SelfModificationModuleConfig::default()),
             idpte_module: Some(IDPTEModuleConfig::default()),
+            omega_os_kernel_module: Some(OmegaOSKernelConfig::default()), // Added this line
         })
     }
 }
