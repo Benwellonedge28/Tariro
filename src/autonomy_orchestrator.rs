@@ -11,8 +11,8 @@ use crate::security_audit::AuditEngine;
 use crate::cognitive_arch::CognitiveConfig;
 use crate::digital_twin::DigitalTwinConfig;
 use crate::refactor::RefactorEngineConfig;
-use crate::knowledge_synthesis::KnowledgeSynthesisConfig; // This will now correctly resolve from src/lib.rs
-use crate::mesh_network::MeshNetwork;
+use crate::knowledge_synthesis::KnowledgeSynthesisConfig;
+use crate::mesh_network::MeshNetwork; // This will now correctly resolve from src/lib.rs
 
 #[derive(Serialize)]
 pub struct AgiDecisionLog {
@@ -29,8 +29,8 @@ pub struct AutonomyOrchestrator {
     agi_config: CognitiveConfig,
     digital_twin_config: DigitalTwinConfig,
     refactor_engine: RefactorEngineConfig,
-    knowledge_synthesis_config: KnowledgeSynthesisConfig, // This will now correctly resolve from src/lib.rs
-    mesh_network: Arc<MeshNetwork>,
+    knowledge_synthesis_config: KnowledgeSynthesisConfig,
+    mesh_network: Arc<MeshNetwork>, // This will now correctly resolve from src/lib.rs
 }
 
 impl AutonomyOrchestrator {
@@ -78,7 +78,7 @@ impl AutonomyOrchestrator {
         Ok(format!("AGI successfully initiated autonomous threat resolution for {}. Details: {}.", threat_id, decision_str))
     }
 
-    /// AGI initiates peer-to-peer code reviews based on deep code analysis..
+    /// AGI initiates peer-to-peer code reviews based on deep code analysis.
     pub async fn initiate_p2p_code_review(&self, file_id: Uuid) -> Result<String> {
         info!("Autonomy Orchestrator: AGI analyzing file {} for P2P code review need...", file_id);
         // --- Enhanced AGI Decision Logic ---
@@ -112,6 +112,37 @@ impl AutonomyOrchestrator {
         );
         self.log_agi_decision(decision_str.clone(), "Autonomous Knowledge Synthesis", 0.7).await?;
         Ok(format!("New insight generated: {}", new_insight))
+    }
+
+    /// AGI autonomously coordinates with other AGI instances via the MeshNetwork.
+    pub async fn coordinate_via_mesh_network(&self, purpose: &str, target_peers: Option<Vec<Uuid>>, message: String) -> Result<String> {
+        info!("Autonomy Orchestrator: AGI initiating coordination via MeshNetwork for purpose: {}", purpose);
+
+        let peers_to_contact = if let Some(peers) = target_peers {
+            peers
+        } else {
+            self.mesh_network.discover_peers().await?
+        };
+
+        if peers_to_contact.is_empty() {
+            warn!("No peers discovered or specified for coordination.");
+            return Ok("No peers to coordinate with.".to_string());
+        }
+
+        let mut responses = Vec::new();
+        for peer_id in peers_to_contact {
+            let response = self.mesh_network.send_message(peer_id, message.clone()).await?;
+            responses.push(response);
+        }
+
+        let decision_str = format!(
+            "AGI autonomously coordinated with {} peers via MeshNetwork for purpose '{}'. Responses: {}.",
+            responses.len(),
+            purpose,
+            responses.join("; ")
+        );
+        self.log_agi_decision(decision_str.clone(), "Autonomous Mesh Network Coordination", 0.9).await?;
+        Ok(format!("MeshNetwork coordination completed. Details: {}", decision_str))
     }
 
 
