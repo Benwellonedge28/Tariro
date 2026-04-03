@@ -171,6 +171,9 @@ pub struct MetaLearningConfig {
     pub enable_meta_learning: bool,
     pub meta_learning_data_storage_path: String,
     pub strategy_evaluation_frequency_seconds: u64,
+    // NEW FIELD for Foundational Principle Evolution
+    pub enable_principle_evolution: bool,
+    pub principle_evaluation_interval_hours: u64,
 }
 
 #[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
@@ -213,6 +216,9 @@ pub struct CognitiveConfig {
     pub enable_consciousness_interface: bool,
     pub enable_qualia_simulation: bool,
     pub ethical_security_threshold: f32, // For AutonomyOrchestrator's use
+    // NEW FIELD for Meta-Ethics
+    pub enable_meta_ethical_reasoning: bool,
+    pub meta_ethical_review_threshold: f32, // e.g., if a proposed change has less than this, requires human review
 }
 
 impl CognitiveConfig {
@@ -222,7 +228,9 @@ impl CognitiveConfig {
             ethical_alignment_strictness: 0.95,
             enable_consciousness_interface: false,
             enable_qualia_simulation: false,
-            ethical_security_threshold: 0.9, // Default threshold
+            ethical_security_threshold: 0.9,
+            enable_meta_ethical_reasoning: true, // NEW: Enabled by default
+            meta_ethical_review_threshold: 0.8, // NEW: Default review threshold
         }
     }
 
@@ -232,228 +240,6 @@ impl CognitiveConfig {
     }
 }
 
-// NEW STRUCT: DigitalTwinConfig
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct DigitalTwinConfig {
-    pub enabled: bool,
-    pub simulation_accuracy: f32, // 0.0 to 1.0
-    pub enable_realtime_sync: bool,
-    pub predicted_impact: String, // Default for simulation response
-    pub details: String, // Default for simulation response details
-}
-
-impl DigitalTwinConfig {
-    pub fn new(_pool: Option<PgPool>) -> Self { // Placeholder for initialization
-        DigitalTwinConfig {
-            enabled: true,
-            simulation_accuracy: 0.8,
-            enable_realtime_sync: true,
-            predicted_impact: "Low".to_string(), // Default value
-            details: "Simulated response with default parameters".to_string(), // Default value
-        }
-    }
-
-    // Conceptual method for simulating security responses
-    pub async fn simulate_security_response(&self, _threat_id: uuid::Uuid, _threat_level: &str) -> Result<Self> {
-        // In a real implementation, this would involve complex simulation logic.
-        // For now, we return a cloned config with conceptual results.
-        Ok(self.clone())
-    }
-}
-
-// NEW STRUCT: RefactorEngineConfig
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct RefactorEngineConfig {
-    pub enabled: bool,
-    pub complexity_threshold: f32,
-    pub anti_pattern_detection_enabled: bool,
-    pub ethical_violation_scan_enabled: bool,
-    pub auto_refactor_enabled: bool,
-}
-
-impl RefactorEngineConfig {
-    pub fn new(_pool: Option<PgPool>) -> Self {
-        RefactorEngineConfig {
-            enabled: true,
-            complexity_threshold: 6.0, // Example threshold
-            anti_pattern_detection_enabled: true,
-            ethical_violation_scan_enabled: true,
-            auto_refactor_enabled: false, // Start with manual approval
-        }
-    }
-
-    // Conceptual method for code analysis
-    pub async fn analyze_code(&self, _file_id: uuid::Uuid) -> Result<f32> {
-        // Simulate code analysis for complexity
-        Ok(7.2) // Hardcoded for now, will be dynamic in real implementation
-    }
-}
-
-// NEW STRUCT: KnowledgeSynthesisConfig
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct KnowledgeSynthesisConfig {
-    pub enabled: bool,
-    pub min_data_sources_for_synthesis: u32,
-    pub new_insight_confidence_threshold: f32, // 0.0 to 1.0
-    pub auto_publish_insights: bool,
-}
-
-impl KnowledgeSynthesisConfig {
-    pub fn new(_pool: Option<PgPool>) -> Self {
-        KnowledgeSynthesisConfig {
-            enabled: true,
-            min_data_sources_for_synthesis: 3,
-            new_insight_confidence_threshold: 0.75,
-            auto_publish_insights: false, // Start with manual approval for new insights
-        }
-    }
-
-    // Conceptual method for synthesizing knowledge
-    pub async fn synthesize_knowledge(&self, _input_data_ids: Vec<uuid::Uuid>) -> Result<String> {
-        // Simulate knowledge synthesis
-        Ok("Synthesized a new insight: 'The integration of modular AGI components significantly boosts system resilience.'".to_string())
-    }
-}
-
-// NEW STRUCT: MeshNetwork
-#[derive(Debug)] // Derive Debug trait
-pub struct MeshNetwork {
-    // Configuration options for the mesh network
-    pub node_id: Uuid,
-    pub peer_discovery_enabled: bool,
-    pub communication_protocol: String, // e.g., "QUIC", "libp2p"
-    // Add other relevant fields here, e.g., a list of connected peers
-}
-
-impl MeshNetwork {
-    pub fn new(_pool: Option<PgPool>) -> Self {
-        MeshNetwork {
-            node_id: Uuid::new_v4(),
-            peer_discovery_enabled: true,
-            communication_protocol: "QUIC".to_string(),
-        }
-    }
-
-    // Conceptual method for sending a message to a peer
-    pub async fn send_message(&self, recipient_id: Uuid, message: String) -> Result<String> {
-        info!("MeshNetwork: Sending message from {} to {}: {}", self.node_id, recipient_id, message);
-        // Simulate network communication
-        tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
-        Ok(format!("Message sent to {}: {}", recipient_id, message))
-    }
-
-    // Conceptual method for discovering peers
-    pub async fn discover_peers(&self) -> Result<Vec<Uuid>> {
-        info!("MeshNetwork: Discovering peers...");
-        // Simulate peer discovery
-        tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
-        Ok(vec![Uuid::new_v4(), Uuid::new_v4()]) // Return some dummy peer IDs
-    }
-}
-
-// NEW STRUCT: ResourceManagerConfig
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct ResourceManagerConfig {
-    pub enabled: bool,
-    pub proactive_optimization_enabled: bool,
-    pub monitoring_interval_seconds: u64,
-    pub threshold_cpu_usage: f32,
-    pub threshold_memory_usage: f32,
-}
-
-impl ResourceManagerConfig {
-    pub fn new(_pool: Option<PgPool>) -> Self {
-        ResourceManagerConfig {
-            enabled: true,
-            proactive_optimization_enabled: true,
-            monitoring_interval_seconds: 300, // Every 5 minutes
-            threshold_cpu_usage: 0.8, // 80%
-            threshold_memory_usage: 0.7, // 70%
-        }
-    }
-
-    // Conceptual method for monitoring resources (returns dummy data for now)
-    pub async fn monitor_resources(&self) -> Result<(f32, f32)> {
-        info!("ResourceManager: Monitoring resources...");
-        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-        Ok((0.75, 0.60)) // Example: 75% CPU, 60% Memory
-    }
-
-    // Conceptual method for applying resource optimization
-    pub async fn apply_optimization(&self, _optimization_plan: &str) -> Result<String> {
-        info!("ResourceManager: Applying optimization plan: {}", _optimization_plan);
-        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-        Ok(format!("Optimization plan '{}' applied successfully.", _optimization_plan))
-    }
-}
-
-
-// AppConfig will hold configurations for all modules
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct AppConfig {
-    pub log_level: String,
-    pub database_url: String,
-    pub virtualization_engine: Option<VirtualizationEngineConfig>,
-    pub simulation_engine: Option<SimulationEngineConfig>,
-    pub automated_test_suite: Option<AutomatedTestSuiteConfig>,
-    pub performance_profiler: Option<PerformanceProfilerConfig>,
-    pub ethical_compliance_monitor: Option<EthicalComplianceMonitorConfig>,
-    pub deployment_manager: Option<DeploymentManagerConfig>,
-    pub data_mirroring_system: Option<DataMirroringSystemConfig>,
-    pub sandboxed_environment_module: Option<SandboxedEnvironmentModuleConfig>,
-    pub code_generation_engine: Option<CodeGenerationEngineConfig>,
-    pub fault_injection: Option<FaultInjectionConfig>,
-    pub telemetry: Option<TelemetryConfig>,
-    pub self_healing_engine: Option<SelfHealingEngineConfig>,
-    pub production_learning: Option<ProductionLearningConfig>,
-    pub human_in_the_loop: Option<HumanInTheLoopConfig>,
-    pub self_modification_module: Option<SelfModificationModuleConfig>,
-    pub idpte_module: Option<IDPTEModuleConfig>,
-    pub omega_os_kernel_module: Option<OmegaOSKernelConfig>,
-    pub samuel_learning_assistant_module: Option<SamuelLearningAssistantConfig>,
-    pub cognitive_config: Option<CognitiveConfig>, // NEW FIELD - Added to AppConfig
-    pub digital_twin_config: Option<DigitalTwinConfig>, // NEW FIELD - Added to AppConfig
-    pub refactor_engine_config: Option<RefactorEngineConfig>, // NEW FIELD - Added to AppConfig
-    pub knowledge_synthesis_config: Option<KnowledgeSynthesisConfig>, // NEW FIELD - Added to AppConfig
-    pub resource_manager_config: Option<ResourceManagerConfig>, // NEW FIELD - Added to AppConfig
-    // Add other module configs here as they are developed
-}
-
-impl AppConfig {
-    pub fn load_from_env() -> Result<Self> {
-        // Placeholder for loading configuration from environment variables or a file.
-        // In a real application, you'd use a library like `config` or `dotenv`.
-        Ok(AppConfig {
-            log_level: std::env::var("TARIRO_LOG_LEVEL").unwrap_or_else(|_| "info".to_string()),
-            database_url: std::env::var("TARIRO_DATABASE_URL").unwrap_or_else(|_| "sqlite://tariro.db".to_string()),
-            virtualization_engine: Some(VirtualizationEngineConfig {
-                distributed_clusters: vec!["aws-us-east-1".to_string(), "gcp-europe-west1".to_string()],
-                default_cluster: "aws-us-east-1".to_string(),
-                ..Default::default()
-            }),
-            simulation_engine: Some(SimulationEngineConfig::default()),
-            automated_test_suite: Some(AutomatedTestSuiteConfig::default()),
-            performance_profiler: Some(PerformanceProfilerConfig::default()),
-            ethical_compliance_monitor: Some(EthicalComplianceMonitorConfig::default()),
-            deployment_manager: Some(DeploymentManagerConfig::default()),
-            data_mirroring_system: Some(DataMirroringSystemConfig::default()),
-            sandboxed_environment_module: Some(SandboxedEnvironmentModuleConfig::default()),
-            code_generation_engine: Some(CodeGenerationEngineConfig::default()),
-            fault_injection: Some(FaultInjectionConfig::default()),
-            telemetry: Some(TelemetryConfig::default()),
-            self_healing_engine: Some(SelfHealingEngineConfig::default()),
-            production_learning: Some(ProductionLearningConfig::default()),
-            human_in_the_loop: Some(HumanInTheLoopConfig::default()),
-            self_modification_module: Some(SelfModificationModuleConfig::default()),
-            idpte_module: Some(IDPTEModuleConfig::default()),
-            omega_os_kernel_module: Some(OmegaOSKernelConfig::default()),
-            samuel_learning_assistant_module: Some(SamuelLearningAssistantConfig::default()),
-            cognitive_config: Some(CognitiveConfig::new(None)), // NEW: Initialize CognitiveConfig
-            digital_twin_config: Some(DigitalTwinConfig::new(None)), // NEW: Initialize DigitalTwinConfig
-            refactor_engine_config: Some(RefactorEngineConfig::new(None)), // NEW: Initialize RefactorEngineConfig
-            knowledge_synthesis_config: Some(KnowledgeSynthesisConfig::new(None)), // NEW: Initialize KnowledgeSynthesisConfig
-            resource_manager_config: Some(ResourceManagerConfig::new(None)), // NEW: Initialize ResourceManagerConfig
-            // Add other module configs here as they are developed
-        })
+// NEW STRUCT: DigitalTwinConfig\n#[derive(Debug, Clone, Default, Serialize, Deserialize)]\npub struct DigitalTwinConfig {\n    pub enabled: bool,\n    pub simulation_accuracy: f32, // 0.0 to 1.0\n    pub enable_realtime_sync: bool,\n    pub predicted_impact: String, // Default for simulation response\n    pub details: String, // Default for simulation response details\n}\n\nimpl DigitalTwinConfig {\n    pub fn new(_pool: Option<PgPool>) -> Self { // Placeholder for initialization\n        DigitalTwinConfig {\n            enabled: true,\n            simulation_accuracy: 0.8,\n            enable_realtime_sync: true,\n            predicted_impact: \"Low\".to_string(), // Default value\n            details: \"Simulated response with default parameters\".to_string(), // Default value\n        }\n    }\n\n    // Conceptual method for simulating security responses\n    pub async fn simulate_security_response(&self, _threat_id: Uuid, _threat_level: &str) -> Result<Self> {\n        // In a real implementation, this would involve complex simulation logic.\n        // For now, we return a cloned config with conceptual results.\n        Ok(self.clone())\n    }\n}\n\n// NEW STRUCT: RefactorEngineConfig\n#[derive(Debug, Clone, Default, Serialize, Deserialize)]\npub struct RefactorEngineConfig {\n    pub enabled: bool,\n    pub complexity_threshold: f32,\n    pub anti_pattern_detection_enabled: bool,\n    pub ethical_violation_scan_enabled: bool,\n    pub auto_refactor_enabled: bool,\n}\n\nimpl RefactorEngineConfig {\n    pub fn new(_pool: Option<PgPool>) -> Self {\n        RefactorEngineConfig {\n            enabled: true,\n            complexity_threshold: 6.0, // Example threshold\n            anti_pattern_detection_enabled: true,\n            ethical_violation_scan_enabled: true,\n            auto_refactor_enabled: false, // Start with manual approval\n        }\n    }\n\n    // Conceptual method for code analysis\n    pub async fn analyze_code(&self, _file_id: uuid::Uuid) -> Result<f32> {\n        // Simulate code analysis for complexity\n        Ok(7.2) // Hardcoded for now, will be dynamic in real implementation\n    }\n}\n\n// NEW STRUCT: KnowledgeSynthesisConfig\n#[derive(Debug, Clone, Default, Serialize, Deserialize)]\npub struct KnowledgeSynthesisConfig {\n    pub enabled: bool,\n    pub min_data_sources_for_synthesis: u32,\n    pub new_insight_confidence_threshold: f32, // 0.0 to 1.0\n    pub auto_publish_insights: bool,\n}\n\nimpl KnowledgeSynthesisConfig {\n    pub fn new(_pool: Option<PgPool>) -> Self {\n        KnowledgeSynthesisConfig {\n            enabled: true,\n            min_data_sources_for_synthesis: 3,\n            new_insight_confidence_threshold: 0.75,\n            auto_publish_insights: false, // Start with manual approval for new insights\n        }\n    }\n\n    // Conceptual method for synthesizing knowledge\n    pub async fn synthesize_knowledge(&self, _input_data_ids: Vec<uuid::Uuid>) -> Result<String> {\n        // Simulate knowledge synthesis\n        Ok(\"Synthesized a new insight: \'The integration of modular AGI components significantly boosts system resilience.\'\".to_string())\n    }\n}\n\n// NEW STRUCT: MeshNetwork\n#[derive(Debug)] // Derive Debug trait\npub struct MeshNetwork {\n    // Configuration options for the mesh network\n    pub node_id: Uuid,\n    pub peer_discovery_enabled: bool,\n    pub communication_protocol: String, // e.g., \"QUIC\", \"libp2p\"\n    // Add other relevant fields here, e.g., a list of connected peers\n}\n\nimpl MeshNetwork {\n    pub fn new(_pool: Option<PgPool>) -> Self {\n        MeshNetwork {\n            node_id: Uuid::new_v4(),\n            peer_discovery_enabled: true,\n            communication_protocol: \"QUIC\".to_string(),\n        }\n    }\n\n    // Conceptual method for sending a message to a peer\n    pub async fn send_message(&self, recipient_id: Uuid, message: String) -> Result<String> {\n        info!(\"MeshNetwork: Sending message from {} to {}: {}\", self.node_id, recipient_id, message);\n        // Simulate network communication\n        tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;\n        Ok(format!(\"Message sent to {}: {}\", recipient_id, message))\n    }\n\n    // Conceptual method for discovering peers\n    pub async fn discover_peers(&self) -> Result<Vec<Uuid>> {\n        info!(\"MeshNetwork: Discovering peers...\");\n        // Simulate peer discovery\n        tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;\n        Ok(vec![Uuid::new_v4(), Uuid::new_v4()]) // Return some dummy peer IDs\n    }\n}\n\n// NEW STRUCT: ResourceManagerConfig\n#[derive(Debug, Clone, Default, Serialize, Deserialize)]\npub struct ResourceManagerConfig {\n    pub enabled: bool,\n    pub proactive_optimization_enabled: bool,\n    pub monitoring_interval_seconds: u64,\n    pub threshold_cpu_usage: f32,\n    pub threshold_memory_usage: f32,\n}\n\nimpl ResourceManagerConfig {\n    pub fn new(_pool: Option<PgPool>) -> Self {\n        ResourceManagerConfig {\n            enabled: true,\n            proactive_optimization_enabled: true,\n            monitoring_interval_seconds: 300, // Every 5 minutes\n            threshold_cpu_usage: 0.8, // 80%\n            threshold_memory_usage: 0.7, // 70%\n        }\n    }\n\n    // Conceptual method for monitoring resources (returns dummy data for now)\n    pub async fn monitor_resources(&self) -> Result<(f32, f32)> {\n        info!(\"ResourceManager: Monitoring resources...\");\n        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;\n        Ok((0.75, 0.60)) // Example: 75% CPU, 60% Memory\n    }\n\n    // Conceptual method for applying resource optimization\n    pub async fn apply_optimization(&self, _optimization_plan: &str) -> Result<String> {\n        info!(\"ResourceManager: Applying optimization plan: {}\", _optimization_plan);\n        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;\n        Ok(format!(\"Optimization plan '{}' applied successfully.\", _optimization_plan))\n    }\n}\n\n\n// AppConfig will hold configurations for all modules\n#[derive(Debug, Clone, Default, Serialize, Deserialize)]\npub struct AppConfig {\n    pub log_level: String,\n    pub database_url: String,\n    pub virtualization_engine: Option<VirtualizationEngineConfig>,\n    pub simulation_engine: Option<SimulationEngineConfig>,\n    pub automated_test_suite: Option<AutomatedTestSuiteConfig>,\n    pub performance_profiler: Option<PerformanceProfilerConfig>,\n    pub ethical_compliance_monitor: Option<EthicalComplianceMonitorConfig>,\n    pub deployment_manager: Option<DeploymentManagerConfig>,\n    pub data_mirroring_system: Option<DataMirroringSystemConfig>,\n    pub sandboxed_environment_module: Option<SandboxedEnvironmentModuleConfig>,\n    pub code_generation_engine: Option<CodeGenerationEngineConfig>,\n    pub fault_injection: Option<FaultInjectionConfig>,\n    pub telemetry: Option<TelemetryConfig>,\n    pub self_healing_engine: Option<SelfHealingEngineConfig>,\n    pub production_learning: Option<ProductionLearningConfig>,\n    pub human_in_the_loop: Option<HumanInTheLoopConfig>,\n    pub self_modification_module: Option<SelfModificationModuleConfig>,\n    pub idpte_module: Option<IDPTEModuleConfig>,\n    pub omega_os_kernel_module: Option<OmegaOSKernelConfig>,\n    pub samuel_learning_assistant_module: Option<SamuelLearningAssistantConfig>,\n    pub cognitive_config: Option<CognitiveConfig>, // NEW FIELD - Added to AppConfig\n    pub digital_twin_config: Option<DigitalTwinConfig>, // NEW FIELD - Added to AppConfig\n    pub refactor_engine_config: Option<RefactorEngineConfig>, // NEW FIELD - Added to AppConfig\n    pub knowledge_synthesis_config: Option<KnowledgeSynthesisConfig>, // NEW FIELD - Added to AppConfig\n    pub resource_manager_config: Option<ResourceManagerConfig>, // NEW FIELD - Added to AppConfig\n    // Add other module configs here as they are developed\n}\n\nimpl AppConfig {\n    pub fn load_from_env() -> Result<Self> {\n        // Placeholder for loading configuration from environment variables or a file.\n        // In a real application, you'd use a library like `config` or `dotenv`.\n        Ok(AppConfig {\n            log_level: std::env::var(\"TARIRO_LOG_LEVEL\").unwrap_or_else(|_| \"info\".to_string()),\n            database_url: std::env::var(\"TARIRO_DATABASE_URL\").unwrap_or_else(|_| \"sqlite://tariro.db\".to_string()),\n            virtualization_engine: Some(VirtualizationEngineConfig {\n                distributed_clusters: vec![\"aws-us-east-1\".to_string(), \"gcp-europe-west1\".to_string()],\n                default_cluster: \"aws-us-east-1\".to_string(),\n                ..Default::default()\n            }),\n            simulation_engine: Some(SimulationEngineConfig::default()),\n            automated_test_suite: Some(AutomatedTestSuiteConfig::default()),\n            performance_profiler: Some(PerformanceProfilerConfig::default()),\n            ethical_compliance_monitor: Some(EthicalComplianceMonitorConfig::default()),\n            deployment_manager: Some(DeploymentManagerConfig::default()),\n            data_mirroring_system: Some(DataMirroringSystemConfig::default()),\n            sandboxed_environment_module: Some(SandboxedEnvironmentModuleConfig::default()),\n            code_generation_engine: Some(CodeGenerationEngineConfig::default()),\n            fault_injection: Some(FaultInjectionConfig::default()),\n            telemetry: Some(TelemetryConfig::default()),\n            self_healing_engine: Some(SelfHealingEngineConfig::default()),\n            production_learning: Some(ProductionLearningConfig::default()),\n            human_in_the_loop: Some(HumanInTheLoopConfig::default()),\n            self_modification_module: Some(SelfModificationModuleConfig { // Updated to initialize MetaLearningConfig\n                meta_learning: Some(MetaLearningConfig {\n                    enable_principle_evolution: true, // NEW: Enabled by default\n                    principle_evaluation_interval_hours: 168, // Weekly evaluation\n                    ..Default::default()\n                }),\n                ..Default::default()\n            }),\n            idpte_module: Some(IDPTEModuleConfig::default()),\n            omega_os_kernel_module: Some(OmegaOSKernelConfig::default()),\n            samuel_learning_assistant_module: Some(SamuelLearningAssistantConfig::default()),\n            cognitive_config: Some(CognitiveConfig::new(None)), // Updated with new fields\n            digital_twin_config: Some(DigitalTwinConfig::new(None)), // NEW: Initialize DigitalTwinConfig\n            refactor_engine_config: Some(RefactorEngineConfig::new(None)), // NEW: Initialize RefactorEngineConfig\n            knowledge_synthesis_config: Some(KnowledgeSynthesisConfig::new(None)), // NEW: Initialize KnowledgeSynthesisConfig\n            resource_manager_config: Some(ResourceManagerConfig::new(None)), // NEW: Initialize ResourceManagerConfig\n            // Add other module configs here as they are developed\n        })
     }
 }
