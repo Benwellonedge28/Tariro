@@ -4,13 +4,13 @@ use anyhow::Result;
 use tracing::{info, warn};
 use uuid::Uuid;
 use serde::Serialize;
-use std::sync::Arc; // Added for Arc<MeshNetwork>
+use std::sync::Arc;
 
 // Conceptual dependencies for AGI Decision Making
 use crate::security_audit::AuditEngine;
-use crate::cognitive_arch::CognitiveConfig; // This will now correctly resolve from src/lib.rs
-use crate::digital_twin::DigitalTwinConfig; // This will now correctly resolve from src/lib.rs
-use crate::refactor::RefactorEngine;
+use crate::cognitive_arch::CognitiveConfig;
+use crate::digital_twin::DigitalTwinConfig;
+use crate::refactor::RefactorEngineConfig; // Changed to RefactorEngineConfig
 use crate::knowledge_synthesis::KnowledgeSynthesisConfig;
 use crate::mesh_network::MeshNetwork;
 
@@ -28,7 +28,7 @@ pub struct AutonomyOrchestrator {
     audit_engine: AuditEngine,
     agi_config: CognitiveConfig,
     digital_twin_config: DigitalTwinConfig,
-    refactor_engine: RefactorEngine,
+    refactor_engine: RefactorEngineConfig, // Changed to RefactorEngineConfig
     knowledge_synthesis_config: KnowledgeSynthesisConfig,
     mesh_network: Arc<MeshNetwork>,
 }
@@ -41,7 +41,7 @@ impl AutonomyOrchestrator {
             audit_engine: AuditEngine::new(shared_pool.clone()),
             agi_config: CognitiveConfig::new(shared_pool.clone()),
             digital_twin_config: DigitalTwinConfig::new(shared_pool.clone()),
-            refactor_engine: RefactorEngine::new(shared_pool.clone()),
+            refactor_engine: RefactorEngineConfig::new(shared_pool.clone()), // Changed to RefactorEngineConfig::new
             knowledge_synthesis_config: KnowledgeSynthesisConfig::new(shared_pool.clone()),
             mesh_network: Arc::new(MeshNetwork::new(shared_pool)),
         }
@@ -83,8 +83,8 @@ impl AutonomyOrchestrator {
         info!("Autonomy Orchestrator: AGI analyzing file {} for P2P code review need...", file_id);
         // --- Enhanced AGI Decision Logic ---
         // Simulate deep code analysis for complexity, anti-patterns, potential ethical violations
-        let code_complexity_score = 7.2; // Conceptual result from RefactorEngine or file_management
-        let ethical_flag = false; // Conceptual result from CognitiveArch/EVAS
+        let code_complexity_score = self.refactor_engine.analyze_code(file_id).await?; // Now uses RefactorEngineConfig
+        let ethical_flag = false; // Conceptual result from CognitiveArch/EVAS - could use agi_config here in future
 
         let decision_str = format!(
             "AGI requested P2P review for file {} based on high cyclomatic complexity ({:.1}) and potential anti-patterns. Ethical flag: {}. Peers selected based on Rust expertise.",
