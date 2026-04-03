@@ -8,7 +8,7 @@ use std::sync::Arc; // Added for Arc<MeshNetwork>
 
 // Conceptual dependencies for AGI Decision Making
 use crate::security_audit::AuditEngine;
-use crate::cognitive_arch::CognitiveConfig;
+use crate::cognitive_arch::CognitiveConfig; // This will now correctly resolve from src/lib.rs
 use crate::digital_twin::DigitalTwinConfig;
 use crate::refactor::RefactorEngine;
 use crate::knowledge_synthesis::KnowledgeSynthesisConfig;
@@ -27,7 +27,7 @@ pub struct AutonomyOrchestrator {
     pool: Option<PgPool>,
     audit_engine: AuditEngine,
     agi_config: CognitiveConfig,
-    digital_twin_config: DigitalTwinConfig,
+    digital_twin_config: DigitalTwinConfig, // Not yet fully integrated
     refactor_engine: RefactorEngine,
     knowledge_synthesis_config: KnowledgeSynthesisConfig,
     mesh_network: Arc<MeshNetwork>,
@@ -39,9 +39,8 @@ impl AutonomyOrchestrator {
         Self {
             pool: pool.clone(),
             audit_engine: AuditEngine::new(shared_pool.clone()),
-            // Initialize other AGI-related engines/configs here - assuming they take a PgPool or can be default initialized
-            agi_config: CognitiveConfig::new(shared_pool.clone()),
-            digital_twin_config: DigitalTwinConfig::new(shared_pool.clone()),
+            agi_config: CognitiveConfig::new(shared_pool.clone()), // Now uses the new CognitiveConfig::new
+            digital_twin_config: DigitalTwinConfig::new(shared_pool.clone()), // Placeholder
             refactor_engine: RefactorEngine::new(shared_pool.clone()),
             knowledge_synthesis_config: KnowledgeSynthesisConfig::new(shared_pool.clone()),
             mesh_network: Arc::new(MeshNetwork::new(shared_pool)),
@@ -54,6 +53,10 @@ impl AutonomyOrchestrator {
 
         // --- Enhanced AGI Decision Logic ---
         let current_posture = self.audit_engine.get_current_posture().await;
+        
+        // Use CognitiveConfig for ethical guidelines
+        let ethical_threshold = self.agi_config.get_ethical_security_threshold();
+        
         let agi_decision_score = match threat_level {
             "CRITICAL" => 0.95, // High autonomy for critical threats
             "HIGH" => 0.8,
@@ -61,9 +64,10 @@ impl AutonomyOrchestrator {
         };
 
         let decision_str = format!(
-            "AGI autonomously decided to isolate affected module based on {}. Current security posture: {}. Ethical alignment: High. Predicted impact: Low.",
+            "AGI autonomously decided to isolate affected module based on {}. Current security posture: {}. Ethical alignment: {}. Predicted impact: Low.",
             threat_level,
-            current_posture.map_or("Unknown".to_string(), |p| format!("Threats: {}", p.active_threats))
+            current_posture.map_or("Unknown".to_string(), |p| format!("Threats: {}", p.active_threats)),
+            if agi_decision_score >= ethical_threshold { "High" } else { "Review Needed - below ethical threshold" }
         );
         self.log_agi_decision(decision_str.clone(), "Autonomous Security Response", agi_decision_score).await?;
         Ok(format!("AGI successfully initiated autonomous threat resolution for {}. Details: {}.", threat_id, decision_str))
