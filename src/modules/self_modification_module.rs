@@ -71,6 +71,18 @@ impl SelfModificationModule {
             let freq = self.config.meta_learning.as_ref().unwrap().strategy_evaluation_frequency_seconds;
             tokio::spawn(Self::run_periodic_meta_learning_analysis(self.meta_learning_outcomes.clone(), freq));
         }
+
+        // Spawn the background task to process pending feature proposals
+        let self_clone = self.clone(); // Clone self for the async task
+        tokio::spawn(async move { // Use a separate block to capture `self_clone`
+            loop {
+                sleep(Duration::from_secs(self_clone.config.modification_frequency_seconds)).await;
+                if let Err(e) = self_clone.process_pending_feature_proposals().await {
+                    error!("Error processing pending feature proposals: {:?}", e);
+                }
+            }
+        });
+
         Ok(())
     }
 
@@ -89,6 +101,21 @@ impl SelfModificationModule {
     }
 }
 
+// Add #[derive(Clone)] to SelfModificationModule
+impl Clone for SelfModificationModule {
+    fn clone(&self) -> Self {
+        Self {
+            config: self.config.clone(),
+            sandboxed_environment_module: self.sandboxed_environment_module.clone(),
+            context: self.context.clone(),
+            meta_learning_outcomes: tokio::sync::Mutex::new(self.meta_learning_outcomes.lock().await.clone()),
+            goal_monitor: self.goal_monitor.clone(),
+            idpte_module: self.idpte_module.clone(),
+            deployment_manager: self.deployment_manager.clone(),
+        }
+    }
+}
+
 impl SelfModificationModule {
     /// Periodically analyzes past self-modification outcomes to refine meta-strategies.
     async fn run_periodic_meta_learning_analysis(outcomes: tokio::sync::Mutex<Vec<SelfModificationOutcome>>, frequency_seconds: u64) {
@@ -97,7 +124,7 @@ impl SelfModificationModule {
             info!("Periodic meta-learning analysis triggered.");
             let mut locked_outcomes = outcomes.lock().await;
             if !locked_outcomes.is_empty() {
-                let analysis = Self::analyze_self_modification_outcomes_static(&locked_outcomes);
+                let analysis = SelfModificationModule::analyze_self_modification_outcomes_static(&locked_outcomes);
                 info!("Meta-learning analysis results: {:?}", analysis);
                 locked_outcomes.clear();
             }
@@ -224,6 +251,14 @@ impl SelfModificationModule {
             return Err(anyhow!("Self-modification disabled."));
         }
 
+        // Before running the sandbox, update the FeatureProposal status to indicate processing has started
+        default_api::update_FeatureProposal(
+            proposal_id.0.clone(),
+            None, None, None, None, None, // Keep existing values for other fields
+            Some(FeatureProposalStatus::UnderReview), // Status to 'UnderReview' while processing
+            None, None, None // Keep existing values for other fields
+        ).await?;
+
         let strategy = self.select_modification_strategy(issue_context);
         info!("Applying modification strategy: {:?}", strategy);
 
@@ -242,7 +277,7 @@ impl SelfModificationModule {
         self.meta_learning_outcomes.lock().await.push(outcome);
 
         // 3. Interpret the sandbox report and decide next steps
-        match sandbox_report.status {
+        let new_proposal_status = match sandbox_report.status {
             SandboxStatus::CompletedAndDeployed => {
                 info!("Self-modification for {} successfully validated in sandbox.", proposal_id.0);
 
@@ -253,37 +288,118 @@ impl SelfModificationModule {
                     info!("Deploying updated Tariro component '{}' to '{}'.", component_name, target_env);
                     self.deployment_manager.deploy_tariro_component(component_name, &target_env).await?;
                     info!("Tariro component '{}' deployed and monitored.", component_name);
-                } else if let Some(file_path) = file_to_modify {
+                    FeatureProposalStatus::Implemented
+                } else if let Some(path) = file_to_modify {
                     // Otherwise, deploy code changes to IDE
-                    // Assuming sandbox_report provides the final modified code
-                    let modified_code_content = format!("// {} - Optimized code based on sandbox experiment {}\n// Original proposal: {}\nfn optimized_function_{}() {{ /* ... */ }}\n", file_path, proposal_id.0, issue_context, rand::thread_rng().gen_range(0..1000));
+                    // Assuming sandbox_report provides the final modified code content (this is a simulation)
+                    let modified_code_content = format!("// {} - Optimized code based on sandbox experiment {}\n// Original proposal: {}\nfn optimized_function_{}() {{ /* ... */ }}\n", path, proposal_id.0, issue_context, rand::thread_rng().gen_range(0..1000));
 
                     // Deploy to IDE
                     if self.idpte_module.config.ide_interaction_mode == "auto" || self.idpte_module.config.enable_autonomous_file_management {
-                        info!("Autonomously writing optimized code to IDE: {}.", file_path);
-                        self.idpte_module.write_file_to_ide(file_path, &modified_code_content).await?;
-                        let commit_message = self.idpte_module.generate_autonomous_commit_message(&format!("Optimized {} based on sandbox results.", file_path)).await?;
-                        // Simulate git commit (we can't actually run git through ide_runCommand here without knowing the exact git repo path in the IDE)
-                        info!("Optimized code for {} deployed to IDE and committed (simulated).", file_path);
+                        info!("Autonomously writing optimized code to IDE: {}.", path);
+                        self.idpte_module.write_file_to_ide(path, &modified_code_content).await?;
+                        let commit_message = self.idpte_module.generate_autonomous_commit_message(&format!("Optimized {} based on sandbox results.", path)).await?;
+                        // In a real scenario, this would be a direct call to ide_runCommand("git add ... && git commit ...")
+                        info!("Optimized code for {} deployed to IDE and committed (simulated).", path);
+                        FeatureProposalStatus::Implemented
                     } else {
-                        info!("Optimized code for {} requires user confirmation for IDE deployment.", file_path);
-                        self.idpte_module.propose_file_changes_to_user(file_path, &format!("Optimized code for {} based on sandbox results.", file_path)).await?;
-                        // If confirmed, then Tariro would execute the write and commit
+                        info!("Optimized code for {} requires user confirmation for IDE deployment. Proposal status set to 'UnderReview'.", path);
+                        self.idpte_module.propose_file_changes_to_user(path, &format!("Optimized code for {} based on sandbox results.", path)).await?;
+                        FeatureProposalStatus::UnderReview // Waiting for human approval in IDE
                     }
+                } else {
+                    warn!("No file_to_modify specified for IDE deployment. Assuming proposal is implemented.");
+                    FeatureProposalStatus::Implemented
                 }
-
             },
             SandboxStatus::Completed => {
                 info!("Self-modification for {} completed in sandbox, but manual deployment is required or autonomous deployment is disabled. Recommendation: {}", proposal_id.0, sandbox_report.recommendation);
+                FeatureProposalStatus::UnderReview // Requires manual action
             },
             SandboxStatus::HumanReviewPending => {
-                warn!("Self-modification for {} requires human review. Reason: {}.", proposal_id.0, sandbox_report.recommendation);
+                warn!("Self-modification for {} requires human review. Reason: {}. Proposal status set to 'UnderReview'.", proposal_id.0, sandbox_report.recommendation);
+                FeatureProposalStatus::UnderReview
             },
             SandboxStatus::Failed => {
-                error!("Self-modification for {} failed in sandbox. Reason: {}.", proposal_id.0, sandbox_report.recommendation);
+                error!("Self-modification for {} failed in sandbox. Reason: {}. Proposal status set to 'Rejected'.", proposal_id.0, sandbox_report.recommendation);
+                FeatureProposalStatus::Rejected
             },
             _ => {
-                warn!("Self-modification for {} ended in an unexpected sandbox status: {:?}", proposal_id.0, sandbox_report.status);
+                warn!("Self-modification for {} ended in an unexpected sandbox status: {:?}. Proposal status set to 'UnderReview' for investigation.", proposal_id.0, sandbox_report.status);
+                FeatureProposalStatus::UnderReview
+            }
+        };
+        
+        // Update the FeatureProposal status in the database
+        default_api::update_FeatureProposal(
+            proposal_id.0.clone(),
+            None, None, None, None, None, // Keep existing values for other fields
+            Some(new_proposal_status), 
+            None, None, None
+        ).await?;
+
+        info!("FeatureProposal {} status updated to {:?}.", proposal_id.0, new_proposal_status);
+
+        Ok(())
+    }
+
+    /// Continuously monitors for and processes pending FeatureProposals.
+    pub async fn process_pending_feature_proposals(&self) -> Result<()> {
+        info!("Checking for pending FeatureProposals...");
+        
+        let proposals_response = default_api::read_FeatureProposal(
+            Some(vec!["id", "title", "problem_statement", "proposed_solution", "status"]),
+            None, // No limit
+            Some(serde_json::json!({ 
+                "status": { "$in": [ "proposed", "under_review" ] } 
+            }).into()),
+            None, None
+        ).await?;
+        
+        let proposals_data = proposals_response.get("records").ok_or_else(|| anyhow!("No records field in read_FeatureProposal response"))?;
+        let proposals_json: Vec<serde_json::Value> = serde_json::from_value(proposals_data.clone())?;
+
+        if proposals_json.is_empty() {
+            info!("No pending FeatureProposals found.");
+            return Ok(());
+        }
+
+        info!("Found {} pending FeatureProposals.", proposals_json.len());
+
+        for proposal_json in proposals_json {
+            let proposal_id = proposal_json.get("id").and_then(|id| id.as_str()).map(|s| s.to_string()).ok_or_else(|| anyhow!("FeatureProposal missing ID"))?;
+            let title = proposal_json.get("title").and_then(|t| t.as_str()).map(|s| s.to_string()).unwrap_or_default();
+            let problem_statement = proposal_json.get("problem_statement").and_then(|p| p.as_str()).map(|s| s.to_string()).unwrap_or_default();
+            let proposed_solution = proposal_json.get("proposed_solution").and_then(|p| p.as_str()).map(|s| s.to_string()).unwrap_or_default();
+            let current_status = proposal_json.get("status").and_then(|s| s.as_str()).map(|s| s.to_string()).unwrap_or_default();
+
+            info!("Processing FeatureProposal: {} (ID: {}), Current Status: {}", title, proposal_id, current_status);
+            
+            // Determine issue context for strategy selection
+            let issue_context = format!("{} - {}. Proposed solution: {}", title, problem_statement, proposed_solution);
+
+            // For now, let's assume a default file to modify if not specified in the proposal itself
+            // In a real system, the proposal would contain detailed context for CodeGenerationEngine
+            let file_to_modify = if issue_context.contains("Tariro component") {
+                None // Component deployment handled by DeploymentManager, not IDE file write
+            } else {
+                Some("src/tariro_core/optimized_component.rs") // Example file path
+            };
+
+            if let Err(e) = self.initiate_self_modification(
+                FeatureProposalId(proposal_id.clone()), 
+                &issue_context,
+                file_to_modify
+            ).await {
+                error!("Failed to process FeatureProposal {} (ID: {}): {:?}", title, proposal_id, e);
+                // Potentially update the proposal status to 'Failed' or 'UnderReview' with error notes
+                default_api::update_FeatureProposal(
+                    proposal_id.clone(),
+                    None, None, None, None, None,
+                    Some(FeatureProposalStatus::Rejected),
+                    None, None,
+                    Some(format!("Failed to process: {}", e)),
+                ).await?;
             }
         }
         Ok(())
@@ -308,12 +424,36 @@ pub struct ModificationStrategy {
 }
 
 // Temporary enums for FeatureProposal fields, should be imported from actual data model
+// These are currently re-defined for local compilation of the simulated module logic.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum FeatureProposalPriority {
-    Low,
-    Medium,
-    High,
-    Critical,
+    Low = 0,
+    Medium = 1,
+    High = 2,
+    Critical = 3,
+}
+
+impl From<FeatureProposalPriority> for String {
+    fn from(val: FeatureProposalPriority) -> Self {
+        match val {
+            FeatureProposalPriority::Low => "low".to_string(),
+            FeatureProposalPriority::Medium => "medium".to_string(),
+            FeatureProposalPriority::High => "high".to_string(),
+            FeatureProposalPriority::Critical => "critical".to_string(),
+        }
+    }
+}
+
+impl From<String> for FeatureProposalPriority {
+    fn from(val: String) -> Self {
+        match val.to_lowercase().as_str() {
+            "low" => FeatureProposalPriority::Low,
+            "medium" => FeatureProposalPriority::Medium,
+            "high" => FeatureProposalPriority::High,
+            "critical" => FeatureProposalPriority::Critical,
+            _ => FeatureProposalPriority::Medium,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -324,13 +464,61 @@ pub enum FeatureProposalSource {
     SecurityConcern,
 }
 
+impl From<FeatureProposalSource> for String {
+    fn from(val: FeatureProposalSource) -> Self {
+        match val {
+            FeatureProposalSource::SelfMonitoring => "self_monitoring".to_string(),
+            FeatureProposalSource::UserInteraction => "user_interaction".to_string(),
+            FeatureProposalSource::PerformanceGap => "performance_gap".to_string(),
+            FeatureProposalSource::SecurityConcern => "security_concern".to_string(),
+        }
+    }
+}
+
+impl From<String> for FeatureProposalSource {
+    fn from(val: String) -> Self {
+        match val.to_lowercase().as_str() {
+            "self_monitoring" => FeatureProposalSource::SelfMonitoring,
+            "user_interaction" => FeatureProposalSource::UserInteraction,
+            "performance_gap" => FeatureProposalSource::PerformanceGap,
+            "security_concern" => FeatureProposalSource::SecurityConcern,
+            _ => FeatureProposalSource::UserInteraction,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum FeatureProposalStatus {
-    Proposed,
-    UnderReview,
-    Approved,
-    Rejected,
-    Implemented,
+    Proposed = 0,
+    UnderReview = 1,
+    Approved = 2,
+    Rejected = 3,
+    Implemented = 4,
+}
+
+impl From<FeatureProposalStatus> for String {
+    fn from(val: FeatureProposalStatus) -> Self {
+        match val {
+            FeatureProposalStatus::Proposed => "proposed".to_string(),
+            FeatureProposalStatus::UnderReview => "under_review".to_string(),
+            FeatureProposalStatus::Approved => "approved".to_string(),
+            FeatureProposalStatus::Rejected => "rejected".to_string(),
+            FeatureProposalStatus::Implemented => "implemented".to_string(),
+        }
+    }
+}
+
+impl From<String> for FeatureProposalStatus {
+    fn from(val: String) -> Self {
+        match val.to_lowercase().as_str() {
+            "proposed" => FeatureProposalStatus::Proposed,
+            "under_review" => FeatureProposalStatus::UnderReview,
+            "approved" => FeatureProposalStatus::Approved,
+            "rejected" => FeatureProposalStatus::Rejected,
+            "implemented" => FeatureProposalStatus::Implemented,
+            _ => FeatureProposalStatus::Proposed,
+        }
+    }
 }
 
 // --- Goal Monitoring Sub-Module --- (Internal to SelfModificationModule for now)
@@ -346,7 +534,7 @@ impl GoalMonitor {
     pub async fn start(&self) -> Result<()> {
         info!("GoalMonitor starting...");
         info!("GoalMonitor started.");
-        Ok(())s
+        Ok(())
     }
 
     pub async fn stop(&self) -> Result<()> {
