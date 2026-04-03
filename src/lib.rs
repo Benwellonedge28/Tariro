@@ -98,6 +98,8 @@ pub struct DeploymentManagerConfig {
     pub ci_cd_pipeline_url: String,
     pub deployment_strategy: String, // e.g., "blue_green", "canary", "rolling"
     pub production_cluster_id: String,
+    pub self_deployment_target_environments: Vec<String>, // New: e.g., "kubernetes-prod", "aws-lambda-dev"
+    pub tariro_component_images: HashMap<String, String>, // New: e.g., {"sandboxed_env_service": "tariro/sandbox:latest"}
 }
 
 #[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
@@ -204,7 +206,7 @@ pub struct AppConfig {
     pub production_learning: Option<ProductionLearningConfig>,
     pub human_in_the_loop: Option<HumanInTheLoopConfig>,
     pub self_modification_module: Option<SelfModificationModuleConfig>, 
-    pub idpte_module: Option<IDPTEModuleConfig>, // Added this line
+    pub idpte_module: Option<IDPTEModuleConfig>,
     // Add other module configs here as they are developed
 }
 
@@ -224,7 +226,15 @@ impl AppConfig {
             automated_test_suite: Some(AutomatedTestSuiteConfig::default()),
             performance_profiler: Some(PerformanceProfilerConfig::default()),
             ethical_compliance_monitor: Some(EthicalComplianceMonitorConfig::default()),
-            deployment_manager: Some(DeploymentManagerConfig::default()),
+            deployment_manager: Some(DeploymentManagerConfig {
+                self_deployment_target_environments: vec!["kubernetes-prod".to_string(), "aws-lambda-dev".to_string()],
+                tariro_component_images: [
+                    ("sandboxed_env_service".to_string(), "tariro/sandbox:latest".to_string()),
+                    ("self_mod_orchestrator".to_string(), "tariro/self-mod:latest".to_string()),
+                    ("idpte_bridge".to_string(), "tariro/idpte:latest".to_string()),
+                ].iter().cloned().collect(),
+                ..Default::default()
+            }),
             data_mirroring_system: Some(DataMirroringSystemConfig::default()),
             sandboxed_environment_module: Some(SandboxedEnvironmentModuleConfig::default()),
             code_generation_engine: Some(CodeGenerationEngineConfig::default()),
@@ -234,7 +244,7 @@ impl AppConfig {
             production_learning: Some(ProductionLearningConfig::default()),
             human_in_the_loop: Some(HumanInTheLoopConfig::default()),
             self_modification_module: Some(SelfModificationModuleConfig::default()),
-            idpte_module: Some(IDPTEModuleConfig::default()), // Added this line
+            idpte_module: Some(IDPTEModuleConfig::default()),
         })
     }
 }
