@@ -231,6 +231,35 @@ impl CognitiveConfig {
     }
 }
 
+// NEW STRUCT: DigitalTwinConfig
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct DigitalTwinConfig {
+    pub enabled: bool,
+    pub simulation_accuracy: f32, // 0.0 to 1.0
+    pub enable_realtime_sync: bool,
+    pub predicted_impact: String, // Default for simulation response
+    pub details: String, // Default for simulation response details
+}
+
+impl DigitalTwinConfig {
+    pub fn new(_pool: Option<PgPool>) -> Self { // Placeholder for initialization
+        DigitalTwinConfig {
+            enabled: true,
+            simulation_accuracy: 0.8,
+            enable_realtime_sync: true,
+            predicted_impact: "Low".to_string(), // Default value
+            details: "Simulated response with default parameters".to_string(), // Default value
+        }
+    }
+
+    // Conceptual method for simulating security responses
+    pub async fn simulate_security_response(&self, _threat_id: uuid::Uuid, _threat_level: &str) -> Result<Self> {
+        // In a real implementation, this would involve complex simulation logic.
+        // For now, we return a cloned config with conceptual results.
+        Ok(self.clone())
+    }
+}
+
 
 // AppConfig will hold configurations for all modules
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -256,6 +285,7 @@ pub struct AppConfig {
     pub omega_os_kernel_module: Option<OmegaOSKernelConfig>,
     pub samuel_learning_assistant_module: Option<SamuelLearningAssistantConfig>,
     pub cognitive_config: Option<CognitiveConfig>, // NEW FIELD - Added to AppConfig
+    pub digital_twin_config: Option<DigitalTwinConfig>, // NEW FIELD - Added to AppConfig
     // Add other module configs here as they are developed
 }
 
@@ -289,6 +319,7 @@ impl AppConfig {
             omega_os_kernel_module: Some(OmegaOSKernelConfig::default()),
             samuel_learning_assistant_module: Some(SamuelLearningAssistantConfig::default()),
             cognitive_config: Some(CognitiveConfig::new(None)), // NEW: Initialize CognitiveConfig
+            digital_twin_config: Some(DigitalTwinConfig::new(None)), // NEW: Initialize DigitalTwinConfig
             // Add other module configs here as they are developed
         })
     }
