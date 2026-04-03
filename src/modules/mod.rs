@@ -5,7 +5,8 @@
 
 pub mod sandboxed_environment;
 pub mod self_modification_module;
-pub mod idpte_module; // New: IDPTE Module
+pub mod idpte_module;
+pub mod omega_os_kernel_module; // New: OMEGA OS Kernel Module
 
 // Add other module declarations here as they are developed
 
