@@ -260,6 +260,34 @@ impl DigitalTwinConfig {
     }
 }
 
+// NEW STRUCT: RefactorEngineConfig
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct RefactorEngineConfig {
+    pub enabled: bool,
+    pub complexity_threshold: f32,
+    pub anti_pattern_detection_enabled: bool,
+    pub ethical_violation_scan_enabled: bool,
+    pub auto_refactor_enabled: bool,
+}
+
+impl RefactorEngineConfig {
+    pub fn new(_pool: Option<PgPool>) -> Self {
+        RefactorEngineConfig {
+            enabled: true,
+            complexity_threshold: 6.0, // Example threshold
+            anti_pattern_detection_enabled: true,
+            ethical_violation_scan_enabled: true,
+            auto_refactor_enabled: false, // Start with manual approval
+        }
+    }
+
+    // Conceptual method for code analysis
+    pub async fn analyze_code(&self, _file_id: uuid::Uuid) -> Result<f32> {
+        // Simulate code analysis for complexity
+        Ok(7.2) // Hardcoded for now, will be dynamic in real implementation
+    }
+}
+
 
 // AppConfig will hold configurations for all modules
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -286,6 +314,7 @@ pub struct AppConfig {
     pub samuel_learning_assistant_module: Option<SamuelLearningAssistantConfig>,
     pub cognitive_config: Option<CognitiveConfig>, // NEW FIELD - Added to AppConfig
     pub digital_twin_config: Option<DigitalTwinConfig>, // NEW FIELD - Added to AppConfig
+    pub refactor_engine_config: Option<RefactorEngineConfig>, // NEW FIELD - Added to AppConfig
     // Add other module configs here as they are developed
 }
 
@@ -320,6 +349,7 @@ impl AppConfig {
             samuel_learning_assistant_module: Some(SamuelLearningAssistantConfig::default()),
             cognitive_config: Some(CognitiveConfig::new(None)), // NEW: Initialize CognitiveConfig
             digital_twin_config: Some(DigitalTwinConfig::new(None)), // NEW: Initialize DigitalTwinConfig
+            refactor_engine_config: Some(RefactorEngineConfig::new(None)), // NEW: Initialize RefactorEngineConfig
             // Add other module configs here as they are developed
         })
     }
