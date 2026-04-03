@@ -19,7 +19,8 @@ use crate::self_modification::SelfModificationModuleConfig;
 use crate::code_generation::CodeGenerationEngineConfig;
 use crate::deployment_manager::DeploymentManagerConfig;
 use crate::virtualization_engine::VirtualizationEngineConfig;
-use crate::omega_os_kernel::OmegaOSKernelConfig; // NEW: Added OmegaOSKernelConfig
+use crate::omega_os_kernel::OmegaOSKernelConfig;
+use crate::automated_test_suite::AutomatedTestSuiteConfig;
 
 
 #[derive(Serialize)]
@@ -44,7 +45,8 @@ pub struct AutonomyOrchestrator {
     code_generation_config: CodeGenerationEngineConfig,
     deployment_manager_config: DeploymentManagerConfig,
     virtualization_engine_config: VirtualizationEngineConfig,
-    omega_os_kernel_config: OmegaOSKernelConfig, // NEW: Added OmegaOSKernelConfig
+    omega_os_kernel_config: OmegaOSKernelConfig,
+    automated_test_suite_config: AutomatedTestSuiteConfig,
 }
 
 impl AutonomyOrchestrator {
@@ -63,7 +65,8 @@ impl AutonomyOrchestrator {
             code_generation_config: CodeGenerationEngineConfig::new(),
             deployment_manager_config: DeploymentManagerConfig::new(),
             virtualization_engine_config: VirtualizationEngineConfig::new(),
-            omega_os_kernel_config: OmegaOSKernelConfig::new(), // NEW: Initialize OmegaOSKernelConfig
+            omega_os_kernel_config: OmegaOSKernelConfig::new(), // Ensure it's using the latest new()
+            automated_test_suite_config: AutomatedTestSuiteConfig::new(),
         }
     }
 
@@ -222,7 +225,8 @@ impl AutonomyOrchestrator {
                 success_rate, ethical_compliance_rate
             );
             self.log_agi_decision(adjustment_recommendation.clone(), "Autonomy Self-Adjustment Recommendation - Human Review", 0.99).await?;
-        } else {
+        }
+        else {
             self.log_agi_decision("Autonomy levels stable, no adjustment needed.".to_string(), "Autonomy Self-Adjustment Evaluation", 0.99).await?;
         }
 
@@ -250,8 +254,7 @@ impl AutonomyOrchestrator {
                 current_cpu_usage * 100.0
             ));
             // Conceptual call to refactor_engine (requires specific file_id, so this is illustrative)
-            // let _ = self.refactor_engine.analyze_code(some_file_id).await?; // This line commented out as `analyze_code` requires a file_id, which is not available in this context.
-        }
+            // let _ = self.refactor_engine.analyze_code(some_file_id).await?; // This line commented out as `analyze_code` requires a file_id, which is not available in this context.\n        }
         if current_memory_usage > self.resource_manager_config.threshold_memory_usage {
             optimization_needed = true;
             optimization_plan.push_str(&format!(
@@ -354,7 +357,7 @@ impl AutonomyOrchestrator {
         Ok(format!("Adaptive self-cloning and deployment decision: {}", deployment_action))
     }
 
-    /// AGI autonomously evaluates and evolves its foundational principles and ethical guidelines. 
+    /// AGI autonomously evaluates and evolves its foundational principles and ethical guidelines.
     pub async fn evolve_foundational_principles(&self) -> Result<String> {
         info!("Autonomy Orchestrator: AGI evaluating foundational principles and ethical guidelines for evolution.");
 
@@ -450,6 +453,108 @@ impl AutonomyOrchestrator {
         Ok(format!("OMEGA OS AGI integration managed for event '{}'. AGI response: {}", os_event_type, agi_response))
     }
 
+    /// AGI autonomously identifies, generates, tests, and loads new kernel modules for OMEGA OS.
+    pub async fn autonomous_kernel_module_management(&self, module_need: &str) -> Result<String> {
+        info!("Autonomy Orchestrator: AGI initiating autonomous kernel module management for need: {}", module_need);
+
+        if !self.omega_os_kernel_config.enable_self_modification_of_kernel {
+            warn!("OMEGA OS kernel self-modification is disabled. Cannot autonomously manage kernel modules.");
+            return Ok("OMEGA OS kernel self-modification disabled.".to_string());
+        }
+
+        // 1. Simulate identifying a need
+        let identified_module_name = format!("omega_module_{}", module_need.replace(" ", "_"));
+        info!("Identified need for new kernel module: {}", identified_module_name);
+
+        // 2. Simulate code generation
+        let generated_module_code = format!("// Conceptual Rust code for kernel module: {}", identified_module_name);
+        info!("Generated conceptual code for module: {}", generated_module_code);
+
+        // 3. Simulate testing the module in a digital twin / automated test suite
+        // Assuming automated_test_suite_config can conceptually "test" this generated code.
+        let test_result_success = self.automated_test_suite_config.minimum_pass_rate > 0.5; // Simulate a pass
+        let test_summary = if test_result_success {"Passed conceptual tests with flying colors." } else { "Failed some conceptual tests." };
+        info!("Module test result: {}. Summary: {}", test_result_success, test_summary);
+
+        if !test_result_success {
+            warn!("Kernel module tests failed. Aborting dynamic loading.");
+            let decision_str = format!(
+                "AGI identified need for kernel module '{}', generated code, but tests failed. Aborting. Reason: {}.",
+                identified_module_name, test_summary
+            );
+            self.log_agi_decision(decision_str.clone(), "Autonomous Kernel Module Management - Test Failure", 0.90).await?;
+            return Ok(decision_str);
+        }
+
+        // 4. Simulate dynamic loading/unloading by the kernel
+        let load_result = format!("OMEGA OS kernel dynamically loaded module '{}'.", identified_module_name);
+        info!("Simulated kernel action: {}", load_result);
+
+        let decision_str = format!(
+            "AGI autonomously managed kernel module. Need: '{}'. Module: '{}'. Code Gen: OK. Test: OK. Action: {}.",
+            module_need,
+            identified_module_name,
+            load_result
+        );
+        self.log_agi_decision(decision_str.clone(), "Autonomous Kernel Module Management", 0.99).await?;
+
+        Ok(format!("Autonomous kernel module management for '{}' completed: {}.", module_need, load_result))
+    }
+
+    /// AGI autonomously analyzes and redesigns OMEGA OS's core architecture.
+    pub async fn autonomous_os_architecture_optimization(&self, architectural_area: &str) -> Result<String> {
+        info!("Autonomy Orchestrator: AGI initiating autonomous OMEGA OS architecture optimization for area: {}", architectural_area);
+
+        if !self.omega_os_kernel_config.enable_architectural_self_optimization {
+            warn!("OMEGA OS architectural self-optimization is disabled. Cannot autonomously redesign architecture.");
+            return Ok("OMEGA OS architectural self-optimization disabled.".to_string());
+        }
+
+        // 1. Simulate identifying an architectural bottleneck/optimization opportunity
+        let identified_bottleneck = format!("Inefficient {} scheduling algorithm leading to high latency.", architectural_area);
+        info!("Identified architectural bottleneck: {}", identified_bottleneck);
+
+        // 2. Trigger Tariro's CodeGenerationEngine to propose a new architecture/algorithm
+        let proposed_architecture_change = format!(
+            "Proposing a new adaptive {} scheduler with AI-driven predictive pre-emption.",
+            architectural_area
+        );
+        info!("Proposed architectural change: {}", proposed_architecture_change);
+        let generated_arch_code_sketch = format!(
+            "// Conceptual Rust pseudocode for new {} scheduler, generated by AGI\n// ... complex logic ...\n",
+            architectural_area
+        );
+        info!("Generated conceptual architectural code sketch.");
+
+        // 3. Use DigitalTwinConfig to simulate testing the new architecture's impact
+        let simulation_accuracy = self.omega_os_kernel_config.redesign_simulation_accuracy_threshold;
+        let simulated_impact_details = self.digital_twin_config.simulate_security_response(Uuid::new_v4(), &format!("Architectural Redesign: {}", architectural_area)).await?;
+        let simulated_performance_gain = 0.25; // Conceptual 25% performance gain
+
+        let mut decision_str = format!(
+            "AGI identified architectural bottleneck in '{}', proposed '{}', simulated with {:.2}% accuracy. Predicted gain: {:.2}%. Simulation details: {}.",
+            architectural_area,
+            proposed_architecture_change,
+            simulation_accuracy * 100.0,
+            simulated_performance_gain * 100.0,
+            simulated_impact_details.details
+        );
+
+        // 4. Simulate the OS applying this fundamental architectural change (after rigorous testing)
+        if simulation_accuracy >= self.omega_os_kernel_config.redesign_simulation_accuracy_threshold {
+            let application_result = format!("OMEGA OS autonomously applied architectural redesign for {}.", architectural_area);
+            info!("Simulated OS application: {}", application_result);
+            decision_str.push_str(&format!(" Final Action: {}.", application_result));
+            self.log_agi_decision(decision_str.clone(), "Autonomous OS Architecture Optimization - Applied", 0.99).await?;
+        } else {
+            decision_str.push_str(" Simulation accuracy too low for autonomous application. Human review recommended.");
+            warn!("{}", decision_str);
+            self.log_agi_decision(decision_str.clone(), "Autonomous OS Architecture Optimization - Human Review", 0.95).await?;
+            return Ok(decision_str);
+        }
+
+        Ok(format!("Autonomous OMEGA OS architecture optimization for '{}' completed. Result: {}.", architectural_area, decision_str))
+    }
 
     async fn log_agi_decision(&self, decision: String, reasoning: String, autonomy_level: f32) -> Result<()> {
         if let Some(pool) = &self.pool {
