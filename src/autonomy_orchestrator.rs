@@ -19,7 +19,8 @@ use crate::self_modification::SelfModificationModuleConfig;
 use crate::code_generation::CodeGenerationEngineConfig;
 use crate::deployment_manager::DeploymentManagerConfig;
 use crate::virtualization_engine::VirtualizationEngineConfig;
-use crate::meta_learning::MetaLearningConfig; // NEW: Added MetaLearningConfig - note: it's part of self_modification_config now
+use crate::omega_os_kernel::OmegaOSKernelConfig; // NEW: Added OmegaOSKernelConfig
+
 
 #[derive(Serialize)]
 pub struct AgiDecisionLog {
@@ -43,6 +44,7 @@ pub struct AutonomyOrchestrator {
     code_generation_config: CodeGenerationEngineConfig,
     deployment_manager_config: DeploymentManagerConfig,
     virtualization_engine_config: VirtualizationEngineConfig,
+    omega_os_kernel_config: OmegaOSKernelConfig, // NEW: Added OmegaOSKernelConfig
 }
 
 impl AutonomyOrchestrator {
@@ -61,6 +63,7 @@ impl AutonomyOrchestrator {
             code_generation_config: CodeGenerationEngineConfig::new(),
             deployment_manager_config: DeploymentManagerConfig::new(),
             virtualization_engine_config: VirtualizationEngineConfig::new(),
+            omega_os_kernel_config: OmegaOSKernelConfig::new(), // NEW: Initialize OmegaOSKernelConfig
         }
     }
 
@@ -333,7 +336,7 @@ impl AutonomyOrchestrator {
             // In a real scenario, this would call into the deployment manager directly
         } else if current_load < 0.3 && target_resilience_level < 0.5 {
             // Add more sophisticated logic for selecting which instance to decommission
-            deployment_action = format!("Scaling down: Decommissioning an instance from {}.", target_environment);
+            deployment_action = format!("Scaling down: Decommissioning an instance from {}.".to_string(), target_environment);
             info!("Simulating decommissioning: {}", deployment_action);
             // In a real scenario, this would call into the deployment manager directly
         } else {
@@ -351,7 +354,7 @@ impl AutonomyOrchestrator {
         Ok(format!("Adaptive self-cloning and deployment decision: {}", deployment_action))
     }
 
-    /// AGI autonomously evaluates and evolves its foundational principles and ethical guidelines.
+    /// AGI autonomously evaluates and evolves its foundational principles and ethical guidelines. 
     pub async fn evolve_foundational_principles(&self) -> Result<String> {
         info!("Autonomy Orchestrator: AGI evaluating foundational principles and ethical guidelines for evolution.");
 
@@ -390,6 +393,61 @@ impl AutonomyOrchestrator {
         self.log_agi_decision(decision_str.clone(), "Autonomous Foundational Principle Evolution", 0.99).await?;
         
         Ok(format!("Foundational principle evolution proposed and simulated: {}", potential_principle_update))
+    }
+
+    /// AGI actively manages and leverages its omnipresent integration within the OMEGA OS.
+    pub async fn manage_os_agi_integration(&self, os_event_type: &str, event_details: &str) -> Result<String> {
+        info!("Autonomy Orchestrator: AGI managing OMEGA OS integration for event '{}' with details: '{}'", os_event_type, event_details);
+
+        if !self.omega_os_kernel_config.enable_agi_omnipresence {
+            warn!("OMEGA OS AGI omnipresence is disabled. Cannot manage OS integration.");
+            return Ok("OMEGA OS AGI omnipresence disabled.".to_string());
+        }
+
+        if !self.omega_os_kernel_config.agi_event_hook_whitelist.contains(&os_event_type.to_string()) {
+            warn!("OS event '{}' is not whitelisted for AGI integration. Skipping.", os_event_type);
+            return Ok(format!("OS event '{}' not whitelisted.", os_event_type));
+        }
+
+        let mut agi_response = "No specific AGI action taken.".to_string();
+
+        match os_event_type {
+            "user_input" => {
+                // Conceptual: AGI processes user input to adapt OS UI/behavior
+                agi_response = format!("AGI processed user input '{}' and adapted OS UI.", event_details);
+                // Further logic here could involve CognitiveConfig to understand intent
+                // and then triggering CodeGenerationEngine or SelfModificationModule for adaptive UI changes
+            },
+            "app_launch" => {
+                // Conceptual: AGI optimizes resources or loads context for the launched app
+                agi_response = format!("AGI detected app launch '{}' and optimized resources.", event_details);
+                // This could interact with resource_manager_config
+            },
+            "device_connect" => {
+                // Conceptual: AGI integrates new device and sets up secure communication
+                agi_response = format!("AGI detected device connection '{}' and initiated secure setup.", event_details);
+                // This could interact with mesh_network or security_audit
+            },
+            "system_health" => {
+                // Conceptual: AGI analyzes system health event and suggests/applies remediation
+                agi_response = format!("AGI analyzed system health event '{}' and recommended remediation.", event_details);
+                // This could interact with self_healing_engine_config or digital_twin_config
+            },
+            _ => {
+                // Default handling for other whitelisted events
+                agi_response = format!("AGI observed whitelisted event '{}' with details: '{}'.", os_event_type, event_details);
+            }
+        }
+
+        let decision_str = format!(
+            "AGI autonomously managed OMEGA OS integration. Event: '{}'. Details: '{}'. AGI Action: {}.",
+            os_event_type,
+            event_details,
+            agi_response
+        );
+        self.log_agi_decision(decision_str.clone(), "Autonomous OMEGA OS AGI Integration Management", 0.97).await?;
+
+        Ok(format!("OMEGA OS AGI integration managed for event '{}'. AGI response: {}", os_event_type, agi_response))
     }
 
 
