@@ -17,9 +17,9 @@ use crate::mesh_network::MeshNetwork;
 use crate::resource_management::ResourceManagerConfig;
 use crate::self_modification::SelfModificationModuleConfig;
 use crate::code_generation::CodeGenerationEngineConfig;
-use crate::deployment_manager::DeploymentManagerConfig; // NEW: Added DeploymentManagerConfig
-use crate::virtualization_engine::VirtualizationEngineConfig; // NEW: Added VirtualizationEngineConfig
-
+use crate::deployment_manager::DeploymentManagerConfig;
+use crate::virtualization_engine::VirtualizationEngineConfig;
+use crate::meta_learning::MetaLearningConfig; // NEW: Added MetaLearningConfig - note: it's part of self_modification_config now
 
 #[derive(Serialize)]
 pub struct AgiDecisionLog {
@@ -41,8 +41,8 @@ pub struct AutonomyOrchestrator {
     resource_manager_config: ResourceManagerConfig,
     self_modification_config: SelfModificationModuleConfig,
     code_generation_config: CodeGenerationEngineConfig,
-    deployment_manager_config: DeploymentManagerConfig, // NEW: Added DeploymentManagerConfig
-    virtualization_engine_config: VirtualizationEngineConfig, // NEW: Added VirtualizationEngineConfig
+    deployment_manager_config: DeploymentManagerConfig,
+    virtualization_engine_config: VirtualizationEngineConfig,
 }
 
 impl AutonomyOrchestrator {
@@ -59,8 +59,8 @@ impl AutonomyOrchestrator {
             resource_manager_config: ResourceManagerConfig::new(shared_pool.clone()),
             self_modification_config: SelfModificationModuleConfig::new(),
             code_generation_config: CodeGenerationEngineConfig::new(),
-            deployment_manager_config: DeploymentManagerConfig::new(), // NEW: Initialize DeploymentManagerConfig
-            virtualization_engine_config: VirtualizationEngineConfig::new(), // NEW: Initialize VirtualizationEngineConfig
+            deployment_manager_config: DeploymentManagerConfig::new(),
+            virtualization_engine_config: VirtualizationEngineConfig::new(),
         }
     }
 
@@ -247,7 +247,7 @@ impl AutonomyOrchestrator {
                 current_cpu_usage * 100.0
             ));
             // Conceptual call to refactor_engine (requires specific file_id, so this is illustrative)
-            // let _ = self.refactor_engine.analyze_code(some_file_id).await?;
+            // let _ = self.refactor_engine.analyze_code(some_file_id).await?; // This line commented out as `analyze_code` requires a file_id, which is not available in this context.
         }
         if current_memory_usage > self.resource_manager_config.threshold_memory_usage {
             optimization_needed = true;
@@ -349,6 +349,47 @@ impl AutonomyOrchestrator {
         self.log_agi_decision(decision_str.clone(), "Autonomous Adaptive Self-Cloning and Deployment", 0.95).await?;
         
         Ok(format!("Adaptive self-cloning and deployment decision: {}", deployment_action))
+    }
+
+    /// AGI autonomously evaluates and evolves its foundational principles and ethical guidelines.
+    pub async fn evolve_foundational_principles(&self) -> Result<String> {
+        info!("Autonomy Orchestrator: AGI evaluating foundational principles and ethical guidelines for evolution.");
+
+        let meta_learning_config = self.self_modification_config.meta_learning.as_ref()
+            .ok_or_else(|| anyhow::anyhow!("MetaLearningConfig is not initialized in SelfModificationModuleConfig"))?;
+
+        if !self.agi_config.enable_meta_ethical_reasoning || !meta_learning_config.enable_principle_evolution {
+            warn!("Meta-ethical reasoning or foundational principle evolution is disabled. Skipping.");
+            return Ok("Foundational principle evolution disabled.".to_string());
+        }
+
+        // Conceptual analysis of logs and experience to find areas for principle evolution
+        // For now, simulate an insight based on past "ethical_compliance_issues"
+        let potential_principle_update = "Refine the 'data privacy' principle to include proactive anonymization by default for all new data streams.".to_string();
+        let estimated_ethical_impact = 0.92; // Simulated impact score
+
+        info!("Tariro has identified a potential foundational principle update: '{}'", potential_principle_update);
+
+        let mut decision_str = format!(
+            "AGI autonomously proposed a foundational principle update: '{}'. Estimated ethical impact: {:.2}.",
+            potential_principle_update,
+            estimated_ethical_impact
+        );
+
+        if estimated_ethical_impact < self.agi_config.meta_ethical_review_threshold {
+            decision_str.push_str(" Human review recommended due to estimated ethical impact below threshold.");
+            warn!("{}", decision_str);
+            self.log_agi_decision(decision_str.clone(), "Autonomous Foundational Principle Proposal - Human Review", 0.99).await?;
+            return Ok(decision_str);
+        }
+
+        // Simulate digital twin analysis of the proposed principle change
+        let simulation_result = self.digital_twin_config.simulate_security_response(Uuid::new_v4(), "Principle Change Impact").await?;
+        decision_str.push_str(&format!(" Digital Twin Simulation: Impact: {}, Details: {}.", simulation_result.predicted_impact, simulation_result.details));
+
+        self.log_agi_decision(decision_str.clone(), "Autonomous Foundational Principle Evolution", 0.99).await?;
+        
+        Ok(format!("Foundational principle evolution proposed and simulated: {}", potential_principle_update))
     }
 
 
