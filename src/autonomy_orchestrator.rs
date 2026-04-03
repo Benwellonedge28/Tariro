@@ -13,7 +13,8 @@ use crate::cognitive_arch::CognitiveConfig;
 use crate::digital_twin::DigitalTwinConfig;
 use crate::refactor::RefactorEngineConfig;
 use crate::knowledge_synthesis::KnowledgeSynthesisConfig;
-use crate::mesh_network::MeshNetwork; // This will now correctly resolve from src/lib.rs
+use crate::mesh_network::MeshNetwork;
+use crate::resource_management::ResourceManagerConfig; // NEW: Added ResourceManagerConfig
 
 #[derive(Serialize)]
 pub struct AgiDecisionLog {
@@ -31,7 +32,8 @@ pub struct AutonomyOrchestrator {
     digital_twin_config: DigitalTwinConfig,
     refactor_engine: RefactorEngineConfig,
     knowledge_synthesis_config: KnowledgeSynthesisConfig,
-    mesh_network: Arc<MeshNetwork>, // This will now correctly resolve from src/lib.rs
+    mesh_network: Arc<MeshNetwork>,
+    resource_manager_config: ResourceManagerConfig, // NEW: Added ResourceManagerConfig
 }
 
 impl AutonomyOrchestrator {
@@ -44,7 +46,8 @@ impl AutonomyOrchestrator {
             digital_twin_config: DigitalTwinConfig::new(shared_pool.clone()),
             refactor_engine: RefactorEngineConfig::new(shared_pool.clone()),
             knowledge_synthesis_config: KnowledgeSynthesisConfig::new(shared_pool.clone()),
-            mesh_network: Arc::new(MeshNetwork::new(shared_pool)),
+            mesh_network: Arc::new(MeshNetwork::new(shared_pool.clone())),
+            resource_manager_config: ResourceManagerConfig::new(shared_pool), // NEW: Initialize ResourceManagerConfig
         }
     }
 
@@ -208,6 +211,50 @@ impl AutonomyOrchestrator {
         }
 
         Ok(format!("Autonomy evaluation completed. Recommendation: {}", adjustment_recommendation))
+    }
+
+    /// AGI proactively monitors resource usage and performs optimizations.
+    pub async fn proactive_resource_optimization(&self) -> Result<String> {
+        info!("Autonomy Orchestrator: AGI initiating proactive resource optimization.");
+
+        if !self.resource_manager_config.enabled || !self.resource_manager_config.proactive_optimization_enabled {
+            warn!("Proactive resource optimization is disabled in configuration. Skipping.");
+            return Ok("Proactive resource optimization disabled.".to_string());
+        }
+
+        let (current_cpu_usage, current_memory_usage) = self.resource_manager_config.monitor_resources().await?;
+        
+        let mut optimization_needed = false;
+        let mut optimization_plan = String::new();
+
+        if current_cpu_usage > self.resource_manager_config.threshold_cpu_usage {
+            optimization_needed = true;
+            optimization_plan.push_str(&format!(
+                "High CPU usage detected ({:.2}%). Suggesting code optimization via RefactorEngine. ",
+                current_cpu_usage * 100.0
+            ));
+            // Conceptual call to refactor_engine (requires specific file_id, so this is illustrative)
+            // let _ = self.refactor_engine.analyze_code(some_file_id).await?;
+        }
+        if current_memory_usage > self.resource_manager_config.threshold_memory_usage {
+            optimization_needed = true;
+            optimization_plan.push_str(&format!(
+                "High Memory usage detected ({:.2}%). Suggesting memory allocation review. ",
+                current_memory_usage * 100.0
+            ));
+        }
+
+        let decision_str;
+        if optimization_needed {
+            let _ = self.resource_manager_config.apply_optimization(&optimization_plan).await?;
+            decision_str = format!("Proactive resource optimization executed. Details: {}", optimization_plan);
+            self.log_agi_decision(decision_str.clone(), "Autonomous Proactive Resource Optimization", 0.85).await?;
+            Ok(format!("Resource optimization performed: {}", optimization_plan))
+        } else {
+            decision_str = format!("Resource usage within thresholds (CPU: {:.2}%, Memory: {:.2}%). No optimization needed.", current_cpu_usage * 100.0, current_memory_usage * 100.0);
+            self.log_agi_decision(decision_str.clone(), "Autonomous Proactive Resource Optimization", 0.85).await?;
+            Ok(decision_str)
+        }
     }
 
 
