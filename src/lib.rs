@@ -176,6 +176,14 @@ pub struct SelfModificationModuleConfig {
     pub meta_learning: Option<MetaLearningConfig>,
 }
 
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct IDPTEModuleConfig {
+    pub ide_interaction_mode: String, // e.g., "auto", "confirm", "manual"
+    pub preferred_code_editor: String, // e.g., "vscode", "jetbrains", "neovim"
+    pub enable_autonomous_file_management: bool,
+    pub autonomous_commit_message_generation: bool,
+}
+
 // AppConfig will hold configurations for all modules
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AppConfig {
@@ -196,6 +204,7 @@ pub struct AppConfig {
     pub production_learning: Option<ProductionLearningConfig>,
     pub human_in_the_loop: Option<HumanInTheLoopConfig>,
     pub self_modification_module: Option<SelfModificationModuleConfig>, 
+    pub idpte_module: Option<IDPTEModuleConfig>, // Added this line
     // Add other module configs here as they are developed
 }
 
@@ -225,6 +234,7 @@ impl AppConfig {
             production_learning: Some(ProductionLearningConfig::default()),
             human_in_the_loop: Some(HumanInTheLoopConfig::default()),
             self_modification_module: Some(SelfModificationModuleConfig::default()),
+            idpte_module: Some(IDPTEModuleConfig::default()), // Added this line
         })
     }
 }
