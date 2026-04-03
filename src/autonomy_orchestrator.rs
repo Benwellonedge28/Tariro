@@ -4,6 +4,7 @@ use anyhow::Result;
 use tracing::{info, warn};
 use uuid::Uuid;
 use serde::Serialize;
+use std::sync::Arc; // Added for Arc<MeshNetwork>
 
 // Conceptual dependencies for AGI Decision Making
 use crate::security_audit::AuditEngine;
@@ -25,26 +26,32 @@ pub struct AgiDecisionLog {
 pub struct AutonomyOrchestrator {
     pool: Option<PgPool>,
     audit_engine: AuditEngine,
-    // agi_config: CognitiveConfig,
-    // digital_twin_config: DigitalTwinConfig,
-    // refactor_engine: RefactorEngine,
-    // knowledge_synthesis_config: KnowledgeSynthesisConfig,
-    // mesh_network: Arc<MeshNetwork>,
+    agi_config: CognitiveConfig,
+    digital_twin_config: DigitalTwinConfig,
+    refactor_engine: RefactorEngine,
+    knowledge_synthesis_config: KnowledgeSynthesisConfig,
+    mesh_network: Arc<MeshNetwork>,
 }
 
 impl AutonomyOrchestrator {
     pub fn new(pool: Option<PgPool>) -> Self {
+        let shared_pool = pool.clone();
         Self {
             pool: pool.clone(),
-            audit_engine: AuditEngine::new(pool),
-            // Initialize other AGI-related engines/configs here
+            audit_engine: AuditEngine::new(shared_pool.clone()),
+            // Initialize other AGI-related engines/configs here - assuming they take a PgPool or can be default initialized
+            agi_config: CognitiveConfig::new(shared_pool.clone()),
+            digital_twin_config: DigitalTwinConfig::new(shared_pool.clone()),
+            refactor_engine: RefactorEngine::new(shared_pool.clone()),
+            knowledge_synthesis_config: KnowledgeSynthesisConfig::new(shared_pool.clone()),
+            mesh_network: Arc::new(MeshNetwork::new(shared_pool)),
         }
     }
 
     /// AGI autonomously resolves security threats with more complex logic.
     pub async fn resolve_security_threat(&self, threat_id: Uuid, threat_level: &str) -> Result<String> {
-        info!("Autonomy Orchestrator: AGI evaluating security threat {} (Level: {})...".to_string(), threat_id, threat_level);
-        
+        info!("Autonomy Orchestrator: AGI evaluating security threat {} (Level: {})...", threat_id, threat_level);
+
         // --- Enhanced AGI Decision Logic ---
         let current_posture = self.audit_engine.get_current_posture().await;
         let agi_decision_score = match threat_level {
@@ -52,10 +59,10 @@ impl AutonomyOrchestrator {
             "HIGH" => 0.8,
             _ => 0.6, // Lower autonomy for less severe threats
         };
-        
+
         let decision_str = format!(
-            "AGI autonomously decided to isolate affected module based on {}. Current security posture: {}. Ethical alignment: High. Predicted impact: Low.", 
-            threat_level, 
+            "AGI autonomously decided to isolate affected module based on {}. Current security posture: {}. Ethical alignment: High. Predicted impact: Low.",
+            threat_level,
             current_posture.map_or("Unknown".to_string(), |p| format!("Threats: {}", p.active_threats))
         );
         self.log_agi_decision(decision_str.clone(), "Autonomous Security Response", agi_decision_score).await?;
@@ -71,7 +78,7 @@ impl AutonomyOrchestrator {
         let ethical_flag = false; // Conceptual result from CognitiveArch/EVAS
 
         let decision_str = format!(
-            "AGI requested P2P review for file {} based on high cyclomatic complexity ({:.1}) and potential anti-patterns. Ethical flag: {}. Peers selected based on Rust expertise.", 
+            "AGI requested P2P review for file {} based on high cyclomatic complexity ({:.1}) and potential anti-patterns. Ethical flag: {}. Peers selected based on Rust expertise.",
             file_id, code_complexity_score, ethical_flag
         );
         self.log_agi_decision(decision_str.clone(), "Autonomous Code Review Orchestration", 0.8).await?;
