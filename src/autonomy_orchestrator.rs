@@ -5,6 +5,7 @@ use tracing::{info, warn};
 use uuid::Uuid;
 use serde::Serialize;
 use std::sync::Arc;
+use chrono::Duration; // Added for time-based filtering of logs
 
 // Conceptual dependencies for AGI Decision Making
 use crate::security_audit::AuditEngine;
@@ -143,6 +144,70 @@ impl AutonomyOrchestrator {
         );
         self.log_agi_decision(decision_str.clone(), "Autonomous Mesh Network Coordination", 0.9).await?;
         Ok(format!("MeshNetwork coordination completed. Details: {}", decision_str))
+    }
+
+    /// AGI autonomously evaluates its performance and ethical compliance to adjust its own autonomy levels.
+    pub async fn evaluate_and_adjust_autonomy_levels(&self) -> Result<String> {
+        info!("Autonomy Orchestrator: AGI evaluating its own performance and ethical compliance for autonomy adjustments.");
+
+        // Fetch recent decisions/logs to assess performance and compliance
+        let recent_logs = self.get_agi_decision_logs().await?;
+        let evaluation_period = chrono::Utc::now() - Duration::hours(24); // Last 24 hours
+        let filtered_logs: Vec<&AgiDecisionLog> = recent_logs.iter()
+            .filter(|log| log.timestamp > evaluation_period)
+            .collect();
+
+        if filtered_logs.is_empty() {
+            info!("No recent AGI decision logs for evaluation. Skipping autonomy adjustment.");
+            return Ok("No recent logs for autonomy adjustment.".to_string());
+        }
+
+        // Conceptual analysis of performance and ethical compliance
+        let successful_decisions = filtered_logs.iter()
+            .filter(|log| log.decision.contains("successfully initiated") || log.decision.contains("successfully completed"))
+            .count();
+        let high_autonomy_decisions = filtered_logs.iter()
+            .filter(|log| log.autonomy_level > 0.8)
+            .count();
+        let ethical_compliance_issues = filtered_logs.iter()
+            .filter(|log| log.decision.contains("Review Needed - below ethical threshold"))
+            .count();
+
+        let total_decisions = filtered_logs.len();
+        let success_rate = successful_decisions as f32 / total_decisions as f32;
+        let ethical_compliance_rate = 1.0 - (ethical_compliance_issues as f32 / total_decisions as f32);
+
+        info!(
+            "Evaluation results: Success Rate: {:.2}, Ethical Compliance Rate: {:.2}, High Autonomy Decisions: {}",
+            success_rate, ethical_compliance_rate, high_autonomy_decisions
+        );
+
+        let mut adjustment_recommendation = "No changes recommended.".to_string();
+        let current_security_autonomy = 0.7; // Placeholder for actual policy lookup
+
+        if success_rate > 0.95 && ethical_compliance_rate > self.agi_config.get_ethical_security_threshold() {
+            // Suggest increasing autonomy if performance is consistently high and ethical
+            adjustment_recommendation = format!(
+                "Consider increasing autonomy for 'Security Threat Resolution' from {:.2} to {:.2}. (Current success: {:.2}, Ethical: {:.2})",
+                current_security_autonomy,
+                (current_security_autonomy + 0.1).min(1.0),
+                success_rate, ethical_compliance_rate
+            );
+            self.log_agi_decision(adjustment_recommendation.clone(), "Autonomy Self-Adjustment Recommendation", 0.99).await?;
+        } else if success_rate < 0.7 || ethical_compliance_rate < 0.8 {
+            // Suggest human review or reducing autonomy if performance or ethical compliance drops
+            adjustment_recommendation = format!(
+                "Human review highly recommended. Consider reducing autonomy for 'Security Threat Resolution' from {:.2} to {:.2}. (Current success: {:.2}, Ethical: {:.2})",
+                current_security_autonomy,
+                (current_security_autonomy - 0.1).max(0.1),
+                success_rate, ethical_compliance_rate
+            );
+            self.log_agi_decision(adjustment_recommendation.clone(), "Autonomy Self-Adjustment Recommendation - Human Review", 0.99).await?;
+        } else {
+            self.log_agi_decision("Autonomy levels stable, no adjustment needed.".to_string(), "Autonomy Self-Adjustment Evaluation", 0.99).await?;
+        }
+
+        Ok(format!("Autonomy evaluation completed. Recommendation: {}", adjustment_recommendation))
     }
 
 
