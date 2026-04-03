@@ -288,6 +288,32 @@ impl RefactorEngineConfig {
     }
 }
 
+// NEW STRUCT: KnowledgeSynthesisConfig
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct KnowledgeSynthesisConfig {
+    pub enabled: bool,
+    pub min_data_sources_for_synthesis: u32,
+    pub new_insight_confidence_threshold: f32, // 0.0 to 1.0
+    pub auto_publish_insights: bool,
+}
+
+impl KnowledgeSynthesisConfig {
+    pub fn new(_pool: Option<PgPool>) -> Self {
+        KnowledgeSynthesisConfig {
+            enabled: true,
+            min_data_sources_for_synthesis: 3,
+            new_insight_confidence_threshold: 0.75,
+            auto_publish_insights: false, // Start with manual approval for new insights
+        }
+    }
+
+    // Conceptual method for synthesizing knowledge
+    pub async fn synthesize_knowledge(&self, _input_data_ids: Vec<uuid::Uuid>) -> Result<String> {
+        // Simulate knowledge synthesis
+        Ok("Synthesized a new insight: 'The integration of modular AGI components significantly boosts system resilience.'".to_string())
+    }
+}
+
 
 // AppConfig will hold configurations for all modules
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -315,6 +341,7 @@ pub struct AppConfig {
     pub cognitive_config: Option<CognitiveConfig>, // NEW FIELD - Added to AppConfig
     pub digital_twin_config: Option<DigitalTwinConfig>, // NEW FIELD - Added to AppConfig
     pub refactor_engine_config: Option<RefactorEngineConfig>, // NEW FIELD - Added to AppConfig
+    pub knowledge_synthesis_config: Option<KnowledgeSynthesisConfig>, // NEW FIELD - Added to AppConfig
     // Add other module configs here as they are developed
 }
 
@@ -350,6 +377,7 @@ impl AppConfig {
             cognitive_config: Some(CognitiveConfig::new(None)), // NEW: Initialize CognitiveConfig
             digital_twin_config: Some(DigitalTwinConfig::new(None)), // NEW: Initialize DigitalTwinConfig
             refactor_engine_config: Some(RefactorEngineConfig::new(None)), // NEW: Initialize RefactorEngineConfig
+            knowledge_synthesis_config: Some(KnowledgeSynthesisConfig::new(None)), // NEW: Initialize KnowledgeSynthesisConfig
             // Add other module configs here as they are developed
         })
     }
