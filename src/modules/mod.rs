@@ -6,7 +6,8 @@
 pub mod sandboxed_environment;
 pub mod self_modification_module;
 pub mod idpte_module;
-pub mod omega_os_kernel_module; // New: OMEGA OS Kernel Module
+pub mod omega_os_kernel_module;
+pub mod samuel_learning_assistant_module; // New: Samuel Learning Assistant Module
 
 // Add other module declarations here as they are developed
 
