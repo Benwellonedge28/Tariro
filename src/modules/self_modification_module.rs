@@ -18,6 +18,7 @@ use async_trait::async_trait;
 use tokio::time::{sleep, Duration};
 use rand::Rng;
 use std::collections::HashMap;
+use serde_json::json;
 
 /// Represents the Self-Modification Module.
 pub struct SelfModificationModule {
@@ -69,14 +70,20 @@ impl SelfModificationModule {
         if self.config.meta_learning.as_ref().map_or(false, |m| m.enable_meta_learning) {
             info!("Meta-learning enabled. Strategy evaluation frequency: {}s.", self.config.meta_learning.as_ref().unwrap().strategy_evaluation_frequency_seconds);
             let freq = self.config.meta_learning.as_ref().unwrap().strategy_evaluation_frequency_seconds;
-            tokio::spawn(Self::run_periodic_meta_learning_analysis(self.meta_learning_outcomes.clone(), freq));
+            tokio::spawn(SelfModificationModule::run_periodic_meta_learning_analysis(self.meta_learning_outcomes.clone(), freq));
         }
 
-        // Spawn the background task to process pending feature proposals
-        let self_clone = self.clone(); // Clone self for the async task
-        tokio::spawn(async move { // Use a separate block to capture `self_clone`
+        // Spawn the background task to identify and process pending feature proposals
+        let self_clone = self.clone(); 
+        tokio::spawn(async move {
             loop {
                 sleep(Duration::from_secs(self_clone.config.modification_frequency_seconds)).await;
+                info!("SelfModificationModule: Periodic check for opportunities and proposals...");
+                // First, identify new opportunities and create proposals
+                if let Err(e) = self_clone.identify_modification_opportunities().await {
+                    error!("Error identifying modification opportunities: {:?}", e);
+                }
+                // Then, process any pending proposals
                 if let Err(e) = self_clone.process_pending_feature_proposals().await {
                     error!("Error processing pending feature proposals: {:?}", e);
                 }
@@ -108,7 +115,9 @@ impl Clone for SelfModificationModule {
             config: self.config.clone(),
             sandboxed_environment_module: self.sandboxed_environment_module.clone(),
             context: self.context.clone(),
-            meta_learning_outcomes: tokio::sync::Mutex::new(self.meta_learning_outcomes.lock().await.clone()),
+            // This needs to be cloned carefully, MutexGuard does not implement Clone. 
+            // For simulation purposes, we can create a new empty one, or copy the data if needed.
+            meta_learning_outcomes: tokio::sync::Mutex::new(self.meta_learning_outcomes.lock().unwrap().clone()),
             goal_monitor: self.goal_monitor.clone(),
             idpte_module: self.idpte_module.clone(),
             deployment_manager: self.deployment_manager.clone(),
@@ -158,20 +167,95 @@ impl SelfModificationModule {
     /// Identifies opportunities for Tariro to self-modify or improve.
     /// This could be based on: performance logs, user feedback, new knowledge items,
     /// ethical flags, or strategic goals.
-    /// This method now simulates creating actual FeatureProposal entities, potentially linked to goals and internal components.
+    /// This method now simulates creating actual FeatureProposal entities, potentially linked to goals and internal components,
+    /// and crucially, actively consumes data from PerformanceLog, SystemHealthLog, and LearningInsight entities.
     pub async fn identify_modification_opportunities(&self) -> Result<Vec<FeatureProposalId>> {
-        info!("Identifying self-modification opportunities...");
-        sleep(Duration::from_secs(2)).await;
+        info!("SelfModificationModule: Identifying self-modification opportunities...");
+        sleep(Duration::from_secs(rand::thread_rng().gen_range(1..=3))).await;
 
         let mut opportunities = Vec::new();
         let mut rng = rand::thread_rng();
 
-        // Get active goals to identify areas for improvement
-        let active_goals = self.goal_monitor.get_active_goals().await?;
+        // --- Consume data from PerformanceLog --- 
+        let perf_logs_resp = default_api::read_PerformanceLog(
+            vec!["id", "session_id", "response_quality_score", "task_success", "issues_detected"],
+            Some(5), // Check last 5 performance logs
+            Some(json!({ "task_success": false }).into()),
+            None, Some("-created_date")
+        ).await?;
 
-        if rng.gen_bool(0.6) { // 60% chance of finding an opportunity
+        if let Some(records) = perf_logs_resp.get("records").and_then(|r| r.as_array()) {
+            for log in records {
+                if let Some(issues) = log.get("issues_detected").and_then(|i| i.as_array()) {
+                    if !issues.is_empty() && rng.gen_bool(0.7) { // 70% chance to generate proposal for detected issues
+                        let issue_desc = issues.iter().filter_map(|i| i.as_str()).collect::<Vec<&str>>().join(", ");
+                        opportunities.push(self.create_feature_proposal_for_issue(
+                            &format!("Improve performance/reliability based on issues: {}", issue_desc),
+                            &format!("Performance log indicates issues: {}. Session: {}.", issue_desc, log.get("session_id").and_then(|s| s.as_str()).unwrap_or("N/A")),
+                            "Analyze and refactor affected code sections; potentially implement new algorithms or resource management strategies.",
+                            "High Impact on System Stability",
+                            FeatureProposalSource::PerformanceGap,
+                            FeatureProposalPriority::High,
+                        ).await?);
+                    }
+                }
+            }
+        }
+
+        // --- Consume data from SystemHealthLog ---
+        let health_logs_resp = default_api::read_SystemHealthLog(
+            vec!["id", "component", "status", "details"],
+            Some(5), // Check last 5 health logs
+            Some(json!({ "status": { "$in": ["degraded", "critical"] } }).into()),
+            None, Some("-created_date")
+        ).await?;
+
+        if let Some(records) = health_logs_resp.get("records").and_then(|r| r.as_array()) {
+            for log in records {
+                if log.get("status").and_then(|s| s.as_str()) != Some("healthy") && rng.gen_bool(0.8) { // 80% chance for degraded/critical status
+                    let component = log.get("component").and_then(|c| c.as_str()).unwrap_or("unknown_component");
+                    let status = log.get("status").and_then(|s| s.as_str()).unwrap_or("N/A");
+                    let details = log.get("details").and_then(|d| d.as_str()).unwrap_or("No specific details.");
+                    opportunities.push(self.create_feature_proposal_for_issue(
+                        &format!("Address {} component {} status: {}", component, status, details),
+                        &format!("System health log indicates {} component is {}. Details: {}.", component, status, details),
+                        "Implement automated remediation, code fixes, or configuration adjustments to restore component health and prevent future occurrences.",
+                        "Critical Impact on System Health",
+                        FeatureProposalSource::SelfMonitoring,
+                        FeatureProposalPriority::Critical,
+                    ).await?);
+                }
+            }
+        }
+
+        // --- Consume data from LearningInsight --- 
+        let learning_insights_resp = default_api::read_LearningInsight(
+            vec!["id", "insight", "category"],
+            Some(5), // Check last 5 learning insights
+            Some(json!({ "category": "topic_interest" }).into()),
+            None, Some("-created_date")
+        ).await?;
+
+        if let Some(records) = learning_insights_resp.get("records").and_then(|r| r.as_array()) {
+            for insight in records {
+                if rng.gen_bool(0.5) { // 50% chance to propose based on new learning
+                    let insight_text = insight.get("insight").and_then(|i| i.as_str()).unwrap_or("New learning insight.");
+                    opportunities.push(self.create_feature_proposal_for_issue(
+                        &format!("Integrate new learning: {}", insight_text),
+                        &format!("A new learning insight has been identified: {}. This suggests an opportunity to integrate new knowledge into Tariro's capabilities.", insight_text),
+                        "Develop new features or refine existing modules based on the new learning insight to enhance Tariro's overall intelligence or utility.",
+                        "High Impact on AGI Capabilities",
+                        FeatureProposalSource::SelfMonitoring,
+                        FeatureProposalPriority::Medium,
+                    ).await?);
+                }
+            }
+        }
+
+        // --- Existing Goal-aligned and Tariro Component modification logic (if no critical issues detected) ---
+        if opportunities.is_empty() && rng.gen_bool(0.4) { // 40% chance of finding an opportunity if no critical issues
+            let active_goals = self.goal_monitor.get_active_goals().await?;
             let target_goal = if !active_goals.is_empty() {
-                // Pick a random active goal to link the proposal to
                 let goal = &active_goals[rng.gen_range(0..active_goals.len())];
                 Some(goal.clone())
             } else { None };
@@ -196,24 +280,41 @@ impl SelfModificationModule {
                                            target_goal.as_ref().map_or("N/A".to_string(), |g| g.title.clone())),
                 )
             };
-
-            let new_proposal_result = default_api::create_FeatureProposal(
-                proposal_title.clone(),
-                problem_statement,
-                proposed_solution,
-                Some(estimated_impact),
-                Some(FeatureProposalPriority::High),
-                Some(FeatureProposalSource::SelfMonitoring),
-                Some(FeatureProposalStatus::Proposed),
-                None, // draft_config_or_code
-            ).await?;
-            
-            let proposal_id = FeatureProposalId(new_proposal_result.get("id").and_then(|id| id.as_str()).map(|s| s.to_string()).ok_or_else(|| anyhow!("Failed to get FeatureProposal ID"))?);
-            opportunities.push(proposal_id.clone());
-            info!("Created new FeatureProposal: {} (ID: {}).", proposal_title, proposal_id.0);
+            opportunities.push(self.create_feature_proposal_for_issue(
+                &proposal_title, &problem_statement, &proposed_solution, &estimated_impact,
+                if is_tariro_component_modification { FeatureProposalSource::SelfMonitoring } else { FeatureProposalSource::PerformanceGap },
+                FeatureProposalPriority::High
+            ).await?);
         }
-        info!("Found {} self-modification opportunities.", opportunities.len());
+
+        info!("SelfModificationModule: Identified {} self-modification opportunities.", opportunities.len());
         Ok(opportunities)
+    }
+
+    // Helper function to create a FeatureProposal and return its ID
+    async fn create_feature_proposal_for_issue(
+        &self,
+        title: &str,
+        problem: &str,
+        solution: &str,
+        impact: &str,
+        source: FeatureProposalSource,
+        priority: FeatureProposalPriority,
+    ) -> Result<FeatureProposalId> {
+        let new_proposal_result = default_api::create_FeatureProposal(
+            title.to_string(),
+            problem.to_string(),
+            solution.to_string(),
+            Some(impact.to_string()),
+            Some(priority.into()),
+            Some(source.into()),
+            Some(FeatureProposalStatus::Proposed.into()),
+            None, 
+        ).await?;
+            
+        let proposal_id = FeatureProposalId(new_proposal_result.get("id").and_then(|id| id.as_str()).map(|s| s.to_string()).ok_or_else(|| anyhow!("Failed to get FeatureProposal ID"))?);
+        info!("SelfModificationModule: Created new FeatureProposal: {} (ID: {}).", title, proposal_id.0);
+        Ok(proposal_id)
     }
 
     /// Dynamically selects the most appropriate self-modification strategy based on meta-learning insights.
@@ -254,9 +355,9 @@ impl SelfModificationModule {
         // Before running the sandbox, update the FeatureProposal status to indicate processing has started
         default_api::update_FeatureProposal(
             proposal_id.0.clone(),
-            None, None, None, None, None, // Keep existing values for other fields
-            Some(FeatureProposalStatus::UnderReview), // Status to 'UnderReview' while processing
-            None, None, None // Keep existing values for other fields
+            None, None, None, None, None, 
+            Some(FeatureProposalStatus::UnderReview.into()), // Status to 'UnderReview' while processing
+            None, None, None 
         ).await?;
 
         let strategy = self.select_modification_strategy(issue_context);
@@ -333,8 +434,8 @@ impl SelfModificationModule {
         // Update the FeatureProposal status in the database
         default_api::update_FeatureProposal(
             proposal_id.0.clone(),
-            None, None, None, None, None, // Keep existing values for other fields
-            Some(new_proposal_status), 
+            None, None, None, None, None, 
+            Some(new_proposal_status.into()), 
             None, None, None
         ).await?;
 
@@ -345,10 +446,10 @@ impl SelfModificationModule {
 
     /// Continuously monitors for and processes pending FeatureProposals.
     pub async fn process_pending_feature_proposals(&self) -> Result<()> {
-        info!("Checking for pending FeatureProposals...");
+        info!("SelfModificationModule: Checking for pending FeatureProposals...");
         
         let proposals_response = default_api::read_FeatureProposal(
-            Some(vec!["id", "title", "problem_statement", "proposed_solution", "status"]),
+            vec!["id", "title", "problem_statement", "proposed_solution", "status"],
             None, // No limit
             Some(serde_json::json!({ 
                 "status": { "$in": [ "proposed", "under_review" ] } 
@@ -373,7 +474,7 @@ impl SelfModificationModule {
             let proposed_solution = proposal_json.get("proposed_solution").and_then(|p| p.as_str()).map(|s| s.to_string()).unwrap_or_default();
             let current_status = proposal_json.get("status").and_then(|s| s.as_str()).map(|s| s.to_string()).unwrap_or_default();
 
-            info!("Processing FeatureProposal: {} (ID: {}), Current Status: {}", title, proposal_id, current_status);
+            info!("SelfModificationModule: Processing FeatureProposal: {} (ID: {}), Current Status: {}", title, proposal_id, current_status);
             
             // Determine issue context for strategy selection
             let issue_context = format!("{} - {}. Proposed solution: {}", title, problem_statement, proposed_solution);
@@ -396,7 +497,7 @@ impl SelfModificationModule {
                 default_api::update_FeatureProposal(
                     proposal_id.clone(),
                     None, None, None, None, None,
-                    Some(FeatureProposalStatus::Rejected),
+                    Some(FeatureProposalStatus::Rejected.into()),
                     None, None,
                     Some(format!("Failed to process: {}", e)),
                 ).await?;
@@ -522,6 +623,7 @@ impl From<String> for FeatureProposalStatus {
 }
 
 // --- Goal Monitoring Sub-Module --- (Internal to SelfModificationModule for now)
+#[derive(Clone)] // Derive Clone for GoalMonitor
 pub struct GoalMonitor {
     _context: ModuleContext, // Context might be useful for future enhancements
 }
@@ -588,4 +690,92 @@ pub struct Goal {
     pub description: String,
     pub progress_pct: f32,
     pub priority: String,
+}
+
+// Add #[derive(Clone)] to IDPTEModule and DeploymentManager
+impl Clone for IDPTEModule {
+    fn clone(&self) -> Self {
+        Self {
+            config: self.config.clone(),
+            context: self.context.clone(),
+        }
+    }
+}
+
+impl Clone for DeploymentManager {
+    fn clone(&self) -> Self {
+        Self {
+            config: self.config.clone(),
+        }
+    }
+}
+
+impl Clone for SandboxedEnvironmentModule {
+    fn clone(&self) -> Self {
+        Self {
+            config: self.config.clone(),
+            virtualization_engine: self.virtualization_engine.clone(),
+            simulation_engine: self.simulation_engine.clone(),
+            automated_test_suite: self.automated_test_suite.clone(),
+            performance_profiler: self.performance_profiler.clone(),
+            ethical_compliance_monitor: self.ethical_compliance_monitor.clone(),
+            deployment_manager: self.deployment_manager.clone(),
+            data_mirroring_system: self.data_mirroring_system.clone(),
+            code_generation_engine: self.code_generation_engine.clone(),
+            self_healing_engine: self.self_healing_engine.clone(),
+            production_learning_system: self.production_learning_system.clone(),
+            human_in_the_loop_orchestrator: self.human_in_the_loop_orchestrator.clone(),
+        }
+    }
+}
+
+impl Clone for crate::modules::sandboxed_environment::virtualization_engine::VirtualizationEngine {
+    fn clone(&self) -> Self {
+        Self { config: self.config.clone() }
+    }
+}
+impl Clone for crate::modules::sandboxed_environment::simulation_engine::SimulationEngine {
+    fn clone(&self) -> Self {
+        Self { config: self.config.clone() }
+    }
+}
+impl Clone for crate::modules::sandboxed_environment::automated_test_suite::AutomatedTestSuite {
+    fn clone(&self) -> Self {
+        Self { config: self.config.clone() }
+    }
+}
+impl Clone for crate::modules::sandboxed_environment::performance_profiler::PerformanceProfiler {
+    fn clone(&self) -> Self {
+        Self { config: self.config.clone() }
+    }
+}
+impl Clone for crate::modules::sandboxed_environment::ethical_compliance_monitor::EthicalComplianceMonitor {
+    fn clone(&self) -> Self {
+        Self { config: self.config.clone() }
+    }
+}
+impl Clone for crate::modules::sandboxed_environment::data_mirroring_system::DataMirroringSystem {
+    fn clone(&self) -> Self {
+        Self { config: self.config.clone() }
+    }
+}
+impl Clone for crate::modules::sandboxed_environment::code_generation_engine::CodeGenerationEngine {
+    fn clone(&self) -> Self {
+        Self { config: self.config.clone() }
+    }
+}
+impl Clone for crate::modules::sandboxed_environment::self_healing_engine::SelfHealingEngine {
+    fn clone(&self) -> Self {
+        Self { config: self.config.clone() }
+    }
+}
+impl Clone for crate::modules::sandboxed_environment::production_learning_system::ProductionLearningSystem {
+    fn clone(&self) -> Self {
+        Self { config: self.config.clone() }
+    }
+}
+impl Clone for crate::modules::sandboxed_environment::human_in_the_loop_orchestrator::HumanInTheLoopOrchestrator {
+    fn clone(&self) -> Self {
+        Self { config: self.config.clone(), sandboxed_env_config: self.sandboxed_env_config.clone() }
+    }
 }
