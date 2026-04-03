@@ -10,8 +10,8 @@ use std::sync::Arc;
 use crate::security_audit::AuditEngine;
 use crate::cognitive_arch::CognitiveConfig;
 use crate::digital_twin::DigitalTwinConfig;
-use crate::refactor::RefactorEngineConfig; // Changed to RefactorEngineConfig
-use crate::knowledge_synthesis::KnowledgeSynthesisConfig;
+use crate::refactor::RefactorEngineConfig;
+use crate::knowledge_synthesis::KnowledgeSynthesisConfig; // This will now correctly resolve from src/lib.rs
 use crate::mesh_network::MeshNetwork;
 
 #[derive(Serialize)]
@@ -28,8 +28,8 @@ pub struct AutonomyOrchestrator {
     audit_engine: AuditEngine,
     agi_config: CognitiveConfig,
     digital_twin_config: DigitalTwinConfig,
-    refactor_engine: RefactorEngineConfig, // Changed to RefactorEngineConfig
-    knowledge_synthesis_config: KnowledgeSynthesisConfig,
+    refactor_engine: RefactorEngineConfig,
+    knowledge_synthesis_config: KnowledgeSynthesisConfig, // This will now correctly resolve from src/lib.rs
     mesh_network: Arc<MeshNetwork>,
 }
 
@@ -41,7 +41,7 @@ impl AutonomyOrchestrator {
             audit_engine: AuditEngine::new(shared_pool.clone()),
             agi_config: CognitiveConfig::new(shared_pool.clone()),
             digital_twin_config: DigitalTwinConfig::new(shared_pool.clone()),
-            refactor_engine: RefactorEngineConfig::new(shared_pool.clone()), // Changed to RefactorEngineConfig::new
+            refactor_engine: RefactorEngineConfig::new(shared_pool.clone()),
             knowledge_synthesis_config: KnowledgeSynthesisConfig::new(shared_pool.clone()),
             mesh_network: Arc::new(MeshNetwork::new(shared_pool)),
         }
@@ -78,7 +78,7 @@ impl AutonomyOrchestrator {
         Ok(format!("AGI successfully initiated autonomous threat resolution for {}. Details: {}.", threat_id, decision_str))
     }
 
-    /// AGI initiates peer-to-peer code reviews based on deep code analysis.
+    /// AGI initiates peer-to-peer code reviews based on deep code analysis..
     pub async fn initiate_p2p_code_review(&self, file_id: Uuid) -> Result<String> {
         info!("Autonomy Orchestrator: AGI analyzing file {} for P2P code review need...", file_id);
         // --- Enhanced AGI Decision Logic ---
@@ -93,6 +93,27 @@ impl AutonomyOrchestrator {
         self.log_agi_decision(decision_str.clone(), "Autonomous Code Review Orchestration", 0.8).await?;
         Ok(format!("AGI initiated P2P code review for file {}. Peers notified. Details: {}.", file_id, decision_str))
     }
+
+    /// AGI autonomously synthesizes new knowledge based on available data.
+    pub async fn perform_knowledge_synthesis(&self, relevant_data_ids: Vec<Uuid>) -> Result<String> {
+        info!("Autonomy Orchestrator: AGI initiating knowledge synthesis based on {} data points...", relevant_data_ids.len());
+
+        if !self.knowledge_synthesis_config.enabled {
+            warn!("Knowledge synthesis is disabled in configuration. Skipping.");
+            return Ok("Knowledge synthesis disabled.".to_string());
+        }
+
+        let new_insight = self.knowledge_synthesis_config.synthesize_knowledge(relevant_data_ids.clone()).await?;
+
+        let decision_str = format!(
+            "AGI autonomously synthesized new knowledge. Sources: {}. New Insight: '{}'.",
+            relevant_data_ids.len(),
+            new_insight
+        );
+        self.log_agi_decision(decision_str.clone(), "Autonomous Knowledge Synthesis", 0.7).await?;
+        Ok(format!("New insight generated: {}", new_insight))
+    }
+
 
     async fn log_agi_decision(&self, decision: String, reasoning: String, autonomy_level: f32) -> Result<()> {
         if let Some(pool) = &self.pool {
