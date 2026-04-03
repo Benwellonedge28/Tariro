@@ -4,7 +4,8 @@
 //! It acts as a central registry for all functional components of the AGI.
 
 pub mod sandboxed_environment;
-pub mod self_modification_module; // New: Self Modification Module
+pub mod self_modification_module;
+pub mod idpte_module; // New: IDPTE Module
 
 // Add other module declarations here as they are developed
 
