@@ -12,6 +12,7 @@ use crate::{prelude::*,
     FeatureProposalId,
     modules::sandboxed_environment::{SandboxedEnvironmentModule, SandboxReport, SandboxStatus},
     modules::idpte_module::IDPTEModule,
+    modules::sandboxed_environment::deployment_manager::DeploymentManager, // Import DeploymentManager
 };
 use async_trait::async_trait;
 use tokio::time::{sleep, Duration};
@@ -26,6 +27,7 @@ pub struct SelfModificationModule {
     meta_learning_outcomes: tokio::sync::Mutex<Vec<SelfModificationOutcome>>, // Store outcomes for meta-learning
     goal_monitor: GoalMonitor, // New: Goal Monitor
     idpte_module: IDPTEModule, // New: IDPTE Module
+    deployment_manager: DeploymentManager, // New: Deployment Manager
 }
 
 #[async_trait]
@@ -42,6 +44,7 @@ impl SelfModificationModule {
         let sandboxed_environment_module = SandboxedEnvironmentModule::new(context)?;
         let goal_monitor = GoalMonitor::new(context); // Initialize GoalMonitor
         let idpte_module = IDPTEModule::new(context)?; // Initialize IDPTEModule
+        let deployment_manager = DeploymentManager::new(context)?; // Initialize DeploymentManager
 
         Ok(Self { 
             config,
@@ -50,6 +53,7 @@ impl SelfModificationModule {
             meta_learning_outcomes: tokio::sync::Mutex::new(Vec::new()),
             goal_monitor, 
             idpte_module,
+            deployment_manager,
         })
     }
 
@@ -58,6 +62,7 @@ impl SelfModificationModule {
         self.sandboxed_environment_module.start().await?;
         self.goal_monitor.start().await?;
         self.idpte_module.start().await?;
+        self.deployment_manager.start().await?;
         info!("SelfModificationModule started. Self-modification enabled: {}. Frequency: {}s.",
               self.config.enable_self_modification, self.config.modification_frequency_seconds);
 
@@ -74,6 +79,7 @@ impl SelfModificationModule {
         self.sandboxed_environment_module.stop().await?;
         self.goal_monitor.stop().await?;
         self.idpte_module.stop().await?;
+        self.deployment_manager.stop().await?;
         info!("SelfModificationModule stopped.");
         Ok(())
     }
@@ -125,7 +131,7 @@ impl SelfModificationModule {
     /// Identifies opportunities for Tariro to self-modify or improve.
     /// This could be based on: performance logs, user feedback, new knowledge items,
     /// ethical flags, or strategic goals.
-    /// This method now simulates creating actual FeatureProposal entities, potentially linked to goals.
+    /// This method now simulates creating actual FeatureProposal entities, potentially linked to goals and internal components.
     pub async fn identify_modification_opportunities(&self) -> Result<Vec<FeatureProposalId>> {
         info!("Identifying self-modification opportunities...");
         sleep(Duration::from_secs(2)).await;
@@ -136,19 +142,33 @@ impl SelfModificationModule {
         // Get active goals to identify areas for improvement
         let active_goals = self.goal_monitor.get_active_goals().await?;
 
-        if rng.gen_bool(0.6) { // Increased chance of finding an opportunity if goals are present
+        if rng.gen_bool(0.6) { // 60% chance of finding an opportunity
             let target_goal = if !active_goals.is_empty() {
                 // Pick a random active goal to link the proposal to
                 let goal = &active_goals[rng.gen_range(0..active_goals.len())];
                 Some(goal.clone())
             } else { None };
 
-            let proposal_title = format!("Optimize {} core component ({})", rng.gen_range(1..100), target_goal.as_ref().map_or("General Improvement".to_string(), |g| g.title.clone()));
-            let problem_statement = format!("Identified high resource utilization during peak load in a core service. This impacts goal: {}.", 
-                                            target_goal.as_ref().map_or("N/A".to_string(), |g| g.title.clone()));
-            let proposed_solution = "Implement a more efficient algorithm for data processing in the identified service, potentially using dynamic code generation.".to_string();
-            let estimated_impact = format!("Reduce CPU usage by 10-15% and latency by 5% during high traffic periods, thereby accelerating progress on goal: {}.",
-                                           target_goal.as_ref().map_or("N/A".to_string(), |g| g.title.clone()));
+            let is_tariro_component_modification = rng.gen_bool(0.3); // 30% chance it's for Tariro's own component
+
+            let (proposal_title, problem_statement, proposed_solution, estimated_impact) = if is_tariro_component_modification {
+                let component_name = self.deployment_manager.config.tariro_component_images.keys().next().map_or("unknown_component", |s| s.as_str());
+                (
+                    format!("Upgrade {} Tariro component for Goal: {}", component_name, target_goal.as_ref().map_or("General".to_string(), |g| g.title.clone())),
+                    format!("Detected an outdated version or sub-optimal performance in Tariro's '{}' component, impacting core AGI Goal: {}.", component_name, target_goal.as_ref().map_or("N/A".to_string(), |g| g.title.clone())),
+                    format!("Generate and deploy an updated version of the '{}' component with enhanced algorithms based on recent meta-learning insights.", component_name),
+                    format!("Improve overall AGI efficiency and robustness, directly contributing to Goal: {}.", target_goal.as_ref().map_or("N/A".to_string(), |g| g.title.clone())),
+                )
+            } else {
+                (
+                    format!("Optimize {} core component ({})", rng.gen_range(1..100), target_goal.as_ref().map_or("General Improvement".to_string(), |g| g.title.clone())),
+                    format!("Identified high resource utilization during peak load in a core service. This impacts goal: {}.", 
+                                            target_goal.as_ref().map_or("N/A".to_string(), |g| g.title.clone())),
+                    "Implement a more efficient algorithm for data processing in the identified service, potentially using dynamic code generation.".to_string(),
+                    format!("Reduce CPU usage by 10-15% and latency by 5% during high traffic periods, thereby accelerating progress on goal: {}.",
+                                           target_goal.as_ref().map_or("N/A".to_string(), |g| g.title.clone())),
+                )
+            };
 
             let new_proposal_result = default_api::create_FeatureProposal(
                 proposal_title.clone(),
@@ -195,8 +215,8 @@ impl SelfModificationModule {
     }
 
     /// Initiates a self-modification process for a given feature proposal.
-    /// This is the orchestrator that uses the SandboxedEnvironmentModule and IDPTEModule.
-    pub async fn initiate_self_modification(&self, proposal_id: FeatureProposalId, issue_context: &str, file_to_modify: &str) -> Result<()> {
+    /// This is the orchestrator that uses the SandboxedEnvironmentModule, IDPTEModule, and DeploymentManager.
+    pub async fn initiate_self_modification(&self, proposal_id: FeatureProposalId, issue_context: &str, file_to_modify: Option<&str>) -> Result<()> {
         info!("Initiating self-modification process for proposal: {}", proposal_id.0);
 
         if !self.config.enable_self_modification {
@@ -224,21 +244,32 @@ impl SelfModificationModule {
         // 3. Interpret the sandbox report and decide next steps
         match sandbox_report.status {
             SandboxStatus::CompletedAndDeployed => {
-                info!("Self-modification for {} successfully deployed to production!", proposal_id.0);
-                // Assuming sandbox_report provides the final modified code
-                let modified_code_content = format!("// {} - Optimized code based on sandbox experiment {}\n// Original proposal: {}\nfn optimized_function() {{ /* ... */ }}\n", file_to_modify, proposal_id.0, issue_context);
+                info!("Self-modification for {} successfully validated in sandbox.", proposal_id.0);
 
-                // Deploy to IDE
-                if self.idpte_module.config.ide_interaction_mode == "auto" || self.idpte_module.config.enable_autonomous_file_management {
-                    info!("Autonomously writing optimized code to IDE: {}.", file_to_modify);
-                    self.idpte_module.write_file_to_ide(file_to_modify, &modified_code_content).await?;
-                    let commit_message = self.idpte_module.generate_autonomous_commit_message(&format!("Optimized {} based on sandbox results.", file_to_modify)).await?;
-                    self.idpte_module.execute_ide_command(&format!("git add {} && git commit -m \"{}\"", file_to_modify, commit_message), None).await?;
-                    info!("Optimized code for {} deployed to IDE and committed.", file_to_modify);
-                } else {
-                    info!("Optimized code for {} requires user confirmation for IDE deployment.", file_to_modify);
-                    self.idpte_module.propose_file_changes_to_user(file_to_modify, &format!("Optimized code for {} based on sandbox results.", file_to_modify)).await?;
-                    // If confirmed, then Tariro would execute the write and commit
+                // Check if this proposal is about Tariro's own infrastructure component deployment
+                if issue_context.contains("Tariro component") {
+                    let component_name = issue_context.split(" ").nth(2).unwrap_or("unknown_component"); // Extract component name
+                    let target_env = self.deployment_manager.select_deployment_target_environment();
+                    info!("Deploying updated Tariro component '{}' to '{}'.", component_name, target_env);
+                    self.deployment_manager.deploy_tariro_component(component_name, &target_env).await?;
+                    info!("Tariro component '{}' deployed and monitored.", component_name);
+                } else if let Some(file_path) = file_to_modify {
+                    // Otherwise, deploy code changes to IDE
+                    // Assuming sandbox_report provides the final modified code
+                    let modified_code_content = format!("// {} - Optimized code based on sandbox experiment {}\n// Original proposal: {}\nfn optimized_function_{}() {{ /* ... */ }}\n", file_path, proposal_id.0, issue_context, rand::thread_rng().gen_range(0..1000));
+
+                    // Deploy to IDE
+                    if self.idpte_module.config.ide_interaction_mode == "auto" || self.idpte_module.config.enable_autonomous_file_management {
+                        info!("Autonomously writing optimized code to IDE: {}.", file_path);
+                        self.idpte_module.write_file_to_ide(file_path, &modified_code_content).await?;
+                        let commit_message = self.idpte_module.generate_autonomous_commit_message(&format!("Optimized {} based on sandbox results.", file_path)).await?;
+                        // Simulate git commit (we can't actually run git through ide_runCommand here without knowing the exact git repo path in the IDE)
+                        info!("Optimized code for {} deployed to IDE and committed (simulated).", file_path);
+                    } else {
+                        info!("Optimized code for {} requires user confirmation for IDE deployment.", file_path);
+                        self.idpte_module.propose_file_changes_to_user(file_path, &format!("Optimized code for {} based on sandbox results.", file_path)).await?;
+                        // If confirmed, then Tariro would execute the write and commit
+                    }
                 }
 
             },
@@ -315,7 +346,7 @@ impl GoalMonitor {
     pub async fn start(&self) -> Result<()> {
         info!("GoalMonitor starting...");
         info!("GoalMonitor started.");
-        Ok(())
+        Ok(())s
     }
 
     pub async fn stop(&self) -> Result<()> {
@@ -329,7 +360,7 @@ impl GoalMonitor {
         info!("Retrieving active goals...");
         // Use the default_api to read Goal entities
         let goals_response = default_api::read_Goal(
-            Some(vec!["id", "title", "description", "progress_pct", "priority"]),
+            vec!["id", "title", "description", "progress_pct", "priority"],
             None,
             Some(serde_json::json!({ "status": "active" }).into()),
             None,
