@@ -194,6 +194,14 @@ pub struct OmegaOSKernelConfig {
     pub enable_self_modification_of_kernel: bool,
 }
 
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct SamuelLearningAssistantConfig {
+    pub enable_proactive_learning_suggestions: bool,
+    pub learning_resource_api_endpoint: String,
+    pub analysis_frequency_seconds: u64,
+    pub learning_goal_priority_threshold: f32,
+}
+
 // AppConfig will hold configurations for all modules
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AppConfig {
@@ -215,7 +223,8 @@ pub struct AppConfig {
     pub human_in_the_loop: Option<HumanInTheLoopConfig>,
     pub self_modification_module: Option<SelfModificationModuleConfig>, 
     pub idpte_module: Option<IDPTEModuleConfig>,
-    pub omega_os_kernel_module: Option<OmegaOSKernelConfig>, // Added this line
+    pub omega_os_kernel_module: Option<OmegaOSKernelConfig>,
+    pub samuel_learning_assistant_module: Option<SamuelLearningAssistantConfig>, // Added this line
     // Add other module configs here as they are developed
 }
 
@@ -254,7 +263,8 @@ impl AppConfig {
             human_in_the_loop: Some(HumanInTheLoopConfig::default()),
             self_modification_module: Some(SelfModificationModuleConfig::default()),
             idpte_module: Some(IDPTEModuleConfig::default()),
-            omega_os_kernel_module: Some(OmegaOSKernelConfig::default()), // Added this line
+            omega_os_kernel_module: Some(OmegaOSKernelConfig::default()),
+            samuel_learning_assistant_module: Some(SamuelLearningAssistantConfig::default()), // Added this line
         })
     }
 }
