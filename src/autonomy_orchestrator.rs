@@ -5,7 +5,7 @@ use tracing::{info, warn};
 use uuid::Uuid;
 use serde::Serialize;
 use std::sync::Arc;
-use chrono::Duration; // Added for time-based filtering of logs
+use chrono::Duration;
 
 // Conceptual dependencies for AGI Decision Making
 use crate::security_audit::AuditEngine;
@@ -15,8 +15,10 @@ use crate::refactor::RefactorEngineConfig;
 use crate::knowledge_synthesis::KnowledgeSynthesisConfig;
 use crate::mesh_network::MeshNetwork;
 use crate::resource_management::ResourceManagerConfig;
-use crate::self_modification::SelfModificationModuleConfig; // NEW: Added SelfModificationModuleConfig
-use crate::code_generation::CodeGenerationEngineConfig; // NEW: Added CodeGenerationEngineConfig
+use crate::self_modification::SelfModificationModuleConfig;
+use crate::code_generation::CodeGenerationEngineConfig;
+use crate::deployment_manager::DeploymentManagerConfig; // NEW: Added DeploymentManagerConfig
+use crate::virtualization_engine::VirtualizationEngineConfig; // NEW: Added VirtualizationEngineConfig
 
 
 #[derive(Serialize)]
@@ -37,8 +39,10 @@ pub struct AutonomyOrchestrator {
     knowledge_synthesis_config: KnowledgeSynthesisConfig,
     mesh_network: Arc<MeshNetwork>,
     resource_manager_config: ResourceManagerConfig,
-    self_modification_config: SelfModificationModuleConfig, // NEW: Added SelfModificationModuleConfig
-    code_generation_config: CodeGenerationEngineConfig, // NEW: Added CodeGenerationEngineConfig
+    self_modification_config: SelfModificationModuleConfig,
+    code_generation_config: CodeGenerationEngineConfig,
+    deployment_manager_config: DeploymentManagerConfig, // NEW: Added DeploymentManagerConfig
+    virtualization_engine_config: VirtualizationEngineConfig, // NEW: Added VirtualizationEngineConfig
 }
 
 impl AutonomyOrchestrator {
@@ -53,8 +57,10 @@ impl AutonomyOrchestrator {
             knowledge_synthesis_config: KnowledgeSynthesisConfig::new(shared_pool.clone()),
             mesh_network: Arc::new(MeshNetwork::new(shared_pool.clone())),
             resource_manager_config: ResourceManagerConfig::new(shared_pool.clone()),
-            self_modification_config: SelfModificationModuleConfig::new(), // NEW: Initialize SelfModificationModuleConfig
-            code_generation_config: CodeGenerationEngineConfig::new(), // NEW: Initialize CodeGenerationEngineConfig
+            self_modification_config: SelfModificationModuleConfig::new(),
+            code_generation_config: CodeGenerationEngineConfig::new(),
+            deployment_manager_config: DeploymentManagerConfig::new(), // NEW: Initialize DeploymentManagerConfig
+            virtualization_engine_config: VirtualizationEngineConfig::new(), // NEW: Initialize VirtualizationEngineConfig
         }
     }
 
@@ -282,11 +288,11 @@ impl AutonomyOrchestrator {
         info!("Tariro created a new Feature Proposal: '{}'", proposed_feature_title);
 
         // Simulate code generation
-        let generated_code = self.code_generation_config.ai_code_generation_endpoint.clone(); // Placeholder for actual code
+        let generated_code = "Conceptual generated code for the feature.".to_string(); // Placeholder for actual code
         info!("Code generated for feature: {}", generated_code);
 
         // Simulate self-modification applying the code
-        // This is a placeholder for a complex self-modification process.
+        // This is a placeholder for a complex self-modification process. It could involve the CodeGenerationEngine and other modules.
         let modification_result = "Self-modification applied successfully.".to_string();
         info!("Self-modification result: {}", modification_result);
 
@@ -300,6 +306,49 @@ impl AutonomyOrchestrator {
         self.log_agi_decision(decision_str.clone(), "Autonomous Feature Proposal and Implementation", 0.98).await?;
         
         Ok(format!("Autonomous feature implemented: {}", proposed_feature_title))
+    }
+
+    /// AGI autonomously manages its own cloning and deployment strategy.
+    pub async fn adaptive_self_cloning_and_deployment(&self, current_load: f32, target_resilience_level: f32) -> Result<String> {
+        info!("Autonomy Orchestrator: AGI adapting self-cloning and deployment strategy based on load ({:.2}) and resilience ({:.2}).", current_load, target_resilience_level);
+
+        if self.deployment_manager_config.self_deployment_target_environments.is_empty() {
+            warn!("No deployment targets configured for adaptive self-cloning. Skipping.");
+            return Ok("No deployment targets configured.".to_string());
+        }
+
+        let mut deployment_action = "No action needed.".to_string();
+        let target_environment = &self.deployment_manager_config.production_cluster_id; // Using production_cluster_id as an example target
+
+        // Conceptual logic for scaling decision
+        if current_load > 0.8 && target_resilience_level > 0.7 && self.virtualization_engine_config.distributed_clusters.contains(target_environment) {
+            deployment_action = format!(
+                "Scaling up: Deploying a new Tariro instance to {} using strategy {}. Image: {}.",
+                target_environment,
+                self.deployment_manager_config.deployment_strategy,
+                self.deployment_manager_config.tariro_component_images.get("tariro_agi").unwrap_or(&"default_tariro_agi_image:latest".to_string()) // Use a specific component image
+            );
+            // Simulate deployment using configured manager
+            info!("Simulating deployment: {}", deployment_action);
+            // In a real scenario, this would call into the deployment manager directly
+        } else if current_load < 0.3 && target_resilience_level < 0.5 {
+            // Add more sophisticated logic for selecting which instance to decommission
+            deployment_action = format!("Scaling down: Decommissioning an instance from {}.", target_environment);
+            info!("Simulating decommissioning: {}", deployment_action);
+            // In a real scenario, this would call into the deployment manager directly
+        } else {
+            info!("Current system state (load: {:.2}, resilience: {:.2}) is stable. No scaling action taken.", current_load, target_resilience_level);
+        }
+
+        let decision_str = format!(
+            "AGI autonomously managed cloning and deployment. Load: {:.2}, Resilience: {:.2}. Action: {}.",
+            current_load,
+            target_resilience_level,
+            deployment_action
+        );
+        self.log_agi_decision(decision_str.clone(), "Autonomous Adaptive Self-Cloning and Deployment", 0.95).await?;
+        
+        Ok(format!("Adaptive self-cloning and deployment decision: {}", deployment_action))
     }
 
 
