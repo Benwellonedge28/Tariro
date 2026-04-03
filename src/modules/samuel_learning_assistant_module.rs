@@ -53,7 +53,7 @@ impl SamuelLearningAssistantModule {
                 }
             });
         }
-        Ok(())s
+        Ok(())
     }
 
     async fn stop(&self) -> Result<()> {
@@ -86,7 +86,11 @@ impl SamuelLearningAssistantModule {
         let mut inferred_interests = HashSet::new();
 
         // Simulate reading recent conversations
-        let conv_resp = default_api::read_Conversation(vec!["title", "summary"], Some(10), None, None, Some("-created_date")).await?;
+        let conv_resp = default_api::read_Conversation(
+            vec!["title", "summary"],
+            Some(10),
+            None, None, Some("-created_date")
+        ).await?;
         if let Some(records) = conv_resp.get("records").and_then(|r| r.as_array()) {
             for conv in records {
                 if let Some(summary) = conv.get("summary").and_then(|s| s.as_str()) {
@@ -97,7 +101,11 @@ impl SamuelLearningAssistantModule {
         }
 
         // Simulate reading recent tasks
-        let task_resp = default_api::read_ProjectTask(vec!["title", "description"], Some(10), None, None, Some("-created_date")).await?;
+        let task_resp = default_api::read_ProjectTask(
+            vec!["title", "description"],
+            Some(10),
+            None, None, Some("-created_date")
+        ).await?;
         if let Some(records) = task_resp.get("records").and_then(|r| r.as_array()) {
             for task in records {
                 if let Some(title) = task.get("title").and_then(|t| t.as_str()) {
@@ -110,7 +118,12 @@ impl SamuelLearningAssistantModule {
         }
 
         // Simulate reading recent goals
-        let goal_resp = default_api::read_Goal(vec!["title", "description", "priority"], Some(5), Some(json!({"status": "active"}).into()), None, Some("-created_date")).await?;
+        let goal_resp = default_api::read_Goal(
+            vec!["title", "description", "priority"],
+            Some(5),
+            Some(json!({"status": "active"}).into()),
+            None, Some("-created_date")
+        ).await?;
         if let Some(records) = goal_resp.get("records").and_then(|r| r.as_array()) {
             for goal in records {
                 if let Some(title) = goal.get("title").and_then(|t| t.as_str()) {
