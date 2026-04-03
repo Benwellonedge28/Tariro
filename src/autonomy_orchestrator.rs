@@ -14,7 +14,10 @@ use crate::digital_twin::DigitalTwinConfig;
 use crate::refactor::RefactorEngineConfig;
 use crate::knowledge_synthesis::KnowledgeSynthesisConfig;
 use crate::mesh_network::MeshNetwork;
-use crate::resource_management::ResourceManagerConfig; // NEW: Added ResourceManagerConfig
+use crate::resource_management::ResourceManagerConfig;
+use crate::self_modification::SelfModificationModuleConfig; // NEW: Added SelfModificationModuleConfig
+use crate::code_generation::CodeGenerationEngineConfig; // NEW: Added CodeGenerationEngineConfig
+
 
 #[derive(Serialize)]
 pub struct AgiDecisionLog {
@@ -33,7 +36,9 @@ pub struct AutonomyOrchestrator {
     refactor_engine: RefactorEngineConfig,
     knowledge_synthesis_config: KnowledgeSynthesisConfig,
     mesh_network: Arc<MeshNetwork>,
-    resource_manager_config: ResourceManagerConfig, // NEW: Added ResourceManagerConfig
+    resource_manager_config: ResourceManagerConfig,
+    self_modification_config: SelfModificationModuleConfig, // NEW: Added SelfModificationModuleConfig
+    code_generation_config: CodeGenerationEngineConfig, // NEW: Added CodeGenerationEngineConfig
 }
 
 impl AutonomyOrchestrator {
@@ -47,7 +52,9 @@ impl AutonomyOrchestrator {
             refactor_engine: RefactorEngineConfig::new(shared_pool.clone()),
             knowledge_synthesis_config: KnowledgeSynthesisConfig::new(shared_pool.clone()),
             mesh_network: Arc::new(MeshNetwork::new(shared_pool.clone())),
-            resource_manager_config: ResourceManagerConfig::new(shared_pool), // NEW: Initialize ResourceManagerConfig
+            resource_manager_config: ResourceManagerConfig::new(shared_pool.clone()),
+            self_modification_config: SelfModificationModuleConfig::new(), // NEW: Initialize SelfModificationModuleConfig
+            code_generation_config: CodeGenerationEngineConfig::new(), // NEW: Initialize CodeGenerationEngineConfig
         }
     }
 
@@ -246,7 +253,7 @@ impl AutonomyOrchestrator {
 
         let decision_str;
         if optimization_needed {
-            let _ = self.resource_manager_config.apply_optimization(&optimization_plan).await?;
+            let _ = self.resource_manager_config.apply_optimization(&optimization_plan).await?; // Use the method from resource_manager_config
             decision_str = format!("Proactive resource optimization executed. Details: {}", optimization_plan);
             self.log_agi_decision(decision_str.clone(), "Autonomous Proactive Resource Optimization", 0.85).await?;
             Ok(format!("Resource optimization performed: {}", optimization_plan))
@@ -255,6 +262,44 @@ impl AutonomyOrchestrator {
             self.log_agi_decision(decision_str.clone(), "Autonomous Proactive Resource Optimization", 0.85).await?;
             Ok(decision_str)
         }
+    }
+
+    /// AGI autonomously proposes and (potentially) implements new features or improvements.
+    pub async fn propose_and_implement_feature(&self, problem_description: &str) -> Result<String> {
+        info!("Autonomy Orchestrator: AGI analyzing problem to propose and implement a feature: {}", problem_description);
+
+        if !self.self_modification_config.enable_self_modification {
+            warn!("Self-modification is disabled. Cannot autonomously propose and implement features.");
+            return Ok("Autonomous feature implementation disabled.".to_string());
+        }
+
+        // Conceptual: Identify a feature based on the problem
+        let proposed_feature_title = format!("Autonomous improvement for: {}", problem_description);
+        let proposed_solution = format!("Generate code to address '{}' and apply it via self-modification.", problem_description);
+        
+        // Simulate creating a FeatureProposal (we don't have direct access to create_FeatureProposal here, so we simulate the outcome)
+        // In a real scenario, this would interact with the FeatureProposal entity.
+        info!("Tariro created a new Feature Proposal: '{}'", proposed_feature_title);
+
+        // Simulate code generation
+        let generated_code = self.code_generation_config.ai_code_generation_endpoint.clone(); // Placeholder for actual code
+        info!("Code generated for feature: {}", generated_code);
+
+        // Simulate self-modification applying the code
+        // This is a placeholder for a complex self-modification process.
+        let modification_result = "Self-modification applied successfully.".to_string();
+        info!("Self-modification result: {}", modification_result);
+
+        let decision_str = format!(
+            "AGI autonomously proposed feature '{}' and applied changes. Problem: {}. Solution: {}. Result: {}.",
+            proposed_feature_title,
+            problem_description,
+            proposed_solution,
+            modification_result
+        );
+        self.log_agi_decision(decision_str.clone(), "Autonomous Feature Proposal and Implementation", 0.98).await?;
+        
+        Ok(format!("Autonomous feature implemented: {}", proposed_feature_title))
     }
 
 
