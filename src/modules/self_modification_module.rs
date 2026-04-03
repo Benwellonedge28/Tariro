@@ -11,6 +11,7 @@ use crate::{prelude::*,
     SelfModificationModuleConfig,
     FeatureProposalId,
     modules::sandboxed_environment::{SandboxedEnvironmentModule, SandboxReport, SandboxStatus},
+    modules::idpte_module::IDPTEModule,
 };
 use async_trait::async_trait;
 use tokio::time::{sleep, Duration};
@@ -24,6 +25,7 @@ pub struct SelfModificationModule {
     context: ModuleContext, // Store ModuleContext to access API tools
     meta_learning_outcomes: tokio::sync::Mutex<Vec<SelfModificationOutcome>>, // Store outcomes for meta-learning
     goal_monitor: GoalMonitor, // New: Goal Monitor
+    idpte_module: IDPTEModule, // New: IDPTE Module
 }
 
 #[async_trait]
@@ -39,12 +41,15 @@ impl SelfModificationModule {
         let config = context.config.self_modification_module.clone().unwrap_or_default();
         let sandboxed_environment_module = SandboxedEnvironmentModule::new(context)?;
         let goal_monitor = GoalMonitor::new(context); // Initialize GoalMonitor
+        let idpte_module = IDPTEModule::new(context)?; // Initialize IDPTEModule
+
         Ok(Self { 
             config,
             sandboxed_environment_module,
             context: context.clone(), // Clone context for tool access
             meta_learning_outcomes: tokio::sync::Mutex::new(Vec::new()),
             goal_monitor, 
+            idpte_module,
         })
     }
 
@@ -52,6 +57,7 @@ impl SelfModificationModule {
         info!("SelfModificationModule starting...");
         self.sandboxed_environment_module.start().await?;
         self.goal_monitor.start().await?;
+        self.idpte_module.start().await?;
         info!("SelfModificationModule started. Self-modification enabled: {}. Frequency: {}s.",
               self.config.enable_self_modification, self.config.modification_frequency_seconds);
 
@@ -67,6 +73,7 @@ impl SelfModificationModule {
         info!("SelfModificationModule stopping...");
         self.sandboxed_environment_module.stop().await?;
         self.goal_monitor.stop().await?;
+        self.idpte_module.stop().await?;
         info!("SelfModificationModule stopped.");
         Ok(())
     }
@@ -188,8 +195,8 @@ impl SelfModificationModule {
     }
 
     /// Initiates a self-modification process for a given feature proposal.
-    /// This is the orchestrator that uses the SandboxedEnvironmentModule.
-    pub async fn initiate_self_modification(&self, proposal_id: FeatureProposalId, issue_context: &str) -> Result<()> {
+    /// This is the orchestrator that uses the SandboxedEnvironmentModule and IDPTEModule.
+    pub async fn initiate_self_modification(&self, proposal_id: FeatureProposalId, issue_context: &str, file_to_modify: &str) -> Result<()> {
         info!("Initiating self-modification process for proposal: {}", proposal_id.0);
 
         if !self.config.enable_self_modification {
@@ -200,9 +207,11 @@ impl SelfModificationModule {
         let strategy = self.select_modification_strategy(issue_context);
         info!("Applying modification strategy: {:?}", strategy);
 
+        // 1. Run the sandboxed experiment
         let sandbox_report = self.sandboxed_environment_module.run_sandbox_experiment(proposal_id.clone()).await?;
         info!("Sandboxed experiment for {} completed with status: {:?}", proposal_id.0, sandbox_report.status);
 
+        // 2. Log outcome for meta-learning
         let outcome = SelfModificationOutcome {
             proposal_id: proposal_id.clone(),
             issue_context: issue_context.to_string(),
@@ -212,9 +221,26 @@ impl SelfModificationModule {
         };
         self.meta_learning_outcomes.lock().await.push(outcome);
 
+        // 3. Interpret the sandbox report and decide next steps
         match sandbox_report.status {
             SandboxStatus::CompletedAndDeployed => {
                 info!("Self-modification for {} successfully deployed to production!", proposal_id.0);
+                // Assuming sandbox_report provides the final modified code
+                let modified_code_content = format!("// {} - Optimized code based on sandbox experiment {}\n// Original proposal: {}\nfn optimized_function() {{ /* ... */ }}\n", file_to_modify, proposal_id.0, issue_context);
+
+                // Deploy to IDE
+                if self.idpte_module.config.ide_interaction_mode == "auto" || self.idpte_module.config.enable_autonomous_file_management {
+                    info!("Autonomously writing optimized code to IDE: {}.", file_to_modify);
+                    self.idpte_module.write_file_to_ide(file_to_modify, &modified_code_content).await?;
+                    let commit_message = self.idpte_module.generate_autonomous_commit_message(&format!("Optimized {} based on sandbox results.", file_to_modify)).await?;
+                    self.idpte_module.execute_ide_command(&format!("git add {} && git commit -m \"{}\"", file_to_modify, commit_message), None).await?;
+                    info!("Optimized code for {} deployed to IDE and committed.", file_to_modify);
+                } else {
+                    info!("Optimized code for {} requires user confirmation for IDE deployment.", file_to_modify);
+                    self.idpte_module.propose_file_changes_to_user(file_to_modify, &format!("Optimized code for {} based on sandbox results.", file_to_modify)).await?;
+                    // If confirmed, then Tariro would execute the write and commit
+                }
+
             },
             SandboxStatus::Completed => {
                 info!("Self-modification for {} completed in sandbox, but manual deployment is required or autonomous deployment is disabled. Recommendation: {}", proposal_id.0, sandbox_report.recommendation);
@@ -303,17 +329,19 @@ impl GoalMonitor {
         info!("Retrieving active goals...");
         // Use the default_api to read Goal entities
         let goals_response = default_api::read_Goal(
-            Some(serde_json::to_string(&json!({ "status": "active" })).unwrap()),
             Some(vec!["id", "title", "description", "progress_pct", "priority"]),
-            None, None, None // No limit, skip, sort for now
+            None,
+            Some(serde_json::json!({ "status": "active" }).into()),
+            None,
+            None
         ).await?;
         
-        let goals_data = goals_response.get("data").ok_or_else(|| anyhow!("No data field in read_Goal response"))?;
+        let goals_data = goals_response.get("records").ok_or_else(|| anyhow!("No records field in read_Goal response"))?;
         let goals_json: Vec<serde_json::Value> = serde_json::from_value(goals_data.clone())?;
 
         let mut active_goals = Vec::new();
         for goal_json in goals_json {
-            let goal_id = goal_json.get("_id").and_then(|id| id.as_str()).map(|s| s.to_string()).ok_or_else(|| anyhow!("Goal missing ID"))?;
+            let goal_id = goal_json.get("id").and_then(|id| id.as_str()).map(|s| s.to_string()).ok_or_else(|| anyhow!("Goal missing ID"))?;
             let title = goal_json.get("title").and_then(|t| t.as_str()).map(|s| s.to_string()).ok_or_else(|| anyhow!("Goal missing title"))?;
             let description = goal_json.get("description").and_then(|d| d.as_str()).map(|s| s.to_string()).unwrap_or_default();
             let progress_pct = goal_json.get("progress_pct").and_then(|p| p.as_f64()).unwrap_or(0.0);
