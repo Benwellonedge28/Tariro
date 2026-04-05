@@ -30,6 +30,8 @@ mod deployment; // Deployment module for managing deployments
 mod event_bus; // Event bus for inter-module communication
 mod evaluators; // Evaluation module for ATVE
 mod omega_network;
+mod omega_os; // OMEGA OS related interfaces
+mod content_generation; // Content generation module
 
 use config::AGIConfig;
 use telemetry::TelemetryLogger;
@@ -44,6 +46,10 @@ use api::AppState;
 use database::DatabaseService;
 use agi_replication::ReplicationService; // Renamed from agi_cloning::CloningService to agi_replication::ReplicationService
 use event_bus::{EventBus, AGIEvent};
+use omega_os::os_interface::OmegaOSInterface;
+use content_generation::generator::ContentGenerator;
+use content_generation::style_guide::StyleGuideManager;
+use content_generation::review_process::ContentReviewService;
 
 
 #[tokio::main]
@@ -69,7 +75,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let event_bus = Arc::new(EventBus::new(100)); // Capacity for 100 events
 
     // 4. Initialize Telemetry Logger
-    let telemetry_logger = Arc::new(TelemetryLogger::new(event_bus.sender.subscribe()));
+    let telemetry_logger = Arc::new(TelemetryLogger::new(100)); // Buffer for 100 events
+    let telemetry_event_bus_subscriber = event_bus.subscribe();
+    let telemetry_logger_clone = telemetry_logger.clone();
+    tokio::spawn(async move {
+        telemetry_logger_clone.process_events_loop(telemetry_event_bus_subscriber).await;
+    });
+
 
     // 5. Initialize Database Service
     info!("Connecting to database...");
@@ -85,6 +97,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let agent_orchestration_engine = Arc::new(Mutex::new(AgentOrchestrationEngine::new(shared_config.clone(), telemetry_logger.clone())));
     let news_engine = Arc::new(Mutex::new(NewsEngine::new(shared_config.clone(), telemetry_logger.clone())));
     let replication_service = Arc::new(Mutex::new(ReplicationService::new(shared_config.clone(), telemetry_logger.clone())));
+    let omega_os_interface = Arc::new(Mutex::new(OmegaOSInterface::new()));
+    let content_generator = Arc::new(Mutex::new(ContentGenerator::new()));
+    let style_guide_manager = Arc::new(Mutex::new(StyleGuideManager::new()));
+    let content_review_service = Arc::new(Mutex::new(ContentReviewService::new()));
+
     // Initialize other services here
 
     // 7. Initialize Tariro AGI Core
@@ -123,10 +140,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     // 11. Start Telemetry event processing loop
-    let telemetry_logger_clone = telemetry_logger.clone();
-    let telemetry_task = tokio::spawn(async move {
-        telemetry_logger_clone.process_events_loop().await;
-    });
+    // This is now handled in its own spawn block above after TelemetryLogger::new
 
     // 12. Simulate some initial AGI events
     let event_bus_clone = event_bus.clone();
@@ -144,9 +158,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         _ = agi_core_task => {
             info!("AGI Core stopped.");
-        }
-        _ = telemetry_task => {
-            info!("Telemetry processing stopped.");
         }
     }
 
