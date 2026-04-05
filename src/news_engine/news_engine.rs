@@ -20,6 +20,10 @@ use crate::news_engine::content_analysis::sentiment_analyzer::{SentimentAnalyzer
 use crate::news_engine::content_analysis::entity_extractor::{EntityExtractor, ExtractedEntity};
 use crate::news_engine::content_analysis::fact_checker::{FactChecker, FactCheckResult, Claim};
 use crate::news_engine::content_analysis::topic_modeler::{TopicModeler, IdentifiedTopic};
+// New use statements for content curation modules
+use crate::news_engine::content_curation::filter_engine::{FilterEngine, FilterRule};
+use crate::news_engine::content_curation::ranking_algorithm::{RankingAlgorithm, RankingProfile, RankedArticle};
+use crate::news_engine::content_curation::personalization_engine::{PersonalizationEngine, UserProfile, InteractionRecord};
 
 /// Represents a processed and standardized news article within the OMEGA News system.
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -57,12 +61,16 @@ pub struct NewsEngine {
     entity_extractor: Mutex<EntityExtractor>,
     fact_checker: Mutex<FactChecker>,
     topic_modeler: Mutex<TopicModeler>,
-    // Other components like content analysis, generation, dissemination will be added here
+    // New curation components
+    filter_engine: Mutex<FilterEngine>,
+    ranking_algorithm: Mutex<RankingAlgorithm>,
+    personalization_engine: Mutex<PersonalizationEngine>,
 }
 
 impl NewsEngine {
     /// Creates a new `NewsEngine` instance.
     pub fn new(config: Arc<AGIConfig>, telemetry_logger: Arc<TelemetryLogger>, db_service: Arc<DatabaseService>) -> Self {
+        let ranking_algo_instance = RankingAlgorithm::new(); // Create once here
         NewsEngine {
             config,
             telemetry_logger,
@@ -75,6 +83,10 @@ impl NewsEngine {
             entity_extractor: Mutex::new(EntityExtractor::new()),
             fact_checker: Mutex::new(FactChecker::new()),
             topic_modeler: Mutex::new(TopicModeler::new()),
+            // Initialize new curation components
+            filter_engine: Mutex::new(FilterEngine::new()),
+            ranking_algorithm: Mutex::new(ranking_algo_instance.clone()), // Use clone for shared ownership
+            personalization_engine: Mutex::new(PersonalizationEngine::new(ranking_algo_instance)), // Pass the original instance
         }
     }
 
@@ -122,6 +134,26 @@ impl NewsEngine {
                 last_used: None,
                 fetch_interval_seconds: 7200,
             }).unwrap();
+
+            // Example: Add initial ranking profile
+            self.ranking_algorithm.lock().unwrap().add_ranking_profile(RankingProfile {
+                id: String::new(),
+                name: "Default Ranking".to_string(),
+                description: "Default ranking profile with balanced weights.".to_string(),
+                weights: Default::default(),
+                is_active: true,
+            }).unwrap();
+
+            // Example: Add initial user profile for personalization
+            self.personalization_engine.lock().unwrap().create_or_update_user_profile(UserProfile {
+                id: String::new(),
+                user_id: "test_user_1".to_string(),
+                preferences: Default::default(),
+                interaction_history: Vec::new(),
+                inferred_interests: vec!["AI".to_string(), "quantum computing".to_string()],
+                created_at: Utc::now(),
+                last_updated: Utc::now(),
+            }).unwrap();
         }
 
         // Start ingestion loops in separate tokio tasks
@@ -137,6 +169,8 @@ impl NewsEngine {
         let web_scraper_clone = Arc::new(self.web_scraper.clone());
         let telemetry_logger_clone = self.telemetry_logger.clone();
         let db_service_clone = self.db_service.clone();
+        // Clones of self for processing ingested articles
+        let news_engine_self_clone = Arc::new(self.clone());
 
         // RSS Ingestion Loop
         tokio::spawn(async move {
@@ -147,6 +181,7 @@ impl NewsEngine {
                     let db_service_rss = db_service_clone.clone();
                     let telemetry_logger_rss = telemetry_logger_clone.clone();
                     let rss_parser_inner = Arc::new(rss_parser_clone.clone());
+                    let news_engine_for_processing = news_engine_self_clone.clone();
                     tokio::spawn(async move {
                         loop {
                             info!("[NewsEngine] Running RSS ingestion for: {}", source.name);
@@ -154,10 +189,19 @@ impl NewsEngine {
                                 Ok(articles) => {
                                     info!("Fetched {} articles from RSS feed: {}", articles.len(), source.name);
                                     for article in articles {
-                                        // Process and store articles (e.g., in db_service_rss)
-                                        info!("Parsed RSS Article: {}", article.title);
-                                        // Self-call to process_ingested_article_with_analysis
-                                        // This would ideally be an event on a channel or queue
+                                        match news_engine_for_processing.process_ingested_article_with_analysis(
+                                            article.id.clone(),
+                                            article.title.clone(),
+                                            article.description.unwrap_or_else(|| article.title.clone()),
+                                            article.link.clone(),
+                                            article.feed_source_id.clone(),
+                                        ).await {
+                                            Ok(omega_article) => {
+                                                info!("Processed Omega Article: {}", omega_article.title);
+                                                // TODO: Store omega_article in DB
+                                            },
+                                            Err(e) => error!("Failed to process RSS article: {}", e),
+                                        }
                                     }
                                 },
                                 Err(e) => {
@@ -180,6 +224,7 @@ impl NewsEngine {
                     let db_service_api = db_service_clone.clone();
                     let telemetry_logger_api = telemetry_logger_clone.clone();
                     let api_client_inner = Arc::new(api_client_clone.clone());
+                    let news_engine_for_processing = news_engine_self_clone.clone();
                     tokio::spawn(async move {
                         loop {
                             info!("[NewsEngine] Running API ingestion for: {}", config.name);
@@ -187,8 +232,19 @@ impl NewsEngine {
                                 Ok(articles) => {
                                     info!("Fetched {} articles from API: {}", articles.len(), config.name);
                                     for article in articles {
-                                        info!("Fetched API Article: {}", article.title);
-                                        // Self-call to process_ingested_article_with_analysis
+                                        match news_engine_for_processing.process_ingested_article_with_analysis(
+                                            article.id.clone(),
+                                            article.title.clone(),
+                                            article.content.unwrap_or_else(|| article.title.clone()),
+                                            article.url.clone(),
+                                            article.source_name.clone(),
+                                        ).await {
+                                            Ok(omega_article) => {
+                                                info!("Processed Omega Article: {}", omega_article.title);
+                                                // TODO: Store omega_article in DB
+                                            },
+                                            Err(e) => error!("Failed to process API article: {}", e),
+                                        }
                                     }
                                 },
                                 Err(e) => {
@@ -211,14 +267,26 @@ impl NewsEngine {
                     let db_service_scraper = db_service_clone.clone();
                     let telemetry_logger_scraper = telemetry_logger_clone.clone();
                     let web_scraper_inner = Arc::new(web_scraper_clone.clone());
+                    let news_engine_for_processing = news_engine_self_clone.clone();
                     tokio::spawn(async move {
                         loop {
                             info!("[NewsEngine] Running Web Scraper for: {}", profile.name);
                             let example_url = "https://customtechblog.com/articles/ai-revolution-unfolds";
                             match web_scraper_inner.lock().unwrap().scrape_url(example_url, &id).await {
                                 Ok(article) => {
-                                    info!("Scraped Web Article: {}", article.title.unwrap_or_default());
-                                    // Self-call to process_ingested_article_with_analysis
+                                    match news_engine_for_processing.process_ingested_article_with_analysis(
+                                        article.id.clone(),
+                                        article.title.unwrap_or_else(|| "Untitled Scraped Article".to_string()),
+                                        article.main_content.clone(),
+                                        article.url.clone(),
+                                        article.source_domain.clone(),
+                                    ).await {
+                                        Ok(omega_article) => {
+                                            info!("Processed Omega Article: {}", omega_article.title);
+                                            // TODO: Store omega_article in DB
+                                        },
+                                        Err(e) => error!("Failed to process Scraped article: {}", e),
+                                    }
                                 },
                                 Err(e) => {
                                     error!("Failed to scrape URL {} with profile {}: {}", example_url, profile.name, e);
@@ -281,5 +349,56 @@ impl NewsEngine {
         })
     }
 
-    // Other NewsEngine functionalities like content analysis, generation, dissemination
+    // Methods to expose curation functionalities
+
+    /// Filters a list of OmegaNewsArticles using the configured FilterEngine.
+    pub fn filter_articles(&self, articles: Vec<OmegaNewsArticle>, rules: &[FilterRule]) -> Vec<OmegaNewsArticle> {
+        let mut filter_engine = self.filter_engine.lock().unwrap();
+        for rule in rules {
+            filter_engine.add_filter_rule(rule.clone()).unwrap(); // Temporarily add rules
+        }
+        let filtered = filter_engine.apply_filters(articles);
+        // In a real scenario, would need to remove temporary rules or use a dedicated method for ad-hoc filtering
+        filtered
+    }
+
+    /// Ranks a list of OmegaNewsArticles using the configured RankingAlgorithm.
+    pub async fn rank_articles(
+        &self,
+        articles: Vec<OmegaNewsArticle>,
+        profile_id: &str,
+        context_keywords: Option<&[String]>,
+        user_id: Option<&str>,
+    ) -> Result<Vec<RankedArticle>, String> {
+        self.ranking_algorithm.lock().unwrap().rank_articles(articles, profile_id, context_keywords, user_id).await
+    }
+
+    /// Personalizes a list of OmegaNewsArticles for a specific user.
+    pub async fn personalize_articles(
+        &self,
+        articles: Vec<OmegaNewsArticle>,
+        user_id: &str,
+    ) -> Result<Vec<RankedArticle>, String> {
+        self.personalization_engine.lock().unwrap().personalize_articles(articles, user_id).await
+    }
+}
+
+impl Clone for NewsEngine {
+    fn clone(&self) -> Self {
+        NewsEngine {
+            config: self.config.clone(),
+            telemetry_logger: self.telemetry_logger.clone(),
+            db_service: self.db_service.clone(),
+            rss_parser: Mutex::new(self.rss_parser.lock().unwrap().clone()),
+            api_client: Mutex::new(self.api_client.lock().unwrap().clone()),
+            web_scraper: Mutex::new(self.web_scraper.lock().unwrap().clone()),
+            sentiment_analyzer: Mutex::new(self.sentiment_analyzer.lock().unwrap().clone()),
+            entity_extractor: Mutex::new(self.entity_extractor.lock().unwrap().clone()),
+            fact_checker: Mutex::new(self.fact_checker.lock().unwrap().clone()),
+            topic_modeler: Mutex::new(self.topic_modeler.lock().unwrap().clone()),
+            filter_engine: Mutex::new(self.filter_engine.lock().unwrap().clone()),
+            ranking_algorithm: Mutex::new(self.ranking_algorithm.lock().unwrap().clone()),
+            personalization_engine: Mutex::new(self.personalization_engine.lock().unwrap().clone()),
+        }
+    }
 }
