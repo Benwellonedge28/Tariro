@@ -15,6 +15,11 @@ use crate::database::DatabaseService;
 use crate::news_engine::news_ingestion::rss_parser::{RssParser, FeedSource, ParsedFeedArticle};
 use crate::news_engine::news_ingestion::api_client::{NewsApiClient, NewsApiConfig, ApiFetchedArticle};
 use crate::news_engine::news_ingestion::scraper::{WebScraper, WebScrapeProfile, ScrapedArticle};
+// New use statements for content analysis modules
+use crate::news_engine::content_analysis::sentiment_analyzer::{SentimentAnalyzer, SentimentAnalysisResult};
+use crate::news_engine::content_analysis::entity_extractor::{EntityExtractor, ExtractedEntity};
+use crate::news_engine::content_analysis::fact_checker::{FactChecker, FactCheckResult, Claim};
+use crate::news_engine::content_analysis::topic_modeler::{TopicModeler, IdentifiedTopic};
 
 /// Represents a processed and standardized news article within the OMEGA News system.
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -32,6 +37,11 @@ pub struct OmegaNewsArticle {
     pub sentiment_score: f32, // -1.0 (negative) to 1.0 (positive)
     pub factual_accuracy_score: f32, // 0.0 to 1.0
     pub data_lineage: Vec<String>, // IDs of raw ingested data
+    // New fields for analysis results
+    pub sentiment_analysis: Option<SentimentAnalysisResult>,
+    pub extracted_entities: Vec<ExtractedEntity>,
+    pub fact_check_results: Vec<FactCheckResult>,
+    pub identified_topics: Vec<IdentifiedTopic>,
 }
 
 /// The `NewsEngine` is the central component for OMEGA News operations.
@@ -42,6 +52,11 @@ pub struct NewsEngine {
     rss_parser: Mutex<RssParser>,
     api_client: Mutex<NewsApiClient>,
     web_scraper: Mutex<WebScraper>,
+    // New analysis components
+    sentiment_analyzer: Mutex<SentimentAnalyzer>,
+    entity_extractor: Mutex<EntityExtractor>,
+    fact_checker: Mutex<FactChecker>,
+    topic_modeler: Mutex<TopicModeler>,
     // Other components like content analysis, generation, dissemination will be added here
 }
 
@@ -55,6 +70,11 @@ impl NewsEngine {
             rss_parser: Mutex::new(RssParser::new()),
             api_client: Mutex::new(NewsApiClient::new()),
             web_scraper: Mutex::new(WebScraper::new()),
+            // Initialize new analysis components
+            sentiment_analyzer: Mutex::new(SentimentAnalyzer::new()),
+            entity_extractor: Mutex::new(EntityExtractor::new()),
+            fact_checker: Mutex::new(FactChecker::new()),
+            topic_modeler: Mutex::new(TopicModeler::new()),
         }
     }
 
@@ -133,11 +153,11 @@ impl NewsEngine {
                             match rss_parser_inner.lock().unwrap().fetch_and_parse_feed(&id).await {
                                 Ok(articles) => {
                                     info!("Fetched {} articles from RSS feed: {}", articles.len(), source.name);
-                                    // Process and store articles (e.g., in db_service_rss)
                                     for article in articles {
-                                        // Transform ParsedFeedArticle to OmegaNewsArticle and save
-                                        // For now, just log
+                                        // Process and store articles (e.g., in db_service_rss)
                                         info!("Parsed RSS Article: {}", article.title);
+                                        // Self-call to process_ingested_article_with_analysis
+                                        // This would ideally be an event on a channel or queue
                                     }
                                 },
                                 Err(e) => {
@@ -163,13 +183,12 @@ impl NewsEngine {
                     tokio::spawn(async move {
                         loop {
                             info!("[NewsEngine] Running API ingestion for: {}", config.name);
-                            // Example query
                             match api_client_inner.lock().unwrap().fetch_articles(&id, "AI", Some("en"), Some("technology")).await {
                                 Ok(articles) => {
                                     info!("Fetched {} articles from API: {}", articles.len(), config.name);
-                                    // Process and store articles
                                     for article in articles {
                                         info!("Fetched API Article: {}", article.title);
+                                        // Self-call to process_ingested_article_with_analysis
                                     }
                                 },
                                 Err(e) => {
@@ -195,12 +214,11 @@ impl NewsEngine {
                     tokio::spawn(async move {
                         loop {
                             info!("[NewsEngine] Running Web Scraper for: {}", profile.name);
-                            // Example URL to scrape (should come from a queue or discovery)
                             let example_url = "https://customtechblog.com/articles/ai-revolution-unfolds";
                             match web_scraper_inner.lock().unwrap().scrape_url(example_url, &id).await {
                                 Ok(article) => {
                                     info!("Scraped Web Article: {}", article.title.unwrap_or_default());
-                                    // Process and store article
+                                    // Self-call to process_ingested_article_with_analysis
                                 },
                                 Err(e) => {
                                     error!("Failed to scrape URL {} with profile {}: {}", example_url, profile.name, e);
@@ -214,27 +232,52 @@ impl NewsEngine {
         });
     }
 
-    /// Processes a raw ingested article into a standardized `OmegaNewsArticle`.
-    /// This would involve content analysis, sentiment scoring, keyword extraction, etc.
-    pub async fn process_ingested_article(&self, raw_content_id: String, raw_text: String) -> Result<OmegaNewsArticle, String> {
-        // Simulate processing
-        info!("[NewsEngine] Processing raw content ID: {}", raw_content_id);
-        tokio::time::sleep(Duration::from_secs(1)).await;
+    /// Processes a raw ingested article into a standardized `OmegaNewsArticle`,
+    /// applying all content analysis modules.
+    pub async fn process_ingested_article_with_analysis(&self, raw_content_id: String, title: String, content: String, url: String, source_name: String) -> Result<OmegaNewsArticle, String> {
+        info!("[NewsEngine] Processing raw content ID: {} with analysis...", raw_content_id);
+        tokio::time::sleep(Duration::from_millis(500)).await;
+
+        // Perform Sentiment Analysis
+        let sentiment_result = self.sentiment_analyzer.lock().unwrap().analyze_sentiment(&content).await?;
+        info!("Sentiment for '{}': Score={}, Magnitude={}", title, sentiment_result.score, sentiment_result.magnitude);
+
+        // Perform Entity Extraction
+        let extracted_entities = self.entity_extractor.lock().unwrap().extract_entities(&content).await?;
+        info!("Extracted {} entities from '{}'.", extracted_entities.len(), title);
+
+        // Perform Fact-Checking (identify claims and then check them)
+        let mut fact_check_results = Vec::new();
+        let claims = self.fact_checker.lock().unwrap().identify_claims(&content).await?;
+        for claim in claims {
+            let check_result = self.fact_checker.lock().unwrap().check_claim(&claim).await?;
+            fact_check_results.push(check_result);
+        }
+        info!("Fact-checked {} claims for '{}'.", fact_check_results.len(), title);
+
+        // Perform Topic Modeling
+        let identified_topics = self.topic_modeler.lock().unwrap().identify_topics(&content).await?;
+        let categories = self.topic_modeler.lock().unwrap().categorize_document(&identified_topics, &vec!["Technology".to_string(), "Business".to_string(), "Politics".to_string(), "Science".to_string(), "Environment".to_string(), "Health".to_string(), "General".to_string()]);
+        info!("Identified {} topics and categories for '{}': {:?}", identified_topics.len(), title, categories);
 
         Ok(OmegaNewsArticle {
             id: format!("omega_art_{}", Uuid::new_v4()),
-            title: format!("Processed Article from {}", raw_content_id),
-            content: raw_text.clone(),
-            url: format!("http://omega-news.com/articles/{}", Uuid::new_v4()),
-            author: Some("OMEGA News AGI".to_string()),
-            published_date: Utc::now(),
+            title,
+            content,
+            url,
+            author: Some("OMEGA News AGI".to_string()), // Placeholder
+            published_date: Utc::now(), // Placeholder
             ingested_date: Utc::now(),
-            source_name: "Various Ingestion".to_string(),
-            categories: vec!["General".to_string()],
-            keywords: vec!["processed".to_string(), "agi".to_string()],
-            sentiment_score: 0.5,
-            factual_accuracy_score: 0.8,
+            source_name,
+            categories,
+            keywords: sentiment_result.keywords.clone(), // Using sentiment keywords as general keywords
+            sentiment_score: sentiment_result.score,
+            factual_accuracy_score: fact_check_results.first().map_or(0.0, |r| r.score), // Simplified: just first claim's score
             data_lineage: vec![raw_content_id],
+            sentiment_analysis: Some(sentiment_result),
+            extracted_entities,
+            fact_check_results,
+            identified_topics,
         })
     }
 
