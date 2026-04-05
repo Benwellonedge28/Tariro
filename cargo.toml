@@ -1,0 +1,28 @@
+[package]
+name = "tariro-agi-core"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+warp = "0.3"
+log = "0.4"
+simple_logger = "1.13"
+async-trait = "0.1.59"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.2.1", features = ["v4", "serde"] }
+rand = "0.8.5"
+pymongo = "0.1.2" # Placeholder, will be replaced with actual async MongoDB driver like `mongodb` crate
+
+[dependencies.mongodb] # Actual MongoDB driver
+version = "2.3.0"
+default-features = false
+features = ["sync", "tokio-sync"] # Use tokio-sync for async operations
+
+[dependencies.parse-display]
+version = "0.7.0"
+
