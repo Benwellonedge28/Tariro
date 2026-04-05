@@ -1,0 +1,99 @@
+# IDPTE Global Configuration File
+# This file contains system-wide settings for the Tariro Integrated Development and Self-Deployment Environment (IDPTE).
+# Settings are categorized for clarity and modularity.
+
+# --- Core System Settings ---
+[core]
+system_name = "Tariro IDPTE"
+system_version = "0.9.0-alpha"
+environment = "development" # production, staging, development, testing
+log_level = "info" # trace, debug, info, warn, error
+telemetry_enabled = true
+
+# --- AGI Autonomy & Ethical Governance ---
+[autonomy]
+default_autonomy_level = "suggest_only" # full_auto, suggest_only, human_required
+evast_filter_enabled = true
+ethical_guidelines_version = "1.2"
+# Paths to external policy definition files or knowledge graph nodes
+policy_definitions = [
+    "config/autonomy_policies.json",
+    "knowledge://ethical_frameworks/v1"
+]
+
+# --- Communication & Networking ---
+[network]
+api_port = 8080
+inter_service_protocol = "QUIC" # QUIC, gRPC, REST, MQTT
+message_queue_provider = "Kafka" # Kafka, RabbitMQ, NATS
+network_mesh_enabled = true
+mesh_network_config_path = "config/mesh_network.toml"
+
+# --- File Management & Storage ---
+[storage]
+default_file_system = "IPFS" # Local, S3, IPFS, Tahoe-LAFS
+local_storage_path = "/var/lib/tariro/data"
+cloud_storage_bucket = "tariro-idpte-data"
+ipfs_gateway = "https://ipfs.io/ipfs/"
+
+# --- Code Generation & Compilation ---
+[compiler]
+default_language = "Rust" # Rust, Python, Go, WASM, Tariro-Native
+target_architectures = ["x86_64", "ARM64", "WASM"]
+optimization_level = "O3" # O0, O1, O2, O3, Os, Oz
+meta_compiler_enabled = true
+meta_compiler_config_path = "config/meta_compiler.json"
+
+# --- Deployment & Orchestration ---
+[deployment]
+default_platform = "Kubernetes" # Kubernetes, DockerSwarm, Nomad, BareMetal, OMEGA-OS
+continuous_deployment_enabled = false
+rollback_strategy = "automated" # automated, manual, canary
+kubernetes_config_path = "config/kube.yaml"
+
+# --- Security & Access Control ---
+[security]
+encryption_standard = "AES256_GCM"
+two_factor_auth_enabled = true
+access_control_model = "RBAC" # RBAC, ABAC, ACL
+secret_management_system = "HashiCorp_Vault"
+
+# --- Learning & Knowledge Management ---
+[learning]
+knowledge_graph_db = "Neo4j" # Neo4j, ArangoDB, GraphDB
+learning_rate_adjustment_factor = 0.01
+feedback_loop_enabled = true
+semantic_search_engine = "Elasticsearch"
+
+# --- User Interface & Interaction (UCI) ---
+[uci]
+default_theme = "dark" # dark, light, adaptive
+voice_interface_enabled = true
+haptic_feedback_enabled = false
+preferred_language = "en-US"
+multi_modal_fusion_engine = "config/multi_modal_fusion.json"
+
+# --- External Service Integration (TACS) ---
+[tacs]
+service_discovery_mechanism = "Consul" # Consul, Eureka, DNS
+api_gateway_endpoint = "https://api.tariro.com/tacs"
+authentication_method = "OAuth2_JWT"
+service_mesh_enabled = true # Istio, Linkerd
+
+# --- OMEGA Network Configuration ---
+[omega_network]
+node_type = "full_peer" # full_peer, light_client, relay
+initial_bootstrapping_nodes = [
+    "omega.tariro.net:8443",
+    "bootstrap.tariro.io:8443"
+]
+peer_discovery_protocol = "Kademlia"
+consensus_algorithm = "BFT_Hybrid" # PBFT, Raft, Paxos, BFT_Hybrid
+message_retention_days = 30
+
+# --- OMEGA OS Configuration ---
+[omega_os]
+kernel_type = "microkernel" # microkernel, monolithic, hybrid
+hal_version = "1.0.0"
+secure_boot_enabled = true
+root_of_trust_module = "TPM_2_0" # TPM_2_0, Secure_Enclave, Custom_Hardware_Root
