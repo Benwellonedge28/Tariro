@@ -95,7 +95,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let meta_learning_service = Arc::new(Mutex::new(MetaLearningService::new(shared_config.clone(), telemetry_logger.clone(), db_service.clone())));
     let project_manager_service = Arc::new(Mutex::new(ProjectManagerService::new(shared_config.clone(), telemetry_logger.clone())));
     let agent_orchestration_engine = Arc::new(Mutex::new(AgentOrchestrationEngine::new(shared_config.clone(), telemetry_logger.clone())));
-    let news_engine = Arc::new(Mutex::new(NewsEngine::new(shared_config.clone(), telemetry_logger.clone())));
+    // Corrected NewsEngine initialization to include db_service
+    let news_engine = Arc::new(Mutex::new(NewsEngine::new(shared_config.clone(), telemetry_logger.clone(), db_service.clone())));
     let replication_service = Arc::new(Mutex::new(ReplicationService::new(shared_config.clone(), telemetry_logger.clone())));
     let omega_os_interface = Arc::new(Mutex::new(OmegaOSInterface::new()));
     let content_generator = Arc::new(Mutex::new(ContentGenerator::new()));
@@ -139,6 +140,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         agi_core_clone.run().await.expect("AGI Core failed to run");
     });
 
+    // Initialize NewsEngine (now after db_service is available)
+    news_engine.lock().unwrap().initialize().await?;
+
     // 11. Start Telemetry event processing loop
     // This is now handled in its own spawn block above after TelemetryLogger::new
 
@@ -162,7 +166,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     info!("Tariro AGI System Shutting Down...");
-    agi_core.shutdown().await?;
+    agi_core.shutdown().await?; // Ensure AGI Core gracefully shuts down
 
     Ok(())
 }
