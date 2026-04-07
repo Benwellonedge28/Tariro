@@ -1,19 +1,45 @@
 use crate::omega_news_content_generator_llm::ContentGeneratorLlm;
 use crate::authorship_module_core::{AuthorshipModule, CreativeIdea};
-use crate::self_modification_module::{SelfModificationModule, ConfigChangeProposal, CodeRefactorProposal}; // Import new module
+use crate::self_modification_module::{SelfModificationModule, ConfigChangeProposal, CodeRefactorProposal};
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 
 // --- EVAS Filter (Ethical, Verifiable, Accountable, Safe) ---
-pub struct EvasFilter;
+pub struct EvasFilter {
+    llm_analyzer: ContentGeneratorLlm,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct EvasReport {
+    pub score: f32,
+    pub bias_detected: bool,
+    pub factual_inaccuracies: Vec<String>,
+    pub ethical_violations: Vec<String>,
+    pub recommendations: String,
+}
 
 impl EvasFilter {
-    pub fn new() -> Self {
-        EvasFilter {}
+    pub fn new(llm_analyzer: ContentGeneratorLlm) -> Self {
+        EvasFilter { llm_analyzer }
     }
 
-    pub fn apply(&self, content: &str) -> bool {
-        println!("Applying EVAS filter to content...");
-        !content.contains("harmful_keyword")
+    pub async fn apply(&self, content: &str) -> Result<EvasReport, String> {
+        println!("Applying advanced EVAS filter to content...");
+        let system_instruction = "You are an AI specializing in ethical, verifiable, accountable, and safe content analysis for journalism. Provide a detailed EVAS report in JSON format.";
+        let prompt = format!(
+            "Analyze the following news content for ethical violations, potential biases, and factual inaccuracies. 
+            Provide a confidence score (0.0-1.0), list any detected biases, factual inaccuracies, and ethical violations. 
+            Finally, give recommendations for improvement. Output your analysis as a JSON object with fields: 
+            `score` (f32), `bias_detected` (bool), `factual_inaccuracies` (Vec<String>), `ethical_violations` (Vec<String>), `recommendations` (String).\n\nContent:\n{}",
+            content
+        );
+
+        let llm_response_json = self.llm_analyzer.generate_content(&prompt, Some(system_instruction)).await?;
+
+        let report: EvasReport = serde_json::from_str(&llm_response_json)
+            .map_err(|e| format!("Failed to parse LLM's EVAS report JSON: {}. Response: {}", e, llm_response_json))?;
+        
+        Ok(report)
     }
 }
 
@@ -37,7 +63,7 @@ pub struct OmegaNewsCoreService {
     evas_filter: EvasFilter,
     feed_engine: FeedEngine,
     authorship_module: AuthorshipModule,
-    self_modification_module: SelfModificationModule, // Add SelfModificationModule
+    self_modification_module: SelfModificationModule,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -45,16 +71,16 @@ pub struct ArticleDraft {
     pub title: String,
     pub summary: String,
     pub body: String,
-    pub verified_by_evas: bool,
+    pub evas_report: EvasReport,
 }
 
 impl OmegaNewsCoreService {
     pub fn new() -> Result<Self, String> {
         let llm_generator = ContentGeneratorLlm::new()?;
-        let evas_filter = EvasFilter::new();
+        let evas_filter = EvasFilter::new(llm_generator.clone()); // Pass LLM to EVAS
         let feed_engine = FeedEngine::new();
         let authorship_module = AuthorshipModule::new()?;
-        let self_modification_module = SelfModificationModule::new()?; // Initialize
+        let self_modification_module = SelfModificationModule::new()?;
         Ok(OmegaNewsCoreService { 
             llm_generator, 
             evas_filter, 
@@ -76,13 +102,14 @@ impl OmegaNewsCoreService {
         let summary = lines.next().unwrap_or("No summary.").trim().to_string();
         let body = lines.collect::<Vec<&str>>().join("\n").trim().to_string();
 
-        let verified = self.evas_filter.apply(&full_article_text);
+        // Apply EVAS filter and get a detailed report
+        let evas_report = self.evas_filter.apply(&full_article_text).await?;
 
         Ok(ArticleDraft {
             title,
             summary,
             body,
-            verified_by_evas: verified,
+            evas_report,
         })
     }
 
@@ -103,18 +130,18 @@ impl OmegaNewsCoreService {
         let summary = self.llm_generator.summarize_text(&raw_feed_content).await?;
         
         let full_content_for_evas = format!("Summary: {}\nOriginal Content Sample: {}", summary, &raw_feed_content[..raw_feed_content.len().min(200)]);
-        let is_verified = self.evas_filter.apply(&full_content_for_evas);
+        let evas_report = self.evas_filter.apply(&full_content_for_evas).await?;
 
-        if is_verified {
+        if evas_report.score > 0.7 && !evas_report.bias_detected && evas_report.factual_inaccuracies.is_empty() {
             let dummy_draft = ArticleDraft {
                 title: format!("Summarized Article from {}", source),
                 summary: summary.clone(),
-                body: format!("Full content based on summary: {}", summary),
-                verified_by_evas: true,
+                body: format!("Full content based on summary: {}\n... (truncated original content) ...", summary),
+                evas_report,
             };
             Ok(vec![dummy_draft])
         } else {
-            Err(format!("Feed from {} failed EVAS verification.", source))
+            Err(format!("Feed from {} failed strict EVAS verification. Report: {:?}", source, evas_report))
         }
     }
 
@@ -134,5 +161,10 @@ impl OmegaNewsCoreService {
 
     pub async fn propose_code_refactor(&self, current_code: &str, refactoring_goal: &str, language: &str) -> Result<CodeRefactorProposal, String> {
         self.self_modification_module.propose_code_refactor(current_code, refactoring_goal, language).await
+    }
+
+    // --- Direct EVAS Application ---
+    pub async fn run_evas_analysis(&self, content: &str) -> Result<EvasReport, String> {
+        self.evas_filter.apply(content).await
     }
 }
