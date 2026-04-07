@@ -1,9 +1,9 @@
 use crate::omega_news_content_generator_llm::ContentGeneratorLlm;
 use crate::authorship_module_core::{AuthorshipModule, CreativeIdea};
+use crate::self_modification_module::{SelfModificationModule, ConfigChangeProposal, CodeRefactorProposal}; // Import new module
 use serde::{Deserialize, Serialize};
 
 // --- EVAS Filter (Ethical, Verifiable, Accountable, Safe) ---
-// Placeholder for OMEGA News EVAS filter logic
 pub struct EvasFilter;
 
 impl EvasFilter {
@@ -12,16 +12,12 @@ impl EvasFilter {
     }
 
     pub fn apply(&self, content: &str) -> bool {
-        // In a real implementation, this would run complex NLP and AI checks
-        // to ensure content adheres to ethical guidelines, is verifiable,
-        // accountable, and safe. For now, it's a simple placeholder.
         println!("Applying EVAS filter to content...");
-        !content.contains("harmful_keyword") // Simple dummy check
+        !content.contains("harmful_keyword")
     }
 }
 
 // --- Feed Engine (Placeholder) ---
-// This would handle ingesting, processing, and routing news feeds.
 pub struct FeedEngine;
 
 impl FeedEngine {
@@ -30,7 +26,6 @@ impl FeedEngine {
     }
 
     pub async fn ingest_feed(&self, source: &str) -> Result<String, String> {
-        // Simulate fetching and ingesting a news feed
         println!("Ingesting feed from: {}", source);
         Ok(format!("Content from {} feed.", source))
     }
@@ -42,6 +37,7 @@ pub struct OmegaNewsCoreService {
     evas_filter: EvasFilter,
     feed_engine: FeedEngine,
     authorship_module: AuthorshipModule,
+    self_modification_module: SelfModificationModule, // Add SelfModificationModule
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -58,7 +54,14 @@ impl OmegaNewsCoreService {
         let evas_filter = EvasFilter::new();
         let feed_engine = FeedEngine::new();
         let authorship_module = AuthorshipModule::new()?;
-        Ok(OmegaNewsCoreService { llm_generator, evas_filter, feed_engine, authorship_module })
+        let self_modification_module = SelfModificationModule::new()?; // Initialize
+        Ok(OmegaNewsCoreService { 
+            llm_generator, 
+            evas_filter, 
+            feed_engine, 
+            authorship_module, 
+            self_modification_module 
+        })
     }
 
     pub async fn generate_article_draft(&self, topic: &str, length_hint: &str) -> Result<ArticleDraft, String> {
@@ -68,14 +71,11 @@ impl OmegaNewsCoreService {
         
         let full_article_text = self.llm_generator.generate_content(&prompt, Some(system_instruction)).await?;
 
-        // Attempt to parse title, summary, and body from the LLM output
-        // This is a basic parsing; a more robust solution would use regex or a structured JSON response from LLM
         let mut lines = full_article_text.lines();
         let title = lines.next().unwrap_or("Untitled Article").trim().to_string();
         let summary = lines.next().unwrap_or("No summary.").trim().to_string();
         let body = lines.collect::<Vec<&str>>().join("\n").trim().to_string();
 
-        // Apply EVAS filter
         let verified = self.evas_filter.apply(&full_article_text);
 
         Ok(ArticleDraft {
@@ -102,12 +102,10 @@ impl OmegaNewsCoreService {
         
         let summary = self.llm_generator.summarize_text(&raw_feed_content).await?;
         
-        // Dummy check, replace with actual content from raw_feed_content
         let full_content_for_evas = format!("Summary: {}\nOriginal Content Sample: {}", summary, &raw_feed_content[..raw_feed_content.len().min(200)]);
         let is_verified = self.evas_filter.apply(&full_content_for_evas);
 
         if is_verified {
-            // In a real scenario, LLM would generate actual articles from the feed data
             let dummy_draft = ArticleDraft {
                 title: format!("Summarized Article from {}", source),
                 summary: summary.clone(),
@@ -127,5 +125,14 @@ impl OmegaNewsCoreService {
 
     pub async fn restyle_content(&self, content: &str, desired_style: &str) -> Result<String, String> {
         self.authorship_module.refine_content_style(content, desired_style).await
+    }
+
+    // --- Self-Modification Module Delegations ---
+    pub async fn propose_config_change(&self, current_context: &str, desired_outcome: &str) -> Result<ConfigChangeProposal, String> {
+        self.self_modification_module.propose_config_change(current_context, desired_outcome).await
+    }
+
+    pub async fn propose_code_refactor(&self, current_code: &str, refactoring_goal: &str, language: &str) -> Result<CodeRefactorProposal, String> {
+        self.self_modification_module.propose_code_refactor(current_code, refactoring_goal, language).await
     }
 }
