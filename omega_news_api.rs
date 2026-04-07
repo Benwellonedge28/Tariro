@@ -8,9 +8,9 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-use crate::omega_news_core_service::{OmegaNewsCoreService, ArticleDraft};
+use crate::omega_news_core_service::{OmegaNewsCoreService, ArticleDraft, EvasReport}; // Import EvasReport
 use crate::authorship_module_core::CreativeIdea;
-use crate::self_modification_module::{ConfigChangeProposal, CodeRefactorProposal}; // Import new structs
+use crate::self_modification_module::{ConfigChangeProposal, CodeRefactorProposal};
 
 // --- API Request/Response Models for Authorship Module ---
 
@@ -42,7 +42,7 @@ pub struct ProposeCodeRefactorRequest {
     pub language: String,
 }
 
-// --- API Request/Response Models for News Generation ---
+// --- API Request/Response Models for News Generation and EVAS ---
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct GenerateArticleDraftRequest {
@@ -64,6 +64,11 @@ pub struct VerifyNewsFactRequest {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ProcessAndFilterFeedRequest {
     pub source: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct RunEvasAnalysisRequest {
+    pub content: String,
 }
 
 // --- AppState for Axum Router ---
@@ -116,7 +121,7 @@ pub async fn propose_code_refactor_handler(
     }
 }
 
-// --- Handlers for News Generation ---
+// --- Handlers for News Generation and EVAS ---
 
 pub async fn generate_article_draft_handler(
     axum::extract::State(state): axum::extract::State<Arc<ApiState>>,
@@ -158,6 +163,16 @@ pub async fn process_and_filter_feed_handler(
     }
 }
 
+pub async fn run_evas_analysis_handler(
+    axum::extract::State(state): axum::extract::State<Arc<ApiState>>,
+    Json(payload): Json<RunEvasAnalysisRequest>,
+) -> impl IntoResponse {
+    match state.omega_news_service.run_evas_analysis(&payload.content).await {
+        Ok(report) => (StatusCode::OK, Json(report)).into_response(),
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e).into_response(),
+    }
+}
+
 // --- Router for OMEGA News API ---
 
 pub fn omega_news_api_router() -> Router<Arc<ApiState>> {
@@ -170,4 +185,5 @@ pub fn omega_news_api_router() -> Router<Arc<ApiState>> {
         .route("/news/summarize", post(summarize_news_content_handler))
         .route("/news/verify_fact", post(verify_news_fact_handler))
         .route("/news/process_feed", post(process_and_filter_feed_handler))
+        .route("/news/evas-analysis", post(run_evas_analysis_handler)) // New EVAS analysis route
 }
