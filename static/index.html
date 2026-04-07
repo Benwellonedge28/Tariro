@@ -1,0 +1,1396 @@
+<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Tariro IDE IDPTE</title>\n    <style>\n        :root {\n            --bg-primary: #2B303B; \n            --bg-secondary: #3B4252; \n            --text-primary: #D8DEE9; \n            --text-secondary: #E5E9F0; \n            --accent-color: #81A1C1; \n            --border-color: #5E81AC; \n            --highlight-color: #4C566A; \n            --error-color: #BF616A;\n            --warning-color: #EBCB8B;\n            --info-color: #88C0D0;\n            --terminal-text: #00ff00;\n            --current-line: rgba(129, 161, 193, 0.2); /* Accent color with transparency */\n            --breakpoint-color: #BF616A; /* Error color for breakpoints */\n        }\n
+        body.light-theme {\n            --bg-primary: #ECEFF4;\n            --bg-secondary: #E5E9F0;\n            --text-primary: #3B4252;\n            --text-secondary: #4C566A;\n            --accent-color: #5E81AC;\n            --border-color: #81A1C1;\n            --highlight-color: #D8DEE9;\n            --error-color: #BF616A;\n            --warning-color: #EBCB8B;\n            --info-color: #88C0D0;\n            --terminal-text: #000000;\n            --current-line: rgba(94, 129, 172, 0.2); \n        }\n
+        body.nord-theme {\n            --bg-primary: #2E3440;\n            --bg-secondary: #3B4252;\n            --text-primary: #D8DEE9;\n            --text-secondary: #E5E9F0;\n            --accent-color: #81A1C1;\n            --border-color: #4C566A;\n            --highlight-color: #4C566A;\n            --error-color: #BF616A;\n            --warning-color: #EBCB8B;\n            --info-color: #88C0D0;\n            --terminal-text: #A3BE8C;\n        }\n
+        body { font-family: sans-serif; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }\n        .container { display: flex; flex-grow: 1; overflow: hidden; }\n        .sidebar { width: 250px; background-color: var(--bg-secondary); padding: 15px; overflow-y: auto; flex-shrink: 0; transition: width 0.3s ease; display: flex; flex-direction: column; }\n        .sidebar.collapsed { width: 0; padding: 0; }\n        .sidebar-toggle-button { margin-bottom: 10px; }\n        .file-tree { flex-grow: 1; overflow-y: auto; }\n        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; background-color: var(--bg-primary); color: var(--text-primary); }\n        .top-panel { display: flex; flex-direction: column; padding: 20px 20px 0 20px; flex-shrink: 0; }\n        .editor-area { display: flex; flex-direction: column; flex-grow: 1; overflow: hidden; }\n        .editor-header { display: flex; align-items: center; margin-bottom: 10px; }\n        .editor-container { position: relative; width: 100%; display: flex; flex-direction: column; flex-grow: 1; overflow: hidden; border: 1px solid var(--border-color); }\n        #codeEditor { flex-grow: 1; height: auto; font-family: monospace; font-size: 14px; line-height: 20px; tab-size: 4; -moz-tab-size: 4; border: none; background-color: var(--bg-secondary); color: var(--text-primary); padding: 10px; box-sizing: border-box; resize: none; overflow: auto; }\n        #highlightedOutput { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; background-color: transparent; }\n        #highlightedOutput pre { margin: 0; padding: 10px; white-space: pre-wrap; word-break: break-all; color: var(--text-primary); }\n
+        .bottom-panel-container { display: flex; flex-direction: column; flex-shrink: 0; min-height: 100px; height: 300px; border-top: 1px solid var(--border-color); }\n        .bottom-panel-tabs { display: flex; background-color: var(--bg-secondary); border-top: 1px solid var(--border-color); }\n        .bottom-panel-tab-button { background-color: var(--highlight-color); color: var(--text-primary); padding: 8px 15px; border: none; cursor: pointer; border-radius: 4px 4px 0 0; margin-right: 2px; }\n        .bottom-panel-tab-button.active { background-color: var(--bg-primary); border-bottom: 2px solid var(--accent-color); }\n        .bottom-panel-content { flex-grow: 1; background-color: var(--bg-primary); padding: 10px; overflow-y: auto; }\n
+        h1, h2 { color: var(--accent-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-top: 20px; }\n        button { background-color: var(--accent-color); color: var(--text-primary); padding: 8px 12px; border: none; cursor: pointer; margin-right: 8px; margin-top: 5px; border-radius: 4px; }\n        button:hover { background-color: var(--border-color); }\n        input[type=\"text\"] { background-color: var(--highlight-color); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px; width: calc(100% - 120px); margin-top: 5px; border-radius: 4px; }\n        .full-width-input { width: calc(100% - 20px); }\n        select { padding: 8px; background-color: var(--highlight-color); color: var(--text-primary); border: 1px solid var(--border-color); margin-top: 5px; border-radius: 4px; }\n        pre { border: 1px solid var(--border-color); padding: 10px; overflow-x: auto; margin-top: 10px; background-color: var(--bg-primary); border-radius: 4px; }\n        .file-controls, .editor-controls, .lsp-controls, .code-quality-controls, .build-run-controls, .project-management-controls, .agi-tools, .plugin-ui-container { margin-bottom: 10px; padding-bottom: 5px; }\n        .file-tree ul { list-style-type: none; padding-left: 0; }
+        .file-tree li { margin-bottom: 5px; }
+        .file-tree li a { color: var(--text-primary); text-decoration: none; cursor: pointer; }
+        .file-tree li a:hover { text-decoration: underline; color: var(--accent-color); }\n        .terminal-output, .git-status-output, .code-quality-output, .diagnostics-output, .references-output, .search-results-output, .outline-output, .agi-insights-output, .debug-output, .plugin-output { background-color: var(--bg-primary); color: var(--terminal-text); padding: 10px; height: 100%; overflow-y: scroll; font-family: \'monospace\'; white-space: pre-wrap; border: 1px solid var(--border-color); border-radius: 4px; box-sizing: border-box; }\n
+        .completion-suggestions, .lsp-hover-tooltip, .code-actions-popup, .signature-help-popup {\n            position: absolute;\n            background-color: var(--bg-secondary);\n            border: 1px solid var(--border-color);\n            border-radius: 4px;\n            max-height: 200px;\n            overflow-y: auto;\n            z-index: 1000;\n            width: auto; \n            min-width: 150px;\n            display: none; \n            padding: 5px;\n            color: var(--text-primary);\n        }\n        .completion-suggestions div, .code-actions-popup div {\n            padding: 5px 10px;\n            cursor: pointer;\n        }\n        .completion-suggestions div:hover, .code-actions-popup div:hover {\n            background-color: var(--highlight-color);\n        }\n        .diagnostics-output p, .references-output p, .search-results-output p, .outline-output p, .debug-output p, .plugin-output p { margin: 0; padding: 2px 0; }\n        .diagnostics-output .error { color: var(--error-color); }\n        .diagnostics-output .warning { color: var(--warning-color); }\n        .diagnostics-output .info { color: var(--info-color); }\n        .diagnostics-output .hint { color: var(--text-secondary); }\n        .diagnostics-output a, .references-output a, .search-results-output a, .outline-output a, .debug-output a, .plugin-output a {\n            color: inherit;\n            text-decoration: underline;\n            cursor: pointer;\n        }\n        .tab-bar { display: flex; flex-wrap: wrap; background-color: var(--bg-secondary); padding: 5px 0; border-bottom: 1px solid var(--border-color); }\n        .tab-bar button {\n            background-color: var(--highlight-color);\n            color: var(--text-primary);\n            border: 1px solid var(--border-color);\n            border-bottom: none;\n            padding: 5px 10px;\n            margin-right: 2px;\n            cursor: pointer;\n            border-radius: 4px 4px 0 0;\n        }\n        .tab-bar button.active {\n            background-color: var(--bg-primary);\n            border-color: var(--accent-color);\n            color: var(--accent-color);\n        }\n        .tab-bar button .close-tab {\n            margin-left: 5px;\n            color: var(--error-color);\n            font-weight: bold;\n        }\n        .tab-bar button .close-tab:hover {\n            color: var(--warning-color);\n        }\n        .signature-label { font-weight: bold; }\n        .parameter-label { font-style: italic; }\n        .active-parameter { background-color: var(--accent-color); border-radius: 3px; padding: 0 2px; }\n        .inline-checkbox { margin-left: 10px; display: inline-flex; align-items: center; }\n        .inline-checkbox input { margin-right: 5px; }\n        .diagnostics-overlay, .semantic-tokens-overlay, .debugger-overlay {\n            position: absolute;\n            top: 0;\n            left: 0;\n            width: 100%;\n            height: 100%;\n            pointer-events: none; \n            overflow: hidden; \n            z-index: 500;\n            font-family: monospace; \n            font-size: 14px; \n            line-height: 20px; \n            white-space: pre;\n            padding: 10px;\n            box-sizing: border-box;\n        }\n        .diagnostic-squiggle {\n            position: absolute;\n            border-bottom: 1px dotted var(--error-color); \n            pointer-events: auto; \n            background-color: rgba(191, 97, 106, 0.1); \n            z-index: 501;\n        }\n        .diagnostic-squiggle.warning {\n            border-bottom: 1px dotted var(--warning-color);\n            background-color: rgba(235, 203, 139, 0.1); \n        }\n        .splitter {\n            width: 5px;\n            cursor: ew-resize;\n            background-color: var(--border-color);\n            flex-shrink: 0;\n        }\n        .horizontal-splitter {\n            height: 5px;\n            cursor: ns-resize;\n            background-color: var(--border-color);\n            flex-shrink: 0;\n        }\n        /* Outline Tree Styling */\n        .outline-output ul { list-style-type: none; padding-left: 0; margin: 0; }\n        .outline-output ul ul { padding-left: 15px; }\n        .outline-output li { margin: 2px 0; }\n        .outline-output .symbol-item { display: flex; align-items: center; cursor: pointer; padding: 2px; border-radius: 3px; }\n        .outline-output .symbol-item:hover { background-color: var(--highlight-color); }\n        .outline-output .symbol-kind { color: var(--info-color); margin-right: 5px; font-size: 0.8em; min-width: 60px; text-align: right; }\n        .outline-output .symbol-name { font-weight: normal; color: var(--text-primary); text-decoration: none; }\n        .outline-output .symbol-name:hover { text-decoration: underline; color: var(--accent-color); }\n        .agi-insights-output { white-space: pre-wrap; color: var(--text-primary); font-family: sans-serif; line-height: 1.5; }\n
+        /* Monaco Editor specific styles */\n        .monaco-editor .breakpoint-glyph {\n            background: var(--breakpoint-color);\n            border-radius: 50%;\n            width: 8px;\n            height: 8px;\n            position: absolute;\n            left: 50%;\n            top: 50%;\n            transform: translate(-50%, -50%);\n        }\n        .monaco-editor .debug-current-line {\n            background: var(--current-line);\n        }\n
+        .debug-panel-section {\n            margin-bottom: 10px;\n            border: 1px solid var(--border-color);\n            padding: 5px;\n            border-radius: 4px;\n            background-color: var(--highlight-color);\n        }\n        .debug-panel-section h4 {\n            margin-top: 0;\n            margin-bottom: 5px;\n            color: var(--accent-color);\n        }\n        .debug-panel-section ul {\n            list-style-type: none;\n            padding-left: 0;\n            margin: 0;\n        }\n        .debug-panel-section li {\n            font-family: monospace;\n            white-space: pre-wrap;\n            margin-bottom: 2px;\n            cursor: pointer;\n        }\n        .debug-panel-section li:hover {\n            background-color: rgba(var(--accent-color), 0.1);\n        }\n        .debug-panel-section li.active-frame {\n            background-color: var(--current-line);\n            font-weight: bold;\n        }\n
+        .watch-expression-item {\n            display: flex;\n            justify-content: space-between;\n            align-items: center;\n            margin-bottom: 2px;\n        }\n        .watch-expression-item button {\n            padding: 2px 5px;\n            margin: 0;\n            font-size: 0.8em;\n        }\n        .plugin-list-item {\n            display: flex;\n            justify-content: space-between;\n            align-items: center;\n            margin-bottom: 5px;\n            padding: 5px;\n            border: 1px solid var(--border-color);\n            border-radius: 4px;\n            background-color: var(--bg-secondary);\n        }\n        .plugin-list-item:hover {\n            background-color: var(--highlight-color);\n        }\n        .plugin-list-item div {\n            flex-grow: 1;\n        }\n        .plugin-list-item button {\n            margin-left: 10px;\n            flex-shrink: 0;\n            background-color: var(--info-color);\n            color: var(--text-primary);\n        }\n        .plugin-list-item button:hover {\n            background-color: var(--accent-color);\n        }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"sidebar\" id=\"sidebar\">\n            <button class=\"sidebar-toggle-button\" onclick=\"toggleSidebar()\">Toggle Sidebar</button>\n            <h2>Files</h2>\n            <div class=\"file-tree\" id=\"fileTree\">\n                <ul><li>Loading files...</li></ul>\n            </div>\n        </div>\n
+        <div class=\"splitter\" id=\"sidebar-splitter\"></div>\n
+        <div class=\"main-content\">\n            <div class=\"top-panel\">\n                <h1>Tariro IDE IDPTE - Alpha</h1>\n
+                <div class=\"lsp-controls\">\n                    <h2>LSP Controls</h2>\n                    <button onclick=\"startLspServerForActiveLanguage()\">Start LSP for Current Language</button>\n                    <label for=\"themeSelector\">Theme:</label>\n                    <select id=\"themeSelector\" class=\"theme-selector\" onchange=\"setTheme(this.value)\">\n                        <option value=\"nord-theme\">Nord (Default)</option>\n                        <option value=\"light-theme\">Light</option>\n                    </select>\n                </div>\n
+                <div class=\"file-controls\">\n                    <h2>File Operations</h2>\n                    <input type=\"text\" id=\"filePath\" placeholder=\"Enter file path (e.g., src/main.rs)\">\n                    <button onclick=\"loadFile()\">Load File</button>\n                    <button onclick=\"saveFile()\">Save File</button>\n                    <button onclick=\"refreshFiles()\">Refresh Files</button>\n                    <label class=\"inline-checkbox\"><input type=\"checkbox\" id=\"formatOnSaveCheck\">Format on Save</label> \n                </div>\n
+                <div class=\"agi-tools\" id=\"agiTools\">\n                    <h2>AGI Tools</h2>\n                    <button onclick=\"agiGenerateFunction()\">Generate Function</button>\n                    <button onclick=\"agiExtractFunction()\">Extract Function</button>\n                    <button onclick=\"agiReviewCode()\">Review/Explain Code</button>\n                    <button onclick=\"agiGenerateTests()\">Generate Tests</button> \n                    <button onclick=\"agiProjectWideRename()\">Project Rename</button> \n                    <button onclick=\"agiDebugAssist()\">Debug Assist</button> \n                    <button onclick=\"agiOptimizeCode()\">Optimize Code</button> \n                    <button onclick=\"agiGenerateDocumentation()\">Generate Docs</button> \n                    <button onclick=\"agiTranslateCode()\">Translate Code</button> \n                    <button onclick=\"agiGenerateUiComponent()\">Generate UI</button> \n                    <button onclick=\"agiGenerateDbSchema()\">Generate DB Schema</button> \n                    <button onclick=\"goToTypeDefinition()\">Go to Type Def</button>\n                    <button onclick=\"goToImplementation()\">Go to Impl</button>\n                    
+                    <div class=\"authorship-tools\">\n                        <h3>Authorship Module</h3>\n                        <input type=\"text\" id=\"creativeIdeaTopic\" placeholder=\"Topic (e.g., AI ethics)\" class=\"full-width-input\">\n                        <input type=\"text\" id=\"creativeIdeaGenre\" placeholder=\"Genre (e.g., sci-fi, news, blog)\" class=\"full-width-input\">\n                        <input type=\"text\" id=\"creativeIdeaAudience\" placeholder=\"Audience (e.g., developers, general public)\" class=\"full-width-input\">\n                        <button onclick=\"agiGenerateCreativeIdea()\">Generate Creative Idea</button>\n                        <input type=\"text\" id=\"restyleDesiredStyle\" placeholder=\"Desired Style (e.g., formal, casual, academic)\" class=\"full-width-input\">\n                        <button onclick=\"agiRestyleContent()\">Restyle Editor Content</button>\n                    </div>\n
+                    <div id=\"plugin-agi-buttons\">\n                        <!-- Plugin-contributed AGI buttons will be added here -->\n                    </div>\n                </div>\n
+                <div class=\"tab-bar\" id=\"tabBar\">\n                    <!-- Tabs will be dynamically added here -->\n                </div>\n
+                <div class=\"editor-header\">\n                    <h2>Code Editor</h2>\n                    <select id=\"languageSelect\">\n                        <!-- Options populated by JS or static -->\n                        <option value=\"rust\">Rust</option>\n                        <option value=\"python\">Python</option>\n                        <option value=\"js\">JavaScript</option>\n                        <option value=\"ts\">TypeScript</option>\n                        <option value=\"cpp\">C++</option>\n                        <option value=\"html\">HTML</option>\n                        <option value=\"css\">CSS</option>\n                        <option value=\"json\">JSON</option>\n                        <option value=\"txt\">Plain Text</option>\n                    </select>\n                </div>\n            </div>\n
+            <div class=\"editor-container\">\n                <!-- Monaco Editor will be initialized here -->\n                <div id=\"monacoEditor\" style=\"flex-grow: 1; width: 100%; height: 100%;\"></div>\n            </div>\n
+            <div class=\"horizontal-splitter\" id=\"bottom-panel-splitter\"></div>\n
+            <div class=\"bottom-panel-container\" id=\"bottomPanelContainer\">\n                <div class=\"bottom-panel-tabs\" id=\"bottomPanelTabs\">\n                    <button class=\"bottom-panel-tab-button active\" onclick=\"showBottomPanelTab(\'terminal\')\">Terminal</button>\n                    <button class=\"bottom-panel-tab-button\" onclick=\"showBottomPanelTab(\'highlighted-output\')\">Highlighted Output</button>\n                    <button class=\"bottom-panel-tab-button\" onclick=\"showBottomPanelTab(\'diagnostics\')\">Diagnostics</button>\n                    <button class=\"bottom-panel-tab-button\" onclick=\"showBottomPanelTab(\'references\')\">References</button>\n                    <button class=\"bottom-panel-tab-button\" onclick=\"showBottomPanelTab(\'search\')\">Search</button> \n                    <button class=\"bottom-panel-tab-button\" onclick=\"showBottomPanelTab(\'outline\')\">Outline</button> \n                    <button class=\"bottom-panel-tab-button\" onclick=\"showBottomPanelTab(\'agi-insights\')\">AGI Insights</button> \n                    <button class=\"bottom-panel-tab-button\" onclick=\"showBottomPanelTab(\'git-controls\')\">Git</button>\n                    <button class=\"bottom-panel-tab-button\" onclick=\"showBottomPanelTab(\'code-quality\')\">Code Quality</button>\n                    <button class=\"bottom-panel-tab-button\" onclick=\"showBottomPanelTab(\'build-run\')\">Build/Run</button>\n                    <button class=\"bottom-panel-tab-button\" onclick=\"showBottomPanelTab(\'project-management\')\">Project Mgmt</button>\n                    <button class=\"bottom-panel-tab-button\" onclick=\"showBottomPanelTab(\'debug\')\">Debug</button> \n                    <button class=\"bottom-panel-tab-button\" onclick=\"showBottomPanelTab(\'plugins\')\">Plugins</button> \n                </div>\n                <div class=\"bottom-panel-content\">\n                    <div id=\"terminal-panel\" class=\"active\">\n                        <div class=\"terminal-controls\">\n                            <input type=\"text\" id=\"commandInput\" placeholder=\"Enter command (e.g., ls -la)\" class=\"full-width-input\">\n                            <button onclick=\"runCommand()\">Run Command</button>\n                            <pre class=\"terminal-output\" id=\"terminalOutput\"></pre>\n                        </div>\n                    </div>\n                    <div id=\"highlighted-output-panel\" style=\"display:none;\">\n                        <h2>Highlighted Output</h2>\n                        <div id=\"highlightedOutputBottom\"><pre style=\"background-color:var(--bg-primary);\"><code></code></pre></div>\n                    </div>\n                    <div id=\"diagnostics-panel\" style=\"display:none;\">\n                        <h2>Diagnostics</h2>\n                        <pre class=\"diagnostics-output\" id=\"diagnosticsOutputBottom\"></pre>\n                    </div>\n                    <div id=\"references-panel\" style=\"display:none;\">\n                        <h2>References</h2>\n                        <pre class=\"references-output\" id=\"referencesOutputBottom\"></pre>\n                    </div>\n                    <div id=\"search-panel\" style=\"display:none;\"> \n                        <h2>Search Workspace</h2>\n                        <input type=\"text\" id=\"searchQueryInput\" placeholder=\"Enter search query\" class=\"full-width-input\">\n                        <button onclick=\"searchWorkspace()\">Search</button>\n                        <pre class=\"search-results-output\" id=\"searchResultsOutput\"></pre>\n                    </div>\n                    <div id=\"outline-panel\" style=\"display:none;\"> \n                        <h2>Document Outline</h2>\n                        <div class=\"outline-output\" id=\"outlineOutput\"><p>No symbols found.</p></div>\n                    </div>\n                    <div id=\"agi-insights-panel\" style=\"display:none;\"> \n                        <h2>AGI Insights</h2>\n                        <div class=\"agi-insights-output\" id=\"agiInsightsOutput\"><p>Welcome to AGI Insights! Your AI-powered results will appear here. Try generating a function or reviewing some code!</p></div>\n                    </div>\n                    <div id=\"git-controls-panel\" style=\"display:none;\">\n                        <h2>Git Controls</h2>\n                        <button onclick=\"refreshGitStatus()\">Refresh Git Status</button>\n                        <button onclick=\"stageAllChanges()\">Stage All Changes</button>\n                        <input type=\"text\" id=\"commitMessage\" placeholder=\"Enter commit message\" class=\"full-width-input\">\n                        <button onclick=\"commitChanges()\">Commit</button>\n                        <button onclick=\"agiGenerateCommitMessage()\">Generate Commit Message</button> \n                        <button onclick=\"gitPush()\">Push</button>\n                        <button onclick=\"gitPull()\">Pull</button>\n                        <pre class=\"git-status-output\" id=\"gitStatusOutputBottom\"></pre>\n                    </div>\n                    <div id=\"code-quality-panel\" style=\"display:none;\">\n                        <h2>Code Quality (Rust)</h2>\n                        <button onclick=\"formatCode()\">Format Code (rustfmt)</button>\n                        <button onclick=\"checkCode()\">Check Code (clippy)</button>\n                        <button onclick=\"generateDocComments()\">Generate Doc Comments</button>\n                        <button onclick=\"renameSymbol()\">Rename Symbol (F2)</button> \n                        <button onclick=\"getCodeActions()\">Code Actions (Ctrl+.)</button> \n                        <pre class=\"code-quality-output\" id=\"codeQualityOutputBottom\"></pre>\n                    </div>\n                    <div id=\"build-run-panel\" style=\"display:none;\">\n                        <h2>Build & Run (Rust)</h2>\n                        <button onclick=\"buildProject()\">Cargo Build</button>\n                        <button onclick=\"runProject()\">Cargo Run</button>\n                        <button onclick=\"testProject()\">Cargo Test</button>\n                        <input type=\"text\" id=\"customCargoCommand\" placeholder=\"cargo custom-command --flag\" class=\"full-width-input\">\n                        <button onclick=\"runCustomCargoCommand()\">Run Custom Cargo Command</button>\n                    </div>\n                    <div id=\"project-management-panel\" style=\"display:none;\">\n                        <h2>Project Management</h2>\n                        <input type=\"text\" id=\"newProjectName\" placeholder=\"New Rust Project Name\" class=\"full-width-input\">\n                        <button onclick=\"createNewProject()\">Create New Rust Project</button>\n                    </div>\n                    <div id=\"debug-panel\" style=\"display:none;\"> \n                        <h2>Debugger</h2>\n                        <div class=\"debug-controls\">\n                            <input type=\"text\" id=\"debugExecutablePath\" placeholder=\"Executable path (e.g., target/debug/my_app)\" class=\"full-width-input\">\n                            <button onclick=\"startDebugging()\">Start Debugging</button>\n                            <button onclick=\"stopDebugging()\">Stop Debugging</button>\n                            <button onclick=\"debugContinue()\">Continue</button>\n                            <button onclick=\"debugNext()\">Next</button>\n                            <button onclick=\"debugStep()\">Step Into</button>\n                            <button onclick=\"debugFinish()\">Step Out</button>\n                            <button onclick=\"clearAllBreakpoints()\">Clear All Breakpoints</button>\n                        </div>\n                        <div class=\"debug-panel-section\">\n                            <h4>Breakpoints</h4>\n                            <ul id=\"breakpointsList\"><li>No breakpoints set.</li></ul>\n                        </div>\n                        <div class=\"debug-panel-section\">\n                            <h4>Stack</h4>\n                            <ul id=\"stackList\"><li>No stack frames.</li></ul>\n                        </div>\n                        <div class=\"debug-panel-section\">\n                            <h4>Variables</h4>\n                            <ul id=\"variablesList\"><li>No variables.</li></ul>\n                        </div>\n                        <div class=\"debug-panel-section\">\n                            <h4>Watch Expressions</h4>\n                            <div class=\"watch-input-container\">\n                                <input type=\"text\" id=\"addWatchExpressionInput\" placeholder=\"Expression to watch\" class=\"full-width-input\">\n                                <button onclick=\"addWatchExpression()\">Add Watch</button>\n                                <button onclick=\"clearAllWatchExpressions()\">Clear All</button> \n                            </div>\n                            <ul id=\"watchExpressionsList\"><li>No watch expressions.</li></ul>\n                        </div>\n                        <div class=\"debug-panel-section\">\n                            <h4>Output</h4>\n                            <pre class=\"debug-output\" id=\"debugOutput\"></pre>\n                        </div>\n                    </div>\n                    <div id=\"plugins-panel\" style=\"display:none;\"> \n                        <h2>Plugins</h2>\n                        <div class=\"plugin-controls\">\n                            <input type=\"text\" id=\"pluginPathInput\" placeholder=\"Path to plugin config (e.g., plugins/my_plugin.json)\" class=\"full-width-input\">\n                            <button onclick=\"loadPlugin()\">Load Plugin</button>\n                            <button onclick=\"refreshPlugins()\">Refresh Plugins</button>\n                        </div>\n                        <h3>Loaded Plugins</h3>\n                        <ul id=\"pluginsList\"><li>No plugins loaded.</li></ul>\n                        <h3>Plugin Output</h3>\n                        <pre class=\"plugin-output\" id=\"pluginOutput\"><p>Welcome to the Plugin System. Load a plugin configuration file (JSON) to get started. Plugins can interact with the IDE via a defined API.</p></pre>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n
+    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs/loader.min.js\"></script>\n    <script>\n        // Monaco Editor specific variables\n        let editor;\n        let monacoInitialized = false;\n        let currentMonacoLanguage = \'plaintext\';\n        let currentMonacoTheme = \'vs-dark\';\n        let monacoUriMap = {}; // Maps file paths to Monaco URIs for LSP\n        let currentActiveFilePath = null; // Store currently active file path for editor interactions
+
+        // Define require for Monaco\n        require.config({ paths: { \'vs\': \'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs\' } });\n        window.MonacoEnvironment = { getWorkerUrl: () => proxy };\n
+        let proxy = URL.createObjectURL(new Blob([`\n\tself.MonacoEnvironment = {\n\t\tbaseUrl: \'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs\'\n\t};\n\timportScripts(\'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs/base/worker/workerMain.js\');\n`], { type: 'text/javascript' }));\n
+
+        let currentCwd = \\".\\"; \n        let openFiles = {}; \n        let activeFilePath = null; \n        const codeEditorElement = document.getElementById(\'monacoEditor\'); // Changed to monacoEditor div\n        const completionSuggestionsDiv = document.getElementById(\'completionSuggestions\');\n        const diagnosticsOutputBottom = document.getElementById(\'diagnosticsOutputBottom\'); \n        const lspHoverTooltip = document.getElementById(\'lspHoverTooltip\');\n        const referencesOutputBottom = document.getElementById(\'referencesOutputBottom\'); \n        const searchResultsOutput = document.getElementById(\'searchResultsOutput\'); \n        const outlineOutput = document.getElementById(\'outlineOutput\'); \n        const agiInsightsOutput = document.getElementById(\'agiInsightsOutput\'); \n        const codeActionsPopup = document.getElementById(\'codeActionsPopup\');\n        const signatureHelpPopup = document.getElementById(\'signatureHelpPopup\');\n        const formatOnSaveCheck = document.getElementById(\'formatOnSaveCheck\');\n        // const diagnosticsOverlay = document.getElementById(\'diagnosticsOverlay\'); // Monaco handles these\n        // const semanticTokensOverlay = document.getElementById(\'semanticTokensOverlay\'); // Monaco handles these\n        // const debuggerOverlay = document.getElementById(\'debuggerOverlay\'); // Monaco handles these\n        const sidebar = document.getElementById(\'sidebar\');\n        const sidebarSplitter = document.getElementById(\'sidebar-splitter\');\n        const bottomPanelSplitter = document.getElementById(\'bottom-panel-splitter\');\n        const bottomPanelContainer = document.getElementById(\'bottomPanelContainer\');\n        const highlightedOutputBottom = document.getElementById(\'highlightedOutputBottom\');
+        const gitStatusOutputBottom = document.getElementById(\'gitStatusOutputBottom\');
+        const codeQualityOutputBottom = document.getElementById(\'codeQualityOutputBottom\');
+        const terminalOutput = document.getElementById(\'terminalOutput\'); \n        const debugOutput = document.getElementById(\'debugOutput\'); \n        const breakpointsList = document.getElementById(\'breakpointsList\'); \n        const stackList = document.getElementById(\'stackList\'); \n        const variablesList = document.getElementById(\'variablesList\'); \n        const watchExpressionsList = document.getElementById(\'watchExpressionsList\');\n        const addWatchExpressionInput = document.getElementById(\'addWatchExpressionInput\');\n        const pluginOutput = document.getElementById(\'pluginOutput\');\n        const pluginsList = document.getElementById(\'pluginsList\');\n        const pluginPathInput = document.getElementById(\'pluginPathInput\');\n        const pluginAgiButtonsContainer = document.getElementById(\'plugin-agi-buttons\');\n        const creativeIdeaTopicInput = document.getElementById(\'creativeIdeaTopic\');\n        const creativeIdeaGenreInput = document.getElementById(\'creativeIdeaGenre\');\n        const creativeIdeaAudienceInput = document.getElementById(\'creativeIdeaAudience\');\n        const restyleDesiredStyleInput = document.getElementById(\'restyleDesiredStyle\');\n        // Removed lineNumberGutter as Monaco handles line numbers\n
+        const languageMap = {\n            \'rs\': \'rust\',\n            \'py\': \'python\',\n            \'js\': \'javascript\', \n            \'ts\': \'typescript\',\n            \'cpp\': \'cpp\', \n            \'html\': \'html\',\n            \'css\': \'css\',\n            \'json\': \'json\',\n            \'txt\': \'plaintext\',\n        };\n        const activeLspServers = {}; \n        const openFilesByLanguage = {}; \n        let activeDebugSessionId = null; \n        let currentBreakpoints = {}; // { "file:line": {id: <bp_id>, file: "file", line: <line_num>, condition: "cond", gdb_id: <gdb_id>} }\n        let currentDebugLine = -1; // 1-based line number for Monaco\n        let debugEventPollInterval = null; \n        let debugDecorations = []; // For Monaco debugger specific decorations (current line, breakpoints)\n        let activeWatchExpressions = {}; // { id: {id: <watch_id>, expression: "expr"} }\n        let loadedPlugins = {}; // { id: {id: "id", name: "name", description: "desc"} }\n        let frontendCommandPollInterval = null; // For polling backend for commands to execute
+
+        function initializeMonaco() {
+            if (monacoInitialized) return;
+            require(['vs/editor/editor.main'], function() {
+                monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+                    allowNonTsExtensions: true,
+                    jsx: monaco.languages.typescript.JsxEmit.Preserve,
+                    target: monaco.languages.typescript.ScriptTarget.ES2016,
+                });
+
+                monaco.languages.register({
+                    id: 'rust',
+                    extensions: ['.rs'],
+                    aliases: ['Rust', 'rust'],
+                });
+                monaco.languages.register({
+                    id: 'python',
+                    extensions: ['.py'],
+                    aliases: ['Python', 'python'],
+                });
+                monaco.languages.register({
+                    id: 'cpp',
+                    extensions: ['.cpp', '.cc', '.cxx', '.c'],
+                    aliases: ['C++', 'cpp'],
+                });
+
+                // Register a custom theme for Monaco if needed, or use built-in
+                monaco.editor.defineTheme('nord-theme-dark', {
+                    base: 'vs-dark',
+                    inherit: true,
+                    rules: [
+                        // Adjust these to match Nord theme colors closely
+                        { token: 'keyword', foreground: '81A1C1' },
+                        { token: 'type', foreground: '81A1C1' },
+                        { token: 'identifier', foreground: 'D8DEE9' },
+                        { token: 'string', foreground: 'A3BE8C' },
+                        { token: 'number', foreground: 'B48EAD' },
+                        { token: 'comment', foreground: '4C566A' },
+                        { token: 'function', foreground: '88C0D0' },
+                    ],
+                    colors: {
+                        'editor.background': '#2E3440',
+                        'editor.foreground': '#D8DEE9',
+                        'editorLineNumber.foreground': '#4C566A',
+                        'editor.selectionBackground': '#434C5E',
+                        'editor.inactiveSelectionBackground': '#3B4252',
+                        'editor.wordHighlightBackground': '#434C5E',
+                        'editorCursor.foreground': '#D8DEE9',
+                        'editor.lineHighlightBackground': '#3B4252',
+                    }
+                });
+                monaco.editor.defineTheme('nord-theme-light', {
+                    base: 'vs',
+                    inherit: true,
+                    rules: [
+                        { token: 'keyword', foreground: '5E81AC' },
+                        { token: 'type', foreground: '5E81AC' },
+                        { token: 'identifier', foreground: '3B4252' },
+                        { token: 'string', foreground: '3B4252' },
+                        { token: 'number', foreground: 'B48EAD' },
+                        { token: 'comment', foreground: 'ECEFF4' },
+                        { token: 'function', foreground: '88C0D0' },
+                    ],
+                    colors: {
+                        'editor.background': '#ECEFF4',
+                        'editor.foreground': '#3B4252',
+                        'editorLineNumber.foreground': '#81A1C1',
+                        'editor.selectionBackground': '#D8DEE9',
+                        'editor.inactiveSelectionBackground': '#E5E9F0',
+                        'editor.wordHighlightBackground': '#D8DEE9',
+                        'editorCursor.foreground': '#3B4252',
+                        'editor.lineHighlightBackground': '#E5E9F0',
+                    }
+                });
+
+
+                editor = monaco.editor.create(codeEditorElement, {
+                    value: `fn main() {\n    println!(\"Hello, Tariro IDE!\");\n}`,\n                    language: 'rust',\n                    theme: currentMonacoTheme === 'nord-theme' ? 'nord-theme-dark' : 'nord-theme-light', 
+                    automaticLayout: true,
+                    lineNumbersMinChars: 3,
+                    readOnly: false,
+                    mouseWheelZoom: true,
+                    minimap: { enabled: false },
+                    scrollBeyondLastLine: false,
+                    glyphMargin: true, // Enable glyph margin for breakpoints
+                });
+                monacoInitialized = true;
+
+                editor.onDidChangeModelContent(() => {
+                    if (activeFilePath) {
+                        // Debounce save if needed
+                        // saveFile(); // Uncomment if auto-save on change is desired
+                    }
+                });
+                
+                editor.onMouseDown((e) => {
+                    if (e.target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN) {
+                        const lineNumber = e.target.position.lineNumber;
+                        if (activeFilePath) {
+                            toggleBreakpoint(lineNumber);
+                        }
+                    }
+                });
+                console.log("Monaco Editor initialized.");
+            });
+        }
+
+
+        async function fetchJson(url, method = \'POST\', body = {}) {\n            const options = {\n                method: method,\n                headers: {\n                    \'Content-Type\': \'application/json\',\n                },\n            };
+            if (method === \'POST\') {\n                options.body = JSON.stringify(body);\n            }
+            const response = await fetch(url, options);
+            if (!response.ok) {\n                const errorText = await response.text();\n                throw new Error(errorText || response.statusText);
+            }
+            try {
+                return await response.json();
+            } catch (e) {
+                return await response.text();
+            }
+        }
+
+        function getFileUri(filePath) {
+            let normalizedPath = filePath.replace(/\\\\/g, '/');
+            if (!normalizedPath.startsWith('/')) {
+                normalizedPath = `/${normalizedPath}`;
+            }
+            return `file://${normalizedPath}`;
+        }
+
+        // Convert 1-based Monaco position to 0-based LSP position
+        function getLspPosition(monacoPosition) {
+            return { line: monacoPosition.lineNumber - 1, character: monacoPosition.column - 1 };
+        }
+
+        // Convert 0-based LSP position to 1-based Monaco position
+        function getMonacoPosition(lspPosition) {
+            return { lineNumber: lspPosition.line + 1, column: lspPosition.character + 1 };
+        }
+
+        async function highlightCode() {
+            // With Monaco, syntax highlighting is mostly handled automatically based on language set.
+            // We still need to call renderBreakpoints and renderCurrentDebugLine to update custom decorations.
+            renderBreakpoints(); 
+            renderCurrentDebugLine(); 
+        }
+
+        function updateEditorFromActiveFile() {
+            const languageSelect = document.getElementById(\'languageSelect\');\n            const filePathInput = document.getElementById(\'filePath\');\n
+            if (activeFilePath && openFiles[activeFilePath]) {
+                const fileData = openFiles[activeFilePath];\n                
+                if (editor) {
+                    editor.setValue(fileData.content);
+                    monaco.editor.setModelLanguage(editor.getModel(), fileData.language);
+                    editor.setScrollTop(fileData.scrollPos);
+                }
+                filePathInput.value = activeFilePath;
+
+                const ext = activeFilePath.split(\'.\').pop();\n                const languageId = languageMap[ext] || \'plaintext\';
+                if ([...languageSelect.options].some(option => option.value === languageId)) {
+                    languageSelect.value = languageId;
+                } else {
+                    languageSelect.value = \'txt\'; 
+                }
+            } else {
+                if (editor) {
+                    editor.setValue('');
+                    monaco.editor.setModelLanguage(editor.getModel(), 'plaintext');
+                }
+                filePathInput.value = \'\';\n                languageSelect.value = \'txt\';\n            }\n            highlightCode();\n        }\n
+        function renderTabs() {
+            const tabBar = document.getElementById(\'tabBar\');\n            tabBar.innerHTML = \'\';\n
+            Object.keys(openFiles).forEach(filePath => {
+                const button = document.createElement(\'button\');\n                const fileName = filePath.split(\'/\').pop();\n                button.textContent = fileName;\n                button.onclick = () => switchToFile(filePath);
+                if (filePath === activeFilePath) {
+                    button.classList.add(\'active\');\n                }
+                const closeBtn = document.createElement(\'span\');\n                closeBtn.textContent = \'x\';\n                closeBtn.classList.add(\'close-tab\');\n                closeBtn.onclick = (e) => {
+                    e.stopPropagation(); \n                    closeFile(filePath);
+                };
+                button.appendChild(closeBtn);\n                tabBar.appendChild(button);
+            });\n        }\n
+        function switchToFile(filePath) {
+            if (activeFilePath && openFiles[filePath]) {
+                openFiles[activeFilePath].content = editor.getValue();
+                openFiles[activeFilePath].scrollPos = editor.getScrollTop();
+            }
+
+            activeFilePath = filePath;
+            updateEditorFromActiveFile();\n            renderTabs();\n            getDocumentSymbols(); 
+        }\n
+        async function closeFile(filePath) {
+            if (!openFiles[filePath]) return;
+
+            const ext = filePath.split(\'.\').pop();\n            const languageId = languageMap[ext] || \'plaintext\';
+
+            if (activeLspServers[languageId]) {
+                await sendLspNotification(
+                    languageId,
+                    \"textDocument/didClose\",\n                    {
+                        textDocument: {
+                            uri: getFileUri(filePath),
+                        },
+                    }
+                );
+            }
+            
+            delete openFiles[filePath];
+
+            if (openFilesByLanguage[languageId]) {
+                openFilesByLanguage[languageId]--;
+                if (openFilesByLanguage[languageId] <= 0) {
+                    await stopLspServer(languageId);
+                }
+            }
+
+            if (activeFilePath === filePath) {\n                const remainingFiles = Object.keys(openFiles);\n                if (remainingFiles.length > 0) {
+                    switchToFile(remainingFiles[0]); \n                } else {\n                    activeFilePath = null;\n                    updateEditorFromActiveFile(); \n                }\n            }\n            renderTabs();\n            clearDiagnostics(); // Clear diagnostics for closed file
+        }\n
+        async function loadFile(filePath = null, targetLine = 0) {
+            filePath = filePath || document.getElementById(\'filePath\').value;\n            if (!filePath) {\n                alert(\"Please enter a file path.\");\n                return;\n            }
+
+            if (openFiles[filePath]) {
+                switchToFile(filePath); \n                if (targetLine > 0) {
+                    editor.revealLineInCenter(targetLine); 
+                }
+                return;
+            }
+
+            try {\n                const content = await fetchJson(\'/api/load_file\', \'POST\', { path: filePath });\n                const ext = filePath.split(\'.\').pop();\n                const languageId = languageMap[ext] || \'plaintext\';
+
+                openFiles[filePath] = {\n                    content: content,\n                    language: languageId,\n                    scrollPos: 0,\n                    version: 1, \n                };
+                switchToFile(filePath);\n                alert(\`File \${filePath} loaded.\`);\n                refreshFiles(); \n
+                if (languageId !== \'plaintext\') {
+                    await startLspServer(languageId, currentCwd);
+                }
+
+                openFilesByLanguage[languageId] = (openFilesByLanguage[languageId] || 0) + 1;
+
+                await sendLspNotification(\n                    languageId,\n                    \"textDocument/didOpen\",\n                    {\n                        textDocument: {\n                            uri: getFileUri(filePath),\n                            languageId: languageId,\n                            version: openFiles[filePath].version,\n                            text: content,
+                        },\n                    }\n                );
+                if (targetLine > 0) {
+                    editor.revealLineInCenter(targetLine); 
+                }
+                getDocumentSymbols(); 
+
+            } catch (e) {
+                alert(\`Error loading file \${filePath}: \${e.message}\`);\n            }\n        }\n
+        async function saveFile() {
+            const filePath = document.getElementById(\'filePath\').value;\n            let code = editor.getValue();
+            if (!filePath) {
+                alert(\"Please enter a file path.\");\n                return;\n            }
+            try {
+                const languageId = document.getElementById(\'languageSelect\').value;
+                if (formatOnSaveCheck.checked && languageId !== \'plaintext\') {
+                    const formatResponse = await fetchJson(\'/api/lsp/format_document\', \'POST\', {
+                        language: languageId,
+                        uri: getFileUri(filePath),
+                    });
+
+                    if (formatResponse && formatResponse.success) {
+                        console.log(\"LSP Formatting applied on save.\");
+                        const newContent = await fetchJson(\'/api/load_file\', \'POST\', { path: filePath });
+                        code = newContent; 
+                    } else if (formatResponse && formatResponse.message) {
+                        codeQualityOutput.textContent += `\nLSP Formatting: ${formatResponse.message}\n`;
+                    } else {
+                        console.error(\"Error during LSP formatting on save.\");
+                    }
+                }
+
+                await fetchJson(\'/api/save_file\', \'POST\', { path: filePath, content: code });\n                if (openFiles[filePath]) {\n                    openFiles[filePath].content = code; \n                }\n                alert(\`File \${filePath} saved successfully.\`);\n                refreshGitStatus(); \n                if (editor.getValue() !== code) { // Update editor if content changed (e.g., by formatter)
+                    editor.setValue(code);
+                    highlightCode();
+                }
+            } catch (e) {
+                alert(\`Error saving file \${filePath}: \${e.message}\`);\n            }\n        }\n
+        async function refreshFiles() {
+            try {
+                const files = await fetchJson(\'/api/list_files\', \'POST\', { path: currentCwd }); \n                const fileTreeDiv = document.getElementById(\'fileTree\');\n                fileTreeDiv.innerHTML = \'\'; \n                const ul = document.createElement(\'ul\');\n                files.forEach(file => {
+                    const li = document.createElement(\'li\');\n                    const a = document.createElement(\'a\');\n                    a.href = \'#\';\n                    a.textContent = file;\n                    a.onclick = (e) => { e.preventDefault(); loadFile(file); };\n                    li.appendChild(a);\n                    ul.appendChild(li);\n                });\n                fileTreeDiv.appendChild(ul);\n            } catch (e) {
+                alert(\`Error listing files: \${e.message}\`);\n            }\n        }\n
+        async function runCommandInTerminal(command, outputElementId) {\n            const outputElement = document.getElementById(outputElementId);
+            outputElement.textContent += `\\n> \${command}\\n`;\n            outputElement.scrollTop = outputElement.scrollHeight;\n
+            try {\n                const response = await fetchJson(\'/api/run_command\', \'POST\', { command: command, cwd: currentCwd });\n                if (response.stdout) {\n                    outputElement.textContent += response.stdout;\n                }\n                if (response.stderr) {\n                    outputElement.textContent += response.stderr;\n                }
+                return {stdout: response.stdout, stderr: response.stderr}; // Return output
+            } catch (e) {
+                outputElement.textContent += `Error executing command: \${e.message}\\n`;
+                return {stdout: "", stderr: e.message}; // Return error
+            }
+            outputElement.scrollTop = outputElement.scrollHeight;
+        }
+
+        async function runCommand() {\n            const commandInput = document.getElementById(\'commandInput\');\n            const command = commandInput.value;\n            if (!command) {\n                alert(\"No command entered.\");\n                return;\n            }
+            await runCommandInTerminal(command, \'terminalOutput\');\n            commandInput.value = \'\'; \n            refreshGitStatus(); \n        }\n
+        async function refreshGitStatus() {
+            const gitStatusOutput = document.getElementById(\'gitStatusOutputBottom\');
+            gitStatusOutput.textContent = \"Fetching git status...\";
+            const {stdout, stderr} = await runCommandInTerminal(\"git status\", \'gitStatusOutputBottom\');
+            return stdout; // Return raw output for commit message generation
+        }
+
+        async function stageAllChanges() {
+            if (!confirm(\"Are you sure you want to stage all changes (git add .)?\")) return;
+            await runCommandInTerminal(\"git add .\", \'gitStatusOutputBottom\');\n            alert(\"All changes staged.\");\n            refreshGitStatus();\n        }\n
+        async function commitChanges() {
+            const commitMessageInput = document.getElementById(\'commitMessage\');\n            const commitMessage = commitMessageInput.value;\n            if (!commitMessage) {
+                alert(\"Please enter a commit message.\");\n                return;
+            }
+            await runCommandInTerminal(`git commit -m \"\${commitMessage}\"`, \'gitStatusOutputBottom\');\n            alert(\"Changes committed.\");\n            commitMessageInput.value = \'\';\n            refreshGitStatus();\n        }\n
+        async function gitPush() {
+            if (!confirm(\"Are you sure you want to git push?\")) return;
+            await runCommandInTerminal(\"git push\", \'gitStatusOutputBottom\');\n            alert(\"Push complete.\");\n            refreshGitStatus();\n        }\n
+        async function gitPull() {
+            if (!confirm(\"Are you sure you want to git pull?\")) return;
+            await runCommandInTerminal(\"git pull\", \'gitStatusOutputBottom\');\n            alert(\"Pull complete.\");\n            refreshGitStatus();\n        }\n
+        async function formatCode() {
+            const codeQualityOutput = document.getElementById(\'codeQualityOutputBottom\');
+            codeQualityOutput.textContent = \"Running LSP formatting...\";\n            const filePath = activeFilePath;
+            const languageId = document.getElementById(\'languageSelect\').value;
+
+            if (filePath && languageId !== \'plaintext\') {
+                try {
+                    const formatResponse = await fetchJson(\'/api/lsp/format_document\', \'POST\', {
+                        language: languageId,
+                        uri: getFileUri(filePath),
+                    });
+
+                    if (formatResponse && formatResponse.success) {
+                        console.log(\"LSP Formatting applied on save.\");
+                        const newContent = await fetchJson(\'/api/load_file\', \'POST\', { path: filePath });
+                        if (openFiles[filePath]) {
+                            openFiles[filePath].content = newContent;
+                            editor.setValue(newContent); // Update Monaco
+                            highlightCode();
+                        }
+                    } else if (formatResponse && formatResponse.message) {
+                        codeQualityOutput.textContent += `\nLSP Formatting: ${formatResponse.message}\n`;
+                    } else {
+                        console.error(\"Error during LSP formatting on save.\");
+                    }
+                }
+
+                if (editor.getValue() !== code) { // Check if editor content changed after formatting
+                    editor.setValue(code);
+                    highlightCode();
+                }
+
+            } else {
+                codeQualityOutput.textContent += \"\nLSP Formatting only supported for LSP-aware languages.\
+\";
+            }
+        }\n\n        async function checkCode() {
+            const codeQualityOutput = document.getElementById(\'codeQualityOutputBottom\');
+            codeQualityOutput.textContent = \"Running clippy...\";\n            await runCommandInTerminal(\"cargo clippy\", \'codeQualityOutputBottom\');\n        }\n
+        async function generateDocComments() {
+            const filePath = activeFilePath;
+            if (!filePath) {
+                alert(\"No active file to generate documentation for.\");
+                return;
+            }
+            const languageId = document.getElementById(\'languageSelect\').value;
+            const selectedText = editor.getSelection() ? editor.getModel().getValueInRange(editor.getSelection()) : editor.getValue();
+            
+            const docStyle = prompt(\"Enter documentation style (e.g., Rustdoc, JSDoc, Python Docstrings):\", languageId === 'rust' ? \"Rustdoc\" : (languageId === 'typescript' || languageId === 'js' ? \"JSDoc\" : \"generic\"));
+            if (!docStyle) return;
+            const userInstructions = prompt(\"Any specific instructions for documentation? (e.g., explain complex logic):\", \"Explain all public functions.\");
+            if (userInstructions === null) return;
+
+            agiInsightsOutput.innerHTML = \"<p>AGI is generating documentation... Please wait.</p>\";
+            showBottomPanelTab(\'agi-insights\');
+
+            try {
+                const response = await fetchJson(\'/api/agi/generate_documentation\', \'POST\', {
+                    language: languageId,
+                    code_to_document: selectedText,
+                    doc_style: docStyle,
+                    user_instructions: userInstructions,
+                });\n
+                if (response) {
+                    agiInsightsOutput.innerHTML = `<h3>Generated Documentation (${docStyle})</h3><pre>\${escapeHtml(response)}</pre>`;
+                    alert(\"AGI Documentation Generated! Check the \'AGI Insights\' tab.\");
+                    if (confirm(\"Do you want to insert the generated documentation into the editor?\n(This will replace selected text or prepend to file if no selection)\")) {
+                        const selection = editor.getSelection();
+                        const range = new monaco.Range(selection.startLineNumber, selection.startColumn, selection.endLineNumber, selection.endColumn);
+                        editor.executeEdits(\"agi-doc-insert\", [{
+                            range: range,
+                            text: response,
+                            forceMoveMarkers: true
+                        }]);
+                        highlightCode();
+                        saveFile();
+                    }
+                } else {
+                    agiInsightsOutput.innerHTML = \"<p>Failed to generate documentation.</p>\";
+                }
+            } catch (e) {
+                console.error(\"Error during AGI documentation generation:\", e);
+                agiInsightsOutput.innerHTML = `<p>Error: \${e.message}</p>`;
+            }
+        }\n
+        async function agiTranslateCode() {
+            if (!activeFilePath) {
+                alert(\"No active file to translate.\");
+                return;
+            }
+            const sourceLanguage = document.getElementById(\'languageSelect\').value;
+            const codeToTranslate = editor.getSelection() ? editor.getModel().getValueInRange(editor.getSelection()) : editor.getValue();
+            const targetLanguage = prompt(\"Enter target language (e.g., rust, python, typescript):\", \"python\");
+            if (!targetLanguage) return;
+            const userInstructions = prompt(\"Any specific instructions for translation? (e.g., maintain library usage):\", \"maintain same functionality\");
+            if (userInstructions === null) return;
+
+            agiInsightsOutput.innerHTML = \"<p>AGI is translating your code... Please wait.</p>\";
+            showBottomPanelTab(\'agi-insights\');
+
+            try {
+                const response = await fetchJson(\'/api/agi/translate_code\', \'POST\', {
+                    source_language: sourceLanguage,
+                    target_language: targetLanguage,
+                    code_to_translate: codeToTranslate,
+                    user_instructions: userInstructions,
+                });\n
+                if (response) {
+                    agiInsightsOutput.innerHTML = `<h3>Translated Code (${targetLanguage})</h3><pre>\${escapeHtml(response)}</pre>`;
+                    alert(\"AGI Code Translation Complete! Check the \'AGI Insights\' tab.\");
+                    if (confirm(`Do you want to save the translated code to a new file? (e.g., translated_file.${targetLanguage})`)) {
+                        const defaultExtension = targetLanguage.toLowerCase().includes('js') ? 'js' : (targetLanguage.toLowerCase().includes('ts') ? 'ts' : (targetLanguage.toLowerCase().includes('python') ? 'py' : 'txt'));
+                        const newFileName = prompt(\"Enter new filename:\", `translated_file.${defaultExtension}`);
+                        if (newFileName) {
+                            await fetchJson('/api/save_file', 'POST', { path: newFileName, content: response });
+                            alert(`File ${newFileName} created.`);
+                            refreshFiles();
+                        }
+                    }
+                } else {
+                    agiInsightsOutput.innerHTML = \"<p>Failed to translate code.\");
+                }
+            } catch (e) {
+                console.error(\"Error during AGI code translation:\", e);
+                agiInsightsOutput.innerHTML = `<p>Error: \${e.message}</p>`;
+            }
+        }\n
+        async function agiGenerateUiComponent() {
+            const languageSelect = document.getElementById(\'languageSelect\');\n            const currentLanguage = languageSelect.value;
+
+            const uiLanguage = prompt(\"Enter target UI language/framework (e.g., React, Vue, HTML/CSS):\", currentLanguage === 'js' || currentLanguage === 'ts' ? \"React\" : \"HTML/CSS\");
+            if (!uiLanguage) return;
+            const componentDescription = prompt(\"Describe the UI component you want (e.g., a login form with username and password fields):\");
+            if (!componentDescription) return;
+            const userInstructions = prompt(\"Any specific instructions for styling or interactivity? (e.g., use Tailwind CSS, add validation):\", \"use modern best practices\");
+            if (userInstructions === null) return;
+
+            agiInsightsOutput.innerHTML = \"<p>AGI is generating UI component... Please wait.</p>\";
+            showBottomPanelTab(\'agi-insights\');
+
+            try {
+                const response = await fetchJson(\'/api/agi/generate_ui_component\', \'POST\', {
+                    language: uiLanguage,
+                    component_description: componentDescription,
+                    user_instructions: userInstructions,
+                });\n
+                if (response) {
+                    agiInsightsOutput.innerHTML = `<h3>Generated UI Component (${uiLanguage})</h3><pre>\${escapeHtml(response)}</pre>`;
+                    alert(\"AGI UI Component Generated! Check the \'AGI Insights\' tab.\");
+                    if (confirm(`Do you want to save the generated UI component to a new file? (e.g., MyComponent.${uiLanguage.toLowerCase().includes(\'react\') ? \'jsx\' : \'html\'})`)) {
+                        const defaultExtension = uiLanguage.toLowerCase().includes('react') ? 'jsx' : (uiLanguage.toLowerCase().includes('vue') ? 'vue' : 'html');
+                        const newFileName = prompt(\"Enter new filename:\", `MyComponent.${defaultExtension}`);
+                        if (newFileName) {
+                            await fetchJson('/api/save_file', 'POST', { path: newFileName, content: response });
+                            alert(`File ${newFileName} created.`);
+                            refreshFiles();
+                        }
+                    }
+                } else {
+                    agiInsightsOutput.innerHTML = \"<p>Failed to generate UI component.\");
+                }
+            } catch (e) {
+                console.error(\"Error during AGI UI component generation:\", e);
+                agiInsightsOutput.innerHTML = `<p>Error: \${e.message}</p>`;
+            }
+        }\n
+        async function agiGenerateDbSchema() {
+            const databaseType = prompt(\"Enter database type (e.g., PostgreSQL, MongoDB, SQLAlchemy, Prisma):\", \"PostgreSQL\");
+            if (!databaseType) return;
+            const dataRequirements = prompt(\"Describe your data requirements (e.g., users with profiles, posts, comments):\");
+            if (!dataRequirements) return;
+            const userInstructions = prompt(\"Any specific instructions for schema (e.g., add indexes, use UUIDs):\", \"use best practices\");
+            if (userInstructions === null) return;
+
+            agiInsightsOutput.innerHTML = \"<p>AGI is generating database schema... Please wait.</p>\";
+            showBottomPanelTab(\'agi-insights\');
+
+            try {
+                const response = await fetchJson(\'/api/agi/generate_db_schema\', \'POST\', {
+                    database_type: databaseType,
+                    data_requirements: dataRequirements,
+                    user_instructions: userInstructions,
+                });\n
+                if (response) {
+                    agiInsightsOutput.innerHTML = `<h3>Generated DB Schema (${databaseType})</h3><pre>\${escapeHtml(response)}</pre>`;
+                    alert(\"AGI DB Schema Generated! Check the \'AGI Insights\' tab.\");
+                    if (confirm(`Do you want to save the generated schema to a new file? (e.g., schema.sql)`)) {
+                        // Corrected default extension for Prisma/SQL
+                        const defaultExtension = databaseType.toLowerCase().includes('prisma') ? 'prisma' : (databaseType.toLowerCase().includes('sql') || databaseType.toLowerCase().includes('postgre') ? 'sql' : 'txt');
+                        const newFileName = prompt(\"Enter new filename:\", `schema.${defaultExtension}`);
+                        if (newFileName) {
+                            await fetchJson('/api/save_file', 'POST', { path: newFileName, content: response });
+                            alert(`File ${newFileName} created.`);
+                            refreshFiles();
+                        }
+                    }
+                } else {
+                    agiInsightsOutput.innerHTML = \"<p>Failed to generate database schema.\");
+                }
+            } catch (e) {
+                console.error(\"Error during AGI database schema generation:\", e);
+                agiInsightsOutput.innerHTML = `<p>Error: \${e.message}</p>`;
+            }
+        }\n
+        async function agiGenerateCommitMessage() {
+            agiInsightsOutput.innerHTML = \"<p>Fetching staged changes for commit message generation... Please wait.</p>\";
+            showBottomPanelTab(\'agi-insights\');
+
+            const { stdout: stagedChangesSummary, stderr } = await runCommandInTerminal(\"git diff --staged\", \'agiInsightsOutput\');
+
+            if (stagedChangesSummary.trim() === \"\") {
+                agiInsightsOutput.innerHTML += \"<p>No staged changes detected. Please stage changes before generating a commit message.</p>\";
+                alert(\"No staged changes detected.\");
+                return;
+            }
+            if (stderr) {
+                agiInsightsOutput.innerHTML += `<p>Error getting staged changes: \${stderr}</p>`;
+                alert(`Error getting staged changes: \${stderr}`);\n                return;\n            }
+            
+            const languageId = document.getElementById(\'languageSelect\').value;
+            const userInstructions = prompt(\"Any specific instructions for the commit message? (e.g., use conventional commits, be concise):\", \"Be concise and descriptive.\");
+            if (userInstructions === null) return;
+
+            agiInsightsOutput.innerHTML += \"<p>Sending staged changes to AGI for commit message generation...</p>\";
+
+            try {
+                const response = await fetchJson(\'/api/agi/generate_commit_message\', \'POST\', {
+                    language: languageId,
+                    staged_changes_summary: stagedChangesSummary,
+                    user_instructions: userInstructions,
+                });\n
+                if (response) {
+                    document.getElementById(\'commitMessage\').value = response;
+                    agiInsightsOutput.innerHTML = `<h3>Generated Commit Message</h3><pre>\${escapeHtml(response)}</pre>`;
+                    alert(\"AGI Generated Commit Message! Review it in the Git panel.\");
+                } else {
+                    agiInsightsOutput.innerHTML = \"<p>Failed to generate commit message.\");
+                }
+            } catch (e) {
+                console.error(\"Error during AGI commit message generation:\", e);
+                agiInsightsOutput.innerHTML = `<p>Error: \${e.message}</p>`;
+            }
+        }\n
+        async function agiProjectWideRename() {
+            if (!activeFilePath) {
+                alert(\"No active file.\");\n                return;
+            }
+            const oldName = prompt(\"Enter the old name of the symbol to rename:\");
+            if (!oldName) return;
+            const newName = prompt(\"Enter the new name:\");
+            if (!newName) return;
+
+            const languageId = document.getElementById(\'languageSelect\').value;
+            
+            agiInsightsOutput.innerHTML = \"<p>AGI is preparing project summary for rename... Please wait.</p>\";
+            showBottomPanelTab(\'agi-insights\');
+
+            let fullProjectContext = \"No project context available.\";
+            try {
+                const summary = await fetchJson(\'/api/get_project_summary\', \'POST\', {
+                    base_path: currentCwd 
+                });
+                fullProjectContext = summary; 
+                agiInsightsOutput.innerHTML += \"<p>Project summary fetched. Sending to AGI for rename...</p>\";
+            } catch (e) {
+                console.error(\"Error fetching project summary:\", e);
+                agiInsightsOutput.innerHTML += `<p>Error fetching project summary: \${e.message}. Proceeding without full context.</p>`;
+            }
+
+            try {
+                const response = await fetchJson(\'/api/agi/project_wide_rename\', \'POST\', {
+                    language: languageId,
+                    file_path: activeFilePath,
+                    old_name: oldName,
+                    new_name: newName,
+                    full_project_context: fullProjectContext,
+                });\n
+                if (response && response.success) {
+                    alert(\"AGI Project-wide Rename Applied!\");
+                    refreshFiles();
+                    loadFile(activeFilePath); 
+                } else {
+                    alert(`Rename failed: ${response.error || 'Unknown error.'}`);
+                }
+            } catch (e) {
+                console.error(\"Error during AGI project rename:\", e);
+                agiInsightsOutput.innerHTML = `<p>Error: \${e.message}</p>`;
+            }
+        }\n
+        async function getAgiCompletions(codePrefix, fullCodeContext) {
+            if (!activeFilePath) return [];
+            const languageId = document.getElementById(\'languageSelect\').value;
+
+            try {
+                const response = await fetchJson(\'/api/agi/code_completion\', \'POST\', {
+                    language: languageId,
+                    code_prefix: codePrefix,
+                    full_code_context: fullCodeContext,
+                });
+                return Array.isArray(response) ? response : [];
+            } catch (e) {
+                console.error(\"Error fetching AGI completions:\", e);
+                return [];
+            }
+        }\n
+        async function goToTypeDefinition() {
+            if (!activeFilePath) {
+                alert("No file active.");
+                return;
+            }
+            const languageId = document.getElementById(\'languageSelect\').value;
+            if (languageId === \'plaintext\' || !activeLspServers[languageId]) {
+                alert(`LSP server not running or not supported for \${languageId}.`);
+                return;
+            }
+
+            const position = editor.getPosition(); // 1-based
+
+            try {
+                const response = await fetchJson(\'/api/lsp/type_definition\', \'POST\', {
+                    language: languageId,
+                    uri: getFileUri(activeFilePath),
+                    position: { line: position.lineNumber - 1, character: position.column - 1 },
+                });
+
+                if (response && response.result) {
+                    let location = null;
+                    if (Array.isArray(response.result) && response.result.length > 0) {
+                        location = response.result[0];
+                    } else if (response.result.uri) { 
+                        location = response.result;
+                    }
+
+                    if (location) {
+                        let targetPath = location.uri.replace(/^file:\\/\\//, \'\');
+                        if (targetPath.startsWith(\'/\') && !targetPath.match(/^\\/[a-zA-Z]:\\//)) {
+                            targetPath = targetPath.substring(1);
+                        }
+                        targetPath = decodeURIComponent(targetPath);
+                        await loadFile(targetPath, location.range.start.line + 1); // Monaco is 1-based
+                        alert(`Type definition found in \${targetPath} at line \${location.range.start.line + 1}`);
+                    } else {
+                        alert(\"No type definition found.\");
+                    }
+                } else {
+                    alert(\"No type definition found.\");
+                }
+            } catch (e) {
+                console.error(\"Error fetching type definition:\", e);
+                alert(`Error fetching type definition: \${e.message}`);
+            }
+        }\n
+        async function goToImplementation() {
+            if (!activeFilePath) {
+                alert("No file active.");
+                return;
+            }
+            const languageId = document.getElementById(\'languageSelect\').value;
+            if (languageId === \'plaintext\' || !activeLspServers[languageId]) {
+                alert(`LSP server not running or not supported for \${languageId}.`);
+                return;
+            }
+
+            const position = editor.getPosition(); // 1-based
+
+            try {
+                const response = await fetchJson(\'/api/lsp/implementation\', \'POST\', {
+                    language: languageId,
+                    uri: getFileUri(activeFilePath),
+                    position: { line: position.lineNumber - 1, character: position.column - 1 },
+                });
+
+                if (response && response.result) {
+                    let location = null;
+                    if (Array.isArray(response.result) && response.result.length > 0) {
+                        location = response.result[0];
+                    } else if (response.result.uri) { 
+                        location = response.result;
+                    }
+
+                    if (location) {
+                        let targetPath = location.uri.replace(/^file:\\/\\//, \'\');
+                        if (targetPath.startsWith(\'/\') && !targetPath.match(/^\\/[a-zA-Z]:\\//)) {
+                            targetPath = targetPath.substring(1);
+                        }
+                        targetPath = decodeURIComponent(targetPath);
+                        await loadFile(targetPath, location.range.start.line + 1); // Monaco is 1-based
+                        alert(`Implementation found in \${targetPath} at line \${location.range.start.line + 1}`);
+                    } else {
+                        alert(\"No implementation found.\");
+                    }
+                } else {
+                    alert(\"No implementation found.\");
+                }
+            } catch (e) {
+                console.error(\"Error fetching implementation:\", e);
+                alert(`Error fetching implementation: \${e.message}`);
+            }
+        }\n
+
+        async function buildProject() {\n            await runCommandInTerminal(\"cargo build\", \'terminalOutput\');\n        }\n
+        async function runProject() {\n            await runCommandInTerminal(\"cargo run\", \'terminalOutput\');\n        }\n
+        async function testProject() {\n            await runCommandInTerminal(\"cargo test\", \'terminalOutput\');\n        }\n
+        async function runCustomCargoCommand() {\n            const customCommandInput = document.getElementById(\'customCargoCommand\');\n            const fullCommand = customCommandInput.value;\n            if (!fullCommand.startsWith(\"cargo\")) {\n                alert(\"Custom command must start with \'cargo\'.\");\n                return;\n            }
+            await runCommandInTerminal(fullCommand, \'terminalOutput\');\n            customCommandInput.value = \'\';\n        }\n
+        async function createNewProject() {\n            const newProjectNameInput = document.getElementById(\'newProjectName\');\n            const projectName = newProjectNameInput.value;\n            if (!projectName) {\n                alert(\"Please enter a project name.\");\n                return;
+            }\n            await runCommandInTerminal(`cargo new \${projectName}`, \'terminalOutput\');\n            newProjectNameInput.value = \'\';\n            refreshFiles(); \n        }\n
+        // Debugging Functions\n        let debugSessionId = null;
+        let debugEventPollInterval = null; \n        let currentBreakpoints = {}; // { "file:line": {id: <bp_id>, file: "file", line: <line_num>, condition: "cond", gdb_id: <gdb_id>} }\n        let currentDebugLine = -1; // 1-based line number for Monaco\n        let activeWatchExpressions = {}; // { id: {id: <watch_id>, expression: "expr"} }\n        let debugDecorations = []; // For Monaco debugger specific decorations (current line, breakpoints)\n
+        async function startDebugging() {
+            if (!activeFilePath) {
+                alert(\"Please load a file to debug.\");
+                return;
+            }
+            if (debugSessionId) {
+                alert(\"A debug session is already active. Please stop it first.\");
+                return;
+            }
+
+            const executablePath = document.getElementById(\'debugExecutablePath\').value;
+            if (!executablePath) {
+                alert(\"Please enter the path to your executable (e.g., target/debug/my_app).\");
+                return;
+            }
+
+            const languageId = document.getElementById(\'languageSelect\').value;
+            debugSessionId = `debug_session_${Date.now()}`;
+
+            debugOutput.textContent = \"Starting debug session...\\n\";
+            try {
+                const response = await fetchJson(\'/api/debug/start\', \'POST\', {
+                    session_id: debugSessionId,
+                    language: languageId,
+                    executable_path: executablePath,
+                });
+                debugOutput.textContent += `Session started: \${response}\n`;
+                alert(\"Debugger started!\");
+                // Clear previous debug state
+                currentDebugLine = -1;
+                renderCurrentDebugLine();
+                stackList.innerHTML = '<li>No stack frames.</li>';
+                variablesList.innerHTML = '<li>No variables.</li>';
+                watchExpressionsList.innerHTML = '<li>No watch expressions.</li>';
+                // Restart polling
+                if (debugEventPollInterval) clearInterval(debugEventPollInterval);
+                debugEventPollInterval = setInterval(pollDebugEvents, 500); // Start polling
+            } catch (e) {
+                console.error(\"Error starting debugger:\", e);
+                debugOutput.textContent += `Error starting debugger: \${e.message}\n`;
+                debugSessionId = null;
+            }
+        }
+
+        async function stopDebugging() {
+            if (!debugSessionId) {
+                alert(\"No active debug session.\");\n                return;\n            }
+            debugOutput.textContent += \"Stopping debug session...\\n\";\n            try {
+                const response = await fetchJson(\'/api/debug/stop\', \'POST\', { session_id: debugSessionId });
+                debugOutput.textContent += `Session stopped: \${response}\n`;
+                alert(\"Debugger stopped.\");
+            } catch (e) {
+                console.error(\"Error stopping debugger:\", e);
+                debugOutput.textContent += `Error stopping debugger: \${e.message}\n`;
+            } finally {
+                debugSessionId = null;
+                if (debugEventPollInterval) clearInterval(debugEventPollInterval);
+                debugEventPollInterval = null;
+                currentDebugLine = -1;
+                renderCurrentDebugLine();
+                stackList.innerHTML = '<li>No stack frames.</li>';
+                variablesList.innerHTML = '<li>No variables.</li>';
+                watchExpressionsList.innerHTML = '<li>No watch expressions.</li>';
+                debugOutput.textContent += \"Debug session ended.\\n\";
+            }
+        }
+
+        async function toggleBreakpoint(lineNumber) {
+            if (!activeFilePath) {
+                alert(\"Load a file first to set breakpoints.\");
+                return;
+            }
+            if (!debugSessionId) {
+                alert(\"Start a debug session first to set breakpoints.\");
+                return;
+            }
+
+            const bpKey = `${activeFilePath}:${lineNumber}`;
+            if (currentBreakpoints[bpKey]) {
+                // Remove breakpoint
+                try {
+                    await fetchJson(\'/api/debug/remove_breakpoint\', \'POST\', {
+                        session_id: debugSessionId,
+                        id: currentBreakpoints[bpKey].id,
+                    });
+                    delete currentBreakpoints[bpKey];
+                    debugOutput.textContent += `Removed breakpoint at ${activeFilePath}:${lineNumber}\n`;
+                } catch (e) {
+                    console.error(\"Error removing breakpoint:\", e);
+                    debugOutput.textContent += `Error removing breakpoint: \${e.message}\n`;
+                }
+            }
+             else {
+                // Add breakpoint
+                const condition = prompt(\"Enter breakpoint condition (optional):\"); // Prompt for condition
+                try {
+                    const response = await fetchJson(\'/api/debug/add_breakpoint\', \'POST\', {
+                        session_id: debugSessionId,
+                        file: activeFilePath,
+                        line: lineNumber,
+                        condition: condition || null,
+                    });
+                    // The response.id would be from the backend/debugger, we use our local key as well
+                    currentBreakpoints[bpKey] = { id: parseInt(response.match(/ID: (\d+)/)[1]), file: activeFilePath, line: lineNumber, condition: condition || null };
+                    debugOutput.textContent += `Set breakpoint at ${activeFilePath}:${lineNumber} (ID: ${currentBreakpoints[bpKey].id})\n`;
+                } catch (e) {
+                    console.error(\"Error adding breakpoint:\", e);
+                    debugOutput.textContent += `Error adding breakpoint: \${e.message}\n`;
+                }
+            }
+            renderBreakpoints();
+        }
+
+        function renderBreakpoints() {
+            if (!editor || !monacoInitialized) return;
+
+            // Remove only breakpoint glyph decorations from debugDecorations
+            debugDecorations = editor.deltaDecorations(debugDecorations, debugDecorations.filter(d => !d.options.glyphMarginClassName || !d.options.glyphMarginClassName.includes('breakpoint-glyph')));
+
+            const newBreakpointDecorations = [];
+            for (const bpKey in currentBreakpoints) {
+                const bp = currentBreakpoints[bpKey];
+                if (bp.file === activeFilePath) {
+                    newBreakpointDecorations.push({
+                        range: new monaco.Range(bp.line, 1, bp.line, 1),
+                        options: {
+                            is ,\n                            glyphMarginClassName: 'breakpoint-glyph',\n                            glyphMarginHoverMessage: { value: `Breakpoint at line ${bp.line}${bp.condition ? ` if ${bp.condition}` : ''}` },\n                            stickiness: monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,\n                        }\n                    });\n                }\n            }\n            debugDecorations = editor.deltaDecorations(debugDecorations, newBreakpointDecorations); // Apply new breakpoint decorations
+            
+            // Update the breakpointsList in the debug panel\n            breakpointsList.innerHTML = '';\n            let bpCount = 0;\n            for (const bpKey in currentBreakpoints) {\n                const bp = currentBreakpoints[bpKey];\n                const p = document.createElement('li');\n                p.textContent = `BP ${bp.id || '?'}: ${bp.file.split('/').pop()}:${bp.line}${bp.condition ? ` [${bp.condition}]` : ''}`; \n                breakpointsList.appendChild(p);
+                bpCount++;\n            }\n            if (bpCount === 0) {
+                breakpointsList.innerHTML = '<li>No breakpoints set.</li>';\n            }
+        }
+
+        function renderCurrentDebugLine() {
+            if (!editor || !monacoInitialized) return;
+
+            // Remove only current line decorations from debugDecorations
+            debugDecorations = editor.deltaDecorations(debugDecorations, debugDecorations.filter(d => !d.options.className || !d.options.className.includes('debug-current-line')));
+
+            if (currentDebugLine > 0 && activeFilePath) { // currentDebugLine is 1-based
+                // Add new current line decoration
+                debugDecorations = editor.deltaDecorations(debugDecorations, [{
+                    range: new monaco.Range(currentDebugLine, 1, currentDebugLine, 1), 
+                    options: {
+                        is ,\n                        className: 'debug-current-line',\n                        lines ,\n                        stickiness: monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,\n                    }\n                }]);\n                editor.revealLineInCenter(currentDebugLine);\n            }
+        }\n
+        async function debugContinue() {
+            if (!debugSessionId) { alert(\"No active debug session.\"); return; }
+            debugOutput.textContent += \"Continuing execution...\\n\";
+            try {
+                await fetchJson(\'/api/debug/continue\', \'POST\', { session_id: debugSessionId });
+            } catch (e) {
+                console.error(\"Error continuing debug:\", e);
+                debugOutput.textContent += `Error: \${e.message}\n`;
+            }
+        }\n
+        async function debugNext() {
+            if (!debugSessionId) { alert(\"No active debug session.\"); return; }
+            debugOutput.textContent += \"Stepping next...\\n\";
+            try {
+                await fetchJson(\'/api/debug/next\', \'POST\', { session_id: debugSessionId });
+            } catch (e) {
+                console.error(\"Error stepping next:\", e);
+                debugOutput.textContent += `Error: \${e.message}\n`;
+            }
+        }\n
+        async function debugStep() {
+            if (!debugSessionId) { alert(\"No active debug session.\"); return; }
+            debugOutput.textContent += \"Stepping into...\\n\";
+            try {
+                await fetchJson(\'/api/debug/step\', \'POST\', { session_id: debugSessionId });
+            } catch (e) {
+                console.error(\"Error stepping into:\", e);
+                debugOutput.textContent += `Error: \${e.message}\n`;
+            }
+        }\n
+        async function debugFinish() {
+            if (!debugSessionId) { alert(\"No active debug session.\"); return; }
+            debugOutput.textContent += \"Stepping out...\\n\";
+            try {
+                await fetchJson(\'/api/debug/finish\', \'POST\', { session_id: debugSessionId });
+            } catch (e) {
+                console.error(\"Error stepping out:\", e);
+                debugOutput.textContent += `Error: \${e.message}\n`;
+            }
+        }\n
+        async function clearAllBreakpoints() {
+            if (!debugSessionId) {
+                currentBreakpoints = {};
+                renderBreakpoints();
+                alert(\"All locally tracked breakpoints cleared.\");
+                return;
+            }
+            if (!confirm(\"Are you sure you want to clear all breakpoints from the current debug session?\")) return;
+            for (const bpKey in currentBreakpoints) {
+                const bp = currentBreakpoints[bpKey];
+                try {
+                    await fetchJson(\'/api/debug/remove_breakpoint\', \'POST\', {
+                        session_id: debugSessionId,
+                        id: bp.id,
+                    });
+                } catch (e) {
+                    console.error(`Error clearing breakpoint ${bp.id}:`, e);
+                }
+            }
+            currentBreakpoints = {};
+            renderBreakpoints();
+            debugOutput.textContent += \"All breakpoints cleared.\\n\";
+        }
+
+        async function addWatchExpression() {
+            if (!debugSessionId) { alert(\"No active debug session.\"); return; }
+            const expression = addWatchExpressionInput.value.trim();
+            if (!expression) { alert(\"Please enter an expression to watch.\"); return; }
+
+            try {
+                // The backend API for add_debug_watch should return the assigned ID
+                const response = await fetchJson(\'/api/debug/add_watch\', \'POST\', { session_id: debugSessionId, expression });
+                // Assuming response is like "Watch expression added with ID: X"
+                const newWatchId = parseInt(response.match(/ID: (\d+)/)[1]); 
+
+                activeWatchExpressions[newWatchId] = { id: newWatchId, expression: expression };
+                debugOutput.textContent += `Added watch expression: '${expression}' (ID: ${newWatchId})\n`;
+                addWatchExpressionInput.value = '';
+                // Force update watch values immediately
+                const updatedWatches = await fetchJson(\'/api/debug/update_watches\', \'POST\', { session_id: debugSessionId });
+                renderWatchExpressions(updatedWatches);
+            } catch (e) {
+                console.error(\"Error adding watch expression:\", e);
+                debugOutput.textContent += `Error adding watch expression: \${e.message}\n`;
+            }
+        }
+
+        async function removeWatchExpression(id) {
+            if (!debugSessionId) { alert(\"No active debug session.\"); return; }
+            if (!confirm(`Remove watch expression ID ${id}?`)) return;
+
+            try {
+                await fetchJson(\'/api/debug/remove_watch\', \'POST\', { session_id: debugSessionId, id });
+                delete activeWatchExpressions[id];
+                debugOutput.textContent += `Removed watch expression ID ${id}\n`;
+                // Re-render watches after removal
+                const updatedWatches = await fetchJson(\'/api/debug/update_watches\', \'POST\', { session_id: debugSessionId });
+                renderWatchExpressions(updatedWatches);
+            } catch (e) {
+                console.error(\"Error removing watch expression:\", e);
+                debugOutput.textContent += `Error removing watch expression: \${e.message}\n`;
+            }
+        }
+
+        async function clearAllWatchExpressions() {
+            if (!debugSessionId) {
+                activeWatchExpressions = {};
+                renderWatchExpressions([]);
+                alert(\"All locally tracked watch expressions cleared.\");
+                return;
+            }
+            if (!confirm(\"Are you sure you want to clear all watch expressions from the current debug session?\")) return;
+
+            for (const watchId in activeWatchExpressions) {
+                try {
+                    await fetchJson(\'/api/debug/remove_watch\', \'POST\', {
+                        session_id: debugSessionId,
+                        id: parseInt(watchId),
+                    });
+                } catch (e) {
+                    console.error(`Error clearing watch expression ${watchId}:`, e);
+                }
+            }
+            activeWatchExpressions = {};
+            renderWatchExpressions([]);
+            debugOutput.textContent += \"All watch expressions cleared.\\n\";
+        }
+
+        async function pollDebugEvents() {
+            if (!debugSessionId) return;
+            try {
+                const events = await fetchJson(\'/api/debug/events\', \'GET\', {});
+                if (Array.isArray(events) && events.length > 0) {
+                    for (const event of events) { 
+                        debugOutput.textContent += `[DEBUG EVENT]: ${JSON.stringify(event)}\n`;
+                        if (event.Stopped) {
+                            currentDebugLine = event.Stopped.frame && event.Stopped.frame.file === activeFilePath ? event.Stopped.frame.line : -1; // Monaco is 1-based
+                            renderCurrentDebugLine();
+                            debugOutput.textContent += `Stopped at ${event.Stopped.frame ? `${event.Stopped.frame.file}:${event.Stopped.frame.line}` : 'unknown location'}. Reason: ${event.Stopped.reason}\n`;
+                            
+                            if (debugSessionId) {
+                                try {
+                                    const stackFrames = await fetchJson(\'/api/debug/stack_frames\', \'POST\', { session_id: debugSessionId });
+                                    renderStackFrames(stackFrames);
+                                } catch (e) {
+                                    console.error(\"Error fetching stack frames:\", e);
+                                    stackList.innerHTML = `<li>Error fetching stack: ${e.message}</li>`;
+                                }
+
+                                try {
+                                    const variables = await fetchJson(\'/api/debug/variables\', \'POST\', { session_id: debugSessionId });
+                                    renderVariables(variables);
+                                } catch (e) {
+                                    console.error(\"Error fetching variables:\", e);
+                                    variablesList.innerHTML = `<li>Error fetching variables: ${e.message}</li>`;
+                                }
+
+                                try {
+                                    const updatedWatches = await fetchJson(\'/api/debug/update_watches\', \'POST\', { session_id: debugSessionId });
+                                    renderWatchExpressions(updatedWatches);
+                                } catch (e) {
+                                    console.error(\"Error updating watch expressions:\", e);
+                                    watchExpressionsList.innerHTML = `<li>Error updating watches: ${e.message}</li>`;
+                                }
+                            }
+                        } else if (event.Running) {
+                            currentDebugLine = -1;
+                            renderCurrentDebugLine();
+                            stackList.innerHTML = '<li>No stack frames.</li>';
+                            variablesList.innerHTML = '<li>No variables.</li>';
+                        } else if (event.BreakpointHit) {
+                            currentDebugLine = event.BreakpointHit.frame && event.BreakpointHit.frame.file === activeFilePath ? event.BreakpointHit.frame.line : -1; // Monaco is 1-based
+                            renderCurrentDebugLine();
+                            debugOutput.textContent += `Breakpoint hit at ${event.BreakpointHit.frame.file}:${event.BreakpointHit.frame.line}\n`;
+                        } else if (event.TargetOutput) {
+                            debugOutput.textContent += `[TARGET]: ${event.TargetOutput.text}\n`;
+                        } else if (event.DebuggerError) {
+                            debugOutput.textContent += `[DEBUGGER ERROR]: ${event.DebuggerError.message}\n`;
+                        } else if (event.Exited) {
+                            debugOutput.textContent += `[DEBUGGER EXITED]: Code ${event.Exited.exit_code}\n`;
+                            stopDebugging(); // Automatically stop frontend session
+                        }
+                        debugOutput.scrollTop = debugOutput.scrollHeight;
+                    }
+                }
+            } catch (e) {
+                console.error(\"Error polling debug events:\", e);
+            }
+            debugEventPollInterval = setTimeout(pollDebugEvents, 500); // Poll every 500ms
+        }
+
+        function renderStackFrames(frames) {
+            stackList.innerHTML = '';\n            if (!Array.isArray(frames) || frames.length === 0) {
+                stackList.innerHTML = '<li>No stack frames.</li>';
+                return;
+            }
+            frames.forEach((frame, index) => {
+                const li = document.createElement('li');
+                li.textContent = `${frame.level}: ${frame.func} at ${frame.file ? frame.file.split('/').pop() : '?'}:${frame.line || '?'}`;
+                li.title = `Address: ${frame.addr}`;
+                if (frame.file && frame.line) {
+                    li.onclick = () => loadFile(frame.file, frame.line); 
+                }
+                if (index === 0 && currentDebugLine > 0) { // Highlight active frame
+                    li.classList.add('active-frame');
+                }
+                stackList.appendChild(li);
+            });
+        }
+
+        function renderVariables(variables) {
+            variablesList.innerHTML = '';\n            if (!Array.isArray(variables) || variables.length === 0) {
+                variablesList.innerHTML = '<li>No variables.</li>';
+                return;
+            }
+            variables.forEach(variable => {
+                const li = document.createElement('li');
+                li.textContent = `${variable.name}: ${variable.value} (${variable.var_type})`;
+                variablesList.appendChild(li);
+            });
+        }
+
+        function renderWatchExpressions(watches) {
+            watchExpressionsList.innerHTML = '';
+            // Rebuild activeWatchExpressions based on received watches to sync IDs
+            let newActiveWatchExpressions = {};
+            if (Array.isArray(watches) && watches.length > 0) {
+                watches.forEach(watch => {
+                    newActiveWatchExpressions[watch.id] = { id: watch.id, expression: watch.name }; // Assuming name is expression
+                    const li = document.createElement('li');
+                    li.classList.add('watch-expression-item');
+                    const span = document.createElement('span');
+                    span.textContent = `${watch.name}: ${watch.value}`; 
+                    li.appendChild(span);
+                    const removeButton = document.createElement('button');
+                    removeButton.textContent = 'Remove';
+                    removeButton.onclick = () => removeWatchExpression(watch.id); 
+                    li.appendChild(removeButton);
+                    watchExpressionsList.appendChild(li);
+                });
+            }
+            activeWatchExpressions = newActiveWatchExpressions;
+
+            if (Object.keys(activeWatchExpressions).length === 0) {
+                watchExpressionsList.innerHTML = '<li>No watch expressions.</li>';
+            }
+        }
+
+        async function loadPlugin() {
+            const pluginPath = pluginPathInput.value.trim();
+            if (!pluginPath) { alert(\"Please enter a path to the plugin config file.\"); return; }
+
+            pluginOutput.textContent += `Loading plugin from ${pluginPath}...\n`;
+            try {
+                const response = await fetchJson(\'/api/plugins/load\', \'POST\', { path: pluginPath });
+                pluginOutput.textContent += `Plugin loaded: ${JSON.stringify(response)}\n`;
+                alert(\"Plugin loaded successfully!\");
+                refreshPlugins();
+            } catch (e) {
+                console.error(\"Error loading plugin:\", e);
+                pluginOutput.textContent += `Error loading plugin: \${e.message}\n`;
+            }
+        }
+
+        async function refreshPlugins() {
+            pluginsList.innerHTML = '';
+            pluginOutput.textContent += \"Refreshing plugin list...\n\";
+            try {
+                const plugins = await fetchJson(\'/api/plugins/list\', \'GET\', {});
+                if (Array.isArray(plugins) && plugins.length > 0) {
+                    plugins.forEach(p => {
+                        const li = document.createElement('li');
+                        li.classList.add('plugin-list-item');
+                        const detailsDiv = document.createElement('div');
+                        detailsDiv.innerHTML = `<b>${p.name}</b> (${p.id})<br><small>${p.description}</small>`;
+                        li.appendChild(detailsDiv);
+                        const runButton = document.createElement('button');
+                        runButton.textContent = 'Run';
+                        runButton.onclick = () => executePlugin(p.id);
+                        li.appendChild(runButton);
+                        pluginsList.appendChild(li);
+                        loadedPlugins[p.id] = p; // Store plugin info for execution
+                    });
+                    pluginOutput.textContent += `Loaded ${plugins.length} plugins.\n`;
+                } else {
+                    pluginsList.innerHTML = '<li>No plugins loaded.</li>';
+                    pluginOutput.textContent += \"No plugins found.\
+\";
+                }
+            } catch (e) {
+                console.error(\"Error listing plugins:\", e);
+                pluginOutput.textContent += `Error listing plugins: \${e.message}\n`;
+            }
+        }
+
+        async function executePlugin(pluginId) {
+            pluginOutput.textContent += `Executing plugin '${pluginId}'...\n`;
+            const argsStr = prompt(\"Enter arguments for plugin (space-separated):\", \"\");
+            const args = argsStr ? argsStr.split(' ') : [];
+            const inputData = prompt(\"Enter input data for plugin (optional):\", \"\");
+
+            try {
+                const response = await fetchJson(\'/api/plugins/execute\', \'POST\', {
+                    plugin_id: pluginId,
+                    args: args,
+                    input_data: inputData || null,
+                });
+                pluginOutput.textContent += `--- Plugin '${pluginId}' Output ---\n`;
+                pluginOutput.textContent += `STDOUT:\n${response.stdout}\n`;
+                pluginOutput.textContent += `STDERR:\n${response.stderr}\n`;
+                pluginOutput.textContent += `--- End Plugin Output ---\n`;
+            } catch (e) {
+                console.error(\"Error executing plugin:\", e);
+                pluginOutput.textContent += `Error executing plugin: \${e.message}\n`;
+            }
+            pluginOutput.scrollTop = pluginOutput.scrollHeight;
+        }
+
+        // Function to send events from frontend UI to a plugin
+        async function sendPluginEvent(pluginId, eventType, eventData) {
+            try {
+                await fetchJson(\'/api/plugins/event\', \'POST\', {
+                    plugin_id: pluginId,
+                    event_type: eventType,
+                    data: eventData,
+                });
+                console.log(`Event ${eventType} sent to plugin ${pluginId}.`);
+            } catch (e) {
+                console.error(`Error sending event to plugin ${pluginId}:`, e);
+                alert(`Error sending event to plugin ${pluginId}: ${e.message}`);
+            }
+        }
+
+        // Frontend Command Handling (for bidirectional communication)
+        let frontendCommandPollInterval = null;
+
+        async function pollFrontendCommands() {
+            try {
+                const commands = await fetchJson(\'/api/frontend/commands\', \'GET\', {});
+                if (Array.isArray(commands) && commands.length > 0) {
+                    for (const cmd of commands) {
+                        console.log(\"Received frontend command:\", cmd);
+                        let responseResult = null;
+                        let responseError = null;
+                        try {
+                            switch (cmd.type) {
+                                case \"GetEditorContent\":
+                                    const model = editor.getModel();
+                                    // Compare normalized paths
+                                    if (model && model.uri.path === `/${cmd.file_path.replace(/\\/g, '/')}`) {
+                                        responseResult = model.getValue();
+                                    } else {
+                                        responseError = `File ${cmd.file_path} not currently active in editor.`;
+                                    }
+                                    break;
+                                case \"SetEditorContent\":
+                                    const targetModel = editor.getModel();
+                                    // Compare normalized paths
+                                    if (targetModel && targetModel.uri.path === `/${cmd.file_path.replace(/\\/g, '/')}`) {
+                                        editor.setValue(cmd.content);
+                                        responseResult = true;
+                                    } else {
+                                        responseError = `File ${cmd.file_path} not currently active in editor.`;
+                                    }
+                                    break;
+                                case \"ShowMessage\":
+                                    alert(`${cmd.message_type}: ${cmd.message}`);
+                                    responseResult = true;
+                                    break;
+                                case \"RegisterUiComponent\":
+                                    if (cmd.component_type === \"button\") {
+                                        const button = document.createElement('button');
+                                        button.textContent = cmd.properties.label || 'Plugin Button';
+                                        button.onclick = () => sendPluginEvent(cmd.plugin_id, cmd.properties.event || 'plugin_button_click', { button_id: cmd.properties.id || 'unnamed_button' });
+                                        button.title = cmd.properties.tooltip || '';
+                                        // For simplicity, add to a dedicated container for plugin buttons
+                                        pluginAgiButtonsContainer.appendChild(button);
+                                        responseResult = true;
+                                    } else {
+                                        responseError = `Unknown UI component type: ${cmd.component_type}`;
+                                    }
+                                    break;
+                                default:
+                                    responseError = `Unknown frontend command type: ${cmd.type}`;
+                            }
+                        } catch (e) {
+                            responseError = `Error executing frontend command ${cmd.type}: ${e.message}`;
+                        }
+
+                        // Send response back to backend
+                        await fetchJson(\'/api/frontend/response\', \'POST\', {
+                            request_id: cmd.request_id,
+                            result: responseResult !== null ? JSON.stringify(responseResult) : null,
+                            error: responseError,
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error(\"Error polling frontend commands:\", e);
+            }
+            frontendCommandPollInterval = setTimeout(pollFrontendCommands, 500); // Poll every 500ms
+        }
+
+        async function agiGenerateCreativeIdea() {
+            const topic = creativeIdeaTopicInput.value.trim();
+            const genre = creativeIdeaGenreInput.value.trim();
+            const audience = creativeIdeaAudienceInput.value.trim();
+            if (!topic || !genre || !audience) {
+                alert(\"Please fill in all fields for generating a creative idea.\");
+                return;
+            }
+
+            agiInsightsOutput.innerHTML = \"<p>AGI is generating a creative idea... Please wait.</p>\";
+            showBottomPanelTab(\'agi-insights\');
+
+            try {
+                const response = await fetchJson(\'/api/authorship/generate_idea\', \'POST\', {
+                    topic: topic,
+                    genre: genre,
+                    audience: audience,
+                });
+
+                if (response) {
+                    agiInsightsOutput.innerHTML = `<h3>Creative Idea</h3>\n<p><b>Title:</b> ${response.title}</p>\n<p><b>Synopsis:</b> ${response.synopsis}</p>\n<p><b>Keywords:</b> ${response.keywords.join(\", \")}</p>\n<p><b>Suggested Style:</b> ${response.suggested_style}</p>`;
+                    alert(\"AGI Creative Idea Generated! Check the \'AGI Insights\' tab.\");
+                } else {
+                    agiInsightsOutput.innerHTML = \"<p>Failed to generate creative idea.</p>\";
+                }
+            } catch (e) {
+                console.error(\"Error during AGI creative idea generation:\", e);
+                agiInsightsOutput.innerHTML = `<p>Error: \${e.message}</p>`;
+            }
+        }
+
+        async function agiRestyleContent() {
+            const content = editor.getValue();
+            if (!content) {
+                alert(\"No content in editor to restyle.\");
+                return;
+            }
+            const desiredStyle = restyleDesiredStyleInput.value.trim();
+            if (!desiredStyle) {
+                alert(\"Please enter a desired style to restyle the content.\");
+                return;
+            }
+
+            agiInsightsOutput.innerHTML = \"<p>AGI is restyling content... Please wait.</p>\";
+            showBottomPanelTab(\'agi-insights\');
+
+            try {
+                const response = await fetchJson(\'/api/authorship/restyle_content\', \'POST\', {
+                    content: content,
+                    desired_style: desiredStyle,
+                });
+
+                if (response) {
+                    agiInsightsOutput.innerHTML = `<h3>Restyled Content (${desiredStyle})</h3><pre>\${escapeHtml(response)}</pre>`;
+                    alert(\"AGI Content Restyled! Check the \'AGI Insights\' tab.\");
+                    if (confirm(\"Do you want to replace the editor content with the restyled version?\n(This will overwrite current editor content)\")) {
+                        editor.setValue(response);
+                        highlightCode();
+                        saveFile();
+                    }
+                } else {
+                    agiInsightsOutput.innerHTML = \"<p>Failed to restyle content.</p>\";
+                }
+            } catch (e) {
+                console.error(\"Error during AGI content restyling:\", e);
+                agiInsightsOutput.innerHTML = `<p>Error: \${e.message}</p>`;
+            }
+        }
+
+
+        window.onload = () => {
+            initializeMonaco();
+            const savedTheme = localStorage.getItem('tariro-ide-theme') || 'nord-theme';
+            setTheme(savedTheme);
+            document.getElementById('themeSelector').value = savedTheme;
+
+            highlightCode(); 
+            refreshFiles();  
+            refreshGitStatus(); 
+            pollDiagnostics(); 
+            refreshPlugins(); // Load plugins on startup
+            frontendCommandPollInterval = setInterval(pollFrontendCommands, 500); // Start polling for frontend commands
+            showBottomPanelTab('terminal'); 
+        };
+
+        function setupRealtimeHighlighting() {
+             // Monaco handles this internally after language is set.
+             // Custom highlightCode() is used for decorations.
+        }
+    </script>\n</body>\n</html>\n
