@@ -1,4 +1,5 @@
 use crate::omega_news_content_generator_llm::ContentGeneratorLlm;
+use crate::authorship_module_core::{AuthorshipModule, CreativeIdea};
 use serde::{Deserialize, Serialize};
 
 // --- EVAS Filter (Ethical, Verifiable, Accountable, Safe) ---
@@ -40,6 +41,7 @@ pub struct OmegaNewsCoreService {
     llm_generator: ContentGeneratorLlm,
     evas_filter: EvasFilter,
     feed_engine: FeedEngine,
+    authorship_module: AuthorshipModule,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -55,7 +57,8 @@ impl OmegaNewsCoreService {
         let llm_generator = ContentGeneratorLlm::new()?;
         let evas_filter = EvasFilter::new();
         let feed_engine = FeedEngine::new();
-        Ok(OmegaNewsCoreService { llm_generator, evas_filter, feed_engine })
+        let authorship_module = AuthorshipModule::new()?;
+        Ok(OmegaNewsCoreService { llm_generator, evas_filter, feed_engine, authorship_module })
     }
 
     pub async fn generate_article_draft(&self, topic: &str, length_hint: &str) -> Result<ArticleDraft, String> {
@@ -108,7 +111,7 @@ impl OmegaNewsCoreService {
             let dummy_draft = ArticleDraft {
                 title: format!("Summarized Article from {}", source),
                 summary: summary.clone(),
-                body: format!("Full content based on summary: {}\n... (truncated original content) ...", summary),
+                body: format!("Full content based on summary: {}", summary),
                 verified_by_evas: true,
             };
             Ok(vec![dummy_draft])
@@ -116,6 +119,13 @@ impl OmegaNewsCoreService {
             Err(format!("Feed from {} failed EVAS verification.", source))
         }
     }
+
+    // --- Authorship Module Delegations ---
+    pub async fn create_creative_idea(&self, topic: &str, genre: &str, audience: &str) -> Result<CreativeIdea, String> {
+        self.authorship_module.generate_creative_idea(topic, genre, audience).await
+    }
+
+    pub async fn restyle_content(&self, content: &str, desired_style: &str) -> Result<String, String> {
+        self.authorship_module.refine_content_style(content, desired_style).await
+    }
 }
-
-
