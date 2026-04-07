@@ -8,9 +8,10 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-use crate::omega_news_core_service::{OmegaNewsCoreService, ArticleDraft, EvasReport}; // Import EvasReport
+use crate::omega_news_core_service::{OmegaNewsCoreService, ArticleDraft, EvasReport}; 
 use crate::authorship_module_core::CreativeIdea;
 use crate::self_modification_module::{ConfigChangeProposal, CodeRefactorProposal};
+use crate::git_conflict_resolution_module::GitConflictResolution; // Import GitConflictResolution
 
 // --- API Request/Response Models for Authorship Module ---
 
@@ -40,6 +41,14 @@ pub struct ProposeCodeRefactorRequest {
     pub current_code: String,
     pub refactoring_goal: String,
     pub language: String,
+}
+
+// --- API Request/Response Models for Git Conflict Resolution ---
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ResolveGitConflictRequest {
+    pub conflicting_file_content: String,
+    pub file_path: String,
 }
 
 // --- API Request/Response Models for News Generation and EVAS ---
@@ -121,6 +130,18 @@ pub async fn propose_code_refactor_handler(
     }
 }
 
+// --- Handlers for Git Conflict Resolution ---
+
+pub async fn resolve_git_conflict_handler(
+    axum::extract::State(state): axum::extract::State<Arc<ApiState>>,
+    Json(payload): Json<ResolveGitConflictRequest>,
+) -> impl IntoResponse {
+    match state.omega_news_service.resolve_git_conflict(&payload.conflicting_file_content, &payload.file_path).await {
+        Ok(resolution) => (StatusCode::OK, Json(resolution)).into_response(),
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e).into_response(),
+    }
+}
+
 // --- Handlers for News Generation and EVAS ---
 
 pub async fn generate_article_draft_handler(
@@ -181,9 +202,10 @@ pub fn omega_news_api_router() -> Router<Arc<ApiState>> {
         .route("/authorship/restyle", post(restyle_content_handler))
         .route("/self-modification/config-change", post(propose_config_change_handler))
         .route("/self-modification/code-refactor", post(propose_code_refactor_handler))
+        .route("/git/resolve-conflict", post(resolve_git_conflict_handler)) // New Git conflict resolution route
         .route("/news/draft", post(generate_article_draft_handler))
         .route("/news/summarize", post(summarize_news_content_handler))
         .route("/news/verify_fact", post(verify_news_fact_handler))
         .route("/news/process_feed", post(process_and_filter_feed_handler))
-        .route("/news/evas-analysis", post(run_evas_analysis_handler)) // New EVAS analysis route
+        .route("/news/evas-analysis", post(run_evas_analysis_handler)) 
 }
