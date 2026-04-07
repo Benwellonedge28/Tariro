@@ -10,6 +10,7 @@ use tokio::sync::Mutex;
 
 use crate::omega_news_core_service::{OmegaNewsCoreService, ArticleDraft};
 use crate::authorship_module_core::CreativeIdea;
+use crate::self_modification_module::{ConfigChangeProposal, CodeRefactorProposal}; // Import new structs
 
 // --- API Request/Response Models for Authorship Module ---
 
@@ -24,6 +25,21 @@ pub struct GenerateCreativeIdeaRequest {
 pub struct RestyleContentRequest {
     pub content: String,
     pub desired_style: String,
+}
+
+// --- API Request/Response Models for Self-Modification Module ---
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ProposeConfigChangeRequest {
+    pub current_context: String,
+    pub desired_outcome: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ProposeCodeRefactorRequest {
+    pub current_code: String,
+    pub refactoring_goal: String,
+    pub language: String,
 }
 
 // --- API Request/Response Models for News Generation ---
@@ -78,6 +94,28 @@ pub async fn restyle_content_handler(
     }
 }
 
+// --- Handlers for Self-Modification Module ---
+
+pub async fn propose_config_change_handler(
+    axum::extract::State(state): axum::extract::State<Arc<ApiState>>,
+    Json(payload): Json<ProposeConfigChangeRequest>,
+) -> impl IntoResponse {
+    match state.omega_news_service.propose_config_change(&payload.current_context, &payload.desired_outcome).await {
+        Ok(proposal) => (StatusCode::OK, Json(proposal)).into_response(),
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e).into_response(),
+    }
+}
+
+pub async fn propose_code_refactor_handler(
+    axum::extract::State(state): axum::extract::State<Arc<ApiState>>,
+    Json(payload): Json<ProposeCodeRefactorRequest>,
+) -> impl IntoResponse {
+    match state.omega_news_service.propose_code_refactor(&payload.current_code, &payload.refactoring_goal, &payload.language).await {
+        Ok(proposal) => (StatusCode::OK, Json(proposal)).into_response(),
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e).into_response(),
+    }
+}
+
 // --- Handlers for News Generation ---
 
 pub async fn generate_article_draft_handler(
@@ -126,9 +164,10 @@ pub fn omega_news_api_router() -> Router<Arc<ApiState>> {
     Router::new()
         .route("/authorship/idea", post(generate_creative_idea_handler))
         .route("/authorship/restyle", post(restyle_content_handler))
+        .route("/self-modification/config-change", post(propose_config_change_handler))
+        .route("/self-modification/code-refactor", post(propose_code_refactor_handler))
         .route("/news/draft", post(generate_article_draft_handler))
         .route("/news/summarize", post(summarize_news_content_handler))
         .route("/news/verify_fact", post(verify_news_fact_handler))
         .route("/news/process_feed", post(process_and_filter_feed_handler))
 }
-
