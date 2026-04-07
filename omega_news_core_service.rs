@@ -1,6 +1,7 @@
 use crate::omega_news_content_generator_llm::ContentGeneratorLlm;
 use crate::authorship_module_core::{AuthorshipModule, CreativeIdea};
 use crate::self_modification_module::{SelfModificationModule, ConfigChangeProposal, CodeRefactorProposal};
+use crate::git_conflict_resolution_module::{GitConflictResolutionModule, GitConflictResolution}; // Import new module
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -64,6 +65,7 @@ pub struct OmegaNewsCoreService {
     feed_engine: FeedEngine,
     authorship_module: AuthorshipModule,
     self_modification_module: SelfModificationModule,
+    git_conflict_resolution_module: GitConflictResolutionModule, // Add GitConflictResolutionModule
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -77,16 +79,18 @@ pub struct ArticleDraft {
 impl OmegaNewsCoreService {
     pub fn new() -> Result<Self, String> {
         let llm_generator = ContentGeneratorLlm::new()?;
-        let evas_filter = EvasFilter::new(llm_generator.clone()); // Pass LLM to EVAS
+        let evas_filter = EvasFilter::new(llm_generator.clone());
         let feed_engine = FeedEngine::new();
         let authorship_module = AuthorshipModule::new()?;
         let self_modification_module = SelfModificationModule::new()?;
+        let git_conflict_resolution_module = GitConflictResolutionModule::new()?; // Initialize
         Ok(OmegaNewsCoreService { 
             llm_generator, 
             evas_filter, 
             feed_engine, 
             authorship_module, 
-            self_modification_module 
+            self_modification_module, 
+            git_conflict_resolution_module 
         })
     }
 
@@ -102,7 +106,6 @@ impl OmegaNewsCoreService {
         let summary = lines.next().unwrap_or("No summary.").trim().to_string();
         let body = lines.collect::<Vec<&str>>().join("\n").trim().to_string();
 
-        // Apply EVAS filter and get a detailed report
         let evas_report = self.evas_filter.apply(&full_article_text).await?;
 
         Ok(ArticleDraft {
@@ -166,5 +169,10 @@ impl OmegaNewsCoreService {
     // --- Direct EVAS Application ---
     pub async fn run_evas_analysis(&self, content: &str) -> Result<EvasReport, String> {
         self.evas_filter.apply(content).await
+    }
+
+    // --- Git Conflict Resolution Module Delegations ---
+    pub async fn resolve_git_conflict(&self, conflicting_file_content: &str, file_path: &str) -> Result<GitConflictResolution, String> {
+        self.git_conflict_resolution_module.resolve_conflict(conflicting_file_content, file_path).await
     }
 }
