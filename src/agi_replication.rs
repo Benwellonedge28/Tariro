@@ -1,1 +1,263 @@
-// src/agi_replication.rs\n\n//! Module for managing the self-replication and deployment aspects of the Tariro AGI.\n//! This includes code generation, compilation, containerization, and deployment to diverse targets.\n\nuse chrono::{DateTime, Utc};\nuse serde::{Deserialize, Serialize};\nuse uuid::Uuid;\nuse std::collections::HashMap;\n\nuse crate::config::AGIConfig;\nuse crate::telemetry::{TelemetryEvent, TelemetryLogger};\nuse crate::deployment::{DeploymentRecord, DeploymentTarget, DeploymentStatus};\nuse crate::compiler::{MetaProject, CompilerSnapshot, MetaProjectStatus};\n\n/// Represents a request for Tariro to self-replicate or deploy a new component.\n#[derive(Debug, Serialize, Deserialize, Clone)]\npub struct ReplicationRequest {\n    pub request_id: String,\n    pub initiator: String, // e.g., \"self_optimization\", \"admin_command\", \"meta_goal_alignment\"\n    pub target_name: String,\n    pub target_project_id: String, // ID of the MetaProject or CompilerProject to replicate/deploy\n    pub target_version: Option<String>,\n    pub deployment_target: DeploymentTarget,\n    pub desired_status: DeploymentStatus,\n    pub creation_timestamp: DateTime<Utc>,\n    pub status: ReplicationStatus,\n    pub current_step: String,\n    pub log_history: Vec<ReplicationLogEntry>,\n}\n\n/// Current status of a replication request.\n#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]\npub enum ReplicationStatus {\n    Pending,\n    GeneratingCode,\n    Compiling,\n    Containerizing,\n    Deploying,\n    Testing,\n    Live,\n    Failed(String),\n    Cancelled,\n}\n\n/// A log entry for tracking the progress and issues during replication.\n#[derive(Debug, Serialize, Deserialize, Clone)]\npub struct ReplicationLogEntry {\n    pub timestamp: DateTime<Utc>,\n    pub level: LogLevel,\n    pub message: String,\n    pub details: Option<String>,\n}\n\n#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]\npub enum LogLevel {\n    Info,\n    Warn,\n    Error,\n    Debug,\n}\n\n/// The `ReplicationService` orchestrates the self-replication and deployment process.\npub struct ReplicationService {\n    config: AGIConfig,\n    telemetry_logger: TelemetryLogger,\n    active_requests: HashMap<String, ReplicationRequest>,\n    // Dependencies for Code Generation, Compilation, Deployment, etc.\n    // code_generator: CodeGenerator,\n    // deployment_manager: DeploymentManager,\n}\n\nimpl ReplicationService {\n    /// Creates a new `ReplicationService` instance.\n    pub fn new(config: AGIConfig, telemetry_logger: TelemetryLogger) -> Self {\n        ReplicationService {\n            config,\n            telemetry_logger,\n            active_requests: HashMap::new(),\n        }\n    }\n\n    /// Initiates a self-replication or component deployment process.\n    pub async fn initiate_replication(&mut self, mut request: ReplicationRequest) -> Result<String, String> {\n        if self.active_requests.contains_key(&request.request_id) {\n            return Err(format!(\"Replication request with ID {} already exists.\", request.request_id));\n        }\n\n        request.creation_timestamp = Utc::now();\n        request.status = ReplicationStatus::Pending;\n        request.current_step = \"Initiated\".to_string();\n        request.log_history.push(ReplicationLogEntry {\n            timestamp: Utc::now(),\n            level: LogLevel::Info,\n            message: format!(\"Replication request for \'{}\' initiated.\", request.target_name),\n            details: None,\n        });\n\n        println!(\"[ReplicationService] Initiating replication for: {}\", request.target_name);\n        self.telemetry_logger.log_event(TelemetryEvent::ReplicationInitiated {\n            request_id: request.request_id.clone(),\n            target_name: request.target_name.clone(),\n            deployment_target: request.deployment_target.to_string(),\n        }).await;\n\n        let request_id_clone = request.request_id.clone();\n        self.active_requests.insert(request_id_clone.clone(), request);\n\n        // Asynchronously execute the replication workflow\n        tokio::spawn(async move {\n            Self::execute_replication_workflow(request_id_clone).await;\n        });\n\n        Ok(request_id_clone)\n    }\n\n    /// Retrieves the status of a specific replication request.\n    pub fn get_replication_status(&self, request_id: &str) -> Option<&ReplicationRequest> {\n        self.active_requests.get(request_id)\n    }\n\n    /// Lists all active or recent replication requests.\n    pub fn list_replication_requests(&self, status_filter: Option<ReplicationStatus>) -> Vec<&ReplicationRequest> {\n        self.active_requests.values().filter(|req| {\n            status_filter.as_ref().map_or(true, |s| &req.status == s)\n        }).collect()\n    }\n\n    // --- Internal Workflow Execution (Simplified for example) ---\n    async fn execute_replication_workflow(request_id: String) {\n        // In a real system, this would interact with other services:\n        // CodeGenerator, Compiler, DeploymentManager, ATVE, etc.\n        println!(\"[ReplicationWorkflow] Starting workflow for request: {}\", request_id);\n        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;\n\n        // Simulate Code Generation\n        Self::update_request_status_and_log(request_id.clone(), ReplicationStatus::GeneratingCode, \"Code generation started.\").await;\n        tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;\n        Self::update_request_status_and_log(request_id.clone(), ReplicationStatus::GeneratingCode, \"Code generation completed.\").await;\n\n        // Simulate Compilation\n        Self::update_request_status_and_log(request_id.clone(), ReplicationStatus::Compiling, \"Compilation started.\").await;\n        tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;\n        Self::update_request_status_and_log(request_id.clone(), ReplicationStatus::Compiling, \"Compilation completed.\").await;\n\n        // Simulate Deployment\n        Self::update_request_status_and_log(request_id.clone(), ReplicationStatus::Deploying, \"Deployment to target initiated.\").await;\n        tokio::time::sleep(tokio::time::Duration::from_secs(4)).await;\n        \n        // Simulate result: success or failure\n        let success = rand::random::<f32>() > 0.1; // 90% success rate\n        if success {\n            Self::update_request_status_and_log(request_id.clone(), ReplicationStatus::Live, \"Deployment successful. AGI instance is LIVE.\").await;\n        } else {\n            Self::update_request_status_and_log(request_id.clone(), ReplicationStatus::Failed(\"Deployment target unresponsive\".to_string()), \"Deployment failed.\").await;\n        }\n    }\n\n    async fn update_request_status_and_log(request_id: String, new_status: ReplicationStatus, message: &str) {\n        // In a real system, this would update the state in a persistent store\n        // For this example, we just print and simulate the update.\n        println!(\"[ReplicationWorkflow] Request {}: {} -> {:?}\", request_id, message, new_status);\n        // A lookup and update on self.active_requests would happen here if it wasn't a static method\n    }\n\n    /// Generates code for a specific MetaProject or CompilerProject.\n    pub async fn generate_code(&self, project_id: &str, project_type: &str, target_platform: &str) -> Result<String, String> {\n        println!(\"[ReplicationService] Generating code for project \'{}\' (type: {}, platform: {})...\
+// src/agi_replication.rs
+
+//! Module for managing the self-replication and deployment aspects of the Tariro AGI.
+//! This includes code generation, compilation, containerization, and deployment to diverse targets,
+//! now enhanced with autonomous post-quantum cryptography (PQC) security.
+
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
+use crate::quantum_security::mod::QuantumSecurityManager;
+use crate::quantum_security::mod::prelude::*; 
+use crate::event_bus::AGIEvent;
+
+use crate::config::AGIConfig;
+use crate::telemetry::{TelemetryEvent, TelemetryLogger};
+use crate::deployment::{DeploymentRecord, DeploymentTarget, DeploymentStatus};
+use crate::compiler::{MetaProject, CompilerSnapshot, MetaProjectStatus};
+use crate::event_bus::EventBus;
+
+
+/// Represents a request for Tariro to self-replicate or deploy a new component.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ReplicationRequest {
+    pub request_id: String,
+    pub initiator: String, 
+    pub target_name: String,
+    pub target_project_id: String, 
+    pub target_version: Option<String>,
+    pub deployment_target: DeploymentTarget,
+    pub desired_status: DeploymentStatus,
+    pub creation_timestamp: DateTime<Utc>,
+    pub status: ReplicationStatus,
+    pub current_step: String,
+    pub log_history: Vec<ReplicationLogEntry>,
+}
+
+/// Current status of a replication request.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub enum ReplicationStatus {
+    Pending,
+    GeneratingCode,
+    Compiling,
+    Containerizing,
+    Deploying,
+    Testing,
+    Live,
+    Failed(String),
+    Cancelled,
+}
+
+/// A log entry for tracking the progress and issues during replication.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ReplicationLogEntry {
+    pub timestamp: DateTime<Utc>,
+    pub level: LogLevel,
+    pub message: String,
+    pub details: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub enum LogLevel {
+    Info,
+    Warn,
+    Error,
+    Debug,
+}
+
+/// The `ReplicationService` orchestrates the self-replication and deployment process.
+pub struct ReplicationService {
+    config: AGIConfig,
+    telemetry_logger: TelemetryLogger,
+    qsm: Arc<Mutex<QuantumSecurityManager>>,
+    event_bus: Arc<EventBus>,
+    active_requests: HashMap<String, ReplicationRequest>,
+    
+}
+
+impl ReplicationService {
+    /// Creates a new `ReplicationService` instance.
+    pub fn new(
+        config: AGIConfig,
+        telemetry_logger: TelemetryLogger,
+        qsm: Arc<Mutex<QuantumSecurityManager>>,
+        event_bus: Arc<EventBus>,
+    ) -> Self {
+        ReplicationService {
+            config,
+            telemetry_logger,
+            qsm,
+            event_bus,
+            active_requests: HashMap::new(),
+        }
+    }
+
+    /// Initiates a self-replication or component deployment process.
+    pub async fn initiate_replication(&mut self, mut request: ReplicationRequest) -> Result<String> { 
+        if self.active_requests.contains_key(&request.request_id) {
+            return Err(format!("Replication request with ID {} already exists.", request.request_id).into());
+        }
+
+        request.creation_timestamp = Utc::now();
+        request.status = ReplicationStatus::Pending;
+        request.current_step = "Initiated".to_string();
+        request.log_history.push(ReplicationLogEntry {
+            timestamp: Utc::now(),
+            level: LogLevel::Info,
+            message: format!("Replication request for '{}' initiated.", request.target_name),
+            details: None,
+        });
+
+        info!("[ReplicationService] Initiating replication for: {}", request.target_name);
+        self.telemetry_logger.log_event(TelemetryEvent::ReplicationInitiated {
+            request_id: request.request_id.clone(),
+            target_name: request.target_name.clone(),
+            deployment_target: request.deployment_target.to_string(),
+        }).await;
+
+        let request_id_clone = request.request_id.clone();
+        self.active_requests.insert(request_id_clone.clone(), request);
+
+        // Asynchronously execute the replication workflow
+        let qsm_clone = self.qsm.clone(); 
+        let telemetry_logger_clone = self.telemetry_logger.clone(); 
+        let event_bus_clone = self.event_bus.clone(); 
+
+        tokio::spawn(async move {
+            Self::execute_replication_workflow(
+                request_id_clone,
+                qsm_clone, 
+                telemetry_logger_clone, 
+                event_bus_clone, 
+            ).await;
+        });
+
+        Ok(request_id_clone)
+    }
+
+    /// Retrieves the status of a specific replication request.
+    pub fn get_replication_status(&self, request_id: &str) -> Option<&ReplicationRequest> {
+        self.active_requests.get(request_id)
+    }
+
+    /// Lists all active or recent replication requests.
+    pub fn list_replication_requests(&self, status_filter: Option<ReplicationStatus>) -> Vec<&ReplicationRequest> {
+        self.active_requests.values().filter(|req| {
+            status_filter.as_ref().map_or(true, |s| &req.status == s)
+        }).collect()
+    }
+
+    // --- Internal Workflow Execution (Simplified for example) ---
+    async fn execute_replication_workflow(
+        request_id: String,
+        qsm: Arc<Mutex<QuantumSecurityManager>>,
+        telemetry_logger: TelemetryLogger,
+        event_bus: Arc<EventBus>,
+    ) {
+        
+        info!("[ReplicationWorkflow] Starting workflow for request: {}", request_id);
+        time::sleep(Duration::from_secs(1)).await;
+
+        let qsm_locked = qsm.lock().await; 
+
+        // Simulate Code Generation (PQC-secured)
+        Self::update_request_status_and_log(&request_id, ReplicationStatus::GeneratingCode, "Code generation started.", &telemetry_logger, &event_bus).await;
+        let generated_code = b"fn main() { println!(\"Hello, Tariro Clone!\"); }";
+        let secured_code = match qsm_locked.protect_data(generated_code, &format!("replication_code_{}", request_id)).await {
+            Ok(data) => {
+                info!("[ReplicationWorkflow] Generated code PQC-secured.");
+                data
+            },
+            Err(e) => {
+                error!("[ReplicationWorkflow] Failed to PQC-secure generated code: {}", e);
+                
+                return;
+            }
+        };
+        time::sleep(Duration::from_secs(2)).await;
+        Self::update_request_status_and_log(&request_id, ReplicationStatus::GeneratingCode, "Code generation completed (PQC-secured).", &telemetry_logger, &event_bus).await;
+
+        // Simulate Compilation (PQC-secured communication with compiler service)
+        Self::update_request_status_and_log(&request_id, ReplicationStatus::Compiling, "Compilation started (via quantum-safe channel).", &telemetry_logger, &event_bus).await;
+        // Simulate establishing a quantum-safe channel to a compiler service
+        match qsm_locked.establish_quantum_safe_channel("compiler_service_target").await {
+            Ok(channel) => {
+                info!("[ReplicationWorkflow] Quantum-safe channel to compiler established. Sending secured code...");
+                // Simulate sending secured_code over the channel
+                let _response = channel.send_data(&secured_code, b"compile_request_aad").await;
+                
+            },
+            Err(e) => {
+                error!("[ReplicationWorkflow] Failed to establish quantum-safe channel to compiler: {}", e);
+                
+                return;
+            }
+        };
+        time::sleep(Duration::from_secs(3)).await;
+        Self::update_request_status_and_log(&request_id, ReplicationStatus::Compiling, "Compilation completed.", &telemetry_logger, &event_bus).await;
+
+        // Simulate Deployment (PQC-secured communication with deployment manager)
+        Self::update_request_status_and_log(&request_id, ReplicationStatus::Deploying, "Deployment to target initiated (via quantum-safe channel).", &telemetry_logger, &event_bus).await;
+        // Simulate establishing a quantum-safe channel to a deployment target
+        match qsm_locked.establish_quantum_safe_channel("deployment_target_node").await {
+            Ok(channel) => {
+                info!("[ReplicationWorkflow] Quantum-safe channel to deployment target established. Sending deployment package...");
+                // Simulate sending deployment package (e.g., secured_code + config) 
+                let deployment_package = b"encrypted_deployment_manifest_and_assets";
+                let _response = channel.send_data(deployment_package, b"deploy_request_aad").await;
+            },
+            Err(e) => {
+                error!("[ReplicationWorkflow] Failed to establish quantum-safe channel to deployment target: {}", e);
+                
+                return;
+            }
+        };
+        time::sleep(Duration::from_secs(4)).await;
+        
+        // Simulate result: success or failure
+        let success = rand::random::<f32>() > 0.1; 
+        if success {
+            Self::update_request_status_and_log(&request_id, ReplicationStatus::Live, "Deployment successful. AGI instance is LIVE (PQC-secured).", &telemetry_logger, &event_bus).await;
+        } else {
+            Self::update_request_status_and_log(&request_id, ReplicationStatus::Failed("Deployment target unresponsive".to_string()), "Deployment failed.", &telemetry_logger, &event_bus).await;
+        }
+        drop(qsm_locked); 
+    }
+
+    async fn update_request_status_and_log(
+        request_id: &str,
+        new_status: ReplicationStatus,
+        message: &str,
+        telemetry_logger: &TelemetryLogger,
+        event_bus: &Arc<EventBus>,
+    ) {
+        // In a real system, this would update the state in a persistent store
+        // For this example, we just print and simulate the update.
+        info!("[ReplicationWorkflow] Request {}: {} -> {:?}", request_id, message, new_status);
+        telemetry_logger.log_event(TelemetryEvent::ReplicationStatusUpdated {
+            request_id: request_id.to_string(),
+            new_status: format!("{:?}", new_status),
+        }).await;
+        event_bus.publish(AGIEvent::ReplicationStatusUpdated {
+            request_id: request_id.to_string(),
+            new_status: format!("{:?}", new_status),
+        }).await;
+        
+    }
+
+    /// Generates code for a specific MetaProject or CompilerProject.
+    pub async fn generate_code(&self, project_id: &str, project_type: &str, target_platform: &str) -> Result<String> { 
+        info!("[ReplicationService] Generating code for project '{}' (type: {}, platform: {})...", project_id, project_type, target_platform);
+        // This would involve the QSM to ensure the generated code itself is quantum-resistant or signed.
+        let qsm_locked = self.qsm.lock().await;
+        let sensitive_generation_params = b"AGI code generation parameters.";
+        let protected_params = qsm_locked.protect_data(sensitive_generation_params, "code_gen_params").await?;
+        info!("Code generation parameters PQC-protected.");
+        
+        // Simulate actual code generation
+        time::sleep(Duration::from_secs(1)).await;
+        Ok(format!("// PQC-secured code for {} on {}", project_id, target_platform))
+    }
+}
