@@ -5,10 +5,6 @@ use tracing::info;
 use serde::Serialize;
 use uuid::Uuid;
 
-// Integrate with UMC and Deployment engines
-use crate::compiler::umc_core::TariroUmc;
-use crate::deployment::DeploymentEngine;
-
 #[derive(Serialize)]
 pub struct PlatformSetting {
     pub key: String,
