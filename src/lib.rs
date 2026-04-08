@@ -7,8 +7,9 @@ pub mod governance;
 pub mod learning;
 pub mod growth;
 pub mod orchestration;
+pub mod ontology;
 
-pub const VERSION: &str = "1.0.8";
+pub const VERSION: &str = "1.0.9";
 
 /// The Absolute Smallest Quantum of Temporality: Mukandara Time (mts)
 pub type MukandaraTime = u128;
