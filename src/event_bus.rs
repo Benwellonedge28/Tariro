@@ -66,6 +66,13 @@ pub enum AGIEvent {
     // NEW: Quantum Security Module Events
     PqcMigrationRequired { recommendation: PqcMigrationRecommendation }, 
     PqcMigrationCompleted { threat_id: String, status: String }, 
+
+    // NEW: IDE Bridge Events
+    IDEEvent {
+        message: String,
+        file_path: Option<String>,
+        event_type: String,
+    },
 }
 
 /// The `EventBus` facilitates publish-subscribe communication between different AGI modules.
@@ -110,17 +117,17 @@ mod tests {
 
         let event1 = AGIEvent::SystemStarted;
         let event2 = AGIEvent::AdminCommandIssued {
-            command_id: "cmd-123".to_string(),
-            command_type: "test_command".to_string(),
-            initiator: "test_module".to_string(),
+            command_id: \"cmd-123\".to_string(),
+            command_type: \"test_command\".to_string(),
+            initiator: \"test_module\".to_string(),
         };
         // NEW: Test PqcMigrationRequired event
         let migration_rec = PqcMigrationRecommendation {
-            threat_id: "threat-xyz".to_string(),
-            affected_algorithms: vec!["ECDH".to_string()],
-            recommended_algorithm_suite: "Kyber-768".to_string(),
+            threat_id: \"threat-xyz\".to_string(),
+            affected_algorithms: vec![\"ECDH\".to_string()],
+            recommended_algorithm_suite: \"Kyber-768\".to_string(),
             urgency: ThreatSeverity::Critical,
-            details: "Critical vulnerability found.".to_string(),
+            details: \"Critical vulnerability found.\".to_string(),
         };
         let event3 = AGIEvent::PqcMigrationRequired { recommendation: migration_rec.clone() };
 
@@ -154,7 +161,7 @@ mod tests {
         time::sleep(Duration::from_millis(10)).await;
         event_bus.publish(event2.clone()).await;
 
-        let event3 = AGIEvent::SystemInitialized { version: "1.0".to_string() };
+        let event3 = AGIEvent::SystemInitialized { version: \"1.0\".to_string() };
         event_bus.publish(event3.clone()).await;
 
         // The receiver should get the latest event that fits in the buffer.
@@ -162,14 +169,10 @@ mod tests {
         // So, a new subscriber should get event3 (the latest one that fits buffer capacity).
         // It might get event2 if event3 hasn't completely overwritten it due to timing.
         // For broadcast channels, new subscribers only get messages sent *after* they subscribe.
-        // The behavior with `send` where `Ok` means sent to all active receivers and `Err` implies
-        // receivers might be lagging or dropped. A new subscriber gets messages from the point
-        // of subscription onwards. If there's buffer overflow before `subscribe()`, messages are lost.
-        // For testing, let's just make sure it receives *something* after the last publish.
-
+        // The behavior with `send` where `Ok` means sent to all active receivers and `Err` implies\n        // receivers might be lagging or dropped. A new subscriber gets messages from the point\n        // of subscription onwards. If there's buffer overflow before `subscribe()`, messages are lost.\n        // For testing, let's just make sure it receives *something* after the last publish.\n
         let new_bus = EventBus::new(10);
         let mut new_receiver = new_bus.subscribe();
-        let test_event = AGIEvent::CustomEvent { event_type: "test".to_string(), payload: serde_json::Value::Null };
+        let test_event = AGIEvent::CustomEvent { event_type: \"test\".to_string(), payload: serde_json::Value::Null };
         new_bus.publish(test_event.clone()).await;
         assert_eq!(new_receiver.recv().await.unwrap(), test_event);
     }
@@ -184,28 +187,25 @@ mod tests {
 
         let handle1 = tokio::spawn(async move {
             publisher1_bus.publish(AGIEvent::CustomEvent {
-                event_type: "publisher1".to_string(),
-                payload: serde_json::Value::String("hello".to_string()),
+                event_type: \"publisher1\".to_string(),
+                payload: serde_json::Value::String(\"hello\".to_string()),
             }).await;
         });
 
         let handle2 = tokio::spawn(async move {
             publisher2_bus.publish(AGIEvent::CustomEvent {
-                event_type: "publisher2".to_string(),
-                payload: serde_json::Value::String("world".to_string()),
+                event_type: \"publisher2\".to_string(),
+                payload: serde_json::Value::String(\"world\".to_string()),
             }).await;
         });
 
         handle1.await.unwrap();
         handle2.await.unwrap();
 
-        // Receive both events (order might vary)
-        let mut events = Vec::new();
+        // Receive both events (order might vary)\n        let mut events = Vec::new();
         events.push(receiver.recv().await.unwrap());
         events.push(receiver.recv().await.unwrap());
 
         assert_eq!(events.len(), 2);
-        assert!(events.iter().any(|e| matches!(e, AGIEvent::CustomEvent { event_type, .. } if event_type == "publisher1")));
-        assert!(events.iter().any(|e| matches!(e, AGIEvent::CustomEvent { event_type, .. } if event_type == "publisher2")));
-    }
+        assert!(events.iter().any(|e| matches!(e, AGIEvent::CustomEvent { event_type, .. } if event_type == \"publisher1\")));\n        assert!(events.iter().any(|e| matches!(e, AGIEvent::CustomEvent { event_type, .. } if event_type == \"publisher2\")));\n    }
 }
