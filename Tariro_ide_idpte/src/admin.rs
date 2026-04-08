@@ -1,4 +1,4 @@
-// src/admin.rs (Comprehensive Admin Dashboard Backend)
+// src/admin.rs
 use sqlx::PgPool;
 use anyhow::Result;
 use tracing::info;
