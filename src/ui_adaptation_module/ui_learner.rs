@@ -1,19 +1,16 @@
-use std::collections::HashMap;
-
-pub struct UiLearner {
-    user_preferences: HashMap<String, String>,
-}
+pub struct UiLearner;
 
 impl UiLearner {
     pub fn new() -> Self {
-        UiLearner { user_preferences: HashMap::new() }
+        UiLearner { user_preferences: std::collections::HashMap::new() }
     }
 
     pub fn record_user_interaction(&mut self, user_id: &str, interaction_data: String) {
         println!("Recording interaction for user {}: {}", user_id, interaction_data);
         // Analyze interaction_data to update user_preferences
         // Example: if user frequently uses dark mode, store that preference
-        self.user_preferences.insert(user_id.to_string(), "dark_mode_preferred".to_string());
+        // For super-autonomy, this would update LearningInsights with fine-grained interaction metrics
+        self.user_preferences.insert(user_id.to_string(), "dark_mode_preferred, auto_focus_mode".to_string());
     }
 
     pub fn get_user_preferences(&self, user_id: &str) -> String {
