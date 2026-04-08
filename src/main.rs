@@ -37,6 +37,10 @@ use quantum_security::mod::{QuantumSecurityManager, QuantumAutonomyLevel};
 // Use the prelude from quantum_security for common types and the logging macro
 use quantum_security::mod::prelude as qsm_prelude;
 
+// NEW: QSM Notification Service
+mod qsm_notifications;
+use qsm_notifications::QsmNotificationService;
+
 use config::AGIConfig;
 use telemetry::TelemetryLogger;
 use admin::AdminService;
@@ -92,7 +96,7 @@ async fn main() -> qsm_prelude::Result<()> { // Use QSM's Result type
         .map_err(|e| format!("Failed to connect to database: {}", e))?);
     info!("Database service initialized.");
 
-    // NEW: 6. Initialize Quantum Security Manager - Supremely Autonomous
+    // 6. Initialize Quantum Security Manager - Supremely Autonomous
     info!("Initializing Quantum Security Manager with Full Autonomy...");
     let qsm = Arc::new(Mutex::new(
         QuantumSecurityManager::new(QuantumAutonomyLevel::FullAuto).await?
@@ -102,7 +106,7 @@ async fn main() -> qsm_prelude::Result<()> { // Use QSM's Result type
     // 7. Initialize core AGI services
     let admin_service = Arc::new(Mutex::new(AdminService::new(shared_config.clone(), telemetry_logger.clone())));
     let autonomy_policy_engine = Arc::new(AutonomyPolicyEngine::new(shared_config.clone(), telemetry_logger.clone(), db_service.clone()));
-    let meta_learning_service = Arc::new(Mutex::new(MetaLearningService::new(shared_config.clone(), telemetry_logger.clone(), db_service.clone())));
+    let meta_learning_service = Arc::new(Mutex::new(MetaLearningService::new(shared_config.clone(), telemetry_logger.clone(), db_service.clone(), qsm.clone()))); // Pass QSM
     let project_manager_service = Arc::new(Mutex::new(ProjectManagerService::new(shared_config.clone(), telemetry_logger.clone())));
     let agent_orchestration_engine = Arc::new(Mutex::new(AgentOrchestrationEngine::new(shared_config.clone(), telemetry_logger.clone())));
     let news_engine = Arc::new(Mutex::new(NewsEngine::new(shared_config.clone(), telemetry_logger.clone(), db_service.clone())));
@@ -121,6 +125,7 @@ async fn main() -> qsm_prelude::Result<()> { // Use QSM's Result type
         project_manager_service.clone(),
         agent_orchestration_engine.clone(),
         news_engine.clone(),
+        qsm.clone(), // Pass QSM
     ));
 
     // 9. Initialize API server state
@@ -132,31 +137,40 @@ async fn main() -> qsm_prelude::Result<()> { // Use QSM's Result type
         meta_learning_service: meta_learning_service.clone(),
     };
 
-    // NEW: 10. Start autonomous QSM background tasks
+    // 10. Initialize QSM Notification Service and start its autonomous monitoring
+    info!("Initializing QSM Notification Service...");
+    let qsm_notification_service = Arc::new(QsmNotificationService::new(
+        shared_config.clone(),
+        telemetry_logger.clone(),
+        db_service.clone(),
+        qsm.clone(),
+        event_bus.clone(),
+    ));
+    qsm_notification_service.initialize().await?;
+    info!("QSM Notification Service initialized and monitoring autonomously.");
+
+    // 11. Start autonomous QSM background tasks (already implemented for adapt_security_posture)
     let qsm_clone_for_tasks = qsm.clone();
+    let qsm_monitoring_interval_seconds = shared_config.qsm_monitoring_interval_seconds;
     tokio::spawn(async move {
         loop {
             // Autonomous adaptation to threats
             if let Err(e) = qsm_clone_for_tasks.lock().await.adapt_security_posture().await {
                 error!("QSM background task error during security posture adaptation: {}", e);
             }
-            // Simulate other continuous QSM operations like re-keying or data protection
-            // For now, simple sleep; in real scenario, this would be event-driven or smarter.
-            // NOTE: Add qsm_monitoring_interval_seconds to AGIConfig struct.
-            tokio::time::sleep(tokio::time::Duration::from_secs(600)).await; // Default to 10 minute check
+            tokio::time::sleep(tokio::time::Duration::from_secs(qsm_monitoring_interval_seconds)).await;
         }
     });
 
-    // 11. Start API server
+    // 12. Start API server
     let api_port = shared_config.api_port;
     let api_server = { 
         let routes = api::api_routes(api_state.clone());
         info!("API server starting on port {}.", api_port);
-        // Assuming 'warp' is defined in your existing API module, this will compile.
         warp::serve(routes).run(([127, 0, 0, 1], api_port))
     };
     
-    // 12. Start AGI Core operational loop
+    // 13. Start AGI Core operational loop
     let agi_core_clone = agi_core.clone();
     let agi_core_task = tokio::spawn(async move { 
         agi_core_clone.initialize().await.expect("Failed to initialize AGI Core");
@@ -166,7 +180,7 @@ async fn main() -> qsm_prelude::Result<()> { // Use QSM's Result type
     // Initialize NewsEngine (now after db_service is available)
     news_engine.lock().unwrap().initialize().await?;
 
-    // 13. Simulate some initial AGI events
+    // 14. Simulate some initial AGI events
     let event_bus_clone = event_bus.clone();
     tokio::spawn(async move {
         tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
