@@ -43,6 +43,7 @@ impl IdeCore {
         let ide_event = AGIEvent::IDEEvent {
             message: "User opened a file in IDE".to_string(),
             file_path: Some("/project/src/main.rs".to_string()),
+            event_type: "file_opened".to_string(), // Added event_type
         };
         if let Err(e) = self.event_bus.publish(ide_event).await {
             error!("IdeCore: Failed to publish IDE event: {}", e);
