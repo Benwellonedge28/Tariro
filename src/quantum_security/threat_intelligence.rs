@@ -1,11 +1,12 @@
+// src/quantum_security/threat_intelligence.rs
 
 //! Manages supremely autonomous quantum threat intelligence and adaptive responses for Tariro.
 
 use crate::quantum_security::prelude::*;
 use chrono::{DateTime, Utc, Duration};
-use std::sync::Arc;
-use tokio::sync::Mutex;
+use std::sync::{Arc, Mutex};
 use uuid::Uuid;
+use crate::event_bus::{EventBus, AGIEvent};
 
 /// Represents a detected quantum threat.
 #[derive(Debug, Clone)]
@@ -20,14 +21,25 @@ pub struct QuantumThreat {
 }
 
 /// Severity of a quantum threat.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)] 
 pub enum ThreatSeverity {
     Low,
     Medium,
     High,
     Critical,
-    Existential, // For the most severe, theoretical threats
+    Existential, 
 }
+
+/// NEW: Represents a recommendation for PQC migration.
+#[derive(Debug, Clone)]
+pub struct PqcMigrationRecommendation {
+    pub threat_id: String,
+    pub affected_algorithms: Vec<String>,
+    pub recommended_algorithm_suite: String, 
+    pub urgency: ThreatSeverity,
+    pub details: String,
+}
+
 
 /// The core component for Tariro's Quantum Threat Intelligence.
 /// Infinitely advanced means predictive and autonomously acting.
@@ -35,25 +47,34 @@ pub enum ThreatSeverity {
 pub struct QuantumThreatIntelligence {
     current_threat_model: Arc<Mutex<Vec<QuantumThreat>>>,
     last_model_update: Arc<Mutex<DateTime<Utc>>>,
-    // Advanced features:
-    predictive_analytics_engine_active: bool, // Utilizes ML to forecast threats
-    external_quantum_sensors_active: bool, // Hypothetical integration with quantum measurement devices
+    predictive_analytics_engine_active: bool,
+    external_quantum_sensors_active: bool,
+    active_pqc_algorithms: Arc<Mutex<Vec<String>>>,
+    event_bus: Arc<EventBus>,
 }
 
 impl QuantumThreatIntelligence {
     /// Initializes the Quantum Threat Intelligence system.
-    /// Autonomously fetches and processes initial threat data.
-    pub async fn new() -> Result<Self> {
+    pub async fn new(active_pqc_algorithms: Vec<String>, event_bus: Arc<EventBus>) -> Result<Self> { 
         tariro_log!(info, "Initializing QuantumThreatIntelligence system.");
         let mut instance = Self {
             current_threat_model: Arc::new(Mutex::new(Vec::new())),
             last_model_update: Arc::new(Mutex::new(Utc::now())),
             predictive_analytics_engine_active: true,
             external_quantum_sensors_active: false,
+            active_pqc_algorithms: Arc::new(Mutex::new(active_pqc_algorithms)), 
+            event_bus, 
         };
         // Perform initial autonomous threat model update
         instance.update_threat_model().await?;
         Ok(instance)
+    }
+
+    /// NEW: Update the list of PQC algorithms currently active in Tariro.
+    pub async fn update_active_pqc_algorithms(&self, new_algorithms: Vec<String>) {
+        let mut active = self.active_pqc_algorithms.lock().await;
+        *active = new_algorithms;
+        tariro_log!(info, "QuantumThreatIntelligence: Updated active PQC algorithms to: {:?}", active);
     }
 
     /// Autonomously updates the quantum threat model by fetching new data,
@@ -70,7 +91,7 @@ impl QuantumThreatIntelligence {
         *self.last_model_update.lock().await = Utc::now();
 
         // Autonomic analysis and adaptive response triggering
-        self.analyze_and_adapt(&current_model).await?;
+        self.analyze_and_adapt(&current_model).await?; 
 
         tariro_log!(info, "Quantum threat model updated. Current active threats: {}", current_model.len());
         Ok(())
@@ -85,7 +106,8 @@ impl QuantumThreatIntelligence {
         // 4. Incorporate data from Tariro's own quantum sensor network (if `external_quantum_sensors_active`).
 
         let mut threats = Vec::new();
-        if Utc::now().hour() % 2 == 0 { // Simulate periodic new threat detection
+        // Simulate periodic new threat detection
+        if Utc::now().minute() % 5 == 0 { 
             threats.push(QuantumThreat {
                 id: Uuid::new_v4().to_string(),
                 description: "New theoretical attack vector for current elliptic curve cryptography based on improved quantum factoring algorithms.".to_string(),
@@ -93,7 +115,18 @@ impl QuantumThreatIntelligence {
                 affected_algorithms: vec!["ECDH".to_string(), "ECDSA".to_string()],
                 recommended_action: "Increase re-keying frequency, prioritize transition to lattice-based KEX.".to_string(),
                 timestamp: Utc::now(),
-                predicted_impact_date: Some(Utc::now() + Duration::days(365 * 3)), // 3 years
+                predicted_impact_date: Some(Utc::now() + Duration::days(365 * 3)), 
+            });
+        }
+        if Utc::now().second() % 30 == 0 { 
+             threats.push(QuantumThreat {
+                id: Uuid::new_v4().to_string(),
+                description: "BREAKING: Practical post-quantum attack on Kyber-512 variant demonstrated in controlled lab environment.".to_string(),
+                severity: ThreatSeverity::Critical,
+                affected_algorithms: vec!["Kyber-512".to_string()],
+                recommended_action: "Immediate migration to Kyber-768 or Kyber-1024, or alternative PQC suite.".to_string(),
+                timestamp: Utc::now(),
+                predicted_impact_date: Some(Utc::now() + Duration::days(30)), 
             });
         }
         Ok(threats)
@@ -104,31 +137,52 @@ impl QuantumThreatIntelligence {
     async fn analyze_and_adapt(&self, threat_model: &[QuantumThreat]) -> Result<()> {
         tariro_log!(debug, "Analyzing threat model for autonomous adaptation.");
 
-        let mut critical_threat_detected = false;
+        let active_algs = self.active_pqc_algorithms.lock().await;
+
         for threat in threat_model {
-            if threat.severity == ThreatSeverity::Critical || threat.severity == ThreatSeverity::Existential {
-                critical_threat_detected = true;
-                tariro_log!(error, "CRITICAL QUANTUM THREAT DETECTED: {}", threat.description);
-                // Trigger immediate, forceful PQC migration across all systems.
-                // This would involve direct interaction with QuantumSecurityManager to enforce new algorithms.
-                // Also, notify Samuel Mukandara directly via neural alert.
-                // Default_api::create_NotificationRecord could be called here.
-            } else if threat.severity == ThreatSeverity::High {
-                tariro_log!(warn, "High severity quantum threat: {}", threat.description);
-                // Suggest proactive changes, increase monitoring.
+            // Check if this threat affects any of our currently active algorithms
+            let affects_active_alg = threat.affected_algorithms.iter()
+                .any(|threat_alg| active_algs.contains(threat_alg));
+
+            if affects_active_alg {
+                tariro_log!(warn, "Detected threat affecting ACTIVE PQC algorithms: {:?} due to {:?}", threat.affected_algorithms, threat.severity);
+
+                // For critical/existential threats affecting active algorithms, trigger migration event
+                if threat.severity >= ThreatSeverity::Critical { // Using >= because Existential > Critical
+                    tariro_log!(error, "CRITICAL QUANTUM THREAT DETECTED affecting active algorithms: {}", threat.description);
+                    
+                    let recommendation = self.get_migration_recommendation(threat).await;
+                    self.event_bus.publish(AGIEvent::PqcMigrationRequired {
+                        recommendation: recommendation.clone()
+                    }).await;
+                    tariro_log!(critical, "Published PqcMigrationRequired event for threat: {}. Urgency: {:?}", threat.id, recommendation.urgency);
+                }
+            } else {
+                tariro_log!(info, "Detected quantum threat (severity {:?}) not currently affecting active algorithms.", threat.severity);
             }
         }
-
-        if critical_threat_detected {
-            // For infinitely advanced: The system would not wait for human intervention.
-            // It would autonomously initiate fallback to pre-approved, highest-security PQC modes.
-            // It could also self-modify its own cryptographic implementations on the fly.
-            tariro_log!(critical, "Autonomous emergency security posture activation due to critical quantum threat.");
-            // Example: Force QuantumSecurityManager to re-select algorithms
-            // (requires a way to get a mutable reference to QSM, e.g., through a global manager)
-        }
-
         Ok(())
+    }
+
+    /// NEW: Provides a PQC migration recommendation based on a detected threat.
+    pub async fn get_migration_recommendation(&self, threat: &QuantumThreat) -> PqcMigrationRecommendation {
+        // This is where advanced AI would dynamically determine the best next steps.
+        // For infinitely advanced: this would involve real-time PQC algorithm benchmarking,
+        // compatibility checks, and a complex decision-making process.
+        
+        let recommended_suite = match threat.severity {
+            ThreatSeverity::Existential | ThreatSeverity::Critical => "Kyber-768, Dilithium-III, Falcon-512".to_string(),
+            ThreatSeverity::High => "Kyber-768, Dilithium-II".to_string(),
+            _ => "Review existing PQC algorithms.".to_string(),
+        };
+
+        PqcMigrationRecommendation {
+            threat_id: threat.id.clone(),
+            affected_algorithms: threat.affected_algorithms.clone(),
+            recommended_algorithm_suite: recommended_suite,
+            urgency: threat.severity.clone(),
+            details: threat.recommended_action.clone(),
+        }
     }
 
     /// Retrieves the current quantum threat landscape.
