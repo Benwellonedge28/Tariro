@@ -25,8 +25,10 @@ pub struct AGIConfig {
     pub database_url: String,
     pub api_port: u16,
     pub agi_settings: HashMap<String, String>, // Dynamic AGI-specific settings
-    pub super_admin_email: String, // NEW: For critical notifications
-    pub qsm_monitoring_interval_seconds: u64, // NEW: Interval for QSM threat monitoring
+    pub super_admin_email: String, // For critical notifications
+    pub qsm_monitoring_interval_seconds: u64, // Interval for QSM threat monitoring
+    pub system_health_monitoring_interval_seconds: u64, // NEW: Interval for general system health checks
+    pub self_correction_enabled: bool, // NEW: Enable/disable self-correction mechanisms
 }
 
 impl Default for AGIConfig {
@@ -48,8 +50,10 @@ impl Default for AGIConfig {
             database_url: "mongodb://localhost:27017/tariro_agi".to_string(),
             api_port: 8080,
             agi_settings,
-            super_admin_email: "samuelmukandara@gmail.com".to_string(), // NEW: Default to Samuel's email
-            qsm_monitoring_interval_seconds: 600, // NEW: Default to 10 minutes
+            super_admin_email: "samuelmukandara@gmail.com".to_string(),
+            qsm_monitoring_interval_seconds: 600,
+            system_health_monitoring_interval_seconds: 300, // NEW: Default to 5 minutes
+            self_correction_enabled: true, // NEW: Enabled by default
         }
     }
 }
@@ -65,7 +69,7 @@ impl AGIConfig {
 
     /// Saves the current configuration to a TOML file.
     pub fn save<P: AsRef<Path>>(&self, path: P) -> Result<(), String> {
-        let toml_string = toml::to_string_pretty(self)
+        let toml_string = toml::to_to_string_pretty(self)
             .map_err(|e| format!("Failed to serialize config: {}", e))?;
         fs::write(path, toml_string)
             .map_err(|e| format!("Failed to write config file: {}", e))?
@@ -99,8 +103,10 @@ mod tests {
         assert_eq!(config.system_name, "Tariro AGI");
         assert_eq!(config.api_port, 8080);
         assert!(config.agi_settings.get("autonomy.default_level").unwrap() == "suggest_only");
-        assert_eq!(config.super_admin_email, "samuelmukandara@gmail.com"); 
-        assert_eq!(config.qsm_monitoring_interval_seconds, 600); 
+        assert_eq!(config.super_admin_email, "samuelmukandara@gmail.com");
+        assert_eq!(config.qsm_monitoring_interval_seconds, 600);
+        assert_eq!(config.system_health_monitoring_interval_seconds, 300); 
+        assert_eq!(config.self_correction_enabled, true); 
     }
 
     #[test]
@@ -108,8 +114,10 @@ mod tests {
         let mut config = AGIConfig::default();
         config.system_name = "Test Tariro".to_string();
         config.update_setting("test.key", "test_value");
-        config.super_admin_email = "test@example.com".to_string(); 
-        config.qsm_monitoring_interval_seconds = 300; 
+        config.super_admin_email = "test@example.com".to_string();
+        config.qsm_monitoring_interval_seconds = 300;
+        config.system_health_monitoring_interval_seconds = 120; 
+        config.self_correction_enabled = false; 
 
         let temp_dir = tempfile::tempdir().unwrap();
         let file_path = temp_dir.path().join("test_config.toml");
@@ -119,8 +127,10 @@ mod tests {
 
         assert_eq!(loaded_config.system_name, "Test Tariro");
         assert_eq!(loaded_config.get_setting("test.key").unwrap(), "test_value");
-        assert_eq!(loaded_config.super_admin_email, "test@example.com"); 
-        assert_eq!(loaded_config.qsm_monitoring_interval_seconds, 300); 
+        assert_eq!(loaded_config.super_admin_email, "test@example.com");
+        assert_eq!(loaded_config.qsm_monitoring_interval_seconds, 300);
+        assert_eq!(loaded_config.system_health_monitoring_interval_seconds, 120); 
+        assert_eq!(loaded_config.self_correction_enabled, false); 
 
         temp_dir.close().unwrap();
     }
