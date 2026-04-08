@@ -1,14 +1,8 @@
 // src/autocorrection/bug_detector.rs
-
-//! Module for proactively detecting bugs and anomalies based on system logs and performance metrics.
-
-use crate::default_api::{SystemHealthLog, PerformanceLog, ExplainabilityLog};
-use chrono::{Duration, Utc, DateTime};
+use chrono::{Duration, Utc};
 use std::collections::HashMap;
 
-/// The `BugDetector` is responsible for analyzing various system logs to identify potential issues.
 pub struct BugDetector {
-    // Configuration for detection thresholds, anomaly patterns, etc.
     health_threshold: f32,
     error_rate_threshold: f32,
 }
@@ -16,37 +10,46 @@ pub struct BugDetector {
 impl BugDetector {
     pub fn new() -> Self {
         BugDetector {
-            health_threshold: 0.7, // e.g., if response_quality_score drops below 0.7
-            error_rate_threshold: 0.05, // e.g., if more than 5% of operations fail
+            health_threshold: 0.7,
+            error_rate_threshold: 0.05,
         }
     }
 
-    /// Analyzes a collection of `SystemHealthLog` entries for critical or degraded statuses.
-    pub fn analyze_system_health(&self, logs: &[SystemHealthLog]) -> Vec<String> {
+    pub fn analyze_system_health(&self, logs: &[String]) -> Vec<String> {
         let mut issues = Vec::new();
-        for log in logs {
-            match log.status {
-                crate::default_api::SystemHealthLogStatus::Critical => {
-                    issues.push(format!("Critical health issue detected in component '{}': {}. Details: {}",
-                        log.component, log.status, log.details.as_deref().unwrap_or("N/A")));
-                },
-                crate::default_api::SystemHealthLogStatus::Degraded => {
-                    issues.push(format!("Degraded health detected in component '{}': {}. Details: {}",
-                        log.component, log.status, log.details.as_deref().unwrap_or("N/A")));
-                },
-                _ => { /* Healthy or Unknown, no issue */ }
+        for log_entry in logs {
+            if log_entry.contains("critical") {
+                issues.push(format!("Critical health issue detected: {}", log_entry));
             }
         }
         issues
     }
 
-    pub fn detect_bugs(&self, 
-                       health_logs: &[SystemHealthLog],
-                       performance_logs: &[PerformanceLog],
-                       explain_logs: &[ExplainabilityLog]) -> Vec<String> {
+    pub fn analyze_performance_metrics(&self, logs: &[String]) -> Vec<String> {
+        let mut issues = Vec::new();
+        for log_entry in logs {
+            if log_entry.contains("degraded performance") {
+                issues.push(format!("Degraded performance detected: {}", log_entry));
+            }
+        }
+        issues
+    }
+
+    pub fn analyze_explainability_logs(&self, logs: &[String]) -> Vec<String> {
+        let mut issues = Vec::new();
+        for log_entry in logs {
+            if log_entry.contains("risk flags") {
+                issues.push(format!("Explainability log contains risk flags: {}", log_entry));
+            }
+        }
+        issues
+    }
+
+    pub fn detect_bugs(&self, health_logs: &[String], performance_logs: &[String], explain_logs: &[String]) -> Vec<String> {
         let mut all_issues = Vec::new();
         all_issues.extend(self.analyze_system_health(health_logs));
-        // ... (other analysis methods omitted for brevity)
+        all_issues.extend(self.analyze_performance_metrics(performance_logs));
+        all_issues.extend(self.analyze_explainability_logs(explain_logs));
         all_issues
     }
 }
