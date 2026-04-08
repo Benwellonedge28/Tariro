@@ -5,6 +5,8 @@
 use tokio::sync::broadcast;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
+// NEW: Import PqcMigrationRecommendation
+use crate::quantum_security::threat_intelligence::PqcMigrationRecommendation;
 
 // Define a generic AGIEvent enum that can encompass various system events
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -14,6 +16,13 @@ pub enum AGIEvent {
     SystemStarted,
     SystemShutdown,
     ErrorOccurred { message: String, details: Option<String> },
+    // NEW: System alert for critical QSM events
+    SystemAlert { message: String, component: String, severity: String }, 
+    // NEW: System status update for ongoing processes like PQC migration
+    SystemStatusUpdate { message: String, component: String, status: String }, 
+    // NEW: Critical Alert from QSM
+    CriticalSystemAlert { message: String },
+
 
     // Admin/Control Events
     AdminCommandIssued { command_id: String, command_type: String, initiator: String },
@@ -53,6 +62,10 @@ pub enum AGIEvent {
 
     // Custom/Extension Events
     CustomEvent { event_type: String, payload: serde_json::Value },
+
+    // NEW: Quantum Security Module Events
+    PqcMigrationRequired { recommendation: PqcMigrationRecommendation }, 
+    PqcMigrationCompleted { threat_id: String, status: String }, 
 }
 
 /// The `EventBus` facilitates publish-subscribe communication between different AGI modules.
@@ -71,9 +84,9 @@ impl EventBus {
 
     /// Publishes an event to the bus.
     pub async fn publish(&self, event: AGIEvent) {
-        //println!("[EventBus] Publishing event: {:?}", event);
+        //println!("[EventBus] Publishing event: {:?}", event); // Use info! or debug! for logging in real system
         if let Err(e) = self.sender.send(event.clone()) {
-            eprintln!("[EventBus] Failed to publish event: {:?}. Error: {}", event, e);
+            eprintln!("[EventBus] Failed to publish event: {:?}. Error: {}", event, e); // Use error! for logging
         }
     }
 
@@ -87,6 +100,7 @@ impl EventBus {
 mod tests {
     use super::*;
     use tokio::time::{self, Duration};
+    use crate::quantum_security::threat_intelligence::{QuantumThreat, ThreatSeverity, PqcMigrationRecommendation}; 
 
     #[tokio::test]
     async fn test_event_bus_publish_subscribe() {
@@ -100,17 +114,30 @@ mod tests {
             command_type: "test_command".to_string(),
             initiator: "test_module".to_string(),
         };
+        // NEW: Test PqcMigrationRequired event
+        let migration_rec = PqcMigrationRecommendation {
+            threat_id: "threat-xyz".to_string(),
+            affected_algorithms: vec!["ECDH".to_string()],
+            recommended_algorithm_suite: "Kyber-768".to_string(),
+            urgency: ThreatSeverity::Critical,
+            details: "Critical vulnerability found.".to_string(),
+        };
+        let event3 = AGIEvent::PqcMigrationRequired { recommendation: migration_rec.clone() };
+
 
         event_bus.publish(event1.clone()).await;
         event_bus.publish(event2.clone()).await;
+        event_bus.publish(event3.clone()).await; 
 
-        // Receiver 1 should get both events
+        // Receiver 1 should get all events
         assert_eq!(receiver1.recv().await.unwrap(), event1);
         assert_eq!(receiver1.recv().await.unwrap(), event2);
+        assert_eq!(receiver1.recv().await.unwrap(), event3); 
 
-        // Receiver 2 should also get both events
+        // Receiver 2 should also get all events
         assert_eq!(receiver2.recv().await.unwrap(), event1);
         assert_eq!(receiver2.recv().await.unwrap(), event2);
+        assert_eq!(receiver2.recv().await.unwrap(), event3); 
     }
 
     #[tokio::test]
@@ -127,18 +154,19 @@ mod tests {
         time::sleep(Duration::from_millis(10)).await;
         event_bus.publish(event2.clone()).await;
 
-        // A new subscriber will only receive events *after* it subscribes, plus any buffered ones.
-        // With capacity 1, if sender sends two quickly, only the last one sent will be kept.
-        // So, a new subscriber should get event2 (the latest one that fits buffer capacity).
         let event3 = AGIEvent::SystemInitialized { version: "1.0".to_string() };
         event_bus.publish(event3.clone()).await;
 
         // The receiver should get the latest event that fits in the buffer.
-        // In a broadcast channel with capacity N, a new receiver will miss messages if N messages
-        // have been sent *after* the receiver was created and *before* it tries to receive.
-        // If the sender sends faster than receiver, some messages might be dropped if the buffer is full.
+        // With capacity 1, if sender sends two quickly, only the last one sent will be kept.
+        // So, a new subscriber should get event3 (the latest one that fits buffer capacity).
+        // It might get event2 if event3 hasn't completely overwritten it due to timing.
+        // For broadcast channels, new subscribers only get messages sent *after* they subscribe.
+        // The behavior with `send` where `Ok` means sent to all active receivers and `Err` implies
+        // receivers might be lagging or dropped. A new subscriber gets messages from the point
+        // of subscription onwards. If there's buffer overflow before `subscribe()`, messages are lost.
+        // For testing, let's just make sure it receives *something* after the last publish.
 
-        // Let's test a simpler scenario: sender sends, then subscriber gets.
         let new_bus = EventBus::new(10);
         let mut new_receiver = new_bus.subscribe();
         let test_event = AGIEvent::CustomEvent { event_type: "test".to_string(), payload: serde_json::Value::Null };
