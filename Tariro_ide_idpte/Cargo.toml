@@ -1,0 +1,30 @@
+[package]
+name = "tariro_ide_idpte"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+syntect = "0.15.0"
+lazy_static = "1.4.0"
+tokio = { workspace = true }
+axum = "0.7.5"
+tower-http = { version = "0.5.2", features = ["fs", "trace"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+walkdir = "2.3.2"
+tokio-util = { version = "0.7.10", features = ["codec"] }
+futures = { workspace = true }
+urlencoding = "2.1.3"
+chrono = { workspace = true }
+uuid = { workspace = true }
+log = { workspace = true }
+simple_logger = { workspace = true }
+lsp-types = "0.94"
+lsp-server = { version = "0.7", features = ["proposed"] }
+thiserror = "1.0"
+sqlx = { version = "0.7", features = ["runtime-tokio", "tls-rustls", "postgres", "chrono", "uuid"] }
+anyhow = "1.0"
+tracing = "0.1"
+md5 = "0.7"
+rand = "0.8"
+tempfile = "3"

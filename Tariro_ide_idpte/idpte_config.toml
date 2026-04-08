@@ -1,0 +1,122 @@
+# idpte_config.toml (AGI, CI/CD, Sec Orchestration Configs)
+
+[core]
+data_dir = "./data"
+log_level = "info"
+enable_auto_updates = true
+
+[security]
+enable_ai_threat_modeling = true
+supply_chain_scan_frequency_hours = 24
+constitutional_compiler_strictness = 0.8
+autonomous_pentesting_enabled = true 
+
+[integrations]
+github_username = "Benwellonedge28"
+ide_bridge_enabled = false
+tariro_runtime_endpoint = "http://localhost:8080"
+
+[language_support]
+enable_trinity_compiler = true
+enable_zenith_support = true
+enable_nimbus_integration = true
+enable_sankofa_framework = true
+enable_rust_toolchain = true
+polyglot_runtime_enabled = true
+
+[sync]
+enabled = true
+sync_interval_minutes = 5
+external_ide_paths = ["/Users/samuel/omega_os"]
+git_auto_sync = true
+
+[monitoring]
+enabled = true
+scan_interval_seconds = 60
+systems_to_monitor = ["OMEGA OS Kernel", "Tariro Runtime", "Web Services", "IDPTE Backend"]
+enable_ai_anomaly_detection = true
+enable_auto_maintenance = true
+
+[versioning]
+enabled = true
+immutable_ledger_backend = "MerkleDAG"
+enable_ai_semantic_branching = true
+digital_twin_snapshot_on_commit = true
+max_history_depth_days = 365
+
+[digital_twin]
+enabled = true
+simulation_accuracy = 0.95
+auto_run_tests_on_changes = true
+target_platforms = ["x86_64", "ARM64", "WASM"]
+enable_adversarial_simulation = true
+
+[runtime_evolution]
+enabled = true
+runtime_id = "Tariro_Main_Runtime_001"
+enable_self_optimization = true
+enable_adaptive_patching = true
+enable_feature_expansion = false
+optimization_target = "performance"
+
+[cognitive_arch]
+enabled = true
+enable_consciousness_interface = false
+ethical_alignment_strictness = 0.99
+cognitive_architecture_blueprint_path = "./blueprints/tariro_cognition.json"
+enable_qualia_simulation = false
+
+[meta_design]
+enabled = true
+enable_generative_architecture = true
+enable_algorithmic_governance = true
+enable_computational_phylogeny = false
+preferred_architecture_patterns = ["Microservices", "DistributedLedger"]
+
+[knowledge_synthesis]
+enabled = true
+enable_cross_ontology_mapping = true
+enable_pan_modal_integration = true
+knowledge_graph_backend = "CustomSemanticNetwork"
+minimum_confidence_for_synthesis = 0.75
+
+[temporal_eng]
+enabled = true
+enable_predictive_causal_modeling = true
+enable_retro_causal_debugging = true
+max_prediction_horizon_days = 30
+causal_analysis_depth = 5
+
+[agi_cloning]
+enabled = true
+agi_master_blueprint_path = "./blueprints/tariro_agi_master.json"
+enable_autonomous_cloning = false
+enable_agi_metamorphosis = false
+agi_clone_prefix = "Tariro-Clone-"
+ethical_clone_verification = true
+
+[archival]
+enabled = true
+archive_interval_days = 30
+redundancy_factor = 12
+durability_target_years = 1000000
+enable_bootstrap_verification = true
+storage_substrate = "SyntheticDNA"
+
+[file_management]
+enabled = true
+database_url = "postgresql://localhost/tariro"
+auto_merge_identical_logic = true
+rename_on_conflict = true
+sort_by_language = true
+enable_ml_code_analysis = true
+polymorphic_shielding_enabled = true
+
+[evas]
+enabled = true
+evolution_enabled = true
+monitoring_strictness = 0.9
+self_correction_enabled = true
+
+[ci_cd]
+enabled = true

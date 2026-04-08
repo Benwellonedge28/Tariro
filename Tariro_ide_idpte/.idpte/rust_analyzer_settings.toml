@@ -1,0 +1,24 @@
+# .idpte/rust_analyzer_settings.toml
+# Configuration for Rust language server (Rust Analyzer) within Tariro IDPTE
+
+[rust-analyzer]
+# Enable cargo check on save
+checkOnSave = { command = "clippy", extraArgs = ["--", "-Wclippy::pedantic", "-Aclippy::missing_docs"] }
+
+# Formatting settings
+rustfmt = { enable = true, extraArgs = ["--edition", "2021"] }
+
+# Inlay hints for types and parameters
+inlayHints = { typeHints = true, parameterHints = true }
+
+# Cargo features to activate
+# cargo = { features = ["full", "async"] }
+
+[editor]
+# Default indentation for Rust files
+tabSize = 4
+insertSpaces = true
+
+[files]
+# Files to exclude from indexing
+exclude = ["target/**", "node_modules/**"]
