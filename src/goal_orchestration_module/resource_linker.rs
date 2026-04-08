@@ -2,7 +2,7 @@ pub struct ResourceLinker;
 
 impl ResourceLinker {
     pub fn new() -> Self {
-        ResourceLinker
+        ResourceLinker {}
     }
 
     pub fn find_relevant_resources(&self, task: &str) -> Vec<String> {

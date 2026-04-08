@@ -2,7 +2,7 @@ pub struct GoalDecomposer;
 
 impl GoalDecomposer {
     pub fn new() -> Self {
-        GoalDecomposer
+        GoalDecomposer {}
     }
 
     pub fn decompose_goal(&self, goal_description: &str) -> Vec<String> {
