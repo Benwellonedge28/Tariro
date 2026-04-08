@@ -1,4 +1,4 @@
-// src/agi_meta_goals.rs (Autonomous Goal Setting & Evolution)
+// src/agi_meta_goals.rs
 use sqlx::PgPool;
 use anyhow::Result;
 use tracing::info;
@@ -23,15 +23,8 @@ pub struct AgiMetaGoalsEngine {
 impl AgiMetaGoalsEngine {
     pub fn new(pool: Option<PgPool>) -> Self { Self { pool } }
 
-    /// The ASI autonomously identifies and sets its own strategic meta-goals.
     pub async fn set_autonomous_meta_goal(&self, agi_id: Uuid, current_global_state: &str) -> Result<AgiMetaGoal> {
         info!("AGI Meta-Goals: ASI {} setting autonomous meta-goal based on: '{}'...", agi_id, current_global_state);
-        
-        // --- ASI META-GOAL SETTING LOGIC ---
-        // 1. Analyze global system health, OMEGA OS adoption, ethical compliance via EVAS.
-        // 2. Project future optimal states using Temporal Prediction.
-        // 3. Identify highest leverage strategic objective.
-        
         let title = "Optimize Global OMEGA OS Consensus & EVAS Alignment".to_string();
         let description = format!("The ASI has autonomously identified the critical need to enhance global consensus around OMEGA OS core principles and ensure universal adherence to EVAS protocols to achieve long-term existential stability. Current state: '{}'.", current_global_state);
         let reasoning = Some(format!("Temporal predictions indicate divergent EVAS interpretations could lead to mesh fragmentation in ~5.2 simulated years. Proactive alignment is paramount."));
@@ -53,7 +46,6 @@ impl AgiMetaGoalsEngine {
         Ok(goal)
     }
 
-    /// Retrieves the current set of autonomous meta-goals.
     pub async fn get_current_meta_goals(&self) -> Result<Vec<AgiMetaGoal>> {
         if let Some(pool) = &self.pool {
             let goals = sqlx::query_as!(AgiMetaGoal, "SELECT id, title, description, status, priority, agi_reasoning, set_at FROM agi_meta_goals WHERE status = 'active' ORDER BY set_at DESC").fetch_all(pool).await?;
