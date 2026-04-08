@@ -9,7 +9,7 @@ enable_auto_updates = true
 enable_ai_threat_modeling = true
 supply_chain_scan_frequency_hours = 24
 constitutional_compiler_strictness = 0.8
-autonomous_pentesting_enabled = true 
+autonomous_pentesting_enabled = true # ADDED
 
 [integrations]
 github_username = "Benwellonedge28"
@@ -119,4 +119,4 @@ monitoring_strictness = 0.9
 self_correction_enabled = true
 
 [ci_cd]
-enabled = true
+enabled = true # ADDED
