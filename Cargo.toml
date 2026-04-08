@@ -1,42 +1,14 @@
-[workspace]
-members = [
-    ".",
-    "Tariro_ide_idpte",
-]
-resolver = "2"
-
 [package]
-name = "tariro_core_services"
+name = "tariro-universal-meta-compiler"
 version = "0.1.0"
 edition = "2021"
-
-[workspace.dependencies]
-tokio = { version = "1", features = ["full"] }
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-chrono = { version = "0.4", features = ["serde"] }
-uuid = { version = "1", features = ["v4", "serde"] }
-futures = "0.3"
-log = "0.4"
-simple_logger = "1.13"
+authors = ["Samuel Mukandara", "Tariro AGI"]
+description = "Core implementation of the Universal Meta-Compiler and POCO-REAF System"
 
 [dependencies]
-axum = "0.7"
-reqwest = { version = "0.12", features = ["json"] }
-urlencoding = "0.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.0", features = ["full"] }
 async-trait = "0.1"
-walkdir = "2"
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-aes-gcm = "0.10.1"
-rand_core = { version = "0.6", features = ["std"] }
-Tariro_ide_idpte = { path = "Tariro_ide_idpte" }
-
-tokio = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
-chrono = { workspace = true }
-uuid = { workspace = true }
-futures = { workspace = true }
-log = { workspace = true }
-simple_logger = { workspace = true }
+uuid = { version = "1.0", features = ["v4"] }
+num-complex = "0.4" # For Quantum states
