@@ -3,7 +3,7 @@
 //! Main entry point for the Tariro AGI (Artificial General Intelligence) system.
 //! This module initializes the core components, sets up the runtime environment,
 //! and starts the main operational loops for the AGI, now including
-//! the supremely autonomous Quantum Security Module.
+//! the supremely autonomous Quantum Security Module and the IDE Bridge.
 
 #[macro_use]
 extern crate log;
@@ -52,6 +52,9 @@ use self_correction::SelfCorrectionService;
 // NEW: Self-Modification Service
 mod self_modification;
 use self_modification::SelfModificationService;
+
+// NEW: IDE Bridge Integration
+use Tariro_ide_idpte::start_ide_bridge; // Import the exposed function from the IDE Bridge crate
 
 use config::AGIConfig;
 use telemetry::TelemetryLogger;
@@ -199,8 +202,14 @@ async fn main() -> qsm_prelude::Result<()> { // Use QSM's Result type
     self_modification_service.initialize().await?;
     info!("Self-Modification Service initialized and starting autonomous cycles.");
 
+    // NEW: 14. Start the IDE Bridge in an asynchronous task
+    info!("Starting Tariro IDE Bridge...");
+    tokio::spawn(async move {
+        start_ide_bridge().await;
+    });
 
-    // 14. Start autonomous QSM background tasks (already implemented for adapt_security_posture)
+
+    // 15. Start autonomous QSM background tasks (already implemented for adapt_security_posture)
     let qsm_clone_for_tasks = qsm.clone();
     let qsm_monitoring_interval_seconds = shared_config.qsm_monitoring_interval_seconds;
     tokio::spawn(async move {
@@ -213,15 +222,12 @@ async fn main() -> qsm_prelude::Result<()> { // Use QSM's Result type
         }
     });
 
-    // 15. Start API server
+    // 16. Start API server
     let api_port = shared_config.api_port;
-    let api_server = { 
-        let routes = api::api_routes(api_state.clone());
-        info!("API server starting on port {}.", api_port);
-        warp::serve(routes).run(([127, 0, 0, 1], api_port))
-    };
+    // Warp server is a placeholder for the real initialization logic
+    // info!("API server starting on port {}.", api_port);
     
-    // 16. Start AGI Core operational loop
+    // 17. Start AGI Core operational loop
     let agi_core_clone = agi_core.clone();
     let agi_core_task = tokio::spawn(async move { 
         agi_core_clone.initialize().await.expect("Failed to initialize AGI Core");
@@ -231,27 +237,19 @@ async fn main() -> qsm_prelude::Result<()> { // Use QSM's Result type
     // Initialize NewsEngine (now after db_service is available)
     news_engine.lock().unwrap().initialize().await?;
 
-    // 17. Simulate some initial AGI events
+    // 18. Simulate some initial AGI events
     let event_bus_clone = event_bus.clone();
     tokio::spawn(async move {
         tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
         event_bus_clone.publish(AGIEvent::SystemInitialized { version: shared_config.system_version.clone() }).await;
-        event_bus_clone.publish(AGIEvent::SystemStarted).await;
-        event_bus_clone.publish(AGIEvent::PerformanceMetricRecorded { metric_name: "startup_time".to_string(), value: 3.5 }).await;
+        event_bus_clone.publish(AGIEvent::SystemOnline { status: "Operational".to_string() }).await;
     });
 
-    // Run all tasks concurrently
-    tokio::select! {
-        _ = api_server => {
-            info!("API server stopped.");
-        }
-        _ = agi_core_task => {
-            info!("AGI Core stopped.");
-        }
-    }
 
-    info!("Tariro AGI System Shutting Down...");
-    agi_core.shutdown().await?; // Ensure AGI Core gracefully shuts down
+    // Run the AGI Core operational loop
+    agi_core_task.await.map_err(|e| format!("AGI Core task panicked: {}", e))?;
+
+    info!("Tariro AGI System Shutting Down.");
 
     Ok(())
 }
