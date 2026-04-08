@@ -25,6 +25,8 @@ pub struct AGIConfig {
     pub database_url: String,
     pub api_port: u16,
     pub agi_settings: HashMap<String, String>, // Dynamic AGI-specific settings
+    pub super_admin_email: String, // NEW: For critical notifications
+    pub qsm_monitoring_interval_seconds: u64, // NEW: Interval for QSM threat monitoring
 }
 
 impl Default for AGIConfig {
@@ -46,6 +48,8 @@ impl Default for AGIConfig {
             database_url: "mongodb://localhost:27017/tariro_agi".to_string(),
             api_port: 8080,
             agi_settings,
+            super_admin_email: "samuelmukandara@gmail.com".to_string(), // NEW: Default to Samuel's email
+            qsm_monitoring_interval_seconds: 600, // NEW: Default to 10 minutes
         }
     }
 }
@@ -95,6 +99,8 @@ mod tests {
         assert_eq!(config.system_name, "Tariro AGI");
         assert_eq!(config.api_port, 8080);
         assert!(config.agi_settings.get("autonomy.default_level").unwrap() == "suggest_only");
+        assert_eq!(config.super_admin_email, "samuelmukandara@gmail.com"); 
+        assert_eq!(config.qsm_monitoring_interval_seconds, 600); 
     }
 
     #[test]
@@ -102,6 +108,8 @@ mod tests {
         let mut config = AGIConfig::default();
         config.system_name = "Test Tariro".to_string();
         config.update_setting("test.key", "test_value");
+        config.super_admin_email = "test@example.com".to_string(); 
+        config.qsm_monitoring_interval_seconds = 300; 
 
         let temp_dir = tempfile::tempdir().unwrap();
         let file_path = temp_dir.path().join("test_config.toml");
@@ -111,6 +119,8 @@ mod tests {
 
         assert_eq!(loaded_config.system_name, "Test Tariro");
         assert_eq!(loaded_config.get_setting("test.key").unwrap(), "test_value");
+        assert_eq!(loaded_config.super_admin_email, "test@example.com"); 
+        assert_eq!(loaded_config.qsm_monitoring_interval_seconds, 300); 
 
         temp_dir.close().unwrap();
     }
