@@ -1,42 +1,17 @@
-[workspace]
-members = [
-    ".",
-    "Tariro_ide_idpte",
-]
-resolver = "2"
-
 [package]
-name = "tariro_core_services"
+name = "tariro_universal_meta_compiler"
 version = "0.1.0"
 edition = "2021"
 
-[workspace.dependencies]
-tokio = { version = "1", features = ["full"] }
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-chrono = { version = "0.4", features = ["serde"] }
-uuid = { version = "1", features = ["v4", "serde"] }
-futures = "0.3"
-log = "0.4"
-simple_logger = "1.13"
-
 [dependencies]
-axum = "0.7"
-reqwest = { version = "0.12", features = ["json"] }
-urlencoding = "0.2"
-async-trait = "0.1"
-walkdir = "2"
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-aes-gcm = "0.10.1"
-rand_core = { version = "0.6", features = ["std"] }
-Tariro_ide_idpte = { path = "Tariro_ide_idpte" }
-
-tokio = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
-chrono = { workspace = true }
-uuid = { workspace = true }
-futures = { workspace = true }
-log = { workspace = true }
-simple_logger = { workspace = true }
+# Conceptual dependencies for TUMC's advanced capabilities
+# In a real implementation, these would be specific crates for:
+# - Advanced NLP/Multimodal processing
+# - Graph databases/Semantic web tools
+# - Formal verification libraries
+# - AI/ML frameworks for optimization (e.g., Rust's tch, candle)
+# - Quantum computing SDKs
+# - Nano-agent orchestration
+# - OS/Kernel development tools
+# - Low-level hardware access (platform-specific)
+# - Ethical AI frameworks (E.V.A.S. integration)
