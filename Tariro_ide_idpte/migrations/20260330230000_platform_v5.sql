@@ -64,4 +64,3 @@ CREATE TABLE IF NOT EXISTS neural_inputs (
     processed_intent TEXT,
     timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
-
