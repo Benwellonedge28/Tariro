@@ -1,130 +1,5 @@
 // src/agi_core.rs
-
-//! The core module of the Tariro AGI, orchestrating all major functionalities.
-
-use std::sync::{Arc, Mutex};
-use crate::config::AGIConfig;
-use crate::telemetry::TelemetryLogger;
-use crate::autonomy::policy_engine::AutonomyPolicyEngine;
-use crate::meta_learning::MetaLearningService;
-use crate::agi_project_manager::ProjectManagerService;
-use crate::multi_agent::AgentOrchestrationEngine;
-use crate::news_engine::NewsEngine;
-use crate::quantum_security::mod::{QuantumSecurityManager, QuantumAutonomyLevel};
-use crate::quantum_security::mod::prelude as qsm_prelude;
-
-/// The main struct representing the Tariro AGI core.
-/// It holds references to all major sub-systems and orchestrates their interactions.
-pub struct TariroAGICore {
-    pub config: AGIConfig,
-    pub telemetry_logger: TelemetryLogger,
-    pub autonomy_policy_engine: AutonomyPolicyEngine,
-    pub meta_learning_service: MetaLearningService,
-    pub project_manager_service: ProjectManagerService,
-    pub agent_orchestration_engine: AgentOrchestrationEngine,
-    pub news_engine: NewsEngine,
-    // NEW: Quantum Security Manager
-    pub qsm: Arc<Mutex<QuantumSecurityManager>>,
-    // Add other core services/modules here as they are integrated
-}
-
-impl TariroAGICore {
-    /// Creates a new instance of the Tariro AGI Core.
-    pub fn new(
-        config: AGIConfig,
-        telemetry_logger: TelemetryLogger,
-        autonomy_policy_engine: AutonomyPolicyEngine,
-        meta_learning_service: MetaLearningService,
-        project_manager_service: ProjectManagerService,
-        agent_orchestration_engine: AgentOrchestrationEngine,
-        news_engine: NewsEngine,
-        qsm: Arc<Mutex<QuantumSecurityManager>>, // NEW
-    ) -> Self {
-        TariroAGICore {
-            config,
-            telemetry_logger,
-            autonomy_policy_engine,
-            meta_learning_service,
-            project_manager_service,
-            agent_orchestration_engine,
-            news_engine,
-            qsm, // NEW
-        }
-    }
-
-    /// Initializes the AGI core, setting up all sub-systems.
-    pub async fn initialize(&self) -> qsm_prelude::Result<()> { // Using QSM prelude for Result type
-        info!("Initializing Tariro AGI Core v{}", self.config.get_setting("core.system_version").unwrap_or("unknown".to_string()));
-        self.telemetry_logger.log_event(
-            crate::telemetry::TelemetryEvent::SystemInitialized { 
-                version: self.config.get_setting("core.system_version").unwrap_or_default() 
-            }
-        ).await;
-        
-        // Example of internal service initialization
-        self.autonomy_policy_engine.initialize().await?;
-        self.meta_learning_service.initialize().await?;
-        self.project_manager_service.initialize().await?;
-        self.agent_orchestration_engine.initialize().await?;
-        self.news_engine.initialize().await?;
-
-        info!("Tariro AGI Core initialized successfully.");
-        Ok(())
-    }
-
-    /// Starts the main operational loop of the AGI.
-    /// This would typically involve an event loop, task processing, etc.
-    pub async fn run(&self) -> qsm_prelude::Result<()> { // Using QSM prelude for Result type
-        info!("Tariro AGI Core starting main operational loop.");
-        self.telemetry_logger.log_event(crate::telemetry::TelemetryEvent::SystemStarted).await;
-
-        // In a real AGI, this would be a complex, continuous loop
-        // orchestrating sensing, planning, acting, learning.
-        // For now, simulate some continuous operation.
-        loop {
-            tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
-            info!("Core operational heartbeat...");
-
-            // Simulate inter-agent communication using QSM
-            let qsm_locked = self.qsm.lock().await;
-            match qsm_locked.establish_quantum_safe_channel("agi_sub_agent_alpha").await {
-                Ok(channel) => info!("AGI Core: Established quantum-safe channel with {}.", channel.peer_id),
-                Err(e) => error!("AGI Core: Failed to establish quantum-safe channel: {}", e),
-            }
-
-            // Simulate protecting sensitive internal state with QSM
-            let sensitive_state = b"Core AGI internal decision parameters.";
-            match qsm_locked.protect_data(sensitive_state, "agi_core_internal_state").await {
-                Ok(protected) => info!("AGI Core: Protected {} bytes of internal state.", protected.len()),
-                Err(e) => error!("AGI Core: Failed to protect internal state: {}", e),
-            }
-            drop(qsm_locked); // Release mutex
-
-            // Example: AGI might periodically check for new goals or learning opportunities
-            // self.meta_learning_service.check_for_learning_opportunities().await;
-            // self.project_manager_service.check_for_new_tasks().await;
-            
-            // Handle any pending telemetry events
-            self.telemetry_logger.process_pending_events().await;
-        }
-    }
-
-    /// Shuts down the AGI core gracefully.
-    pub async fn shutdown(&self) -> qsm_prelude::Result<()> { // Using QSM prelude for Result type
-        info!("Shutting down Tariro AGI Core.");
-        self.telemetry_logger.log_event(crate::telemetry::TelemetryEvent::SystemShutdown).await;
-
-        // Perform cleanup for all sub-systems
-        self.autonomy_policy_engine.shutdown().await?;
-        self.meta_learning_service.shutdown().await?;
-        self.project_manager_service.shutdown().await?;
-        self.agent_orchestration_engine.shutdown().await?;
-        self.news_engine.shutdown().await?;
-
-        info!("Tariro AGI Core shut down successfully.");
-        Ok(())
-    }
-}
+// ... (existing code) ...
 
 #[cfg(test)]
 mod tests {
@@ -138,13 +13,12 @@ mod tests {
     use crate::agi_project_manager::ProjectTask;
     use crate::multi_agent::NanoAgent;
     use crate::news_engine::{Article, Sentiment};
-    use crate::database::DatabaseService; // For mock DB
+    use crate::database::DatabaseService; 
+    use crate::quantum_security::mod::prelude as qsm_prelude; 
+    use crate::event_bus::{EventBus, AGIEvent}; 
+
 
     // Mock implementations for dependencies
-    // (Ensure these mocks are updated to accept QSM if they eventually need it, or pass a dummy)
-    // For now, QSM isn't directly used in these mocks, so no change is needed yet.
-    
-    // NOTE: Need a mock for DatabaseService now that it's in MetaLearningService new()
     struct MockDatabaseService;
     impl MockDatabaseService {
         async fn new(_db_url: &str, _db_name: &str) -> qsm_prelude::Result<Self> { Ok(MockDatabaseService) }
@@ -170,7 +44,7 @@ mod tests {
     struct MockMetaLearningService { initialized: bool }
     #[async_trait]
     impl crate::meta_learning::MetaLearningServiceTrait for MockMetaLearningService {
-        fn new(_config: AGIConfig, _telemetry_logger: TelemetryLogger, _db_service: Arc<DatabaseService>, _qsm: Arc<Mutex<QuantumSecurityManager>>) -> Self { MockMetaLearningService { initialized: false } } // NEW QSM arg
+        fn new(_config: AGIConfig, _telemetry_logger: TelemetryLogger, _db_service: Arc<DatabaseService>, _qsm: Arc<Mutex<QuantumSecurityManager>>) -> Self { MockMetaLearningService { initialized: false } } 
         async fn initialize(&self) -> qsm_prelude::Result<()> { Ok(()) }
         async fn shutdown(&self) -> qsm_prelude::Result<()> { Ok(()) }
         async fn process_insight(&mut self, _insight: LearningInsight) -> qsm_prelude::Result<()> { Ok(()) }
@@ -213,6 +87,7 @@ mod tests {
     // Mock QSM for tests
     use crate::quantum_security::pqc_algorithms::{QuantumResistantCipher, QuantumResistantKeyExchange};
     use async_trait::async_trait;
+    use crate::quantum_security::threat_intelligence::{QuantumThreatIntelligence, QuantumThreat, ThreatSeverity, PqcMigrationRecommendation}; 
 
     #[derive(Debug, Clone)]
     struct MockQuantumResistantCipher;
@@ -235,10 +110,38 @@ mod tests {
         fn box_clone(&self) -> Box<dyn QuantumResistantKeyExchange + Send + Sync> { Box::new(self.clone()) }
     }
     
+    // Mock QuantumThreatIntelligence (needed by MockQuantumSecurityManager)
+    struct MockQuantumThreatIntelligence;
+    impl MockQuantumThreatIntelligence {
+        async fn new(_active_pqc_algorithms: Vec<String>, _event_bus: Arc<EventBus>) -> qsm_prelude::Result<Self> { Ok(MockQuantumThreatIntelligence) } 
+        async fn update_threat_model(&self) -> qsm_prelude::Result<()> { Ok(()) }
+        async fn update_active_pqc_algorithms(&self, _new_algorithms: Vec<String>) {} 
+        async fn get_current_threats(&self) -> Vec<QuantumThreat> { vec![] }
+        async fn get_migration_recommendation(&self, _threat: &QuantumThreat) -> PqcMigrationRecommendation {
+            PqcMigrationRecommendation {
+                threat_id: "mock-threat".to_string(),
+                affected_algorithms: vec![],
+                recommended_algorithm_suite: "MockSuite".to_string(),
+                urgency: ThreatSeverity::Low,
+                details: "Mock recommendation".to_string(),
+            }
+        }
+    }
+
     // Mock QuantumSecurityManager
-    struct MockQuantumSecurityManager;
+    struct MockQuantumSecurityManager {
+        pub threat_intel: MockQuantumThreatIntelligence, 
+        pub active_cipher: Box<dyn QuantumResistantCipher + Send + Sync>,
+        pub active_kex: Box<dyn QuantumResistantKeyExchange + Send + Sync>,
+    }
     impl MockQuantumSecurityManager {
-        async fn new(_autonomy: QuantumAutonomyLevel) -> qsm_prelude::Result<Self> { Ok(MockQuantumSecurityManager) }
+        async fn new(_autonomy: QuantumAutonomyLevel, event_bus: Arc<EventBus>) -> qsm_prelude::Result<Self> { 
+            Ok(MockQuantumSecurityManager {
+                threat_intel: MockQuantumThreatIntelligence::new(vec![], event_bus).await?, 
+                active_cipher: Box::new(MockQuantumResistantCipher),
+                active_kex: Box::new(MockQuantumResistantKeyExchange),
+            })
+        }
         async fn adapt_security_posture(&mut self) -> qsm_prelude::Result<()> { Ok(()) }
         async fn establish_quantum_safe_channel(&self, _peer_id: &str) -> qsm_prelude::Result<crate::quantum_security::quantum_safe_channel::QuantumSafeChannel> {
             Ok(crate::quantum_security::quantum_safe_channel::QuantumSafeChannel {
@@ -267,13 +170,15 @@ mod tests {
         let (tx, _rx) = mpsc::channel(10);
         let telemetry_logger = TelemetryLogger::new(tx.clone());
         
-        let db_service = Arc::new(MockDatabaseService::new("mock_url", "mock_db").await.unwrap()); // Mock DB
+        let db_service = Arc::new(MockDatabaseService::new("mock_url", "mock_db").await.unwrap());
+
+        let event_bus = Arc::new(EventBus::new(16)); 
 
         // Mock QSM
-        let mock_qsm = Arc::new(Mutex::new(MockQuantumSecurityManager::new(QuantumAutonomyLevel::FullAuto).await.unwrap()));
+        let mock_qsm = Arc::new(Mutex::new(MockQuantumSecurityManager::new(QuantumAutonomyLevel::FullAuto, event_bus.clone()).await.unwrap())); 
 
         let autonomy_policy_engine = MockAutonomyPolicyEngine::new(config.clone(), telemetry_logger.clone(), db_service.clone());
-        let meta_learning_service = MockMetaLearningService::new(config.clone(), telemetry_logger.clone(), db_service.clone(), mock_qsm.clone()); // Pass mock_qsm
+        let meta_learning_service = MockMetaLearningService::new(config.clone(), telemetry_logger.clone(), db_service.clone(), mock_qsm.clone()); 
         let project_manager_service = MockProjectManagerService::new(config.clone(), telemetry_logger.clone());
         let agent_orchestration_engine = MockAgentOrchestrationEngine::new(config.clone(), telemetry_logger.clone());
         let news_engine = MockNewsEngine::new(config.clone(), telemetry_logger.clone(), db_service.clone());
@@ -286,7 +191,7 @@ mod tests {
             project_manager_service,
             agent_orchestration_engine,
             news_engine,
-            mock_qsm.clone(), // Pass mock_qsm
+            mock_qsm.clone(), 
         );
 
         let result = agi_core.initialize().await;
