@@ -1,3 +1,4 @@
+// src/quantum_security/mod.rs
 
 //! Tariro's Quantum Security Module (QSM)
 //! Designed for supremely autonomous, infinitely advanced, and quantum-resistant operations.
@@ -12,6 +13,7 @@ use pqc_algorithms::{QuantumResistantCipher, QuantumResistantKeyExchange};
 use quantum_safe_channel::QuantumSafeChannel;
 use data_protection::QuantumSafeDataProtector;
 use threat_intelligence::QuantumThreatIntelligence;
+use crate::event_bus::EventBus;
 
 /// Represents the autonomy level for quantum security decisions.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -34,9 +36,9 @@ pub struct EvasCompliancePolicy {
 pub struct QuantumSecurityManager {
     autonomy_level: QuantumAutonomyLevel,
     evas_policy: EvasCompliancePolicy,
-    threat_intel: QuantumThreatIntelligence,
-    active_cipher: Box<dyn QuantumResistantCipher + Send + Sync>,
-    active_kex: Box<dyn QuantumResistantKeyExchange + Send + Sync>,
+    pub threat_intel: QuantumThreatIntelligence,
+    pub active_cipher: Box<dyn QuantumResistantCipher + Send + Sync>,
+    pub active_kex: Box<dyn QuantumResistantKeyExchange + Send + Sync>,
     data_protector: QuantumSafeDataProtector,
     // Add more advanced components like self-healing key infrastructure, quantum randomness sources, etc.
 }
@@ -44,9 +46,14 @@ pub struct QuantumSecurityManager {
 impl QuantumSecurityManager {
     /// Initializes the Quantum Security Manager.
     /// In full autonomous mode, Tariro will select the best algorithms and policies.
-    pub async fn new(initial_autonomy: QuantumAutonomyLevel) -> Result<Self> {
+    pub async fn new(initial_autonomy: QuantumAutonomyLevel, event_bus: Arc<EventBus>) -> Result<Self> { 
         // Supremely autonomous initialization logic
-        let threat_intel = QuantumThreatIntelligence::new().await?;
+        // Need to know initial active PQC algorithms for threat_intel
+        let initial_cipher_name = pqc_algorithms::KyberCipher.name().to_string(); // Placeholder
+        let initial_kex_name = pqc_algorithms::DilithiumKeyExchange.name().to_string(); // Placeholder
+        let initial_active_algs = vec![initial_cipher_name.clone(), initial_kex_name.clone()];
+
+        let threat_intel = QuantumThreatIntelligence::new(initial_active_algs, event_bus).await?; 
         let evas_policy = EvasCompliancePolicy {
             enabled: true,
             data_minimization_active: true,
@@ -102,7 +109,9 @@ impl QuantumSecurityManager {
                 tariro_log!(info, "Autonomously adapting PQC algorithms to: {} and {}", new_cipher.name(), new_kex.name());
                 self.active_cipher = new_cipher;
                 self.active_kex = new_kex;
-                self.data_protector.set_active_cipher(self.active_cipher.box_clone())?;
+                self.data_protector.set_active_cipher(self.active_cipher.box_clone()).await?; 
+                // Update active algorithms in threat intelligence
+                self.threat_intel.update_active_pqc_algorithms(vec![self.active_cipher.name().to_string(), self.active_kex.name().to_string()]).await;
                 // Trigger background migration of all protected data/channels
                 self.initiate_autonomous_migration().await?;
             }
@@ -154,7 +163,7 @@ pub mod prelude {
     #[macro_export]
     macro_rules! tariro_log {
         ($level:ident, $($arg:tt)*) => {
-            println!(concat!("[Tariro QSM - ", stringify!($level), "] ", $($arg)*));
+            log::$level(format_args!(concat!("[Tariro QSM - ", stringify!($level), "] ", $($arg)*)));
         };
     }
     pub use tariro_log;
