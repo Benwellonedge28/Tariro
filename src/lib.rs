@@ -4,6 +4,7 @@ pub mod compiler;
 pub mod atve;
 pub mod nioam;
 pub mod governance;
+pub mod learning;
 
 pub const VERSION: &str = "1.0.6";
 
