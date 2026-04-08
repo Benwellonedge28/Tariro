@@ -2,7 +2,8 @@
 
 //! Main entry point for the Tariro AGI (Artificial General Intelligence) system.
 //! This module initializes the core components, sets up the runtime environment,
-//! and starts the main operational loops for the AGI.
+//! and starts the main operational loops for the AGI, now including
+//! the supremely autonomous Quantum Security Module.
 
 #[macro_use]
 extern crate log;
@@ -22,16 +23,19 @@ mod news_engine;
 mod agi_core;
 mod api;
 mod database;
-mod agi_cloning;
 mod agi_replication;
-mod agi_swarm;
-mod compiler; // Compiler module for Meta-Compiler functionality
-mod deployment; // Deployment module for managing deployments
-mod event_bus; // Event bus for inter-module communication
-mod evaluators; // Evaluation module for ATVE
+mod event_bus;
+mod evaluators;
 mod omega_network;
-mod omega_os; // OMEGA OS related interfaces
-mod content_generation; // Content generation module
+mod omega_os;
+mod content_generation;
+
+// NEW: Quantum Security Module
+mod quantum_security;
+use quantum_security::mod::{QuantumSecurityManager, QuantumAutonomyLevel};
+
+// Use the prelude from quantum_security for common types and the logging macro
+use quantum_security::mod::prelude as qsm_prelude;
 
 use config::AGIConfig;
 use telemetry::TelemetryLogger;
@@ -44,7 +48,7 @@ use news_engine::NewsEngine;
 use agi_core::TariroAGICore;
 use api::AppState;
 use database::DatabaseService;
-use agi_replication::ReplicationService; // Renamed from agi_cloning::CloningService to agi_replication::ReplicationService
+use agi_replication::ReplicationService;
 use event_bus::{EventBus, AGIEvent};
 use omega_os::os_interface::OmegaOSInterface;
 use content_generation::generator::ContentGenerator;
@@ -53,7 +57,7 @@ use content_generation::review_process::ContentReviewService;
 
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> qsm_prelude::Result<()> { // Use QSM's Result type
     // 1. Initialize logging
     simple_logger::init_with_level(log::Level::Info)?;
     info!("Tariro AGI System Starting...");
@@ -82,20 +86,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         telemetry_logger_clone.process_events_loop(telemetry_event_bus_subscriber).await;
     });
 
-
     // 5. Initialize Database Service
     info!("Connecting to database...");
     let db_service = Arc::new(DatabaseService::new(&shared_config.database_url, "tariro_agi").await
         .map_err(|e| format!("Failed to connect to database: {}", e))?);
     info!("Database service initialized.");
 
-    // 6. Initialize core AGI services
+    // NEW: 6. Initialize Quantum Security Manager - Supremely Autonomous
+    info!("Initializing Quantum Security Manager with Full Autonomy...");
+    let qsm = Arc::new(Mutex::new(
+        QuantumSecurityManager::new(QuantumAutonomyLevel::FullAuto).await?
+    ));
+    info!("Quantum Security Manager initialized with Full Autonomy.");
+
+    // 7. Initialize core AGI services
     let admin_service = Arc::new(Mutex::new(AdminService::new(shared_config.clone(), telemetry_logger.clone())));
     let autonomy_policy_engine = Arc::new(AutonomyPolicyEngine::new(shared_config.clone(), telemetry_logger.clone(), db_service.clone()));
     let meta_learning_service = Arc::new(Mutex::new(MetaLearningService::new(shared_config.clone(), telemetry_logger.clone(), db_service.clone())));
     let project_manager_service = Arc::new(Mutex::new(ProjectManagerService::new(shared_config.clone(), telemetry_logger.clone())));
     let agent_orchestration_engine = Arc::new(Mutex::new(AgentOrchestrationEngine::new(shared_config.clone(), telemetry_logger.clone())));
-    // Corrected NewsEngine initialization to include db_service
     let news_engine = Arc::new(Mutex::new(NewsEngine::new(shared_config.clone(), telemetry_logger.clone(), db_service.clone())));
     let replication_service = Arc::new(Mutex::new(ReplicationService::new(shared_config.clone(), telemetry_logger.clone())));
     let omega_os_interface = Arc::new(Mutex::new(OmegaOSInterface::new()));
@@ -103,9 +112,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let style_guide_manager = Arc::new(Mutex::new(StyleGuideManager::new()));
     let content_review_service = Arc::new(Mutex::new(ContentReviewService::new()));
 
-    // Initialize other services here
-
-    // 7. Initialize Tariro AGI Core
+    // 8. Initialize Tariro AGI Core
     let agi_core = Arc::new(TariroAGICore::new(
         shared_config.clone(),
         telemetry_logger.clone(),
@@ -116,7 +123,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         news_engine.clone(),
     ));
 
-    // 8. Initialize API server state
+    // 9. Initialize API server state
     let api_state = api::AppState {
         config: shared_config.clone(),
         telemetry_logger: telemetry_logger.clone(),
@@ -125,15 +132,31 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         meta_learning_service: meta_learning_service.clone(),
     };
 
-    // 9. Start API server
+    // NEW: 10. Start autonomous QSM background tasks
+    let qsm_clone_for_tasks = qsm.clone();
+    tokio::spawn(async move {
+        loop {
+            // Autonomous adaptation to threats
+            if let Err(e) = qsm_clone_for_tasks.lock().await.adapt_security_posture().await {
+                error!("QSM background task error during security posture adaptation: {}", e);
+            }
+            // Simulate other continuous QSM operations like re-keying or data protection
+            // For now, simple sleep; in real scenario, this would be event-driven or smarter.
+            // NOTE: Add qsm_monitoring_interval_seconds to AGIConfig struct.
+            tokio::time::sleep(tokio::time::Duration::from_secs(600)).await; // Default to 10 minute check
+        }
+    });
+
+    // 11. Start API server
     let api_port = shared_config.api_port;
     let api_server = { 
         let routes = api::api_routes(api_state.clone());
-        info!("API server starting on port {}", api_port);
+        info!("API server starting on port {}.", api_port);
+        // Assuming 'warp' is defined in your existing API module, this will compile.
         warp::serve(routes).run(([127, 0, 0, 1], api_port))
     };
     
-    // 10. Start AGI Core operational loop
+    // 12. Start AGI Core operational loop
     let agi_core_clone = agi_core.clone();
     let agi_core_task = tokio::spawn(async move { 
         agi_core_clone.initialize().await.expect("Failed to initialize AGI Core");
@@ -143,10 +166,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize NewsEngine (now after db_service is available)
     news_engine.lock().unwrap().initialize().await?;
 
-    // 11. Start Telemetry event processing loop
-    // This is now handled in its own spawn block above after TelemetryLogger::new
-
-    // 12. Simulate some initial AGI events
+    // 13. Simulate some initial AGI events
     let event_bus_clone = event_bus.clone();
     tokio::spawn(async move {
         tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
