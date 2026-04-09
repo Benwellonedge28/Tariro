@@ -4,6 +4,7 @@ pub mod omniversal_runtime;
 pub mod adaptive_optimizer;
 pub mod type_system_manager;
 pub mod atve;
+pub mod idpte; // NEW: Integrate the IDPTE module
 
 pub struct TariroUniversalMetaCompiler {
     meta_grammar_engine: meta_grammar::MetaGrammarEngine,
@@ -12,6 +13,7 @@ pub struct TariroUniversalMetaCompiler {
     optimizer_engine: adaptive_optimizer::AdaptiveOptimizerEngine,
     type_system_engine: type_system_manager::TypeSystemManager,
     atve_engine: atve::atve_engine::AtveEngine,
+    idpte_core: idpte::idpte_core::IdpteCore, // NEW: IDPTE Core instance
 }
 
 impl TariroUniversalMetaCompiler {
@@ -23,6 +25,7 @@ impl TariroUniversalMetaCompiler {
             optimizer_engine: adaptive_optimizer::AdaptiveOptimizerEngine::new(),
             type_system_engine: type_system_manager::TypeSystemManager::new(),
             atve_engine: atve::atve_engine::AtveEngine::new(),
+            idpte_core: idpte::idpte_core::IdpteCore::new(), // NEW: Initialize IDPTE Core
         }
     }
 
