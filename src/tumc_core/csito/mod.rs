@@ -4,18 +4,21 @@
 //! and IT/ICT into executable, manageable, and optimized systems within the Meta-Compiler framework.
 
 pub mod knowledge_translation;
-pub mod monitoring_management; // NEW: Integrate monitoring_management module
+pub mod monitoring_management;
+pub mod deployment_provisioning; // NEW: Integrate deployment_provisioning module
 
 pub struct CsitoSystem {
     knowledge_translation_layer: knowledge_translation::KnowledgeTranslationLayer,
-    monitoring_management_integrator: monitoring_management::MonitoringManagementIntegrator, // NEW: MonitoringManagementIntegrator instance
+    monitoring_management_integrator: monitoring_management::MonitoringManagementIntegrator,
+    deployment_provisioning_engine: deployment_provisioning::DeploymentProvisioningEngine, // NEW: DeploymentProvisioningEngine instance
 }
 
 impl CsitoSystem {
     pub fn new() -> Self {
         CsitoSystem {
             knowledge_translation_layer: knowledge_translation::KnowledgeTranslationLayer::new(),
-            monitoring_management_integrator: monitoring_management::MonitoringManagementIntegrator::new(), // NEW: Initialize MonitoringManagementIntegrator
+            monitoring_management_integrator: monitoring_management::MonitoringManagementIntegrator::new(),
+            deployment_provisioning_engine: deployment_provisioning::DeploymentProvisioningEngine::new(), // NEW: Initialize DeploymentProvisioningEngine
         }
     }
 
@@ -27,8 +30,10 @@ impl CsitoSystem {
         // Simulate monitoring initialization for the newly operationalized system
         self.monitoring_management_integrator.initialize_monitoring(artifact_id, target_platform);
 
-        // This is where DPE, MOI, ARE, PCE would come into play for actual deployment, monitoring, etc.
-        format!("Intent operationalized. Translated config: {}. Artifact '{}' ready for managed IT lifecycle.", translated_config, artifact_id)
+        // Deploy and provision the system based on translated config
+        let deployment_report = self.deployment_provisioning_engine.deploy_system(artifact_id, &translated_config, target_platform);
+
+        format!("Intent operationalized. Translated config: {}. Artifact '{}' ready for managed IT lifecycle. Deployment: {}", translated_config, artifact_id, deployment_report)
     }
 
     /// Provides access to domain-specific IT operational knowledge.
