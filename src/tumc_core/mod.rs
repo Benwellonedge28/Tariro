@@ -5,6 +5,7 @@ pub mod adaptive_optimizer;
 pub mod type_system_manager;
 pub mod atve;
 pub mod idpte;
+pub mod poco_reaf; // NEW: Integrate the POCO-REAF module
 
 pub struct TariroUniversalMetaCompiler {
     meta_grammar_engine: meta_grammar::MetaGrammarEngine,
@@ -13,7 +14,8 @@ pub struct TariroUniversalMetaCompiler {
     optimizer_engine: adaptive_optimizer::AdaptiveOptimizerEngine,
     type_system_engine: type_system_manager::TypeSystemManager,
     atve_engine: atve::atve_engine::AtveEngine,
-    idpte_core: idpte::iapte_core::IapteCore, // Corrected struct name
+    idpte_core: idpte::iapte_core::IapteCore,
+    poco_reaf_system: poco_reaf::poco_reaf_system::PocoReafSystem, // NEW: POCO-REAF System instance
 }
 
 impl TariroUniversalMetaCompiler {
@@ -25,7 +27,8 @@ impl TariroUniversalMetaCompiler {
             optimizer_engine: adaptive_optimizer::AdaptiveOptimizerEngine::new(),
             type_system_engine: type_system_manager::TypeSystemManager::new(),
             atve_engine: atve::atve_engine::AtveEngine::new(),
-            idpte_core: idpte::iapte_core::IapteCore::new(), // Corrected struct name
+            idpte_core: idpte::iapte_core::IapteCore::new(),
+            poco_reaf_system: poco_reaf::poco_reaf_system::PocoReafSystem::new(), // NEW: Initialize POCO-REAF System
         }
     }
 
@@ -73,7 +76,12 @@ impl TariroUniversalMetaCompiler {
         let deployment_init_result = self.idpte_core.initiate_deployment(&executable_artifact, target_platform, "auto_canary");
         println!("TUMC: IDPTE Deployment Initiated: {}", deployment_init_result);
 
-        format!("Compilation successful by TUMC. Artifact generated and deployment initiated for '{}'. Summary: '{}'.", target_platform, deployment_status)
+        // Interact with POCO-REAF system for runtime
+        let poco_reaf_runtime_status = self.poco_reaf_system.execute_artifact(&executable_artifact, target_platform);
+        println!("TUMC: POCO-REAF Runtime Status: {}", poco_reaf_runtime_status);
+
+
+        format!("Compilation successful by TUMC. Artifact generated and deployment initiated for '{}'. Summary: '{}'. POCO-REAF Runtime: {}.", target_platform, deployment_status, poco_reaf_runtime_status)
     }
 
     /// Translates deep semantic concepts or data between different domain models or paradigms.
