@@ -5,12 +5,14 @@
 
 pub mod ide_backend;
 pub mod live_preview;
-pub mod test_orchestration; // NEW: Integrate the test_orchestration module
+pub mod test_orchestration;
+pub mod autonomous_deployment; // NEW: Integrate autonomous_deployment module
 
 pub struct IapteCore {
     ide_backend_engine: ide_backend::IdeBackend,
     live_preview_engine: live_preview::LivePreviewEngine,
-    test_orchestration_engine: test_orchestration::TestOrchestrationEngine, // NEW: Test Orchestration Engine instance
+    test_orchestration_engine: test_orchestration::TestOrchestrationEngine,
+    autonomous_deployment_engine: autonomous_deployment::AutonomousDeploymentEngine, // NEW: Autonomous Deployment Engine instance
 }
 
 impl IapteCore {
@@ -18,7 +20,8 @@ impl IapteCore {
         IapteCore {
             ide_backend_engine: ide_backend::IdeBackend::new(),
             live_preview_engine: live_preview::LivePreviewEngine::new(),
-            test_orchestration_engine: test_orchestration::TestOrchestrationEngine::new(), // NEW: Initialize Test Orchestration Engine
+            test_orchestration_engine: test_orchestration::TestOrchestrationEngine::new(),
+            autonomous_deployment_engine: autonomous_deployment::AutonomousDeploymentEngine::new(), // NEW: Initialize Autonomous Deployment Engine
         }
     }
 
@@ -49,5 +52,17 @@ impl IapteCore {
     pub fn get_atve_report(&self, session_id: &str) -> String {
         println!("IDPTE: Retrieving ATVE report for session {}.". session_id);
         self.test_orchestration_engine.retrieve_report(session_id)
+    }
+
+    /// Initiates an autonomous deployment of a generated artifact.
+    pub fn initiate_deployment(&self, artifact_id: &str, target_env: &str, strategy: &str) -> String {
+        println!("IDPTE: Initiating autonomous deployment of artifact {} to {} with strategy {}.". artifact_id, target_env, strategy);
+        self.autonomous_deployment_engine.deploy_artifact(artifact_id, target_env, strategy)
+    }
+
+    /// Monitors the status of an ongoing deployment.
+    pub fn monitor_deployment_status(&self, deployment_id: &str) -> String {
+        println!("IDPTE: Monitoring deployment {}.". deployment_id);
+        self.autonomous_deployment_engine.get_deployment_status(deployment_id)
     }
 }
