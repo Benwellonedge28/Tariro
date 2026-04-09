@@ -227,3 +227,113 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use wiremock::{matchers::{method, path, header}, MockServer, Mock, ResponseTemplate};
+
+    #[tokio::test]
+    async fn test_ide_client_display_notification_success() -> Result<(), ConnectorError> {
+        let mock_ide_server = MockServer::start().await;
+
+        // Mock the IDE's notification endpoint
+        Mock::given(method("POST"))
+            .and(path("/api/ide/display_notification"))
+            .and(header("Authorization", "Bearer test_ide_api_key"))
+            .respond_with(ResponseTemplate::new(200))
+            .mount(&mock_ide_server)
+            .await;
+
+        let config = IdeClientConfig {
+            base_url: mock_ide_server.uri(),
+            api_key: "test_ide_api_key".to_string(),
+        };
+        let client = IdeClient::new(config).await?;
+
+        let notification = IdeNotification {
+            notification_type: "info".to_string(),
+            title: "Test Title".to_string(),
+            message: "Test Message".to_string(),
+            duration: Some(1000),
+        };
+
+        client.display_notification(&notification).await?;
+
+        // Verify that the mock server received the request
+        mock_ide_server.verify()
+            .await
+            .expect("Notification request was not received by mock IDE server");
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_ide_client_display_notification_api_error() {
+        let mock_ide_server = MockServer::start().await;
+
+        // Mock the IDE's notification endpoint to return an error
+        Mock::given(method("POST"))
+            .and(path("/api/ide/display_notification"))
+            .respond_with(ResponseTemplate::new(500).set_body_string("IDE internal error"))
+            .mount(&mock_ide_server)
+            .await;
+
+        let config = IdeClientConfig {
+            base_url: mock_ide_server.uri(),
+            api_key: "test_ide_api_key".to_string(),
+        };
+        let client = IdeClient::new(config).await.unwrap();
+
+        let notification = IdeNotification {
+            notification_type: "error".to_string(),
+            title: "Error".to_string(),
+            message: "Failed to compile".to_string(),
+            duration: None,
+        };
+
+        let error = client.display_notification(&notification).await.unwrap_err();
+        match error {
+            ConnectorError::ReqwestError(e) => {
+                assert!(e.is_status());
+                assert_eq!(e.status().unwrap(), StatusCode::INTERNAL_SERVER_ERROR);
+            },
+            _ => panic!("Expected ReqwestError from API error, got {:?}", error),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_ide_client_display_analysis_report_success() -> Result<(), ConnectorError> {
+        let mock_ide_server = MockServer::start().await;
+
+        Mock::given(method("POST"))
+            .and(path("/api/ide/display_analysis_report"))
+            .and(header("Authorization", "Bearer test_ide_api_key"))
+            .respond_with(ResponseTemplate::new(200))
+            .mount(&mock_ide_server)
+            .await;
+
+        let config = IdeClientConfig {
+            base_url: mock_ide_server.uri(),
+            api_key: "test_ide_api_key".to_string(),
+        };
+        let client = IdeClient::new(config).await?;
+
+        let report = IdeAnalysisReport {
+            report_type: "ATVE_Performance".to_string(),
+            title: "Performance Report".to_string(),
+            content: "CPU usage high".to_string(),
+            severity: "warning".to_string(),
+            file_path: Some("/src/main.rs".to_string()),
+        };
+
+        client.display_analysis_report(&report).await?;
+
+        mock_ide_server.verify()
+            .await
+            .expect("Analysis report request was not received by mock IDE server");
+
+        Ok(())
+    }
+}
