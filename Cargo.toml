@@ -1,14 +1,17 @@
 [package]
-name = "tariro-universal-meta-compiler"
+name = "tariro_universal_meta_compiler"
 version = "0.1.0"
 edition = "2021"
-authors = ["Samuel Mukandara", "Tariro AGI"]
-description = "Core implementation of the Universal Meta-Compiler and POCO-REAF System"
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-tokio = { version = "1.0", features = ["full"] }
-async-trait = "0.1"
-uuid = { version = "1.0", features = ["v4"] }
-num-complex = "0.4" # For Quantum states
+# Conceptual dependencies for TUMC's advanced capabilities
+# In a real implementation, these would be specific crates for:
+# - Advanced NLP/Multimodal processing
+# - Graph databases/Semantic web tools
+# - Formal verification libraries
+# - AI/ML frameworks for optimization (e.g., Rust's tch, candle)
+# - Quantum computing SDKs
+# - Nano-agent orchestration
+# - OS/Kernel development tools
+# - Low-level hardware access (platform-specific)
+# - Ethical AI frameworks (E.V.A.S. integration)
