@@ -5,7 +5,7 @@ use super::generative_testing::{self, GenerativeTestingEngine, FuzzingResult, Fu
 use super::performance_benchmarking::{self, PerformanceBenchmarkingEngine, PerformanceMetrics};
 use super::resilience_testing::{self, ResilienceTestingEngine, ResilienceReport, ResilienceTestStatus};
 use super::security_auditing::{self, SecurityAuditingEngine, SecurityAuditReport, SecurityFindingSeverity};
-use super::compatibility_assurance;
+use super::compatibility_assurance::{self, CompatibilityAssuranceEngine, CompatibilityReport, CompatibilityLevel};
 
 #[derive(Debug, Clone)]
 pub struct TestReport {
@@ -16,7 +16,7 @@ pub struct TestReport {
     pub performance_benchmarking_results: PerformanceMetrics,
     pub resilience_testing_results: ResilienceReport,
     pub security_auditing_results: SecurityAuditReport,
-    pub compatibility_assurance_result: String,
+    pub compatibility_assurance_results: CompatibilityReport,
     pub overall_status: TestStatus,
 }
 
@@ -34,6 +34,7 @@ pub struct AtveEngine {
     performance_benchmarking_engine: PerformanceBenchmarkingEngine,
     resilience_testing_engine: ResilienceTestingEngine,
     security_auditing_engine: SecurityAuditingEngine,
+    compatibility_assurance_engine: CompatibilityAssuranceEngine,
 }
 
 impl AtveEngine {
@@ -44,6 +45,7 @@ impl AtveEngine {
             performance_benchmarking_engine: PerformanceBenchmarkingEngine::new(),
             resilience_testing_engine: ResilienceTestingEngine::new(),
             security_auditing_engine: SecurityAuditingEngine::new(),
+            compatibility_assurance_engine: CompatibilityAssuranceEngine::new(),
         }
     }
 
@@ -58,6 +60,7 @@ impl AtveEngine {
         let pb_results = self.performance_benchmarking_engine.run_benchmarks(target_entity, entity_type);
         let rt_results = self.resilience_testing_engine.run_resilience_tests(target_entity);
         let sa_results = self.security_auditing_engine.run_security_audit(target_entity);
+        let ca_results = self.compatibility_assurance_engine.run_compatibility_checks(target_entity);
 
         let report = TestReport {
             entity_name: target_entity.to_string(),
@@ -67,8 +70,8 @@ impl AtveEngine {
             performance_benchmarking_results: pb_results.clone(),
             resilience_testing_results: rt_results.clone(),
             security_auditing_results: sa_results.clone(),
-            compatibility_assurance_result: compatibility_assurance::run_compatibility_checks(target_entity),
-            overall_status: if fv_results.iter().any(|p| p.status == VerificationStatus::Refuted) || gt_results.status != FuzzingStatus::CompletedWithoutIssues || pb_results.efficiency_score < 99.0 || rt_results.status != ResilienceTestStatus::SelfHealed || !sa_results.evas_compliant {
+            compatibility_assurance_results: ca_results.clone(),
+            overall_status: if fv_results.iter().any(|p| p.status == VerificationStatus::Refuted) || gt_results.status != FuzzingStatus::CompletedWithoutIssues || pb_results.efficiency_score < 99.0 || rt_results.status != ResilienceTestStatus::SelfHealed || !sa_results.evas_compliant || ca_results.compatibility_level != CompatibilityLevel::Full {
                 TestStatus::Fail
             } else {
                 TestStatus::Pass
@@ -76,13 +79,13 @@ impl AtveEngine {
         };
 
         let summary = format!(
-            "Comprehensive test complete for {}. Status: {:?}. Details: [FV: {:?}, GT: {:?}, PB: {:?}, RT: {:?}, SA: {:?}, CA: {}]",
+            "Comprehensive test complete for {}. Status: {:?}. Details: [FV: {:?}, GT: {:?}, PB: {:?}, RT: {:?}, SA: {:?}, CA: {:?}]",
             report.entity_name, report.overall_status,
             report.formal_verification_results, report.generative_testing_results.status,
             report.performance_benchmarking_results,
             report.resilience_testing_results.status,
             report.security_auditing_results.overall_security_posture,
-            report.compatibility_assurance_result
+            report.compatibility_assurance_results.compatibility_level
         );
 
         println!("ATVE: Report summary: {}.", summary);
