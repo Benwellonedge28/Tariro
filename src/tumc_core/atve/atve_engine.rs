@@ -1,7 +1,7 @@
 //! ATVE Engine: Orchestrates various test and validation methodologies.
 
 use super::formal_verification::{self, FormalVerificationEngine, VerificationProof, VerificationStatus};
-use super::generative_testing;
+use super::generative_testing::{self, GenerativeTestingEngine, FuzzingResult, FuzzingStatus};
 use super::performance_benchmarking;
 use super::resilience_testing;
 use super::security_auditing;
@@ -11,8 +11,8 @@ use super::compatibility_assurance;
 pub struct TestReport {
     pub entity_name: String,
     pub entity_type: String,
-    pub formal_verification_results: Vec<VerificationProof>, // Changed to Vec<VerificationProof>
-    pub generative_testing_result: String,
+    pub formal_verification_results: Vec<VerificationProof>,
+    pub generative_testing_results: FuzzingResult,
     pub performance_benchmarking_result: String,
     pub resilience_testing_result: String,
     pub security_auditing_result: String,
@@ -29,13 +29,15 @@ pub enum TestStatus {
 }
 
 pub struct AtveEngine {
-    formal_verification_engine: FormalVerificationEngine, // New: Formal Verification Engine
+    formal_verification_engine: FormalVerificationEngine,
+    generative_testing_engine: GenerativeTestingEngine,
 }
 
 impl AtveEngine {
     pub fn new() -> Self {
         AtveEngine {
-            formal_verification_engine: FormalVerificationEngine::new(), // New: Initialize
+            formal_verification_engine: FormalVerificationEngine::new(),
+            generative_testing_engine: GenerativeTestingEngine::new(),
         }
     }
 
@@ -43,31 +45,31 @@ impl AtveEngine {
     pub fn run_comprehensive_test(&self, target_entity: &str, entity_type: &str) -> String {
         println!("ATVE: Initiating comprehensive test for {} (Type: {}).", target_entity, entity_type);
         
-        // Define some properties to verify for demonstration
         let common_properties = &["safety_property_1", "liveness_property_A", "absence_of_deadlock"];
 
         let fv_results = self.formal_verification_engine.run_verification(target_entity, common_properties);
+        let gt_results = self.generative_testing_engine.run_fuzzing(target_entity);
 
         let report = TestReport {
             entity_name: target_entity.to_string(),
             entity_type: entity_type.to_string(),
-            formal_verification_results: fv_results.clone(), // Clone if needed, or adjust return type of run_verification
-            generative_testing_result: generative_testing::run_fuzzing(target_entity),
+            formal_verification_results: fv_results.clone(),
+            generative_testing_results: gt_results.clone(),
             performance_benchmarking_result: performance_benchmarking::run_benchmarks(target_entity, entity_type),
             resilience_testing_result: resilience_testing::run_resilience_tests(target_entity),
             security_auditing_result: security_auditing::run_security_audit(target_entity),
             compatibility_assurance_result: compatibility_assurance::run_compatibility_checks(target_entity),
-            overall_status: if fv_results.iter().any(|p| p.status == VerificationStatus::Refuted) {
+            overall_status: if fv_results.iter().any(|p| p.status == VerificationStatus::Refuted) || gt_results.status != FuzzingStatus::CompletedWithoutIssues {
                 TestStatus::Fail
             } else {
-                TestStatus::Pass // Simplified for now
+                TestStatus::Pass
             },
         };
 
         let summary = format!(
-            "Comprehensive test complete for {}. Status: {:?}. Details: [FV: {:?}, GT: {}, PB: {}, RT: {}, SA: {}, CA: {}]",
+            "Comprehensive test complete for {}. Status: {:?}. Details: [FV: {:?}, GT: {:?}, PB: {}, RT: {}, SA: {}, CA: {}]",
             report.entity_name, report.overall_status,
-            report.formal_verification_results, report.generative_testing_result,
+            report.formal_verification_results, report.generative_testing_results.status,
             report.performance_benchmarking_result, report.resilience_testing_result,
             report.security_auditing_result, report.compatibility_assurance_result
         );
