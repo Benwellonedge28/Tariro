@@ -4,16 +4,19 @@
 //! including their syntax, semantics, type systems, and runtime models, along with automated
 //! tooling generation.
 
-pub mod gdl_processor; // NEW: Grammar Definition Language Processor
+pub mod gdl_processor;
+pub mod ast_generator; // NEW: Abstract Syntax Tree Generator
 
 pub struct FldgmCore {
-    gdl_processor: gdl_processor::GdlProcessor, // NEW: GdlProcessor instance
+    gdl_processor: gdl_processor::GdlProcessor,
+    ast_generator: ast_generator::AstGenerator, // NEW: AstGenerator instance
 }
 
 impl FldgmCore {
     pub fn new() -> Self {
         FldgmCore {
-            gdl_processor: gdl_processor::GdlProcessor::new(), // NEW: Initialize GdlProcessor
+            gdl_processor: gdl_processor::GdlProcessor::new(),
+            ast_generator: ast_generator::AstGenerator::new(), // NEW: Initialize AstGenerator
         }
     }
 
@@ -21,8 +24,11 @@ impl FldgmCore {
     pub fn design_language(&self, language_spec: &str) -> String {
         println!("FLDGM: Designing language with spec: '{}'", language_spec);
         let processed_grammar = self.gdl_processor.process_grammar_spec(language_spec);
-        // This is where AST generation, semantic model building, etc. would follow.
-        format!("Language design initiated. Processed grammar: {}. Ready for tooling generation.", processed_grammar)
+
+        // Simulate AST generation after grammar processing
+        let generated_ast = self.ast_generator.generate_ast(&processed_grammar, "sample_source_code");
+
+        format!("Language design initiated. Processed grammar: {}. Generated AST: {}. Ready for tooling generation.", processed_grammar, generated_ast)
     }
 
     /// Generates language tooling (lexer, parser, AST builder) for a given language.
