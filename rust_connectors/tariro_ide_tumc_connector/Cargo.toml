@@ -10,3 +10,6 @@ serde_json = "1.0"
 dotenv = "0.15"
 thiserror = "1.0" # For custom error types
 tokio = { version = "1", features = ["full"] } # For async runtime
+
+[dev-dependencies] # New section for testing dependencies
+wiremock = "0.5"
