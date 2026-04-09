@@ -21,28 +21,33 @@ fn main() {
     let intent_microservice = "Create a highly secure, energy-efficient microservice for real-time sensor data processing on an edge IoT device.";
     let target_edge_device = "ARM64_IoT_Edge_Linux";
     let result_microservice = tumc.compile_intent(intent_microservice, target_edge_device);
-    println!("Compilation Result: {}
-", result_microservice);
+    println!("\nCompilation Result: {}\n", result_microservice);
 
     // 2. Translate a semantic concept between domains
     let semantic_concept = "the feeling of 'joy' in a human mind";
     let source_domain = "human_cognition";
     let target_domain = "quantum_neural_network_state";
     let translated_concept = tumc.translate_semantic_domain(source_domain, target_domain, semantic_concept);
-    println!("Translation Result: {}
-", translated_concept);
+    println!("\nTranslation Result: {}\n", translated_concept);
 
     // 3. Self-modify its own grammar based on a new language specification
     let new_lang_spec = "Add a new declarative syntax for bio-molecular programming based on DNA sequences.";
     tumc.self_modify_grammar(new_lang_spec);
-    println!("
-Meta-compiler's grammar self-modified. It can now understand new paradigms.");
+    println!("\nMeta-compiler's grammar self-modified. It can now understand new paradigms.");
 
     // 4. Run a comprehensive self-test using the ATVE
     let self_test_report = tumc.initiate_self_test();
-    println!("
-Self-Test Report: {}
-", self_test_report);
+    println!("\n--- TUMC Self-Test Report ---");
+    println!("Entity: {}", self_test_report.entity_name);
+    println!("Type: {}", self_test_report.entity_type);
+    println!("Overall Status: {:?}", self_test_report.overall_status);
+    println!("Formal Verification: {:?}", self_test_report.formal_verification_results);
+    println!("Generative Testing: {:?}", self_test_report.generative_testing_results.status);
+    println!("Performance Benchmarking: {:?}", self_test_report.performance_benchmarking_results);
+    println!("Resilience Testing: {:?}", self_test_report.resilience_testing_results.status);
+    println!("Security Auditing: {:?}", self_test_report.security_auditing_results.overall_security_posture);
+    println!("Compatibility Assurance: {:?}", self_test_report.compatibility_assurance_results.compatibility_level);
+    println!("-----------------------------\n");
 
     println!("TUMC operations complete. Awaiting further intent from Samuel Mukandara.");
 }
