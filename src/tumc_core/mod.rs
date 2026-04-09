@@ -5,7 +5,8 @@ pub mod adaptive_optimizer;
 pub mod type_system_manager;
 pub mod atve;
 pub mod idpte;
-pub mod poco_reaf; // NEW: Integrate the POCO-REAF module
+pub mod poco_reaf;
+pub mod csito; // NEW: Integrate the CSITO module
 
 pub struct TariroUniversalMetaCompiler {
     meta_grammar_engine: meta_grammar::MetaGrammarEngine,
@@ -15,7 +16,8 @@ pub struct TariroUniversalMetaCompiler {
     type_system_engine: type_system_manager::TypeSystemManager,
     atve_engine: atve::atve_engine::AtveEngine,
     idpte_core: idpte::iapte_core::IapteCore,
-    poco_reaf_system: poco_reaf::poco_reaf_system::PocoReafSystem, // NEW: POCO-REAF System instance
+    poco_reaf_system: poco_reaf::poco_reaf_system::PocoReafSystem,
+    csito_system: csito::csito_system::CsitoSystem, // NEW: CSITO System instance
 }
 
 impl TariroUniversalMetaCompiler {
@@ -28,7 +30,8 @@ impl TariroUniversalMetaCompiler {
             type_system_engine: type_system_manager::TypeSystemManager::new(),
             atve_engine: atve::atve_engine::AtveEngine::new(),
             idpte_core: idpte::iapte_core::IapteCore::new(),
-            poco_reaf_system: poco_reaf::poco_reaf_system::PocoReafSystem::new(), // NEW: Initialize POCO-REAF System
+            poco_reaf_system: poco_reaf::poco_reaf_system::PocoReafSystem::new(),
+            csito_system: csito::csito_system::CsitoSystem::new(), // NEW: Initialize CSITO System
         }
     }
 
@@ -80,8 +83,12 @@ impl TariroUniversalMetaCompiler {
         let poco_reaf_runtime_status = self.poco_reaf_system.execute_artifact(&executable_artifact, target_platform);
         println!("TUMC: POCO-REAF Runtime Status: {}", poco_reaf_runtime_status);
 
+        // Interact with CSITO for operationalization
+        let csito_operational_status = self.csito_system.operationalize_intent(&intent_description, &executable_artifact, target_platform); // NEW: CSITO operationalization
+        println!("TUMC: CSITO Operational Status: {}", csito_operational_status);
 
-        format!("Compilation successful by TUMC. Artifact generated and deployment initiated for '{}'. Summary: '{}'. POCO-REAF Runtime: {}.", target_platform, deployment_status, poco_reaf_runtime_status)
+
+        format!("Compilation successful by TUMC. Artifact generated and deployment initiated for '{}'. Summary: '{}'. POCO-REAF Runtime: {}. CSITO Operationalization: {}.", target_platform, deployment_status, poco_reaf_runtime_status, csito_operational_status)
     }
 
     /// Translates deep semantic concepts or data between different domain models or paradigms.
@@ -104,7 +111,7 @@ impl TariroUniversalMetaCompiler {
         self.atve_engine.run_comprehensive_test("TUMC_itself", "MetaCompiler")
     }
 
-    // NEW: Method to interact with IDPTE for external requests
+    // Method to interact with IDPTE for external requests
     pub fn interact_with_idpte(&self, request: &str) -> String {
         println!("TUMC: Forwarding request to IDPTE: '{}'.", request);
         self.idpte_core.handle_ide_request(request)
