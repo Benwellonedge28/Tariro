@@ -1,17 +1,16 @@
 [package]
-name = "tariro_universal_meta_compiler"
-version = "0.1.0"
+name = "tariro-universal-meta-compiler"
+version = "1.0.12"
 edition = "2021"
 
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
 [dependencies]
-# Conceptual dependencies for TUMC's advanced capabilities
-# In a real implementation, these would be specific crates for:
-# - Advanced NLP/Multimodal processing
-# - Graph databases/Semantic web tools
-# - Formal verification libraries
-# - AI/ML frameworks for optimization (e.g., Rust's tch, candle)
-# - Quantum computing SDKs
-# - Nano-agent orchestration
-# - OS/Kernel development tools
-# - Low-level hardware access (platform-specific)
-# - Ethical AI frameworks (E.V.A.S. integration)
+async-trait = "0.1.77"
+num-complex = "0.4.4"
+tokio = { version = "1.36.0", features = ["full"] }
+uuid = { version = "1.7.0", features = ["v4", "serde"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rand = "0.8.5"
+chrono = { version = "0.4", features = ["serde"] }
