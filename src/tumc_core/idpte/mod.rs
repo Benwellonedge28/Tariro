@@ -6,13 +6,15 @@
 pub mod ide_backend;
 pub mod live_preview;
 pub mod test_orchestration;
-pub mod autonomous_deployment; // NEW: Integrate autonomous_deployment module
+pub mod autonomous_deployment;
+pub mod agent_bridge; // NEW: Integrate agent_bridge module
 
 pub struct IapteCore {
     ide_backend_engine: ide_backend::IdeBackend,
     live_preview_engine: live_preview::LivePreviewEngine,
     test_orchestration_engine: test_orchestration::TestOrchestrationEngine,
-    autonomous_deployment_engine: autonomous_deployment::AutonomousDeploymentEngine, // NEW: Autonomous Deployment Engine instance
+    autonomous_deployment_engine: autonomous_deployment::AutonomousDeploymentEngine,
+    agent_bridge_engine: agent_bridge::AgentBridgeEngine, // NEW: Agent Bridge Engine instance
 }
 
 impl IapteCore {
@@ -21,7 +23,8 @@ impl IapteCore {
             ide_backend_engine: ide_backend::IdeBackend::new(),
             live_preview_engine: live_preview::LivePreviewEngine::new(),
             test_orchestration_engine: test_orchestration::TestOrchestrationEngine::new(),
-            autonomous_deployment_engine: autonomous_deployment::AutonomousDeploymentEngine::new(), // NEW: Initialize Autonomous Deployment Engine
+            autonomous_deployment_engine: autonomous_deployment::AutonomousDeploymentEngine::new(),
+            agent_bridge_engine: agent_bridge::AgentBridgeEngine::new(), // NEW: Initialize Agent Bridge Engine
         }
     }
 
@@ -64,5 +67,17 @@ impl IapteCore {
     pub fn monitor_deployment_status(&self, deployment_id: &str) -> String {
         println!("IDPTE: Monitoring deployment {}.". deployment_id);
         self.autonomous_deployment_engine.get_deployment_status(deployment_id)
+    }
+
+    /// Sends a command via the agent bridge to an external IDE.
+    pub fn send_ide_command(&self, ide_id: &str, command: &str) -> String {
+        println!("IDPTE: Sending command '{}' to IDE {}.". command, ide_id);
+        self.agent_bridge_engine.send_command_to_ide(ide_id, command)
+    }
+
+    /// Receives data from an external agent.
+    pub fn receive_agent_data(&self, agent_id: &str, data: &str) -> String {
+        println!("IDPTE: Receiving data from agent {}: {}.". agent_id, data);
+        self.agent_bridge_engine.receive_data_from_agent(agent_id, data)
     }
 }
