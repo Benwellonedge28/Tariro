@@ -5,18 +5,21 @@
 //! tooling generation.
 
 pub mod gdl_processor;
-pub mod ast_generator; // NEW: Abstract Syntax Tree Generator
+pub mod ast_generator;
+pub mod semantic_model; // NEW: Semantic Model Definition
 
 pub struct FldgmCore {
     gdl_processor: gdl_processor::GdlProcessor,
-    ast_generator: ast_generator::AstGenerator, // NEW: AstGenerator instance
+    ast_generator: ast_generator::AstGenerator,
+    semantic_model_builder: semantic_model::SemanticModelBuilder, // NEW: SemanticModelBuilder instance
 }
 
 impl FldgmCore {
     pub fn new() -> Self {
         FldgmCore {
             gdl_processor: gdl_processor::GdlProcessor::new(),
-            ast_generator: ast_generator::AstGenerator::new(), // NEW: Initialize AstGenerator
+            ast_generator: ast_generator::AstGenerator::new(),
+            semantic_model_builder: semantic_model::SemanticModelBuilder::new(), // NEW: Initialize SemanticModelBuilder
         }
     }
 
@@ -28,7 +31,10 @@ impl FldgmCore {
         // Simulate AST generation after grammar processing
         let generated_ast = self.ast_generator.generate_ast(&processed_grammar, "sample_source_code");
 
-        format!("Language design initiated. Processed grammar: {}. Generated AST: {}. Ready for tooling generation.", processed_grammar, generated_ast)
+        // Simulate semantic model definition
+        let semantic_rules = self.semantic_model_builder.define_semantic_rules(&generated_ast);
+
+        format!("Language design initiated. Processed grammar: {}. Generated AST: {}. Semantic Rules: {}. Ready for tooling generation.", processed_grammar, generated_ast, semantic_rules)
     }
 
     /// Generates language tooling (lexer, parser, AST builder) for a given language.
