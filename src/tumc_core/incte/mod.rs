@@ -4,16 +4,19 @@
 //! into highly optimized native executable code or transpilating them into other target languages.
 //! It is responsible for bridging the gap between language definitions (from FLDGM) and deployable artifacts.
 
-pub mod ir_generator; // NEW: Intermediate Representation Generator
+pub mod ir_generator;
+pub mod optimization_pipeline; // NEW: Optimization Pipeline
 
 pub struct IncteCore {
-    ir_generator: ir_generator::IrGenerator, // NEW: IrGenerator instance
+    ir_generator: ir_generator::IrGenerator,
+    optimization_pipeline: optimization_pipeline::OptimizationPipeline, // NEW: OptimizationPipeline instance
 }
 
 impl IncteCore {
     pub fn new() -> Self {
         IncteCore {
-            ir_generator: ir_generator::IrGenerator::new(), // NEW: Initialize IrGenerator
+            ir_generator: ir_generator::IrGenerator::new(),
+            optimization_pipeline: optimization_pipeline::OptimizationPipeline::new(), // NEW: Initialize OptimizationPipeline
         }
     }
 
@@ -22,8 +25,11 @@ impl IncteCore {
         println!("INCTE: Compiling UIR to native code for platform: '{}'", target_platform);
         let generated_ir = self.ir_generator.generate_ir("sample_ast_or_semantic_graph");
 
-        // Simulate further compilation steps (optimization, code generation)
-        format!("Native executable for '{}' generated from UIR (via IR: {}).", target_platform, generated_ir)
+        // Apply optimizations to the generated IR
+        let optimized_ir = self.optimization_pipeline.apply_optimizations(&generated_ir);
+
+        // Simulate further compilation steps (code generation)
+        format!("Native executable for '{}' generated from UIR (via Optimized IR: {}).", target_platform, optimized_ir)
     }
 
     /// Transpiles an optimized UIR into another high-level programming language.
