@@ -8,6 +8,7 @@ pub mod idpte;
 pub mod poco_reaf;
 pub mod csito;
 pub mod fldgm;
+pub mod incte; // NEW: Integrate the INCTE module
 
 pub struct TariroUniversalMetaCompiler {
     meta_grammar_engine: meta_grammar::MetaGrammarEngine,
@@ -20,6 +21,7 @@ pub struct TariroUniversalMetaCompiler {
     poco_reaf_system: poco_reaf::poco_reaf_system::PocoReafSystem,
     csito_system: csito::csito_system::CsitoSystem,
     fldgm_core: fldgm::fldgm_core::FldgmCore,
+    incte_core: incte::incte_core::IncteCore, // NEW: INCTE Core instance
 }
 
 impl TariroUniversalMetaCompiler {
@@ -35,6 +37,7 @@ impl TariroUniversalMetaCompiler {
             poco_reaf_system: poco_reaf::poco_reaf_system::PocoReafSystem::new(),
             csito_system: csito::csito_system::CsitoSystem::new(),
             fldgm_core: fldgm::fldgm_core::FldgmCore::new(),
+            incte_core: incte::incte_core::IncteCore::new(), // NEW: Initialize INCTE Core
         }
     }
 
@@ -64,7 +67,12 @@ impl TariroUniversalMetaCompiler {
         let (optimized_usg, optimization_report) = self.optimizer_engine.optimize(&typed_usg, target_platform, &inferred_context);
         println!("TUMC: Optimized USG. Optimization report: '{}'", optimization_report);
 
-        let executable_artifact = self.runtime_manager.generate_artifact(&optimized_usg, target_platform);
+        // Utilize INCTE for final code generation
+        let final_executable_artifact = self.incte_core.compile_to_native(&optimized_usg, target_platform);
+        println!("TUMC: INCTE generated final executable artifact: '{}'", final_executable_artifact);
+
+
+        let executable_artifact = self.runtime_manager.generate_artifact(&optimized_usg, target_platform); // This will be replaced by INCTE's output
         println!("TUMC: Generated executable artifact of type '{}' for '{}'", executable_artifact.split(':').next().unwrap_or("unknown"), target_platform);
 
         // Simulate interaction with IDPTE Live Preview for the artifact
@@ -90,7 +98,7 @@ impl TariroUniversalMetaCompiler {
         let csito_operational_status = self.csito_system.operationalize_intent(&intent_description, &executable_artifact, target_platform);
         println!("TUMC: CSITO Operational Status: {}", csito_operational_status);
 
-        format!("Compilation successful by TUMC. Artifact generated and deployment initiated for '{}'. Summary: '{}'. POCO-REAF Runtime: {}. CSITO Operationalization: {}.", target_platform, deployment_status, poco_reaf_runtime_status, csito_operational_status)
+        format!("Compilation successful by TUMC. Final artifact: '{}'. Summary: '{}'. POCO-REAF Runtime: {}. CSITO Operationalization: {}.", final_executable_artifact, deployment_status, poco_reaf_runtime_status, csito_operational_status)
     }
 
     /// Translates deep semantic concepts or data between different domain models or paradigms.
