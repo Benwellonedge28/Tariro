@@ -1,0 +1,124 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Tariro IDE (IDPTE) API",
+    "version": "1.0.0",
+    "description": "External API endpoints for Tariro IDE (IDPTE) interoperability with TUMC."
+  },
+  "servers": [
+    {
+      "url": "https://api.tariro.ide"
+    }
+  ],
+  "paths": {
+    "/api/ide/display_notification": {
+      "post": {
+        "summary": "Display a notification message within the IDE.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["info", "warning", "error"]
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "duration": {
+                    "type": "number",
+                    "description": "Optional, in milliseconds"
+                  }
+                },
+                "required": ["type", "title", "message"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ide/open_file": {
+      "post": {
+        "summary": "Open a specific file path in the IDE editor.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "line": {
+                    "type": "number",
+                    "description": "Optional, line number to navigate to"
+                  }
+                },
+                "required": ["path"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ide/display_analysis_report": {
+      "post": {
+        "summary": "Display a structured analysis report (e.g., from ATVE) within the IDE.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "report_type": {
+                    "type": "string",
+                    "description": "e.g., 'ATVE_Performance', 'ATVE_Security'"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "Markdown or structured JSON report"
+                  },
+                  "file_path": {
+                    "type": "string",
+                    "description": "Optional, file associated with the report"
+                  },
+                  "severity": {
+                    "type": "string",
+                    "enum": ["info", "warning", "error"]
+                  }
+                },
+                "required": ["report_type", "title", "content", "severity"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  }
+}

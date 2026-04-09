@@ -1,0 +1,194 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Tariro Universal Meta-Compiler (TUMC) API",
+    "version": "1.0.0",
+    "description": "External API endpoints for TUMC interoperability with Tariro IDE (IDPTE)."
+  },
+  "servers": [
+    {
+      "url": "https://api.tariro.tumc"
+    }
+  ],
+  "paths": {
+    "/api/tumc/v1/compile": {
+      "post": {
+        "summary": "Initiate a compilation/transpilation job.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "project_id": {
+                    "type": "string",
+                    "description": "Reference to a CompilerProject"
+                  },
+                  "source_files": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string"
+                        },
+                        "content": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["path", "content"]
+                    }
+                  },
+                  "target_platform": {
+                    "type": "string",
+                    "description": "e.g., 'WASM', 'x86_64', 'ARM64'"
+                  },
+                  "output_format": {
+                    "type": "string",
+                    "description": "e.g., 'executable', 'library', 'bytecode'"
+                  },
+                  "optimizations": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Optional list of optimization flags"
+                  }
+                },
+                "required": ["project_id", "source_files", "target_platform", "output_format"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "job_id": {
+                      "type": "string"
+                    },
+                    "status_url": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tumc/v1/job/{job_id}/status": {
+      "get": {
+        "summary": "Get the status of an asynchronous job (compilation, analysis).",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "job_id": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": ["pending", "in_progress", "completed", "failed"]
+                    },
+                    "progress_pct": {
+                      "type": "number",
+                      "format": "float",
+                      "description": "0-100"
+                    },
+                    "result_url": {
+                      "type": "string",
+                      "description": "Optional, URL to compiled output or analysis report"
+                    },
+                    "error_message": {
+                      "type": "string",
+                      "description": "Optional, if job failed"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tumc/v1/analyze_code": {
+      "post": {
+        "summary": "Request static analysis (e.g., ATVE scan) for provided code.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "source_files": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string"
+                        },
+                        "content": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["path", "content"]
+                    }
+                  },
+                  "analysis_type": {
+                    "type": "string",
+                    "enum": ["performance", "security", "compatibility"]
+                  },
+                  "report_format": {
+                    "type": "string",
+                    "enum": ["json", "markdown"]
+                  }
+                },
+                "required": ["source_files", "analysis_type", "report_format"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "job_id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
