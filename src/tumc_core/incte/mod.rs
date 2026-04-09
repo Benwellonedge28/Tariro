@@ -5,18 +5,21 @@
 //! It is responsible for bridging the gap between language definitions (from FLDGM) and deployable artifacts.
 
 pub mod ir_generator;
-pub mod optimization_pipeline; // NEW: Optimization Pipeline
+pub mod optimization_pipeline;
+pub mod code_generator; // NEW: Code Generator Backends
 
 pub struct IncteCore {
     ir_generator: ir_generator::IrGenerator,
-    optimization_pipeline: optimization_pipeline::OptimizationPipeline, // NEW: OptimizationPipeline instance
+    optimization_pipeline: optimization_pipeline::OptimizationPipeline,
+    code_generator: code_generator::CodeGenerator, // NEW: CodeGenerator instance
 }
 
 impl IncteCore {
     pub fn new() -> Self {
         IncteCore {
             ir_generator: ir_generator::IrGenerator::new(),
-            optimization_pipeline: optimization_pipeline::OptimizationPipeline::new(), // NEW: Initialize OptimizationPipeline
+            optimization_pipeline: optimization_pipeline::OptimizationPipeline::new(),
+            code_generator: code_generator::CodeGenerator::new(), // NEW: Initialize CodeGenerator
         }
     }
 
@@ -28,14 +31,23 @@ impl IncteCore {
         // Apply optimizations to the generated IR
         let optimized_ir = self.optimization_pipeline.apply_optimizations(&generated_ir);
 
-        // Simulate further compilation steps (code generation)
-        format!("Native executable for '{}' generated from UIR (via Optimized IR: {}).", target_platform, optimized_ir)
+        // Generate native code from the optimized IR
+        let native_code = self.code_generator.generate_native_code(&optimized_ir, target_platform);
+
+        format!("Native executable for '{}' generated. Code: {}.", target_platform, native_code)
     }
 
     /// Transpiles an optimized UIR into another high-level programming language.
     pub fn transpile_to_language(&self, uir_representation: &str, target_language: &str) -> String {
         println!("INCTE: Transpiling UIR to language: '{}'", target_language);
-        // Simulate transpilation
-        format!("Code in '{}' generated from UIR.", target_language)
+        let generated_ir = self.ir_generator.generate_ir("sample_ast_or_semantic_graph");
+
+        // Apply optimizations to the generated IR
+        let optimized_ir = self.optimization_pipeline.apply_optimizations(&generated_ir);
+
+        // Transpile to the target language
+        let transpiled_code = self.code_generator.transpile_code(&optimized_ir, target_language);
+
+        format!("Code in '{}' generated. Code: {}.", target_language, transpiled_code)
     }
 }
