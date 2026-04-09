@@ -8,7 +8,7 @@ pub mod idpte;
 pub mod poco_reaf;
 pub mod csito;
 pub mod fldgm;
-pub mod incte; // NEW: Integrate the INCTE module
+pub mod incte;
 
 pub struct TariroUniversalMetaCompiler {
     meta_grammar_engine: meta_grammar::MetaGrammarEngine,
@@ -21,7 +21,7 @@ pub struct TariroUniversalMetaCompiler {
     poco_reaf_system: poco_reaf::poco_reaf_system::PocoReafSystem,
     csito_system: csito::csito_system::CsitoSystem,
     fldgm_core: fldgm::fldgm_core::FldgmCore,
-    incte_core: incte::incte_core::IncteCore, // NEW: INCTE Core instance
+    incte_core: incte::incte_core::IncteCore,
 }
 
 impl TariroUniversalMetaCompiler {
@@ -37,7 +37,7 @@ impl TariroUniversalMetaCompiler {
             poco_reaf_system: poco_reaf::poco_reaf_system::PocoReafSystem::new(),
             csito_system: csito::csito_system::CsitoSystem::new(),
             fldgm_core: fldgm::fldgm_core::FldgmCore::new(),
-            incte_core: incte::incte_core::IncteCore::new(), // NEW: Initialize INCTE Core
+            incte_core: incte::incte_core::IncteCore::new(),
         }
     }
 
@@ -72,33 +72,27 @@ impl TariroUniversalMetaCompiler {
         println!("TUMC: INCTE generated final executable artifact: '{}'", final_executable_artifact);
 
 
-        let executable_artifact = self.runtime_manager.generate_artifact(&optimized_usg, target_platform); // This will be replaced by INCTE's output
-        println!("TUMC: Generated executable artifact of type '{}' for '{}'", executable_artifact.split(':').next().unwrap_or("unknown"), target_platform);
-
-        // Simulate interaction with IDPTE Live Preview for the artifact
-        let artifact_preview_result = self.idpte_core.render_preview(&executable_artifact, "html_embed");
-        println!("TUMC: IDPTE Artifact Preview: {}", artifact_preview_result);
-
-        // Trigger ATVE tests via IDPTE Test Orchestration
-        let atve_trigger_result = self.idpte_core.trigger_atve_test(&executable_artifact, "GeneratedArtifact");
-        println!("TUMC: IDPTE ATVE Triggered: {}", atve_trigger_result);
-
-        let deployment_status = self.runtime_manager.initiate_autonomous_deployment(&executable_artifact, target_platform);
+        // NOW PASS INCTE'S final_executable_artifact to runtime manager and ATVE
+        let deployment_status = self.runtime_manager.initiate_autonomous_deployment(&final_executable_artifact, target_platform);
         println!("TUMC: Deployment status: '{}'", deployment_status);
 
         // Simulate autonomous deployment initiation via IDPTE
-        let deployment_init_result = self.idpte_core.initiate_deployment(&executable_artifact, target_platform, "auto_canary");
+        let deployment_init_result = self.idpte_core.initiate_deployment(&final_executable_artifact, target_platform, "auto_canary");
         println!("TUMC: IDPTE Deployment Initiated: {}", deployment_init_result);
 
+        // Trigger ATVE tests via IDPTE Test Orchestration
+        let atve_trigger_result = self.idpte_core.trigger_atve_test(&final_executable_artifact, "GeneratedArtifact");
+        println!("TUMC: IDPTE ATVE Triggered: {}", atve_trigger_result);
+
         // Interact with POCO-REAF system for runtime
-        let poco_reaf_runtime_status = self.poco_reaf_system.execute_artifact(&executable_artifact, target_platform);
+        let poco_reaf_runtime_status = self.poco_reaf_system.execute_artifact(&final_executable_artifact, target_platform);
         println!("TUMC: POCO-REAF Runtime Status: {}", poco_reaf_runtime_status);
 
         // Interact with CSITO for operationalization
-        let csito_operational_status = self.csito_system.operationalize_intent(&intent_description, &executable_artifact, target_platform);
+        let csito_operational_status = self.csito_system.operationalize_intent(&intent_description, &final_executable_artifact, target_platform);
         println!("TUMC: CSITO Operational Status: {}", csito_operational_status);
 
-        format!("Compilation successful by TUMC. Final artifact: '{}'. Summary: '{}'. POCO-REAF Runtime: {}. CSITO Operationalization: {}.", final_executable_artifact, deployment_status, poco_reaf_runtime_status, csito_operational_status)
+        format!("Compilation successful by TUMC. Final artifact: '{}'. Summary: '{}'. POCO-REAF Runtime: {}. CSITO Operationalization: {}. ATVE Triggered: {}.", final_executable_artifact, deployment_status, poco_reaf_runtime_status, csito_operational_status, atve_trigger_result)
     }
 
     /// Translates deep semantic concepts or data between different domain models or paradigms.
