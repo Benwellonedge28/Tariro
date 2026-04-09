@@ -6,12 +6,14 @@
 
 pub mod gdl_processor;
 pub mod ast_generator;
-pub mod semantic_model; // NEW: Semantic Model Definition
+pub mod semantic_model;
+pub mod tooling_generator; // NEW: Automated Tooling Generator
 
 pub struct FldgmCore {
     gdl_processor: gdl_processor::GdlProcessor,
     ast_generator: ast_generator::AstGenerator,
-    semantic_model_builder: semantic_model::SemanticModelBuilder, // NEW: SemanticModelBuilder instance
+    semantic_model_builder: semantic_model::SemanticModelBuilder,
+    tooling_gen: tooling_generator::ToolingGenerator, // NEW: ToolingGenerator instance
 }
 
 impl FldgmCore {
@@ -19,7 +21,8 @@ impl FldgmCore {
         FldgmCore {
             gdl_processor: gdl_processor::GdlProcessor::new(),
             ast_generator: ast_generator::AstGenerator::new(),
-            semantic_model_builder: semantic_model::SemanticModelBuilder::new(), // NEW: Initialize SemanticModelBuilder
+            semantic_model_builder: semantic_model::SemanticModelBuilder::new(),
+            tooling_gen: tooling_generator::ToolingGenerator::new(), // NEW: Initialize ToolingGenerator
         }
     }
 
@@ -34,13 +37,15 @@ impl FldgmCore {
         // Simulate semantic model definition
         let semantic_rules = self.semantic_model_builder.define_semantic_rules(&generated_ast);
 
-        format!("Language design initiated. Processed grammar: {}. Generated AST: {}. Semantic Rules: {}. Ready for tooling generation.", processed_grammar, generated_ast, semantic_rules)
+        // Simulate tooling generation
+        let generated_tooling = self.tooling_gen.generate_all_tooling(&processed_grammar);
+
+        format!("Language design initiated. Processed grammar: {}. Generated AST: {}. Semantic Rules: {}. Generated Tooling: {}.", processed_grammar, generated_ast, semantic_rules, generated_tooling)
     }
 
     /// Generates language tooling (lexer, parser, AST builder) for a given language.
     pub fn generate_tooling(&self, language_name: &str, grammar_id: &str) -> String {
         println!("FLDGM: Generating tooling for language '{}' from grammar '{}'.", language_name, grammar_id);
-        // Simulate tooling generation
-        format!("Tooling (lexer, parser, AST builder) generated for language {}.", language_name)
+        self.tooling_gen.generate_all_tooling(grammar_id)
     }
 }
