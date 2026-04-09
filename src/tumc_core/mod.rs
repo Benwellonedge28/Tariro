@@ -9,6 +9,7 @@ pub mod poco_reaf;
 pub mod csito;
 pub mod fldgm;
 pub mod incte;
+pub mod meta_library_generator; // NEW: Integrate the Meta-Library Generator module
 
 pub struct TariroUniversalMetaCompiler {
     meta_grammar_engine: meta_grammar::MetaGrammarEngine,
@@ -22,6 +23,7 @@ pub struct TariroUniversalMetaCompiler {
     csito_system: csito::csito_system::CsitoSystem,
     fldgm_core: fldgm::fldgm_core::FldgmCore,
     incte_core: incte::incte_core::IncteCore,
+    meta_library_gen_core: meta_library_generator::meta_library_gen_core::MetaLibraryGenCore, // NEW: MetaLibraryGenCore instance
 }
 
 impl TariroUniversalMetaCompiler {
@@ -38,6 +40,7 @@ impl TariroUniversalMetaCompiler {
             csito_system: csito::csito_system::CsitoSystem::new(),
             fldgm_core: fldgm::fldgm_core::FldgmCore::new(),
             incte_core: incte::incte_core::IncteCore::new(),
+            meta_library_gen_core: meta_library_generator::meta_library_gen_core::MetaLibraryGenCore::new(), // NEW: Initialize MetaLibraryGenCore
         }
     }
 
@@ -92,7 +95,11 @@ impl TariroUniversalMetaCompiler {
         let csito_operational_status = self.csito_system.operationalize_intent(&intent_description, &final_executable_artifact, target_platform);
         println!("TUMC: CSITO Operational Status: {}", csito_operational_status);
 
-        format!("Compilation successful by TUMC. Final artifact: '{}'. Summary: '{}'. POCO-REAF Runtime: {}. CSITO Operationalization: {}. ATVE Triggered: {}.", final_executable_artifact, deployment_status, poco_reaf_runtime_status, csito_operational_status, atve_trigger_result)
+        // Generate a meta-library for the newly compiled artifact
+        let generated_meta_library = self.meta_library_gen_core.generate_meta_library(&final_executable_artifact, target_platform);
+        println!("TUMC: Generated Meta-Library: {}", generated_meta_library);
+
+        format!("Compilation successful by TUMC. Final artifact: '{}'. Summary: '{}'. POCO-REAF Runtime: {}. CSITO Operationalization: {}. ATVE Triggered: {}. Meta-Library: {}", final_executable_artifact, deployment_status, poco_reaf_runtime_status, csito_operational_status, atve_trigger_result, generated_meta_library)
     }
 
     /// Translates deep semantic concepts or data between different domain models or paradigms.
