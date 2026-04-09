@@ -6,7 +6,8 @@ pub mod type_system_manager;
 pub mod atve;
 pub mod idpte;
 pub mod poco_reaf;
-pub mod csito; // NEW: Integrate the CSITO module
+pub mod csito;
+pub mod fldgm; // NEW: Integrate the FLDGM module
 
 pub struct TariroUniversalMetaCompiler {
     meta_grammar_engine: meta_grammar::MetaGrammarEngine,
@@ -17,7 +18,8 @@ pub struct TariroUniversalMetaCompiler {
     atve_engine: atve::atve_engine::AtveEngine,
     idpte_core: idpte::iapte_core::IapteCore,
     poco_reaf_system: poco_reaf::poco_reaf_system::PocoReafSystem,
-    csito_system: csito::csito_system::CsitoSystem, // NEW: CSITO System instance
+    csito_system: csito::csito_system::CsitoSystem,
+    fldgm_core: fldgm::fldgm_core::FldgmCore, // NEW: FLDGM Core instance
 }
 
 impl TariroUniversalMetaCompiler {
@@ -31,7 +33,8 @@ impl TariroUniversalMetaCompiler {
             atve_engine: atve::atve_engine::AtveEngine::new(),
             idpte_core: idpte::iapte_core::IapteCore::new(),
             poco_reaf_system: poco_reaf::poco_reaf_system::PocoReafSystem::new(),
-            csito_system: csito::csito_system::CsitoSystem::new(), // NEW: Initialize CSITO System
+            csito_system: csito::csito_system::CsitoSystem::new(),
+            fldgm_core: fldgm::fldgm_core::FldgmCore::new(), // NEW: Initialize FLDGM Core
         }
     }
 
@@ -84,7 +87,7 @@ impl TariroUniversalMetaCompiler {
         println!("TUMC: POCO-REAF Runtime Status: {}", poco_reaf_runtime_status);
 
         // Interact with CSITO for operationalization
-        let csito_operational_status = self.csito_system.operationalize_intent(&intent_description, &executable_artifact, target_platform); // NEW: CSITO operationalization
+        let csito_operational_status = self.csito_system.operationalize_intent(&intent_description, &executable_artifact, target_platform);
         println!("TUMC: CSITO Operational Status: {}", csito_operational_status);
 
 
@@ -115,5 +118,11 @@ impl TariroUniversalMetaCompiler {
     pub fn interact_with_idpte(&self, request: &str) -> String {
         println!("TUMC: Forwarding request to IDPTE: '{}'.", request);
         self.idpte_core.handle_ide_request(request)
+    }
+
+    // Method to design a new formal language using FLDGM
+    pub fn design_new_language(&self, language_spec: &str) -> String {
+        println!("TUMC: Designing new formal language with FLDGM based on: '{}'", language_spec);
+        self.fldgm_core.design_language(language_spec)
     }
 }
