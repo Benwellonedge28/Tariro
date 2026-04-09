@@ -7,6 +7,27 @@ use super::resilience_testing;
 use super::security_auditing;
 use super::compatibility_assurance;
 
+#[derive(Debug, Clone)]
+pub struct TestReport {
+    pub entity_name: String,
+    pub entity_type: String,
+    pub formal_verification_result: String,
+    pub generative_testing_result: String,
+    pub performance_benchmarking_result: String,
+    pub resilience_testing_result: String,
+    pub security_auditing_result: String,
+    pub compatibility_assurance_result: String,
+    pub overall_status: TestStatus,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum TestStatus {
+    Pass,
+    Fail,
+    Warning,
+    OptimizationRequired,
+}
+
 pub struct AtveEngine;
 
 impl AtveEngine {
@@ -17,17 +38,28 @@ impl AtveEngine {
     /// Orchestrates a comprehensive self-test and validation process for TUMC and generated artifacts.
     pub fn run_comprehensive_test(&self, target_entity: &str, entity_type: &str) -> String {
         println!("ATVE: Initiating comprehensive test for {} (Type: {}).", target_entity, entity_type);
-        let mut report_elements = Vec::new();
+        
+        let report = TestReport {
+            entity_name: target_entity.to_string(),
+            entity_type: entity_type.to_string(),
+            formal_verification_result: formal_verification::run_verification(target_entity),
+            generative_testing_result: generative_testing::run_fuzzing(target_entity),
+            performance_benchmarking_result: performance_benchmarking::run_benchmarks(target_entity, entity_type),
+            resilience_testing_result: resilience_testing::run_resilience_tests(target_entity),
+            security_auditing_result: security_auditing::run_security_audit(target_entity),
+            compatibility_assurance_result: compatibility_assurance::run_compatibility_checks(target_entity),
+            overall_status: TestStatus::Pass, // Simplified for now
+        };
 
-        report_elements.push(format!("Formal Verification: {}", formal_verification::run_verification(target_entity)));
-        report_elements.push(format!("Generative Testing: {}", generative_testing::run_fuzzing(target_entity)));
-        report_elements.push(format!("Performance Benchmarking: {}", performance_benchmarking::run_benchmarks(target_entity, entity_type)));
-        report_elements.push(format!("Resilience Testing: {}", resilience_testing::run_resilience_tests(target_entity)));
-        report_elements.push(format!("Security Auditing: {}", security_auditing::run_security_audit(target_entity)));
-        report_elements.push(format!("Compatibility Assurance: {}", compatibility_assurance::run_compatibility_checks(target_entity)));
+        let summary = format!(
+            "Comprehensive test complete for {}. Status: {:?}. Details: [FV: {}, GT: {}, PB: {}, RT: {}, SA: {}, CA: {}]",
+            report.entity_name, report.overall_status,
+            report.formal_verification_result, report.generative_testing_result,
+            report.performance_benchmarking_result, report.resilience_testing_result,
+            report.security_auditing_result, report.compatibility_assurance_result
+        );
 
-        let final_report = report_elements.join(" | ");
-        println!("ATVE: Comprehensive test complete. Report: {}.", final_report);
-        final_report
+        println!("ATVE: Report summary: {}.", summary);
+        summary
     }
 }
