@@ -2,7 +2,7 @@
 
 use super::formal_verification::{self, FormalVerificationEngine, VerificationProof, VerificationStatus};
 use super::generative_testing::{self, GenerativeTestingEngine, FuzzingResult, FuzzingStatus};
-use super::performance_benchmarking;
+use super::performance_benchmarking::{self, PerformanceBenchmarkingEngine, PerformanceMetrics};
 use super::resilience_testing;
 use super::security_auditing;
 use super::compatibility_assurance;
@@ -13,7 +13,7 @@ pub struct TestReport {
     pub entity_type: String,
     pub formal_verification_results: Vec<VerificationProof>,
     pub generative_testing_results: FuzzingResult,
-    pub performance_benchmarking_result: String,
+    pub performance_benchmarking_results: PerformanceMetrics,
     pub resilience_testing_result: String,
     pub security_auditing_result: String,
     pub compatibility_assurance_result: String,
@@ -31,6 +31,7 @@ pub enum TestStatus {
 pub struct AtveEngine {
     formal_verification_engine: FormalVerificationEngine,
     generative_testing_engine: GenerativeTestingEngine,
+    performance_benchmarking_engine: PerformanceBenchmarkingEngine,
 }
 
 impl AtveEngine {
@@ -38,6 +39,7 @@ impl AtveEngine {
         AtveEngine {
             formal_verification_engine: FormalVerificationEngine::new(),
             generative_testing_engine: GenerativeTestingEngine::new(),
+            performance_benchmarking_engine: PerformanceBenchmarkingEngine::new(),
         }
     }
 
@@ -49,17 +51,18 @@ impl AtveEngine {
 
         let fv_results = self.formal_verification_engine.run_verification(target_entity, common_properties);
         let gt_results = self.generative_testing_engine.run_fuzzing(target_entity);
+        let pb_results = self.performance_benchmarking_engine.run_benchmarks(target_entity, entity_type);
 
         let report = TestReport {
             entity_name: target_entity.to_string(),
             entity_type: entity_type.to_string(),
             formal_verification_results: fv_results.clone(),
             generative_testing_results: gt_results.clone(),
-            performance_benchmarking_result: performance_benchmarking::run_benchmarks(target_entity, entity_type),
+            performance_benchmarking_results: pb_results.clone(),
             resilience_testing_result: resilience_testing::run_resilience_tests(target_entity),
             security_auditing_result: security_auditing::run_security_audit(target_entity),
             compatibility_assurance_result: compatibility_assurance::run_compatibility_checks(target_entity),
-            overall_status: if fv_results.iter().any(|p| p.status == VerificationStatus::Refuted) || gt_results.status != FuzzingStatus::CompletedWithoutIssues {
+            overall_status: if fv_results.iter().any(|p| p.status == VerificationStatus::Refuted) || gt_results.status != FuzzingStatus::CompletedWithoutIssues || pb_results.efficiency_score < 99.0 {
                 TestStatus::Fail
             } else {
                 TestStatus::Pass
@@ -67,11 +70,12 @@ impl AtveEngine {
         };
 
         let summary = format!(
-            "Comprehensive test complete for {}. Status: {:?}. Details: [FV: {:?}, GT: {:?}, PB: {}, RT: {}, SA: {}, CA: {}]",
+            "Comprehensive test complete for {}. Status: {:?}. Details: [FV: {:?}, GT: {:?}, PB: {:?}, RT: {}, SA: {}, CA: {}]",
             report.entity_name, report.overall_status,
             report.formal_verification_results, report.generative_testing_results.status,
-            report.performance_benchmarking_result, report.resilience_testing_result,
-            report.security_auditing_result, report.compatibility_assurance_result
+            report.performance_benchmarking_results, 
+            report.resilience_testing_result, report.security_auditing_result,
+            report.compatibility_assurance_result
         );
 
         println!("ATVE: Report summary: {}.", summary);
