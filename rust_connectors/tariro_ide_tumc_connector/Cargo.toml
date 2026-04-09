@@ -1,0 +1,12 @@
+[package]
+name = "tariro_ide_tumc_connector"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+reqwest = { version = "0.11", features = ["json", "rustls-tls"], default-features = false } # Use rustls for async
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+dotenv = "0.15"
+thiserror = "1.0" # For custom error types
+tokio = { version = "1", features = ["full"] } # For async runtime
