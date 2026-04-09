@@ -3,6 +3,7 @@ pub mod semantic_graph;
 pub mod omniversal_runtime;
 pub mod adaptive_optimizer;
 pub mod type_system_manager;
+pub mod atve; // NEW: Integrate ATVE module
 
 pub struct TariroUniversalMetaCompiler {
     meta_grammar_engine: meta_grammar::MetaGrammarEngine,
@@ -10,6 +11,7 @@ pub struct TariroUniversalMetaCompiler {
     runtime_manager: omniversal_runtime::OmniversalRuntimeManager,
     optimizer_engine: adaptive_optimizer::AdaptiveOptimizerEngine,
     type_system_engine: type_system_manager::TypeSystemManager,
+    atve_engine: atve::atve_engine::AtveEngine, // NEW: ATVE Engine
 }
 
 impl TariroUniversalMetaCompiler {
@@ -20,6 +22,7 @@ impl TariroUniversalMetaCompiler {
             runtime_manager: omniversal_runtime::OmniversalRuntimeManager::new(),
             optimizer_engine: adaptive_optimizer::AdaptiveOptimizerEngine::new(),
             type_system_engine: type_system_manager::TypeSystemManager::new(),
+            atve_engine: atve::atve_engine::AtveEngine::new(), // NEW: Initialize ATVE Engine
         }
     }
 
@@ -95,8 +98,7 @@ impl TariroUniversalMetaCompiler {
     /// Ensures internal consistency, correctness, efficiency, and security of the meta-compiler.
     pub fn initiate_self_test(&self) -> String {
         println!("TUMC: Initiating comprehensive self-test of the meta-compiler.");
-        // The optimizer_engine acts as the ATVE for self-testing.
-        let self_test_report = self.optimizer_engine.run_self_test();
-        format!("TUMC Self-Test Complete. Report: '{}'. TUMC remains at googol percent optimal performance.", self_test_report)
+        // The ATVE engine is now responsible for comprehensive testing
+        self.atve_engine.run_comprehensive_test("TUMC_itself", "MetaCompiler")
     }
 }
