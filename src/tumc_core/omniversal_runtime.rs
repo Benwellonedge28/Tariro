@@ -1,8 +1,14 @@
-pub struct OmniversalRuntimeManager;
+use super::poco_reaf::poco_reaf_system; // NEW: Import poco_reaf_system
+
+pub struct OmniversalRuntimeManager {
+    poco_reaf_system: poco_reaf_system::PocoReafSystem, // NEW: PocoReafSystem instance
+}
 
 impl OmniversalRuntimeManager {
     pub fn new() -> Self {
-        OmniversalRuntimeManager {}
+        OmniversalRuntimeManager {
+            poco_reaf_system: poco_reaf_system::PocoReafSystem::new(), // NEW: Initialize PocoReafSystem
+        }
     }
 
     /// Generates executable artifacts for any target, from classical computing platforms
@@ -10,14 +16,14 @@ impl OmniversalRuntimeManager {
     /// This process is "extra super extremely autonomous advanced infinitely," leveraging the
     /// full capabilities of the POCO-REAF-OMNIVERSAL Runtime for universal deployment.
     pub fn generate_artifact(&self, optimized_usg: &str, target_platform: &str) -> String {
-        println!("TUMC: OmniversalRuntimeManager - Generating artifact from optimized USG for platform: '{}'\", target_platform);
+        println!("TUMC: OmniversalRuntimeManager - Generating artifact from optimized USG for platform: '{}'", target_platform);
 
         // 1. Target-Specific Code Generation & Synthesis:
         //    Based on the 'target_platform' (e.g., x86_64, ARM64, WASM, QPU, Bio-synthesizer, Nano-agent deployment unit),
         //    translate the optimized USG into the target's native executable format.
         //    This involves: native machine code, bytecode, quantum circuit instructions, genetic sequences, nano-assembly instructions.
         let raw_target_code = self.synthesize_target_code(optimized_usg, target_platform);
-        println!("TUMC: Synthesized raw target code for '{}'.\", target_platform);
+        println!("TUMC: Synthesized raw target code for '{}'.", target_platform);
 
         // 2. POCO-REAF Packaging & Interoperability Layer:
         //    Package the raw target code with the necessary POCO-REAF runtime components and metadata.
@@ -29,7 +35,7 @@ impl OmniversalRuntimeManager {
         //    Perform final checks on the assembled artifact to ensure integrity and compliance with target specifications.
         //    Includes security manifests, resource requirements, and ethical attestations (from E.V.A.S.).
         let final_artifact = self.assemble_and_verify_artifact(packaged_artifact);
-        println!("TUMC: Final artifact assembled and verified.\");
+        println!("TUMC: Final artifact assembled and verified.");
 
         // Return a reference or identifier to the generated, platform-independent artifact.
         format!("POCO-REAF-Artifact::{}::(ID:{})", target_platform, final_artifact.len())
@@ -52,9 +58,10 @@ impl OmniversalRuntimeManager {
             DeploymentAutonomyLevel::FullAuto => {
                 // 2. Pre-Deployment Validation & Orchestration:
                 //    Perform final checks on target environment readiness, resource availability, and network connectivity.
-                //    Orchestrate the deployment process, potentially involving atomic swaps, blue-green deployments, or self-assembly.
-                let deployment_report = self.orchestrate_full_auto_deployment(artifact_reference, deployment_target);
-                println!("TUMC: Full-auto deployment complete: '{}'", deployment_report);
+                //    Delegate the actual deployment to the POCO-REAF System.
+                println!("TUMC: Delegating deployment to POCO-REAF System.");
+                let deployment_report = self.poco_reaf_system.deploy_artifact(artifact_reference, deployment_target, "auto_optimized"); // Using a simplified strategy
+                println!("TUMC: POCO-REAF deployment complete: '{}'", deployment_report);
                 deployment_report
             },
             DeploymentAutonomyLevel::ConfirmOnly => {
@@ -66,7 +73,7 @@ impl OmniversalRuntimeManager {
             DeploymentAutonomyLevel::HumanRequired => {
                 // 4. Full Human Intervention:
                 //    The system cannot proceed autonomously; requires direct human guidance or execution.
-                println!("TUMC: Deployment requires full human intervention for '{}'. Manual action required.\", artifact_reference);
+                println!("TUMC: Deployment requires full human intervention for '{}'. Manual action required.", artifact_reference);
                 format!("Deployment requires manual human intervention. Artifact: '{}', Target: '{}'.", artifact_reference, deployment_target)
             },
         }
@@ -90,10 +97,6 @@ impl OmniversalRuntimeManager {
         // This would involve querying the central AutonomyAgent (or AutonomyPolicy entity)
         // and evaluating criticality, risk, and user preferences (LearningInsights).
         DeploymentAutonomyLevel::FullAuto // Simplified for pseudo-code
-    }
-
-    fn orchestrate_full_auto_deployment(&self, _artifact: &str, _target: &str) -> String {
-        "Autonomous deployment successful. System reporting optimal state.".to_string()
     }
 }
 
