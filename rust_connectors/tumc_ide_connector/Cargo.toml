@@ -16,3 +16,7 @@ thiserror = "1.0" # For custom error types
 tokio = { version = "1", features = ["full"] } # For async runtime
 hmac = "0.12" # For HMAC signature verification (future use)
 sha2 = "0.10" # For HMAC signature verification (future use)
+
+[dev-dependencies] # New section for testing dependencies
+wiremock = "0.5"
+actix-web = { version = "4", features = ["macros"] } # Use for Actix-web testing utilities
