@@ -4,7 +4,7 @@ use super::formal_verification::{self, FormalVerificationEngine, VerificationPro
 use super::generative_testing::{self, GenerativeTestingEngine, FuzzingResult, FuzzingStatus};
 use super::performance_benchmarking::{self, PerformanceBenchmarkingEngine, PerformanceMetrics};
 use super::resilience_testing::{self, ResilienceTestingEngine, ResilienceReport, ResilienceTestStatus};
-use super::security_auditing;
+use super::security_auditing::{self, SecurityAuditingEngine, SecurityAuditReport, SecurityFindingSeverity};
 use super::compatibility_assurance;
 
 #[derive(Debug, Clone)]
@@ -15,7 +15,7 @@ pub struct TestReport {
     pub generative_testing_results: FuzzingResult,
     pub performance_benchmarking_results: PerformanceMetrics,
     pub resilience_testing_results: ResilienceReport,
-    pub security_auditing_result: String,
+    pub security_auditing_results: SecurityAuditReport,
     pub compatibility_assurance_result: String,
     pub overall_status: TestStatus,
 }
@@ -33,6 +33,7 @@ pub struct AtveEngine {
     generative_testing_engine: GenerativeTestingEngine,
     performance_benchmarking_engine: PerformanceBenchmarkingEngine,
     resilience_testing_engine: ResilienceTestingEngine,
+    security_auditing_engine: SecurityAuditingEngine,
 }
 
 impl AtveEngine {
@@ -42,6 +43,7 @@ impl AtveEngine {
             generative_testing_engine: GenerativeTestingEngine::new(),
             performance_benchmarking_engine: PerformanceBenchmarkingEngine::new(),
             resilience_testing_engine: ResilienceTestingEngine::new(),
+            security_auditing_engine: SecurityAuditingEngine::new(),
         }
     }
 
@@ -55,6 +57,7 @@ impl AtveEngine {
         let gt_results = self.generative_testing_engine.run_fuzzing(target_entity);
         let pb_results = self.performance_benchmarking_engine.run_benchmarks(target_entity, entity_type);
         let rt_results = self.resilience_testing_engine.run_resilience_tests(target_entity);
+        let sa_results = self.security_auditing_engine.run_security_audit(target_entity);
 
         let report = TestReport {
             entity_name: target_entity.to_string(),
@@ -63,9 +66,9 @@ impl AtveEngine {
             generative_testing_results: gt_results.clone(),
             performance_benchmarking_results: pb_results.clone(),
             resilience_testing_results: rt_results.clone(),
-            security_auditing_result: security_auditing::run_security_audit(target_entity),
+            security_auditing_results: sa_results.clone(),
             compatibility_assurance_result: compatibility_assurance::run_compatibility_checks(target_entity),
-            overall_status: if fv_results.iter().any(|p| p.status == VerificationStatus::Refuted) || gt_results.status != FuzzingStatus::CompletedWithoutIssues || pb_results.efficiency_score < 99.0 || rt_results.status != ResilienceTestStatus::SelfHealed {
+            overall_status: if fv_results.iter().any(|p| p.status == VerificationStatus::Refuted) || gt_results.status != FuzzingStatus::CompletedWithoutIssues || pb_results.efficiency_score < 99.0 || rt_results.status != ResilienceTestStatus::SelfHealed || !sa_results.evas_compliant {
                 TestStatus::Fail
             } else {
                 TestStatus::Pass
@@ -73,12 +76,13 @@ impl AtveEngine {
         };
 
         let summary = format!(
-            "Comprehensive test complete for {}. Status: {:?}. Details: [FV: {:?}, GT: {:?}, PB: {:?}, RT: {:?}, SA: {}, CA: {}]",
+            "Comprehensive test complete for {}. Status: {:?}. Details: [FV: {:?}, GT: {:?}, PB: {:?}, RT: {:?}, SA: {:?}, CA: {}]",
             report.entity_name, report.overall_status,
             report.formal_verification_results, report.generative_testing_results.status,
             report.performance_benchmarking_results,
             report.resilience_testing_results.status,
-            report.security_auditing_result, report.compatibility_assurance_result
+            report.security_auditing_results.overall_security_posture,
+            report.compatibility_assurance_result
         );
 
         println!("ATVE: Report summary: {}.", summary);
