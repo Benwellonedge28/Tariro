@@ -35,7 +35,7 @@ pub struct ResourceSnapshot {
 }
 
 /// Policies or constraints for resource allocation.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum AllocationPolicy {
     Priority(u8), // 0-255, higher is more critical
     MinGuaranteed(ResourceType, f64),
@@ -64,4 +64,14 @@ pub struct AllocationResult {
     pub allocated_resources: HashMap<ResourceType, f64>,
     pub success: bool,
     pub message: String, // e.g., "Allocated successfully", "Insufficient resources"
+}
+
+/// Enum representing different types of prediction models.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum PredictionModelType {
+    MovingAverage,
+    Arima,
+    Lstm,
+    ProphetLike,
+    Custom(String),
 }
