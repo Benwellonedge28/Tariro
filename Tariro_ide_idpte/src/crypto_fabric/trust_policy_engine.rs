@@ -4,7 +4,7 @@
 //! This engine ensures that all cryptographic operations adhere to defined security standards,
 //! and ethical considerations (e.g., from EVAS).
 
-use crate::crypto_fabric::qr_algorithms::{QrAlgorithmType, QrKeyExchangeAlg};
+use crate::crypto_fabric::qr_algorithms::{QrAlgorithmType, QrKeyExchangeAlg, QrSignatureAlg, QrAlgorithmInfo};
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use tracing::{info, warn, error};
@@ -46,7 +46,7 @@ impl TrustPolicyEngine {
             id: "default-system-comm".to_string(),
             applies_to: "system:communication".to_string(),
             required_trust_level: TrustLevel::QuantumResistant,
-            enforced_algorithms: QrAlgorithmType::recommended_kems().into_iter().map(|a| a.alg_type).collect(),
+            enforced_algorithms: QrAlgorithmInfo::recommended_kems().into_iter().map(|a| a.alg_type).collect(),
             ethical_compliance_mandates: vec![
                 "Sovereign AI Caging & ASI Containment (SACC-ASI) Specification".to_string(),
                 "Digital Age Sovereignty & Child Protection (DAS-CP) Framework".to_string(),
@@ -118,8 +118,7 @@ impl TrustPolicyEngine {
         }
         info!("TrustPolicyEngine: Adding/Updating policy {}: {}", policy.id, policy.applies_to);
         self.active_policies.insert(policy.id.clone(), policy);
-        Ok(())
-    }
+        Ok(())}
 
     /// Removes a policy by ID.
     pub async fn remove_policy(&mut self, policy_id: &str) -> Result<(), String> {
@@ -129,6 +128,20 @@ impl TrustPolicyEngine {
         } else {
             warn!("TrustPolicyEngine: Attempted to remove non-existent policy {}.", policy_id);
             Err(format!("Policy {} not found.", policy_id))
+        }
+    }
+
+    /// Returns a list of recommended QrAlgorithmType based on the current context and active policies.
+    pub async fn get_recommended_algorithms(&self, context: &str) -> Vec<QrAlgorithmType> {
+        if let Some(policy) = self.get_policy_for_context(context).await {
+            info!("Returning enforced algorithms from policy {} for context {}.", policy.id, context);
+            policy.enforced_algorithms.clone()
+        } else {
+            warn!("No specific policy found for context {}. Returning general NIST recommended algorithms.", context);
+            // Default to NIST recommended if no specific policy
+            let mut recommended = QrAlgorithmInfo::recommended_kems().into_iter().map(|a| a.alg_type).collect::<Vec<QrAlgorithmType>>();
+            recommended.extend(QrAlgorithmInfo::recommended_signatures().into_iter().map(|a| a.alg_type));
+            recommended
         }
     }
 }
