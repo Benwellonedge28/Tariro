@@ -2,22 +2,84 @@
 
 //! Generates creative outputs based on prompts, learned human styles, and existing knowledge.
 
-use crate::co_creation::creative_models::{CreativePrompt, CreativeArtifact, HumanCreativeStyle, CreativeArtifactType};
+use crate::co_creation::creative_models::{CreativePrompt, CreativeArtifact, HumanCreativeStyle, CreativeArtifactType, GenerativeModelType};
 use anyhow::Result;
 use chrono::Utc;
 use uuid::Uuid;
 use std::collections::HashMap;
+use tracing::{info, warn};
+
+/// Trait for different generative models, allowing for multi-modal generation.
+pub trait GenerativeModel: Send + Sync {
+    /// Generates content based on a prompt and optional style.
+    async fn generate(
+        &self,
+        prompt_text: &str,
+        artifact_type: &CreativeArtifactType,
+        style_characteristics: &HashMap<String, String>,
+    ) -> Result<String>;
+    /// Returns the type of generative model.
+    fn get_type(&self) -> GenerativeModelType;
+}
+
+/// Placeholder for a Code Generative Model.
+pub struct CodeGenerativeModel;
+
+impl CodeGenerativeModel {
+    pub fn new() -> Self { CodeGenerativeModel {} }
+}
+
+impl GenerativeModel for CodeGenerativeModel {
+    async fn generate(
+        &self,
+        prompt_text: &str,
+        _artifact_type: &CreativeArtifactType,
+        style_characteristics: &HashMap<String, String>,
+    ) -> Result<String> {
+        info!("CodeGenerativeModel: Generating code for '{}' with style {:?}", prompt_text, style_characteristics);
+        let indentation = style_characteristics.get("indentation_style").map_or("    ", |s| if s == "tabs" { "\t" } else { "    " });
+        Ok(format!("{indentation}fn {}() {{ /* {} */ }}{indentation}// This is quantum-safe, self-optimizing, and ethically compliant code.\n", prompt_text.replace(" ", "_"), prompt_text, indentation=indentation))
+    }
+    fn get_type(&self) -> GenerativeModelType { GenerativeModelType::CodeGenerator }
+}
+
+/// Placeholder for a Text Generative Model.
+pub struct TextGenerativeModel;
+
+impl TextGenerativeModel {
+    pub fn new() -> Self { TextGenerativeModel {} }
+}
+
+impl GenerativeModel for TextGenerativeModel {
+    async fn generate(
+        &self,
+        prompt_text: &str,
+        _artifact_type: &CreativeArtifactType,
+        style_characteristics: &HashMap<String, String>,
+    ) -> Result<String> {
+        info!("TextGenerativeModel: Generating text for '{}' with style {:?}", prompt_text, style_characteristics);
+        let tone = style_characteristics.get("tone").map_or("neutral", |s| s.as_str());
+        Ok(format!("A {} narrative about {}. It weaves together themes of autonomy, sovereignty, and advanced AGI capabilities, with a {} tone.\n", tone, prompt_text, tone))
+    }
+    fn get_type(&self) -> GenerativeModelType { GenerativeModelType::TextGenerator }
+}
 
 /// The SynthesisGenerator is responsible for generating new creative content.
 pub struct SynthesisGenerator {
     // This would likely contain references to various specialized generative AI models
     // (e.g., code generation LLMs, image generation models, text synthesis models).
+    generative_models: HashMap<GenerativeModelType, Box<dyn GenerativeModel>>,
 }
 
 impl SynthesisGenerator {
     pub fn new() -> Self {
-        println!("Synthesis Generator initialized.");
-        SynthesisGenerator {}
+        info!("Synthesis Generator initialized. Loading generative models.");
+        let mut models: HashMap<GenerativeModelType, Box<dyn GenerativeModel>> = HashMap::new();
+        models.insert(GenerativeModelType::CodeGenerator, Box::new(CodeGenerativeModel::new()));
+        models.insert(GenerativeModelType::TextGenerator, Box::new(TextGenerativeModel::new()));
+        // TODO: Add ImageGenerator, AudioGenerator, etc.
+
+        SynthesisGenerator { generative_models: models }
     }
 
     /// Generates a new creative artifact based on a prompt and an optional learned style.
@@ -26,41 +88,36 @@ impl SynthesisGenerator {
         prompt: &CreativePrompt,
         user_style: Option<&HumanCreativeStyle>,
     ) -> Result<CreativeArtifact> {
-        println!("Generating artifact for prompt '{}'...", prompt.objective);
+        info!("Generating artifact for prompt '{}' of type {:?}.", prompt.objective, prompt.desired_artifact_type);
 
-        let mut generated_content = String::new();
-        let mut associated_styles = Vec::new();
-
-        if let Some(style) = user_style {
-            println!("Applying learned style: {}", style.style_name);
-            associated_styles.push(style.style_name.clone());
-            // Simulate style application
-            generated_content.push_str(&format!("// Generated with {}'s style. Characteristics: {:?}\n", style.user_id, style.characteristics));
-        }
-
-        // Placeholder for actual generative AI model invocation
-        match prompt.desired_artifact_type {
-            CreativeArtifactType::Code => {
-                generated_content.push_str(&format!("fn {}() {{ /* {} */ }}\n", prompt.objective.replace(" ", "_"), prompt.objective));
-                generated_content.push_str("// This is quantum-safe, self-optimizing, and ethically compliant code.\n");
-            },
-            CreativeArtifactType::Text => {
-                generated_content.push_str(&format!("A compelling narrative about {}.\n", prompt.objective));
-                generated_content.push_str("It weaves together themes of autonomy, sovereignty, and advanced AGI capabilities.\n");
-            },
-            CreativeArtifactType::Image => {
-                generated_content.push_str(&format!("Generated abstract image: {}.\n", prompt.objective));
-            },
+        let style_characteristics = user_style.map_or_else(HashMap::new, |s| s.characteristics.clone());
+        let generative_model_type = match prompt.desired_artifact_type {
+            CreativeArtifactType::Code => GenerativeModelType::CodeGenerator,
+            CreativeArtifactType::Text => GenerativeModelType::TextGenerator,
             _ => {
-                generated_content.push_str(&format!("Generated creative content for: {}.\n", prompt.objective));
+                warn!("No specific generative model for artifact type {:?}, defaulting to TextGenerator.", prompt.desired_artifact_type);
+                GenerativeModelType::TextGenerator
             }
+        };
+
+        let generator = self.generative_models.get(&generative_model_type)
+            .ok_or_else(|| anyhow::anyhow!("No generative model found for type {:?}", generative_model_type))?;
+
+        let generated_content = generator.generate(
+            &prompt.objective,
+            &prompt.desired_artifact_type,
+            &style_characteristics,
+        ).await?;
+
+        let mut associated_styles = Vec::new();
+        if let Some(style) = user_style {
+            associated_styles.push(style.style_name.clone());
         }
-        generated_content.push_str(&format!("// Based on prompt: '{}'.\n", prompt.objective));
 
         Ok(CreativeArtifact {
             id: Uuid::new_v4().to_string(),
             title: prompt.objective.clone(),
-            description: Some(format!("Artifact generated based on user prompt and learned styles for {}."), prompt.user_id)),
+            description: Some(format!("Artifact generated based on user prompt and learned styles for {}.", prompt.user_id)),
             content: generated_content,
             artifact_type: prompt.desired_artifact_type.clone(),
             created_at: Utc::now(),
@@ -69,20 +126,7 @@ impl SynthesisGenerator {
             tags: vec!["co-creation".to_string(), prompt.desired_artifact_type.to_string()],
             parent_artifact_id: None,
             associated_styles,
+            generative_model_used: generative_model_type,
         })
-    }
-}
-
-impl CreativeArtifactType {
-    pub fn to_string(&self) -> String {
-        match self {
-            CreativeArtifactType::Code => "Code".to_string(),
-            CreativeArtifactType::Text => "Text".to_string(),
-            CreativeArtifactType::Image => "Image".to_string(),
-            CreativeArtifactType::Audio => "Audio".to_string(),
-            CreativeArtifactType::Design => "Design".to_string(),
-            CreativeArtifactType::Documentation => "Documentation".to_string(),
-            CreativeArtifactType::Other(s) => format!("Other:{}", s),
-        }
     }
 }

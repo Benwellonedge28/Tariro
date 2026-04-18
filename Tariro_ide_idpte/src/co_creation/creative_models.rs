@@ -20,6 +20,7 @@ pub struct CreativeArtifact {
     pub tags: Vec<String>,
     pub parent_artifact_id: Option<String>, // For iterative creation
     pub associated_styles: Vec<String>, // Styles used/learned
+    pub generative_model_used: GenerativeModelType,
 }
 
 /// Types of creative artifacts.
@@ -78,4 +79,15 @@ pub struct CreativePrompt {
     pub reference_artifacts: Vec<String>, // IDs of examples
     pub desired_style_id: Option<String>, // ID of a learned human style to follow
     pub created_at: DateTime<Utc>,
+}
+
+/// Enum representing different types of generative AI models.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum GenerativeModelType {
+    CodeGenerator,
+    TextGenerator,
+    ImageGenerator,
+    AudioGenerator,
+    MultiModalGenerator,
+    Custom(String),
 }
