@@ -9,6 +9,7 @@ pub mod resource_monitor;
 pub mod resource_predictor;
 pub mod optimization_engine;
 pub mod resource_allocator;
+pub mod orchestrator;
 
 /// Initializes the Self-Optimizing Resource Allocation Engine (S.O.R.A.E.).
 pub async fn initialize_sorae() -> Result<(), Box<dyn std::error::Error>> {
