@@ -3,7 +3,7 @@
 use tracing::{info, warn};
 use anyhow::Result;
 use tokio::sync::mpsc;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use serde_json::Value;
 
 // Import S.O.R.A.E. modules
@@ -36,7 +36,7 @@ pub struct AgiCoreEngine {
     // HACSE related field
     pub hacse_prompt_sender: mpsc::Sender<CreativePrompt>,
     // ALEC-A related field
-    pub aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>, // If AgiCoreEngine needs direct access
+    pub aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>,
 }
 
 impl AgiCoreEngine {
@@ -93,7 +93,7 @@ impl AgiCoreEngine {
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
         let ide_communication_bridge = Arc::new(CommunicationBridge::new(
-            qr_ctfo_orchestrator.comm_adapter.clone(), // Access the adapter through orchestrator
+            Arc::new(crate::crypto_fabric::communication_adapter::CommunicationAdapter::new(qr_ctfo_orchestrator.policy_engine.clone())), // Pass policy engine
             ide_channel
         ).await?);
         info!("IDE Communication Bridge initialized and secured.");
@@ -123,7 +123,7 @@ impl AgiCoreEngine {
         info!("AGI Core: Attempting automated bug fix for {} in {}...", error_report, file_path);
         // Example of how AGI core might request resources for a bug fix task
         // let _ = self.sorae_request_sender.send(ResourceRequest { /* ... */ }).await;
-        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+        tokio::time::sleep(tokio::time::Duration::from_millis(1000)).await;
         let fix = format!("// AGI suggests: Applied patch for '{}'. Error pattern resolved.", error_report);
         Ok(fix)
     }
@@ -137,7 +137,7 @@ impl AgiCoreEngine {
     }
 
     // Example: AGI Core requesting secure communication parameters from QR-CTFO
-    pub async fn request_secure_communication_parameters(&self) -> Result<String, String> {
+    pub async fn request_secure_communication_parameters(&self) -> Result<(QrKeyPair, QrKeyPair), String> {
         info!("AGI Core: Requesting secure communication parameters from QR-CTFO.");
         match self.qr_ctfo_orchestrator.request_secure_session_keys().await {
             Ok((kex_key, sign_key)) => {
@@ -173,7 +173,8 @@ impl AgiCoreEngine {
         affected_data_domains: &[String],
     ) -> Result<ComplianceStatus> {
         info!("AGI Core: Requesting compliance check for operation '{}'.", entity_id);
-        let policy_manager = self.aleca_orchestrator.lock().unwrap().policy_manager.lock().unwrap();
+        let policy_manager_arc = self.aleca_orchestrator.lock().unwrap().policy_manager.clone();
+        let policy_manager = policy_manager_arc.lock().unwrap();
         policy_manager.check_compliance(
             entity_id,
             entity_type,
