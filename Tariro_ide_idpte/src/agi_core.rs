@@ -11,15 +11,18 @@ use crate::resource_management::resource_models::ResourceRequest;
 
 // Import QR-CTFO modules
 use crate::crypto_fabric::orchestrator::{QrCtfoOrchestrator, QrCtfoOptions};
+use crate::crypto_fabric::communication_adapter::CommunicationChannel;
+
+// Import Communication Bridge
+use crate::communication_bridge::CommunicationBridge;
 
 pub struct AgiCoreEngine {
     // S.O.R.A.E. related field
     pub sorae_request_sender: mpsc::Sender<ResourceRequest>,
     // QR-CTFO related field
-    // The orchestrator itself runs in a spawned task, so we might just hold a reference
-    // or a sender for its control plane if needed.
-    // For now, just ensure it's initialized and started.
-    pub qr_ctfo_orchestrator: Arc<QrCtfoOrchestrator>, // Keeping a reference to interact if needed
+    pub qr_ctfo_orchestrator: Arc<QrCtfoOrchestrator>,
+    // Communication Bridge for IDE
+    pub ide_communication_bridge: Arc<CommunicationBridge>,
 }
 
 impl AgiCoreEngine {
@@ -32,7 +35,7 @@ impl AgiCoreEngine {
         let sorae_request_sender = sorae_orchestrator.get_request_sender();
 
         tokio::spawn(async move {
-            sorae_orchestrator.start_loop().await; // Note: start_loop no longer takes options directly after self-tuning implementation
+            sorae_orchestrator.start_loop().await;
         });
         info!("S.O.R.A.E. Orchestrator initialized and started.");
 
@@ -48,9 +51,18 @@ impl AgiCoreEngine {
         });
         info!("QR-CTFO Orchestrator initialized and started.");
 
+        // Initialize Communication Bridge for IDE
+        let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
+        let ide_communication_bridge = Arc::new(CommunicationBridge::new(
+            qr_ctfo_orchestrator.comm_adapter.clone(), // Access the adapter through orchestrator
+            ide_channel
+        ).await?);
+        info!("IDE Communication Bridge initialized and secured.");
+
         Ok(AgiCoreEngine {
             sorae_request_sender,
             qr_ctfo_orchestrator,
+            ide_communication_bridge,
         })
     }
 
@@ -80,7 +92,7 @@ impl AgiCoreEngine {
         // Example of how AGI core might request resources for a project management task
         // let _ = self.sorae_request_sender.send(ResourceRequest { /* ... */ }).await;
         tokio::time::sleep(tokio::time::Duration::from_millis(700)).await;
-        Ok(format!("AGI PM: Recommended next steps for '{}': Focus on 'Self-Deployment System'. Avoid dependency 'omega-v2-dev'.", project_status))L
+        Ok(format!("AGI PM: Recommended next steps for '{}': Focus on 'Self-Deployment System'. Avoid dependency 'omega-v2-dev'.", project_status))
     }
 
     // Example: AGI Core requesting secure communication parameters for a task
@@ -92,5 +104,15 @@ impl AgiCoreEngine {
             },
             Err(e) => Err(format!("Failed to get secure session keys: {}", e)),
         }
+    }
+
+    // Example: AGI Core sending a secure message to the IDE
+    pub async fn send_secure_ide_command(&self, command_name: &str, args: Value) -> Result<()> {
+        info!("AGI Core: Sending secure IDE command: {}", command_name);
+        let payload = serde_json::json!({
+            "command": command_name,
+            "args": args,
+        });
+        self.ide_communication_bridge.send_secure_message(MessageType::IdeCommand, payload).await
     }
 }
