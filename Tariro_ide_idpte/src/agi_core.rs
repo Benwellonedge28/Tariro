@@ -22,6 +22,10 @@ use crate::co_creation::orchestrator::{HacseOrchestrator, HacseOptions};
 use crate::co_creation::creative_models::CreativePrompt;
 use crate::bridge_protocol::MessageType;
 
+// Import ALEC-A modules
+use crate::compliance_advisor::orchestrator::{AlecaOrchestrator, AlecaOptions};
+use crate::compliance_advisor::legal_framework_models::ComplianceStatus;
+
 pub struct AgiCoreEngine {
     // S.O.R.A.E. related field
     pub sorae_request_sender: mpsc::Sender<ResourceRequest>,
@@ -31,6 +35,8 @@ pub struct AgiCoreEngine {
     pub ide_communication_bridge: Arc<CommunicationBridge>,
     // HACSE related field
     pub hacse_prompt_sender: mpsc::Sender<CreativePrompt>,
+    // ALEC-A related field
+    pub aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>, // If AgiCoreEngine needs direct access
 }
 
 impl AgiCoreEngine {
@@ -71,6 +77,19 @@ impl AgiCoreEngine {
         });
         info!("HACSE Orchestrator initialized and started.");
 
+        // Initialize ALEC-A Orchestrator
+        let aleca_options = AlecaOptions::default();
+        let mut aleca_orchestrator = AlecaOrchestrator::new(aleca_options);
+        let aleca_orchestrator_arc = Arc::new(Mutex::new(aleca_orchestrator));
+
+        let aleca_orchestrator_clone = aleca_orchestrator_arc.clone();
+        tokio::spawn(async move {
+            if let Err(e) = aleca_orchestrator_clone.lock().unwrap().start_loop().await {
+                eprintln!("ALEC-A Orchestrator failed: {:?}", e);
+            }
+        });
+        info!("ALEC-A Orchestrator initialized and started.");
+
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
         let ide_communication_bridge = Arc::new(CommunicationBridge::new(
@@ -84,6 +103,7 @@ impl AgiCoreEngine {
             qr_ctfo_orchestrator,
             ide_communication_bridge,
             hacse_prompt_sender,
+            aleca_orchestrator: aleca_orchestrator_arc,
         })
     }
 
@@ -141,5 +161,25 @@ impl AgiCoreEngine {
     pub async fn send_creative_prompt(&self, prompt: CreativePrompt) -> Result<()> {
         info!("AGI Core: Sending creative prompt to HACSE: '{}'.", prompt.objective);
         self.hacse_prompt_sender.send(prompt).await.map_err(|e| anyhow::anyhow!("Failed to send creative prompt: {}", e))
+    }
+
+    // Example: AGI Core requesting compliance check from ALEC-A
+    pub async fn check_agi_operation_compliance(
+        &self,
+        entity_id: &str,
+        entity_type: &str,
+        action_description: &str,
+        relevant_agi_module: &str,
+        affected_data_domains: &[String],
+    ) -> Result<ComplianceStatus> {
+        info!("AGI Core: Requesting compliance check for operation '{}'.", entity_id);
+        let policy_manager = self.aleca_orchestrator.lock().unwrap().policy_manager.lock().unwrap();
+        policy_manager.check_compliance(
+            entity_id,
+            entity_type,
+            action_description,
+            relevant_agi_module,
+            affected_data_domains,
+        ).await
     }
 }

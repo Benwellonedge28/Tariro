@@ -41,3 +41,4 @@ pub mod communication_bridge;
 pub mod resource_management;
 pub mod crypto_fabric;
 pub mod co_creation;
+pub mod compliance_advisor; // New module for ALEC-A
