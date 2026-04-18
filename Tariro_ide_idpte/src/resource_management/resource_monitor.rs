@@ -3,6 +3,37 @@
 use crate::resource_management::resource_models::{ResourceMetric, ResourceSnapshot, ResourceType};
 use std::collections::HashMap;
 use chrono::Utc; // For timestamps
+use num_cpus; // For getting number of CPU cores
+
+// Placeholder for OS-level metric library/API
+// In a real OMEGA OS environment, this would be replaced by direct kernel calls
+// or highly optimized system libraries.
+#[cfg(target_os = "linux")]
+mod os_metrics {
+    // Example: would use /proc filesystem or systemd-run --scope
+    pub fn get_cpu_usage() -> f64 { 2.7 } // Mock: e.g., current cores utilized
+    pub fn get_memory_usage() -> (f64, f64) { (11.2, 32.0) } // Mock: (used GB, total GB)
+    pub fn get_network_io() -> f64 { 180.5 } // Mock: Mbps
+    pub fn get_gpu_usage() -> f64 { 0.65 } // Mock: utilization percentage
+}
+
+#[cfg(target_os = "macos")]
+mod os_metrics {
+    // Example: would use sysctl or mach APIs
+    pub fn get_cpu_usage() -> f64 { 2.9 }
+    pub fn get_memory_usage() -> (f64, f64) { (12.1, 32.0) }
+    pub fn get_network_io() -> f64 { 190.2 }
+    pub fn get_gpu_usage() -> f64 { 0.70 }
+}
+
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
+mod os_metrics {
+    // Generic/fallback mock for other OSs or when real data not available
+    pub fn get_cpu_usage() -> f64 { 2.0 }
+    pub fn get_memory_usage() -> (f64, f64) { (10.0, 16.0) }
+    pub fn get_network_io() -> f64 { 100.0 }
+    pub fn get_gpu_usage() -> f64 { 0.50 }
+}
 
 /// ResourceMonitor is responsible for observing and collecting system resource data.
 pub struct ResourceMonitor {
@@ -17,29 +48,56 @@ impl ResourceMonitor {
         ResourceMonitor { system_id }
     }
 
-    /// Gathers a snapshot of current resource usage.
-    pub async fn get_current_snapshot(&self) -> ResourceSnapshot {
-        // Placeholder for actual OS/hypervisor interaction
-        // In a real scenario, this would call out to system APIs (e.g., /proc, sysinfo, custom drivers)
-
+    /// Gathers low-level, OS-specific resource metrics.
+    /// This function would be the primary integration point with OMEGA OS's kernel APIs.
+    fn get_os_level_metrics(&self) -> (HashMap<ResourceType, f64>, HashMap<ResourceType, f64>, HashMap<ResourceType, f64>) {
         let mut total_resources = HashMap::new();
         let mut used_resources = HashMap::new();
         let mut available_resources = HashMap::new();
+
+        // CPU
+        let cpu_used_val = os_metrics::get_cpu_usage(); // This could be cores used, or percentage
+        let total_cpus = num_cpus::get() as f64;
+
+        total_resources.insert(ResourceType::Cpu, total_cpus); // Total logical cores
+        used_resources.insert(ResourceType::Cpu, cpu_used_val); // Example: 2.7 cores are actively used
+        available_resources.insert(ResourceType::Cpu, total_cpus - cpu_used_val);
+
+
+        // Memory
+        let (mem_used, mem_total) = os_metrics::get_memory_usage(); // (used GB, total GB)
+        total_resources.insert(ResourceType::Memory, mem_total);
+        used_resources.insert(ResourceType::Memory, mem_used);
+        available_resources.insert(ResourceType::Memory, mem_total - mem_used);
+
+        // Network I/O
+        let net_io_mbps = os_metrics::get_network_io(); // Mbps
+        let total_net_capacity = 1000.0; // Assuming 1 Gbps link for now (1000 Mbps)
+        total_resources.insert(ResourceType::NetworkIo, total_net_capacity);
+        used_resources.insert(ResourceType::NetworkIo, net_io_mbps);
+        available_resources.insert(ResourceType::NetworkIo, total_net_capacity - net_io_mbps);
+
+        // GPU - if available
+        let gpu_used_pct = os_metrics::get_gpu_usage(); // 0.0 - 1.0 (0-100%)
+        if gpu_used_pct > 0.0 {
+            // For simplicity, assume one primary GPU for now, its 'total' is 1.0 (representing 100% capacity)
+            total_resources.insert(ResourceType::Gpu, 1.0);
+            used_resources.insert(ResourceType::Gpu, gpu_used_pct);
+            available_resources.insert(ResourceType::Gpu, 1.0 - gpu_used_pct);
+        }
+
+        // TODO: Implement actual Storage monitoring (total disk space, used disk space)
+        // TODO: Implement monitoring for specialized AGI Compute Units (e.g., custom accelerators)
+
+        (total_resources, used_resources, available_resources)
+    }
+
+    /// Gathers a snapshot of current resource usage.
+    pub async fn get_current_snapshot(&self) -> ResourceSnapshot {
+        let (total_res, used_res, available_res) = self.get_os_level_metrics();
         let mut custom_metrics = HashMap::new();
 
-        // Mock data for initial development
-        total_resources.insert(ResourceType::Cpu, 8.0); // 8 cores
-        used_resources.insert(ResourceType::Cpu, 2.5); // 2.5 cores used
-        available_resources.insert(ResourceType::Cpu, 5.5);
-
-        total_resources.insert(ResourceType::Memory, 32.0); // 32 GB
-        used_resources.insert(ResourceType::Memory, 10.0); // 10 GB used
-        available_resources.insert(ResourceType::Memory, 22.0);
-
-        total_resources.insert(ResourceType::NetworkIo, 1000.0); // 1000 Mbps
-        used_resources.insert(ResourceType::NetworkIo, 150.0);
-        available_resources.insert(ResourceType::NetworkIo, 850.0);
-
+        // Example: Add a custom AGI metric. This would ideally come from an AGI runtime API.
         custom_metrics.insert(
             "agi_inference_rate".to_string(),
             ResourceMetric {
@@ -52,9 +110,9 @@ impl ResourceMonitor {
         ResourceSnapshot {
             timestamp: Utc::now().to_rfc3339(),
             system_id: self.system_id.clone(),
-            total_resources,
-            used_resources,
-            available_resources,
+            total_resources: total_res,
+            used_resources: used_res,
+            available_resources: available_res,
             custom_metrics,
         }
     }
@@ -64,8 +122,8 @@ impl ResourceMonitor {
     where
         F: FnMut(ResourceSnapshot),
     {
-        println!("Starting continuous resource monitoring ({}s interval)...", interval_seconds);
-        // This loop would run in a separate async task/thread
+        println!("Starting continuous resource monitoring ({}s interval)...
+", interval_seconds);
         loop {
             let snapshot = self.get_current_snapshot().await;
             callback(snapshot);
