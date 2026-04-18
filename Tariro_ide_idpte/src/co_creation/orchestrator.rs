@@ -48,10 +48,11 @@ pub struct HacseOrchestrator {
 impl HacseOrchestrator {
     pub fn new(options: HacseOptions) -> Self {
         let (prompt_tx, prompt_rx) = mpsc::channel(100); // Buffer for 100 pending prompts
+        let style_learner_arc = Arc::new(Mutex::new(HumanStyleLearner::new()));
         HacseOrchestrator {
-            style_learner: Arc::new(Mutex::new(HumanStyleLearner::new())),
+            style_learner: style_learner_arc.clone(),
             generator: Arc::new(SynthesisGenerator::new()),
-            feedback_analyzer: Arc::new(FeedbackAnalyzer::new()),
+            feedback_analyzer: Arc::new(FeedbackAnalyzer::new(style_learner_arc)),
             multi_modal_interface: Arc::new(MultiModalInterface::new()),
             prompt_rx,
             prompt_tx,
@@ -85,7 +86,7 @@ impl HacseOrchestrator {
                 while let Ok(prompt) = prompt_rx.try_recv() {
                     info!("HACSE: Received new creative prompt for '{}'.", prompt.objective);
                     // Retrieve user's learned style
-                    let user_style = if let Some(learner) = style_learner_arc.lock().ok() {
+                    let user_style = if let Ok(learner) = style_learner_arc.lock().ok() {
                         learner.get_style(&prompt.user_id).await
                     } else { None };
 
@@ -95,6 +96,14 @@ impl HacseOrchestrator {
                             info!("HACSE: Generated artifact '{}'. Content preview: '{}'"), artifact.title, &artifact.content[..20].to_string());
                             // Send artifact to multi-modal interface for presentation/user feedback
                             multi_modal_interface_arc.present_artifact(&artifact).await;
+
+                            // Simulate immediate processing of feedback (if any was just given)
+                            if let Some(feedback) = multi_modal_interface_arc.receive_feedback(&artifact.id).await {
+                                if let Err(e) = feedback_analyzer_arc.analyze_explicit_feedback(&feedback, &artifact).await {
+                                    error!("Error analyzing explicit feedback: {}", e);
+                                }
+                            }
+
                         },
                         Err(e) => error!("HACSE: Failed to generate artifact for prompt '{}': {}", prompt.objective, e),
                     }
@@ -102,26 +111,16 @@ impl HacseOrchestrator {
 
                 // Periodically process feedback (simulated)
                 if now.timestamp() % options.feedback_processing_interval_seconds as i64 == 0 {
-                    // Simulate fetching new feedback from the multi-modal interface or user input queue
-                    // For now, let's assume some feedback arrives periodically
-                    let simulated_feedback = CreativeFeedback {
-                        artifact_id: "mock_artifact_123".to_string(),
-                        user_id: "samuelmukandara@gmail.com".to_string(),
-                        rating: 4.5,
-                        comments: "This is great, but could be more concise.".to_string(),
-                        suggested_changes: vec!["Make more concise".to_string()],
-                        timestamp: Utc::now(),
-                        feedback_type: creative_models::FeedbackType::DirectUser,
-                    };
-                    // feedback_analyzer_arc.analyze_explicit_feedback(&simulated_feedback).await;
-                    // Note: Actual feedback loop needs to be properly wired.
+                    // This would typically involve iterating through a queue of pending feedback items
+                    // and artifacts for implicit feedback analysis.
+                    info!("HACSE: Periodically checking for feedback to process...");
                 }
 
                 // Periodically update styles
                 if now.timestamp() % options.style_learning_interval_seconds as i64 == 0 {
-                    info!("HACSE: Updating human creative styles...");
-                    // This would typically involve re-analyzing a set of artifacts/feedback.
-                    // For now, it's a trigger point.
+                    info!("HACSE: Periodically updating human creative styles...");
+                    // This would typically involve re-analyzing a set of artifacts/feedback across all users.
+                    // The HumanStyleLearner already has the `learn_from_artifact` method for this.
                 }
 
                 // Creative Pulse: Proactive suggestions
