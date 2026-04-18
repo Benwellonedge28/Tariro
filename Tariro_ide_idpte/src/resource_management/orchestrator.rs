@@ -2,7 +2,7 @@
 
 use crate::resource_management::resource_monitor::ResourceMonitor;
 use crate::resource_management::resource_predictor::ResourcePredictor;
-use crate::resource_management::optimization_engine::OptimizationEngine;
+use crate::resource_management::optimization_engine::{OptimizationEngine, OptimizationStrategyType};
 use crate::resource_management::resource_allocator::ResourceAllocator;
 use crate::resource_management::resource_models::{ResourceRequest, ResourceSnapshot};
 
@@ -34,7 +34,7 @@ impl Default for SORAEOptions {
 pub struct SORAEOrcestrator {
     monitor: ResourceMonitor,
     predictor: Arc<Mutex<ResourcePredictor>>,
-    optimizer: OptimizationEngine,
+    optimizer: Arc<Mutex<OptimizationEngine>>,
     allocator: ResourceAllocator,
     // Channel for incoming resource requests from other parts of the AGI/OS
     request_rx: mpsc::Receiver<ResourceRequest>,
@@ -48,7 +48,7 @@ impl SORAEOrcestrator {
         SORAEOrcestrator {
             monitor: ResourceMonitor::new(options.system_id.clone()),
             predictor: Arc::new(Mutex::new(ResourcePredictor::new())),
-            optimizer: OptimizationEngine::new(),
+            optimizer: Arc::new(Mutex::new(OptimizationEngine::new())),
             allocator: ResourceAllocator::new(),
             request_rx,
             request_tx,
@@ -68,6 +68,7 @@ impl SORAEOrcestrator {
                  initial_options.monitoring_interval_seconds, initial_options.prediction_horizon_seconds);
 
         let predictor_arc = self.predictor.clone();
+        let optimizer_arc = self.optimizer.clone();
         let mut request_rx = self.request_rx.take().expect("Request receiver already taken");
 
         // Spawn a task for continuous monitoring
@@ -100,6 +101,10 @@ impl SORAEOrcestrator {
             }
 
             // 3. Predict future demand
+            // Also evaluate and select prediction models dynamically
+            if let Ok(mut predictor) = self.predictor.lock() {
+                predictor.evaluate_and_select_models().await;
+            }
             let predicted_demand = if let Ok(predictor) = self.predictor.lock() {
                 predictor.predict_future_usage(current_options.prediction_horizon_seconds).await
             } else {
@@ -108,16 +113,26 @@ impl SORAEOrcestrator {
             };
 
             // 4. Propose optimal allocation
-            let proposed_allocations = self.optimizer.propose_allocation(
-                &current_snapshot,
-                &predicted_demand,
-                &pending_requests,
-            ).await;
+            let proposed_allocations = if let Ok(optimizer) = self.optimizer.lock() {
+                optimizer.propose_allocation(
+                    &current_snapshot,
+                    &predicted_demand,
+                    &pending_requests,
+                ).await
+            } else {
+                error!("Failed to lock optimizer for proposing allocation.");
+                HashMap::new()
+            };
 
             // 5. Apply ethical filters
-            let ethically_approved_allocations = self.optimizer.apply_ethical_filters(
-                proposed_allocations
-            ).await;
+            let ethically_approved_allocations = if let Ok(optimizer) = self.optimizer.lock() {
+                optimizer.apply_ethical_filters(
+                    proposed_allocations
+                ).await
+            } else {
+                error!("Failed to lock optimizer for applying ethical filters.");
+                HashMap::new()
+            };
 
             // 6. Apply allocations, considering current snapshot and original requests for provisioning
             let current_resources_map = current_snapshot.available_resources.clone();
@@ -130,7 +145,7 @@ impl SORAEOrcestrator {
             // Log or act on results and perform self-adaptive tuning
             let mut successful_allocations = 0;
             let mut failed_allocations = 0;
-            for (task_id, result) in results {
+            for (task_id, result) in results.iter() {
                 if result.success {
                     info!("Task {}: Resource allocation successful.", task_id);
                     successful_allocations += 1;
@@ -140,8 +155,22 @@ impl SORAEOrcestrator {
                 }
             }
 
-            // 7. Self-Adaptive Tuning (new logic here)
+            // 7. S.O.R.A.E. Self-Adaptive Tuning
             self.perform_self_tuning(successful_allocations, failed_allocations, &current_snapshot).await;
+
+            // 8. Optimization Strategy Learning from Feedback
+            if let Ok(mut optimizer) = self.optimizer.lock() {
+                optimizer.learn_from_feedback(&pending_requests, &results).await;
+                // Example of dynamic strategy change: if RL is performing better than greedy, switch.
+                // This would be driven by performance metrics from the optimizer itself.
+                // For now, a simple switch if RL is implemented and deemed superior.
+                if optimizer.get_type() == OptimizationStrategyType::Greedy && successful_allocations > 0 && failed_allocations == 0 {
+                    // If greedy is doing well, might consider switching to RL for exploration/better long-term
+                    // or if the system hits a complex scenario. This is highly heuristic.
+                    // Let's enable RL strategy after some stability with greedy
+                    // optimizer.set_strategy(OptimizationStrategyType::ReinforcementLearning).await;
+                }
+            }
         }
     }
 
