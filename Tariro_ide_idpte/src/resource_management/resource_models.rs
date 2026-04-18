@@ -75,3 +75,12 @@ pub enum PredictionModelType {
     ProphetLike,
     Custom(String),
 }
+
+/// Enum representing different types of optimization strategies.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum OptimizationStrategyType {
+    Greedy,
+    ConstraintProgramming,
+    ReinforcementLearning,
+    Custom(String),
+}
