@@ -42,7 +42,9 @@ pub enum AllocationPolicy {
     MaxAllowed(ResourceType, f64),
     CostEfficiency,
     PerformanceOptimization,
-    EthicalConstraint(String), // e.g., "ChildProtection"
+    EthicalConstraint(String), // e.g., "ChildProtection", "DataPrivacy"
+    SecurityConstraint(String), // e.g., "IsolatedExecution", "QuantumSafeCrypto"
+    CustomConstraint(String, String), // (key, value)
 }
 
 /// Request for resource allocation.
