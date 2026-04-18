@@ -4,7 +4,7 @@
 //! This orchestrator manages key rotations, policy enforcement, algorithm updates,
 //! and adapts cryptographic protections across OMEGA OS components.
 
-use crate::crypto_fabric::qr_algorithms::{QrAlgorithmType, QrAlgorithmInfo, QrKeyExchangeAlg};
+use crate::crypto_fabric::qr_algorithms::{QrAlgorithmType, QrAlgorithmInfo, QrKeyExchangeAlg, QrSignatureAlg};
 use crate::crypto_fabric::key_management::{QrKeyManager, QrKeyUsage, QrKeyPair};
 use crate::crypto_fabric::trust_policy_engine::{TrustPolicyEngine, TrustPolicy, TrustLevel};
 use crate::crypto_fabric::communication_adapter::{CommunicationAdapter, CommunicationChannel};
@@ -92,26 +92,25 @@ impl QrCtfoOrchestrator {
                     if let Some(key_pair) = key_manager.get_active_key_pair(&QrKeyUsage::KeyExchange).await {
                         if key_pair.expires_at < Utc::now() + ChronoDuration::days(7) { // Rotate if expiring in 7 days
                             info!("QR-CTFO: Key exchange key approaching expiration, initiating rotation.");
-                            let _ = key_manager.rotate_key_pair(QrKeyUsage::KeyExchange, QrKeyExchangeAlg::Kyber, 365).await;
+                            let _ = key_manager.rotate_key_pair(QrKeyUsage::KeyExchange, QrAlgorithmType::KeyExchange(QrKeyExchangeAlg::Kyber), 365).await;
                             // Notify communication adapter to update keys
                             comm_adapter_arc.update_pqc_keys().await;
                         }
                     } else { // No key exists, generate one
                         info!("QR-CTFO: No active key exchange key found, generating new one.");
-                        let _ = key_manager.generate_key_pair(QrKeyExchangeAlg::Kyber, QrKeyUsage::KeyExchange, 365).await;
+                        let _ = key_manager.generate_key_pair(QrAlgorithmType::KeyExchange(QrKeyExchangeAlg::Kyber), QrKeyUsage::KeyExchange, 365).await;
                         comm_adapter_arc.update_pqc_keys().await;
                     }
                     // Similar checks for DigitalSignature keys
                      if let Some(key_pair) = key_manager.get_active_key_pair(&QrKeyUsage::DigitalSignature).await {
                         if key_pair.expires_at < Utc::now() + ChronoDuration::days(7) { // Rotate if expiring in 7 days
                             info!("QR-CTFO: Digital signature key approaching expiration, initiating rotation.");
-                            let _ = key_manager.rotate_key_pair(QrKeyUsage::DigitalSignature, QrKeyExchangeAlg::Kyber, 365).await; // Note: This needs a QrSignatureAlg, not KEM
-                            // The above line is a placeholder, a real implementation needs to match alg type
+                            let _ = key_manager.rotate_key_pair(QrKeyUsage::DigitalSignature, QrAlgorithmType::DigitalSignature(QrSignatureAlg::Dilithium), 365).await;
                             comm_adapter_arc.update_pqc_keys().await;
                         }
                     } else { // No key exists, generate one
                         info!("QR-CTFO: No active digital signature key found, generating new one.");
-                        let _ = key_manager.generate_key_pair(QrKeyExchangeAlg::Kyber, QrKeyUsage::DigitalSignature, 365).await;
+                        let _ = key_manager.generate_key_pair(QrAlgorithmType::DigitalSignature(QrSignatureAlg::Dilithium), QrKeyUsage::DigitalSignature, 365).await;
                         comm_adapter_arc.update_pqc_keys().await;
                     }
                 }
@@ -138,19 +137,17 @@ impl QrCtfoOrchestrator {
         // Generate Root of Trust key
         if key_manager.get_active_key_pair(&QrKeyUsage::RootOfTrust).await.is_none() {
             info!("QR-CTFO: Generating initial Root of Trust key pair (Kyber).");
-            let _ = key_manager.generate_key_pair(QrKeyExchangeAlg::Kyber, QrKeyUsage::RootOfTrust, 3650).await;
+            let _ = key_manager.generate_key_pair(QrAlgorithmType::KeyExchange(QrKeyExchangeAlg::Kyber), QrKeyUsage::RootOfTrust, 3650).await;
         }
         // Generate initial Key Exchange key
         if key_manager.get_active_key_pair(&QrKeyUsage::KeyExchange).await.is_none() {
             info!("QR-CTFO: Generating initial Key Exchange key pair (Kyber).");
-            let _ = key_manager.generate_key_pair(QrKeyExchangeAlg::Kyber, QrKeyUsage::KeyExchange, 365).await;
+            let _ = key_manager.generate_key_pair(QrAlgorithmType::KeyExchange(QrKeyExchangeAlg::Kyber), QrKeyUsage::KeyExchange, 365).await;
         }
         // Generate initial Digital Signature key
         if key_manager.get_active_key_pair(&QrKeyUsage::DigitalSignature).await.is_none() {
             info!("QR-CTFO: Generating initial Digital Signature key pair (Dilithium).");
-            // The `generate_key_pair` currently only takes QrKeyExchangeAlg. This needs to be refined.
-            // For now, we use Kyber as a placeholder to allow compilation.
-            let _ = key_manager.generate_key_pair(QrKeyExchangeAlg::Kyber, QrKeyUsage::DigitalSignature, 365).await;
+            let _ = key_manager.generate_key_pair(QrAlgorithmType::DigitalSignature(QrSignatureAlg::Dilithium), QrKeyUsage::DigitalSignature, 365).await;
         }
         Ok(())
     }
