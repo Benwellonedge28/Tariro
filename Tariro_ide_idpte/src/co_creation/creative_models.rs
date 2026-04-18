@@ -91,3 +91,22 @@ pub enum GenerativeModelType {
     MultiModalGenerator,
     Custom(String),
 }
+
+/// User preferences for interaction modalities and presentation.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserPreferences {
+    pub user_id: String,
+    pub preferred_modality: InteractionModality,
+    pub preferred_output_format: HashMap<CreativeArtifactType, String>, // e.g., Code -> "syntax_highlighted_rust"
+    pub verbosity_level: f64, // 0.0-1.0
+}
+
+/// Enum representing different interaction modalities.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum InteractionModality {
+    Gui,
+    Cli,
+    Voice,
+    Neuralink, // Future high-bandwidth brain-computer interface
+    Other(String),
+}
