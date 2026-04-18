@@ -22,6 +22,7 @@ pub struct QrCtfoOptions {
     pub policy_enforcement_interval_seconds: u64,
     pub key_rotation_check_interval_seconds: u64,
     pub new_algorithm_check_interval_seconds: u64,
+    pub policy_update_check_interval_seconds: u64, // New interval for checking policy updates
 }
 
 impl Default for QrCtfoOptions {
@@ -30,6 +31,7 @@ impl Default for QrCtfoOptions {
             policy_enforcement_interval_seconds: 60, // Check policies every minute
             key_rotation_check_interval_seconds: 3600, // Check key rotation every hour
             new_algorithm_check_interval_seconds: 86400, // Check for new algorithms daily
+            policy_update_check_interval_seconds: 300, // Check for policy updates every 5 minutes
         }
     }
 }
@@ -66,6 +68,7 @@ impl QrCtfoOrchestrator {
 
         // Main loop for continuous orchestration
         let mut last_algo_check = Utc::now();
+        let mut last_policy_check = Utc::now();
 
         loop {
             let options = options_arc.lock().unwrap().clone();
@@ -123,10 +126,26 @@ impl QrCtfoOrchestrator {
                 last_algo_check = now;
             }
 
+            // 4. Policy Update Check (simulated as coming from ALEC-A)
+            if now.signed_duration_since(last_policy_check).num_seconds() as u64 >= options.policy_update_check_interval_seconds {
+                info!("QR-CTFO: Checking for new trust policy updates...");
+                let new_policies = self.fetch_new_trust_policies_from_aleca().await;
+                if !new_policies.is_empty() {
+                    if let Ok(mut policy_engine) = policy_engine_arc.lock() {
+                        for policy in new_policies {
+                            let _ = policy_engine.update_policy(policy).await;
+                        }
+                        info!("QR-CTFO: Updated trust policies in engine.");
+                    }
+                }
+                last_policy_check = now;
+            }
+
             // Sleep until next check based on the fastest interval
             let min_interval = *[options.policy_enforcement_interval_seconds,
                                     options.key_rotation_check_interval_seconds,
-                                    options.new_algorithm_check_interval_seconds].iter().min().unwrap_or(&60);
+                                    options.new_algorithm_check_interval_seconds,
+                                    options.policy_update_check_interval_seconds].iter().min().unwrap_or(&60);
             sleep(Duration::from_secs(min_interval)).await;
         }
     }
@@ -176,17 +195,31 @@ impl QrCtfoOrchestrator {
         // Mock a scenario where a new algorithm becomes recommended
         if Utc::now().minute() % 5 == 0 { // Simulate recommendation every 5 minutes for demo
             info!("QR-CTFO: Detected potential recommendation for new PQC algorithm.");
-            let mut policy_engine = self.policy_engine.lock().unwrap();
-            let new_alg_mandate = TrustPolicy {
-                id: "dynamic-alg-update-2026-04-18".to_string(),
-                applies_to: "system:communication".to_string(),
-                required_trust_level: TrustLevel::QuantumResistant,
-                enforced_algorithms: vec![QrAlgorithmType::KeyExchange(QrKeyExchangeAlg::FrodoKEM)],
-                ethical_compliance_mandates: vec![],
-                active: true,
-            };
-            // policy_engine.update_policy(new_alg_mandate).await;
-            // This would then, in turn, influence key generation and communication adapter.
+            // This could then call `policy_engine.update_policy` with a new policy
         }
     }
+
+    /// Placeholder for fetching new trust policies, ideally from ALEC-A.
+    async fn fetch_new_trust_policies_from_aleca(&self) -> Vec<TrustPolicy> {
+        // In a real system, this would query the ALEC-A Policy Manager
+        // for any newly discovered or updated ethical/legal mandates that
+        // need to be incorporated into the trust fabric.
+        // For now, return a mock policy.
+        if Utc::now().second() % 30 == 0 {
+            info!("QR-CTFO: ALEC-A reported a new policy on high-risk AGI compute.");
+            vec![
+                TrustPolicy {
+                    id: "aleca-high-risk-compute".to_string(),
+                    applies_to: "agi_module:QuantumNeuralProcessor".to_string(),
+                    required_trust_level: TrustLevel::QuantumResistant,
+                    enforced_algorithms: vec![QrAlgorithmType::KeyExchange(QrKeyExchangeAlg::FrodoKEM)],
+                    ethical_compliance_mandates: vec!["Strict monitoring of ASI activation".to_string()],
+                    active: true,
+                }
+            ]
+        } else {
+            vec![]
+        }
+    }
+
 }
