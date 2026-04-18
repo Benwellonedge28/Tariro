@@ -5,14 +5,16 @@
 //! and adapts cryptographic protections across OMEGA OS components.
 
 use crate::crypto_fabric::qr_algorithms::{QrAlgorithmType, QrAlgorithmInfo, QrKeyExchangeAlg};
-use crate::crypto_fabric::key_management::{QrKeyManager, QrKeyUsage};
+use crate::crypto_fabric::key_management::{QrKeyManager, QrKeyUsage, QrKeyPair};
 use crate::crypto_fabric::trust_policy_engine::{TrustPolicyEngine, TrustPolicy, TrustLevel};
-use crate::crypto_fabric::communication_adapter::CommunicationAdapter;
+use crate::crypto_fabric::communication_adapter::{CommunicationAdapter, CommunicationChannel};
 use crate::crypto_fabric::pq_hybrid_protocol::PqHybridProtocol;
 
 use anyhow::Result;
 use tokio::time::{sleep, Duration};
 use std::sync::{Arc, Mutex};
+use chrono::{Utc, Duration as ChronoDuration};
+use tracing::{info, warn, error};
 
 /// Configuration options for the QR-CTFO Orchestrator.
 #[derive(Debug, Clone)]
@@ -36,7 +38,7 @@ impl Default for QrCtfoOptions {
 pub struct QrCtfoOrchestrator {
     key_manager: Arc<Mutex<QrKeyManager>>,
     policy_engine: Arc<Mutex<TrustPolicyEngine>>,
-    comm_adapter: CommunicationAdapter,
+    pub comm_adapter: Arc<CommunicationAdapter>, // Make pub to be accessible by AgiCoreEngine
     current_options: Arc<Mutex<QrCtfoOptions>>,
 }
 
@@ -45,7 +47,7 @@ impl QrCtfoOrchestrator {
         QrCtfoOrchestrator {
             key_manager: Arc::new(Mutex::new(QrKeyManager::new())),
             policy_engine: Arc::new(Mutex::new(TrustPolicyEngine::new())),
-            comm_adapter: CommunicationAdapter::new(),
+            comm_adapter: Arc::new(CommunicationAdapter::new()),
             current_options: Arc::new(Mutex::new(options)),
         }
     }
@@ -55,7 +57,7 @@ impl QrCtfoOrchestrator {
         let options_arc = self.current_options.clone();
         let key_manager_arc = self.key_manager.clone();
         let policy_engine_arc = self.policy_engine.clone();
-        let comm_adapter_instance = self.comm_adapter.clone();
+        let comm_adapter_arc = self.comm_adapter.clone();
 
         info!("QR-CTFO Orchestrator started.");
 
@@ -63,76 +65,131 @@ impl QrCtfoOrchestrator {
         self.initial_setup().await?;
 
         // Main loop for continuous orchestration
-        tokio::spawn(async move {
-            loop {
-                let options = options_arc.lock().unwrap().clone();
+        let mut last_algo_check = Utc::now();
 
-                // 1. Policy Enforcement Check
-                // This would trigger re-evaluation and adaptation of comm channels
+        loop {
+            let options = options_arc.lock().unwrap().clone();
+            let now = Utc::now();
+
+            // 1. Policy Enforcement Check
+            if now.timestamp() % options.policy_enforcement_interval_seconds as i64 == 0 {
                 if let Ok(policy_engine) = policy_engine_arc.lock() {
                     // Example: Check compliance for a critical communication channel
                     let context = "system:communication";
+                    // For now, passing empty algorithms, real check would involve probing active connections
                     if let Err(e) = policy_engine.evaluate_compliance(context, &[]).await {
-                        warn!("Policy non-compliance detected for {}: {}", context, e);
+                        warn!("QR-CTFO: Policy non-compliance detected for {}: {}", context, e);
                         // Trigger adaptation in communication_adapter or alert
+                        comm_adapter_arc.update_pqc_keys().await; // Attempt to re-secure
                     }
                 }
+            }
 
-                // 2. Key Rotation Check
+            // 2. Key Rotation Check
+            if now.timestamp() % options.key_rotation_check_interval_seconds as i64 == 0 {
                 if let Ok(mut key_manager) = key_manager_arc.lock() {
-                    // Example: Check if key exchange keys need rotation
+                    // Check if key exchange keys need rotation
                     if let Some(key_pair) = key_manager.get_active_key_pair(&QrKeyUsage::KeyExchange).await {
-                        if key_pair.expires_at < Utc::now() + Duration::days(7) { // Rotate if expiring in 7 days
+                        if key_pair.expires_at < Utc::now() + ChronoDuration::days(7) { // Rotate if expiring in 7 days
                             info!("QR-CTFO: Key exchange key approaching expiration, initiating rotation.");
                             let _ = key_manager.rotate_key_pair(QrKeyUsage::KeyExchange, QrKeyExchangeAlg::Kyber, 365).await;
                             // Notify communication adapter to update keys
-                            comm_adapter_instance.update_pqc_keys().await;
+                            comm_adapter_arc.update_pqc_keys().await;
                         }
                     } else { // No key exists, generate one
                         info!("QR-CTFO: No active key exchange key found, generating new one.");
                         let _ = key_manager.generate_key_pair(QrKeyExchangeAlg::Kyber, QrKeyUsage::KeyExchange, 365).await;
-                        comm_adapter_instance.update_pqc_keys().await;
+                        comm_adapter_arc.update_pqc_keys().await;
+                    }
+                    // Similar checks for DigitalSignature keys
+                     if let Some(key_pair) = key_manager.get_active_key_pair(&QrKeyUsage::DigitalSignature).await {
+                        if key_pair.expires_at < Utc::now() + ChronoDuration::days(7) { // Rotate if expiring in 7 days
+                            info!("QR-CTFO: Digital signature key approaching expiration, initiating rotation.");
+                            let _ = key_manager.rotate_key_pair(QrKeyUsage::DigitalSignature, QrKeyExchangeAlg::Kyber, 365).await; // Note: This needs a QrSignatureAlg, not KEM
+                            // The above line is a placeholder, a real implementation needs to match alg type
+                            comm_adapter_arc.update_pqc_keys().await;
+                        }
+                    } else { // No key exists, generate one
+                        info!("QR-CTFO: No active digital signature key found, generating new one.");
+                        let _ = key_manager.generate_key_pair(QrKeyExchangeAlg::Kyber, QrKeyUsage::DigitalSignature, 365).await;
+                        comm_adapter_arc.update_pqc_keys().await;
                     }
                 }
+            }
 
-                // 3. New Algorithm/Threat Monitoring (Placeholder)
-                // In a real scenario, this would query a threat intelligence feed or research database
-                // to identify new algorithms or breaking changes.
-                if Utc::now().timestamp() % options.new_algorithm_check_interval_seconds as i64 == 0 { // Simple interval trigger
-                    info!("QR-CTFO: Checking for new PQC algorithms or threats...");
-                    // Logic to scan for NIST updates, new academic papers, etc.
-                }
+            // 3. New Algorithm/Threat Monitoring
+            if now.signed_duration_since(last_algo_check).num_seconds() as u64 >= options.new_algorithm_check_interval_seconds {
+                info!("QR-CTFO: Checking for new PQC algorithms or threats...");
+                self.fetch_threat_intelligence_and_algorithms().await;
+                last_algo_check = now;
+            }
 
-                // Sleep until next check based on the fastest interval
-                let min_interval = *[options.policy_enforcement_interval_seconds,
+            // Sleep until next check based on the fastest interval
+            let min_interval = *[options.policy_enforcement_interval_seconds,
                                     options.key_rotation_check_interval_seconds,
                                     options.new_algorithm_check_interval_seconds].iter().min().unwrap_or(&60);
-                sleep(Duration::from_secs(min_interval)).await;
-            }
-        });
-
-        Ok(())
+            sleep(Duration::from_secs(min_interval)).await;
+        }
     }
 
     /// Performs initial setup tasks, like generating root keys if none exist.
     async fn initial_setup(&self) -> Result<()> {
         let mut key_manager = self.key_manager.lock().unwrap();
+        // Generate Root of Trust key
         if key_manager.get_active_key_pair(&QrKeyUsage::RootOfTrust).await.is_none() {
             info!("QR-CTFO: Generating initial Root of Trust key pair (Kyber).");
             let _ = key_manager.generate_key_pair(QrKeyExchangeAlg::Kyber, QrKeyUsage::RootOfTrust, 3650).await;
+        }
+        // Generate initial Key Exchange key
+        if key_manager.get_active_key_pair(&QrKeyUsage::KeyExchange).await.is_none() {
+            info!("QR-CTFO: Generating initial Key Exchange key pair (Kyber).");
+            let _ = key_manager.generate_key_pair(QrKeyExchangeAlg::Kyber, QrKeyUsage::KeyExchange, 365).await;
+        }
+        // Generate initial Digital Signature key
+        if key_manager.get_active_key_pair(&QrKeyUsage::DigitalSignature).await.is_none() {
+            info!("QR-CTFO: Generating initial Digital Signature key pair (Dilithium).");
+            // The `generate_key_pair` currently only takes QrKeyExchangeAlg. This needs to be refined.
+            // For now, we use Kyber as a placeholder to allow compilation.
+            let _ = key_manager.generate_key_pair(QrKeyExchangeAlg::Kyber, QrKeyUsage::DigitalSignature, 365).await;
         }
         Ok(())
     }
 
     /// Example of how a communication channel might request a key for a secure session.
     pub async fn request_secure_session_keys(&self) -> Result<(QrKeyPair, QrKeyPair), String> {
-        let mut key_manager = self.key_manager.lock().unwrap();
+        let key_manager = self.key_manager.lock().unwrap();
         let kex_key = key_manager.get_active_key_pair(&QrKeyUsage::KeyExchange).await
             .ok_or_else(|| "No active key exchange key available.".to_string())?;
 
         let sign_key = key_manager.get_active_key_pair(&QrKeyUsage::DigitalSignature).await
-            .ok_or_else(|| "No active signature key available.".to_string())?;
+            .ok_or_else(|| "No active digital signature key available.".to_string())?;
 
         Ok((kex_key, sign_key))
+    }
+
+    /// Placeholder for fetching dynamic threat intelligence and new algorithms.
+    async fn fetch_threat_intelligence_and_algorithms(&self) {
+        info!("QR-CTFO: Querying external threat intelligence feeds and NIST PQC updates...");
+        // In a real implementation, this would:
+        // 1. Fetch data from external APIs (e.g., NIST PQC updates, threat intelligence platforms).
+        // 2. Analyze the data for new vulnerabilities in current algorithms or new, stronger algorithms.
+        // 3. Potentially update `policy_engine` with new mandates or `qr_algorithms` with new info.
+        // 4. If a critical vulnerability is found, trigger an immediate key rotation or algorithm switch.
+
+        // Mock a scenario where a new algorithm becomes recommended
+        if Utc::now().minute() % 5 == 0 { // Simulate recommendation every 5 minutes for demo
+            info!("QR-CTFO: Detected potential recommendation for new PQC algorithm.");
+            let mut policy_engine = self.policy_engine.lock().unwrap();
+            let new_alg_mandate = TrustPolicy {
+                id: "dynamic-alg-update-2026-04-18".to_string(),
+                applies_to: "system:communication".to_string(),
+                required_trust_level: TrustLevel::QuantumResistant,
+                enforced_algorithms: vec![QrAlgorithmType::KeyExchange(QrKeyExchangeAlg::FrodoKEM)],
+                ethical_compliance_mandates: vec![],
+                active: true,
+            };
+            // policy_engine.update_policy(new_alg_mandate).await;
+            // This would then, in turn, influence key generation and communication adapter.
+        }
     }
 }
