@@ -37,6 +37,7 @@ pub mod agi_project_manager;
 pub mod agi_replication;
 pub mod agi_swarm;
 pub mod admin;
-pub mod communication_bridge; // New module for communication bridge
+pub mod communication_bridge;
 pub mod resource_management;
 pub mod crypto_fabric;
+pub mod co_creation;

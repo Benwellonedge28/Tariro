@@ -4,6 +4,7 @@ use tracing::{info, warn};
 use anyhow::Result;
 use tokio::sync::mpsc;
 use std::sync::Arc;
+use serde_json::Value;
 
 // Import S.O.R.A.E. modules
 use crate::resource_management::orchestrator::{SORAEOrcestrator, SORAEOptions};
@@ -16,6 +17,11 @@ use crate::crypto_fabric::communication_adapter::CommunicationChannel;
 // Import Communication Bridge
 use crate::communication_bridge::CommunicationBridge;
 
+// Import HACSE modules
+use crate::co_creation::orchestrator::{HacseOrchestrator, HacseOptions};
+use crate::co_creation::creative_models::CreativePrompt;
+use crate::bridge_protocol::MessageType;
+
 pub struct AgiCoreEngine {
     // S.O.R.A.E. related field
     pub sorae_request_sender: mpsc::Sender<ResourceRequest>,
@@ -23,6 +29,8 @@ pub struct AgiCoreEngine {
     pub qr_ctfo_orchestrator: Arc<QrCtfoOrchestrator>,
     // Communication Bridge for IDE
     pub ide_communication_bridge: Arc<CommunicationBridge>,
+    // HACSE related field
+    pub hacse_prompt_sender: mpsc::Sender<CreativePrompt>,
 }
 
 impl AgiCoreEngine {
@@ -51,6 +59,18 @@ impl AgiCoreEngine {
         });
         info!("QR-CTFO Orchestrator initialized and started.");
 
+        // Initialize HACSE Orchestrator
+        let hacse_options = HacseOptions::default();
+        let hacse_orchestrator = HacseOrchestrator::new(hacse_options);
+        let hacse_prompt_sender = hacse_orchestrator.get_prompt_sender();
+
+        tokio::spawn(async move {
+            if let Err(e) = hacse_orchestrator.start_loop().await {
+                eprintln!("HACSE Orchestrator failed: {:?}", e);
+            }
+        });
+        info!("HACSE Orchestrator initialized and started.");
+
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
         let ide_communication_bridge = Arc::new(CommunicationBridge::new(
@@ -63,6 +83,7 @@ impl AgiCoreEngine {
             sorae_request_sender,
             qr_ctfo_orchestrator,
             ide_communication_bridge,
+            hacse_prompt_sender,
         })
     }
 
@@ -95,7 +116,7 @@ impl AgiCoreEngine {
         Ok(format!("AGI PM: Recommended next steps for '{}': Focus on 'Self-Deployment System'. Avoid dependency 'omega-v2-dev'.", project_status))
     }
 
-    // Example: AGI Core requesting secure communication parameters for a task
+    // Example: AGI Core requesting secure communication parameters from QR-CTFO
     pub async fn request_secure_communication_parameters(&self) -> Result<String, String> {
         info!("AGI Core: Requesting secure communication parameters from QR-CTFO.");
         match self.qr_ctfo_orchestrator.request_secure_session_keys().await {
@@ -114,5 +135,11 @@ impl AgiCoreEngine {
             "args": args,
         });
         self.ide_communication_bridge.send_secure_message(MessageType::IdeCommand, payload).await
+    }
+
+    // Example: AGI Core sending a creative prompt to HACSE
+    pub async fn send_creative_prompt(&self, prompt: CreativePrompt) -> Result<()> {
+        info!("AGI Core: Sending creative prompt to HACSE: '{}'.", prompt.objective);
+        self.hacse_prompt_sender.send(prompt).await.map_err(|e| anyhow::anyhow!("Failed to send creative prompt: {}", e))
     }
 }
