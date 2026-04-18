@@ -4,10 +4,11 @@ use crate::resource_management::resource_monitor::ResourceMonitor;
 use crate::resource_management::resource_predictor::ResourcePredictor;
 use crate::resource_management::optimization_engine::OptimizationEngine;
 use crate::resource_management::resource_allocator::ResourceAllocator;
-use crate::resource_management::resource_models::ResourceRequest;
+use crate::resource_management::resource_models::{ResourceRequest, ResourceSnapshot};
 
 use tokio::sync::mpsc;
 use std::sync::{Arc, Mutex};
+use std::collections::HashMap;
 use std::time::Duration;
 
 /// The SORAEOptions struct holds configuration for the S.O.R.A.E. Orchestrator.
@@ -18,7 +19,7 @@ pub struct SORAEOptions {
 }
 
 impl Default for SORAEOptions {
-    fn default() -> Self {
+    pub fn default() -> Self {
         SORAEOptions {
             monitoring_interval_seconds: 5, // Monitor every 5 seconds
             prediction_horizon_seconds: 60, // Predict for the next 60 seconds
@@ -66,8 +67,9 @@ impl SORAEOrcestrator {
 
         // Spawn a task for continuous monitoring
         let monitor_interval = options.monitoring_interval_seconds;
-        let monitor_instance = self.monitor.new(options.system_id.clone()); // Recreate for the task
+        let monitor_system_id = options.system_id.clone();
         tokio::spawn(async move {
+            let monitor_instance = ResourceMonitor::new(monitor_system_id); // Recreate for the task
             monitor_instance.start_monitoring(monitor_interval, |snapshot| {
                 if let Ok(mut predictor) = predictor_arc.lock() {
                     predictor.feed_snapshot(snapshot);
@@ -103,13 +105,18 @@ impl SORAEOrcestrator {
                 &pending_requests,
             ).await;
 
-            // 5. Apply ethical filters (placeholder for now)
+            // 5. Apply ethical filters
             let ethically_approved_allocations = self.optimizer.apply_ethical_filters(
                 proposed_allocations
             ).await;
 
-            // 6. Apply allocations
-            let results = self.allocator.apply_allocations(ethically_approved_allocations).await;
+            // 6. Apply allocations, considering current snapshot and original requests for provisioning
+            let current_resources_map = current_snapshot.available_resources.clone();
+            let results = self.allocator.apply_allocations(
+                ethically_approved_allocations,
+                &current_resources_map,
+                &pending_requests,
+            ).await;
 
             // Log or act on results
             for (task_id, result) in results {
