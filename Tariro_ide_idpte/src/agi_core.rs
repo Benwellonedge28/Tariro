@@ -9,28 +9,48 @@ use std::sync::Arc;
 use crate::resource_management::orchestrator::{SORAEOrcestrator, SORAEOptions};
 use crate::resource_management::resource_models::ResourceRequest;
 
+// Import QR-CTFO modules
+use crate::crypto_fabric::orchestrator::{QrCtfoOrchestrator, QrCtfoOptions};
+
 pub struct AgiCoreEngine {
-    // Other fields for AgiCoreEngine
+    // S.O.R.A.E. related field
     pub sorae_request_sender: mpsc::Sender<ResourceRequest>,
+    // QR-CTFO related field
+    // The orchestrator itself runs in a spawned task, so we might just hold a reference
+    // or a sender for its control plane if needed.
+    // For now, just ensure it's initialized and started.
+    pub qr_ctfo_orchestrator: Arc<QrCtfoOrchestrator>, // Keeping a reference to interact if needed
 }
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<AgiCoreEngine> {
         info!("Initializing AGI Core Engine...");
 
+        // Initialize and start S.O.R.A.E. Orchestrator
         let sorae_options = SORAEOptions::default();
         let mut sorae_orchestrator = SORAEOrcestrator::new(sorae_options.clone());
         let sorae_request_sender = sorae_orchestrator.get_request_sender();
 
-        // Start the S.O.R.A.E. orchestrator in a background task
         tokio::spawn(async move {
-            sorae_orchestrator.start_loop(sorae_options).await;
+            sorae_orchestrator.start_loop().await; // Note: start_loop no longer takes options directly after self-tuning implementation
         });
-
         info!("S.O.R.A.E. Orchestrator initialized and started.");
+
+        // Initialize and start QR-CTFO Orchestrator
+        let qr_ctfo_options = QrCtfoOptions::default();
+        let qr_ctfo_orchestrator = Arc::new(QrCtfoOrchestrator::new(qr_ctfo_options));
+
+        let qr_ctfo_orchestrator_clone = qr_ctfo_orchestrator.clone();
+        tokio::spawn(async move {
+            if let Err(e) = qr_ctfo_orchestrator_clone.start_loop().await {
+                eprintln!("QR-CTFO Orchestrator failed: {:?}", e);
+            }
+        });
+        info!("QR-CTFO Orchestrator initialized and started.");
 
         Ok(AgiCoreEngine {
             sorae_request_sender,
+            qr_ctfo_orchestrator,
         })
     }
 
@@ -60,6 +80,17 @@ impl AgiCoreEngine {
         // Example of how AGI core might request resources for a project management task
         // let _ = self.sorae_request_sender.send(ResourceRequest { /* ... */ }).await;
         tokio::time::sleep(tokio::time::Duration::from_millis(700)).await;
-        Ok(format!("AGI PM: Recommended next steps for '{}': Focus on 'Self-Deployment System'. Avoid dependency 'omega-v2-dev'.", project_status))
+        Ok(format!("AGI PM: Recommended next steps for '{}': Focus on 'Self-Deployment System'. Avoid dependency 'omega-v2-dev'.", project_status))L
+    }
+
+    // Example: AGI Core requesting secure communication parameters for a task
+    pub async fn request_secure_communication_parameters(&self) -> Result<String, String> {
+        info!("AGI Core: Requesting secure communication parameters from QR-CTFO.");
+        match self.qr_ctfo_orchestrator.request_secure_session_keys().await {
+            Ok((kex_key, sign_key)) => {
+                Ok(format!("Received KEX Key ID: {}, Sign Key ID: {}", kex_key.id, sign_key.id))
+            },
+            Err(e) => Err(format!("Failed to get secure session keys: {}", e)),
+        }
     }
 }
