@@ -15,7 +15,7 @@ walkdir = "2.3.2"
 tokio-util = { version = "0.7.10", features = ["codec"] }
 futures = "0.3.30"
 urlencoding = "2.1.3"
-clap = { version = "4", features = ["derive"] }
+clap = { version = "4", features = ["derive", "env"] } # Added 'env' feature for clap
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1.2.1", features = ["v4"] }
 log = "0.4"
@@ -35,3 +35,8 @@ blake3 = "1.5"
 rayon = "1.8"
 tempfile = "3.8"
 num_cpus = "1.13"
+async-trait = "0.1.80"
+
+[[bin]]
+name = "sorae_cli"
+path = "src/bin/sorae_cli.rs"
