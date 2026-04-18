@@ -36,6 +36,7 @@ rayon = "1.8"
 tempfile = "3.8"
 num_cpus = "1.13"
 async-trait = "0.1.80"
+sysinfo = "0.29"
 
 [[bin]]
 name = "sorae_cli"
