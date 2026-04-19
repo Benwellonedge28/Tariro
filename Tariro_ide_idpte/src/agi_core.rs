@@ -29,6 +29,7 @@ use crate::bridge_protocol::MessageType;
 use crate::compliance_advisor::orchestrator::{AlecaOrchestrator, AlecaOptions};
 use crate::compliance_advisor::legal_framework_models::{ComplianceStatus, ModuleAuditStatus};
 use crate::compliance_advisor::conflict_resolver::ComplianceRemediationAction; // Import for dispatching
+use crate::compliance_advisor::ethical_forecasting::EthicalForecastingModule; // Import EthicalForecastingModule
 
 // Import Meta-Goals module
 use crate::agi_meta_goals::MetaGoalManager; 
@@ -166,6 +167,8 @@ pub struct AgiCoreEngine {
     pub goal_management_module: Arc<GoalManagementModule>,
     // Security AdversarialRobustnessModule
     pub adversarial_robustness_module: Arc<AdversarialRobustnessModule>,
+    // Compliance Advisor EthicalForecastingModule
+    pub ethical_forecasting_module: Arc<EthicalForecastingModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -742,6 +745,25 @@ impl AgiCoreEngine {
         let arm_dummy_service = AdversarialRobustnessModule::as_os_service();
         service_registry_arc.register_service(arm_dummy_service.clone()).await?;
 
+        // EthicalForecastingModule Dummy
+        struct EthicalForecastingModuleDummy { event_bus: Arc<EventBus> }
+        impl EthicalForecastingModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { EthicalForecastingModuleDummy { event_bus } } }
+        impl EthicalForecastingModuleDummy {
+            async fn anticipate_ethical_dilemma(&self, _action_plan_summary: &str, _system_state_summary: &str) -> Result<Option<crate::compliance_advisor::ethical_forecasting_models::EthicalDilemma>, String> { warn!("Dummy EthicalForecastingModule method called."); Ok(None) }
+            async fn predict_ethical_consequences(&self, _dilemma: crate::compliance_advisor::ethical_forecasting_models::EthicalDilemma, _proposed_action: &str) -> Result<crate::compliance_advisor::ethical_forecasting_models::EthicalConsequencePrediction, String> { warn!("Dummy EthicalForecastingModule method called."); Err("Dummy module".to_string()) }
+            async fn generate_mitigation_strategy(&self, _dilemma: crate::compliance_advisor::ethical_forecasting_models::EthicalDilemma, _negative_prediction: crate::compliance_advisor::ethical_forecasting_models::EthicalConsequencePrediction) -> Result<crate::compliance_advisor::ethical_forecasting_models::EthicalMitigationStrategy, String> { warn!("Dummy EthicalForecastingModule method called."); Err("Dummy module".to_string()) }
+        }
+        let ethical_forecasting_module_arc_dummy: Arc<EthicalForecastingModule> = Arc::new(EthicalForecastingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            imagination_module_arc_dummy.clone(),
+            causal_reasoning_engine_arc.clone(),
+        ));
+        let efm_dummy_service = EthicalForecastingModule::as_os_service();
+        service_registry_arc.register_service(efm_dummy_service.clone()).await?;
+
 
         // 3. Fully Initialize Modules (replacing dummies where needed)
         
@@ -960,7 +982,8 @@ impl AgiCoreEngine {
         let gmm_service_full = GoalManagementModule::as_os_service();
         service_registry_arc.register_service(gmm_service_full).await?;
 
-        // Initialize AdversarialRobustnessModule
+        // Re-initialize AdversarialRobustnessModule
+        service_registry_arc.deregister_service("adversarial-robustness-module").await?;
         let adversarial_robustness_module_arc = Arc::new(AdversarialRobustnessModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
@@ -968,8 +991,20 @@ impl AgiCoreEngine {
             meta_learner_arc.clone(),
             self_healing_module_arc.clone(),
         ));
-        let adversarial_robustness_module_service = AdversarialRobustnessModule::as_os_service();
-        service_registry_arc.register_service(adversarial_robustness_module_service).await?;
+        let arm_service_full = AdversarialRobustnessModule::as_os_service();
+        service_registry_arc.register_service(arm_service_full).await?;
+
+        // Initialize EthicalForecastingModule
+        let ethical_forecasting_module_arc = Arc::new(EthicalForecastingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            imagination_module_arc.clone(),
+            causal_reasoning_engine_arc.clone(),
+        ));
+        let ethical_forecasting_module_service = EthicalForecastingModule::as_os_service();
+        service_registry_arc.register_service(ethical_forecasting_module_service).await?;
 
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
@@ -1021,6 +1056,7 @@ impl AgiCoreEngine {
             predictive_forecasting_module: predictive_forecasting_module_arc.clone(), // Assign predictive forecasting module
             goal_management_module: goal_management_module_arc.clone(), // Assign goal management module
             adversarial_robustness_module: adversarial_robustness_module_arc.clone(), // Assign adversarial robustness module
+            ethical_forecasting_module: ethical_forecasting_module_arc.clone(), // Assign ethical forecasting module
             service_command_rx,
         };
         
