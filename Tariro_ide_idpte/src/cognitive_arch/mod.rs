@@ -8,7 +8,9 @@ pub mod mental_models;
 pub mod theory_of_mind;
 pub mod analogy_models;
 pub mod analogical_reasoning;
-pub mod common_sense_models; // New module for common sense models
-pub mod common_sense_reasoning; // New module for Common Sense Reasoning Network
+pub mod common_sense_models;
+pub mod common_sense_reasoning;
+pub mod concept_models; // New module for concept formation models
+pub mod concept_formation; // New module for Unsupervised Concept Formation
 
 // Add other cognitive architecture modules here.
