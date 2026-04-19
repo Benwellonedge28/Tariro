@@ -16,6 +16,7 @@ use crate::resource_management::resource_optimization::ResourceOptimizationModul
 // Import QR-CTFO modules
 use crate::crypto_fabric::orchestrator::{QrCtfoOrchestrator, QrCtfoOptions};
 use crate::crypto_fabric::communication_adapter::CommunicationChannel;
+use crate::crypto_fabric::quantum_safe::QuantumSafeModule; // Import QuantumSafeModule
 
 // Import Communication Bridge
 use crate::communication_bridge::CommunicationBridge;
@@ -169,6 +170,8 @@ pub struct AgiCoreEngine {
     pub adversarial_robustness_module: Arc<AdversarialRobustnessModule>,
     // Compliance Advisor EthicalForecastingModule
     pub ethical_forecasting_module: Arc<EthicalForecastingModule>,
+    // Crypto Fabric QuantumSafeModule
+    pub quantum_safe_module: Arc<QuantumSafeModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -764,6 +767,41 @@ impl AgiCoreEngine {
         let efm_dummy_service = EthicalForecastingModule::as_os_service();
         service_registry_arc.register_service(efm_dummy_service.clone()).await?;
 
+        // DataManager Dummy (needed by QuantumSafeModule)
+        struct DataManagerDummy { event_bus: Arc<EventBus> }
+        impl DataManagerDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { DataManagerDummy { event_bus } } }
+        impl DataManagerDummy {
+            async fn store_data(&self, _data_chunk: &crate::omega_os::data_models::DataChunk) -> Result<String, String> { warn!("Dummy DataManager method called."); Err("Dummy module".to_string()) }
+            async fn retrieve_data(&self, _data_id: &str) -> Result<crate::omega_os::data_models::DataChunk, String> { warn!("Dummy DataManager method called."); Err("Dummy module".to_string()) }
+            async fn update_data_encryption_policy(&self, _data_id: &str, _policy: &crate::omega_os::data_models::EncryptionPolicy) -> Result<(), String> { warn!("Dummy DataManager method called."); Ok(()) }
+        }
+        let data_manager_arc_dummy: Arc<DataManager> = Arc::new(DataManager::new(
+            storage_abstraction_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            event_bus_arc.clone(),
+        ));
+        let dm_dummy_service = DataManager::as_os_service();
+        service_registry_arc.register_service(dm_dummy_service.clone()).await?;
+
+        // QuantumSafeModule Dummy
+        struct QuantumSafeModuleDummy { event_bus: Arc<EventBus> }
+        impl QuantumSafeModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { QuantumSafeModuleDummy { event_bus } } }
+        impl QuantumSafeModuleDummy {
+            async fn generate_quantum_safe_key(&self, _purpose: &str, _desired_algorithm: Option<String>) -> Result<crate::crypto_fabric::quantum_safe_models::QuantumSafeKey, String> { warn!("Dummy QuantumSafeModule method called."); Err("Dummy module".to_string()) }
+            async fn encrypt_data_quantum_safe(&self, _data_id: &str, _data_summary: &str, _key_id: &str, _cipher_id: &str) -> Result<(), String> { warn!("Dummy QuantumSafeModule method called."); Ok(()) }
+            async fn audit_quantum_safety_compliance(&self, _scope: &str) -> Result<crate::crypto_fabric::quantum_safe_models::EncryptionPolicyReport, String> { warn!("Dummy QuantumSafeModule method called."); Err("Dummy module".to_string()) }
+            async fn perform_quantum_threat_analysis(&self) -> Result<crate::crypto_fabric::quantum_safe_models::QuantumThreatAnalysis, String> { warn!("Dummy QuantumSafeModule method called."); Err("Dummy module".to_string()) }
+        }
+        let quantum_safe_module_arc_dummy: Arc<QuantumSafeModule> = Arc::new(QuantumSafeModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            data_manager_arc_dummy.clone(),
+        ));
+        let qsm_dummy_service = QuantumSafeModule::as_os_service();
+        service_registry_arc.register_service(qsm_dummy_service.clone()).await?;
+
 
         // 3. Fully Initialize Modules (replacing dummies where needed)
         
@@ -994,7 +1032,8 @@ impl AgiCoreEngine {
         let arm_service_full = AdversarialRobustnessModule::as_os_service();
         service_registry_arc.register_service(arm_service_full).await?;
 
-        // Initialize EthicalForecastingModule
+        // Re-initialize EthicalForecastingModule
+        service_registry_arc.deregister_service("ethical-forecasting-module").await?;
         let ethical_forecasting_module_arc = Arc::new(EthicalForecastingModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
@@ -1003,8 +1042,31 @@ impl AgiCoreEngine {
             imagination_module_arc.clone(),
             causal_reasoning_engine_arc.clone(),
         ));
-        let ethical_forecasting_module_service = EthicalForecastingModule::as_os_service();
-        service_registry_arc.register_service(ethical_forecasting_module_service).await?;
+        let efm_service_full = EthicalForecastingModule::as_os_service();
+        service_registry_arc.register_service(efm_service_full).await?;
+
+        // Fully initialize DataManager (needs QR-CTFO and StorageAbstraction, but StorageAbstraction needs DataManager. Using dummy for SA)
+        // DataManager is needed by QuantumSafeModule.
+        // Its new() method takes storage_abstraction_arc, qr_ctfo_orchestrator_arc, event_bus_arc
+        service_registry_arc.deregister_service("data-manager").await?;
+        let data_manager_arc = Arc::new(DataManager::new(
+            storage_abstraction_arc.clone(), 
+            qr_ctfo_orchestrator_arc.clone(), 
+            event_bus_arc.clone()
+        ));
+        let dm_service_full = DataManager::as_os_service();
+        service_registry_arc.register_service(dm_service_full).await?;
+
+        // Initialize QuantumSafeModule
+        let quantum_safe_module_arc = Arc::new(QuantumSafeModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            data_manager_arc.clone(),
+        ));
+        let quantum_safe_module_service = QuantumSafeModule::as_os_service();
+        service_registry_arc.register_service(quantum_safe_module_service).await?;
 
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
@@ -1057,6 +1119,7 @@ impl AgiCoreEngine {
             goal_management_module: goal_management_module_arc.clone(), // Assign goal management module
             adversarial_robustness_module: adversarial_robustness_module_arc.clone(), // Assign adversarial robustness module
             ethical_forecasting_module: ethical_forecasting_module_arc.clone(), // Assign ethical forecasting module
+            quantum_safe_module: quantum_safe_module_arc.clone(), // Assign quantum safe module
             service_command_rx,
         };
         
