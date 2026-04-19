@@ -20,6 +20,7 @@ use crate::crypto_fabric::quantum_safe::QuantumSafeModule; // Import QuantumSafe
 
 // Import Communication Bridge
 use crate::communication_bridge::CommunicationBridge;
+use crate::communication_bridge::human_agi_teaming::HumanAGITeamingModule; // Import HumanAGITeamingModule
 
 // Import HACSE modules
 use crate::co_creation::orchestrator::{HacseOrchestrator, HacseOptions};
@@ -184,6 +185,8 @@ pub struct AgiCoreEngine {
     pub data_privacy_module: Arc<DataPrivacyModule>,
     // Security HardwareSecurityModule
     pub hardware_security_module: Arc<HardwareSecurityModule>,
+    // Communication Bridge HumanAGITeamingModule
+    pub human_agi_teaming_module: Arc<HumanAGITeamingModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -521,7 +524,7 @@ impl AgiCoreEngine {
         struct HierarchicalRLModuleDummy { event_bus: Arc<EventBus> }
         impl HierarchicalRLModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { HierarchicalRLModuleDummy { event_bus } } }
         impl HierarchicalRLModuleDummy {
-            async fn generate_goals_from_meta_goal(&self, _meta_goal_id: &str, _environmental_opportunities: &str) -> Result<Vec<crate::cognitive_arch::h_rl_models::HighLevelGoal>, String> { warn!("Dummy HierarchicalRLModule method called."); Err("Dummy module".to_string()) }
+            async fn generate_goals_from_meta_goal(&self, _meta_goal_id: &str, _environmental_opportunities: &str) -> Result<Vec<crate::cognitive_arch::h_rl_models::HighLevelGoal>, String> { warn!("Dummy HierarchicalRLModule method called."); Ok(vec![]) }
             async fn select_high_level_goal(&self) -> Result<Option<crate::cognitive_arch::h_rl_models::HighLevelGoal>, String> { warn!("Dummy HierarchicalRLModule method called."); Ok(None) }
             async fn decompose_goal(&self, _goal_id: &str) -> Result<Vec<String>, String> { warn!("Dummy HierarchicalRLModule method called."); Ok(vec![]) }
             async fn learn_policy(&self, _sub_goal_id: &str) -> Result<String, String> { warn!("Dummy HierarchicalRLModule method called."); Err("Dummy module".to_string()) }
@@ -755,7 +758,7 @@ impl AgiCoreEngine {
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
-            self_healing_module_arc_dummy.clone(),
+            self_healing_module_arc.clone(), // This depends on the *fully initialized* SelfHealingModule
         ));
         let arm_dummy_service = AdversarialRobustnessModule::as_os_service();
         service_registry_arc.register_service(arm_dummy_service.clone()).await?;
@@ -801,8 +804,8 @@ impl AgiCoreEngine {
         struct DeceptionDetectionModuleDummy { event_bus: Arc<EventBus> }
         impl DeceptionDetectionModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { DeceptionDetectionModuleDummy { event_bus } } }
         impl DeceptionDetectionModuleDummy {
-            async fn detect_deception(&self, _observed_input: &str, _source_agent_id: &str) -> Result<Option<crate::security::deception_detection_models::DeceptionAttempt>, String> { warn!("Dummy DeceptionDetectionModule method called."); Err("Dummy module".to_string()) }
-            async fn analyze_and_generate_countermeasure(&self, _deception_attempt: crate::security::deception_detection_models::DeceptionAttempt) -> Result<crate::security::deception_detection_models::CounterDeceptionStrategy, String> { warn!("Dummy DeceptionDetectionModule method called."); Err("Dummy module".to_string()) }
+            async fn detect_deception(&self, _observed_input: &str, _source_agent_id: &str) -> Result<Option<crate::security::deception_detection_models::DeceptionAttempt>, String> { warn!("Dummy DeceptionDetectionModule method called."); Ok(None) }
+            async fn analyze_and_propose_countermeasure(&self, _deception_attempt: crate::security::deception_detection_models::DeceptionAttempt) -> Result<crate::security::deception_detection_models::CounterDeceptionStrategy, String> { warn!("Dummy DeceptionDetectionModule method called."); Err("Dummy module".to_string()) }
             async fn deploy_ethical_countermeasure(&self, _strategy_id: &str) -> Result<(), String> { warn!("Dummy DeceptionDetectionModule method called."); Ok(()) }
         }
         let deception_detection_module_arc_dummy: Arc<DeceptionDetectionModule> = Arc::new(DeceptionDetectionModule::new(
@@ -852,6 +855,24 @@ impl AgiCoreEngine {
         let hsm_dummy_service = HardwareSecurityModule::as_os_service();
         service_registry_arc.register_service(hsm_dummy_service.clone()).await?;
 
+        // HumanAGITeamingModule Dummy
+        struct HumanAGITeamingModuleDummy { event_bus: Arc<EventBus> }
+        impl HumanAGITeamingModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { HumanAGITeamingModuleDummy { event_bus } } }
+        impl HumanAGITeamingModuleDummy {
+            async fn understand_human_intent(&self, _user_id: &str, _human_input_summary: &str) -> Result<crate::communication_bridge::human_agi_models::HumanIntent, String> { warn!("Dummy HumanAGITeamingModule method called."); Err("Dummy module".to_string()) }
+            async fn facilitate_secure_collaboration(&self, _task_id: &str, _human_agent_id: &str, _agi_agent_id: &str) -> Result<crate::communication_bridge::human_agi_models::CollaborativeTask, String> { warn!("Dummy HumanAGITeamingModule method called."); Err("Dummy module".to_string()) }
+            async fn ensure_ethical_joint_decision_making(&self, _task_id: &str, _proposed_decision: &str) -> Result<crate::communication_bridge::human_agi_models::JointDecisionOutcome, String> { warn!("Dummy HumanAGITeamingModule method called."); Err("Dummy module".to_string()) }
+        }
+        let human_agi_teaming_module_arc_dummy: Arc<HumanAGITeamingModule> = Arc::new(HumanAGITeamingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            secure_channel_manager_arc.clone(),
+        ));
+        let hatm_dummy_service = HumanAGITeamingModule::as_os_service();
+        service_registry_arc.register_service(hatm_dummy_service.clone()).await?;
 
 
         // 3. Fully Initialize Modules (replacing dummies where needed)
@@ -1155,15 +1176,28 @@ impl AgiCoreEngine {
         let dpm_service_full = DataPrivacyModule::as_os_service();
         service_registry_arc.register_service(dpm_service_full).await?;
 
-        // Initialize HardwareSecurityModule
+        // Re-initialize HardwareSecurityModule
+        service_registry_arc.deregister_service("hardware-security-module").await?;
         let hardware_security_module_arc = Arc::new(HardwareSecurityModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
         ));
-        let hardware_security_module_service = HardwareSecurityModule::as_os_service();
-        service_registry_arc.register_service(hardware_security_module_service).await?;
+        let hsm_service_full = HardwareSecurityModule::as_os_service();
+        service_registry_arc.register_service(hsm_service_full).await?;
+
+        // Initialize HumanAGITeamingModule
+        let human_agi_teaming_module_arc = Arc::new(HumanAGITeamingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            secure_channel_manager_arc.clone(),
+        ));
+        let human_agi_teaming_module_service = HumanAGITeamingModule::as_os_service();
+        service_registry_arc.register_service(human_agi_teaming_module_service).await?;
 
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
@@ -1221,6 +1255,7 @@ impl AgiCoreEngine {
             deception_detection_module: deception_detection_module_arc.clone(), // Assign deception detection module
             data_privacy_module: data_privacy_module_arc.clone(), // Assign data privacy module
             hardware_security_module: hardware_security_module_arc.clone(), // Assign hardware security module
+            human_agi_teaming_module: human_agi_teaming_module_arc.clone(), // Assign human agi teaming module
             service_command_rx,
         };
         
