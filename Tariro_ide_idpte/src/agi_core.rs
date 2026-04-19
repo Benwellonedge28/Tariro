@@ -156,6 +156,7 @@ impl AgiCoreEngine {
             service_type: ServiceType::SystemCore,
             capabilities: vec![
                 ServiceCapability { name: "prepare_context".to_string(), description: "Prepares an isolated application context.".to_string(), parameters: HashMap::new(), output_schema: "ApplicationContext".to_string(), requires_permissions: vec![], requires_ethical_review: true },
+                ServiceCapability { name: "execute_application_in_context".to_string(), description: "Executes an application within its prepared context.".to_string(), parameters: HashMap::new(), output_schema: "".to_string(), requires_permissions: vec!["execute".to_string()], requires_ethical_review: true },
                 ServiceCapability { name: "terminate_context".to_string(), description: "Terminates an application context.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec![], requires_ethical_review: true },
             ],
             status: ServiceStatus::Running,
@@ -178,6 +179,7 @@ impl AgiCoreEngine {
             capabilities: vec![
                 ServiceCapability { name: "load_application".to_string(), description: "Loads and verifies an application.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec![], requires_ethical_review: true },
                 ServiceCapability { name: "launch_application".to_string(), description: "Launches a verified application.".to_string(), parameters: HashMap::new(), output_schema: "ApplicationInstanceId".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "terminate_application".to_string(), description: "Terminates an application instance.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
             ],
             status: ServiceStatus::Running,
             registered_at: Utc::now(),
@@ -231,7 +233,7 @@ impl AgiCoreEngine {
         // Register SORAEE as a service
         let sorae_service = OsService {
             id: "soraee".to_string(),
-            name: "S.O.R.A.E.E. Orchestrator".to_string(),
+            name: "S.O.R.A.A.E. Orchestrator".to_string(),
             description: "Self-Optimizing Resource Allocation Engine. Manages system resources.".to_string(),
             service_type: ServiceType::ResourceManagement,
             capabilities: vec![
@@ -282,6 +284,7 @@ impl AgiCoreEngine {
             meta_goal_manager_arc.clone(),
             sorae_request_sender.clone(),
             event_bus_arc.clone(), // Pass EventBus
+            service_command_tx.clone(), // Pass service_command_tx
         ); 
         let hacse_prompt_sender = hacse_orchestrator.get_prompt_sender();
         let hacse_orchestrator_arc = Arc::new(hacse_orchestrator);
@@ -405,6 +408,8 @@ impl AgiCoreEngine {
         info!("AGI Core: Stopping service '{}'.", service_id);
         // Need to map service_id to ApplicationInstanceId and ProcessId
         // For now, assume service_id is directly mappable to an instance managed by AppLoader
+        // This simplified approach uses a direct mapping from service_id to a hypothetical ApplicationInstanceId
+        // In a real system, you'd query the ServiceRegistry or a dedicated process map.
         self.app_loader.terminate_application(&format!("app-instance-{}", service_id)).await?;
         self.service_registry.update_service_status(service_id, Some(ServiceStatus::Stopped)).await?;
         self.event_bus.publish(EventEnvelope::new("AgiCoreEngine".to_string(), OsEvent::ServiceStatusChanged(service_id.to_string(), "Stopped".to_string()))).await;
@@ -423,8 +428,7 @@ impl AgiCoreEngine {
         info!("AGI Core: Reconfiguring service '{}' with config: {:?}.", service_id, config);
         // This would involve sending config updates to the running service process
         self.event_bus.publish(EventEnvelope::new("AgiCoreEngine".to_string(), OsEvent::Custom("ServiceReconfigured".to_string(), format!("{{ \"service_id\": \"{}\", \"config\": {} }}", service_id, config)))).await;
-        Ok(())
-    }
+        Ok(())}
 
     /// Handles OMEGA OS events, providing self-healing and dynamic orchestration.
     pub async fn handle_os_event(self: Arc<Self>) -> Result<()> {
@@ -503,6 +507,5 @@ impl AgiCoreEngine {
                 }
             }
         }
-        Ok(())
-    }
+        Ok(())}
 }

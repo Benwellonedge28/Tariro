@@ -211,27 +211,27 @@ impl SORAEOrcestrator {
             }
 
             // Dynamic Service Scaling based on resource availability and need
-            if current_snapshot.available_resources.get(&ResourceType::Cpu).map_or(0.0, |&c| c) < 0.1 && successful_allocations < pending_requests.len() {
-                warn!("SORAEE: Critical CPU shortage detected. Considering scaling down non-essential services.");
-                let _ = service_command_sender_clone.send(ServiceCommand::StopService("hacse".to_string())).await;
-            } else if current_snapshot.available_resources.get(&ResourceType::Cpu).map_or(0.0, |&c| c) > 0.8 && failed_allocations > 0 {
-                info!("SORAEE: Ample CPU available, but allocations are failing. Consider scaling up essential services.");
-                // This would need ApplicationInfo. For mock, let's assume a 'critical_service' exists.
+            // If CPU usage is very low and some services are paused, consider resuming/starting them
+            if current_snapshot.available_resources.get(&ResourceType::Cpu).map_or(0.0, |&c| c) > 0.9 && Utc::now().second() % 30 == 0 {
+                info!("SORAEE: High CPU availability detected. Considering resuming/starting non-critical services.");
                 let mock_app_info = AgiCoreApplicationInfo {
-                    id: "critical_service".to_string(),
-                    name: "Critical System Service".to_string(),
+                    id: "hacse".to_string(), // Example of a service that could be managed
+                    name: "HACSE Orchestrator".to_string(),
                     version: "1.0".to_string(),
-                    entry_point_command: "/usr/bin/critical_service".to_string(),
+                    entry_point_command: "/usr/bin/hacse".to_string(),
                     default_args: vec![],
                     required_capabilities: vec![],
                     required_permissions: vec![],
                     owner_id: "system".to_string(),
-                    description: "A critical OMEGA OS service.".to_string(),
-                    binary_path: "/usr/bin/critical_service".to_string(),
+                    description: "Human-AGI Co-Creative Synthesis Engine.".to_string(),
+                    binary_path: "/usr/bin/hacse".to_string(),
                     verified: true,
                     ethical_reviewed: true,
                 };
                 let _ = service_command_sender_clone.send(ServiceCommand::StartService(mock_app_info, None)).await;
+            } else if current_snapshot.available_resources.get(&ResourceType::Cpu).map_or(0.0, |&c| c) < 0.1 && successful_allocations < pending_requests.len() {
+                warn!("SORAEE: Critical CPU shortage detected. Considering scaling down non-essential services.");
+                let _ = service_command_sender_clone.send(ServiceCommand::StopService("hacse".to_string())).await;
             }
 
             // 7. S.O.R.A.E. Self-Adaptive Tuning
