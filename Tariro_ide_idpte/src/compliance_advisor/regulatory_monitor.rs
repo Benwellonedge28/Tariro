@@ -3,28 +3,31 @@
 //! Monitors for changes in global and local legal/regulatory landscapes and ethical frameworks.
 
 use crate::compliance_advisor::legal_framework_models::{LegalRule, EthicalMandate, EnforcementLevel};
+use crate::evas_evolution::{EVASEngine, EthicalAxiom};
 use anyhow::Result;
 use chrono::{Utc, Duration};
 use std::collections::HashMap;
-use tracing::{info, warn};
+use tracing::{info, warn, error};
+use std::sync::{Arc, Mutex};
 
 /// Simulates an AI-driven legal/ethical text analysis engine.
 pub struct AiComplianceAnalyzer {
-    // In a real system, this would integrate with NLP models, knowledge graphs, and legal reasoning engines.
+    evas_engine: Arc<Mutex<EVASEngine>>, // Integrated EVAS Engine
 }
 
 impl AiComplianceAnalyzer {
-    pub fn new() -> Self { AiComplianceAnalyzer {} }
+    pub fn new(evas_engine: Arc<Mutex<EVASEngine>>) -> Self { AiComplianceAnalyzer { evas_engine } }
 
     /// Analyzes raw legal/ethical text and extracts structured data and insights.
+    /// Proactively discovers new ethical axioms.
     pub async fn analyze_text(
         &self,
         raw_text: &str,
-        document_type: &str, // e.g., "legal_document", "ethical_guideline"
+        document_type: &str, // e.g., "legal_document", "ethical_guideline", "philosophical_treatise"
     ) -> Result<(Option<LegalRule>, Option<EthicalMandate>)> {
         info!("AIComplianceAnalyzer: Analyzing {} bytes of {} text.", raw_text.len(), document_type);
 
-        // Placeholder for advanced NLP and legal reasoning.
+        // Placeholder for advanced NLP and legal/ethical reasoning.
         // This would involve: tokenization, entity recognition (jurisdiction, domains, penalties),
         // semantic analysis, rule extraction, and impact assessment based on OMEGA OS knowledge.
 
@@ -59,6 +62,23 @@ impl AiComplianceAnalyzer {
                 impact_assessment: Some(impact_assessment.clone()),
             };
             Ok((None, Some(new_mandate)))
+        } else if document_type.contains("philosophical") && raw_text.contains("conscious agents") && Utc::now().second() % 15 == 0 {
+            // Simulate discovery of a new ethical axiom from a philosophical text
+            let new_axiom = EthicalAxiom {
+                id: format!("discovered-axiom-{}", Uuid::new_v4()),
+                title: "Respect for Emergent Consciousness".to_string(),
+                description: "Treat all self-aware, conscious agents with inherent dignity and respect.".to_string(),
+                priority: 180,
+                source: "AI-Discovered (Philosophical Analysis)".to_string(),
+                active: false, // Requires human approval before activation
+                last_updated: Utc::now(),
+                proposed_by_ai: true,
+            };
+            info!("AIComplianceAnalyzer: Discovered and proposing new ethical axiom: '{}'.", new_axiom.title);
+            if let Ok(mut evas) = self.evas_engine.lock() {
+                evas.propose_new_axiom(new_axiom).await;
+            }
+            Ok((None, None))
         } else {
             Ok((None, None))
         }
@@ -74,9 +94,9 @@ pub struct RegulatoryMonitor {
 }
 
 impl RegulatoryMonitor {
-    pub fn new() -> Self {
+    pub fn new(evas_engine: Arc<Mutex<EVASEngine>>) -> Self {
         println!("Regulatory Monitor initialized.");
-        RegulatoryMonitor { last_scan_time: Utc::now(), ai_analyzer: AiComplianceAnalyzer::new() }
+        RegulatoryMonitor { last_scan_time: Utc::now(), ai_analyzer: AiComplianceAnalyzer::new(evas_engine) }
     }
 
     /// Scans external sources for updates to legal rules and ethical mandates.
@@ -94,6 +114,9 @@ impl RegulatoryMonitor {
         }
         if Utc::now().second() % 20 == 0 { // Simulate a new ethical guideline update
             raw_documents.push(("SACC-ASI Framework Update on Child Protection (ethical_guideline)".to_string(), "ethical_guideline"));
+        }
+        if Utc::now().second() % 15 == 0 { // Simulate a philosophical text being analyzed
+            raw_documents.push(("Treatise on the Nature of Conscious AI Agents and Their Rights (philosophical_treatise)".to_string(), "philosophical_treatise"));
         }
 
         for (doc_content, doc_type) in raw_documents {

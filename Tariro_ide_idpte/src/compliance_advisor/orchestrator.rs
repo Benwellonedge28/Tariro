@@ -9,6 +9,7 @@ use crate::compliance_advisor::regulatory_monitor::RegulatoryMonitor;
 use crate::compliance_advisor::compliance_policy_manager::CompliancePolicyManager;
 use crate::compliance_advisor::conflict_resolver::{ConflictResolver, ComplianceRemediationAction};
 use crate::compliance_advisor::ethical_decision_engine::EthicalDecisionEngine;
+use crate::evas_evolution::EVASEngine; // Import EVASEngine
 
 use anyhow::Result;
 use tokio::time::{sleep, Duration};
@@ -17,6 +18,7 @@ use chrono::{Utc, Duration as ChronoDuration};
 use tracing::{info, warn, error};
 
 // Import other orchestrators for remediation actions
+use crate::resource_management::resource_models::ComplianceDirective as SoraeComplianceDirective; // Alias to avoid clash
 use crate::resource_management::orchestrator::SORAEOrcestrator; // For SORAEE directives
 use crate::crypto_fabric::orchestrator::QrCtfoOrchestrator; // For QR-CTFO directives
 
@@ -44,8 +46,9 @@ pub struct AlecaOrchestrator {
     policy_manager: Arc<Mutex<CompliancePolicyManager>>,
     conflict_resolver: ConflictResolver,
     ethical_decision_engine: Arc<Mutex<EthicalDecisionEngine>>, 
+    evas_engine: Arc<Mutex<EVASEngine>>, // Added EVAS engine
     // Senders to other orchestrators for autonomous remediation actions
-    sorae_directive_sender: Option<mpsc::Sender<ComplianceDirective>>,
+    sorae_directive_sender: Option<mpsc::Sender<SoraeComplianceDirective>>,
     qrctfo_directive_sender: Option<mpsc::Sender<ComplianceRemediationAction>>,
     current_options: Arc<Mutex<AlecaOptions>>,
 }
@@ -53,15 +56,17 @@ pub struct AlecaOrchestrator {
 impl AlecaOrchestrator {
     pub fn new(
         options: AlecaOptions,
-        sorae_sender: Option<mpsc::Sender<ComplianceDirective>>,
+        sorae_sender: Option<mpsc::Sender<SoraeComplianceDirective>>,
         qrctfo_sender: Option<mpsc::Sender<ComplianceRemediationAction>>,
     ) -> Self {
-        let ethical_engine_arc = Arc::new(Mutex::new(EthicalDecisionEngine::new()));
+        let evas_engine_arc = Arc::new(Mutex::new(EVASEngine::new()));
+        let ethical_engine_arc = Arc::new(Mutex::new(EthicalDecisionEngine::new(evas_engine_arc.clone())));
         AlecaOrchestrator {
-            regulatory_monitor: RegulatoryMonitor::new(),
+            regulatory_monitor: RegulatoryMonitor::new(evas_engine_arc.clone()),
             policy_manager: Arc::new(Mutex::new(CompliancePolicyManager::new(ethical_engine_arc.clone()))),
             conflict_resolver: ConflictResolver::new(),
             ethical_decision_engine: ethical_engine_arc,
+            evas_engine: evas_engine_arc,
             sorae_directive_sender: sorae_sender,
             qrctfo_directive_sender: qrctfo_sender,
             current_options: Arc::new(Mutex::new(options)),
@@ -163,18 +168,18 @@ impl AlecaOrchestrator {
     async fn dispatch_remediation_action(
         &self,
         action: ComplianceRemediationAction,
-        sorae_sender: Option<mpsc::Sender<ComplianceDirective>>,
+        sorae_sender: Option<mpsc::Sender<SoraeComplianceDirective>>,
         qrctfo_sender: Option<mpsc::Sender<ComplianceRemediationAction>>,
     ) {
         match action {
             ComplianceRemediationAction::SuspendAgiOperation(entity_id) => {
                 if let Some(sender) = sorae_sender {
-                    let _ = sender.send(ComplianceDirective::Custom("suspend_agi_op".to_string(), entity_id)).await;
+                    let _ = sender.send(SoraeComplianceDirective::Custom("suspend_agi_op".to_string(), entity_id)).await;
                 }
             },
             ComplianceRemediationAction::AdjustResourceAllocation(entity_id, adjustment) => {
                 if let Some(sender) = sorae_sender {
-                    let _ = sender.send(ComplianceDirective::Custom("adjust_resource_alloc".to_string(), format!("{}:{}", entity_id, adjustment))).await;
+                    let _ = sender.send(SoraeComplianceDirective::Custom("adjust_resource_alloc".to_string(), format!("{}:{}", entity_id, adjustment))).await;
                 }
             },
             ComplianceRemediationAction::ForcePqcAlgorithmSwitch(channel_id, new_alg_type_str) => {

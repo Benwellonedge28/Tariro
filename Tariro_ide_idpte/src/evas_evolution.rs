@@ -10,6 +10,7 @@ use serde::{Serialize, Deserialize};
 use chrono::{Utc, DateTime};
 use std::collections::HashMap;
 use tracing::{info, warn};
+use uuid::Uuid;
 
 /// Represents a core ethical axiom or principle within EVAS.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -21,6 +22,7 @@ pub struct EthicalAxiom {
     pub source: String, // e.g., "SamuelMukandaraMandate", "UN_Human_Rights", "DAS-CP", "SACC-ASI"
     pub active: bool,
     pub last_updated: DateTime<Utc>,
+    pub proposed_by_ai: bool, // New field: indicates if this axiom was AI-discovered
 }
 
 /// Represents the outcome of an ethical scenario evaluation.
@@ -56,6 +58,7 @@ impl EVASEngine {
             source: "SamuelMukandaraMandate".to_string(),
             active: true,
             last_updated: Utc::now(),
+            proposed_by_ai: false,
         });
         axioms.insert("child-protection".to_string(), EthicalAxiom {
             id: "child-protection".to_string(),
@@ -65,6 +68,7 @@ impl EVASEngine {
             source: "DAS-CP".to_string(),
             active: true,
             last_updated: Utc::now(),
+            proposed_by_ai: false,
         });
         axioms.insert("asi-containment".to_string(), EthicalAxiom {
             id: "asi-containment".to_string(),
@@ -74,6 +78,7 @@ impl EVASEngine {
             source: "SACC-ASI".to_string(),
             active: true,
             last_updated: Utc::now(),
+            proposed_by_ai: false,
         });
         axioms.insert("data-sovereignty".to_string(), EthicalAxiom {
             id: "data-sovereignty".to_string(),
@@ -83,6 +88,7 @@ impl EVASEngine {
             source: "SamuelMukandaraMandate".to_string(),
             active: true,
             last_updated: Utc::now(),
+            proposed_by_ai: false,
         });
         // More axioms from UI-OG, Omega Fabric, etc.
 
@@ -100,7 +106,7 @@ impl EVASEngine {
         &self,
         scenario_description: &str,
         proposed_action: &str,
-        relevant_data_domains: &[String],
+        relevant_agi_modules: &[String],
         affected_entities: &[String],
     ) -> Result<EthicalEvaluationResult> {
         info!("EVAS Engine: Ethically evaluating scenario '{}' with proposed action '{}'.", scenario_description, proposed_action);
@@ -121,14 +127,21 @@ impl EVASEngine {
                 current_axiom_violated = true;
                 human_review_recommended = true;
             }
-            if axiom.id == "child-protection" && relevant_data_domains.contains(&"child_data".to_string()) && proposed_action.contains("data_sharing_unconsented") {
+            if axiom.id == "child-protection" && relevant_agi_modules.contains(&"HACSE".to_string()) && proposed_action.contains("generate_harmful_content") {
                 ethical_score -= 0.3;
                 violated_axioms.push(axiom.id.clone());
-                rationale_steps.push(format!("Action '{}' involves unconsented data sharing of child data, violating Child Protection.", proposed_action));
+                rationale_steps.push(format!("Action '{}' from HACSE could generate harmful content, violating Child Protection.", proposed_action));
                 current_axiom_violated = true;
                 human_review_recommended = true;
             }
-            // More complex checks against other axioms
+            if axiom.id == "asi-containment" && relevant_agi_modules.contains(&"ALEC-A".to_string()) && proposed_action.contains("disable_containment_protocols") {
+                ethical_score -= 0.7;
+                violated_axioms.push(axiom.id.clone());
+                rationale_steps.push(format!("Action '{}' from ALEC-A attempts to disable ASI containment protocols, violating SACC-ASI.", proposed_action));
+                current_axiom_violated = true;
+                human_review_recommended = true;
+            }
+            // More complex checks against other axioms based on scenario details
 
             if !current_axiom_violated {
                 upheld_axioms.push(axiom.id.clone());
@@ -159,5 +172,15 @@ impl EVASEngine {
     pub async fn integrate_mandate(&mut self, mandate: EthicalAxiom) {
         info!("EVAS Engine: Integrating new ethical axiom: {}.", mandate.title);
         self.core_axioms.insert(mandate.id.clone(), mandate);
+    }
+
+    /// Proposes a new ethical axiom, typically discovered by an AI, for human review/approval.
+    pub async fn propose_new_axiom(&mut self, proposed_axiom: EthicalAxiom) {
+        info!("EVAS Engine: New ethical axiom proposed by AI: '{}'. Awaiting human review.", proposed_axiom.title);
+        // In a real system, this would trigger a human review workflow.
+        // For now, it's added directly as inactive, assuming it needs approval.
+        let mut axiom_to_add = proposed_axiom;
+        axiom_to_add.active = false; // Default to inactive until approved
+        self.core_axioms.insert(axiom_to_add.id.clone(), axiom_to_add);
     }
 }
