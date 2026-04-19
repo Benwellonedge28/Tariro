@@ -70,6 +70,7 @@ use crate::cognitive_arch::emotion_motivation::EmotionMotivationModule; // Impor
 use crate::cognitive_arch::creativity::CreativityInnovationModule; // Import CreativityInnovationModule;
 use crate::cognitive_arch::swarm_intelligence::SwarmIntelligenceModule; // Import SwarmIntelligenceModule
 use crate::cognitive_arch::embodied_cognition::EmbodiedCognitionModule; // Import EmbodiedCognitionModule
+use crate::cognitive_arch::intuitive_physics_psychology::IntuitivePhysicsPsychologyModule; // Import IntuitivePhysicsPsychologyModule
 use crate::omega_os::self_organization::SelfOrganizationModule; // Import SelfOrganizationModule
 use crate::omega_os::self_healing::SelfHealingModule; // Import SelfHealingModule
 use crate::forecasting::forecasting::PredictiveForecastingModule; // Import PredictiveForecastingModule
@@ -169,6 +170,8 @@ pub struct AgiCoreEngine {
     pub swarm_intelligence_module: Arc<SwarmIntelligenceModule>,
     // Cognitive Arch EmbodiedCognitionModule
     pub embodied_cognition_module: Arc<EmbodiedCognitionModule>,
+    // Cognitive Arch IntuitivePhysicsPsychologyModule
+    pub intuitive_physics_psychology_module: Arc<IntuitivePhysicsPsychologyModule>,
     // OMEGA OS SelfOrganizationModule
     pub self_organization_module: Arc<SelfOrganizationModule>,
     // OMEGA OS SelfHealingModule
@@ -707,6 +710,27 @@ impl AgiCoreEngine {
         let ecm_dummy_service = EmbodiedCognitionModule::as_os_service();
         service_registry_arc.register_service(ecm_dummy_service.clone()).await?;
 
+        // IntuitivePhysicsPsychologyModule Dummy
+        struct IntuitivePhysicsPsychologyModuleDummy { event_bus: Arc<EventBus> }
+        impl IntuitivePhysicsPsychologyModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { IntuitivePhysicsPsychologyModuleDummy { event_bus } } }
+        impl IntuitivePhysicsPsychologyModuleDummy {
+            async fn infer_physical_laws(&self, _experience_summary: &str) -> Result<crate::cognitive_arch::intuitive_models::PhysicalLaw, String> { warn!("Dummy IntuitivePhysicsPsychologyModule method called."); Err("Dummy module".to_string()) }
+            async fn model_human_behavior(&self, _interaction_summary: &str, _agent_id: &str) -> Result<crate::cognitive_arch::intuitive_models::BehavioralPattern, String> { warn!("Dummy IntuitivePhysicsPsychologyModule method called."); Err("Dummy module".to_string()) }
+            async fn predict_outcome_intuitively(&self, _scenario_summary: &str) -> Result<crate::cognitive_arch::intuitive_models::PredictionOutcome, String> { warn!("Dummy IntuitivePhysicsPsychologyModule method called."); Err("Dummy module".to_string()) }
+        }
+        let intuitive_physics_psychology_module_arc_dummy: Arc<IntuitivePhysicsPsychologyModule> = Arc::new(IntuitivePhysicsPsychologyModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            embodied_cognition_module_arc_dummy.clone(), // This depends on the *fully initialized* EmbodiedCognitionModule
+            causal_reasoning_engine_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            social_intelligence_module_arc.clone(), // This depends on the *fully initialized* SocialIntelligenceModule
+        ));
+        let ippm_dummy_service = IntuitivePhysicsPsychologyModule::as_os_service();
+        service_registry_arc.register_service(ippm_dummy_service.clone()).await?;
+
 
 
         // 3. Fully Initialize Modules (replacing dummies where needed)
@@ -717,10 +741,10 @@ impl AgiCoreEngine {
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
-            curiosity_exploration_module_arc_dummy.clone(), 
-            concept_formation_module_arc_dummy.clone(), 
+            curiosity_exploration_module_arc.clone(), 
+            concept_formation_module_arc.clone(), 
             causal_reasoning_engine_arc.clone(),
-            common_sense_reasoning_network_arc_dummy.clone(), 
+            common_sense_reasoning_network_arc.clone(), 
         ));
         let ll_service_full = LifelongLearningModule::as_os_service();
         service_registry_arc.register_service(ll_service_full).await?;
@@ -892,6 +916,21 @@ impl AgiCoreEngine {
         ));
         let ecm_service_full = EmbodiedCognitionModule::as_os_service();
         service_registry_arc.register_service(ecm_service_full).await?;
+
+        // Re-initialize IntuitivePhysicsPsychologyModule
+        service_registry_arc.deregister_service("intuitive-physics-psychology-module").await?;
+        let intuitive_physics_psychology_module_arc = Arc::new(IntuitivePhysicsPsychologyModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            embodied_cognition_module_arc.clone(),
+            causal_reasoning_engine_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            social_intelligence_module_arc.clone(),
+        ));
+        let ippm_service_full = IntuitivePhysicsPsychologyModule::as_os_service();
+        service_registry_arc.register_service(ippm_service_full).await?;
 
         // Re-initialize SelfOrganizationModule
         service_registry_arc.deregister_service("self-organization-module").await?;
@@ -1088,6 +1127,19 @@ impl AgiCoreEngine {
         let sim_service_full = SocialIntelligenceModule::as_os_service();
         service_registry_arc.register_service(sim_service_full).await?;
 
+        // Initialize IntuitivePhysicsPsychologyModule
+        let intuitive_physics_psychology_module_arc = Arc::new(IntuitivePhysicsPsychologyModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            embodied_cognition_module_arc.clone(),
+            causal_reasoning_engine_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            social_intelligence_module_arc.clone(),
+        ));
+        let intuitive_physics_psychology_module_service = IntuitivePhysicsPsychologyModule::as_os_service();
+        service_registry_arc.register_service(intuitive_physics_psychology_module_service).await?;
 
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
@@ -1135,6 +1187,7 @@ impl AgiCoreEngine {
             creativity_innovation_module: creativity_innovation_module_arc.clone(), // Assign creativity innovation module
             swarm_intelligence_module: swarm_intelligence_module_arc.clone(), // Assign swarm intelligence module
             embodied_cognition_module: embodied_cognition_module_arc.clone(), // Assign embodied cognition module
+            intuitive_physics_psychology_module: intuitive_physics_psychology_module_arc.clone(), // Assign intuitive physics psychology module
             self_organization_module: self_organization_module_arc.clone(), // Assign self-organization module
             self_healing_module: self_healing_module_arc.clone(), // Assign self-healing module
             resource_optimization_module: resource_optimization_module_arc.clone(), // Assign resource optimization module
