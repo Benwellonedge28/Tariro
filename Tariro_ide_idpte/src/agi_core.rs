@@ -57,6 +57,7 @@ use crate::cognitive_arch::concept_formation::ConceptFormationModule; // Import 
 use crate::cognitive_arch::hierarchical_rl::HierarchicalRLModule; // Import HierarchicalRLModule
 use crate::cognitive_arch::lifelong_learning::LifelongLearningModule; // Import LifelongLearningModule
 use crate::cognitive_arch::curiosity_exploration::CuriosityExplorationModule; // Import CuriosityExplorationModule
+use crate::cognitive_arch::intuition_heuristics::IntuitionHeuristicGenerator; // Import IntuitionHeuristicGenerator
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -132,6 +133,8 @@ pub struct AgiCoreEngine {
     pub lifelong_learning_module: Arc<LifelongLearningModule>,
     // Cognitive Arch CuriosityExplorationModule
     pub curiosity_exploration_module: Arc<CuriosityExplorationModule>,
+    // Cognitive Arch IntuitionHeuristicGenerator
+    pub intuition_heuristic_generator: Arc<IntuitionHeuristicGenerator>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -423,6 +426,12 @@ impl AgiCoreEngine {
         let curiosity_exploration_module_service = CuriosityExplorationModule::as_os_service();
         service_registry_arc.register_service(curiosity_exploration_module_service).await?;
 
+        // Initialize Cognitive Architecture IntuitionHeuristicGenerator
+        let intuition_heuristic_generator_arc = Arc::new(IntuitionHeuristicGenerator::new(event_bus_arc.clone()));
+        // Register IntuitionHeuristicGenerator as a service
+        let intuition_heuristic_generator_service = IntuitionHeuristicGenerator::as_os_service();
+        service_registry_arc.register_service(intuition_heuristic_generator_service).await?;
+
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
         let ide_communication_bridge = Arc::new(CommunicationBridge::new(
@@ -461,6 +470,7 @@ impl AgiCoreEngine {
             hierarchical_rl_module: hierarchical_rl_module_arc.clone(), // Assign hierarchical RL module
             lifelong_learning_module: lifelong_learning_module_arc.clone(), // Assign lifelong learning module
             curiosity_exploration_module: curiosity_exploration_module_arc.clone(), // Assign curiosity exploration module
+            intuition_heuristic_generator: intuition_heuristic_generator_arc.clone(), // Assign intuition heuristic generator
             service_command_rx,
         };
         
