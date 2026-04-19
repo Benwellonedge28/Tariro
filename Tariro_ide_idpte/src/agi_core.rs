@@ -73,6 +73,7 @@ use crate::forecasting::forecasting::PredictiveForecastingModule; // Import Pred
 use crate::security::adversarial_robustness::AdversarialRobustnessModule; // Import AdversarialRobustnessModule
 use crate::security::trust_reputation::TrustReputationModule; // Import TrustReputationModule
 use crate::security::deception_detection::DeceptionDetectionModule; // Import DeceptionDetectionModule
+use crate::security::data_privacy::DataPrivacyModule; // Import DataPrivacyModule
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -178,6 +179,8 @@ pub struct AgiCoreEngine {
     pub trust_reputation_module: Arc<TrustReputationModule>,
     // Security DeceptionDetectionModule
     pub deception_detection_module: Arc<DeceptionDetectionModule>,
+    // Security DataPrivacyModule
+    pub data_privacy_module: Arc<DataPrivacyModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -515,7 +518,7 @@ impl AgiCoreEngine {
         struct HierarchicalRLModuleDummy { event_bus: Arc<EventBus> }
         impl HierarchicalRLModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { HierarchicalRLModuleDummy { event_bus } } }
         impl HierarchicalRLModuleDummy {
-            async fn generate_goals_from_meta_goal(&self, _meta_goal_id: &str, _environmental_opportunities: &str) -> Result<Vec<crate::cognitive_arch::h_rl_models::HighLevelGoal>, String> { warn!("Dummy HierarchicalRLModule method called."); Ok(vec![]) }
+            async fn generate_goals_from_meta_goal(&self, _meta_goal_id: &str, _environmental_opportunities: &str) -> Result<Vec<crate::cognitive_arch::h_rl_models::HighLevelGoal>, String> { warn!("Dummy HierarchicalRLModule method called."); Err("Dummy module".to_string()) }
             async fn select_high_level_goal(&self) -> Result<Option<crate::cognitive_arch::h_rl_models::HighLevelGoal>, String> { warn!("Dummy HierarchicalRLModule method called."); Ok(None) }
             async fn decompose_goal(&self, _goal_id: &str) -> Result<Vec<String>, String> { warn!("Dummy HierarchicalRLModule method called."); Ok(vec![]) }
             async fn learn_policy(&self, _sub_goal_id: &str) -> Result<String, String> { warn!("Dummy HierarchicalRLModule method called."); Err("Dummy module".to_string()) }
@@ -767,7 +770,7 @@ impl AgiCoreEngine {
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
-            imagination_module_arc_dummy.clone(),
+            imagination_module_arc.clone(), // This depends on the *fully initialized* ImaginationModule
             causal_reasoning_engine_arc.clone(),
         ));
         let efm_dummy_service = EthicalForecastingModule::as_os_service();
@@ -809,6 +812,25 @@ impl AgiCoreEngine {
         ));
         let ddm_dummy_service = DeceptionDetectionModule::as_os_service();
         service_registry_arc.register_service(ddm_dummy_service.clone()).await?;
+
+        // DataPrivacyModule Dummy
+        struct DataPrivacyModuleDummy { event_bus: Arc<EventBus> }
+        impl DataPrivacyModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { DataPrivacyModuleDummy { event_bus } } }
+        impl DataPrivacyModuleDummy {
+            async fn identify_sensitive_data(&self, _data_id: &str, _data_metadata_summary: &str) -> Result<Option<crate::security::data_privacy_models::SensitiveDataRecord>, String> { warn!("Dummy DataPrivacyModule method called."); Ok(None) }
+            async fn apply_secure_anonymization(&self, _data_id: &str, _policy_id: &str) -> Result<(), String> { warn!("Dummy DataPrivacyModule method called."); Ok(()) }
+            async fn enforce_ethical_data_usage(&self, _data_id: &str, _user_id: &str, _proposed_purpose: &str) -> Result<(), String> { warn!("Dummy DataPrivacyModule method called."); Ok(()) }
+            async fn audit_privacy_compliance(&self, _scope: &str) -> Result<crate::security::data_privacy_models::PrivacyAuditReport, String> { warn!("Dummy DataPrivacyModule method called."); Err("Dummy module".to_string()) }
+        }
+        let data_privacy_module_arc_dummy: Arc<DataPrivacyModule> = Arc::new(DataPrivacyModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            data_manager_arc.clone(), // This depends on the *fully initialized* DataManager
+        ));
+        let dpm_dummy_service = DataPrivacyModule::as_os_service();
+        service_registry_arc.register_service(dpm_dummy_service.clone()).await?;
 
 
         // 3. Fully Initialize Modules (replacing dummies where needed)
@@ -1087,7 +1109,8 @@ impl AgiCoreEngine {
         let trm_service_full = TrustReputationModule::as_os_service();
         service_registry_arc.register_service(trm_service_full).await?;
 
-        // Initialize DeceptionDetectionModule
+        // Re-initialize DeceptionDetectionModule
+        service_registry_arc.deregister_service("deception-detection-module").await?;
         let deception_detection_module_arc = Arc::new(DeceptionDetectionModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
@@ -1096,8 +1119,19 @@ impl AgiCoreEngine {
             theory_of_mind_module_arc.clone(),
             trust_reputation_module_arc.clone(),
         ));
-        let deception_detection_module_service = DeceptionDetectionModule::as_os_service();
-        service_registry_arc.register_service(deception_detection_module_service).await?;
+        let ddm_service_full = DeceptionDetectionModule::as_os_service();
+        service_registry_arc.register_service(ddm_service_full).await?;
+
+        // Initialize DataPrivacyModule
+        let data_privacy_module_arc = Arc::new(DataPrivacyModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            data_manager_arc.clone(),
+        ));
+        let data_privacy_module_service = DataPrivacyModule::as_os_service();
+        service_registry_arc.register_service(data_privacy_module_service).await?;
 
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
@@ -1153,6 +1187,7 @@ impl AgiCoreEngine {
             quantum_safe_module: quantum_safe_module_arc.clone(), // Assign quantum safe module
             trust_reputation_module: trust_reputation_module_arc.clone(), // Assign trust reputation module
             deception_detection_module: deception_detection_module_arc.clone(), // Assign deception detection module
+            data_privacy_module: data_privacy_module_arc.clone(), // Assign data privacy module
             service_command_rx,
         };
         
