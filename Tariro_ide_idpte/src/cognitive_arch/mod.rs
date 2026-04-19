@@ -15,5 +15,7 @@ pub mod imagination;
 pub mod formal_reasoning;
 pub mod emotion_motivation;
 pub mod creativity;
-pub mod swarm_models; // New module for swarm models
-pub mod swarm_intelligence; // New module for Swarm Intelligence
+pub mod swarm_models;
+pub mod swarm_intelligence;
+pub mod embodied_models; // New module for embodied cognition models
+pub mod embodied_cognition; // New module for Embodied Cognition
