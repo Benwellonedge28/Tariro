@@ -22,7 +22,9 @@ pub mod heuristic_models;
 pub mod intuition_heuristics;
 pub mod metacognition_models;
 pub mod metacognition;
-pub mod imagination_models; // New module for imagination models
-pub mod imagination; // New module for Imagination & Counterfactual Thinking
+pub mod imagination_models;
+pub mod imagination;
+pub mod formal_reasoning_models; // New module for formal reasoning models
+pub mod formal_reasoning; // New module for Abstract & Formal Reasoning
 
 // Add other cognitive architecture modules here.
