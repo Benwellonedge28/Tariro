@@ -99,6 +99,76 @@ impl GenerativeModel for TextGenerativeModel {
     }
 }
 
+/// Placeholder for an Image Generative Model.
+pub struct ImageGenerativeModel {
+    // Internal parameters for image generation
+    style_fidelity: f64, // How closely to adhere to stylistic inputs
+    detail_level: f64,
+}
+
+impl ImageGenerativeModel {
+    pub fn new() -> Self { ImageGenerativeModel { style_fidelity: 0.7, detail_level: 0.8 } }
+}
+
+impl GenerativeModel for ImageGenerativeModel {
+    async fn generate(
+        &self,
+        prompt_text: &str,
+        _artifact_type: &CreativeArtifactType,
+        style_characteristics: &HashMap<String, String>,
+    ) -> Result<String> {
+        info!("ImageGenerativeModel: Generating image for '{}' with style {:?}", prompt_text, style_characteristics);
+        let palette = style_characteristics.get("color_palette").map_or("vibrant", |s| s.as_str());
+        Ok(format!("[Generated Image: {} | Style Fidelity: {:.2} | Details: {:.2} | Palette: {}]", prompt_text, self.style_fidelity, self.detail_level, palette))
+    }
+    fn get_type(&self) -> GenerativeModelType { GenerativeModelType::ImageGenerator }
+
+    fn adapt_to_feedback(&mut self, feedback_signal: &str) {
+        if feedback_signal.contains("more abstract") {
+            self.style_fidelity = (self.style_fidelity - 0.1).max(0.0);
+            info!("ImageGenerativeModel adapted: decreased style fidelity to {:.2}", self.style_fidelity);
+        } else if feedback_signal.contains("higher detail") {
+            self.detail_level = (self.detail_level + 0.1).min(1.0);
+            info!("ImageGenerativeModel adapted: increased detail level to {:.2}", self.detail_level);
+        }
+    }
+}
+
+/// Placeholder for an Audio Generative Model.
+pub struct AudioGenerativeModel {
+    // Internal parameters for audio generation
+    tempo: f64,
+    instrumentation_diversity: f64,
+}
+
+impl AudioGenerativeModel {
+    pub fn new() -> Self { AudioGenerativeModel { tempo: 120.0, instrumentation_diversity: 0.6 } }
+}
+
+impl GenerativeModel for AudioGenerativeModel {
+    async fn generate(
+        &self,
+        prompt_text: &str,
+        _artifact_type: &CreativeArtifactType,
+        style_characteristics: &HashMap<String, String>,
+    ) -> Result<String> {
+        info!("AudioGenerativeModel: Generating audio for '{}' with style {:?}", prompt_text, style_characteristics);
+        let genre = style_characteristics.get("music_genre").map_or("ambient", |s| s.as_str());
+        Ok(format!("[Generated Audio: {} | Genre: {} | Tempo: {:.1} BPM | Diversity: {:.2}]", prompt_text, genre, self.tempo, self.instrumentation_diversity))
+    }
+    fn get_type(&self) -> GenerativeModelType { GenerativeModelType::AudioGenerator }
+
+    fn adapt_to_feedback(&mut self, feedback_signal: &str) {
+        if feedback_signal.contains("slower") {
+            self.tempo = (self.tempo - 10.0).max(60.0);
+            info!("AudioGenerativeModel adapted: decreased tempo to {:.1}", self.tempo);
+        } else if feedback_signal.contains("more instruments") {
+            self.instrumentation_diversity = (self.instrumentation_diversity + 0.1).min(1.0);
+            info!("AudioGenerativeModel adapted: increased instrumentation diversity to {:.2}", self.instrumentation_diversity);
+        }
+    }
+}
+
 /// The SynthesisGenerator is responsible for generating new creative content.
 pub struct SynthesisGenerator {
     // This would likely contain references to various specialized generative AI models
@@ -112,7 +182,8 @@ impl SynthesisGenerator {
         let mut models: HashMap<GenerativeModelType, Box<dyn GenerativeModel>> = HashMap::new();
         models.insert(GenerativeModelType::CodeGenerator, Box::new(CodeGenerativeModel::new()));
         models.insert(GenerativeModelType::TextGenerator, Box::new(TextGenerativeModel::new()));
-        // TODO: Add ImageGenerator, AudioGenerator, etc.
+        models.insert(GenerativeModelType::ImageGenerator, Box::new(ImageGenerativeModel::new())); // New
+        models.insert(GenerativeModelType::AudioGenerator, Box::new(AudioGenerativeModel::new())); // New
 
         SynthesisGenerator { generative_models: models }
     }
@@ -129,6 +200,8 @@ impl SynthesisGenerator {
         let generative_model_type = match prompt.desired_artifact_type {
             CreativeArtifactType::Code => GenerativeModelType::CodeGenerator,
             CreativeArtifactType::Text => GenerativeModelType::TextGenerator,
+            CreativeArtifactType::Image => GenerativeModelType::ImageGenerator,
+            CreativeArtifactType::Audio => GenerativeModelType::AudioGenerator,
             _ => {
                 warn!("No specific generative model for artifact type {:?}, defaulting to TextGenerator.", prompt.desired_artifact_type);
                 GenerativeModelType::TextGenerator
