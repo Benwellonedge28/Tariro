@@ -87,7 +87,7 @@ pub struct AgiCoreEngine {
     // Senders for compliance directives (to SORAEE and QR-CTFO)
     sorae_compliance_directive_sender: mpsc::Sender<SoraeComplianceDirective>,
     qrctfo_compliance_directive_sender: mpsc::Sender<ComplianceRemediationAction>,
-    // Meta-Goal Manager
+    // Meta-Goals module
     pub meta_goal_manager: Arc<Mutex<MetaGoalManager>>,
     // OMEGA OS Service Registry
     pub service_registry: Arc<ServiceRegistry>,
@@ -472,6 +472,7 @@ impl AgiCoreEngine {
         info!("AGI Core: Stopping service '{}'.", service_id);
         // Need to map service_id to ApplicationInstanceId and ProcessId
         // For now, assume service_id is directly mappable to an instance managed by AppLoader
+        // This simplified approach uses a direct mapping from service_id to a hypothetical ApplicationInstanceId
         // In a real system, you'd query the ServiceRegistry or a dedicated process map.
         self.app_loader.terminate_application(&format!("app-instance-{}", service_id)).await?;
         self.service_registry.update_service_status(service_id, Some(ServiceStatus::Stopped)).await?;
