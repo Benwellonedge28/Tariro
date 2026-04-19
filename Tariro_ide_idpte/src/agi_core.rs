@@ -149,7 +149,7 @@ pub struct AgiCoreEngine {
     pub lifelong_learning_module: Arc<LifelongLearningModule>,
     // Cognitive Arch CuriosityExplorationModule
     pub curiosity_exploration_module: Arc<CuriosityExplorationModule>,
-    // Cognitive Arch IntuitionHeuristicGenerator
+    // Cognitive Arch IntuitionHeuristicsGenerator
     pub intuition_heuristic_generator: Arc<IntuitionHeuristicGenerator>,
     // Cognitive Arch MetacognitionModule
     pub metacognition_module: Arc<MetacognitionModule>,
@@ -805,7 +805,7 @@ impl AgiCoreEngine {
         impl DeceptionDetectionModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { DeceptionDetectionModuleDummy { event_bus } } }
         impl DeceptionDetectionModuleDummy {
             async fn detect_deception(&self, _observed_input: &str, _source_agent_id: &str) -> Result<Option<crate::security::deception_detection_models::DeceptionAttempt>, String> { warn!("Dummy DeceptionDetectionModule method called."); Ok(None) }
-            async fn analyze_and_propose_countermeasure(&self, _deception_attempt: crate::security::deception_detection_models::DeceptionAttempt) -> Result<crate::security::deception_detection_models::CounterDeceptionStrategy, String> { warn!("Dummy DeceptionDetectionModule method called."); Err("Dummy module".to_string()) }
+            async fn analyze_and_generate_countermeasure(&self, _deception_attempt: crate::security::deception_detection_models::DeceptionAttempt) -> Result<crate::security::deception_detection_models::CounterDeceptionStrategy, String> { warn!("Dummy DeceptionDetectionModule method called."); Err("Dummy module".to_string()) }
             async fn deploy_ethical_countermeasure(&self, _strategy_id: &str) -> Result<(), String> { warn!("Dummy DeceptionDetectionModule method called."); Ok(()) }
         }
         let deception_detection_module_arc_dummy: Arc<DeceptionDetectionModule> = Arc::new(DeceptionDetectionModule::new(
@@ -873,6 +873,7 @@ impl AgiCoreEngine {
         ));
         let hatm_dummy_service = HumanAGITeamingModule::as_os_service();
         service_registry_arc.register_service(hatm_dummy_service.clone()).await?;
+
 
 
         // 3. Fully Initialize Modules (replacing dummies where needed)
@@ -1255,7 +1256,7 @@ impl AgiCoreEngine {
             deception_detection_module: deception_detection_module_arc.clone(), // Assign deception detection module
             data_privacy_module: data_privacy_module_arc.clone(), // Assign data privacy module
             hardware_security_module: hardware_security_module_arc.clone(), // Assign hardware security module
-            human_agi_teaming_module: human_agi_teaming_module_arc.clone(), // Assign human agi teaming module
+            human_agi_teaming_module: human_agi_teaming_module_arc.clone(), // Assign human-AGI teaming module
             service_command_rx,
         };
         
