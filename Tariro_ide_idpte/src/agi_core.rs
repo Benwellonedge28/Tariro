@@ -47,6 +47,9 @@ use crate::omega_os::storage_abstraction::StorageAbstraction; // Import StorageA
 use crate::omega_os::data_models::EncryptionPolicy; // For example usage
 use crate::omega_os::self_modification_agent::SelfModificationAgent; // Import SelfModificationAgent
 
+// Import Cognitive Arch modules
+use crate::cognitive_arch::meta_learner::MetaLearner;
+
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
 pub enum ServiceCommand {
@@ -103,6 +106,8 @@ pub struct AgiCoreEngine {
     pub data_manager: Arc<DataManager>,
     // OMEGA OS Self-Modification Agent
     pub self_modification_agent: Arc<SelfModificationAgent>,
+    // Cognitive Arch MetaLearner
+    pub meta_learner: Arc<MetaLearner>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -340,6 +345,12 @@ impl AgiCoreEngine {
         let self_modification_agent_service = SelfModificationAgent::as_os_service();
         service_registry_arc.register_service(self_modification_agent_service).await?;
 
+        // Initialize Cognitive Architecture MetaLearner
+        let meta_learner_arc = Arc::new(MetaLearner::new(event_bus_arc.clone()));
+        // Register MetaLearner as a service
+        let meta_learner_service = MetaLearner::as_os_service();
+        service_registry_arc.register_service(meta_learner_service).await?;
+
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
         let ide_communication_bridge = Arc::new(CommunicationBridge::new(
@@ -369,6 +380,7 @@ impl AgiCoreEngine {
             storage_abstraction: storage_abstraction_arc.clone(), // Assign storage abstraction
             data_manager: data_manager_arc.clone(), // Assign data manager
             self_modification_agent: self_modification_agent_arc.clone(), // Assign self-modification agent
+            meta_learner: meta_learner_arc.clone(), // Assign meta-learner
             service_command_rx,
         };
         
@@ -430,6 +442,7 @@ impl AgiCoreEngine {
         info!("AGI Core: Stopping service '{}'.", service_id);
         // Need to map service_id to ApplicationInstanceId and ProcessId
         // For now, assume service_id is directly mappable to an instance managed by AppLoader
+        // This simplified approach uses a direct mapping from service_id to a hypothetical ApplicationInstanceId
         // In a real system, you'd query the ServiceRegistry or a dedicated process map.
         self.app_loader.terminate_application(&format!("app-instance-{}", service_id)).await?;
         self.service_registry.update_service_status(service_id, Some(ServiceStatus::Stopped)).await?;
