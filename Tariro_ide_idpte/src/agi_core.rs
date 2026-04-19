@@ -45,6 +45,7 @@ use crate::omega_os::secure_channel_manager::SecureChannelManager; // Import Sec
 use crate::omega_os::data_manager::DataManager; // Import DataManager
 use crate::omega_os::storage_abstraction::StorageAbstraction; // Import StorageAbstraction
 use crate::omega_os::data_models::EncryptionPolicy; // For example usage
+use crate::omega_os::self_modification_agent::SelfModificationAgent; // Import SelfModificationAgent
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -100,6 +101,8 @@ pub struct AgiCoreEngine {
     pub storage_abstraction: Arc<StorageAbstraction>,
     // OMEGA OS Data Manager
     pub data_manager: Arc<DataManager>,
+    // OMEGA OS Self-Modification Agent
+    pub self_modification_agent: Arc<SelfModificationAgent>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -325,6 +328,18 @@ impl AgiCoreEngine {
                                                         );
         let aleca_orchestrator_arc = Arc::new(Mutex::new(aleca_orchestrator_instance));
 
+        // Initialize OMEGA OS Self-Modification Agent
+        let self_modification_agent_arc = Arc::new(SelfModificationAgent::new(
+            hacse_orchestrator_arc.clone(), 
+            app_loader_arc.clone(), 
+            aleca_orchestrator_arc.clone(), 
+            event_bus_arc.clone(),
+            service_command_tx.clone(), // Pass service_command_tx
+        ));
+        // Register Self-Modification Agent as a service
+        let self_modification_agent_service = SelfModificationAgent::as_os_service();
+        service_registry_arc.register_service(self_modification_agent_service).await?;
+
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
         let ide_communication_bridge = Arc::new(CommunicationBridge::new(
@@ -353,6 +368,7 @@ impl AgiCoreEngine {
             secure_channel_manager: secure_channel_manager_arc.clone(), // Assign secure channel manager
             storage_abstraction: storage_abstraction_arc.clone(), // Assign storage abstraction
             data_manager: data_manager_arc.clone(), // Assign data manager
+            self_modification_agent: self_modification_agent_arc.clone(), // Assign self-modification agent
             service_command_rx,
         };
         
@@ -414,7 +430,6 @@ impl AgiCoreEngine {
         info!("AGI Core: Stopping service '{}'.", service_id);
         // Need to map service_id to ApplicationInstanceId and ProcessId
         // For now, assume service_id is directly mappable to an instance managed by AppLoader
-        // This simplified approach uses a direct mapping from service_id to a hypothetical ApplicationInstanceId
         // In a real system, you'd query the ServiceRegistry or a dedicated process map.
         self.app_loader.terminate_application(&format!("app-instance-{}", service_id)).await?;
         self.service_registry.update_service_status(service_id, Some(ServiceStatus::Stopped)).await?;
