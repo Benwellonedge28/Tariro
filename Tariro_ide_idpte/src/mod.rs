@@ -10,3 +10,4 @@ pub mod co_creation;
 pub mod communication_bridge;
 pub mod forecasting;
 pub mod security;
+pub mod environmental;
