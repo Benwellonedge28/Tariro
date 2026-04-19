@@ -11,6 +11,7 @@ use crate::resource_management::orchestrator::{SORAEOrcestrator, SORAEOptions};
 use crate::resource_management::resource_models::{
     ResourceRequest, ComplianceDirective as SoraeComplianceDirective, // Alias to avoid clash
 };
+use crate::resource_management::resource_optimization::ResourceOptimizationModule; // Import ResourceOptimizationModule
 
 // Import QR-CTFO modules
 use crate::crypto_fabric::orchestrator::{QrCtfoOrchestrator, QrCtfoOptions};
@@ -154,6 +155,8 @@ pub struct AgiCoreEngine {
     pub self_organization_module: Arc<SelfOrganizationModule>,
     // OMEGA OS SelfHealingModule
     pub self_healing_module: Arc<SelfHealingModule>,
+    // OMEGA OS ResourceOptimizationModule
+    pub resource_optimization_module: Arc<ResourceOptimizationModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -276,7 +279,6 @@ impl AgiCoreEngine {
         let sorae_options = SORAEOptions::default();
         let sorae_orchestrator = SORAEOrcestrator::new(sorae_options.clone(), process_manager_arc.clone(), event_bus_arc.clone(), service_command_tx.clone()); // Pass service_command_tx
         let sorae_request_sender = sorae_orchestrator.get_request_sender();
-        let sorae_compliance_directive_sender = sorae_orchestrator.get_compliance_directive_sender();
         let sorae_orchestrator_arc = Arc::new(Mutex::new(sorae_orchestrator)); // Keep an Arc for audit
 
         let sorae_orchestrator_clone = sorae_orchestrator_arc.clone();
@@ -658,6 +660,26 @@ impl AgiCoreEngine {
         let shm_dummy_service = SelfHealingModule::as_os_service();
         service_registry_arc.register_service(shm_dummy_service.clone()).await?;
 
+        // ResourceOptimizationModule Dummy
+        struct ResourceOptimizationModuleDummy { event_bus: Arc<EventBus> }
+        impl ResourceOptimizationModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { ResourceOptimizationModuleDummy { event_bus } } }
+        impl ResourceOptimizationModuleDummy {
+            async fn predict_resource_demand(&self, _system_goals_summary: &str, _historical_data_summary: &str) -> Result<crate::resource_management::resource_optimization_models::ResourceDemandPrediction, String> { warn!("Dummy ResourceOptimizationModule method called."); Err("Dummy module".to_string()) }
+            async fn generate_allocation_plan(&self, _demand_prediction: crate::resource_management::resource_optimization_models::ResourceDemandPrediction, _available_resources: HashMap<String, f64>, _optimization_objective: &str) -> Result<crate::resource_management::resource_optimization_models::ResourceAllocationPlan, String> { warn!("Dummy ResourceOptimizationModule method called."); Err("Dummy module".to_string()) }
+            async fn secure_resource_access(&self, _request: crate::resource_management::resource_optimization_models::ResourceAccessRequest) -> Result<crate::resource_management::resource_optimization_models::ResourceAccessRequest, String> { warn!("Dummy ResourceOptimizationModule method called."); Err("Dummy module".to_string()) }
+        }
+        let resource_optimization_module_arc_dummy: Arc<ResourceOptimizationModule> = Arc::new(ResourceOptimizationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            meta_goal_manager_arc.clone(),
+            sorae_orchestrator_arc.clone(), // Assuming SORAEE is already initialized
+        ));
+        let rom_dummy_service = ResourceOptimizationModule::as_os_service();
+        service_registry_arc.register_service(rom_dummy_service.clone()).await?;
+
+
         // 3. Fully Initialize Modules (replacing dummies where needed)
         
         // Fully initialize LifelongLearningModule (depends on Curiosity, ConceptFormation, Causal, CommonSense)
@@ -825,7 +847,8 @@ impl AgiCoreEngine {
         let self_organization_module_service = SelfOrganizationModule::as_os_service();
         service_registry_arc.register_service(self_organization_module_service).await?;
 
-        // Initialize SelfHealingModule
+        // Re-initialize SelfHealingModule
+        service_registry_arc.deregister_service("self-healing-module").await?;
         let self_healing_module_arc = Arc::new(SelfHealingModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
@@ -836,6 +859,18 @@ impl AgiCoreEngine {
         ));
         let self_healing_module_service = SelfHealingModule::as_os_service();
         service_registry_arc.register_service(self_healing_module_service).await?;
+
+        // Initialize ResourceOptimizationModule
+        let resource_optimization_module_arc = Arc::new(ResourceOptimizationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            meta_goal_manager_arc.clone(),
+            sorae_orchestrator_arc.clone(),
+        ));
+        let resource_optimization_module_service = ResourceOptimizationModule::as_os_service();
+        service_registry_arc.register_service(resource_optimization_module_service).await?;
 
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
@@ -883,6 +918,7 @@ impl AgiCoreEngine {
             creativity_innovation_module: creativity_innovation_module_arc.clone(), // Assign creativity innovation module
             self_organization_module: self_organization_module_arc.clone(), // Assign self-organization module
             self_healing_module: self_healing_module_arc.clone(), // Assign self-healing module
+            resource_optimization_module: resource_optimization_module_arc.clone(), // Assign resource optimization module
             service_command_rx,
         };
         
