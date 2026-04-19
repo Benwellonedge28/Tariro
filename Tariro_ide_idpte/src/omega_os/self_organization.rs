@@ -46,7 +46,20 @@ impl SelfOrganizationModule {
     pub async fn monitor_emergent_behavior(&self, observation_context: &str, detected_system_changes: Vec<String>) -> Result<EmergentBehaviorPattern, String> {
         info!("SOM: Monitoring for emergent behaviors in context: '{}'.", observation_context);
         
-        // Simulate pattern recognition for emergent behavior
+        // Use MetaLearner to optimize pattern recognition algorithms dynamically (Sub-Task 78.1)
+        let recognition_algorithm = self.meta_learner.select_algorithm(&crate::cognitive_arch::learning_models::LearningProblem {
+            id: format!("emergent_pattern_rec_problem_{}", Uuid::new_v4()),
+            name: "Emergent Behavior Pattern Recognition".to_string(),
+            domain: "system_dynamics".to_string(),
+            problem_type: "unsupervised_pattern_detection".to_string(),
+            complexity_score: 0.8,
+            data_characteristics: HashMap::from([("data_stream_rate".to_string(), "high".to_string())]),
+            required_accuracy: 0.9,
+            created_at: Utc::now(),
+        }).await.map_err(|e| e.to_string())?;
+
+        info!("SOM: Using pattern recognition algorithm: {}.", recognition_algorithm.name);
+
         let mut name = "Unknown Emergent Behavior".to_string();
         let mut description = format!("Observed changes: {:?}. Context: {}.
             Algorithm optimized by MetaLearner.", detected_system_changes, observation_context);
@@ -71,11 +84,11 @@ impl SelfOrganizationModule {
             discovered_at: Utc::now(),
         };
 
-        // Ethically evaluate emergent patterns (Sub-Task 78.3)
+        // Ethically and Securely Evaluate Emergent Patterns (Sub-Task 78.3)
         self.analyze_emergent_patterns_ethically(&mut pattern).await?;
 
         self.observed_patterns.lock().unwrap().insert(pattern_id.clone(), pattern.clone());
-        info!("SOM: Discovered emergent pattern '{}' with effect: {}. Ethical status: {:?}.", name, observed_effect, pattern.ethical_review_status);
+        info!("SOM: Discovered emergent pattern '{}' with effect: {}. Ethical status: {:?}. Security status: {:?}.", name, observed_effect, pattern.ethical_review_status, pattern.security_implications_status);
         self.event_bus.publish(EventEnvelope::new("SelfOrganizationModule".to_string(), OsEvent::Custom("EmergentBehaviorDetected".to_string(), pattern_id))).await;
         Ok(pattern)
     }
@@ -122,9 +135,9 @@ impl SelfOrganizationModule {
         Ok(directive)
     }
 
-    /// Ethically evaluates emergent patterns for unintended consequences, biases, or risks.
+    /// Ethically and securely evaluates emergent patterns for unintended consequences, biases, or risks.
     async fn analyze_emergent_patterns_ethically(&self, pattern: &mut EmergentBehaviorPattern) -> Result<(), String> {
-        info!("SOM: Ethically analyzing emergent pattern '{}'.", pattern.id);
+        info!("SOM: Ethically and securely analyzing emergent pattern '{}'.", pattern.id);
         // Call ALEC-A for ethical review (Sub-Task 78.3)
         let aleca_audit = self.aleca_orchestrator.lock().unwrap().request_ethical_review(
             pattern.id.clone(),
