@@ -187,8 +187,8 @@ impl AdversarialRobustnessModule {
 
             info!("ARM: Mitigation strategy '{}' executed.", mitigation_strategy_id);
             self.event_bus.publish(EventEnvelope::new("AdversarialRobustnessModule".to_string(), OsEvent::Custom("MitigationExecuted".to_string(), mitigation_strategy_id.to_string()))).await;
-            Ok(())
-        } else {
+            Ok(())}
+         else {
             Err(format!("Mitigation strategy {} not found.", mitigation_strategy_id))
         }
     }
