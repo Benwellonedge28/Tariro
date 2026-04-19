@@ -16,6 +16,8 @@ use std::sync::{Arc, Mutex};
 use chrono::{Utc, Duration as ChronoDuration};
 use tracing::{info, warn, error};
 
+use crate::compliance_advisor::conflict_resolver::ComplianceRemediationAction; // Import ComplianceRemediationAction
+
 /// Configuration options for the QR-CTFO Orchestrator.
 #[derive(Debug, Clone)]
 pub struct QrCtfoOptions {
@@ -45,11 +47,11 @@ pub struct QrCtfoOrchestrator {
 }
 
 impl QrCtfoOrchestrator {
-    pub fn new(options: QrCtfoOptions) -> Self {
+    pub fn new(options: QrCtfoOptions, policy_engine: Arc<Mutex<TrustPolicyEngine>>) -> Self {
         QrCtfoOrchestrator {
             key_manager: Arc::new(Mutex::new(QrKeyManager::new())),
-            policy_engine: Arc::new(Mutex::new(TrustPolicyEngine::new())),
-            comm_adapter: Arc::new(CommunicationAdapter::new()),
+            policy_engine: policy_engine.clone(),
+            comm_adapter: Arc::new(CommunicationAdapter::new(policy_engine)),
             current_options: Arc::new(Mutex::new(options)),
         }
     }
@@ -141,6 +143,13 @@ impl QrCtfoOrchestrator {
                 last_policy_check = now;
             }
 
+            // Process incoming compliance directives
+            // This would likely come from an internal channel, not a separate loop.
+            // For now, it's a separate method that can be called.
+            // while let Ok(directive) = self.compliance_directive_rx.try_recv() { // Need to pass receiver into loop
+            //    self.apply_compliance_directive(directive).await;
+            // }
+
             // Sleep until next check based on the fastest interval
             let min_interval = *[options.policy_enforcement_interval_seconds,
                                     options.key_rotation_check_interval_seconds,
@@ -168,8 +177,7 @@ impl QrCtfoOrchestrator {
             info!("QR-CTFO: Generating initial Digital Signature key pair (Dilithium).");
             let _ = key_manager.generate_key_pair(QrAlgorithmType::DigitalSignature(QrSignatureAlg::Dilithium), QrKeyUsage::DigitalSignature, 365).await;
         }
-        Ok(())
-    }
+        Ok(())}
 
     /// Example of how a communication channel might request a key for a secure session.
     pub async fn request_secure_session_keys(&self) -> Result<(QrKeyPair, QrKeyPair), String> {
@@ -222,4 +230,34 @@ impl QrCtfoOrchestrator {
         }
     }
 
+    /// Applies a compliance directive received from ALEC-A.
+    pub async fn apply_compliance_directive(&mut self, directive: ComplianceRemediationAction) {
+        info!("QR-CTFO: Applying compliance directive: {:?}", directive);
+        match directive {
+            ComplianceRemediationAction::ForcePqcAlgorithmSwitch(channel_id, new_alg_type_str) => {
+                warn!("QR-CTFO: Forcing PQC algorithm switch for channel {} to {}.", channel_id, new_alg_type_str);
+                // Logic to update `CommunicationAdapter` with new algorithm for the channel
+                // and re-establish secure connection.
+            },
+            ComplianceRemediationAction::ForceKeyRotation(key_usage_type_str) => {
+                warn!("QR-CTFO: Forcing key rotation for usage type {}.", key_usage_type_str);
+                // Logic to trigger immediate key rotation in `key_manager` for the specified usage
+                // For example, if key_usage_type_str == "KeyExchange", then trigger KEX key rotation.
+                if key_usage_type_str == "KeyExchange" {
+                    let mut key_manager = self.key_manager.lock().unwrap();
+                    let _ = key_manager.rotate_key_pair(QrKeyUsage::KeyExchange, QrAlgorithmType::KeyExchange(QrKeyExchangeAlg::Kyber), 365).await;
+                    self.comm_adapter.update_pqc_keys().await;
+                } else if key_usage_type_str == "DigitalSignature" {
+                    let mut key_manager = self.key_manager.lock().unwrap();
+                    let _ = key_manager.rotate_key_pair(QrKeyUsage::DigitalSignature, QrAlgorithmType::DigitalSignature(QrSignatureAlg::Dilithium), 365).await;
+                    self.comm_adapter.update_pqc_keys().await;
+                }
+            },
+            ComplianceRemediationAction::RequestHumanReview(entity_id) => {
+                warn!("QR-CTFO: Human review requested for {} due to compliance directive.", entity_id);
+                // Trigger an alert or notification to human operators
+            },
+            _ => warn!("QR-CTFO: Unhandled compliance directive: {:?}", directive),
+        }
+    }
 }

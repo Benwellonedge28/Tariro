@@ -1,10 +1,12 @@
+// Tariro_ide_idpte/src/resource_management/orchestrator.rs
+
 //! Central orchestration logic for the Self-Optimizing Resource Allocation Engine (S.O.R.A.E.).
 
 use crate::resource_management::resource_monitor::ResourceMonitor;
 use crate::resource_management::resource_predictor::ResourcePredictor;
 use crate::resource_management::optimization_engine::{OptimizationEngine, OptimizationStrategyType};
 use crate::resource_management::resource_allocator::ResourceAllocator;
-use crate::resource_management::resource_models::{ResourceRequest, ResourceSnapshot};
+use crate::resource_management::resource_models::{ResourceRequest, ResourceSnapshot, ComplianceDirective, ResourceType};
 
 use tokio::sync::mpsc;
 use std::sync::{Arc, Mutex};
@@ -39,12 +41,16 @@ pub struct SORAEOrcestrator {
     // Channel for incoming resource requests from other parts of the AGI/OS
     request_rx: mpsc::Receiver<ResourceRequest>,
     request_tx: mpsc::Sender<ResourceRequest>,
+    // Channel for incoming compliance directives from ALEC-A
+    compliance_directive_rx: mpsc::Receiver<ComplianceDirective>,
+    compliance_directive_tx: mpsc::Sender<ComplianceDirective>,
     current_options: Arc<Mutex<SORAEOptions>>, // Dynamically configurable options
 }
 
 impl SORAEOrcestrator {
     pub fn new(options: SORAEOptions) -> Self {
         let (request_tx, request_rx) = mpsc::channel(100); // Buffer for 100 pending requests
+        let (compliance_directive_tx, compliance_directive_rx) = mpsc::channel(50); // Buffer for 50 directives
         SORAEOrcestrator {
             monitor: ResourceMonitor::new(options.system_id.clone()),
             predictor: Arc::new(Mutex::new(ResourcePredictor::new())),
@@ -52,6 +58,8 @@ impl SORAEOrcestrator {
             allocator: ResourceAllocator::new(),
             request_rx,
             request_tx,
+            compliance_directive_rx,
+            compliance_directive_tx,
             current_options: Arc::new(Mutex::new(options)),
         }
     }
@@ -59,6 +67,11 @@ impl SORAEOrcestrator {
     /// Returns a sender to submit new resource requests to the orchestrator.
     pub fn get_request_sender(&self) -> mpsc::Sender<ResourceRequest> {
         self.request_tx.clone()
+    }
+
+    /// Returns a sender to submit new compliance directives to the orchestrator.
+    pub fn get_compliance_directive_sender(&self) -> mpsc::Sender<ComplianceDirective> {
+        self.compliance_directive_tx.clone()
     }
 
     /// Starts the main S.O.R.A.E. loop as an asynchronous task.
@@ -70,6 +83,7 @@ impl SORAEOrcestrator {
         let predictor_arc = self.predictor.clone();
         let optimizer_arc = self.optimizer.clone();
         let mut request_rx = self.request_rx.take().expect("Request receiver already taken");
+        let mut compliance_directive_rx = self.compliance_directive_rx.take().expect("Compliance directive receiver already taken");
 
         // Spawn a task for continuous monitoring
         let monitor_options_arc = self.current_options.clone();
@@ -90,6 +104,11 @@ impl SORAEOrcestrator {
         loop {
             let current_options = self.current_options.lock().unwrap().clone();
             tokio::time::sleep(Duration::from_secs(current_options.monitoring_interval_seconds)).await;
+
+            // Process incoming compliance directives
+            while let Ok(directive) = compliance_directive_rx.try_recv() {
+                self.apply_compliance_directive(directive).await;
+            }
 
             // 1. Get current state
             let current_snapshot = self.monitor.get_current_snapshot().await;
@@ -167,7 +186,6 @@ impl SORAEOrcestrator {
                 if optimizer.get_type() == OptimizationStrategyType::Greedy && successful_allocations > 0 && failed_allocations == 0 {
                     // If greedy is doing well, might consider switching to RL for exploration/better long-term
                     // or if the system hits a complex scenario. This is highly heuristic.
-                    // Let's enable RL strategy after some stability with greedy
                     // optimizer.set_strategy(OptimizationStrategyType::ReinforcementLearning).await;
                 }
             }
@@ -194,5 +212,33 @@ impl SORAEOrcestrator {
             info!("S.O.R.A.E. Self-Tuning: Reduced monitoring frequency to {}s due to stable operations.", options.monitoring_interval_seconds);
         }
         // More advanced tuning would involve reinforcement learning or a dedicated meta-controller AGI module
+    }
+
+    /// Applies a compliance directive received from ALEC-A.
+    pub async fn apply_compliance_directive(&mut self, directive: ComplianceDirective) {
+        info!("S.O.R.A.E.: Applying compliance directive: {:?}", directive);
+        match directive {
+            ComplianceDirective::EnforceResourceIsolation(entity_id) => {
+                warn!("S.O.R.A.E.: Enforcing resource isolation for {}. This may impact performance.", entity_id);
+                // Logic to set up cgroups, namespaces, or other OS-level isolation for the entity_id
+            },
+            ComplianceDirective::AdjustTaskPriority(task_id, new_priority) => {
+                info!("S.O.R.A.E.: Adjusting priority for task {} to {}.", task_id, new_priority);
+                // Logic to update the priority of the specified task in the allocator or scheduler
+                self.allocator.adjust_task_priority(&task_id, new_priority).await;
+            },
+            ComplianceDirective::CapResourceUsage(entity_id, res_type, max_value) => {
+                info!("S.O.R.A.E.: Capping usage of {:?} for {} to {}.", res_type, entity_id, max_value);
+                // Logic to enforce a hard cap on resource usage for a given entity
+            },
+            ComplianceDirective::RequestHumanReview(entity_id) => {
+                warn!("S.O.R.A.E.: Human review requested for {} due to compliance directive.", entity_id);
+                // Trigger an alert or notification to human operators
+            },
+            ComplianceDirective::Custom(action, value) => {
+                info!("S.O.R.A.E.: Applying custom compliance action: {} with value {}.", action, value);
+            },
+            _ => warn!("S.O.R.A.E.: Unhandled compliance directive: {:?}", directive),
+        }
     }
 }

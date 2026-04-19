@@ -8,7 +8,9 @@ use serde_json::Value;
 
 // Import S.O.R.A.E. modules
 use crate::resource_management::orchestrator::{SORAEOrcestrator, SORAEOptions};
-use crate::resource_management::resource_models::ResourceRequest;
+use crate::resource_management::resource_models::{
+    ResourceRequest, ComplianceDirective, // Import ComplianceDirective
+};
 
 // Import QR-CTFO modules
 use crate::crypto_fabric::orchestrator::{QrCtfoOrchestrator, QrCtfoOptions};
@@ -25,6 +27,7 @@ use crate::bridge_protocol::MessageType;
 // Import ALEC-A modules
 use crate::compliance_advisor::orchestrator::{AlecaOrchestrator, AlecaOptions};
 use crate::compliance_advisor::legal_framework_models::ComplianceStatus;
+use crate::compliance_advisor::conflict_resolver::ComplianceRemediationAction; // Import for dispatching
 
 pub struct AgiCoreEngine {
     // S.O.R.A.E. related field
@@ -37,6 +40,9 @@ pub struct AgiCoreEngine {
     pub hacse_prompt_sender: mpsc::Sender<CreativePrompt>,
     // ALEC-A related field
     pub aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>,
+    // Senders for compliance directives (to SORAEE and QR-CTFO)
+    sorae_compliance_directive_sender: mpsc::Sender<ComplianceDirective>,
+    qrctfo_compliance_directive_sender: mpsc::Sender<ComplianceRemediationAction>,
 }
 
 impl AgiCoreEngine {
@@ -47,6 +53,7 @@ impl AgiCoreEngine {
         let sorae_options = SORAEOptions::default();
         let mut sorae_orchestrator = SORAEOrcestrator::new(sorae_options.clone());
         let sorae_request_sender = sorae_orchestrator.get_request_sender();
+        let sorae_compliance_directive_sender = sorae_orchestrator.get_compliance_directive_sender(); // Get sender
 
         tokio::spawn(async move {
             sorae_orchestrator.start_loop().await;
@@ -55,7 +62,10 @@ impl AgiCoreEngine {
 
         // Initialize and start QR-CTFO Orchestrator
         let qr_ctfo_options = QrCtfoOptions::default();
-        let qr_ctfo_orchestrator = Arc::new(QrCtfoOrchestrator::new(qr_ctfo_options));
+        let qr_ctfo_policy_engine_arc = Arc::new(Mutex::new(crate::crypto_fabric::trust_policy_engine::TrustPolicyEngine::new())); // Create here to pass to both
+        let qr_ctfo_orchestrator = Arc::new(QrCtfoOrchestrator::new(qr_ctfo_options, qr_ctfo_policy_engine_arc.clone()));
+
+        let qrctfo_compliance_directive_sender = mpsc::channel(50).0; // Temp sender for QR-CTFO until it has its own
 
         let qr_ctfo_orchestrator_clone = qr_ctfo_orchestrator.clone();
         tokio::spawn(async move {
@@ -79,7 +89,9 @@ impl AgiCoreEngine {
 
         // Initialize ALEC-A Orchestrator
         let aleca_options = AlecaOptions::default();
-        let mut aleca_orchestrator = AlecaOrchestrator::new(aleca_options);
+        let mut aleca_orchestrator = AlecaOrchestrator::new(aleca_options, 
+                                                             Some(sorae_compliance_directive_sender.clone()), 
+                                                             Some(qrctfo_compliance_directive_sender.clone())); // Pass senders
         let aleca_orchestrator_arc = Arc::new(Mutex::new(aleca_orchestrator));
 
         let aleca_orchestrator_clone = aleca_orchestrator_arc.clone();
@@ -93,7 +105,7 @@ impl AgiCoreEngine {
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
         let ide_communication_bridge = Arc::new(CommunicationBridge::new(
-            Arc::new(crate::crypto_fabric::communication_adapter::CommunicationAdapter::new(qr_ctfo_orchestrator.policy_engine.clone())), // Pass policy engine
+            Arc::new(crate::crypto_fabric::communication_adapter::CommunicationAdapter::new(qr_ctfo_policy_engine_arc.clone())), // Pass policy engine
             ide_channel
         ).await?);
         info!("IDE Communication Bridge initialized and secured.");
@@ -104,6 +116,8 @@ impl AgiCoreEngine {
             ide_communication_bridge,
             hacse_prompt_sender,
             aleca_orchestrator: aleca_orchestrator_arc,
+            sorae_compliance_directive_sender,
+            qrctfo_compliance_directive_sender,
         })
     }
 
@@ -137,11 +151,11 @@ impl AgiCoreEngine {
     }
 
     // Example: AGI Core requesting secure communication parameters from QR-CTFO
-    pub async fn request_secure_communication_parameters(&self) -> Result<(QrKeyPair, QrKeyPair), String> {
+    pub async fn request_secure_communication_parameters(&self) -> Result<(String, String), String> {
         info!("AGI Core: Requesting secure communication parameters from QR-CTFO.");
         match self.qr_ctfo_orchestrator.request_secure_session_keys().await {
             Ok((kex_key, sign_key)) => {
-                Ok(format!("Received KEX Key ID: {}, Sign Key ID: {}", kex_key.id, sign_key.id))
+                Ok((kex_key.id, sign_key.id))
             },
             Err(e) => Err(format!("Failed to get secure session keys: {}", e)),
         }
@@ -182,5 +196,19 @@ impl AgiCoreEngine {
             relevant_agi_module,
             affected_data_domains,
         ).await
+    }
+
+    /// Sends a compliance directive to S.O.R.A.E.
+    pub async fn send_sorae_compliance_directive(&self, directive: ComplianceDirective) -> Result<()> {
+        info!("AGI Core: Sending S.O.R.A.E. compliance directive: {:?}", directive);
+        self.sorae_compliance_directive_sender.send(directive).await
+            .map_err(|e| anyhow::anyhow!("Failed to send SORAEE compliance directive: {}", e))
+    }
+
+    /// Sends a compliance remediation action to QR-CTFO.
+    pub async fn send_qrctfo_compliance_action(&self, action: ComplianceRemediationAction) -> Result<()> {
+        info!("AGI Core: Sending QR-CTFO compliance remediation action: {:?}", action);
+        self.qrctfo_compliance_directive_sender.send(action).await
+            .map_err(|e| anyhow::anyhow!("Failed to send QR-CTFO compliance action: {}", e))
     }
 }

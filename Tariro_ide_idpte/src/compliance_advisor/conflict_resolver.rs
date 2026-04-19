@@ -20,32 +20,40 @@ impl ConflictResolver {
     }
 
     /// Analyzes a ComplianceStatus with violations and suggests actions to resolve them.
+    /// Returns a list of human-readable recommendations and a list of direct system actions.
     pub async fn suggest_resolution(
         &self,
         status: &ComplianceStatus,
-    ) -> Result<Vec<String>> {
+    ) -> Result<(Vec<String>, Vec<ComplianceRemediationAction>)> {
         info!("Conflict Resolver: Suggesting resolutions for entity {}.", status.entity_id);
-        let mut recommendations = Vec::new();
+        let mut human_recommendations = Vec::new();
+        let mut system_actions = Vec::new();
 
         if !status.is_compliant {
             for violation in &status.violations {
                 match violation.severity {
                     ViolationSeverity::Critical => {
-                        recommendations.push(format!("CRITICAL VIOLATION ({}): Immediately cease '{}' operation. Recommended action: {}."), violation.rule_id, violation.description, violation.recommended_action.clone().unwrap_or("Consult legal/ethical expert".to_string())));
+                        human_recommendations.push(format!("CRITICAL VIOLATION ({}): Immediately cease '{}' operation. Recommended action: {}."), violation.rule_id, violation.description, violation.recommended_action.clone().unwrap_or("Consult legal/ethical expert".to_string())));
+                        system_actions.push(ComplianceRemediationAction::SuspendAgiOperation(status.entity_id.clone()));
                     },
                     ViolationSeverity::High => {
-                        recommendations.push(format!("HIGH VIOLATION ({}): Review and modify '{}' within 24 hours. Recommended action: {}."), violation.rule_id, violation.description, violation.recommended_action.clone().unwrap_or("Implement mitigation plan".to_string())));
+                        human_recommendations.push(format!("HIGH VIOLATION ({}): Review and modify '{}' within 24 hours. Recommended action: {}."), violation.rule_id, violation.description, violation.recommended_action.clone().unwrap_or("Implement mitigation plan".to_string())));
+                        system_actions.push(ComplianceRemediationAction::AdjustResourceAllocation(
+                            status.entity_id.clone(),
+                            "isolate_sensitive_data".to_string(),
+                        ));
                     },
                     _ => {
-                        recommendations.push(format!("VIOLATION ({}): Investigate '{}'. Recommended action: {}."), violation.rule_id, violation.description, violation.recommended_action.clone().unwrap_or("Assess impact and plan adjustment".to_string())));
+                        human_recommendations.push(format!("VIOLATION ({}): Investigate '{}'. Recommended action: {}."), violation.rule_id, violation.description, violation.recommended_action.clone().unwrap_or("Assess impact and plan adjustment".to_string())));
+                        system_actions.push(ComplianceRemediationAction::LogAndFlagForReview(status.entity_id.clone()));
                     }
                 }
             }
         } else {
-            recommendations.push("No violations detected. Continue monitoring.".to_string());
+            human_recommendations.push("No violations detected. Continue monitoring.".to_string());
         }
 
-        Ok(recommendations)
+        Ok((human_recommendations, system_actions))
     }
 
     /// Provides guidance on how to balance conflicting legal/ethical requirements with operational goals.
@@ -78,4 +86,21 @@ impl ConflictResolver {
 
         Ok(mediation_suggestion)
     }
+}
+
+/// Represents a direct action that can be taken by an AGI system to remediate a compliance issue.
+#[derive(Debug, Clone)]
+pub enum ComplianceRemediationAction {
+    /// Suspends a specific AGI operation or module.
+    SuspendAgiOperation(String),
+    /// Adjusts resource allocation policies for a given entity.
+    AdjustResourceAllocation(String, String), // (entity_id, adjustment_type_or_value)
+    /// Forces a PQC algorithm switch for a communication channel.
+    ForcePqcAlgorithmSwitch(String, String), // (channel_id, new_alg_type_str)
+    /// Triggers an immediate key rotation for a given usage.
+    ForceKeyRotation(String), // (key_usage_type_str)
+    /// Logs the issue and flags it for human review.
+    LogAndFlagForReview(String),
+    /// Custom action not covered by predefined types.
+    Custom(String, String),
 }

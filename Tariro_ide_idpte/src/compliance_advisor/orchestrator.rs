@@ -7,13 +7,18 @@
 use crate::compliance_advisor::legal_framework_models::{LegalRule, EthicalMandate, ComplianceStatus};
 use crate::compliance_advisor::regulatory_monitor::RegulatoryMonitor;
 use crate::compliance_advisor::compliance_policy_manager::CompliancePolicyManager;
-use crate::compliance_advisor::conflict_resolver::ConflictResolver;
-use crate::compliance_advisor::ethical_decision_engine::EthicalDecisionEngine; // Import EthicalDecisionEngine
+use crate::compliance_advisor::conflict_resolver::{ConflictResolver, ComplianceRemediationAction};
+use crate::compliance_advisor::ethical_decision_engine::EthicalDecisionEngine;
 
 use anyhow::Result;
 use tokio::time::{sleep, Duration};
 use std::sync::{Arc, Mutex};
+use chrono::{Utc, Duration as ChronoDuration};
 use tracing::{info, warn, error};
+
+// Import other orchestrators for remediation actions
+use crate::resource_management::orchestrator::SORAEOrcestrator; // For SORAEE directives
+use crate::crypto_fabric::orchestrator::QrCtfoOrchestrator; // For QR-CTFO directives
 
 /// Configuration options for the ALEC-A Orchestrator.
 #[derive(Debug, Clone)]
@@ -38,18 +43,27 @@ pub struct AlecaOrchestrator {
     regulatory_monitor: RegulatoryMonitor,
     policy_manager: Arc<Mutex<CompliancePolicyManager>>,
     conflict_resolver: ConflictResolver,
-    ethical_decision_engine: Arc<Mutex<EthicalDecisionEngine>>, // Hold reference to EthicalDecisionEngine
+    ethical_decision_engine: Arc<Mutex<EthicalDecisionEngine>>, 
+    // Senders to other orchestrators for autonomous remediation actions
+    sorae_directive_sender: Option<mpsc::Sender<ComplianceDirective>>,
+    qrctfo_directive_sender: Option<mpsc::Sender<ComplianceRemediationAction>>,
     current_options: Arc<Mutex<AlecaOptions>>,
 }
 
 impl AlecaOrchestrator {
-    pub fn new(options: AlecaOptions) -> Self {
+    pub fn new(
+        options: AlecaOptions,
+        sorae_sender: Option<mpsc::Sender<ComplianceDirective>>,
+        qrctfo_sender: Option<mpsc::Sender<ComplianceRemediationAction>>,
+    ) -> Self {
         let ethical_engine_arc = Arc::new(Mutex::new(EthicalDecisionEngine::new()));
         AlecaOrchestrator {
             regulatory_monitor: RegulatoryMonitor::new(),
             policy_manager: Arc::new(Mutex::new(CompliancePolicyManager::new(ethical_engine_arc.clone()))),
             conflict_resolver: ConflictResolver::new(),
             ethical_decision_engine: ethical_engine_arc,
+            sorae_directive_sender: sorae_sender,
+            qrctfo_directive_sender: qrctfo_sender,
             current_options: Arc::new(Mutex::new(options)),
         }
     }
@@ -59,7 +73,8 @@ impl AlecaOrchestrator {
         let options_arc = self.current_options.clone();
         let policy_manager_arc = self.policy_manager.clone();
         let conflict_resolver_arc = Arc::new(self.conflict_resolver.clone()); 
-        // ConflictResolver is cloned because it's cheap and does not hold mutable state needing Mutex for now.
+        let sorae_directive_sender_clone = self.sorae_directive_sender.clone();
+        let qrctfo_directive_sender_clone = self.qrctfo_directive_sender.clone();
 
         info!("ALEC-A Orchestrator started.");
 
@@ -104,12 +119,18 @@ impl AlecaOrchestrator {
 
                 if !agi_operation_status.is_compliant {
                     warn!("ALEC-A: Compliance violations detected for AGI operation {}. Resolving...", agi_operation_status.entity_id);
-                    let resolutions = conflict_resolver_arc.suggest_resolution(&agi_operation_status).await?;
-                    for res in resolutions {
-                        warn!("Resolution suggestion: {}", res);
-                        // In a real system, ALEC-A would trigger autonomous adjustments
-                        // to system parameters or alert human oversight.
+                    let (human_recommendations, system_actions) = conflict_resolver_arc.suggest_resolution(&agi_operation_status).await?;
+
+                    for res in human_recommendations {
+                        warn!("Human Recommendation: {}", res);
                     }
+                    for action in system_actions {
+                        warn!("ALEC-A: Attempting autonomous remediation: {:?}", action);
+                        self.dispatch_remediation_action(action, 
+                            sorae_directive_sender_clone.clone(), 
+                            qrctfo_directive_sender_clone.clone()).await;
+                    }
+
                     // Also check for conflicts proactively when non-compliant
                     let conflicting_policies = policy_manager.identify_conflicts("data_processing", &["maximize_data_sharing".to_string()]).await;
                     if !conflicting_policies.is_empty() {
@@ -135,6 +156,44 @@ impl AlecaOrchestrator {
             }
 
             tokio::time::sleep(Duration::from_secs(1)).await; // Small sleep to avoid busy-waiting
+        }
+    }
+
+    /// Dispatches a ComplianceRemediationAction to the appropriate orchestrator.
+    async fn dispatch_remediation_action(
+        &self,
+        action: ComplianceRemediationAction,
+        sorae_sender: Option<mpsc::Sender<ComplianceDirective>>,
+        qrctfo_sender: Option<mpsc::Sender<ComplianceRemediationAction>>,
+    ) {
+        match action {
+            ComplianceRemediationAction::SuspendAgiOperation(entity_id) => {
+                if let Some(sender) = sorae_sender {
+                    let _ = sender.send(ComplianceDirective::Custom("suspend_agi_op".to_string(), entity_id)).await;
+                }
+            },
+            ComplianceRemediationAction::AdjustResourceAllocation(entity_id, adjustment) => {
+                if let Some(sender) = sorae_sender {
+                    let _ = sender.send(ComplianceDirective::Custom("adjust_resource_alloc".to_string(), format!("{}:{}", entity_id, adjustment))).await;
+                }
+            },
+            ComplianceRemediationAction::ForcePqcAlgorithmSwitch(channel_id, new_alg_type_str) => {
+                if let Some(sender) = qrctfo_sender {
+                    let _ = sender.send(ComplianceRemediationAction::ForcePqcAlgorithmSwitch(channel_id, new_alg_type_str)).await;
+                }
+            },
+            ComplianceRemediationAction::ForceKeyRotation(key_usage_type_str) => {
+                if let Some(sender) = qrctfo_sender {
+                    let _ = sender.send(ComplianceRemediationAction::ForceKeyRotation(key_usage_type_str)).await;
+                }
+            },
+            ComplianceRemediationAction::LogAndFlagForReview(entity_id) => {
+                warn!("ALEC-A: Action for human review: {}.", entity_id);
+                // Log to an audit trail and notify human administrator
+            },
+            ComplianceRemediationAction::Custom(action_type, value) => {
+                warn!("ALEC-A: Custom remediation action triggered: {} -> {}. Needs manual dispatch or specific integration.", action_type, value);
+            },
         }
     }
 }

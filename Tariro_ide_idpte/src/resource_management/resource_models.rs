@@ -1,3 +1,5 @@
+// Tariro_ide_idpte/src/resource_management/resource_models.rs
+
 //! Defines data models for various system resources and their metrics.
 
 use serde::{Serialize, Deserialize};
@@ -83,4 +85,14 @@ pub enum OptimizationStrategyType {
     ConstraintProgramming,
     ReinforcementLearning,
     Custom(String),
+}
+
+/// Represents a compliance directive that S.O.R.A.E. needs to apply.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum ComplianceDirective {
+    EnforceResourceIsolation(String), // entity_id to isolate
+    AdjustTaskPriority(String, u8), // (task_id, new_priority)
+    CapResourceUsage(String, ResourceType, f64), // (entity_id, resource_type, max_value)
+    RequestHumanReview(String), // entity_id for review
+    Custom(String, String),
 }
