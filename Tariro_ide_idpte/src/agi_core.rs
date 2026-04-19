@@ -56,11 +56,12 @@ use crate::cognitive_arch::common_sense_reasoning::CommonSenseReasoningNetwork; 
 use crate::cognitive_arch::concept_formation::ConceptFormationModule; // Import ConceptFormationModule
 use crate::cognitive_arch::hierarchical_rl::HierarchicalRLModule; // Import HierarchicalRLModule
 use crate::cognitive_arch::lifelong_learning::LifelongLearningModule; // Import LifelongLearningModule
-use crate::cognitive_arch::curiosity_exploration::CuriosityExplorationModule; // Import CuriosityExplorationModule
+use crate::cognitive_arch::curiosity_exploration::CuriosityExplorationModule; // Import CuriosityExplorationModule;
 use crate::cognitive_arch::intuition_heuristics::IntuitionHeuristicGenerator; // Import IntuitionHeuristicGenerator
 use crate::cognitive_arch::metacognition::MetacognitionModule; // Import MetacognitionModule
 use crate::cognitive_arch::imagination::ImaginationModule; // Import ImaginationModule
 use crate::cognitive_arch::formal_reasoning::FormalReasoningModule; // Import FormalReasoningModule
+use crate::cognitive_arch::emotion_motivation::EmotionMotivationModule; // Import EmotionMotivationModule
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -142,6 +143,8 @@ pub struct AgiCoreEngine {
     pub imagination_module: Arc<ImaginationModule>,
     // Cognitive Arch FormalReasoningModule
     pub formal_reasoning_module: Arc<FormalReasoningModule>,
+    // Cognitive Arch EmotionMotivationModule
+    pub emotion_motivation_module: Arc<EmotionMotivationModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -556,6 +559,24 @@ impl AgiCoreEngine {
         let im_dummy_service = ImaginationModule::as_os_service();
         service_registry_arc.register_service(im_dummy_service.clone()).await?;
 
+        // FormalReasoningModule Dummy
+        struct FormalReasoningModuleDummy { event_bus: Arc<EventBus> }
+        impl FormalReasoningModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { FormalReasoningModuleDummy { event_bus } } }
+        impl FormalReasoningModuleDummy {
+            async fn prove_theorem(&self, _statement: crate::cognitive_arch::formal_reasoning_models::LogicalStatement) -> Result<crate::cognitive_arch::formal_reasoning_models::FormalProof, String> { warn!("Dummy FormalReasoningModule method called."); Err("Dummy module".to_string()) }
+            async fn verify_internal_state_formally(&self, _target_id: &str, _target_type: &str, _representation: &str) -> Result<crate::cognitive_arch::formal_reasoning_models::VerificationResult, String> { warn!("Dummy FormalReasoningModule method called."); Err("Dummy module".to_string()) }
+            async fn ensure_logical_consistency(&self, _knowledge_base_scope: &str) -> Result<crate::cognitive_arch::formal_reasoning_models::ConsistencyReport, String> { warn!("Dummy FormalReasoningModule method called."); Err("Dummy module".to_string()) }
+        }
+        let formal_reasoning_module_arc_dummy: Arc<FormalReasoningModule> = Arc::new(FormalReasoningModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            common_sense_reasoning_network_arc_dummy.clone(),
+        ));
+        let frm_dummy_service = FormalReasoningModule::as_os_service();
+        service_registry_arc.register_service(frm_dummy_service.clone()).await?;
+
 
         // 3. Fully Initialize Modules (replacing dummies where needed)
         
@@ -638,17 +659,6 @@ impl AgiCoreEngine {
         let hrl_service_full = HierarchicalRLModule::as_os_service();
         service_registry_arc.register_service(hrl_service_full).await?;
 
-        // Re-initialize MetacognitionModule
-        service_registry_arc.deregister_service("metacognition-module").await?;
-        let metacognition_module_arc = Arc::new(MetacognitionModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-        ));
-        let mc_service_full = MetacognitionModule::as_os_service();
-        service_registry_arc.register_service(mc_service_full).await?;
-
         // Re-initialize IntuitionHeuristicGenerator
         service_registry_arc.deregister_service("intuition-heuristic-generator").await?;
         let intuition_heuristic_generator_arc = Arc::new(IntuitionHeuristicGenerator::new(
@@ -664,6 +674,17 @@ impl AgiCoreEngine {
         let ihg_service_full = IntuitionHeuristicGenerator::as_os_service();
         service_registry_arc.register_service(ihg_service_full).await?;
 
+        // Re-initialize MetacognitionModule
+        service_registry_arc.deregister_service("metacognition-module").await?;
+        let metacognition_module_arc = Arc::new(MetacognitionModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+        ));
+        let mc_service_full = MetacognitionModule::as_os_service();
+        service_registry_arc.register_service(mc_service_full).await?;
+
         // Re-initialize ImaginationModule
         service_registry_arc.deregister_service("imagination-module").await?;
         let imagination_module_arc = Arc::new(ImaginationModule::new(
@@ -677,7 +698,8 @@ impl AgiCoreEngine {
         let im_service_full = ImaginationModule::as_os_service();
         service_registry_arc.register_service(im_service_full).await?;
 
-        // Initialize FormalReasoningModule
+        // Re-initialize FormalReasoningModule
+        service_registry_arc.deregister_service("formal-reasoning-module").await?;
         let formal_reasoning_module_arc = Arc::new(FormalReasoningModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
@@ -685,8 +707,18 @@ impl AgiCoreEngine {
             meta_learner_arc.clone(),
             common_sense_reasoning_network_arc.clone(),
         ));
-        let formal_reasoning_module_service = FormalReasoningModule::as_os_service();
-        service_registry_arc.register_service(formal_reasoning_module_service).await?;
+        let frm_service_full = FormalReasoningModule::as_os_service();
+        service_registry_arc.register_service(frm_service_full).await?;
+
+        // Initialize EmotionMotivationModule
+        let emotion_motivation_module_arc = Arc::new(EmotionMotivationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+        ));
+        let emotion_motivation_module_service = EmotionMotivationModule::as_os_service();
+        service_registry_arc.register_service(emotion_motivation_module_service).await?;
 
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
@@ -730,6 +762,7 @@ impl AgiCoreEngine {
             metacognition_module: metacognition_module_arc.clone(), // Assign metacognition module
             imagination_module: imagination_module_arc.clone(), // Assign imagination module
             formal_reasoning_module: formal_reasoning_module_arc.clone(), // Assign formal reasoning module
+            emotion_motivation_module: emotion_motivation_module_arc.clone(), // Assign emotion motivation module
             service_command_rx,
         };
         
