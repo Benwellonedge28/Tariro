@@ -354,10 +354,12 @@ impl AgiCoreEngine {
         service_registry_arc.register_service(self_modification_agent_service).await?;
 
         // Initialize Cognitive Architecture LifelongLearningModule
-        let lifelong_learning_module_arc = Arc::new(LifelongLearningModule::new(event_bus_arc.clone()));
-        // Register LifelongLearningModule as a service
-        let lifelong_learning_module_service = LifelongLearningModule::as_os_service();
-        service_registry_arc.register_service(lifelong_learning_module_service).await?;
+        // The LifelongLearningModule will take ALEC-A, QR-CTFO, CuriosityExplorationModule, ConceptFormationModule, CausalReasoningEngine, and CommonSenseReasoningNetwork as dependencies.
+        // Note: Initializing CuriosityExplorationModule first
+        let curiosity_exploration_module_arc = Arc::new(CuriosityExplorationModule::new(event_bus_arc.clone()));
+        // Register CuriosityExplorationModule as a service
+        let curiosity_exploration_module_service = CuriosityExplorationModule::as_os_service();
+        service_registry_arc.register_service(curiosity_exploration_module_service).await?;
 
         // Initialize Cognitive Architecture MetaLearner
         // The MetaLearner now takes ALEC-A and QR-CTFO orchestrators for verification
@@ -434,12 +436,6 @@ impl AgiCoreEngine {
         // Register HierarchicalRLModule as a service
         let hierarchical_rl_module_service = HierarchicalRLModule::as_os_service();
         service_registry_arc.register_service(hierarchical_rl_module_service).await?;
-
-        // Initialize Cognitive Architecture CuriosityExplorationModule
-        let curiosity_exploration_module_arc = Arc::new(CuriosityExplorationModule::new(event_bus_arc.clone()));
-        // Register CuriosityExplorationModule as a service
-        let curiosity_exploration_module_service = CuriosityExplorationModule::as_os_service();
-        service_registry_arc.register_service(curiosity_exploration_module_service).await?;
 
         // Initialize Cognitive Architecture IntuitionHeuristicGenerator
         let intuition_heuristic_generator_arc = Arc::new(IntuitionHeuristicGenerator::new(event_bus_arc.clone()));
