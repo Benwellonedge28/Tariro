@@ -421,7 +421,16 @@ impl AgiCoreEngine {
         service_registry_arc.register_service(analogical_reasoning_system_service).await?;
 
         // Initialize Cognitive Architecture HierarchicalRLModule
-        let hierarchical_rl_module_arc = Arc::new(HierarchicalRLModule::new(event_bus_arc.clone()));
+        // HierarchicalRLModule now takes MetaGoalManager, CuriosityExplorationModule, ALEC-A, QR-CTFO, LifelongLearningModule, and AnalogicalReasoningSystem as dependencies.
+        let hierarchical_rl_module_arc = Arc::new(HierarchicalRLModule::new(
+            event_bus_arc.clone(), 
+            meta_goal_manager_arc.clone(), 
+            curiosity_exploration_module_arc.clone(), 
+            aleca_orchestrator_arc.clone(), 
+            qr_ctfo_orchestrator_arc.clone(), 
+            lifelong_learning_module_arc.clone(), 
+            analogical_reasoning_system_arc.clone(),
+        ));
         // Register HierarchicalRLModule as a service
         let hierarchical_rl_module_service = HierarchicalRLModule::as_os_service();
         service_registry_arc.register_service(hierarchical_rl_module_service).await?;
