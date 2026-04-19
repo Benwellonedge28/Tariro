@@ -18,7 +18,9 @@ pub mod learning_memory_models;
 pub mod lifelong_learning;
 pub mod exploration_models;
 pub mod curiosity_exploration;
-pub mod heuristic_models; // New module for heuristic models
-pub mod intuition_heuristics; // New module for Intuition & Heuristic Generation
+pub mod heuristic_models;
+pub mod intuition_heuristics;
+pub mod metacognition_models; // New module for metacognition models
+pub mod metacognition; // New module for Metacognition & Self-Reflection
 
 // Add other cognitive architecture modules here.
