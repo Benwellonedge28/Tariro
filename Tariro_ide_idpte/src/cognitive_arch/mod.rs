@@ -20,7 +20,9 @@ pub mod exploration_models;
 pub mod curiosity_exploration;
 pub mod heuristic_models;
 pub mod intuition_heuristics;
-pub mod metacognition_models; // New module for metacognition models
-pub mod metacognition; // New module for Metacognition & Self-Reflection
+pub mod metacognition_models;
+pub mod metacognition;
+pub mod imagination_models; // New module for imagination models
+pub mod imagination; // New module for Imagination & Counterfactual Thinking
 
 // Add other cognitive architecture modules here.
