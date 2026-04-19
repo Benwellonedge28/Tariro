@@ -29,7 +29,7 @@ pub mod did;
 pub mod editor;
 pub mod empathy_engine;
 pub mod error;
-pub mod evas_evolution;
+pub mod evas_evolution; // New module for EVAS
 pub mod features;
 pub mod agi_cloning;
 pub mod agi_meta_goals;
@@ -41,4 +41,4 @@ pub mod communication_bridge;
 pub mod resource_management;
 pub mod crypto_fabric;
 pub mod co_creation;
-pub mod compliance_advisor; // New module for ALEC-A
+pub mod compliance_advisor;
