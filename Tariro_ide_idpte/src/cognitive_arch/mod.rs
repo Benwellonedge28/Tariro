@@ -24,7 +24,11 @@ pub mod metacognition_models;
 pub mod metacognition;
 pub mod imagination_models;
 pub mod imagination;
-pub mod formal_reasoning_models; // New module for formal reasoning models
-pub mod formal_reasoning; // New module for Abstract & Formal Reasoning
+pub mod formal_reasoning_models;
+pub mod formal_reasoning;
+pub mod emotion_motivation_models;
+pub mod emotion_motivation;
+pub mod creativity_models; // New module for creativity models
+pub mod creativity; // New module for Creativity & Innovation Generation
 
 // Add other cognitive architecture modules here.
