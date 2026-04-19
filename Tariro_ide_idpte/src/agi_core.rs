@@ -57,7 +57,8 @@ use crate::omega_os::self_modification_agent::SelfModificationAgent;
 use crate::omega_os::self_organization::SelfOrganizationModule;
 use crate::omega_os::self_healing::SelfHealingModule;
 use crate::omega_os::self_preservation::SelfPreservationModule;
-use crate::omega_os::self_evolution::SelfEvolutionModule; // Import SelfEvolutionModule
+use crate::omega_os::self_evolution::SelfEvolutionModule;
+use crate::omega_os::adaptive_control::AdaptiveControlModule; // Import AdaptiveControlModule
 
 // Import Cognitive Arch modules
 use crate::cognitive_arch::meta_learner::MetaLearner;
@@ -173,7 +174,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Self-Evolution...");
+        info!("Initializing AGI Core Engine with Adaptive Control...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -234,6 +235,7 @@ impl AgiCoreEngine {
         let predictive_forecasting_dummy = Arc::new(PredictiveForecastingModule::new_dummy(event_bus_arc.clone()));
         let formal_reasoning_dummy = Arc::new(FormalReasoningModule::new_dummy(event_bus_arc.clone()));
         let metacognition_dummy = Arc::new(MetacognitionModule::new_dummy(event_bus_arc.clone()));
+        let ethical_forecasting_dummy = Arc::new(EthicalForecastingModule::new_dummy(event_bus_arc.clone()));
 
         // Full initialization sequence
         let lifelong_learning_module_arc = Arc::new(LifelongLearningModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), curiosity_dummy.clone(), concept_formation_dummy.clone(), causal_reasoning_engine_arc.clone(), common_sense_dummy.clone()));
@@ -263,19 +265,8 @@ impl AgiCoreEngine {
         let intuitive_physics_psychology_module_arc = Arc::new(IntuitivePhysicsPsychologyModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), embodied_cognition_module_arc.clone(), causal_reasoning_engine_arc.clone(), theory_of_mind_module_arc.clone(), social_intelligence_module_arc.clone()));
         let epistemic_reasoning_module_arc = Arc::new(EpistemicReasoningModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), lifelong_learning_module_arc.clone(), trust_reputation_module_arc.clone(), curiosity_exploration_module_arc.clone(), common_sense_reasoning_network_arc.clone(), data_manager_arc.clone()));
         let affective_computing_module_arc = Arc::new(AffectiveComputingModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), theory_of_mind_module_arc.clone(), social_intelligence_module_arc.clone(), data_privacy_module_arc.clone()));
-
-        // Initialize Self-Preservation (Task 98)
-        let self_preservation_module_arc = Arc::new(SelfPreservationModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            self_healing_module_arc.clone(),
-            resource_optimization_module_arc.clone(),
-            adversarial_robustness_module_arc.clone(),
-            environmental_impact_module_arc.clone(),
-        ));
-        service_registry_arc.register_service(SelfPreservationModule::as_os_service()).await?;
+        let self_preservation_module_arc = Arc::new(SelfPreservationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), self_healing_module_arc.clone(), resource_optimization_module_arc.clone(), adversarial_robustness_module_arc.clone(), environmental_impact_module_arc.clone()));
+        let self_evolution_module_arc = Arc::new(SelfEvolutionModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), self_modification_agent_arc.clone(), formal_reasoning_module_arc.clone(), self_healing_module_arc.clone(), metacognition_module_arc.clone()));
 
         // Initialize Dynamic Resource Reallocation (Task 99)
         let dynamic_resource_reallocation_module_arc = Arc::new(DynamicResourceReallocationModule::new(
@@ -290,21 +281,19 @@ impl AgiCoreEngine {
         ));
         service_registry_arc.register_service(DynamicResourceReallocationModule::as_os_service()).await?;
 
-        // Initialize SelfEvolutionModule (Task 100)
-        let formal_reasoning_module_arc = Arc::new(FormalReasoningModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), common_sense_reasoning_network_arc.clone()));
-        let metacognition_module_arc = Arc::new(MetacognitionModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone()));
-
-        let self_evolution_module_arc = Arc::new(SelfEvolutionModule::new(
+        // Initialize AdaptiveControlModule (Task 101)
+        let adaptive_control_module_arc = Arc::new(AdaptiveControlModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
-            self_modification_agent_arc.clone(),
-            formal_reasoning_module_arc.clone(),
-            self_healing_module_arc.clone(),
+            predictive_forecasting_module_arc.clone(),
             metacognition_module_arc.clone(),
+            ethical_forecasting_module_arc.clone(),
+            dynamic_resource_reallocation_module_arc.clone(),
+            self_evolution_module_arc.clone(),
         ));
-        service_registry_arc.register_service(SelfEvolutionModule::as_os_service()).await?;
+        service_registry_arc.register_service(AdaptiveControlModule::as_os_service()).await?;
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
