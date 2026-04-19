@@ -285,31 +285,14 @@ impl AgiCoreEngine {
         service_registry_arc.register_service(sorae_service).await?;
 
         // Initialize QR-CTFO Orchestrator (continued from above)
-        let qr_ctfo_orchestrator_clone_for_spawn = qr_ctfo_orchestrator_arc.clone();
-        tokio::spawn(async move {
-            if let Err(e) = qr_ctfo_orchestrator_clone_for_spawn.lock().unwrap().start_loop().await {
-                eprintln!("QR-CTFO Orchestrator failed: {:?}", e);
-            }
-        });
-        info!("QR-CTFO Orchestrator initialized and started.");
-        // Register QR-CTFO as a service
-        let qrctfo_service = OsService {
-            id: "qr-ctfo".to_string(),
-            name: "QR-CTFO Orchestrator".to_string(),
-            description: "Quantum-Resistant Cryptographic & Trust Fabric Orchestrator. Manages crypto policies and keys.".to_string(),
-            service_type: ServiceType::Cryptography,
-            capabilities: vec![
-                ServiceCapability { name: "request_secure_session".to_string(), description: "Requests secure session keys.".to_string(), parameters: HashMap::new(), output_schema: "".to_string(), requires_permissions: vec![], requires_ethical_review: true },
-                ServiceCapability { name: "enforce_pqc_policy".to_string(), description: "Enforces PQC policies on communications.".to_string(), parameters: HashMap::new(), output_schema: "".to_string(), requires_permissions: vec![], requires_ethical_review: true },
-            ],
-            status: ServiceStatus::Running,
-            registered_at: Utc::now(),
-            last_heartbeat: Utc::now(),
-            endpoints: HashMap::new(),
-            dependencies: vec![],
-            managed_by_agi_module: Some("ALEC-A".to_string()),
-        };
-        service_registry_arc.register_service(qrctfo_service).await?;
+        let qr_ctfo_options = QrCtfoOptions::default();
+        let qr_ctfo_policy_engine_arc = Arc::new(Mutex::new(crate::crypto_fabric::trust_policy_engine::TrustPolicyEngine::new()));
+        let (qr_ctfo_orchestrator_instance, qrctfo_compliance_directive_sender_tx) = QrCtfoOrchestrator::new(qr_ctfo_options, qr_ctfo_policy_engine_arc.clone(), event_bus_arc.clone()); // Pass EventBus
+        let qr_ctfo_orchestrator_arc = Arc::new(Mutex::new(qr_ctfo_orchestrator_instance));
+        let secure_channel_manager_arc = Arc::new(SecureChannelManager::new(qr_ctfo_orchestrator_arc.clone(), event_bus_arc.clone()));
+        // Register Secure Channel Manager as a service
+        let secure_channel_manager_service = SecureChannelManager::as_os_service();
+        service_registry_arc.register_service(secure_channel_manager_service).await?;
 
         // Initialize HACSE Orchestrator
         let hacse_options = HacseOptions::default();
@@ -400,7 +383,26 @@ impl AgiCoreEngine {
         service_registry_arc.register_service(theory_of_mind_module_service).await?;
 
         // Initialize Cognitive Architecture ConceptFormationModule
-        let concept_formation_module_arc = Arc::new(ConceptFormationModule::new(event_bus_arc.clone()));
+        // The ConceptFormationModule will also take ALEC-A, QR-CTFO, MetaLearner, CommonSenseReasoningNetwork, and LifelongLearningModule as dependencies
+        let common_sense_reasoning_network_arc = Arc::new(CommonSenseReasoningNetwork::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            lifelong_learning_module_arc.clone()
+        ));
+        // Register CommonSenseReasoningNetwork as a service
+        let common_sense_reasoning_network_service = CommonSenseReasoningNetwork::as_os_service();
+        service_registry_arc.register_service(common_sense_reasoning_network_service).await?;
+
+        let concept_formation_module_arc = Arc::new(ConceptFormationModule::new(
+            event_bus_arc.clone(), 
+            meta_learner_arc.clone(), 
+            aleca_orchestrator_arc.clone(), 
+            qr_ctfo_orchestrator_arc.clone(), 
+            common_sense_reasoning_network_arc.clone(), 
+            lifelong_learning_module_arc.clone()
+        ));
         // Register ConceptFormationModule as a service
         let concept_formation_module_service = ConceptFormationModule::as_os_service();
         service_registry_arc.register_service(concept_formation_module_service).await?;
@@ -417,19 +419,6 @@ impl AgiCoreEngine {
         // Register AnalogicalReasoningSystem as a service
         let analogical_reasoning_system_service = AnalogicalReasoningSystem::as_os_service();
         service_registry_arc.register_service(analogical_reasoning_system_service).await?;
-
-        // Initialize Cognitive Architecture CommonSenseReasoningNetwork
-        // The CommonSenseReasoningNetwork now takes ALEC-A, QR-CTFO, ToM, and LifelongLearning dependencies
-        let common_sense_reasoning_network_arc = Arc::new(CommonSenseReasoningNetwork::new(
-            event_bus_arc.clone(), 
-            aleca_orchestrator_arc.clone(), 
-            qr_ctfo_orchestrator_arc.clone(), 
-            theory_of_mind_module_arc.clone(), 
-            lifelong_learning_module_arc.clone()
-        ));
-        // Register CommonSenseReasoningNetwork as a service
-        let common_sense_reasoning_network_service = CommonSenseReasoningNetwork::as_os_service();
-        service_registry_arc.register_service(common_sense_reasoning_network_service).await?;
 
         // Initialize Cognitive Architecture HierarchicalRLModule
         let hierarchical_rl_module_arc = Arc::new(HierarchicalRLModule::new(event_bus_arc.clone()));
