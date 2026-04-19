@@ -72,6 +72,7 @@ use crate::omega_os::self_healing::SelfHealingModule; // Import SelfHealingModul
 use crate::forecasting::forecasting::PredictiveForecastingModule; // Import PredictiveForecastingModule
 use crate::security::adversarial_robustness::AdversarialRobustnessModule; // Import AdversarialRobustnessModule
 use crate::security::trust_reputation::TrustReputationModule; // Import TrustReputationModule
+use crate::security::deception_detection::DeceptionDetectionModule; // Import DeceptionDetectionModule
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -175,6 +176,8 @@ pub struct AgiCoreEngine {
     pub quantum_safe_module: Arc<QuantumSafeModule>,
     // Security TrustReputationModule
     pub trust_reputation_module: Arc<TrustReputationModule>,
+    // Security DeceptionDetectionModule
+    pub deception_detection_module: Arc<DeceptionDetectionModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -746,7 +749,7 @@ impl AgiCoreEngine {
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
-            self_healing_module_arc_dummy.clone(),
+            self_healing_module_arc.clone(), // This depends on the *fully initialized* SelfHealingModule
         ));
         let arm_dummy_service = AdversarialRobustnessModule::as_os_service();
         service_registry_arc.register_service(arm_dummy_service.clone()).await?;
@@ -770,25 +773,6 @@ impl AgiCoreEngine {
         let efm_dummy_service = EthicalForecastingModule::as_os_service();
         service_registry_arc.register_service(efm_dummy_service.clone()).await?;
 
-        // QuantumSafeModule Dummy
-        struct QuantumSafeModuleDummy { event_bus: Arc<EventBus> }
-        impl QuantumSafeModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { QuantumSafeModuleDummy { event_bus } } }
-        impl QuantumSafeModuleDummy {
-            async fn generate_quantum_safe_key(&self, _purpose: &str, _desired_algorithm: Option<String>) -> Result<crate::crypto_fabric::quantum_safe_models::QuantumSafeKey, String> { warn!("Dummy QuantumSafeModule method called."); Err("Dummy module".to_string()) }
-            async fn encrypt_data_quantum_safe(&self, _data_id: &str, _data_summary: &str, _key_id: &str, _cipher_id: &str) -> Result<(), String> { warn!("Dummy QuantumSafeModule method called."); Ok(()) }
-            async fn audit_quantum_safety_compliance(&self, _scope: &str) -> Result<crate::crypto_fabric::quantum_safe_models::EncryptionPolicyReport, String> { warn!("Dummy QuantumSafeModule method called."); Err("Dummy module".to_string()) }
-            async fn perform_quantum_threat_analysis(&self) -> Result<crate::crypto_fabric::quantum_safe_models::QuantumThreatAnalysis, String> { warn!("Dummy QuantumSafeModule method called."); Err("Dummy module".to_string()) }
-        }
-        let quantum_safe_module_arc_dummy: Arc<QuantumSafeModule> = Arc::new(QuantumSafeModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            data_manager_arc.clone(), // This depends on the *fully initialized* DataManager
-        ));
-        let qsm_dummy_service = QuantumSafeModule::as_os_service();
-        service_registry_arc.register_service(qsm_dummy_service.clone()).await?;
-
         // TrustReputationModule Dummy
         struct TrustReputationModuleDummy { event_bus: Arc<EventBus> }
         impl TrustReputationModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { TrustReputationModuleDummy { event_bus } } }
@@ -807,6 +791,24 @@ impl AgiCoreEngine {
         let trm_dummy_service = TrustReputationModule::as_os_service();
         service_registry_arc.register_service(trm_dummy_service.clone()).await?;
 
+        // DeceptionDetectionModule Dummy
+        struct DeceptionDetectionModuleDummy { event_bus: Arc<EventBus> }
+        impl DeceptionDetectionModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { DeceptionDetectionModuleDummy { event_bus } } }
+        impl DeceptionDetectionModuleDummy {
+            async fn detect_deception(&self, _observed_input: &str, _source_agent_id: &str) -> Result<Option<crate::security::deception_detection_models::DeceptionAttempt>, String> { warn!("Dummy DeceptionDetectionModule method called."); Ok(None) }
+            async fn analyze_and_generate_countermeasure(&self, _deception_attempt: crate::security::deception_detection_models::DeceptionAttempt) -> Result<crate::security::deception_detection_models::CounterDeceptionStrategy, String> { warn!("Dummy DeceptionDetectionModule method called."); Err("Dummy module".to_string()) }
+            async fn deploy_ethical_countermeasure(&self, _strategy_id: &str) -> Result<(), String> { warn!("Dummy DeceptionDetectionModule method called."); Ok(()) }
+        }
+        let deception_detection_module_arc_dummy: Arc<DeceptionDetectionModule> = Arc::new(DeceptionDetectionModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            trust_reputation_module_arc_dummy.clone(),
+        ));
+        let ddm_dummy_service = DeceptionDetectionModule::as_os_service();
+        service_registry_arc.register_service(ddm_dummy_service.clone()).await?;
 
 
         // 3. Fully Initialize Modules (replacing dummies where needed)
@@ -1051,7 +1053,7 @@ impl AgiCoreEngine {
         let efm_service_full = EthicalForecastingModule::as_os_service();
         service_registry_arc.register_service(efm_service_full).await?;
 
-        // Fully initialize DataManager
+        // Re-initialize DataManager
         service_registry_arc.deregister_service("data-manager").await?;
         let data_manager_arc = Arc::new(DataManager::new(
             storage_abstraction_arc.clone(), 
@@ -1073,7 +1075,8 @@ impl AgiCoreEngine {
         let qsm_service_full = QuantumSafeModule::as_os_service();
         service_registry_arc.register_service(qsm_service_full).await?;
 
-        // Initialize TrustReputationModule
+        // Re-initialize TrustReputationModule
+        service_registry_arc.deregister_service("trust-reputation-module").await?;
         let trust_reputation_module_arc = Arc::new(TrustReputationModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
@@ -1081,8 +1084,20 @@ impl AgiCoreEngine {
             meta_learner_arc.clone(),
             theory_of_mind_module_arc.clone(),
         ));
-        let trust_reputation_module_service = TrustReputationModule::as_os_service();
-        service_registry_arc.register_service(trust_reputation_module_service).await?;
+        let trm_service_full = TrustReputationModule::as_os_service();
+        service_registry_arc.register_service(trm_service_full).await?;
+
+        // Initialize DeceptionDetectionModule
+        let deception_detection_module_arc = Arc::new(DeceptionDetectionModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            trust_reputation_module_arc.clone(),
+        ));
+        let deception_detection_module_service = DeceptionDetectionModule::as_os_service();
+        service_registry_arc.register_service(deception_detection_module_service).await?;
 
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
@@ -1137,6 +1152,7 @@ impl AgiCoreEngine {
             ethical_forecasting_module: ethical_forecasting_module_arc.clone(), // Assign ethical forecasting module
             quantum_safe_module: quantum_safe_module_arc.clone(), // Assign quantum safe module
             trust_reputation_module: trust_reputation_module_arc.clone(), // Assign trust reputation module
+            deception_detection_module: deception_detection_module_arc.clone(), // Assign deception detection module
             service_command_rx,
         };
         
