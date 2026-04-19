@@ -436,7 +436,7 @@ impl AgiCoreEngine {
             self_modification_agent: self_modification_agent_arc.clone(), // Assign self-modification agent
             meta_learner: meta_learner_arc.clone(), // Assign meta-learner
             causal_reasoning_engine: causal_reasoning_engine_arc.clone(), // Assign causal reasoning engine
-            theory_of_mind_module: theory_of_mind_module_arc.clone(), // Assign theory of mind module
+            theory_of_mind_module: theory_of_mind_module_module_arc.clone(), // Assign theory of mind module
             analogical_reasoning_system: analogical_reasoning_system_arc.clone(), // Assign analogical reasoning system
             common_sense_reasoning_network: common_sense_reasoning_network_arc.clone(), // Assign common sense reasoning network
             concept_formation_module: concept_formation_module_arc.clone(), // Assign concept formation module
