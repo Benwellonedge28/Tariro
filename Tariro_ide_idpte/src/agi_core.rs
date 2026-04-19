@@ -622,6 +622,7 @@ impl AgiCoreEngine {
         impl SelfOrganizationModuleDummy {
             async fn monitor_emergent_behavior(&self, _observation_context: &str, _detected_system_changes: Vec<String>) -> Result<crate::omega_os::self_organization_models::EmergentBehaviorPattern, String> { warn!("Dummy SelfOrganizationModule method called."); Err("Dummy module".to_string()) }
             async fn guide_self_organization(&self, _desired_outcome: &str, _target_components: Vec<String>, _proposed_changes: Vec<String>) -> Result<crate::omega_os::self_organization_models::SelfOrganizationDirective, String> { warn!("Dummy SelfOrganizationModule method called."); Err("Dummy module".to_string()) }
+            async fn analyze_emergent_patterns_ethically(&self, _pattern: &mut crate::omega_os::self_organization_models::EmergentBehaviorPattern) -> Result<(), String> { warn!("Dummy SelfOrganizationModule method called."); Ok(()) }
         }
         let self_organization_module_arc_dummy: Arc<SelfOrganizationModule> = Arc::new(SelfOrganizationModule::new(
             event_bus_arc.clone(),
@@ -631,7 +632,6 @@ impl AgiCoreEngine {
         ));
         let som_dummy_service = SelfOrganizationModule::as_os_service();
         service_registry_arc.register_service(som_dummy_service.clone()).await?;
-
 
 
         // 3. Fully Initialize Modules (replacing dummies where needed)
@@ -777,7 +777,8 @@ impl AgiCoreEngine {
         let emm_service_full = EmotionMotivationModule::as_os_service();
         service_registry_arc.register_service(emm_service_full).await?;
 
-        // Initialize CreativityInnovationModule
+        // Fully Initialize CreativityInnovationModule
+        service_registry_arc.deregister_service("creativity-innovation-module").await?;
         let creativity_innovation_module_arc = Arc::new(CreativityInnovationModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
