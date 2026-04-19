@@ -9,3 +9,4 @@ pub mod compliance_advisor;
 pub mod co_creation;
 pub mod communication_bridge;
 pub mod forecasting;
+pub mod security;
