@@ -263,14 +263,14 @@ impl SORAEOrcestrator {
                         if let Err(e) = self.process_manager.pause_process(&value).await {
                             error!("S.O.R.A.E.: Failed to pause process {}: {}", value, e);
                         } else {
-                            event_bus_arc.publish(EventEnvelope::new("SORAEE".to_string(), OsEvent::ProcessTerminated(value, "suspended".to_string()))).await;
+                            event_bus_arc.publish(EventEnvelope::new("SORAEE".to_string(), OsEvent::ProcessTerminated(value.clone(), "suspended".to_string()))).await;
                         }
                     },
                     "resume_agi_op" => {
                         if let Err(e) = self.process_manager.resume_process(&value).await {
                             error!("S.O.R.A.E.: Failed to resume process {}: {}", value, e);
                         } else {
-                             event_bus_arc.publish(EventEnvelope::new("SORAEE".to_string(), OsEvent::ProcessSpawned(value, "resumed".to_string()))).await;
+                             event_bus_arc.publish(EventEnvelope::new("SORAEE".to_string(), OsEvent::ProcessSpawned(value.clone(), "resumed".to_string()))).await;
                         }
                     },
                     _ => warn!("S.O.R.A.E.: Unhandled custom compliance action: {}", action),

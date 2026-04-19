@@ -106,6 +106,8 @@ impl AgiCoreEngine {
                 ServiceCapability { name: "spawn_process".to_string(), description: "Spawns a new OS process.".to_string(), parameters: HashMap::new(), output_schema: "ProcessId".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
                 ServiceCapability { name: "kill_process".to_string(), description: "Terminates an OS process.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
                 ServiceCapability { name: "get_process_info".to_string(), description: "Retrieves information about a running process.".to_string(), parameters: HashMap::new(), output_schema: "ProcessInfo".to_string(), requires_permissions: vec![], requires_ethical_review: false },
+                ServiceCapability { name: "pause_process".to_string(), description: "Pauses an OS process.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "resume_process".to_string(), description: "Resumes an OS process.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
             ],
             status: ServiceStatus::Running,
             registered_at: Utc::now(),
@@ -279,7 +281,7 @@ impl AgiCoreEngine {
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
             sorae_orchestrator_internal: sorae_orchestrator_arc,
-            qr_ctfo_orchestrator: qr_ctfo_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator: qr_ctfo_orchestrator_arc.clone(), // Corrected from instance to arc
             ide_communication_bridge,
             hacse_prompt_sender,
             hacse_orchestrator_internal: hacse_orchestrator_arc,
