@@ -54,6 +54,7 @@ use crate::cognitive_arch::theory_of_mind::TheoryOfMindModule; // Import TheoryO
 use crate::cognitive_arch::analogical_reasoning::AnalogicalReasoningSystem; // Import AnalogicalReasoningSystem
 use crate::cognitive_arch::common_sense_reasoning::CommonSenseReasoningNetwork; // Import CommonSenseReasoningNetwork
 use crate::cognitive_arch::concept_formation::ConceptFormationModule; // Import ConceptFormationModule
+use crate::cognitive_arch::hierarchical_rl::HierarchicalRLModule; // Import HierarchicalRLModule
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -123,6 +124,8 @@ pub struct AgiCoreEngine {
     pub common_sense_reasoning_network: Arc<CommonSenseReasoningNetwork>,
     // Cognitive Arch ConceptFormationModule
     pub concept_formation_module: Arc<ConceptFormationModule>,
+    // Cognitive Arch HierarchicalRLModule
+    pub hierarchical_rl_module: Arc<HierarchicalRLModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -396,6 +399,12 @@ impl AgiCoreEngine {
         let concept_formation_module_service = ConceptFormationModule::as_os_service();
         service_registry_arc.register_service(concept_formation_module_service).await?;
 
+        // Initialize Cognitive Architecture HierarchicalRLModule
+        let hierarchical_rl_module_arc = Arc::new(HierarchicalRLModule::new(event_bus_arc.clone()));
+        // Register HierarchicalRLModule as a service
+        let hierarchical_rl_module_service = HierarchicalRLModule::as_os_service();
+        service_registry_arc.register_service(hierarchical_rl_module_service).await?;
+
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
         let ide_communication_bridge = Arc::new(CommunicationBridge::new(
@@ -431,6 +440,7 @@ impl AgiCoreEngine {
             analogical_reasoning_system: analogical_reasoning_system_arc.clone(), // Assign analogical reasoning system
             common_sense_reasoning_network: common_sense_reasoning_network_arc.clone(), // Assign common sense reasoning network
             concept_formation_module: concept_formation_module_arc.clone(), // Assign concept formation module
+            hierarchical_rl_module: hierarchical_rl_module_arc.clone(), // Assign hierarchical RL module
             service_command_rx,
         };
         
