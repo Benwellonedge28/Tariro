@@ -1,4 +1,4 @@
-// Tariro_ide_idpte/src/agi_core.rs
+// src/agi_core.rs
 
 use tracing::{info, warn};
 use anyhow::Result;
@@ -285,14 +285,31 @@ impl AgiCoreEngine {
         service_registry_arc.register_service(sorae_service).await?;
 
         // Initialize QR-CTFO Orchestrator (continued from above)
-        let qr_ctfo_options = QrCtfoOptions::default();
-        let qr_ctfo_policy_engine_arc = Arc::new(Mutex::new(crate::crypto_fabric::trust_policy_engine::TrustPolicyEngine::new()));
-        let (qr_ctfo_orchestrator_instance, qrctfo_compliance_directive_sender_tx) = QrCtfoOrchestrator::new(qr_ctfo_options, qr_ctfo_policy_engine_arc.clone(), event_bus_arc.clone()); // Pass EventBus
-        let qr_ctfo_orchestrator_arc = Arc::new(Mutex::new(qr_ctfo_orchestrator_instance));
-        let secure_channel_manager_arc = Arc::new(SecureChannelManager::new(qr_ctfo_orchestrator_arc.clone(), event_bus_arc.clone()));
-        // Register Secure Channel Manager as a service
-        let secure_channel_manager_service = SecureChannelManager::as_os_service();
-        service_registry_arc.register_service(secure_channel_manager_service).await?;
+        let qr_ctfo_orchestrator_clone_for_spawn = qr_ctfo_orchestrator_arc.clone();
+        tokio::spawn(async move {
+            if let Err(e) = qr_ctfo_orchestrator_clone_for_spawn.lock().unwrap().start_loop().await {
+                eprintln!("QR-CTFO Orchestrator failed: {:?}", e);
+            }
+        });
+        info!("QR-CTFO Orchestrator initialized and started.");
+        // Register QR-CTFO as a service
+        let qrctfo_service = OsService {
+            id: "qr-ctfo".to_string(),
+            name: "QR-CTFO Orchestrator".to_string(),
+            description: "Quantum-Resistant Cryptographic & Trust Fabric Orchestrator. Manages crypto policies and keys.".to_string(),
+            service_type: ServiceType::Cryptography,
+            capabilities: vec![
+                ServiceCapability { name: "request_secure_session".to_string(), description: "Requests secure session keys.".to_string(), parameters: HashMap::new(), output_schema: "".to_string(), requires_permissions: vec![], requires_ethical_review: true },
+                ServiceCapability { name: "enforce_pqc_policy".to_string(), description: "Enforces PQC policies on communications.".to_string(), parameters: HashMap::new(), output_schema: "".to_string(), requires_permissions: vec![], requires_ethical_review: true },
+            ],
+            status: ServiceStatus::Running,
+            registered_at: Utc::now(),
+            last_heartbeat: Utc::now(),
+            endpoints: HashMap::new(),
+            dependencies: vec![],
+            managed_by_agi_module: Some("ALEC-A".to_string()),
+        };
+        service_registry_arc.register_service(qrctfo_service).await?;
 
         // Initialize HACSE Orchestrator
         let hacse_options = HacseOptions::default();
@@ -370,7 +387,8 @@ impl AgiCoreEngine {
         service_registry_arc.register_service(causal_reasoning_engine_service).await?;
 
         // Initialize Cognitive Architecture TheoryOfMindModule
-        let theory_of_mind_module_arc = Arc::new(TheoryOfMindModule::new(event_bus_arc.clone()));
+        // The TheoryOfMindModule now takes ALEC-A and QR-CTFO orchestrators for ethical/security review
+        let theory_of_mind_module_arc = Arc::new(TheoryOfMindModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone()));
         // Register TheoryOfMindModule as a service
         let theory_of_mind_module_service = TheoryOfMindModule::as_os_service();
         service_registry_arc.register_service(theory_of_mind_module_service).await?;
