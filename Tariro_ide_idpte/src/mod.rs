@@ -29,10 +29,10 @@ pub mod did;
 pub mod editor;
 pub mod empathy_engine;
 pub mod error;
-pub mod evas_evolution; // New module for EVAS
+pub mod evas_evolution;
 pub mod features;
 pub mod agi_cloning;
-pub mod agi_meta_goals;
+pub mod agi_meta_goals; // New module for AGI Meta-Goals
 pub mod agi_project_manager;
 pub mod agi_replication;
 pub mod agi_swarm;
