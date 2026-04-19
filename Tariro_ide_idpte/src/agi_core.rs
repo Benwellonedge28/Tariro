@@ -50,6 +50,7 @@ use crate::omega_os::self_modification_agent::SelfModificationAgent; // Import S
 // Import Cognitive Arch modules
 use crate::cognitive_arch::meta_learner::MetaLearner;
 use crate::cognitive_arch::causal_reasoning::CausalReasoningEngine; // Import CausalReasoningEngine
+use crate::cognitive_arch::theory_of_mind::TheoryOfMindModule; // Import TheoryOfMindModule
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -111,6 +112,8 @@ pub struct AgiCoreEngine {
     pub meta_learner: Arc<MetaLearner>,
     // Cognitive Arch CausalReasoningEngine
     pub causal_reasoning_engine: Arc<CausalReasoningEngine>,
+    // Cognitive Arch TheoryOfMindModule
+    pub theory_of_mind_module: Arc<TheoryOfMindModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -240,7 +243,7 @@ impl AgiCoreEngine {
         tokio::spawn(async move {
             sorae_orchestrator_clone.lock().unwrap().start_loop().await;
         });
-        info!("S.O.R.A.E. Orchestrator initialized and started.");
+        info!("S.O.R.A.A.E. Orchestrator initialized and started.");
         // Register SORAEE as a service
         let sorae_service = OsService {
             id: "soraee".to_string(),
@@ -360,6 +363,12 @@ impl AgiCoreEngine {
         let causal_reasoning_engine_service = CausalReasoningEngine::as_os_service();
         service_registry_arc.register_service(causal_reasoning_engine_service).await?;
 
+        // Initialize Cognitive Architecture TheoryOfMindModule
+        let theory_of_mind_module_arc = Arc::new(TheoryOfMindModule::new(event_bus_arc.clone()));
+        // Register TheoryOfMindModule as a service
+        let theory_of_mind_module_service = TheoryOfMindModule::as_os_service();
+        service_registry_arc.register_service(theory_of_mind_module_service).await?;
+
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
         let ide_communication_bridge = Arc::new(CommunicationBridge::new(
@@ -391,6 +400,7 @@ impl AgiCoreEngine {
             self_modification_agent: self_modification_agent_arc.clone(), // Assign self-modification agent
             meta_learner: meta_learner_arc.clone(), // Assign meta-learner
             causal_reasoning_engine: causal_reasoning_engine_arc.clone(), // Assign causal reasoning engine
+            theory_of_mind_module: theory_of_mind_module_arc.clone(), // Assign theory of mind module
             service_command_rx,
         };
         
