@@ -6,7 +6,9 @@ pub mod trust_reputation_models;
 pub mod trust_reputation;
 pub mod deception_detection_models;
 pub mod deception_detection;
-pub mod data_privacy_models; // New module for data privacy models
-pub mod data_privacy; // New module for Data Privacy & Anonymization
+pub mod data_privacy_models;
+pub mod data_privacy;
+pub mod hardware_security_models; // New module for hardware security models
+pub mod hardware_security; // New module for Secure Hardware Integration
 
 // Add other security modules here.
