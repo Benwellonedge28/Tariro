@@ -35,6 +35,7 @@ use crate::agi_meta_goals::MetaGoalManager;
 // Import OMEGA OS Service Framework
 use crate::omega_os::service_registry::ServiceRegistry;
 use crate::omega_os::service_models::{OsService, ServiceType, ServiceCapability, ServiceStatus};
+use crate::omega_os::process_manager::{ProcessManager, ProcessInfo, ProcessId, ProcessStatus as OsProcessStatus}; // Import ProcessManager
 
 /// Trait for auditing different AGI system modules.
 /// This provides a standardized way for ALEC-A to query the compliance status of other modules.
@@ -64,6 +65,8 @@ pub struct AgiCoreEngine {
     pub meta_goal_manager: Arc<Mutex<MetaGoalManager>>,
     // OMEGA OS Service Registry
     pub service_registry: Arc<ServiceRegistry>,
+    // OMEGA OS Process Manager
+    pub process_manager: Arc<ProcessManager>,
 }
 
 impl AgiCoreEngine {
@@ -75,6 +78,28 @@ impl AgiCoreEngine {
 
         // Initialize Meta-Goal Manager
         let meta_goal_manager_arc = Arc::new(Mutex::new(MetaGoalManager::new()));
+
+        // Initialize OMEGA OS Process Manager
+        let process_manager_arc = Arc::new(ProcessManager::new());
+        // Register Process Manager as a service
+        let process_manager_service = OsService {
+            id: "os-process-manager".to_string(),
+            name: "OMEGA OS Process Manager".to_string(),
+            description: "Manages the lifecycle of computational processes and services.".to_string(),
+            service_type: ServiceType::SystemCore,
+            capabilities: vec![
+                ServiceCapability { name: "spawn_process".to_string(), description: "Spawns a new OS process.".to_string(), parameters: HashMap::new(), output_schema: "ProcessId".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "kill_process".to_string(), description: "Terminates an OS process.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "get_process_info".to_string(), description: "Retrieves information about a running process.".to_string(), parameters: HashMap::new(), output_schema: "ProcessInfo".to_string(), requires_permissions: vec![], requires_ethical_review: false },
+            ],
+            status: ServiceStatus::Running,
+            registered_at: Utc::now(),
+            last_heartbeat: Utc::now(),
+            endpoints: HashMap::new(),
+            dependencies: vec![],
+            managed_by_agi_module: Some("SORAEE".to_string()),
+        };
+        service_registry_arc.register_service(process_manager_service).await?;
 
         // Initialize S.O.R.A.E. Orchestrator
         let sorae_options = SORAEOptions::default();
@@ -110,13 +135,12 @@ impl AgiCoreEngine {
         // Initialize QR-CTFO Orchestrator
         let qr_ctfo_options = QrCtfoOptions::default();
         let qr_ctfo_policy_engine_arc = Arc::new(Mutex::new(crate::crypto_fabric::trust_policy_engine::TrustPolicyEngine::new()));
-        let qr_ctfo_orchestrator = Arc::new(QrCtfoOrchestrator::new(qr_ctfo_options, qr_ctfo_policy_engine_arc.clone()));
-
-        let (qrctfo_compliance_directive_sender_tx, qrctfo_compliance_directive_sender_rx) = mpsc::channel(50);
+        let (mut qr_ctfo_orchestrator_instance, qrctfo_compliance_directive_sender_tx) = QrCtfoOrchestrator::new(qr_ctfo_options, qr_ctfo_policy_engine_arc.clone());
+        let qr_ctfo_orchestrator = Arc::new(qr_ctfo_orchestrator_instance);
 
         let qr_ctfo_orchestrator_clone = qr_ctfo_orchestrator.clone();
         tokio::spawn(async move {
-            if let Err(e) = qr_ctfo_orchestrator_clone.start_loop(qrctfo_compliance_directive_sender_rx).await {
+            if let Err(e) = qr_ctfo_orchestrator_clone.lock().unwrap().start_loop().await {
                 eprintln!("QR-CTFO Orchestrator failed: {:?}", e);
             }
         });
@@ -142,6 +166,7 @@ impl AgiCoreEngine {
 
         // Initialize HACSE Orchestrator
         let hacse_options = HacseOptions::default();
+        // Pass sorae_request_sender to HACSE for resource-aware generation
         let hacse_orchestrator = HacseOrchestrator::new(
             hacse_options, 
             meta_goal_manager_arc.clone(),
@@ -183,14 +208,19 @@ impl AgiCoreEngine {
                                                              Some(qrctfo_compliance_directive_sender_tx.clone())); // Use tx for ALEC-A
         let aleca_orchestrator_arc = Arc::new(Mutex::new(aleca_orchestrator_instance));
 
+        // Initialize Communication Bridge for IDE
+        let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
+        let ide_communication_bridge = Arc::new(CommunicationBridge::new(
+            Arc::new(crate::crypto_fabric::communication_adapter::CommunicationAdapter::new(qr_ctfo_policy_engine_arc.clone())), // Pass policy engine
+            ide_channel
+        ).await?);
+        info!("IDE Communication Bridge initialized and secured.");
+
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
             sorae_orchestrator_internal: sorae_orchestrator_arc,
-            qr_ctfo_orchestrator,
-            ide_communication_bridge: Arc::new(CommunicationBridge::new(
-                Arc::new(crate::crypto_fabric::communication_adapter::CommunicationAdapter::new(qr_ctfo_policy_engine_arc.clone())), // Pass policy engine
-                CommunicationChannel::InterProcess("tariro-ide-bridge".to_string())
-            ).await?),
+            qr_ctfo_orchestrator: Arc::new(Mutex::new(qr_ctfo_orchestrator_instance)), // QR-CTFO must be Arc<Mutex<>> for apply_compliance_directive
+            ide_communication_bridge,
             hacse_prompt_sender,
             hacse_orchestrator_internal: hacse_orchestrator_arc,
             aleca_orchestrator: aleca_orchestrator_arc.clone(), // Clone for return
@@ -198,6 +228,7 @@ impl AgiCoreEngine {
             qrctfo_compliance_directive_sender: qrctfo_compliance_directive_sender_tx,
             meta_goal_manager: meta_goal_manager_arc,
             service_registry: service_registry_arc.clone(), // Assign registry
+            process_manager: process_manager_arc.clone(), // Assign process manager
         };
         
         let agi_auditor_arc = Arc::new(agi_core_engine_instance);

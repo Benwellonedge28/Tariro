@@ -14,6 +14,9 @@ use std::collections::HashMap;
 use std::time::Duration;
 use tracing::{info, warn, error};
 
+// Import ProcessManager for integration
+use crate::omega_os::process_manager::{ProcessManager, ProcessId, ProcessStatus as OsProcessStatus}; 
+
 /// The SORAEOptions struct holds configuration for the S.O.R.A.E. Orchestrator.
 #[derive(Debug, Clone)] // Make it Debug and Clone for easier handling
 pub struct SORAEOptions {
@@ -37,25 +40,27 @@ pub struct SORAEOrcestrator {
     monitor: ResourceMonitor,
     predictor: Arc<Mutex<ResourcePredictor>>,
     optimizer: Arc<Mutex<OptimizationEngine>>,
-    allocator: Arc<Mutex<ResourceAllocator>>, // Allocator is now Arc<Mutex>
+    allocator: ResourceAllocator,
+    process_manager: Arc<ProcessManager>, // Integrated ProcessManager
     // Channel for incoming resource requests from other parts of the AGI/OS
     request_rx: mpsc::Receiver<ResourceRequest>,
     request_tx: mpsc::Sender<ResourceRequest>,
     // Channel for incoming compliance directives from ALEC-A
     compliance_directive_rx: mpsc::Receiver<ComplianceDirective>,
     compliance_directive_tx: mpsc::Sender<ComplianceDirective>,
-    current_options: Arc<Mutex<SORAEOptions>>, // Dynamically configurable options
+    current_options: Arc<Mutex<SORAEOptions>>,
 }
 
 impl SORAEOrcestrator {
-    pub fn new(options: SORAEOptions) -> Self {
+    pub fn new(options: SORAEOptions, process_manager: Arc<ProcessManager>) -> Self {
         let (request_tx, request_rx) = mpsc::channel(100); // Buffer for 100 pending requests
         let (compliance_directive_tx, compliance_directive_rx) = mpsc::channel(50); // Buffer for 50 directives
         SORAEOrcestrator {
             monitor: ResourceMonitor::new(options.system_id.clone()),
             predictor: Arc::new(Mutex::new(ResourcePredictor::new())),
             optimizer: Arc::new(Mutex::new(OptimizationEngine::new())),
-            allocator: Arc::new(Mutex::new(ResourceAllocator::new())),
+            allocator: ResourceAllocator::new(),
+            process_manager,
             request_rx,
             request_tx,
             compliance_directive_rx,
@@ -82,7 +87,7 @@ impl SORAEOrcestrator {
 
         let predictor_arc = self.predictor.clone();
         let optimizer_arc = self.optimizer.clone();
-        let allocator_arc = self.allocator.clone(); // Clone for use in main loop
+        let process_manager_arc = self.process_manager.clone(); // Clone for use in spawned tasks if needed
         let mut request_rx = self.request_rx.take().expect("Request receiver already taken");
         let mut compliance_directive_rx = self.compliance_directive_rx.take().expect("Compliance directive receiver already taken");
 
@@ -108,9 +113,7 @@ impl SORAEOrcestrator {
 
             // Process incoming compliance directives
             while let Ok(directive) = compliance_directive_rx.try_recv() {
-                if let Ok(mut allocator) = allocator_arc.lock() {
-                    self.apply_compliance_directive(&mut allocator, directive).await;
-                }
+                self.apply_compliance_directive(directive).await;
             }
 
             // 1. Get current state
@@ -158,16 +161,11 @@ impl SORAEOrcestrator {
 
             // 6. Apply allocations, considering current snapshot and original requests for provisioning
             let current_resources_map = current_snapshot.available_resources.clone();
-            let results = if let Ok(mut allocator) = allocator_arc.lock() {
-                 allocator.apply_allocations(
-                    ethically_approved_allocations,
-                    &current_resources_map,
-                    &pending_requests,
-                ).await
-            } else {
-                error!("Failed to lock allocator for applying allocations.");
-                HashMap::new()
-            };
+            let results = self.allocator.apply_allocations(
+                ethically_approved_allocations,
+                &current_resources_map,
+                &pending_requests,
+            ).await;
 
             // Log or act on results and perform self-adaptive tuning
             let mut successful_allocations = 0;
@@ -223,7 +221,7 @@ impl SORAEOrcestrator {
     }
 
     /// Applies a compliance directive received from ALEC-A.
-    async fn apply_compliance_directive(&self, allocator: &mut ResourceAllocator, directive: ComplianceDirective) {
+    pub async fn apply_compliance_directive(&mut self, directive: ComplianceDirective) {
         info!("S.O.R.A.E.: Applying compliance directive: {:?}", directive);
         match directive {
             ComplianceDirective::EnforceResourceIsolation(entity_id) => {
@@ -232,9 +230,8 @@ impl SORAEOrcestrator {
             },
             ComplianceDirective::AdjustTaskPriority(task_id, new_priority) => {
                 info!("S.O.R.A.E.: Adjusting priority for task {} to {}.", task_id, new_priority);
-                if let Err(e) = allocator.adjust_task_priority(&task_id, new_priority).await {
-                    error!("Failed to adjust task priority: {}", e);
-                }
+                // Logic to update the priority of the specified task in the allocator or scheduler
+                self.allocator.adjust_task_priority(&task_id, new_priority).await;
             },
             ComplianceDirective::CapResourceUsage(entity_id, res_type, max_value) => {
                 info!("S.O.R.A.E.: Capping usage of {:?} for {} to {}.", res_type, entity_id, max_value);
@@ -246,6 +243,15 @@ impl SORAEOrcestrator {
             },
             ComplianceDirective::Custom(action, value) => {
                 info!("S.O.R.A.E.: Applying custom compliance action: {} with value {}.", action, value);
+                if action == "suspend_agi_op" {
+                    if let Err(e) = self.process_manager.pause_process(&value).await {
+                        error!("S.O.R.A.E.: Failed to pause process {}: {}", value, e);
+                    }
+                } else if action == "resume_agi_op" {
+                    if let Err(e) = self.process_manager.resume_process(&value).await {
+                        error!("S.O.R.A.E.: Failed to resume process {}: {}", value, e);
+                    }
+                }
             },
         }
     }
