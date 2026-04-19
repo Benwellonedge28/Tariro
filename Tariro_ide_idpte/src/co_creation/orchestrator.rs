@@ -9,6 +9,7 @@ use crate::co_creation::human_style_learner::HumanStyleLearner;
 use crate::co_creation::synthesis_generator::SynthesisGenerator;
 use crate::co_creation::feedback_analyzer::FeedbackAnalyzer;
 use crate::co_creation::multi_modal_interface::MultiModalInterface;
+use crate::agi_meta_goals::{MetaGoalManager, MetaGoalStatus}; // Import MetaGoalManager
 
 use anyhow::Result;
 use tokio::sync::mpsc;
@@ -41,6 +42,7 @@ pub struct HacseOrchestrator {
     generator: Arc<Mutex<SynthesisGenerator>>,
     feedback_analyzer: Arc<FeedbackAnalyzer>,
     multi_modal_interface: Arc<MultiModalInterface>,
+    meta_goal_manager: Arc<Mutex<MetaGoalManager>>, // Added MetaGoalManager
     // Channel for incoming creative prompts
     prompt_rx: mpsc::Receiver<CreativePrompt>,
     prompt_tx: mpsc::Sender<CreativePrompt>,
@@ -48,7 +50,7 @@ pub struct HacseOrchestrator {
 }
 
 impl HacseOrchestrator {
-    pub fn new(options: HacseOptions) -> Self {
+    pub fn new(options: HacseOptions, meta_goal_manager: Arc<Mutex<MetaGoalManager>>) -> Self {
         let (prompt_tx, prompt_rx) = mpsc::channel(100); // Buffer for 100 pending prompts
         let style_learner_arc = Arc::new(Mutex::new(HumanStyleLearner::new()));
         let generator_arc = Arc::new(Mutex::new(SynthesisGenerator::new()));
@@ -66,6 +68,7 @@ impl HacseOrchestrator {
             generator: generator_arc.clone(),
             feedback_analyzer: Arc::new(FeedbackAnalyzer::new(style_learner_arc, generator_arc.clone())),
             multi_modal_interface: Arc::new(MultiModalInterface::new("samuelmukandara@gmail.com".to_string(), default_user_prefs)),
+            meta_goal_manager,
             prompt_rx,
             prompt_tx,
             current_options: Arc::new(Mutex::new(options)),
@@ -86,6 +89,7 @@ impl HacseOrchestrator {
         let generator_arc = self.generator.clone();
         let feedback_analyzer_arc = self.feedback_analyzer.clone();
         let multi_modal_interface_arc = self.multi_modal_interface.clone();
+        let meta_goal_manager_arc = self.meta_goal_manager.clone();
 
         info!("HACSE Orchestrator started.");
 
@@ -160,11 +164,25 @@ impl HacseOrchestrator {
                     info!("HACSE: Periodically updating human creative styles...");
                 }
 
-                // Creative Pulse: Proactive suggestions
+                // Creative Pulse: Proactive suggestions aligned with meta-goals
                 if now.timestamp() % options.creative_pulse_interval_seconds as i64 == 0 {
-                    info!("HACSE: Generating proactive creative suggestions...");
-                    // Simulate accessing AGI meta-goals
-                    let agi_meta_goal = "advance self-modification module integration".to_string(); // Mock meta-goal
+                    info!("HACSE: Generating proactive creative suggestions aligned with meta-goals...");
+                    
+                    let active_meta_goals = meta_goal_manager_arc.lock().unwrap().get_active_goals().await;
+                    let target_meta_goal = active_meta_goals.into_iter().next().unwrap_or_else(|| {
+                        warn!("No active meta-goals found, defaulting to generic creative pulse.");
+                        crate::agi_meta_goals::MetaGoal {
+                            id: "generic-creativity".to_string(),
+                            title: "Generic Creative Exploration".to_string(),
+                            description: "Explore novel creative avenues.".to_string(),
+                            priority: 50,
+                            status: MetaGoalStatus::Active,
+                            last_updated: Utc::now(),
+                            associated_agi_modules: vec![],
+                            progress_percentage: 0.0,
+                        }
+                    });
+
                     let user_id = multi_modal_interface_arc.get_user_preferences().user_id.clone();
                     let user_style = if let Ok(learner) = style_learner_arc.lock().ok() {
                         learner.get_style(&user_id).await
@@ -173,11 +191,12 @@ impl HacseOrchestrator {
                     let proactive_prompt = CreativePrompt {
                         id: Uuid::new_v4().to_string(),
                         user_id: user_id.clone(),
-                        objective: format!("Develop a {}-themed visualization of {}.", 
-                                            user_style.as_ref().map_or("abstract".to_string(), |s| s.style_name.clone()),
-                                            agi_meta_goal),
-                        desired_artifact_type: CreativeArtifactType::Image,
-                        constraints: vec!["Conceptual and informative".to_string()],
+                        objective: format!("Develop a concept or artifact related to the meta-goal: '{}' ({}). Apply {} style.", 
+                                            target_meta_goal.title,
+                                            target_meta_goal.description,
+                                            user_style.as_ref().map_or("user's preferred".to_string(), |s| s.style_name.clone())),
+                        desired_artifact_type: CreativeArtifactType::Text, // Default to text for broader applicability
+                        constraints: vec![format!("Align with meta-goal ID: {}", target_meta_goal.id)],
                         reference_artifacts: vec![],
                         desired_style_id: user_style.map(|s| s.id),
                         created_at: Utc::now(),
@@ -192,8 +211,8 @@ impl HacseOrchestrator {
 
                     match generated_suggestion_artifact {
                         Ok(artifact) => {
-                            let suggestion_text = format!("New creative idea aligning with goal '{}' and your style (ID: {}): '{}'. Content preview: '{}'"),
-                                                        agi_meta_goal, artifact.id, artifact.title, &artifact.content[..50].to_string());
+                            let suggestion_text = format!("New creative idea aligning with meta-goal '{}': '{}'. Content preview: '{}'"),
+                                                        target_meta_goal.title, artifact.title, &artifact.content[..50].to_string());
                             multi_modal_interface_arc.present_suggestion(&suggestion_text).await;
                         },
                         Err(e) => error!("HACSE: Failed to generate proactive suggestion: {}", e),

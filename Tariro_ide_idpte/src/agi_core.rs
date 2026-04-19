@@ -29,6 +29,9 @@ use crate::compliance_advisor::orchestrator::{AlecaOrchestrator, AlecaOptions};
 use crate::compliance_advisor::legal_framework_models::{ComplianceStatus, ModuleAuditStatus};
 use crate::compliance_advisor::conflict_resolver::ComplianceRemediationAction; // Import for dispatching
 
+// Import Meta-Goals module
+use crate::agi_meta_goals::MetaGoalManager; 
+
 /// Trait for auditing different AGI system modules.
 /// This provides a standardized way for ALEC-A to query the compliance status of other modules.
 pub trait AgiSystemAuditor: Send + Sync {
@@ -54,11 +57,16 @@ pub struct AgiCoreEngine {
     // Senders for compliance directives (to SORAEE and QR-CTFO)
     sorae_compliance_directive_sender: mpsc::Sender<SoraeComplianceDirective>,
     qrctfo_compliance_directive_sender: mpsc::Sender<ComplianceRemediationAction>,
+    // Meta-Goal Manager
+    pub meta_goal_manager: Arc<Mutex<MetaGoalManager>>,
 }
 
 impl AgiCoreEngine {
-    pub async fn new() -> Result<AgiCoreEngine> {
+    pub async fn new() -> Result<Arc<Self>> {
         info!("Initializing AGI Core Engine...");
+
+        // Initialize Meta-Goal Manager
+        let meta_goal_manager_arc = Arc::new(Mutex::new(MetaGoalManager::new()));
 
         // Initialize S.O.R.A.E. Orchestrator
         let sorae_options = SORAEOptions::default();
@@ -69,7 +77,7 @@ impl AgiCoreEngine {
 
         let sorae_orchestrator_clone = sorae_orchestrator_arc.clone();
         tokio::spawn(async move {
-            sorae_orchestrator_clone.lock().unwrap().start_loop().await; // Lock before calling start_loop
+            sorae_orchestrator_clone.lock().unwrap().start_loop().await;
         });
         info!("S.O.R.A.E. Orchestrator initialized and started.");
 
@@ -78,11 +86,11 @@ impl AgiCoreEngine {
         let qr_ctfo_policy_engine_arc = Arc::new(Mutex::new(crate::crypto_fabric::trust_policy_engine::TrustPolicyEngine::new()));
         let qr_ctfo_orchestrator = Arc::new(QrCtfoOrchestrator::new(qr_ctfo_options, qr_ctfo_policy_engine_arc.clone()));
 
-        let qrctfo_compliance_directive_sender = mpsc::channel(50).0; // Temp sender for QR-CTFO until it has its own
+        let (qrctfo_compliance_directive_sender_tx, qrctfo_compliance_directive_sender_rx) = mpsc::channel(50);
 
         let qr_ctfo_orchestrator_clone = qr_ctfo_orchestrator.clone();
         tokio::spawn(async move {
-            if let Err(e) = qr_ctfo_orchestrator_clone.start_loop().await {
+            if let Err(e) = qr_ctfo_orchestrator_clone.start_loop(qrctfo_compliance_directive_sender_rx).await {
                 eprintln!("QR-CTFO Orchestrator failed: {:?}", e);
             }
         });
@@ -90,9 +98,9 @@ impl AgiCoreEngine {
 
         // Initialize HACSE Orchestrator
         let hacse_options = HacseOptions::default();
-        let hacse_orchestrator = HacseOrchestrator::new(hacse_options);
+        let hacse_orchestrator = HacseOrchestrator::new(hacse_options, meta_goal_manager_arc.clone()); // Pass MetaGoalManager
         let hacse_prompt_sender = hacse_orchestrator.get_prompt_sender();
-        let hacse_orchestrator_arc = Arc::new(hacse_orchestrator); // Keep an Arc for audit
+        let hacse_orchestrator_arc = Arc::new(hacse_orchestrator);
 
         let hacse_orchestrator_clone = hacse_orchestrator_arc.clone();
         tokio::spawn(async move {
@@ -106,10 +114,7 @@ impl AgiCoreEngine {
         let aleca_options = AlecaOptions::default();
         let aleca_orchestrator_instance = AlecaOrchestrator::new(aleca_options, 
                                                              Some(sorae_compliance_directive_sender.clone()), 
-                                                             Some(qrctfo_compliance_directive_sender.clone()),
-                                                             // Temporarily pass a mock auditor or self after construction
-                                                             None, // Placeholder for AgiSystemAuditor
-                                                        );
+                                                             Some(qrctfo_compliance_directive_sender_tx.clone())); // Use tx for ALEC-A
         let aleca_orchestrator_arc = Arc::new(Mutex::new(aleca_orchestrator_instance));
 
         // Initialize Communication Bridge for IDE
@@ -129,17 +134,10 @@ impl AgiCoreEngine {
             hacse_orchestrator_internal: hacse_orchestrator_arc,
             aleca_orchestrator: aleca_orchestrator_arc.clone(), // Clone for return
             sorae_compliance_directive_sender: sorae_compliance_directive_sender.clone(),
-            qrctfo_compliance_directive_sender: qrctfo_compliance_directive_sender.clone(),
+            qrctfo_compliance_directive_sender: qrctfo_compliance_directive_sender_tx,
+            meta_goal_manager: meta_goal_manager_arc,
         };
         
-        // Now pass self (as an auditor) to ALEC-A. This requires a bit of refactoring for circular dep.
-        // For now, let's update the ALEC-A orchestrator to hold the auditor AFTER construction.
-        // ALEC-A's new method now takes a concrete implementation of AgiSystemAuditor.
-        // This needs to be done AFTER AgiCoreEngine is fully constructed.
-        // This pattern needs careful handling for self-references or will be done by passing `Arc<self>`
-        // For simplicity, let's keep the auditor field in ALEC-A Orchestrator as None initially and update later
-        // Or, better, just pass relevant *status functions* from each module to ALEC-A.
-
         let agi_auditor_arc = Arc::new(agi_core_engine_instance);
 
         let aleca_orchestrator_clone = aleca_orchestrator_arc.clone();
