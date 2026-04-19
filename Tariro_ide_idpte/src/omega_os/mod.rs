@@ -15,7 +15,9 @@ pub mod data_models;
 pub mod self_modification_agent;
 pub mod self_organization;
 pub mod self_healing;
-pub mod self_preservation_models; // New module for self-preservation models
-pub mod self_preservation; // New module for Self-Preservation
+pub mod self_preservation_models;
+pub mod self_preservation;
+pub mod self_evolution_models; // New module for self-evolution models
+pub mod self_evolution; // New module for Self-Evolution
 
 // Add other OMEGA OS core modules here.
