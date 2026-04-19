@@ -16,7 +16,9 @@ pub mod h_rl_models;
 pub mod hierarchical_rl;
 pub mod learning_memory_models;
 pub mod lifelong_learning;
-pub mod exploration_models; // New module for exploration models
-pub mod curiosity_exploration; // New module for Curiosity-Driven Exploration
+pub mod exploration_models;
+pub mod curiosity_exploration;
+pub mod heuristic_models; // New module for heuristic models
+pub mod intuition_heuristics; // New module for Intuition & Heuristic Generation
 
 // Add other cognitive architecture modules here.
