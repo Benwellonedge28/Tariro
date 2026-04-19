@@ -49,6 +49,7 @@ use crate::omega_os::self_modification_agent::SelfModificationAgent; // Import S
 
 // Import Cognitive Arch modules
 use crate::cognitive_arch::meta_learner::MetaLearner;
+use crate::cognitive_arch::causal_reasoning::CausalReasoningEngine; // Import CausalReasoningEngine
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -108,6 +109,8 @@ pub struct AgiCoreEngine {
     pub self_modification_agent: Arc<SelfModificationAgent>,
     // Cognitive Arch MetaLearner
     pub meta_learner: Arc<MetaLearner>,
+    // Cognitive Arch CausalReasoningEngine
+    pub causal_reasoning_engine: Arc<CausalReasoningEngine>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -351,6 +354,12 @@ impl AgiCoreEngine {
         let meta_learner_service = MetaLearner::as_os_service();
         service_registry_arc.register_service(meta_learner_service).await?;
 
+        // Initialize Cognitive Architecture CausalReasoningEngine
+        let causal_reasoning_engine_arc = Arc::new(CausalReasoningEngine::new(event_bus_arc.clone()));
+        // Register CausalReasoningEngine as a service
+        let causal_reasoning_engine_service = CausalReasoningEngine::as_os_service();
+        service_registry_arc.register_service(causal_reasoning_engine_service).await?;
+
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
         let ide_communication_bridge = Arc::new(CommunicationBridge::new(
@@ -381,6 +390,7 @@ impl AgiCoreEngine {
             data_manager: data_manager_arc.clone(), // Assign data manager
             self_modification_agent: self_modification_agent_arc.clone(), // Assign self-modification agent
             meta_learner: meta_learner_arc.clone(), // Assign meta-learner
+            causal_reasoning_engine: causal_reasoning_engine_arc.clone(), // Assign causal reasoning engine
             service_command_rx,
         };
         
