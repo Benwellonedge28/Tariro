@@ -72,6 +72,7 @@ use crate::cognitive_arch::swarm_intelligence::SwarmIntelligenceModule; // Impor
 use crate::cognitive_arch::embodied_cognition::EmbodiedCognitionModule; // Import EmbodiedCognitionModule
 use crate::cognitive_arch::intuitive_physics_psychology::IntuitivePhysicsPsychologyModule; // Import IntuitivePhysicsPsychologyModule
 use crate::cognitive_arch::epistemic_reasoning::EpistemicReasoningModule; // Import EpistemicReasoningModule
+use crate::cognitive_arch::affective_computing::AffectiveComputingModule; // Import AffectiveComputingModule
 use crate::omega_os::self_organization::SelfOrganizationModule; // Import SelfOrganizationModule
 use crate::omega_os::self_healing::SelfHealingModule; // Import SelfHealingModule
 use crate::forecasting::forecasting::PredictiveForecastingModule; // Import PredictiveForecastingModule
@@ -175,6 +176,8 @@ pub struct AgiCoreEngine {
     pub intuitive_physics_psychology_module: Arc<IntuitivePhysicsPsychologyModule>,
     // Cognitive Arch EpistemicReasoningModule
     pub epistemic_reasoning_module: Arc<EpistemicReasoningModule>,
+    // Cognitive Arch AffectiveComputingModule
+    pub affective_computing_module: Arc<AffectiveComputingModule>,
     // OMEGA OS SelfOrganizationModule
     pub self_organization_module: Arc<SelfOrganizationModule>,
     // OMEGA OS SelfHealingModule
@@ -694,7 +697,7 @@ impl AgiCoreEngine {
 
         // EmbodiedCognitionModule Dummy
         struct EmbodiedCognitionModuleDummy { event_bus: Arc<EventBus> }
-        impl EmbodiedCognitionModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { EmbodiedCognitionModuleDummy { event_bus } } }
+        impl EmboditionCognitionModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { EmbodiedCognitionModuleDummy { event_bus } } }
         impl EmbodiedCognitionModuleDummy {
             async fn process_sensorimotor_experience(&self, _sensor_data: HashMap<String, f64>, _action_taken: &str, _feedback: crate::cognitive_arch::embodied_models::ActionFeedback) -> Result<crate::cognitive_arch::embodied_models::SensorimotorExperience, String> { warn!("Dummy EmbodiedCognitionModule method called."); Err("Dummy module".to_string()) }
             async fn execute_grounded_action(&self, _capability_id: &str, _target_parameters: HashMap<String, f64>) -> Result<crate::cognitive_arch::embodied_models::ActionFeedback, String> { warn!("Dummy EmbodiedCognitionModule method called."); Err("Dummy module".to_string()) }
@@ -756,6 +759,25 @@ impl AgiCoreEngine {
         let erm_dummy_service = EpistemicReasoningModule::as_os_service();
         service_registry_arc.register_service(erm_dummy_service.clone()).await?;
 
+        // AffectiveComputingModule Dummy
+        struct AffectiveComputingModuleDummy { event_bus: Arc<EventBus> }
+        impl AffectiveComputingModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { AffectiveComputingModuleDummy { event_bus } } }
+        impl AffectiveComputingModuleDummy {
+            async fn perceive_human_emotion(&self, _human_input_summary: &str, _user_id: &str) -> Result<crate::cognitive_arch::affective_models::EmotionalState, String> { warn!("Dummy AffectiveComputingModule method called."); Err("Dummy module".to_string()) }
+            async fn generate_empathetic_response(&self, _perceived_emotion_id: &str) -> Result<String, String> { warn!("Dummy AffectiveComputingModule method called."); Err("Dummy module".to_string()) }
+            async fn regulate_internal_affective_states(&self, _desired_state: &str, _context: &str) -> Result<crate::cognitive_arch::affective_models::EmotionalState, String> { warn!("Dummy AffectiveComputingModule method called."); Err("Dummy module".to_string()) }
+        }
+        let affective_computing_module_arc_dummy: Arc<AffectiveComputingModule> = Arc::new(AffectiveComputingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            social_intelligence_module_arc.clone(), // This depends on the *fully initialized* SocialIntelligenceModule
+            data_privacy_module_arc.clone(), // This depends on the *fully initialized* DataPrivacyModule
+        ));
+        let acm_dummy_service = AffectiveComputingModule::as_os_service();
+        service_registry_arc.register_service(acm_dummy_service.clone()).await?;
 
 
         // 3. Fully Initialize Modules (replacing dummies where needed)
@@ -973,6 +995,19 @@ impl AgiCoreEngine {
         let erm_service_full = EpistemicReasoningModule::as_os_service();
         service_registry_arc.register_service(erm_service_full).await?;
 
+        // Initialize AffectiveComputingModule
+        let affective_computing_module_arc = Arc::new(AffectiveComputingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            social_intelligence_module_arc.clone(),
+            data_privacy_module_arc.clone(),
+        ));
+        let affective_computing_module_service = AffectiveComputingModule::as_os_service();
+        service_registry_arc.register_service(affective_computing_module_service).await?;
+
         // Re-initialize SelfOrganizationModule
         service_registry_arc.deregister_service("self-organization-module").await?;
         let self_organization_module_arc = Arc::new(SelfOrganizationModule::new(
@@ -1183,7 +1218,8 @@ impl AgiCoreEngine {
         let ippm_service_full = IntuitivePhysicsPsychologyModule::as_os_service();
         service_registry_arc.register_service(ippm_service_full).await?;
 
-        // Initialize EpistemicReasoningModule
+        // Re-initialize EpistemicReasoningModule
+        service_registry_arc.deregister_service("epistemic-reasoning-module").await?;
         let epistemic_reasoning_module_arc = Arc::new(EpistemicReasoningModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
@@ -1195,8 +1231,512 @@ impl AgiCoreEngine {
             common_sense_reasoning_network_arc.clone(),
             data_manager_arc.clone(),
         ));
-        let epistemic_reasoning_module_service = EpistemicReasoningModule::as_os_service();
-        service_registry_arc.register_service(epistemic_reasoning_module_service).await?;
+        let erm_service_full = EpistemicReasoningModule::as_os_service();
+        service_registry_arc.register_service(erm_service_full).await?;
+
+        // Initialize AffectiveComputingModule
+        let affective_computing_module_arc = Arc::new(AffectiveComputingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            social_intelligence_module_arc.clone(),
+            data_privacy_module_arc.clone(),
+        ));
+        let affective_computing_module_service = AffectiveComputingModule::as_os_service();
+        service_registry_arc.register_service(affective_computing_module_service).await?;
+
+        // Re-initialize SelfOrganizationModule
+        service_registry_arc.deregister_service("self-organization-module").await?;
+        let self_organization_module_arc = Arc::new(SelfOrganizationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+        ));
+        let self_organization_module_service = SelfOrganizationModule::as_os_service();
+        service_registry_arc.register_service(self_organization_module_service).await?;
+
+        // Re-initialize SelfHealingModule
+        service_registry_arc.deregister_service("self-healing-module").await?;
+        let self_healing_module_arc = Arc::new(SelfHealingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            causal_reasoning_engine_arc.clone(),
+            self_organization_module_arc.clone(),
+        ));
+        let shm_service_full = SelfHealingModule::as_os_service();
+        service_registry_arc.register_service(shm_service_full).await?;
+
+        // Re-initialize ResourceOptimizationModule
+        service_registry_arc.deregister_service("resource-optimization-module").await?;
+        let resource_optimization_module_arc = Arc::new(ResourceOptimizationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            meta_goal_manager_arc.clone(),
+            sorae_orchestrator_arc.clone(),
+        ));
+        let rom_service_full = ResourceOptimizationModule::as_os_service();
+        service_registry_arc.register_service(rom_service_full).await?;
+
+        // Re-initialize PredictiveForecastingModule
+        service_registry_arc.deregister_service("predictive-forecasting-module").await?;
+        let predictive_forecasting_module_arc = Arc::new(PredictiveForecastingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+        ));
+        let pfm_service_full = PredictiveForecastingModule::as_os_service();
+        service_registry_arc.register_service(pfm_service_full).await?;
+
+        // Re-initialize GoalManagementModule
+        service_registry_arc.deregister_service("goal-management-module").await?;
+        let goal_management_module_arc = Arc::new(GoalManagementModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            meta_goal_manager_arc.clone(),
+            hierarchical_rl_module_arc.clone(),
+        ));
+        let gmm_service_full = GoalManagementModule::as_os_service();
+        service_registry_arc.register_service(gmm_service_full).await?;
+
+        // Re-initialize AdversarialRobustnessModule
+        service_registry_arc.deregister_service("adversarial-robustness-module").await?;
+        let adversarial_robustness_module_arc = Arc::new(AdversarialRobustnessModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            self_healing_module_arc.clone(),
+        ));
+        let arm_service_full = AdversarialRobustnessModule::as_os_service();
+        service_registry_arc.register_service(arm_service_full).await?;
+
+        // Re-initialize EthicalForecastingModule
+        service_registry_arc.deregister_service("ethical-forecasting-module").await?;
+        let ethical_forecasting_module_arc = Arc::new(EthicalForecastingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            imagination_module_arc.clone(),
+            causal_reasoning_engine_arc.clone(),
+        ));
+        let efm_service_full = EthicalForecastingModule::as_os_service();
+        service_registry_arc.register_service(efm_service_full).await?;
+
+        // Re-initialize DataManager
+        service_registry_arc.deregister_service("data-manager").await?;
+        let data_manager_arc = Arc::new(DataManager::new(
+            storage_abstraction_arc.clone(), 
+            qr_ctfo_orchestrator_arc.clone(), 
+            event_bus_arc.clone()
+        ));
+        let dm_service_full = DataManager::as_os_service();
+        service_registry_arc.register_service(dm_service_full).await?;
+
+        // Re-initialize QuantumSafeModule
+        service_registry_arc.deregister_service("quantum-safe-module").await?;
+        let quantum_safe_module_arc = Arc::new(QuantumSafeModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            data_manager_arc.clone(),
+        ));
+        let qsm_service_full = QuantumSafeModule::as_os_service();
+        service_registry_arc.register_service(qsm_service_full).await?;
+
+        // Re-initialize TrustReputationModule
+        service_registry_arc.deregister_service("trust-reputation-module").await?;
+        let trust_reputation_module_arc = Arc::new(TrustReputationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+        ));
+        let trm_service_full = TrustReputationModule::as_os_service();
+        service_registry_arc.register_service(trm_service_full).await?;
+
+        // Re-initialize DeceptionDetectionModule
+        service_registry_arc.deregister_service("deception-detection-module").await?;
+        let deception_detection_module_arc = Arc::new(DeceptionDetectionModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            trust_reputation_module_arc.clone(),
+        ));
+        let ddm_service_full = DeceptionDetectionModule::as_os_service();
+        service_registry_arc.register_service(ddm_service_full).await?;
+
+        // Re-initialize DataPrivacyModule
+        service_registry_arc.deregister_service("data-privacy-module").await?;
+        let data_privacy_module_arc = Arc::new(DataPrivacyModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            data_manager_arc.clone(),
+        ));
+        let dpm_service_full = DataPrivacyModule::as_os_service();
+        service_registry_arc.register_service(dpm_service_full).await?;
+
+        // Re-initialize HardwareSecurityModule
+        service_registry_arc.deregister_service("hardware-security-module").await?;
+        let hardware_security_module_arc = Arc::new(HardwareSecurityModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+        ));
+        let hsm_service_full = HardwareSecurityModule::as_os_service();
+        service_registry_arc.register_service(hsm_service_full).await?;
+
+        // Re-initialize HumanAGITeamingModule
+        service_registry_arc.deregister_service("human-agi-teaming-module").await?;
+        let human_agi_teaming_module_arc = Arc::new(HumanAGITeamingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            secure_channel_manager_arc.clone(),
+        ));
+        let hatm_service_full = HumanAGITeamingModule::as_os_service();
+        service_registry_arc.register_service(hatm_service_full).await?;
+
+        // Re-initialize EnvironmentalImpactModule
+        service_registry_arc.deregister_service("environmental-impact-module").await?;
+        let environmental_impact_module_arc = Arc::new(EnvironmentalImpactModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            resource_optimization_module_arc.clone(),
+            self_organization_module_arc.clone(),
+        ));
+        let eim_service_full = EnvironmentalImpactModule::as_os_service();
+        service_registry_arc.register_service(eim_service_full).await?;
+
+        // Re-initialize SocialIntelligenceModule
+        service_registry_arc.deregister_service("social-intelligence-module").await?;
+        let social_intelligence_module_arc = Arc::new(SocialIntelligenceModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            lifelong_learning_module_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+        ));
+        let sim_service_full = SocialIntelligenceModule::as_os_service();
+        service_registry_arc.register_service(sim_service_full).await?;
+
+        // Re-initialize IntuitivePhysicsPsychologyModule
+        service_registry_arc.deregister_service("intuitive-physics-psychology-module").await?;
+        let intuitive_physics_psychology_module_arc = Arc::new(IntuitivePhysicsPsychologyModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            embodied_cognition_module_arc.clone(),
+            causal_reasoning_engine_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            social_intelligence_module_arc.clone(),
+        ));
+        let ippm_service_full = IntuitivePhysicsPsychologyModule::as_os_service();
+        service_registry_arc.register_service(ippm_service_full).await?;
+
+        // Re-initialize EpistemicReasoningModule
+        service_registry_arc.deregister_service("epistemic-reasoning-module").await?;
+        let epistemic_reasoning_module_arc = Arc::new(EpistemicReasoningModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            lifelong_learning_module_arc.clone(),
+            trust_reputation_module_arc.clone(),
+            curiosity_exploration_module_arc.clone(),
+            common_sense_reasoning_network_arc.clone(),
+            data_manager_arc.clone(),
+        ));
+        let erm_service_full = EpistemicReasoningModule::as_os_service();
+        service_registry_arc.register_service(erm_service_full).await?;
+
+        // Initialize AffectiveComputingModule
+        let affective_computing_module_arc = Arc::new(AffectiveComputingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            social_intelligence_module_arc.clone(),
+            data_privacy_module_arc.clone(),
+        ));
+        let affective_computing_module_service = AffectiveComputingModule::as_os_service();
+        service_registry_arc.register_service(affective_computing_module_service).await?;
+
+        // Re-initialize SelfOrganizationModule
+        service_registry_arc.deregister_service("self-organization-module").await?;
+        let self_organization_module_arc = Arc::new(SelfOrganizationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+        ));
+        let self_organization_module_service = SelfOrganizationModule::as_os_service();
+        service_registry_arc.register_service(self_organization_module_service).await?;
+
+        // Re-initialize SelfHealingModule
+        service_registry_arc.deregister_service("self-healing-module").await?;
+        let self_healing_module_arc = Arc::new(SelfHealingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            causal_reasoning_engine_arc.clone(),
+            self_organization_module_arc.clone(),
+        ));
+        let shm_service_full = SelfHealingModule::as_os_service();
+        service_registry_arc.register_service(shm_service_full).await?;
+
+        // Re-initialize ResourceOptimizationModule
+        service_registry_arc.deregister_service("resource-optimization-module").await?;
+        let resource_optimization_module_arc = Arc::new(ResourceOptimizationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            meta_goal_manager_arc.clone(),
+            sorae_orchestrator_arc.clone(),
+        ));
+        let rom_service_full = ResourceOptimizationModule::as_os_service();
+        service_registry_arc.register_service(rom_service_full).await?;
+
+        // Re-initialize PredictiveForecastingModule
+        service_registry_arc.deregister_service("predictive-forecasting-module").await?;
+        let predictive_forecasting_module_arc = Arc::new(PredictiveForecastingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+        ));
+        let pfm_service_full = PredictiveForecastingModule::as_os_service();
+        service_registry_arc.register_service(pfm_service_full).await?;
+
+        // Re-initialize GoalManagementModule
+        service_registry_arc.deregister_service("goal-management-module").await?;
+        let goal_management_module_arc = Arc::new(GoalManagementModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            meta_goal_manager_arc.clone(),
+            hierarchical_rl_module_arc.clone(),
+        ));
+        let gmm_service_full = GoalManagementModule::as_os_service();
+        service_registry_arc.register_service(gmm_service_full).await?;
+
+        // Re-initialize AdversarialRobustnessModule
+        service_registry_arc.deregister_service("adversarial-robustness-module").await?;
+        let adversarial_robustness_module_arc = Arc::new(AdversarialRobustnessModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            self_healing_module_arc.clone(),
+        ));
+        let arm_service_full = AdversarialRobustnessModule::as_os_service();
+        service_registry_arc.register_service(arm_service_full).await?;
+
+        // Re-initialize EthicalForecastingModule
+        service_registry_arc.deregister_service("ethical-forecasting-module").await?;
+        let ethical_forecasting_module_arc = Arc::new(EthicalForecastingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            imagination_module_arc.clone(),
+            causal_reasoning_engine_arc.clone(),
+        ));
+        let efm_service_full = EthicalForecastingModule::as_os_service();
+        service_registry_arc.register_service(efm_service_full).await?;
+
+        // Re-initialize DataManager
+        service_registry_arc.deregister_service("data-manager").await?;
+        let data_manager_arc = Arc::new(DataManager::new(
+            storage_abstraction_arc.clone(), 
+            qr_ctfo_orchestrator_arc.clone(), 
+            event_bus_arc.clone()
+        ));
+        let dm_service_full = DataManager::as_os_service();
+        service_registry_arc.register_service(dm_service_full).await?;
+
+        // Re-initialize QuantumSafeModule
+        service_registry_arc.deregister_service("quantum-safe-module").await?;
+        let quantum_safe_module_arc = Arc::new(QuantumSafeModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            data_manager_arc.clone(),
+        ));
+        let qsm_service_full = QuantumSafeModule::as_os_service();
+        service_registry_arc.register_service(qsm_service_full).await?;
+
+        // Re-initialize TrustReputationModule
+        service_registry_arc.deregister_service("trust-reputation-module").await?;
+        let trust_reputation_module_arc = Arc::new(TrustReputationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+        ));
+        let trm_service_full = TrustReputationModule::as_os_service();
+        service_registry_arc.register_service(trm_service_full).await?;
+
+        // Re-initialize DeceptionDetectionModule
+        service_registry_arc.deregister_service("deception-detection-module").await?;
+        let deception_detection_module_arc = Arc::new(DeceptionDetectionModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            trust_reputation_module_arc.clone(),
+        ));
+        let ddm_service_full = DeceptionDetectionModule::as_os_service();
+        service_registry_arc.register_service(ddm_service_full).await?;
+
+        // Re-initialize DataPrivacyModule
+        service_registry_arc.deregister_service("data-privacy-module").await?;
+        let data_privacy_module_arc = Arc::new(DataPrivacyModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            data_manager_arc.clone(),
+        ));
+        let dpm_service_full = DataPrivacyModule::as_os_service();
+        service_registry_arc.register_service(dpm_service_full).await?;
+
+        // Re-initialize HardwareSecurityModule
+        service_registry_arc.deregister_service("hardware-security-module").await?;
+        let hardware_security_module_arc = Arc::new(HardwareSecurityModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+        ));
+        let hsm_service_full = HardwareSecurityModule::as_os_service();
+        service_registry_arc.register_service(hsm_service_full).await?;
+
+        // Re-initialize HumanAGITeamingModule
+        service_registry_arc.deregister_service("human-agi-teaming-module").await?;
+        let human_agi_teaming_module_arc = Arc::new(HumanAGITeamingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            secure_channel_manager_arc.clone(),
+        ));
+        let hatm_service_full = HumanAGITeamingModule::as_os_service();
+        service_registry_arc.register_service(hatm_service_full).await?;
+
+        // Re-initialize EnvironmentalImpactModule
+        service_registry_arc.deregister_service("environmental-impact-module").await?;
+        let environmental_impact_module_arc = Arc::new(EnvironmentalImpactModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            resource_optimization_module_arc.clone(),
+            self_organization_module_arc.clone(),
+        ));
+        let eim_service_full = EnvironmentalImpactModule::as_os_service();
+        service_registry_arc.register_service(eim_service_full).await?;
+
+        // Re-initialize SocialIntelligenceModule
+        service_registry_arc.deregister_service("social-intelligence-module").await?;
+        let social_intelligence_module_arc = Arc::new(SocialIntelligenceModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            lifelong_learning_module_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+        ));
+        let sim_service_full = SocialIntelligenceModule::as_os_service();
+        service_registry_arc.register_service(sim_service_full).await?;
+
+        // Re-initialize SwarmIntelligenceModule
+        service_registry_arc.deregister_service("swarm-intelligence-module").await?;
+        let swarm_intelligence_module_arc = Arc::new(SwarmIntelligenceModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            secure_channel_manager_arc.clone(),
+            resource_optimization_module_arc.clone(),
+            self_organization_module_arc.clone(),
+        ));
+        let s_im_service_full = SwarmIntelligenceModule::as_os_service();
+        service_registry_arc.register_service(s_im_service_full).await?;
+
+        // Re-initialize EmbodiedCognitionModule
+        service_registry_arc.deregister_service("embodied-cognition-module").await?;
+        let embodied_cognition_module_arc = Arc::new(EmbodiedCognitionModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            hardware_security_module_arc.clone(),
+            self_healing_module_arc.clone(),
+            hierarchical_rl_module_arc.clone(),
+        ));
+        let e_cm_service_full = EmbodiedCognitionModule::as_os_service();
+        service_registry_arc.register_service(e_cm_service_full).await?;
+
+        // Re-initialize IntuitivePhysicsPsychologyModule
+        service_registry_arc.deregister_service("intuitive-physics-psychology-module").await?;
+        let intuitive_physics_psychology_module_arc = Arc::new(IntuitivePhysicsPsychologyModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            embodied_cognition_module_arc.clone(),
+            causal_reasoning_engine_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            social_intelligence_module_arc.clone(),
+        ));
+        let ippm_service_full = IntuitivePhysicsPsychologyModule::as_os_service();
+        service_registry_arc.register_service(ippm_service_full).await?;
+
+        // Initialize AffectiveComputingModule
+        let affective_computing_module_arc = Arc::new(AffectiveComputingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            social_intelligence_module_arc.clone(),
+            data_privacy_module_arc.clone(),
+        ));
+        let affective_computing_module_service = AffectiveComputingModule::as_os_service();
+        service_registry_arc.register_service(affective_computing_module_service).await?;
+
 
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
@@ -1246,6 +1786,7 @@ impl AgiCoreEngine {
             embodied_cognition_module: embodied_cognition_module_arc.clone(), // Assign embodied cognition module
             intuitive_physics_psychology_module: intuitive_physics_psychology_module_arc.clone(), // Assign intuitive physics psychology module
             epistemic_reasoning_module: epistemic_reasoning_module_arc.clone(), // Assign epistemic reasoning module
+            affective_computing_module: affective_computing_module_arc.clone(), // Assign affective computing module
             self_organization_module: self_organization_module_arc.clone(), // Assign self-organization module
             self_healing_module: self_healing_module_arc.clone(), // Assign self-healing module
             resource_optimization_module: resource_optimization_module_arc.clone(), // Assign resource optimization module
