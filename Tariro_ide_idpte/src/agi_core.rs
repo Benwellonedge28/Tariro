@@ -64,6 +64,7 @@ use crate::cognitive_arch::formal_reasoning::FormalReasoningModule; // Import Fo
 use crate::cognitive_arch::emotion_motivation::EmotionMotivationModule; // Import EmotionMotivationModule
 use crate::cognitive_arch::creativity::CreativityInnovationModule; // Import CreativityInnovationModule
 use crate::omega_os::self_organization::SelfOrganizationModule; // Import SelfOrganizationModule
+use crate::omega_os::self_healing::SelfHealingModule; // Import SelfHealingModule
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -147,8 +148,12 @@ pub struct AgiCoreEngine {
     pub formal_reasoning_module: Arc<FormalReasoningModule>,
     // Cognitive Arch EmotionMotivationModule
     pub emotion_motivation_module: Arc<EmotionMotivationModule>,
+    // Cognitive Arch CreativityInnovationModule
+    pub creativity_innovation_module: Arc<CreativityInnovationModule>,
     // OMEGA OS SelfOrganizationModule
     pub self_organization_module: Arc<SelfOrganizationModule>,
+    // OMEGA OS SelfHealingModule
+    pub self_healing_module: Arc<SelfHealingModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -633,6 +638,25 @@ impl AgiCoreEngine {
         let som_dummy_service = SelfOrganizationModule::as_os_service();
         service_registry_arc.register_service(som_dummy_service.clone()).await?;
 
+        // SelfHealingModule Dummy
+        struct SelfHealingModuleDummy { event_bus: Arc<EventBus> }
+        impl SelfHealingModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { SelfHealingModuleDummy { event_bus } } }
+        impl SelfHealingModuleDummy {
+            async fn predict_fault(&self, _system_metrics_summary: &str) -> Result<Option<crate::omega_os::self_healing_models::FaultReport>, String> { warn!("Dummy SelfHealingModule method called."); Ok(None) }
+            async fn diagnose_and_propose_recovery(&self, _fault_report: crate::omega_os::self_healing_models::FaultReport) -> Result<crate::omega_os::self_healing_models::RecoveryAction, String> { warn!("Dummy SelfHealingModule method called."); Err("Dummy module".to_string()) }
+            async fn execute_secure_recovery(&self, _recovery_id: &str) -> Result<(), String> { warn!("Dummy SelfHealingModule method called."); Ok(()) }
+            async fn evaluate_ethical_resilience(&self, _fault_report_id: &str, _recovery_action_id: Option<&str>) -> Result<crate::omega_os::self_healing_models::EthicalRecoveryAnalysis, String> { warn!("Dummy SelfHealingModule method called."); Err("Dummy module".to_string()) }
+        }
+        let self_healing_module_arc_dummy: Arc<SelfHealingModule> = Arc::new(SelfHealingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            causal_reasoning_engine_arc.clone(),
+            self_organization_module_arc_dummy.clone(),
+        ));
+        let shm_dummy_service = SelfHealingModule::as_os_service();
+        service_registry_arc.register_service(shm_dummy_service.clone()).await?;
 
         // 3. Fully Initialize Modules (replacing dummies where needed)
         
@@ -777,7 +801,7 @@ impl AgiCoreEngine {
         let emm_service_full = EmotionMotivationModule::as_os_service();
         service_registry_arc.register_service(emm_service_full).await?;
 
-        // Fully Initialize CreativityInnovationModule
+        // Re-initialize CreativityInnovationModule
         service_registry_arc.deregister_service("creativity-innovation-module").await?;
         let creativity_innovation_module_arc = Arc::new(CreativityInnovationModule::new(
             event_bus_arc.clone(),
@@ -790,7 +814,8 @@ impl AgiCoreEngine {
         let creativity_innovation_module_service = CreativityInnovationModule::as_os_service();
         service_registry_arc.register_service(creativity_innovation_module_service).await?;
 
-        // Initialize SelfOrganizationModule
+        // Re-initialize SelfOrganizationModule
+        service_registry_arc.deregister_service("self-organization-module").await?;
         let self_organization_module_arc = Arc::new(SelfOrganizationModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
@@ -800,6 +825,17 @@ impl AgiCoreEngine {
         let self_organization_module_service = SelfOrganizationModule::as_os_service();
         service_registry_arc.register_service(self_organization_module_service).await?;
 
+        // Initialize SelfHealingModule
+        let self_healing_module_arc = Arc::new(SelfHealingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            causal_reasoning_engine_arc.clone(),
+            self_organization_module_arc.clone(),
+        ));
+        let self_healing_module_service = SelfHealingModule::as_os_service();
+        service_registry_arc.register_service(self_healing_module_service).await?;
 
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
@@ -846,6 +882,7 @@ impl AgiCoreEngine {
             emotion_motivation_module: emotion_motivation_module_arc.clone(), // Assign emotion motivation module
             creativity_innovation_module: creativity_innovation_module_arc.clone(), // Assign creativity innovation module
             self_organization_module: self_organization_module_arc.clone(), // Assign self-organization module
+            self_healing_module: self_healing_module_arc.clone(), // Assign self-healing module
             service_command_rx,
         };
         
