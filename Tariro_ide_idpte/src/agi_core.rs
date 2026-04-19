@@ -85,7 +85,7 @@ pub enum ServiceCommand {
 pub trait AgiSystemAuditor: Send + Sync {
     async fn get_sorae_audit_status(&self) -> ModuleAuditStatus;
     async fn get_qrctfo_audit_status(&self) -> ModuleAuditStatus;
-    async fn get_hacse_audit_status(&self) -> ModuleAuditStatus;
+    async fn fn get_hacse_audit_status(&self) -> ModuleAuditStatus;
 }
 
 pub struct AgiCoreEngine {
