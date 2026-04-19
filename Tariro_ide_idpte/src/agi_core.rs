@@ -356,9 +356,6 @@ impl AgiCoreEngine {
         // Initialize Cognitive Architecture LifelongLearningModule
         // The LifelongLearningModule will take ALEC-A, QR-CTFO, CuriosityExplorationModule, ConceptFormationModule, CausalReasoningEngine, and CommonSenseReasoningNetwork as dependencies.
         // Note: Initialize Curiosity, ConceptFormation, CausalReasoning and CommonSense first as LifelongLearningModule depends on them
-        let curiosity_exploration_module_arc = Arc::new(CuriosityExplorationModule::new(event_bus_arc.clone()));
-        let curiosity_exploration_module_service = CuriosityExplorationModule::as_os_service();
-        service_registry_arc.register_service(curiosity_exploration_module_service).await?;
 
         // Initialize Cognitive Architecture MetaLearner
         // The MetaLearner now takes ALEC-A and QR-CTFO orchestrators for verification
