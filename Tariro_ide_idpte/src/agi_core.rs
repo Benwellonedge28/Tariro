@@ -68,6 +68,7 @@ use crate::cognitive_arch::imagination::ImaginationModule; // Import Imagination
 use crate::cognitive_arch::formal_reasoning::FormalReasoningModule; // Import FormalReasoningModule
 use crate::cognitive_arch::emotion_motivation::EmotionMotivationModule; // Import EmotionMotivationModule
 use crate::cognitive_arch::creativity::CreativityInnovationModule; // Import CreativityInnovationModule
+use crate::cognitive_arch::swarm_intelligence::SwarmIntelligenceModule; // Import SwarmIntelligenceModule
 use crate::omega_os::self_organization::SelfOrganizationModule; // Import SelfOrganizationModule
 use crate::omega_os::self_healing::SelfHealingModule; // Import SelfHealingModule
 use crate::forecasting::forecasting::PredictiveForecastingModule; // Import PredictiveForecastingModule
@@ -151,7 +152,7 @@ pub struct AgiCoreEngine {
     pub lifelong_learning_module: Arc<LifelongLearningModule>,
     // Cognitive Arch CuriosityExplorationModule
     pub curiosity_exploration_module: Arc<CuriosityExplorationModule>,
-    // Cognitive Arch IntuitionHeuristicGenerator
+    // Cognitive Arch IntuitionHeuristicsGenerator
     pub intuition_heuristic_generator: Arc<IntuitionHeuristicGenerator>,
     // Cognitive Arch MetacognitionModule
     pub metacognition_module: Arc<MetacognitionModule>,
@@ -163,6 +164,8 @@ pub struct AgiCoreEngine {
     pub emotion_motivation_module: Arc<EmotionMotivationModule>,
     // Cognitive Arch CreativityInnovationModule
     pub creativity_innovation_module: Arc<CreativityInnovationModule>,
+    // Cognitive Arch SwarmIntelligenceModule
+    pub swarm_intelligence_module: Arc<SwarmIntelligenceModule>,
     // OMEGA OS SelfOrganizationModule
     pub self_organization_module: Arc<SelfOrganizationModule>,
     // OMEGA OS SelfHealingModule
@@ -659,263 +662,24 @@ impl AgiCoreEngine {
         let cim_dummy_service = CreativityInnovationModule::as_os_service();
         service_registry_arc.register_service(cim_dummy_service.clone()).await?;
 
-        // SelfOrganizationModule Dummy
-        struct SelfOrganizationModuleDummy { event_bus: Arc<EventBus> }
-        impl SelfOrganizationModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { SelfOrganizationModuleDummy { event_bus } } }
-        impl SelfOrganizationModuleDummy {
-            async fn monitor_emergent_behavior(&self, _observation_context: &str, _detected_system_changes: Vec<String>) -> Result<crate::omega_os::self_organization_models::EmergentBehaviorPattern, String> { warn!("Dummy SelfOrganizationModule method called."); Err("Dummy module".to_string()) }
-            async fn guide_self_organization(&self, _desired_outcome: &str, _target_components: Vec<String>, _proposed_changes: Vec<String>) -> Result<crate::omega_os::self_organization_models::SelfOrganizationDirective, String> { warn!("Dummy SelfOrganizationModule method called."); Err("Dummy module".to_string()) }
-            async fn analyze_emergent_patterns_ethically(&self, _pattern: &mut crate::omega_os::self_organization_models::EmergentBehaviorPattern) -> Result<(), String> { warn!("Dummy SelfOrganizationModule method called."); Ok(()) }
+        // SwarmIntelligenceModule Dummy
+        struct SwarmIntelligenceModuleDummy { event_bus: Arc<EventBus> }
+        impl SwarmIntelligenceModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { SwarmIntelligenceModuleDummy { event_bus } } }
+        impl SwarmIntelligenceModuleDummy {
+            async fn form_agi_swarm(&self, _swarm_name: &str, _objective: &str, _candidate_member_ids: Vec<String>) -> Result<crate::cognitive_arch::swarm_models::AgiSwarm, String> { warn!("Dummy SwarmIntelligenceModule method called."); Err("Dummy module".to_string()) }
+            async fn coordinate_swarm_task(&self, _swarm_id: &str, _task_title: &str, _task_description: &str) -> Result<crate::cognitive_arch::swarm_models::SwarmTask, String> { warn!("Dummy SwarmIntelligenceModule method called."); Err("Dummy module".to_string()) }
+            async fn ensure_secure_swarm_communication(&self, _swarm_id: &str, _sender_id: &str, _receiver_id: &str, _message_summary: &str) -> Result<crate::cognitive_arch::swarm_models::SwarmCommunicationLog, String> { warn!("Dummy SwarmIntelligenceModule method called."); Err("Dummy module".to_string()) }
         }
-        let self_organization_module_arc_dummy: Arc<SelfOrganizationModule> = Arc::new(SelfOrganizationModule::new(
+        let swarm_intelligence_module_arc_dummy: Arc<SwarmIntelligenceModule> = Arc::new(SwarmIntelligenceModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
-        ));
-        let som_dummy_service = SelfOrganizationModule::as_os_service();
-        service_registry_arc.register_service(som_dummy_service.clone()).await?;
-
-        // SelfHealingModule Dummy
-        struct SelfHealingModuleDummy { event_bus: Arc<EventBus> }
-        impl SelfHealingModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { SelfHealingModuleDummy { event_bus } } }
-        impl SelfHealingModuleDummy {
-            async fn predict_fault(&self, _system_metrics_summary: &str) -> Result<Option<crate::omega_os::self_healing_models::FaultReport>, String> { warn!("Dummy SelfHealingModule method called."); Ok(None) }
-            async fn diagnose_and_propose_recovery(&self, _fault_report: crate::omega_os::self_healing_models::FaultReport) -> Result<crate::omega_os::self_healing_models::RecoveryAction, String> { warn!("Dummy SelfHealingModule method called."); Err("Dummy module".to_string()) }
-            async fn execute_secure_recovery(&self, _recovery_id: &str) -> Result<(), String> { warn!("Dummy SelfHealingModule method called."); Ok(()) }
-            async fn evaluate_ethical_resilience(&self, _fault_report_id: &str, _recovery_action_id: Option<&str>) -> Result<crate::omega_os::self_healing_models::EthicalRecoveryAnalysis, String> { warn!("Dummy SelfHealingModule method called."); Err("Dummy module".to_string()) }
-        }
-        let self_healing_module_arc_dummy: Arc<SelfHealingModule> = Arc::new(SelfHealingModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            causal_reasoning_engine_arc.clone(),
-            self_organization_module_arc_dummy.clone(),
-        ));
-        let shm_dummy_service = SelfHealingModule::as_os_service();
-        service_registry_arc.register_service(shm_dummy_service.clone()).await?;
-
-        // ResourceOptimizationModule Dummy
-        struct ResourceOptimizationModuleDummy { event_bus: Arc<EventBus> }
-        impl ResourceOptimizationModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { ResourceOptimizationModuleDummy { event_bus } } }
-        impl ResourceOptimizationModuleDummy {
-            async fn predict_resource_demand(&self, _system_goals_summary: &str, _historical_data_summary: &str) -> Result<crate::resource_management::resource_optimization_models::ResourceDemandPrediction, String> { warn!("Dummy ResourceOptimizationModule method called."); Err("Dummy module".to_string()) }
-            async fn generate_allocation_plan(&self, _demand_prediction: crate::resource_management::resource_optimization_models::ResourceDemandPrediction, _available_resources: HashMap<String, f64>, _optimization_objective: &str) -> Result<crate::resource_management::resource_optimization_models::ResourceAllocationPlan, String> { warn!("Dummy ResourceOptimizationModule method called."); Err("Dummy module".to_string()) }
-            async fn secure_resource_access(&self, _request: crate::resource_management::resource_optimization_models::ResourceAccessRequest) -> Result<crate::resource_management::resource_optimization_models::ResourceAccessRequest, String> { warn!("Dummy ResourceOptimizationModule method called."); Err("Dummy module".to_string()) }
-        }
-        let resource_optimization_module_arc_dummy: Arc<ResourceOptimizationModule> = Arc::new(ResourceOptimizationModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            meta_goal_manager_arc.clone(),
-            sorae_orchestrator_arc.clone(), // Assuming SORAEE is already initialized
-        ));
-        let rom_dummy_service = ResourceOptimizationModule::as_os_service();
-        service_registry_arc.register_service(rom_dummy_service.clone()).await?;
-
-        // PredictiveForecastingModule Dummy
-        struct PredictiveForecastingModuleDummy { event_bus: Arc<EventBus> }
-        impl PredictiveForecastingModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { PredictiveForecastingModuleDummy { event_bus } } }
-        impl PredictiveForecastingModuleDummy {
-            async fn generate_forecast(&self, _target_variable: &str, _input_data_summary: &str, _horizon: &str) -> Result<crate::forecasting::forecasting_models::Forecast, String> { warn!("Dummy PredictiveForecastingModule method called."); Err("Dummy module".to_string()) }
-            async fn evaluate_prediction_robustness(&self, _forecast: &mut crate::forecasting::forecasting_models::Forecast, _input_data_summary: &str) -> Result<crate::forecasting::forecasting_models::PredictionEvaluation, String> { warn!("Dummy PredictiveForecastingModule method called."); Err("Dummy module".to_string()) }
-            async fn ethical_forecast_analysis(&self, _forecast: &mut crate::forecasting::forecasting_models::Forecast) -> Result<crate::forecasting::forecasting_models::EthicalForecastReport, String> { warn!("Dummy PredictiveForecastingModule method called."); Err("Dummy module".to_string()) }
-        }
-        let predictive_forecasting_module_arc_dummy: Arc<PredictiveForecastingModule> = Arc::new(PredictiveForecastingModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-        ));
-        let pfm_dummy_service = PredictiveForecastingModule::as_os_service();
-        service_registry_arc.register_service(pfm_dummy_service.clone()).await?;
-
-        // GoalManagementModule Dummy
-        struct GoalManagementModuleDummy { event_bus: Arc<EventBus> }
-        impl GoalManagementModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { GoalManagementModuleDummy { event_bus } } }
-        impl GoalManagementModuleDummy {
-            async fn formulate_autonomous_goal(&self, _meta_goal_context: &str, _opportunity_summary: &str) -> Result<crate::agi_meta_goals::goal_management_models::AutonomousGoal, String> { warn!("Dummy GoalManagementModule method called."); Err("Dummy module".to_string()) }
-            async fn verify_goal_alignment(&self, _goal: &mut crate::agi_meta_goals::goal_management_models::AutonomousGoal) -> Result<crate::agi_meta_goals::goal_management_models::GoalAlignmentReport, String> { warn!("Dummy GoalManagementModule method called."); Err("Dummy module".to_string()) }
-            async fn optimize_goal_pursuit(&self, _goal_id: &str) -> Result<crate::agi_meta_goals::goal_management_models::GoalPursuitStrategy, String> { warn!("Dummy GoalManagementModule method called."); Err("Dummy module".to_string()) }
-        }
-        let goal_management_module_arc_dummy: Arc<GoalManagementModule> = Arc::new(GoalManagementModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            meta_goal_manager_arc.clone(),
-            hierarchical_rl_module_arc_dummy.clone(),
-        ));
-        let gmm_dummy_service = GoalManagementModule::as_os_service();
-        service_registry_arc.register_service(gmm_dummy_service.clone()).await?;
-
-        // AdversarialRobustnessModule Dummy
-        struct AdversarialRobustnessModuleDummy { event_bus: Arc<EventBus> }
-        impl AdversarialRobustnessModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { AdversarialRobustnessModuleDummy { event_bus } } }
-        impl AdversarialRobustnessModuleDummy {
-            async fn detect_adversarial_attack(&self, _observed_input_summary: &str, _target_module_id: &str) -> Result<Option<crate::security::adversarial_robustness_models::AdversarialAttack>, String> { warn!("Dummy AdversarialRobustnessModule method called."); Ok(None) }
-            async fn analyze_and_propose_mitigation(&self, _attack: crate::security::adversarial_robustness_models::AdversarialAttack) -> Result<crate::security::adversarial_robustness_models::MitigationStrategy, String> { warn!("Dummy AdversarialRobustnessModule method called."); Err("Dummy module".to_string()) }
-            async fn execute_secure_mitigation(&self, _mitigation_strategy_id: &str) -> Result<(), String> { warn!("Dummy AdversarialRobustnessModule method called."); Ok(()) }
-        }
-        let adversarial_robustness_module_arc_dummy: Arc<AdversarialRobustnessModule> = Arc::new(AdversarialRobustnessModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            self_healing_module_arc.clone(), // This depends on the *fully initialized* SelfHealingModule
-        ));
-        let arm_dummy_service = AdversarialRobustnessModule::as_os_service();
-        service_registry_arc.register_service(arm_dummy_service.clone()).await?;
-
-        // EthicalForecastingModule Dummy
-        struct EthicalForecastingModuleDummy { event_bus: Arc<EventBus> }
-        impl EthicalForecastingModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { EthicalForecastingModuleDummy { event_bus } } }
-        impl EthicalForecastingModuleDummy {
-            async fn anticipate_ethical_dilemma(&self, _action_plan_summary: &str, _system_state_summary: &str) -> Result<Option<crate::compliance_advisor::ethical_forecasting_models::EthicalDilemma>, String> { warn!("Dummy EthicalForecastingModule method called."); Ok(None) }
-            async fn predict_ethical_consequences(&self, _dilemma: crate::compliance_advisor::ethical_forecasting_models::EthicalDilemma, _proposed_action: &str) -> Result<crate::compliance_advisor::ethical_forecasting_models::EthicalConsequencePrediction, String> { warn!("Dummy EthicalForecastingModule method called."); Err("Dummy module".to_string()) }
-            async fn generate_mitigation_strategy(&self, _dilemma: crate::compliance_advisor::ethical_forecasting_models::EthicalDilemma, _negative_prediction: crate::compliance_advisor::ethical_forecasting_models::EthicalConsequencePrediction) -> Result<crate::compliance_advisor::ethical_forecasting_models::EthicalMitigationStrategy, String> { warn!("Dummy EthicalForecastingModule method called."); Err("Dummy module".to_string()) }
-        }
-        let ethical_forecasting_module_arc_dummy: Arc<EthicalForecastingModule> = Arc::new(EthicalForecastingModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            imagination_module_arc.clone(), // This depends on the *fully initialized* ImaginationModule
-            causal_reasoning_engine_arc.clone(),
-        ));
-        let efm_dummy_service = EthicalForecastingModule::as_os_service();
-        service_registry_arc.register_service(efm_dummy_service.clone()).await?;
-
-        // TrustReputationModule Dummy
-        struct TrustReputationModuleDummy { event_bus: Arc<EventBus> }
-        impl TrustReputationModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { TrustReputationModuleDummy { event_bus } } }
-        impl TrustReputationModuleDummy {
-            async fn assess_agent_trust(&self, _agent_id: &str, _observed_behavior: &str) -> Result<crate::security::trust_reputation_models::AgentTrustScore, String> { warn!("Dummy TrustReputationModule method called."); Err("Dummy module".to_string()) }
-            async fn calculate_reputation_score(&self, _agent_id: &str, _new_trust_event: crate::security::trust_reputation_models::TrustEvent) -> Result<crate::security::trust_reputation_models::AgentTrustScore, String> { warn!("Dummy TrustReputationModule method called."); Err("Dummy module".to_string()) }
-            async fn calibrate_trust_ethically(&self, _agent_id: &str) -> Result<crate::security::trust_reputation_models::AgentTrustScore, String> { warn!("Dummy TrustReputationModule method called."); Err("Dummy module".to_string()) }
-        }
-        let trust_reputation_module_arc_dummy: Arc<TrustReputationModule> = Arc::new(TrustReputationModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            theory_of_mind_module_arc.clone(),
-        ));
-        let trm_dummy_service = TrustReputationModule::as_os_service();
-        service_registry_arc.register_service(trm_dummy_service.clone()).await?;
-
-        // DeceptionDetectionModule Dummy
-        struct DeceptionDetectionModuleDummy { event_bus: Arc<EventBus> }
-        impl DeceptionDetectionModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { DeceptionDetectionModuleDummy { event_bus } } }
-        impl DeceptionDetectionModuleDummy {
-            async fn detect_deception(&self, _observed_input: &str, _source_agent_id: &str) -> Result<Option<crate::security::deception_detection_models::DeceptionAttempt>, String> { warn!("Dummy DeceptionDetectionModule method called."); Err("Dummy module".to_string()) }
-            async fn analyze_and_propose_countermeasure(&self, _deception_attempt: crate::security::deception_detection_models::DeceptionAttempt) -> Result<crate::security::deception_detection_models::CounterDeceptionStrategy, String> { warn!("Dummy DeceptionDetectionModule method called."); Err("Dummy module".to_string()) }
-            async fn deploy_ethical_countermeasure(&self, _strategy_id: &str) -> Result<(), String> { warn!("Dummy DeceptionDetectionModule method called."); Ok(()) }
-        }
-        let deception_detection_module_arc_dummy: Arc<DeceptionDetectionModule> = Arc::new(DeceptionDetectionModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            theory_of_mind_module_arc.clone(),
-            trust_reputation_module_arc.clone(), // This depends on the *fully initialized* TrustReputationModule
-        ));
-        let ddm_dummy_service = DeceptionDetectionModule::as_os_service();
-        service_registry_arc.register_service(ddm_dummy_service.clone()).await?;
-
-        // DataPrivacyModule Dummy
-        struct DataPrivacyModuleDummy { event_bus: Arc<EventBus> }
-        impl DataPrivacyModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { DataPrivacyModuleDummy { event_bus } } }
-        impl DataPrivacyModuleDummy {
-            async fn identify_sensitive_data(&self, _data_id: &str, _data_metadata_summary: &str) -> Result<Option<crate::security::data_privacy_models::SensitiveDataRecord>, String> { warn!("Dummy DataPrivacyModule method called."); Ok(None) }
-            async fn apply_secure_anonymization(&self, _data_id: &str, _policy_id: &str) -> Result<(), String> { warn!("Dummy DataPrivacyModule method called."); Ok(()) }
-            async fn enforce_ethical_data_usage(&self, _data_id: &str, _user_id: &str, _proposed_purpose: &str) -> Result<(), String> { warn!("Dummy DataPrivacyModule method called."); Ok(()) }
-            async fn audit_privacy_compliance(&self, _scope: &str) -> Result<crate::security::data_privacy_models::PrivacyAuditReport, String> { warn!("Dummy DataPrivacyModule method called."); Err("Dummy module".to_string()) }
-        }
-        let data_privacy_module_arc_dummy: Arc<DataPrivacyModule> = Arc::new(DataPrivacyModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            data_manager_arc.clone(), // This depends on the *fully initialized* DataManager
-        ));
-        let dpm_dummy_service = DataPrivacyModule::as_os_service();
-        service_registry_arc.register_service(dpm_dummy_service.clone()).await?;
-
-        // HardwareSecurityModule Dummy
-        struct HardwareSecurityModuleDummy { event_bus: Arc<EventBus> }
-        impl HardwareSecurityModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { HardwareSecurityModuleDummy { event_bus } } }
-        impl HardwareSecurityModuleDummy {
-            async fn perform_hardware_attestation(&self, _component_id: &str, _current_state_hash: &str) -> Result<crate::security::hardware_security_models::HardwareAttestationReport, String> { warn!("Dummy HardwareSecurityModule method called."); Err("Dummy module".to_string()) }
-            async fn manage_secure_peripherals(&self, _peripheral_id: &str, _requested_action: &str, _initiating_module_id: &str) -> Result<(), String> { warn!("Dummy HardwareSecurityModule method called."); Ok(()) }
-            async fn monitor_ethical_hardware_interaction(&self, _interaction_log_id: &str) -> Result<crate::security::hardware_security_models::EthicalHardwareAccessRecord, String> { warn!("Dummy HardwareSecurityModule method called."); Err("Dummy module".to_string()) }
-        }
-        let hardware_security_module_arc_dummy: Arc<HardwareSecurityModule> = Arc::new(HardwareSecurityModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-        ));
-        let hsm_dummy_service = HardwareSecurityModule::as_os_service();
-        service_registry_arc.register_service(hsm_dummy_service.clone()).await?;
-
-        // HumanAGITeamingModule Dummy
-        struct HumanAGITeamingModuleDummy { event_bus: Arc<EventBus> }
-        impl HumanAGITeamingModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { HumanAGITeamingModuleDummy { event_bus } } }
-        impl HumanAGITeamingModuleDummy {
-            async fn understand_human_intent(&self, _user_id: &str, _human_input_summary: &str) -> Result<crate::communication_bridge::human_agi_models::HumanIntent, String> { warn!("Dummy HumanAGITeamingModule method called."); Err("Dummy module".to_string()) }
-            async fn facilitate_secure_collaboration(&self, _task_id: &str, _human_agent_id: &str, _agi_agent_id: &str) -> Result<crate::communication_bridge::human_agi_models::CollaborativeTask, String> { warn!("Dummy HumanAGITeamingModule method called."); Err("Dummy module".to_string()) }
-            async fn ensure_ethical_joint_decision_making(&self, _task_id: &str, _proposed_decision: &str) -> Result<crate::communication_bridge::human_agi_models::JointDecisionOutcome, String> { warn!("Dummy HumanAGITeamingModule method called."); Err("Dummy module".to_string()) }
-        }
-        let human_agi_teaming_module_arc_dummy: Arc<HumanAGITeamingModule> = Arc::new(HumanAGITeamingModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            theory_of_mind_module_arc.clone(),
             secure_channel_manager_arc.clone(),
-        ));
-        let hatm_dummy_service = HumanAGITeamingModule::as_os_service();
-        service_registry_arc.register_service(hatm_dummy_service.clone()).await?;
-
-        // EnvironmentalImpactModule Dummy
-        struct EnvironmentalImpactModuleDummy { event_bus: Arc<EventBus> }
-        impl EnvironmentalImpactModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { EnvironmentalImpactModuleDummy { event_bus } } }
-        impl EnvironmentalImpactModuleDummy {
-            async fn monitor_environmental_footprint(&self, _metric_type: &str, _observed_value: f64, _unit: &str, _source_module_id: &str) -> Result<crate::environmental::environmental_models::EnvironmentalFootprint, String> { warn!("Dummy EnvironmentalImpactModule method called."); Err("Dummy module".to_string()) }
-            async fn optimize_sustainable_resources(&self, _resource_type: &str, _current_usage: f64) -> Result<(), String> { warn!("Dummy EnvironmentalImpactModule method called."); Ok(()) }
-            async fn propose_ethical_eco_interventions(&self, _target_ecosystem: &str, _problem_summary: &str) -> Result<crate::environmental::environmental_models::EcoInterventionStrategy, String> { warn!("Dummy EnvironmentalImpactModule method called."); Err("Dummy module".to_string()) }
-        }
-        let environmental_impact_module_arc_dummy: Arc<EnvironmentalImpactModule> = Arc::new(EnvironmentalImpactModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
             resource_optimization_module_arc.clone(), // This depends on the *fully initialized* ResourceOptimizationModule
             self_organization_module_arc.clone(), // This depends on the *fully initialized* SelfOrganizationModule
         ));
-        let eim_dummy_service = EnvironmentalImpactModule::as_os_service();
-        service_registry_arc.register_service(eim_dummy_service.clone()).await?;
-
-        // SocialIntelligenceModule Dummy
-        struct SocialIntelligenceModuleDummy { event_bus: Arc<EventBus> }
-        impl SocialIntelligenceModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { SocialIntelligenceModuleDummy { event_bus } } }
-        impl SocialIntelligenceModuleDummy {
-            async fn learn_social_norms(&self, _observed_interaction: &str, _cultural_context_id: &str) -> Result<crate::environmental::social_models::SocialNorm, String> { warn!("Dummy SocialIntelligenceModule method called."); Err("Dummy module".to_string()) }
-            async fn understand_social_dynamics(&self, _interaction_summary: &str, _participants: Vec<String>) -> Result<crate::environmental::social_models::SocialInteractionEvent, String> { warn!("Dummy SocialIntelligenceModule method called."); Err("Dummy module".to_string()) }
-            async fn interact_ethically_and_securely(&self, _event_id: &str, _proposed_response: &str) -> Result<crate::environmental::social_models::SocialInteractionEvent, String> { warn!("Dummy SocialIntelligenceModule method called."); Err("Dummy module".to_string()) }
-        }
-        let social_intelligence_module_arc_dummy: Arc<SocialIntelligenceModule> = Arc::new(SocialIntelligenceModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            lifelong_learning_module_arc.clone(), // This depends on the *fully initialized* LifelongLearningModule
-            theory_of_mind_module_arc.clone(),
-        ));
-        let sim_dummy_service = SocialIntelligenceModule::as_os_service();
+        let sim_dummy_service = SwarmIntelligenceModule::as_os_service();
         service_registry_arc.register_service(sim_dummy_service.clone()).await?;
 
 
