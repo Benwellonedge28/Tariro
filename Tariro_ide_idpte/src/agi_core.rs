@@ -353,10 +353,6 @@ impl AgiCoreEngine {
         let self_modification_agent_service = SelfModificationAgent::as_os_service();
         service_registry_arc.register_service(self_modification_agent_service).await?;
 
-        // Initialize Cognitive Architecture LifelongLearningModule
-        // The LifelongLearningModule will take ALEC-A, QR-CTFO, CuriosityExplorationModule, ConceptFormationModule, CausalReasoningEngine, and CommonSenseReasoningNetwork as dependencies.
-        // Note: Initialize Curiosity, ConceptFormation, CausalReasoning and CommonSense first as LifelongLearningModule depends on them
-
         // Initialize Cognitive Architecture MetaLearner
         // The MetaLearner now takes ALEC-A and QR-CTFO orchestrators for verification
         let meta_learner_arc = Arc::new(MetaLearner::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone()));
@@ -377,6 +373,17 @@ impl AgiCoreEngine {
         // Register TheoryOfMindModule as a service
         let theory_of_mind_module_service = TheoryOfMindModule::as_os_service();
         service_registry_arc.register_service(theory_of_mind_module_service).await?;
+
+        // Initialize Cognitive Architecture LifelongLearningModule first, as others may depend on it
+        let lifelong_learning_module_arc = Arc::new(LifelongLearningModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            curiosity_exploration_module_arc.clone(), // Forward declaration/will be created soon
+            concept_formation_module_arc.clone(), // Forward declaration/will be created soon
+            causal_reasoning_engine_arc.clone(),
+            common_sense_reasoning_network_arc.clone(), // Forward declaration/will be created soon
+        ));
 
         // Initialize Cognitive Architecture CommonSenseReasoningNetwork
         // The CommonSenseReasoningNetwork now takes ALEC-A, QR-CTFO, ToM, and LifelongLearning dependencies
@@ -418,6 +425,36 @@ impl AgiCoreEngine {
         let analogical_reasoning_system_service = AnalogicalReasoningSystem::as_os_service();
         service_registry_arc.register_service(analogical_reasoning_system_service).await?;
 
+        // Initialize Cognitive Architecture CuriosityExplorationModule
+        // CuriosityExplorationModule now takes ALEC-A, QR-CTFO, MetaLearner, LifelongLearningModule, ConceptFormationModule, CausalReasoningEngine
+        let curiosity_exploration_module_arc = Arc::new(CuriosityExplorationModule::new(
+            event_bus_arc.clone(), 
+            aleca_orchestrator_arc.clone(), 
+            qr_ctfo_orchestrator_arc.clone(), 
+            meta_learner_arc.clone(), 
+            lifelong_learning_module_arc.clone(), 
+            concept_formation_module_arc.clone(), 
+            causal_reasoning_engine_arc.clone(),
+        ));
+        // Register CuriosityExplorationModule as a service
+        let curiosity_exploration_module_service = CuriosityExplorationModule::as_os_service();
+        service_registry_arc.register_service(curiosity_exploration_module_service).await?;
+
+        // NOW re-instantiate lifelong_learning_module_arc with its full dependencies since all others are available
+        // This is a common pattern for circular dependencies, initialize once then overwrite with full deps
+        let lifelong_learning_module_arc = Arc::new(LifelongLearningModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            curiosity_exploration_module_arc.clone(),
+            concept_formation_module_arc.clone(),
+            causal_reasoning_engine_arc.clone(),
+            common_sense_reasoning_network_arc.clone(),
+        ));
+        service_registry_arc.update_service_status("lifelong-learning-module", Some(ServiceStatus::Stopped)).await?;
+        service_registry_arc.register_service(lifelong_learning_module_service).await?;
+        // Re-register LifelongLearningModule with its correct dependencies.
+
         // Initialize Cognitive Architecture HierarchicalRLModule
         // HierarchicalRLModule now takes MetaGoalManager, CuriosityExplorationModule, ALEC-A, QR-CTFO, LifelongLearningModule, and AnalogicalReasoningSystem as dependencies.
         let hierarchical_rl_module_arc = Arc::new(HierarchicalRLModule::new(
@@ -433,17 +470,6 @@ impl AgiCoreEngine {
         let hierarchical_rl_module_service = HierarchicalRLModule::as_os_service();
         service_registry_arc.register_service(hierarchical_rl_module_service).await?;
 
-        let lifelong_learning_module_arc = Arc::new(LifelongLearningModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            curiosity_exploration_module_arc.clone(),
-            concept_formation_module_arc.clone(),
-            causal_reasoning_engine_arc.clone(),
-            common_sense_reasoning_network_arc.clone(),
-        ));
-        let lifelong_learning_module_service = LifelongLearningModule::as_os_service();
-        service_registry_arc.register_service(lifelong_learning_module_service).await?;
 
         // Initialize Cognitive Architecture IntuitionHeuristicGenerator
         let intuition_heuristic_generator_arc = Arc::new(IntuitionHeuristicGenerator::new(event_bus_arc.clone()));
