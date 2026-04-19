@@ -56,6 +56,7 @@ use crate::cognitive_arch::common_sense_reasoning::CommonSenseReasoningNetwork; 
 use crate::cognitive_arch::concept_formation::ConceptFormationModule; // Import ConceptFormationModule
 use crate::cognitive_arch::hierarchical_rl::HierarchicalRLModule; // Import HierarchicalRLModule
 use crate::cognitive_arch::lifelong_learning::LifelongLearningModule; // Import LifelongLearningModule
+use crate::cognitive_arch::curiosity_exploration::CuriosityExplorationModule; // Import CuriosityExplorationModule
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -129,6 +130,8 @@ pub struct AgiCoreEngine {
     pub hierarchical_rl_module: Arc<HierarchicalRLModule>,
     // Cognitive Arch LifelongLearningModule
     pub lifelong_learning_module: Arc<LifelongLearningModule>,
+    // Cognitive Arch CuriosityExplorationModule
+    pub curiosity_exploration_module: Arc<CuriosityExplorationModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -414,6 +417,12 @@ impl AgiCoreEngine {
         let lifelong_learning_module_service = LifelongLearningModule::as_os_service();
         service_registry_arc.register_service(lifelong_learning_module_service).await?;
 
+        // Initialize Cognitive Architecture CuriosityExplorationModule
+        let curiosity_exploration_module_arc = Arc::new(CuriosityExplorationModule::new(event_bus_arc.clone()));
+        // Register CuriosityExplorationModule as a service
+        let curiosity_exploration_module_service = CuriosityExplorationModule::as_os_service();
+        service_registry_arc.register_service(curiosity_exploration_module_service).await?;
+
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
         let ide_communication_bridge = Arc::new(CommunicationBridge::new(
@@ -451,6 +460,7 @@ impl AgiCoreEngine {
             concept_formation_module: concept_formation_module_arc.clone(), // Assign concept formation module
             hierarchical_rl_module: hierarchical_rl_module_arc.clone(), // Assign hierarchical RL module
             lifelong_learning_module: lifelong_learning_module_arc.clone(), // Assign lifelong learning module
+            curiosity_exploration_module: curiosity_exploration_module_arc.clone(), // Assign curiosity exploration module
             service_command_rx,
         };
         
