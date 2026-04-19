@@ -55,6 +55,7 @@ use crate::cognitive_arch::analogical_reasoning::AnalogicalReasoningSystem; // I
 use crate::cognitive_arch::common_sense_reasoning::CommonSenseReasoningNetwork; // Import CommonSenseReasoningNetwork
 use crate::cognitive_arch::concept_formation::ConceptFormationModule; // Import ConceptFormationModule
 use crate::cognitive_arch::hierarchical_rl::HierarchicalRLModule; // Import HierarchicalRLModule
+use crate::cognitive_arch::lifelong_learning::LifelongLearningModule; // Import LifelongLearningModule
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -126,6 +127,8 @@ pub struct AgiCoreEngine {
     pub concept_formation_module: Arc<ConceptFormationModule>,
     // Cognitive Arch HierarchicalRLModule
     pub hierarchical_rl_module: Arc<HierarchicalRLModule>,
+    // Cognitive Arch LifelongLearningModule
+    pub lifelong_learning_module: Arc<LifelongLearningModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -405,6 +408,12 @@ impl AgiCoreEngine {
         let hierarchical_rl_module_service = HierarchicalRLModule::as_os_service();
         service_registry_arc.register_service(hierarchical_rl_module_service).await?;
 
+        // Initialize Cognitive Architecture LifelongLearningModule
+        let lifelong_learning_module_arc = Arc::new(LifelongLearningModule::new(event_bus_arc.clone()));
+        // Register LifelongLearningModule as a service
+        let lifelong_learning_module_service = LifelongLearningModule::as_os_service();
+        service_registry_arc.register_service(lifelong_learning_module_service).await?;
+
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
         let ide_communication_bridge = Arc::new(CommunicationBridge::new(
@@ -436,11 +445,12 @@ impl AgiCoreEngine {
             self_modification_agent: self_modification_agent_arc.clone(), // Assign self-modification agent
             meta_learner: meta_learner_arc.clone(), // Assign meta-learner
             causal_reasoning_engine: causal_reasoning_engine_arc.clone(), // Assign causal reasoning engine
-            theory_of_mind_module: theory_of_mind_module_module_arc.clone(), // Assign theory of mind module
+            theory_of_mind_module: theory_of_mind_module_arc.clone(), // Assign theory of mind module
             analogical_reasoning_system: analogical_reasoning_system_arc.clone(), // Assign analogical reasoning system
             common_sense_reasoning_network: common_sense_reasoning_network_arc.clone(), // Assign common sense reasoning network
             concept_formation_module: concept_formation_module_arc.clone(), // Assign concept formation module
             hierarchical_rl_module: hierarchical_rl_module_arc.clone(), // Assign hierarchical RL module
+            lifelong_learning_module: lifelong_learning_module_arc.clone(), // Assign lifelong learning module
             service_command_rx,
         };
         
