@@ -51,6 +51,7 @@ use crate::omega_os::self_modification_agent::SelfModificationAgent; // Import S
 use crate::cognitive_arch::meta_learner::MetaLearner;
 use crate::cognitive_arch::causal_reasoning::CausalReasoningEngine; // Import CausalReasoningEngine
 use crate::cognitive_arch::theory_of_mind::TheoryOfMindModule; // Import TheoryOfMindModule
+use crate::cognitive_arch::analogical_reasoning::AnalogicalReasoningSystem; // Import AnalogicalReasoningSystem
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -114,6 +115,8 @@ pub struct AgiCoreEngine {
     pub causal_reasoning_engine: Arc<CausalReasoningEngine>,
     // Cognitive Arch TheoryOfMindModule
     pub theory_of_mind_module: Arc<TheoryOfMindModule>,
+    // Cognitive Arch AnalogicalReasoningSystem
+    pub analogical_reasoning_system: Arc<AnalogicalReasoningSystem>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -171,7 +174,7 @@ impl AgiCoreEngine {
             capabilities: vec![
                 ServiceCapability { name: "prepare_context".to_string(), description: "Prepares an isolated application context.".to_string(), parameters: HashMap::new(), output_schema: "ApplicationContext".to_string(), requires_permissions: vec![], requires_ethical_review: true },
                 ServiceCapability { name: "execute_application_in_context".to_string(), description: "Executes an application within its prepared context.".to_string(), parameters: HashMap::new(), output_schema: "".to_string(), requires_permissions: vec!["execute".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "terminate_context".to_string(), description: "Terminates an application context.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec![], requires_ethical_review: true },
+                ServiceCapability { name: "terminate_context".to_string(), description: "Terminates an application context.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
             ],
             status: ServiceStatus::Running,
             registered_at: Utc::now(),
@@ -369,6 +372,12 @@ impl AgiCoreEngine {
         let theory_of_mind_module_service = TheoryOfMindModule::as_os_service();
         service_registry_arc.register_service(theory_of_mind_module_service).await?;
 
+        // Initialize Cognitive Architecture AnalogicalReasoningSystem
+        let analogical_reasoning_system_arc = Arc::new(AnalogicalReasoningSystem::new(event_bus_arc.clone()));
+        // Register AnalogicalReasoningSystem as a service
+        let analogical_reasoning_system_service = AnalogicalReasoningSystem::as_os_service();
+        service_registry_arc.register_service(analogical_reasoning_system_service).await?;
+
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
         let ide_communication_bridge = Arc::new(CommunicationBridge::new(
@@ -401,6 +410,7 @@ impl AgiCoreEngine {
             meta_learner: meta_learner_arc.clone(), // Assign meta-learner
             causal_reasoning_engine: causal_reasoning_engine_arc.clone(), // Assign causal reasoning engine
             theory_of_mind_module: theory_of_mind_module_arc.clone(), // Assign theory of mind module
+            analogical_reasoning_system: analogical_reasoning_system_arc.clone(), // Assign analogical reasoning system
             service_command_rx,
         };
         
