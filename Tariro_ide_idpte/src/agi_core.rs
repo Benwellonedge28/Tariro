@@ -42,6 +42,9 @@ use crate::omega_os::runtime_environment::RuntimeEnvironment; // Import RuntimeE
 use crate::omega_os::app_loader::{AppLoader, ApplicationInfo}; // Import AppLoader
 use crate::omega_os::network_manager::NetworkManager; // Import NetworkManager
 use crate::omega_os::secure_channel_manager::SecureChannelManager; // Import SecureChannelManager
+use crate::omega_os::data_manager::DataManager; // Import DataManager
+use crate::omega_os::storage_abstraction::StorageAbstraction; // Import StorageAbstraction
+use crate::omega_os::data_models::EncryptionPolicy; // For example usage
 
 /// Trait for auditing different AGI system modules.
 /// This provides a standardized way for ALEC-A to query the compliance status of other modules.
@@ -83,6 +86,10 @@ pub struct AgiCoreEngine {
     pub network_manager: Arc<NetworkManager>,
     // OMEGA OS Secure Channel Manager
     pub secure_channel_manager: Arc<SecureChannelManager>,
+    // OMEGA OS Storage Abstraction
+    pub storage_abstraction: Arc<StorageAbstraction>,
+    // OMEGA OS Data Manager
+    pub data_manager: Arc<DataManager>,
 }
 
 impl AgiCoreEngine {
@@ -172,7 +179,7 @@ impl AgiCoreEngine {
         let network_manager_service = NetworkManager::as_os_service();
         service_registry_arc.register_service(network_manager_service).await?;
 
-        // Initialize OMEGA OS Secure Channel Manager
+        // Initialize QR-CTFO Orchestrator
         let qr_ctfo_options = QrCtfoOptions::default();
         let qr_ctfo_policy_engine_arc = Arc::new(Mutex::new(crate::crypto_fabric::trust_policy_engine::TrustPolicyEngine::new()));
         let (mut qr_ctfo_orchestrator_instance, qrctfo_compliance_directive_sender_tx) = QrCtfoOrchestrator::new(qr_ctfo_options, qr_ctfo_policy_engine_arc.clone(), event_bus_arc.clone()); // Pass EventBus
@@ -181,6 +188,18 @@ impl AgiCoreEngine {
         // Register Secure Channel Manager as a service
         let secure_channel_manager_service = SecureChannelManager::as_os_service();
         service_registry_arc.register_service(secure_channel_manager_service).await?;
+
+        // Initialize OMEGA OS Storage Abstraction
+        let storage_abstraction_arc = Arc::new(StorageAbstraction::new(event_bus_arc.clone()));
+        // Register Storage Abstraction as a service
+        let storage_abstraction_service = StorageAbstraction::as_os_service();
+        service_registry_arc.register_service(storage_abstraction_service).await?;
+
+        // Initialize OMEGA OS Data Manager
+        let data_manager_arc = Arc::new(DataManager::new(storage_abstraction_arc.clone(), qr_ctfo_orchestrator_arc.clone(), event_bus_arc.clone()));
+        // Register Data Manager as a service
+        let data_manager_service = DataManager::as_os_service();
+        service_registry_arc.register_service(data_manager_service).await?;
 
         // Initialize S.O.R.A.E. Orchestrator
         let sorae_options = SORAEOptions::default();
@@ -214,9 +233,9 @@ impl AgiCoreEngine {
         service_registry_arc.register_service(sorae_service).await?;
 
         // Initialize QR-CTFO Orchestrator (continued from above)
-        let qr_ctfo_orchestrator_clone = qr_ctfo_orchestrator_arc.clone();
+        let qr_ctfo_orchestrator_clone_for_spawn = qr_ctfo_orchestrator_arc.clone();
         tokio::spawn(async move {
-            if let Err(e) = qr_ctfo_orchestrator_clone.lock().unwrap().start_loop().await {
+            if let Err(e) = qr_ctfo_orchestrator_clone_for_spawn.lock().unwrap().start_loop().await {
                 eprintln!("QR-CTFO Orchestrator failed: {:?}", e);
             }
         });
@@ -313,6 +332,8 @@ impl AgiCoreEngine {
             app_loader: app_loader_arc.clone(), // Assign app loader
             network_manager: network_manager_arc.clone(), // Assign network manager
             secure_channel_manager: secure_channel_manager_arc.clone(), // Assign secure channel manager
+            storage_abstraction: storage_abstraction_arc.clone(), // Assign storage abstraction
+            data_manager: data_manager_arc.clone(), // Assign data manager
         };
         
         let agi_auditor_arc = Arc::new(agi_core_engine_instance);
@@ -385,6 +406,81 @@ impl AgiSystemAuditor for AgiCoreEngine {
             issues_found: vec!["Stylistic drift detected from user preferences.".to_string()],
             recommendations: vec!["Review human style learner parameters.".to_string()],
             last_audited: chrono::Utc::now(),
+        }
+    }
+}
+
+impl AgiCoreEngine {
+    /// Starts a service by loading its application and launching it.
+    pub async fn start_service(&self, app_info: ApplicationInfo, args: Option<Vec<String>>) -> Result<String, String> {
+        info!("AGI Core: Starting service '{}'.", app_info.name);
+        let instance_id = self.app_loader.launch_application(&app_info, args, Some("AgiCoreEngine".to_string())).await?;
+        self.service_registry.update_service_status(&app_info.id, Some(ServiceStatus::Running)).await?;
+        self.event_bus.publish(EventEnvelope::new("AgiCoreEngine".to_string(), OsEvent::ServiceStatusChanged(app_info.id.clone(), "Running".to_string()))).await;
+        Ok(instance_id)
+    }
+
+    /// Stops a running service by terminating its application instance.
+    pub async fn stop_service(&self, service_id: &str) -> Result<(), String> {
+        info!("AGI Core: Stopping service '{}'.", service_id);
+        // Need to map service_id to ApplicationInstanceId and ProcessId
+        // For now, assume service_id is directly mappable to an instance managed by AppLoader
+        self.app_loader.terminate_application(&format!("app-instance-{}", service_id)).await?;
+        self.service_registry.update_service_status(service_id, Some(ServiceStatus::Stopped)).await?;
+        self.event_bus.publish(EventEnvelope::new("AgiCoreEngine".to_string(), OsEvent::ServiceStatusChanged(service_id.to_string(), "Stopped".to_string()))).await;
+        Ok(())
+    }
+
+    /// Restarts a service.
+    pub async fn restart_service(&self, service_id: &str, app_info: ApplicationInfo, args: Option<Vec<String>>) -> Result<String, String> {
+        info!("AGI Core: Restarting service '{}'.", service_id);
+        self.stop_service(service_id).await.ok(); // Ignore error if already stopped
+        self.start_service(app_info, args).await
+    }
+
+    /// Reconfigures a service (placeholder for more complex config management).
+    pub async fn reconfigure_service(&self, service_id: &str, config: Value) -> Result<(), String> {
+        info!("AGI Core: Reconfiguring service '{}' with config: {:?}.", service_id, config);
+        // This would involve sending config updates to the running service process
+        self.event_bus.publish(EventEnvelope::new("AgiCoreEngine".to_string(), OsEvent::Custom("ServiceReconfigured".to_string(), format!("{{ \"service_id\": \"{}\", \"config\": {} }}", service_id, config)))).await;
+        Ok(())
+    }
+
+    /// Handles OMEGA OS events, providing self-healing and dynamic orchestration.
+    pub async fn handle_os_event(self: Arc<Self>) -> Result<()> {
+        info!("AGI Core: Starting OS event handler.");
+        let mut receiver = self.event_bus.subscribe();
+
+        loop {
+            match receiver.recv().await {
+                Ok(event_envelope) => {
+                    info!("AGI Core: Received OS event: {:?} from {}.", event_envelope.event, event_envelope.source_module);
+                    match event_envelope.event {
+                        OsEvent::ProcessTerminated(process_id, reason) => {
+                            warn!("AGI Core: Detected process terminated: {} (Reason: {}). Initiating self-healing.", process_id, reason);
+                            // Look up service associated with this process_id and attempt restart
+                            // For now, a simplified self-healing for a mock critical service
+                            if process_id.contains("critical_service") {
+                                warn!("AGI Core: Critical service process {} terminated. Attempting restart.", process_id);
+                                // This would need the original ApplicationInfo to restart.
+                                // For demonstration, let's just log and simulate a restart decision.
+                                self.event_bus.publish(EventEnvelope::new("AgiCoreEngine".to_string(), OsEvent::Custom("SelfHealingAction".to_string(), format!("Attempting restart of service associated with process {}", process_id)))).await;
+                            }
+                        },
+                        OsEvent::ServiceStatusChanged(service_id, new_status) => {
+                            info!("AGI Core: Service {} status changed to {}.", service_id, new_status);
+                            // Update internal state or trigger further actions based on status change
+                        },
+                        OsEvent::ComplianceViolationDetected(status) => {
+                            error!("AGI Core: Compliance violation detected: {:?}.", status);
+                            // Potentially trigger autonomous service stop or reconfiguration
+                            // self.stop_service("some_service_id").await;
+                        }
+                        _ => (),
+                    }
+                },
+                Err(e) => error!("AGI Core: Event bus receive error: {}", e),
+            }
         }
     }
 }
