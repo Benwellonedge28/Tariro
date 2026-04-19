@@ -58,6 +58,7 @@ use crate::cognitive_arch::hierarchical_rl::HierarchicalRLModule; // Import Hier
 use crate::cognitive_arch::lifelong_learning::LifelongLearningModule; // Import LifelongLearningModule
 use crate::cognitive_arch::curiosity_exploration::CuriosityExplorationModule; // Import CuriosityExplorationModule
 use crate::cognitive_arch::intuition_heuristics::IntuitionHeuristicGenerator; // Import IntuitionHeuristicGenerator
+use crate::cognitive_arch::metacognition::MetacognitionModule; // Import MetacognitionModule
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -133,6 +134,8 @@ pub struct AgiCoreEngine {
     pub curiosity_exploration_module: Arc<CuriosityExplorationModule>,
     // Cognitive Arch IntuitionHeuristicGenerator
     pub intuition_heuristic_generator: Arc<IntuitionHeuristicGenerator>,
+    // Cognitive Arch MetacognitionModule
+    pub metacognition_module: Arc<MetacognitionModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -369,99 +372,190 @@ impl AgiCoreEngine {
         let theory_of_mind_module_service = TheoryOfMindModule::as_os_service();
         service_registry_arc.register_service(theory_of_mind_module_service).await?;
 
-        // 2. Placeholder for LifelongLearningModule due to circular dependencies
-        // This dummy version will be used by other modules during their initialization.
-        // Its methods will ideally not be called until the real instance replaces it.
-        #[derive(Debug)]
+        // 2. Placeholder/Dummy modules for circular dependencies during initial setup
+        // These will be fully instantiated and replace the dummies later.
+        // LifelongLearningModule Dummy
         struct LifelongLearningModuleDummy { event_bus: Arc<EventBus> }
         impl LifelongLearningModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { LifelongLearningModuleDummy { event_bus } } }
-        // Implement dummy methods to avoid panics
+        // Implement necessary dummy methods for LifelongLearningModule's trait/struct
         impl LifelongLearningModuleDummy {
             async fn integrate_new_experience(&self, _experience: crate::cognitive_arch::learning_memory_models::LearningExperience, _new_knowledge: Vec<crate::cognitive_arch::learning_memory_models::KnowledgeChunk>) -> Result<(), String> { warn!("Dummy LifelongLearningModule method called."); Ok(()) }
             async fn integrate_knowledge_from_source(&self, _source_module_id: &str, _relevant_info_summary: &str) -> Result<(), String> { warn!("Dummy LifelongLearningModule method called."); Ok(()) }
             async fn consolidate_knowledge(&self, _knowledge_chunk_id: &str, _forgetting_prevention_strategy: &str) -> Result<crate::cognitive_arch::learning_memory_models::ConsolidatedKnowledge, String> { warn!("Dummy LifelongLearningModule method called."); Err("Dummy module".to_string()) }
             async fn refine_knowledge_base(&self) -> Result<(), String> { warn!("Dummy LifelongLearningModule method called."); Ok(()) }
         }
-        impl From<LifelongLearningModuleDummy> for LifelongLearningModule {
-            fn from(dummy: LifelongLearningModuleDummy) -> Self {
-                // This conversion should ideally not be used. It's a hack for Arc<T> needing a concrete type.
-                // Proper solution involves different dependency injection or shared state pattern.
-                unimplemented!("Conversion from dummy to real LifelongLearningModule is not intended for direct use.")
-            }
-        }
+        let lifelong_learning_module_arc_dummy: Arc<LifelongLearningModule> = Arc::new(LifelongLearningModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), Arc::new(CuriosityExplorationModule::new_dummy(event_bus_arc.clone())), Arc::new(ConceptFormationModule::new_dummy(event_bus_arc.clone())), causal_reasoning_engine_arc.clone(), Arc::new(CommonSenseReasoningNetwork::new_dummy(event_bus_arc.clone()))));
+        let ll_dummy_service = LifelongLearningModule::as_os_service(); // Get service definition from real module
+        service_registry_arc.register_service(ll_dummy_service.clone()).await?;
 
-        // The actual LifelongLearningModule expects these other modules as dependencies.
-        // So, we'll create an Arc<dyn Trait> later if Rust allowed easy Arc casting to different types, or use unsafe.
-        // For now, let's create a *real* placeholder for the Arc to ensure type compatibility during initialization.
-        let lifelong_learning_module_arc_placeholder: Arc<LifelongLearningModule> = Arc::new(LifelongLearningModule::new(
+        // CommonSenseReasoningNetwork Dummy
+        struct CommonSenseReasoningNetworkDummy { event_bus: Arc<EventBus> }
+        impl CommonSenseReasoningNetworkDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { CommonSenseReasoningNetworkDummy { event_bus } } }
+        impl CommonSenseReasoningNetworkDummy {
+            async fn infer_request_context(&self, _agent_id: &str, _base_request: &str) -> Result<crate::cognitive_arch::common_sense_models::InferredContext, String> { warn!("Dummy CommonSenseReasoningNetwork method called."); Err("Dummy module".to_string()) }
+            async fn generate_common_sense_plan(&self, _goal_id: &str, _context: &crate::cognitive_arch::common_sense_models::InferredContext) -> Result<crate::cognitive_arch::common_sense_models::CommonSensePlan, String> { warn!("Dummy CommonSenseReasoningNetwork method called."); Err("Dummy module".to_string()) }
+            async fn add_fact(&self, _fact: crate::cognitive_arch::common_sense_models::CommonSenseFact) -> Result<(), String> { warn!("Dummy CommonSenseReasoningNetwork method called."); Ok(()) }
+            async fn check_plausibility(&self, _statement: &str) -> Result<f64, String> { warn!("Dummy CommonSenseReasoningNetwork method called."); Ok(0.5) }
+        }
+        let common_sense_reasoning_network_arc_dummy: Arc<CommonSenseReasoningNetwork> = Arc::new(CommonSenseReasoningNetwork::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+            lifelong_learning_module_arc_dummy.clone()
+        ));
+        let csr_dummy_service = CommonSenseReasoningNetwork::as_os_service();
+        service_registry_arc.register_service(csr_dummy_service.clone()).await?;
+
+        // ConceptFormationModule Dummy
+        struct ConceptFormationModuleDummy { event_bus: Arc<EventBus> }
+        impl ConceptFormationModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { ConceptFormationModuleDummy { event_bus } } }
+        impl ConceptFormationModuleDummy {
+            async fn process_data_stream(&self, _stream: &crate::cognitive_arch::concept_models::RawDataStream) -> Result<Vec<String>, String> { warn!("Dummy ConceptFormationModule method called."); Ok(vec![]) }
+            async fn verify_and_integrate_concept(&self, _concept: crate::cognitive_arch::concept_models::DiscoveredConcept) -> Result<crate::cognitive_arch::concept_models::DiscoveredConcept, String> { warn!("Dummy ConceptFormationModule method called."); Err("Dummy module".to_string()) }
+            async fn organize_hierarchy(&self, _root_concept_id: &str) -> Result<crate::cognitive_arch::concept_models::ConceptualHierarchy, String> { warn!("Dummy ConceptFormationModule method called."); Err("Dummy module".to_string()) }
+        }
+        let concept_formation_module_arc_dummy: Arc<ConceptFormationModule> = Arc::new(ConceptFormationModule::new(
+            event_bus_arc.clone(), 
+            meta_learner_arc.clone(), 
+            aleca_orchestrator_arc.clone(), 
+            qr_ctfo_orchestrator_arc.clone(), 
+            common_sense_reasoning_network_arc_dummy.clone(), 
+            lifelong_learning_module_arc_dummy.clone()
+        ));
+        let cfm_dummy_service = ConceptFormationModule::as_os_service();
+        service_registry_arc.register_service(cfm_dummy_service.clone()).await?;
+
+        // CuriosityExplorationModule Dummy
+        struct CuriosityExplorationModuleDummy { event_bus: Arc<EventBus> }
+        impl CuriosityExplorationModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { CuriosityExplorationModuleDummy { event_bus } } }
+        impl CuriosityExplorationModuleDummy {
+            async fn evaluate_novelty(&self, _observation_summary: &str) -> Result<crate::cognitive_arch::exploration_models::NoveltyScore, String> { warn!("Dummy CuriosityExplorationModule method called."); Err("Dummy module".to_string()) }
+            async fn generate_intrinsic_reward(&self, _novelty_score: &crate::cognitive_arch::exploration_models::NoveltyScore) -> Result<crate::cognitive_arch::exploration_models::IntrinsicReward, String> { warn!("Dummy CuriosityExplorationModule method called."); Err("Dummy module".to_string()) }
+            async fn select_exploration_target(&self, _current_environment_summary: &str) -> Result<crate::cognitive_arch::exploration_models::ExplorationTarget, String> { warn!("Dummy CuriosityExplorationModule method called."); Err("Dummy module".to_string()) }
+        }
+        let curiosity_exploration_module_arc_dummy: Arc<CuriosityExplorationModule> = Arc::new(CuriosityExplorationModule::new(
             event_bus_arc.clone(), 
             aleca_orchestrator_arc.clone(), 
             qr_ctfo_orchestrator_arc.clone(), 
-            // Recursive dependencies; these will be replaced with fully initialized versions later.
-            // For now, using a temporary mechanism like passing itself or creating a dummy, 
-            // then updating its internal state, or fully replacing the Arc.
-            // Given Arc's immutability, the latter is the only correct way, requiring re-instantiation.
-            // For this simulation, we'll initialize with the currently available, potentially dummy, versions.
-            curiosity_exploration_module_arc.clone(), // Dummy or not yet fully initialized
-            concept_formation_module_arc.clone(), // Dummy or not yet fully initialized
+            meta_learner_arc.clone(), 
+            lifelong_learning_module_arc_dummy.clone(), 
+            concept_formation_module_arc_dummy.clone(), 
             causal_reasoning_engine_arc.clone(),
-            common_sense_reasoning_network_arc.clone(), // Dummy or not yet fully initialized
         ));
-        let ll_service_placeholder = LifelongLearningModule::as_os_service();
-        service_registry_arc.register_service(ll_service_placeholder).await?;
-        
-        // We will create dummy Arc for modules that are needed by other modules during initial setup but are not yet fully constructed
-        // These will be replaced by actual instances later on in the build process once all dependencies are met.
-        // This prevents immediate circular dependency errors but requires careful management of the final Arc references.
+        let cem_dummy_service = CuriosityExplorationModule::as_os_service();
+        service_registry_arc.register_service(cem_dummy_service.clone()).await?;
+
+        // AnalogicalReasoningSystem Dummy (depends on MetaLearner, ALEC-A, QR-CTFO, ConceptFormationModule)
+        struct AnalogicalReasoningSystemDummy { event_bus: Arc<EventBus> }
+        impl AnalogicalReasoningSystemDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { AnalogicalReasoningSystemDummy { event_bus } } }
+        impl AnalogicalReasoningSystemDummy {
+            async fn find_analogies(&self, _target_domain: &crate::cognitive_arch::analogy_models::TargetDomain) -> Result<Vec<crate::cognitive_arch::analogy_models::AnalogyMapping>, String> { warn!("Dummy AnalogicalReasoningSystem method called."); Ok(vec![]) }
+            async fn adapt_and_verify_solution(&self, _analogy: &crate::cognitive_arch::analogy_models::AnalogyMapping, _original_solution: &str) -> Result<crate::cognitive_arch::analogy_models::AdaptedSolution, String> { warn!("Dummy AnalogicalReasoningSystem method called."); Err("Dummy module".to_string()) }
+            async fn evaluate_analogy(&self, _analogy_id: &str, _adapted_solution_id: &str, _actual_outcome: f64, _feedback: &str) -> Result<(), String> { warn!("Dummy AnalogicalReasoningSystem method called."); Ok(()) }
+        }
+        let analogical_reasoning_system_arc_dummy: Arc<AnalogicalReasoningSystem> = Arc::new(AnalogicalReasoningSystem::new(
+            event_bus_arc.clone(), 
+            aleca_orchestrator_arc.clone(), 
+            qr_ctfo_orchestrator_arc.clone(), 
+            concept_formation_module_arc_dummy.clone(), 
+            meta_learner_arc.clone(), 
+        ));
+        let ars_dummy_service = AnalogicalReasoningSystem::as_os_service();
+        service_registry_arc.register_service(ars_dummy_service.clone()).await?;
+
+        // HierarchicalRLModule Dummy (depends on MetaGoalManager, Curiosity, ALEC-A, QR-CTFO, LifelongLearning, AnalogicalReasoning)
+        struct HierarchicalRLModuleDummy { event_bus: Arc<EventBus> }
+        impl HierarchicalRLModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { HierarchicalRLModuleDummy { event_bus } } }
+        impl HierarchicalRLModuleDummy {
+            async fn generate_goals_from_meta_goal(&self, _meta_goal_id: &str, _environmental_opportunities: &str) -> Result<Vec<crate::cognitive_arch::h_rl_models::HighLevelGoal>, String> { warn!("Dummy HierarchicalRLModule method called."); Ok(vec![]) }
+            async fn select_high_level_goal(&self) -> Result<Option<crate::cognitive_arch::h_rl_models::HighLevelGoal>, String> { warn!("Dummy HierarchicalRLModule method called."); Ok(None) }
+            async fn decompose_goal(&self, _goal_id: &str) -> Result<Vec<String>, String> { warn!("Dummy HierarchicalRLModule method called."); Ok(vec![]) }
+            async fn learn_policy(&self, _sub_goal_id: &str) -> Result<String, String> { warn!("Dummy HierarchicalRLModule method called."); Err("Dummy module".to_string()) }
+            async fn adapt_or_transfer_policy(&self, _policy_id: &str, _performance_feedback: f64, _environmental_change_summary: &str) -> Result<String, String> { warn!("Dummy HierarchicalRLModule method called."); Err("Dummy module".to_string()) }
+        }
+        let hierarchical_rl_module_arc_dummy: Arc<HierarchicalRLModule> = Arc::new(HierarchicalRLModule::new(
+            event_bus_arc.clone(), 
+            meta_goal_manager_arc.clone(), 
+            curiosity_exploration_module_arc_dummy.clone(), 
+            aleca_orchestrator_arc.clone(), 
+            qr_ctfo_orchestrator_arc.clone(), 
+            lifelong_learning_module_arc_dummy.clone(), 
+            analogical_reasoning_system_arc_dummy.clone(),
+        ));
+        let hrl_dummy_service = HierarchicalRLModule::as_os_service();
+        service_registry_arc.register_service(hrl_dummy_service.clone()).await?;
+
+
+        // 3. Fully Initialize Modules (replacing dummies where needed)
+        // LifelongLearningModule depends on Curiosity, ConceptFormation, Causal, CommonSense
+        // Re-initialize and replace the placeholder LifelongLearningModule
+        service_registry_arc.deregister_service("lifelong-learning-module").await?;
+        let lifelong_learning_module_arc = Arc::new(LifelongLearningModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            curiosity_exploration_module_arc_dummy.clone(), // Use dummy as curiosity needs LLM too
+            concept_formation_module_arc_dummy.clone(), // Use dummy as concept formation needs LLM too
+            causal_reasoning_engine_arc.clone(),
+            common_sense_reasoning_network_arc_dummy.clone(), // Use dummy as CSR needs LLM too
+        ));
+        let ll_service_full = LifelongLearningModule::as_os_service();
+        service_registry_arc.register_service(ll_service_full).await?;
+
+        // Re-initialize CommonSenseReasoningNetwork
+        service_registry_arc.deregister_service("common-sense-reasoning").await?;
         let common_sense_reasoning_network_arc = Arc::new(CommonSenseReasoningNetwork::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             theory_of_mind_module_arc.clone(),
-            lifelong_learning_module_arc_placeholder.clone()
+            lifelong_learning_module_arc.clone()
         ));
-        let common_sense_reasoning_network_service = CommonSenseReasoningNetwork::as_os_service();
-        service_registry_arc.register_service(common_sense_reasoning_network_service).await?;
-
+        let csr_service_full = CommonSenseReasoningNetwork::as_os_service();
+        service_registry_arc.register_service(csr_service_full).await?;
+        
+        // Re-initialize ConceptFormationModule
+        service_registry_arc.deregister_service("concept-formation-module").await?;
         let concept_formation_module_arc = Arc::new(ConceptFormationModule::new(
             event_bus_arc.clone(), 
             meta_learner_arc.clone(), 
             aleca_orchestrator_arc.clone(), 
             qr_ctfo_orchestrator_arc.clone(), 
             common_sense_reasoning_network_arc.clone(), 
-            lifelong_learning_module_arc_placeholder.clone()
+            lifelong_learning_module_arc.clone()
         ));
-        let concept_formation_module_service = ConceptFormationModule::as_os_service();
-        service_registry_arc.register_service(concept_formation_module_service).await?;
+        let cfm_service_full = ConceptFormationModule::as_os_service();
+        service_registry_arc.register_service(cfm_service_full).await?;
 
+        // Re-initialize CuriosityExplorationModule
+        service_registry_arc.deregister_service("curiosity-exploration-module").await?;
         let curiosity_exploration_module_arc = Arc::new(CuriosityExplorationModule::new(
             event_bus_arc.clone(), 
             aleca_orchestrator_arc.clone(), 
             qr_ctfo_orchestrator_arc.clone(), 
             meta_learner_arc.clone(), 
-            lifelong_learning_module_arc_placeholder.clone(), 
+            lifelong_learning_module_arc.clone(), 
             concept_formation_module_arc.clone(), 
             causal_reasoning_engine_arc.clone(),
         ));
-        let curiosity_exploration_module_service = CuriosityExplorationModule::as_os_service();
-        service_registry_arc.register_service(curiosity_exploration_module_service).await?;
+        let cem_service_full = CuriosityExplorationModule::as_os_service();
+        service_registry_arc.register_service(cem_service_full).await?;
 
-        // Full initialization of LifelongLearningModule (now that all its dependencies are initialized)
-        let lifelong_learning_module_arc = Arc::new(LifelongLearningModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            curiosity_exploration_module_arc.clone(),
-            concept_formation_module_arc.clone(),
-            causal_reasoning_engine_arc.clone(),
-            common_sense_reasoning_network_arc.clone(),
+        // Re-initialize AnalogicalReasoningSystem (if its dependencies changed, which they did due to concept_formation_module_arc)
+        service_registry_arc.deregister_service("analogical-reasoning-system").await?;
+        let analogical_reasoning_system_arc = Arc::new(AnalogicalReasoningSystem::new(
+            event_bus_arc.clone(), 
+            aleca_orchestrator_arc.clone(), 
+            qr_ctfo_orchestrator_arc.clone(), 
+            concept_formation_module_arc.clone(), 
+            meta_learner_arc.clone(), 
         ));
-        // Re-register to ensure the fully initialized version is used.
-        service_registry_arc.deregister_service("lifelong-learning-module").await?;
-        let ll_full_service = LifelongLearningModule::as_os_service();
-        service_registry_arc.register_service(ll_full_service).await?;
+        let ars_service_full = AnalogicalReasoningSystem::as_os_service();
+        service_registry_arc.register_service(ars_service_full).await?;
 
-        // Initialize Cognitive Architecture HierarchicalRLModule
+        // Re-initialize HierarchicalRLModule
+        service_registry_arc.deregister_service("hierarchical-rl-module").await?;
         let hierarchical_rl_module_arc = Arc::new(HierarchicalRLModule::new(
             event_bus_arc.clone(), 
             meta_goal_manager_arc.clone(), 
@@ -471,8 +565,18 @@ impl AgiCoreEngine {
             lifelong_learning_module_arc.clone(), 
             analogical_reasoning_system_arc.clone(),
         ));
-        let hierarchical_rl_module_service = HierarchicalRLModule::as_os_service();
-        service_registry_arc.register_service(hierarchical_rl_module_service).await?;
+        let hrl_service_full = HierarchicalRLModule::as_os_service();
+        service_registry_arc.register_service(hrl_service_full).await?;
+
+        // Initialize MetacognitionModule
+        let metacognition_module_arc = Arc::new(MetacognitionModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+        ));
+        let metacognition_module_service = MetacognitionModule::as_os_service();
+        service_registry_arc.register_service(metacognition_module_service).await?;
 
         // Initialize Cognitive Architecture IntuitionHeuristicGenerator
         let intuition_heuristic_generator_arc = Arc::new(IntuitionHeuristicGenerator::new(
