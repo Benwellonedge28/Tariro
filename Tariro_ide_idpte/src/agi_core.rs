@@ -14,6 +14,7 @@ use crate::resource_management::resource_models::{
     ResourceRequest, ComplianceDirective as SoraeComplianceDirective, // Alias to avoid clash
 };
 use crate::resource_management::resource_optimization::ResourceOptimizationModule;
+use crate::resource_management::dynamic_reallocation::DynamicResourceReallocationModule; // Import DynamicResourceReallocationModule
 
 // Import QR-CTFO modules
 use crate::crypto_fabric::orchestrator::{QrCtfoOrchestrator, QrCtfoOptions};
@@ -152,6 +153,7 @@ pub struct AgiCoreEngine {
     pub self_healing_module: Arc<SelfHealingModule>,
     pub self_preservation_module: Arc<SelfPreservationModule>,
     pub resource_optimization_module: Arc<ResourceOptimizationModule>,
+    pub dynamic_resource_reallocation_module: Arc<DynamicResourceReallocationModule>,
     pub predictive_forecasting_module: Arc<PredictiveForecastingModule>,
     pub goal_management_module: Arc<GoalManagementModule>,
     pub adversarial_robustness_module: Arc<AdversarialRobustnessModule>,
@@ -169,7 +171,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Self-Preservation...");
+        info!("Initializing AGI Core Engine with Dynamic Resource Reallocation...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -227,6 +229,8 @@ impl AgiCoreEngine {
         let concept_formation_dummy = Arc::new(ConceptFormationModule::new_dummy(event_bus_arc.clone()));
         let analogical_dummy = Arc::new(AnalogicalReasoningSystem::new_dummy(event_bus_arc.clone()));
         let hierarchical_rl_dummy = Arc::new(HierarchicalRLModule::new_dummy(event_bus_arc.clone()));
+        let predictive_forecasting_dummy = Arc::new(PredictiveForecastingModule::new_dummy(event_bus_arc.clone()));
+
 
         // Full initialization sequence
         let lifelong_learning_module_arc = Arc::new(LifelongLearningModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), curiosity_dummy.clone(), concept_formation_dummy.clone(), causal_reasoning_engine_arc.clone(), common_sense_dummy.clone()));
@@ -239,86 +243,275 @@ impl AgiCoreEngine {
         let self_organization_module_arc = Arc::new(SelfOrganizationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone()));
         let self_healing_module_arc = Arc::new(SelfHealingModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), causal_reasoning_engine_arc.clone(), self_organization_module_arc.clone()));
         let resource_optimization_module_arc = Arc::new(ResourceOptimizationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), meta_goal_manager_arc.clone(), sorae_orchestrator_arc.clone()));
+        let predictive_forecasting_module_arc = Arc::new(PredictiveForecastingModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone()));
+        let goal_management_module_arc = Arc::new(GoalManagementModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), meta_goal_manager_arc.clone(), hierarchical_rl_module_arc.clone()));
         let adversarial_robustness_module_arc = Arc::new(AdversarialRobustnessModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), self_healing_module_arc.clone()));
+        let ethical_forecasting_module_arc = Arc::new(EthicalForecastingModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ImaginationModule::new_dummy(event_bus_arc.clone()), causal_reasoning_engine_arc.clone()));
+        let quantum_safe_module_arc = Arc::new(QuantumSafeModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_manager_arc.clone()));
+        let trust_reputation_module_arc = Arc::new(TrustReputationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), theory_of_mind_module_arc.clone()));
+        let deception_detection_module_arc = Arc::new(DeceptionDetectionModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), theory_of_mind_module_arc.clone(), trust_reputation_module_arc.clone()));
+        let data_privacy_module_arc = Arc::new(DataPrivacyModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_manager_arc.clone()));
+        let hardware_security_module_arc = Arc::new(HardwareSecurityModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone()));
+        let human_agi_teaming_module_arc = Arc::new(HumanAGITeamingModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), theory_of_mind_module_arc.clone(), secure_channel_manager_arc.clone()));
         let environmental_impact_module_arc = Arc::new(EnvironmentalImpactModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), resource_optimization_module_arc.clone(), self_organization_module_arc.clone()));
         let social_intelligence_module_arc = Arc::new(SocialIntelligenceModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), lifelong_learning_module_arc.clone(), theory_of_mind_module_arc.clone()));
-        let trust_reputation_module_arc = Arc::new(TrustReputationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), theory_of_mind_module_arc.clone()));
-        let hardware_security_module_arc = Arc::new(HardwareSecurityModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone()));
+        let swarm_intelligence_module_arc = Arc::new(SwarmIntelligenceModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), secure_channel_manager_arc.clone(), resource_optimization_module_arc.clone(), self_organization_module_arc.clone()));
+        let embodied_cognition_module_arc = Arc::new(EmbodiedCognitionModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), hardware_security_module_arc.clone(), self_healing_module_arc.clone(), hierarchical_rl_module_arc.clone()));
+        let intuitive_physics_psychology_module_arc = Arc::new(IntuitivePhysicsPsychologyModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), embodied_cognition_module_arc.clone(), causal_reasoning_engine_arc.clone(), theory_of_mind_module_arc.clone(), social_intelligence_module_arc.clone()));
+        let epistemic_reasoning_module_arc = Arc::new(EpistemicReasoningModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), lifelong_learning_module_arc.clone(), trust_reputation_module_arc.clone(), curiosity_exploration_module_arc.clone(), common_sense_reasoning_network_arc.clone(), data_manager_arc.clone()));
+        let affective_computing_module_arc = Arc::new(AffectiveComputingModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), theory_of_mind_module_arc.clone(), social_intelligence_module_arc.clone(), data_privacy_module_arc.clone()));
 
-        // Initialize Self-Preservation (Task 98)
-        let self_preservation_module_arc = Arc::new(SelfPreservationModule::new(
+        // Initialize Dynamic Resource Reallocation (Task 99)
+        let dynamic_resource_reallocation_module_arc = Arc::new(DynamicResourceReallocationModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
-            self_healing_module_arc.clone(),
+            predictive_forecasting_module_arc.clone(), // Use the fully initialized predictive forecasting module
+            meta_goal_manager_arc.clone(),
+            sorae_orchestrator_arc.clone(),
             resource_optimization_module_arc.clone(),
-            adversarial_robustness_module_arc.clone(),
-            environmental_impact_module_arc.clone(),
         ));
-        service_registry_arc.register_service(SelfPreservationModule::as_os_service()).await?;
+        service_registry_arc.register_service(DynamicResourceReallocationModule::as_os_service()).await?;
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
-            sorae_orchestrator_internal: sorae_orchestrator_arc,
-            qr_ctfo_orchestrator: qr_ctfo_orchestrator_arc,
+            sorae_orchestrator_internal: sorae_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator: qr_ctfo_orchestrator_arc.clone(),
             ide_communication_bridge: Arc::new(CommunicationBridge::new_dummy()), // Placeholder
             hacse_prompt_sender,
             hacse_orchestrator_internal: hacse_orchestrator_arc,
-            aleca_orchestrator: aleca_orchestrator_arc,
+            aleca_orchestrator: aleca_orchestrator_arc.clone(), // Clone for return
             sorae_compliance_directive_sender,
             qrctfo_compliance_directive_sender: qrctfo_compliance_directive_sender_tx,
             meta_goal_manager: meta_goal_manager_arc,
-            service_registry: service_registry_arc,
-            process_manager: process_manager_arc,
-            event_bus: event_bus_arc,
-            runtime_environment: runtime_environment_arc,
-            app_loader: app_loader_arc,
-            network_manager: network_manager_arc,
-            secure_channel_manager: secure_channel_manager_arc,
-            storage_abstraction: storage_abstraction_arc,
-            data_manager: data_manager_arc,
-            self_modification_agent: self_modification_agent_arc,
-            meta_learner: meta_learner_arc,
-            causal_reasoning_engine: causal_reasoning_engine_arc,
-            theory_of_mind_module: theory_of_mind_module_arc,
-            analogical_reasoning_system: analogical_reasoning_system_arc,
-            common_sense_reasoning_network: common_sense_reasoning_network_arc,
-            concept_formation_module: concept_formation_module_arc,
-            hierarchical_rl_module: hierarchical_rl_module_arc,
-            lifelong_learning_module: lifelong_learning_module_arc,
-            curiosity_exploration_module: curiosity_exploration_module_arc,
+            service_registry: service_registry_arc.clone(), // Assign registry
+            process_manager: process_manager_arc.clone(), // Assign process manager
+            event_bus: event_bus_arc.clone(), // Assign event bus
+            runtime_environment: runtime_environment_arc.clone(), // Assign runtime environment
+            app_loader: app_loader_arc.clone(), // Assign app loader
+            network_manager: network_manager_arc.clone(), // Assign network manager
+            secure_channel_manager: secure_channel_manager_arc.clone(), // Assign secure channel manager
+            storage_abstraction: storage_abstraction_arc.clone(), // Assign storage abstraction
+            data_manager: data_manager_arc.clone(), // Assign data manager
+            self_modification_agent: self_modification_agent_arc.clone(), // Assign self-modification agent
+            meta_learner: meta_learner_arc.clone(), // Assign meta-learner
+            causal_reasoning_engine: causal_reasoning_engine_arc.clone(), // Assign causal reasoning engine
+            theory_of_mind_module: theory_of_mind_module_arc.clone(), // Assign theory of mind module
+            analogical_reasoning_system: analogical_reasoning_system_arc.clone(), // Assign analogical reasoning system
+            common_sense_reasoning_network: common_sense_reasoning_network_arc.clone(), // Assign common sense reasoning network
+            concept_formation_module: concept_formation_module_arc.clone(), // Assign concept formation module
+            hierarchical_rl_module: hierarchical_rl_module_arc.clone(), // Assign hierarchical RL module
+            lifelong_learning_module: lifelong_learning_module_arc.clone(), // Assign lifelong learning module
+            curiosity_exploration_module: curiosity_exploration_module_arc.clone(), // Assign curiosity exploration module
             intuition_heuristic_generator: Arc::new(IntuitionHeuristicGenerator::new_dummy(event_bus_arc.clone())),
             metacognition_module: Arc::new(MetacognitionModule::new_dummy(event_bus_arc.clone())),
             imagination_module: Arc::new(ImaginationModule::new_dummy(event_bus_arc.clone())),
             formal_reasoning_module: Arc::new(FormalReasoningModule::new_dummy(event_bus_arc.clone())),
             emotion_motivation_module: Arc::new(EmotionMotivationModule::new_dummy(event_bus_arc.clone())),
             creativity_innovation_module: Arc::new(CreativityInnovationModule::new_dummy(event_bus_arc.clone())),
-            swarm_intelligence_module: Arc::new(SwarmIntelligenceModule::new_dummy(event_bus_arc.clone())),
-            embodied_cognition_module: Arc::new(EmbodiedCognitionModule::new_dummy(event_bus_arc.clone())),
-            intuitive_physics_psychology_module: Arc::new(IntuitivePhysicsPsychologyModule::new_dummy(event_bus_arc.clone())),
-            epistemic_reasoning_module: Arc::new(EpistemicReasoningModule::new_dummy(event_bus_arc.clone())),
-            affective_computing_module: Arc::new(AffectiveComputingModule::new_dummy(event_bus_arc.clone())),
-            self_organization_module: self_organization_module_arc,
-            self_healing_module: self_healing_module_arc,
-            self_preservation_module: self_preservation_module_arc,
-            resource_optimization_module: resource_optimization_module_arc,
-            predictive_forecasting_module: Arc::new(PredictiveForecastingModule::new_dummy(event_bus_arc.clone())),
-            goal_management_module: Arc::new(GoalManagementModule::new_dummy(event_bus_arc.clone())),
-            adversarial_robustness_module: adversarial_robustness_module_arc,
-            ethical_forecasting_module: Arc::new(EthicalForecastingModule::new_dummy(event_bus_arc.clone())),
-            quantum_safe_module: Arc::new(QuantumSafeModule::new_dummy(event_bus_arc.clone())),
-            trust_reputation_module: trust_reputation_module_arc,
-            deception_detection_module: Arc::new(DeceptionDetectionModule::new_dummy(event_bus_arc.clone())),
-            data_privacy_module: Arc::new(DataPrivacyModule::new_dummy(event_bus_arc.clone())),
-            hardware_security_module: hardware_security_module_arc,
-            human_agi_teaming_module: Arc::new(HumanAGITeamingModule::new_dummy(event_bus_arc.clone())),
-            environmental_impact_module: environmental_impact_module_arc,
-            social_intelligence_module: social_intelligence_module_arc,
+            swarm_intelligence_module: swarm_intelligence_module_arc.clone(), // Assign swarm intelligence module
+            embodied_cognition_module: embodied_cognition_module_arc.clone(), // Assign embodied cognition module
+            intuitive_physics_psychology_module: intuitive_physics_psychology_module_arc.clone(), // Assign intuitive physics psychology module
+            epistemic_reasoning_module: epistemic_reasoning_module_arc.clone(), // Assign epistemic reasoning module
+            affective_computing_module: affective_computing_module_arc.clone(), // Assign affective computing module
+            self_organization_module: self_organization_module_arc.clone(), // Assign self-organization module
+            self_healing_module: self_healing_module_arc.clone(), // Assign self-healing module
+            self_preservation_module: self_preservation_module_arc.clone(), // Assign self-preservation module
+            resource_optimization_module: resource_optimization_module_arc.clone(), // Assign resource optimization module
+            dynamic_resource_reallocation_module: dynamic_resource_reallocation_module_arc.clone(), // Assign dynamic resource reallocation module
+            predictive_forecasting_module: predictive_forecasting_module_arc.clone(), // Assign predictive forecasting module
+            goal_management_module: goal_management_module_arc.clone(), // Assign goal management module
+            adversarial_robustness_module: adversarial_robustness_module_arc.clone(), // Assign adversarial robustness module
+            ethical_forecasting_module: ethical_forecasting_module_arc.clone(), // Assign ethical forecasting module
+            quantum_safe_module: quantum_safe_module_arc.clone(), // Assign quantum safe module
+            trust_reputation_module: trust_reputation_module_arc.clone(), // Assign trust reputation module
+            deception_detection_module: deception_detection_module_arc.clone(), // Assign deception detection module
+            data_privacy_module: data_privacy_module_arc.clone(), // Assign data privacy module
+            hardware_security_module: hardware_security_module_arc.clone(), // Assign hardware security module
+            human_agi_teaming_module: human_agi_teaming_module_arc.clone(), // Assign human agi teaming module
+            environmental_impact_module: environmental_impact_module_arc.clone(), // Assign environmental impact module
+            social_intelligence_module: social_intelligence_module_arc.clone(), // Assign social intelligence module
             service_command_rx,
         };
 
-        Ok(Arc::new(agi_core_engine_instance))
+        let agi_auditor_arc = Arc::new(agi_core_engine_instance);
+
+        let aleca_orchestrator_clone = aleca_orchestrator_arc.clone();
+        let agi_auditor_for_aleca = agi_auditor_arc.clone();
+        tokio::spawn(async move {
+            if let Err(e) = aleca_orchestrator_clone.lock().unwrap().start_loop(agi_auditor_for_aleca).await {
+                eprintln!("ALEC-A Orchestrator failed: {:?}", e);
+            }
+        });
+
+        service_registry_arc.register_service(OsService {
+            id: "os-process-manager".to_string(),
+            name: "OMEGA OS Process Manager".to_string(),
+            description: "Manages the lifecycle of computational processes and services.".to_string(),
+            service_type: ServiceType::SystemCore,
+            capabilities: vec![
+                ServiceCapability { name: "spawn_process".to_string(), description: "Spawns a new OS process.".to_string(), parameters: HashMap::new(), output_schema: "ProcessId".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "kill_process".to_string(), description: "Terminates an OS process.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "get_process_info".to_string(), description: "Retrieves information about a running process.".to_string(), parameters: HashMap::new(), output_schema: "ProcessInfo".to_string(), requires_permissions: vec![], requires_ethical_review: false },
+                ServiceCapability { name: "pause_process".to_string(), description: "Pauses an OS process.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "resume_process".to_string(), description: "Resumes an OS process.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
+            ],
+            status: ServiceStatus::Running,
+            registered_at: Utc::now(),
+            last_heartbeat: Utc::now(),
+            endpoints: HashMap::new(),
+            dependencies: vec![],
+            managed_by_agi_module: Some("SORAEE".to_string()),
+        }).await?;
+
+        service_registry_arc.register_service(OsService {
+            id: "os-runtime-env".to_string(),
+            name: "OMEGA OS Runtime Environment".to_string(),
+            description: "Manages isolated execution contexts for applications.".to_string(),
+            service_type: ServiceType::SystemCore,
+            capabilities: vec![
+                ServiceCapability { name: "prepare_context".to_string(), description: "Prepares an isolated application context.".to_string(), parameters: HashMap::new(), output_schema: "ApplicationContext".to_string(), requires_permissions: vec![], requires_ethical_review: true },
+                ServiceCapability { name: "execute_application_in_context".to_string(), description: "Executes an application within its prepared context.".to_string(), parameters: HashMap::new(), output_schema: "".to_string(), requires_permissions: vec!["execute".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "terminate_context".to_string(), description: "Terminates an application context.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
+            ],
+            status: ServiceStatus::Running,
+            registered_at: Utc::now(),
+            last_heartbeat: Utc::now(),
+            endpoints: HashMap::new(),
+            dependencies: vec!["os-process-manager".to_string()],
+            managed_by_agi_module: None,
+        }).await?;
+
+        service_registry_arc.register_service(OsService {
+            id: "os-app-loader".to_string(),
+            name: "OMEGA OS Application Loader".to_string(),
+            description: "Handles loading, verifying, and launching applications and services.".to_string(),
+            service_type: ServiceType::SystemCore,
+            capabilities: vec![
+                ServiceCapability { name: "load_application".to_string(), description: "Loads and verifies an application.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec![], requires_ethical_review: true },
+                ServiceCapability { name: "launch_application".to_string(), description: "Launches a verified application.".to_string(), parameters: HashMap::new(), output_schema: "ApplicationInstanceId".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "terminate_application".to_string(), description: "Terminates an application instance.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
+            ],
+            status: ServiceStatus::Running,
+            registered_at: Utc::now(),
+            last_heartbeat: Utc::now(),
+            endpoints: HashMap::new(),
+            dependencies: vec!["os-process-manager".to_string(), "os-runtime-env".to_string(), "os-event-bus".to_string()],
+            managed_by_agi_module: Some("ALEC-A".to_string()),
+        }).await?;
+
+        service_registry_arc.register_service(OsService {
+            id: "hacse".to_string(),
+            name: "HACSE Orchestrator".to_string(),
+            description: "Human-AGI Co-Creative Synthesis Engine. Facilitates creative co-creation.".to_string(),
+            service_type: ServiceType::AGI_Module("HACSE".to_string()),
+            capabilities: vec![
+                ServiceCapability { name: "generate_artifact".to_string(), description: "Generates creative artifacts (code, text, image, audio).".to_string(), parameters: HashMap::new(), output_schema: "".to_string(), requires_permissions: vec![], requires_ethical_review: true },
+                ServiceCapability { name: "learn_human_style".to_string(), description: "Learns and adapts to human creative styles.".to_string(), parameters: HashMap::new(), output_schema: "".to_string(), requires_permissions: vec![], requires_ethical_review: false },
+            ],
+            status: ServiceStatus::Running,
+            registered_at: Utc::now(),
+            last_heartbeat: Utc::now(),
+            endpoints: HashMap::new(),
+            dependencies: vec!["soraee".to_string()],
+            managed_by_agi_module: Some("ALEC-A".to_string()),
+        }).await?;
+
+        let agi_auditor_arc = Arc::new(AgiCoreEngine {
+            sorae_request_sender,
+            sorae_orchestrator_internal: sorae_orchestrator_arc,
+            qr_ctfo_orchestrator: qr_ctfo_orchestrator_arc,
+            ide_communication_bridge: Arc::new(CommunicationBridge::new_dummy()),
+            hacse_prompt_sender,
+            hacse_orchestrator_internal: hacse_orchestrator_arc,
+            aleca_orchestrator: aleca_orchestrator_arc.clone(),
+            sorae_compliance_directive_sender,
+            qrctfo_compliance_directive_sender: qrctfo_compliance_directive_sender_tx,
+            meta_goal_manager: meta_goal_manager_arc,
+            service_registry: service_registry_arc.clone(),
+            process_manager: process_manager_arc.clone(),
+            event_bus: event_bus_arc.clone(),
+            runtime_environment: runtime_environment_arc.clone(),
+            app_loader: app_loader_arc.clone(),
+            network_manager: network_manager_arc.clone(),
+            secure_channel_manager: secure_channel_manager_arc.clone(),
+            storage_abstraction: storage_abstraction_arc.clone(),
+            data_manager: data_manager_arc.clone(),
+            self_modification_agent: self_modification_agent_arc.clone(),
+            meta_learner: meta_learner_arc.clone(),
+            causal_reasoning_engine: causal_reasoning_engine_arc.clone(),
+            theory_of_mind_module: theory_of_mind_module_arc.clone(),
+            analogical_reasoning_system: analogical_reasoning_system_arc.clone(),
+            common_sense_reasoning_network: common_sense_reasoning_network_arc.clone(),
+            concept_formation_module: concept_formation_module_arc.clone(),
+            hierarchical_rl_module: hierarchical_rl_module_arc.clone(),
+            lifelong_learning_module: lifelong_learning_module_arc.clone(),
+            curiosity_exploration_module: curiosity_exploration_module_arc.clone(),
+            intuition_heuristic_generator: IntuitionHeuristicGenerator::new_dummy(event_bus_arc.clone()),
+            metacognition_module: MetacognitionModule::new_dummy(event_bus_arc.clone()),
+            imagination_module: ImaginationModule::new_dummy(event_bus_arc.clone()),
+            formal_reasoning_module: FormalReasoningModule::new_dummy(event_bus_arc.clone()),
+            emotion_motivation_module: EmotionMotivationModule::new_dummy(event_bus_arc.clone()),
+            creativity_innovation_module: CreativityInnovationModule::new_dummy(event_bus_arc.clone()),
+            swarm_intelligence_module: swarm_intelligence_module_arc.clone(),
+            embodied_cognition_module: embodied_cognition_module_arc.clone(),
+            intuitive_physics_psychology_module: intuitive_physics_psychology_module_arc.clone(),
+            epistemic_reasoning_module: epistemic_reasoning_module_arc.clone(),
+            affective_computing_module: affective_computing_module_arc.clone(),
+            self_organization_module: self_organization_module_arc.clone(),
+            self_healing_module: self_healing_module_arc.clone(),
+            self_preservation_module: self_preservation_module_arc.clone(),
+            resource_optimization_module: resource_optimization_module_arc.clone(),
+            dynamic_resource_reallocation_module: dynamic_resource_reallocation_module_arc.clone(),
+            predictive_forecasting_module: predictive_forecasting_module_arc.clone(),
+            goal_management_module: goal_management_module_arc.clone(),
+            adversarial_robustness_module: adversarial_robustness_module_arc.clone(),
+            ethical_forecasting_module: ethical_forecasting_module_arc.clone(),
+            quantum_safe_module: quantum_safe_module_arc.clone(),
+            trust_reputation_module: trust_reputation_module_arc.clone(),
+            deception_detection_module: deception_detection_module_arc.clone(),
+            data_privacy_module: data_privacy_module_arc.clone(),
+            hardware_security_module: hardware_security_module_arc.clone(),
+            human_agi_teaming_module: human_agi_teaming_module_arc.clone(),
+            environmental_impact_module: environmental_impact_module_arc.clone(),
+            social_intelligence_module: social_intelligence_module_arc.clone(),
+            service_command_rx,
+        });
+
+        let aleca_orchestrator_clone = aleca_orchestrator_arc.clone();
+        let agi_auditor_for_aleca = agi_auditor_arc.clone();
+        tokio::spawn(async move {
+            if let Err(e) = aleca_orchestrator_clone.lock().unwrap().start_loop(agi_auditor_for_aleca).await {
+                eprintln!("ALEC-A Orchestrator failed: {:?}", e);
+            }
+        });
+
+        service_registry_arc.register_service(OsService {
+            id: "aleca".to_string(),
+            name: "ALEC-A Orchestrator".to_string(),
+            description: "Autonomous Legal & Ethical Compliance Advisor. Ensures system-wide compliance.".to_string(),
+            service_type: ServiceType::AGI_Module("ALEC-A".to_string()),
+            capabilities: vec![
+                ServiceCapability { name: "check_compliance".to_string(), description: "Checks compliance of AGI operations.".to_string(), parameters: HashMap::new(), output_schema: "".to_string(), requires_permissions: vec![], requires_ethical_review: true },
+                ServiceCapability { name: "perform_audit".to_string(), description: "Performs full system compliance audits.".to_string(), parameters: HashMap::new(), output_schema: "".to_string(), requires_permissions: vec![], requires_ethical_review: true },
+            ],
+            status: ServiceStatus::Running,
+            registered_at: Utc::now(),
+            last_heartbeat: Utc::now(),
+            endpoints: HashMap::new(),
+            dependencies: vec!["soraee".to_string(), "qr-ctfo".to_string()],
+            managed_by_agi_module: None,
+        }).await?;
+
+        tokio::spawn(async move {
+            let _ = agi_auditor_arc.handle_service_commands().await;
+        });
+        tokio::spawn(async move {
+            let _ = agi_auditor_arc.handle_os_event().await;
+        });
+
+        Ok(agi_auditor_arc)
     }
 
     pub async fn start_service(&self, app_info: ApplicationInfo, args: Option<Vec<String>>) -> Result<String, String> {
