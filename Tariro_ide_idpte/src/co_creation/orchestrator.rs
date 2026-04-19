@@ -4,7 +4,7 @@
 //! This orchestrator manages creative workflows, integrates learning from human styles,
 //! and drives the iterative generation and refinement of artifacts.
 
-use crate::co_creation::creative_models::{CreativePrompt, CreativeArtifact, HumanCreativeStyle, CreativeFeedback, UserPreferences, InteractionModality};
+use crate::co_creation::creative_models::{CreativePrompt, CreativeArtifact, HumanCreativeStyle, CreativeFeedback, UserPreferences, InteractionModality, CreativeArtifactType};
 use crate::co_creation::human_style_learner::HumanStyleLearner;
 use crate::co_creation::synthesis_generator::SynthesisGenerator;
 use crate::co_creation::feedback_analyzer::FeedbackAnalyzer;
@@ -14,6 +14,8 @@ use anyhow::Result;
 use tokio::sync::mpsc;
 use std::sync::{Arc, Mutex};
 use tracing::{info, warn, error};
+use uuid::Uuid; // For generating mock artifact IDs
+use chrono::Utc; // For timestamps
 
 /// Configuration options for the HACSE Orchestrator.
 #[derive(Debug, Clone)]
@@ -128,26 +130,21 @@ impl HacseOrchestrator {
 
                 // Periodically process feedback (simulated)
                 if now.timestamp() % options.feedback_processing_interval_seconds as i64 == 0 {
-                    // This would typically involve iterating through a queue of pending feedback items
-                    // and artifacts for implicit feedback analysis.
                     info!("HACSE: Periodically checking for feedback to process...");
-                    // Simulate implicit feedback for an existing artifact
-                    // This would require fetching an artifact from a store
-                    // For now, it's a simple placeholder call
                     let mock_artifact_id = Uuid::new_v4().to_string();
                     let mock_artifact = CreativeArtifact {
                         id: mock_artifact_id.clone(),
                         title: "Mock Implicit Artifact".to_string(),
                         description: None,
                         content: "This is some mock content that was edited by the user.".to_string(),
-                        artifact_type: creative_models::CreativeArtifactType::Text,
+                        artifact_type: CreativeArtifactType::Text,
                         created_at: Utc::now(),
                         contributors: vec!["Tariro_AGI".to_string(), "samuelmukandara@gmail.com".to_string()],
                         version: 1,
                         tags: vec![],
                         parent_artifact_id: None,
                         associated_styles: vec![],
-                        generative_model_used: creative_models::GenerativeModelType::TextGenerator,
+                        generative_model_used: crate::co_creation::creative_models::GenerativeModelType::TextGenerator,
                     };
                     // To avoid endless mocking, only simulate this if feedback processing interval is low
                     if options.feedback_processing_interval_seconds < 30 {
@@ -166,7 +163,41 @@ impl HacseOrchestrator {
                 // Creative Pulse: Proactive suggestions
                 if now.timestamp() % options.creative_pulse_interval_seconds as i64 == 0 {
                     info!("HACSE: Generating proactive creative suggestions...");
-                    multi_modal_interface_arc.present_suggestion("Consider a new angle for project X, focusing on sustainable quantum computing.").await;
+                    // Simulate accessing AGI meta-goals
+                    let agi_meta_goal = "advance self-modification module integration".to_string(); // Mock meta-goal
+                    let user_id = multi_modal_interface_arc.get_user_preferences().user_id.clone();
+                    let user_style = if let Ok(learner) = style_learner_arc.lock().ok() {
+                        learner.get_style(&user_id).await
+                    } else { None };
+
+                    let proactive_prompt = CreativePrompt {
+                        id: Uuid::new_v4().to_string(),
+                        user_id: user_id.clone(),
+                        objective: format!("Develop a {}-themed visualization of {}.", 
+                                            user_style.as_ref().map_or("abstract".to_string(), |s| s.style_name.clone()),
+                                            agi_meta_goal),
+                        desired_artifact_type: CreativeArtifactType::Image,
+                        constraints: vec!["Conceptual and informative".to_string()],
+                        reference_artifacts: vec![],
+                        desired_style_id: user_style.map(|s| s.id),
+                        created_at: Utc::now(),
+                    };
+
+                    let generated_suggestion_artifact = if let Ok(generator) = generator_arc.lock() {
+                        generator.generate_artifact(&proactive_prompt, user_style.as_ref()).await
+                    } else {
+                        error!("Failed to lock generator for proactive suggestion.");
+                        Err(anyhow::anyhow!("Generator lock failed"))
+                    };
+
+                    match generated_suggestion_artifact {
+                        Ok(artifact) => {
+                            let suggestion_text = format!("New creative idea aligning with goal '{}' and your style (ID: {}): '{}'. Content preview: '{}'"),
+                                                        agi_meta_goal, artifact.id, artifact.title, &artifact.content[..50].to_string());
+                            multi_modal_interface_arc.present_suggestion(&suggestion_text).await;
+                        },
+                        Err(e) => error!("HACSE: Failed to generate proactive suggestion: {}", e),
+                    }
                 }
 
                 tokio::time::sleep(tokio::time::Duration::from_secs(1)).await; // Small sleep to avoid busy-waiting
