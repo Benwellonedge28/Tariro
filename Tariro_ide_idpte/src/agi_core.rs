@@ -53,6 +53,7 @@ use crate::cognitive_arch::causal_reasoning::CausalReasoningEngine; // Import Ca
 use crate::cognitive_arch::theory_of_mind::TheoryOfMindModule; // Import TheoryOfMindModule
 use crate::cognitive_arch::analogical_reasoning::AnalogicalReasoningSystem; // Import AnalogicalReasoningSystem
 use crate::cognitive_arch::common_sense_reasoning::CommonSenseReasoningNetwork; // Import CommonSenseReasoningNetwork
+use crate::cognitive_arch::concept_formation::ConceptFormationModule; // Import ConceptFormationModule
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -88,7 +89,7 @@ pub struct AgiCoreEngine {
     // Senders for compliance directives (to SORAEE and QR-CTFO)
     sorae_compliance_directive_sender: mpsc::Sender<SoraeComplianceDirective>,
     qrctfo_compliance_directive_sender: mpsc::Sender<ComplianceRemediationAction>,
-    // Meta-Goal Manager
+    // Meta-Goals module
     pub meta_goal_manager: Arc<Mutex<MetaGoalManager>>,
     // OMEGA OS Service Registry
     pub service_registry: Arc<ServiceRegistry>,
@@ -120,6 +121,8 @@ pub struct AgiCoreEngine {
     pub analogical_reasoning_system: Arc<AnalogicalReasoningSystem>,
     // Cognitive Arch CommonSenseReasoningNetwork
     pub common_sense_reasoning_network: Arc<CommonSenseReasoningNetwork>,
+    // Cognitive Arch ConceptFormationModule
+    pub concept_formation_module: Arc<ConceptFormationModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
