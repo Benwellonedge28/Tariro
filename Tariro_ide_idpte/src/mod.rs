@@ -32,7 +32,7 @@ pub mod error;
 pub mod evas_evolution;
 pub mod features;
 pub mod agi_cloning;
-pub mod agi_meta_goals; // New module for AGI Meta-Goals
+pub mod agi_meta_goals;
 pub mod agi_project_manager;
 pub mod agi_replication;
 pub mod agi_swarm;
@@ -42,3 +42,4 @@ pub mod resource_management;
 pub mod crypto_fabric;
 pub mod co_creation;
 pub mod compliance_advisor;
+pub mod omega_os; // New module for OMEGA OS foundational services
