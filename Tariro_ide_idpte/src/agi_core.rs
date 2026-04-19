@@ -68,6 +68,7 @@ use crate::cognitive_arch::creativity::CreativityInnovationModule; // Import Cre
 use crate::omega_os::self_organization::SelfOrganizationModule; // Import SelfOrganizationModule
 use crate::omega_os::self_healing::SelfHealingModule; // Import SelfHealingModule
 use crate::forecasting::forecasting::PredictiveForecastingModule; // Import PredictiveForecastingModule
+use crate::security::adversarial_robustness::AdversarialRobustnessModule; // Import AdversarialRobustnessModule
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -84,7 +85,7 @@ pub enum ServiceCommand {
 pub trait AgiSystemAuditor: Send + Sync {
     async fn get_sorae_audit_status(&self) -> ModuleAuditStatus;
     async fn get_qrctfo_audit_status(&self) -> ModuleAuditStatus;
-    async fn fn get_hacse_audit_status(&self) -> ModuleAuditStatus;
+    async fn get_hacse_audit_status(&self) -> ModuleAuditStatus;
 }
 
 pub struct AgiCoreEngine {
@@ -163,6 +164,8 @@ pub struct AgiCoreEngine {
     pub predictive_forecasting_module: Arc<PredictiveForecastingModule>,
     // AGI Meta Goals GoalManagementModule
     pub goal_management_module: Arc<GoalManagementModule>,
+    // Security AdversarialRobustnessModule
+    pub adversarial_robustness_module: Arc<AdversarialRobustnessModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -721,6 +724,23 @@ impl AgiCoreEngine {
         let gmm_dummy_service = GoalManagementModule::as_os_service();
         service_registry_arc.register_service(gmm_dummy_service.clone()).await?;
 
+        // AdversarialRobustnessModule Dummy
+        struct AdversarialRobustnessModuleDummy { event_bus: Arc<EventBus> }
+        impl AdversarialRobustnessModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { AdversarialRobustnessModuleDummy { event_bus } } }
+        impl AdversarialRobustnessModuleDummy {
+            async fn detect_adversarial_attack(&self, _observed_input_summary: &str, _target_module_id: &str) -> Result<Option<crate::security::adversarial_robustness_models::AdversarialAttack>, String> { warn!("Dummy AdversarialRobustnessModule method called."); Ok(None) }
+            async fn analyze_and_propose_mitigation(&self, _attack: crate::security::adversarial_robustness_models::AdversarialAttack) -> Result<crate::security::adversarial_robustness_models::MitigationStrategy, String> { warn!("Dummy AdversarialRobustnessModule method called."); Err("Dummy module".to_string()) }
+            async fn execute_secure_mitigation(&self, _mitigation_strategy_id: &str) -> Result<(), String> { warn!("Dummy AdversarialRobustnessModule method called."); Ok(()) }
+        }
+        let adversarial_robustness_module_arc_dummy: Arc<AdversarialRobustnessModule> = Arc::new(AdversarialRobustnessModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            self_healing_module_arc_dummy.clone(),
+        ));
+        let arm_dummy_service = AdversarialRobustnessModule::as_os_service();
+        service_registry_arc.register_service(arm_dummy_service.clone()).await?;
 
 
         // 3. Fully Initialize Modules (replacing dummies where needed)
@@ -927,7 +947,8 @@ impl AgiCoreEngine {
         let pfm_service_full = PredictiveForecastingModule::as_os_service();
         service_registry_arc.register_service(pfm_service_full).await?;
 
-        // Initialize GoalManagementModule
+        // Re-initialize GoalManagementModule
+        service_registry_arc.deregister_service("goal-management-module").await?;
         let goal_management_module_arc = Arc::new(GoalManagementModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
@@ -936,9 +957,19 @@ impl AgiCoreEngine {
             meta_goal_manager_arc.clone(),
             hierarchical_rl_module_arc.clone(),
         ));
-        let goal_management_module_service = GoalManagementModule::as_os_service();
-        service_registry_arc.register_service(goal_management_module_service).await?;
+        let gmm_service_full = GoalManagementModule::as_os_service();
+        service_registry_arc.register_service(gmm_service_full).await?;
 
+        // Initialize AdversarialRobustnessModule
+        let adversarial_robustness_module_arc = Arc::new(AdversarialRobustnessModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            self_healing_module_arc.clone(),
+        ));
+        let adversarial_robustness_module_service = AdversarialRobustnessModule::as_os_service();
+        service_registry_arc.register_service(adversarial_robustness_module_service).await?;
 
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
@@ -989,6 +1020,7 @@ impl AgiCoreEngine {
             resource_optimization_module: resource_optimization_module_arc.clone(), // Assign resource optimization module
             predictive_forecasting_module: predictive_forecasting_module_arc.clone(), // Assign predictive forecasting module
             goal_management_module: goal_management_module_arc.clone(), // Assign goal management module
+            adversarial_robustness_module: adversarial_robustness_module_arc.clone(), // Assign adversarial robustness module
             service_command_rx,
         };
         
