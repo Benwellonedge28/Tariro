@@ -38,7 +38,6 @@ pub trait AgiSystemAuditor: Send + Sync {
     async fn get_sorae_audit_status(&self) -> ModuleAuditStatus;
     async fn get_qrctfo_audit_status(&self) -> ModuleAuditStatus;
     async fn get_hacse_audit_status(&self) -> ModuleAuditStatus;
-    // Add methods for other critical AGI modules as they are developed.
 }
 
 pub struct AgiCoreEngine {
@@ -98,7 +97,12 @@ impl AgiCoreEngine {
 
         // Initialize HACSE Orchestrator
         let hacse_options = HacseOptions::default();
-        let hacse_orchestrator = HacseOrchestrator::new(hacse_options, meta_goal_manager_arc.clone()); // Pass MetaGoalManager
+        // Pass sorae_request_sender to HACSE for resource-aware generation
+        let hacse_orchestrator = HacseOrchestrator::new(
+            hacse_options, 
+            meta_goal_manager_arc.clone(),
+            sorae_request_sender.clone()
+        ); 
         let hacse_prompt_sender = hacse_orchestrator.get_prompt_sender();
         let hacse_orchestrator_arc = Arc::new(hacse_orchestrator);
 

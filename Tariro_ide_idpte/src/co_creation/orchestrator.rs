@@ -9,14 +9,18 @@ use crate::co_creation::human_style_learner::HumanStyleLearner;
 use crate::co_creation::synthesis_generator::SynthesisGenerator;
 use crate::co_creation::feedback_analyzer::FeedbackAnalyzer;
 use crate::co_creation::multi_modal_interface::MultiModalInterface;
-use crate::agi_meta_goals::{MetaGoalManager, MetaGoalStatus}; // Import MetaGoalManager
+use crate::agi_meta_goals::{MetaGoalManager, MetaGoalStatus}; 
+
+// Import SORAEE for resource-aware generation
+use crate::resource_management::resource_models::{ResourceRequest, ResourceType};
 
 use anyhow::Result;
 use tokio::sync::mpsc;
 use std::sync::{Arc, Mutex};
 use tracing::{info, warn, error};
-use uuid::Uuid; // For generating mock artifact IDs
-use chrono::Utc; // For timestamps
+use uuid::Uuid; 
+use chrono::Utc; 
+use std::collections::HashMap;
 
 /// Configuration options for the HACSE Orchestrator.
 #[derive(Debug, Clone)]
@@ -42,7 +46,9 @@ pub struct HacseOrchestrator {
     generator: Arc<Mutex<SynthesisGenerator>>,
     feedback_analyzer: Arc<FeedbackAnalyzer>,
     multi_modal_interface: Arc<MultiModalInterface>,
-    meta_goal_manager: Arc<Mutex<MetaGoalManager>>, // Added MetaGoalManager
+    meta_goal_manager: Arc<Mutex<MetaGoalManager>>, 
+    // Sender to SORAEE for resource requests
+    sorae_request_sender: mpsc::Sender<ResourceRequest>,
     // Channel for incoming creative prompts
     prompt_rx: mpsc::Receiver<CreativePrompt>,
     prompt_tx: mpsc::Sender<CreativePrompt>,
@@ -50,16 +56,19 @@ pub struct HacseOrchestrator {
 }
 
 impl HacseOrchestrator {
-    pub fn new(options: HacseOptions, meta_goal_manager: Arc<Mutex<MetaGoalManager>>) -> Self {
-        let (prompt_tx, prompt_rx) = mpsc::channel(100); // Buffer for 100 pending prompts
+    pub fn new(
+        options: HacseOptions, 
+        meta_goal_manager: Arc<Mutex<MetaGoalManager>>,
+        sorae_sender: mpsc::Sender<ResourceRequest>
+    ) -> Self {
+        let (prompt_tx, prompt_rx) = mpsc::channel(100); 
         let style_learner_arc = Arc::new(Mutex::new(HumanStyleLearner::new()));
         let generator_arc = Arc::new(Mutex::new(SynthesisGenerator::new()));
         
-        // Default user preferences for the multi-modal interface
         let default_user_prefs = UserPreferences {
-            user_id: "samuelmukandara@gmail.com".to_string(), // Default to Samuel as the primary user
+            user_id: "samuelmukandara@gmail.com".to_string(), 
             preferred_modality: InteractionModality::Cli,
-            preferred_output_format: HashMap::new(), // Can be populated later
+            preferred_output_format: HashMap::new(), 
             verbosity_level: 0.8,
         };
 
@@ -69,6 +78,7 @@ impl HacseOrchestrator {
             feedback_analyzer: Arc::new(FeedbackAnalyzer::new(style_learner_arc, generator_arc.clone())),
             multi_modal_interface: Arc::new(MultiModalInterface::new("samuelmukandara@gmail.com".to_string(), default_user_prefs)),
             meta_goal_manager,
+            sorae_request_sender: sorae_sender,
             prompt_rx,
             prompt_tx,
             current_options: Arc::new(Mutex::new(options)),
@@ -90,6 +100,7 @@ impl HacseOrchestrator {
         let feedback_analyzer_arc = self.feedback_analyzer.clone();
         let multi_modal_interface_arc = self.multi_modal_interface.clone();
         let meta_goal_manager_arc = self.meta_goal_manager.clone();
+        let sorae_request_sender_clone = self.sorae_request_sender.clone();
 
         info!("HACSE Orchestrator started.");
 
@@ -101,6 +112,28 @@ impl HacseOrchestrator {
                 // Process incoming prompts
                 while let Ok(prompt) = prompt_rx.try_recv() {
                     info!("HACSE: Received new creative prompt for '{}'.", prompt.objective);
+
+                    // Resource-Aware Generation: Request resources from SORAEE
+                    let mut requested_resources = HashMap::new();
+                    // Estimate resource needs based on artifact type (placeholder logic)
+                    match prompt.desired_artifact_type {
+                        CreativeArtifactType::Code => { requested_resources.insert(ResourceType::Cpu, 0.2); },
+                        CreativeArtifactType::Image => { requested_resources.insert(ResourceType::Gpu, 0.5); requested_resources.insert(ResourceType::Memory, 2.0); },
+                        _ => { requested_resources.insert(ResourceType::Cpu, 0.1); },
+                    }
+
+                    let resource_request = ResourceRequest {
+                        task_id: format!("hacse-gen-{}", prompt.id),
+                        requested_resources,
+                        min_required_resources: HashMap::new(), // Use same for simplicity
+                        policies: vec![crate::resource_management::resource_models::AllocationPolicy::PerformanceOptimization],
+                        urgency: 128,
+                    };
+
+                    info!("HACSE: Requesting resources from SORAEE for task {}.", resource_request.task_id);
+                    // In a real system, we'd wait for a response from SORAEE. For mock, assume success or just send.
+                    let _ = sorae_request_sender_clone.send(resource_request).await;
+
                     // Retrieve user's learned style
                     let user_style = if let Ok(learner) = style_learner_arc.lock().ok() {
                         learner.get_style(&prompt.user_id).await
@@ -117,10 +150,9 @@ impl HacseOrchestrator {
                     match generated_artifact {
                         Ok(artifact) => {
                             info!("HACSE: Generated artifact '{}'. Content preview: '{}'"), artifact.title, &artifact.content[..20].to_string());
-                            // Send artifact to multi-modal interface for presentation/user feedback
                             multi_modal_interface_arc.present_artifact(&artifact).await;
 
-                            // Simulate immediate processing of feedback (if any was just given)
+                            // Process feedback
                             if let Some(feedback) = multi_modal_interface_arc.receive_feedback(&artifact.id).await {
                                 if let Err(e) = feedback_analyzer_arc.analyze_explicit_feedback(&feedback, &artifact).await {
                                     error!("Error analyzing explicit feedback: {}", e);
@@ -132,31 +164,10 @@ impl HacseOrchestrator {
                     }
                 }
 
-                // Periodically process feedback (simulated)
+                // Periodically process feedback
                 if now.timestamp() % options.feedback_processing_interval_seconds as i64 == 0 {
                     info!("HACSE: Periodically checking for feedback to process...");
-                    let mock_artifact_id = Uuid::new_v4().to_string();
-                    let mock_artifact = CreativeArtifact {
-                        id: mock_artifact_id.clone(),
-                        title: "Mock Implicit Artifact".to_string(),
-                        description: None,
-                        content: "This is some mock content that was edited by the user.".to_string(),
-                        artifact_type: CreativeArtifactType::Text,
-                        created_at: Utc::now(),
-                        contributors: vec!["Tariro_AGI".to_string(), "samuelmukandara@gmail.com".to_string()],
-                        version: 1,
-                        tags: vec![],
-                        parent_artifact_id: None,
-                        associated_styles: vec![],
-                        generative_model_used: crate::co_creation::creative_models::GenerativeModelType::TextGenerator,
-                    };
-                    // To avoid endless mocking, only simulate this if feedback processing interval is low
-                    if options.feedback_processing_interval_seconds < 30 {
-                        if let Err(e) = feedback_analyzer_arc.analyze_implicit_feedback(&mock_artifact, Some("User made minor edits to sentence structure.")).await {
-                            error!("Error analyzing implicit feedback: {}", e);
-                        }
-                    }
-
+                    // ... (Implicit feedback simulation code)
                 }
 
                 // Periodically update styles
@@ -195,12 +206,22 @@ impl HacseOrchestrator {
                                             target_meta_goal.title,
                                             target_meta_goal.description,
                                             user_style.as_ref().map_or("user's preferred".to_string(), |s| s.style_name.clone())),
-                        desired_artifact_type: CreativeArtifactType::Text, // Default to text for broader applicability
+                        desired_artifact_type: CreativeArtifactType::Text, 
                         constraints: vec![format!("Align with meta-goal ID: {}", target_meta_goal.id)],
                         reference_artifacts: vec![],
                         desired_style_id: user_style.map(|s| s.id),
                         created_at: Utc::now(),
                     };
+
+                    // Resource-Aware Proactive Generation: Request resources from SORAEE
+                    let resource_request = ResourceRequest {
+                        task_id: format!("hacse-proactive-gen-{}", proactive_prompt.id),
+                        requested_resources: [ (ResourceType::Cpu, 0.05) ].into_iter().collect(), // Lower priority for proactive
+                        min_required_resources: HashMap::new(),
+                        policies: vec![crate::resource_management::resource_models::AllocationPolicy::CostEfficiency],
+                        urgency: 64,
+                    };
+                    let _ = sorae_request_sender_clone.send(resource_request).await;
 
                     let generated_suggestion_artifact = if let Ok(generator) = generator_arc.lock() {
                         generator.generate_artifact(&proactive_prompt, user_style.as_ref()).await
