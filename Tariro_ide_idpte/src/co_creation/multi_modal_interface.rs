@@ -22,6 +22,11 @@ impl MultiModalInterface {
         MultiModalInterface { user_preferences }
     }
 
+    /// Provides access to the stored user preferences.
+    pub fn get_user_preferences(&self) -> UserPreferences {
+        self.user_preferences.clone()
+    }
+
     /// Receives a creative prompt from a human user (simulated).
     pub async fn receive_prompt(&self) -> Option<CreativePrompt> {
         // In a real system, this would listen for user input from GUI, voice, etc.
