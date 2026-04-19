@@ -66,6 +66,7 @@ use crate::cognitive_arch::emotion_motivation::EmotionMotivationModule; // Impor
 use crate::cognitive_arch::creativity::CreativityInnovationModule; // Import CreativityInnovationModule
 use crate::omega_os::self_organization::SelfOrganizationModule; // Import SelfOrganizationModule
 use crate::omega_os::self_healing::SelfHealingModule; // Import SelfHealingModule
+use crate::forecasting::forecasting::PredictiveForecastingModule; // Import PredictiveForecastingModule
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -157,6 +158,8 @@ pub struct AgiCoreEngine {
     pub self_healing_module: Arc<SelfHealingModule>,
     // OMEGA OS ResourceOptimizationModule
     pub resource_optimization_module: Arc<ResourceOptimizationModule>,
+    // OMEGA OS PredictiveForecastingModule
+    pub predictive_forecasting_module: Arc<PredictiveForecastingModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -679,6 +682,24 @@ impl AgiCoreEngine {
         let rom_dummy_service = ResourceOptimizationModule::as_os_service();
         service_registry_arc.register_service(rom_dummy_service.clone()).await?;
 
+        // PredictiveForecastingModule Dummy
+        struct PredictiveForecastingModuleDummy { event_bus: Arc<EventBus> }
+        impl PredictiveForecastingModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { PredictiveForecastingModuleDummy { event_bus } } }
+        impl PredictiveForecastingModuleDummy {
+            async fn generate_forecast(&self, _target_variable: &str, _input_data_summary: &str, _horizon: &str) -> Result<crate::forecasting::forecasting_models::Forecast, String> { warn!("Dummy PredictiveForecastingModule method called."); Err("Dummy module".to_string()) }
+            async fn evaluate_prediction_robustness(&self, _forecast: &mut crate::forecasting::forecasting_models::Forecast, _input_data_summary: &str) -> Result<crate::forecasting::forecasting_models::PredictionEvaluation, String> { warn!("Dummy PredictiveForecastingModule method called."); Err("Dummy module".to_string()) }
+            async fn ethical_forecast_analysis(&self, _forecast: &mut crate::forecasting::forecasting_models::Forecast) -> Result<crate::forecasting::forecasting_models::EthicalForecastReport, String> { warn!("Dummy PredictiveForecastingModule method called."); Err("Dummy module".to_string()) }
+        }
+        let predictive_forecasting_module_arc_dummy: Arc<PredictiveForecastingModule> = Arc::new(PredictiveForecastingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+        ));
+        let pfm_dummy_service = PredictiveForecastingModule::as_os_service();
+        service_registry_arc.register_service(pfm_dummy_service.clone()).await?;
+
+
 
         // 3. Fully Initialize Modules (replacing dummies where needed)
         
@@ -872,6 +893,16 @@ impl AgiCoreEngine {
         let resource_optimization_module_service = ResourceOptimizationModule::as_os_service();
         service_registry_arc.register_service(resource_optimization_module_service).await?;
 
+        // Initialize PredictiveForecastingModule
+        let predictive_forecasting_module_arc = Arc::new(PredictiveForecastingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+        ));
+        let predictive_forecasting_module_service = PredictiveForecastingModule::as_os_service();
+        service_registry_arc.register_service(predictive_forecasting_module_service).await?;
+
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
         let ide_communication_bridge = Arc::new(CommunicationBridge::new(
@@ -919,6 +950,7 @@ impl AgiCoreEngine {
             self_organization_module: self_organization_module_arc.clone(), // Assign self-organization module
             self_healing_module: self_healing_module_arc.clone(), // Assign self-healing module
             resource_optimization_module: resource_optimization_module_arc.clone(), // Assign resource optimization module
+            predictive_forecasting_module: predictive_forecasting_module_arc.clone(), // Assign predictive forecasting module
             service_command_rx,
         };
         
