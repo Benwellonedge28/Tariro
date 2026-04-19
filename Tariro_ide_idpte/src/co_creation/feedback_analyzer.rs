@@ -12,14 +12,13 @@ use tracing::{info, warn};
 /// The FeedbackAnalyzer processes explicit and implicit feedback.
 pub struct FeedbackAnalyzer {
     style_learner: Arc<Mutex<HumanStyleLearner>>,
-    // In a real system, this could also hold a reference to the SynthesisGenerator
-    // or a mechanism to signal it for adjustments based on feedback.
+    generator: Arc<Mutex<SynthesisGenerator>>, // Added reference to SynthesisGenerator
 }
 
 impl FeedbackAnalyzer {
-    pub fn new(style_learner: Arc<Mutex<HumanStyleLearner>>) -> Self {
+    pub fn new(style_learner: Arc<Mutex<HumanStyleLearner>>, generator: Arc<Mutex<SynthesisGenerator>>) -> Self {
         info!("Feedback Analyzer initialized.");
-        FeedbackAnalyzer { style_learner }
+        FeedbackAnalyzer { style_learner, generator }
     }
 
     /// Analyzes explicit feedback provided by a user on a creative artifact.
@@ -27,24 +26,24 @@ impl FeedbackAnalyzer {
         info!("Analyzing explicit feedback for artifact {}: Rating {}, Comments: '{}'"), feedback.artifact_id, feedback.rating, feedback.comments);
 
         // 1. Perform deeper sentiment analysis on `feedback.comments` (placeholder)
-        let sentiment = if feedback.comments.contains("great") || feedback.comments.contains("excellent") { "positive" }
+        let sentiment_signal = if feedback.comments.contains("great") || feedback.comments.contains("excellent") { "positive" }
                         else if feedback.comments.contains("bad") || feedback.comments.contains("poor") { "negative" }
+                        else if feedback.comments.contains("concise") { "less verbose" } // Example of actionable signal
+                        else if feedback.comments.contains("readable") { "more readable" }
                         else { "neutral" };
 
-        info!("Simulated sentiment from feedback: {}", sentiment);
+        info!("Simulated sentiment from feedback: {}", sentiment_signal);
 
         // 2. Translate feedback into actionable learning for HumanStyleLearner
         if let Ok(mut learner) = self.style_learner.lock() {
-            // Here, we re-feed the artifact with the feedback to update the style profile
-            // The `learn_from_artifact` method in HumanStyleLearner is designed to handle this.
             learner.learn_from_artifact(&feedback.user_id, artifact, Some(feedback)).await?;
             info!("HumanStyleLearner updated based on explicit feedback.");
         }
 
-        // 3. Potentially signal SynthesisGenerator for adjustment (e.g., if negative feedback is consistent)
-        // This would involve a more direct channel or a shared state for performance metrics.
-        if feedback.rating < 3.0 {
-            warn!("Negative feedback detected for artifact {}. SynthesisGenerator might need adjustment.", artifact.id);
+        // 3. Signal SynthesisGenerator for adaptation
+        if let Ok(mut generator) = self.generator.lock() {
+            // Pass specific signals based on feedback analysis
+            generator.adapt_to_feedback(sentiment_signal, artifact.generative_model_used.clone());
         }
 
         Ok(())
@@ -59,13 +58,13 @@ impl FeedbackAnalyzer {
             // In a real system:
             // 1. Diff the original artifact content with `user_edits` to identify specific changes.
             // 2. Extract patterns from these changes (e.g., preference for shorter sentences, specific code refactorings).
-            // 3. Feed these insights back to the `HumanStyleLearner` to refine the user's style profile.
+            // 3. Feed these insights back to the `HumanStyleLearner` and `SynthesisGenerator`
+            //    to improve future co-creation iterations.
             if let Ok(mut learner) = self.style_learner.lock() {
-                // Create a synthetic feedback based on edits for the learner
                 let synthetic_feedback = CreativeFeedback {
                     artifact_id: artifact.id.clone(),
-                    user_id: artifact.contributors.iter().find(|c| c != &"Tariro_AGI").unwrap_or(&"unknown").to_string(), // Assume first non-Tariro contributor is user
-                    rating: 3.5, // Neutral rating, as edits are implicit
+                    user_id: artifact.contributors.iter().find(|c| c != &"Tariro_AGI").unwrap_or(&"unknown").to_string(),
+                    rating: 3.5,
                     comments: format!("Implicit feedback: User edited artifact. Diff analysis shows: {}", edits.chars().take(50).collect::<String>()),
                     suggested_changes: vec!["Adapt to user's edit patterns".to_string()],
                     timestamp: Utc::now(),
@@ -73,6 +72,10 @@ impl FeedbackAnalyzer {
                 };
                 learner.learn_from_artifact(&synthetic_feedback.user_id, artifact, Some(&synthetic_feedback)).await?;
                 info!("HumanStyleLearner updated based on implicit feedback (user edits).");
+            }
+            // Also signal SynthesisGenerator based on implicit feedback
+            if let Ok(mut generator) = self.generator.lock() {
+                generator.adapt_to_feedback(&format!("user edited: {}", edits.chars().take(20).collect::<String>()), artifact.generative_model_used.clone());
             }
         }
         Ok(())

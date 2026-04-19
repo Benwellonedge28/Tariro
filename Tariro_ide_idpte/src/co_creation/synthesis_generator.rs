@@ -20,13 +20,20 @@ pub trait GenerativeModel: Send + Sync {
     ) -> Result<String>;
     /// Returns the type of generative model.
     fn get_type(&self) -> GenerativeModelType;
+
+    /// Adapts internal parameters based on feedback (placeholder for model fine-tuning).
+    fn adapt_to_feedback(&mut self, feedback_signal: &str);
 }
 
 /// Placeholder for a Code Generative Model.
-pub struct CodeGenerativeModel;
+pub struct CodeGenerativeModel {
+    // Internal parameters that can be tuned
+    conciseness_level: f64, // 0.0-1.0
+    readability_focus: f64, // 0.0-1.0
+}
 
 impl CodeGenerativeModel {
-    pub fn new() -> Self { CodeGenerativeModel {} }
+    pub fn new() -> Self { CodeGenerativeModel { conciseness_level: 0.5, readability_focus: 0.5 } }
 }
 
 impl GenerativeModel for CodeGenerativeModel {
@@ -38,16 +45,33 @@ impl GenerativeModel for CodeGenerativeModel {
     ) -> Result<String> {
         info!("CodeGenerativeModel: Generating code for '{}' with style {:?}", prompt_text, style_characteristics);
         let indentation = style_characteristics.get("indentation_style").map_or("    ", |s| if s == "tabs" { "\t" } else { "    " });
-        Ok(format!("{indentation}fn {}() {{ /* {} */ }}{indentation}// This is quantum-safe, self-optimizing, and ethically compliant code.\n", prompt_text.replace(" ", "_"), prompt_text, indentation=indentation))
+        let conciseness = self.conciseness_level;
+        let mut code = format!("{indentation}// Code generated with conciseness: {:.2}\n", conciseness, indentation=indentation);
+        code.push_str(&format!("{indentation}fn {}() {{\n{indentation}{indentation}/* {} */\n{indentation}}}{indentation}// This is quantum-safe, self-optimizing, and ethically compliant code.\n", prompt_text.replace(" ", "_"), prompt_text, indentation=indentation));
+        Ok(code)
     }
     fn get_type(&self) -> GenerativeModelType { GenerativeModelType::CodeGenerator }
+
+    fn adapt_to_feedback(&mut self, feedback_signal: &str) {
+        if feedback_signal.contains("less verbose") {
+            self.conciseness_level = (self.conciseness_level + 0.1).min(1.0);
+            info!("CodeGenerativeModel adapted: increased conciseness to {:.2}", self.conciseness_level);
+        } else if feedback_signal.contains("more readable") {
+            self.readability_focus = (self.readability_focus + 0.1).min(1.0);
+            info!("CodeGenerativeModel adapted: increased readability focus to {:.2}", self.readability_focus);
+        }
+    }
 }
 
 /// Placeholder for a Text Generative Model.
-pub struct TextGenerativeModel;
+pub struct TextGenerativeModel {
+    // Internal parameters that can be tuned
+    verbosity_level: f64, // 0.0-1.0
+    creativity_level: f64, // 0.0-1.0
+}
 
 impl TextGenerativeModel {
-    pub fn new() -> Self { TextGenerativeModel {} }
+    pub fn new() -> Self { TextGenerativeModel { verbosity_level: 0.5, creativity_level: 0.5 } }
 }
 
 impl GenerativeModel for TextGenerativeModel {
@@ -59,9 +83,20 @@ impl GenerativeModel for TextGenerativeModel {
     ) -> Result<String> {
         info!("TextGenerativeModel: Generating text for '{}' with style {:?}", prompt_text, style_characteristics);
         let tone = style_characteristics.get("tone").map_or("neutral", |s| s.as_str());
-        Ok(format!("A {} narrative about {}. It weaves together themes of autonomy, sovereignty, and advanced AGI capabilities, with a {} tone.\n", tone, prompt_text, tone))
+        let verbosity = self.verbosity_level;
+        Ok(format!("A {} narrative about {}. It weaves together themes of autonomy, sovereignty, and advanced AGI capabilities, with a {} tone and verbosity {:.2}.\n", tone, prompt_text, tone, verbosity))
     }
     fn get_type(&self) -> GenerativeModelType { GenerativeModelType::TextGenerator }
+
+    fn adapt_to_feedback(&mut self, feedback_signal: &str) {
+        if feedback_signal.contains("more concise") {
+            self.verbosity_level = (self.verbosity_level - 0.1).max(0.0);
+            info!("TextGenerativeModel adapted: decreased verbosity to {:.2}", self.verbosity_level);
+        } else if feedback_signal.contains("more creative") {
+            self.creativity_level = (self.creativity_level + 0.1).min(1.0);
+            info!("TextGenerativeModel adapted: increased creativity to {:.2}", self.creativity_level);
+        }
+    }
 }
 
 /// The SynthesisGenerator is responsible for generating new creative content.
@@ -128,5 +163,14 @@ impl SynthesisGenerator {
             associated_styles,
             generative_model_used: generative_model_type,
         })
+    }
+
+    /// Adapts the internal generative models based on feedback.
+    pub fn adapt_to_feedback(&mut self, feedback_signal: &str, model_type: GenerativeModelType) {
+        if let Some(model) = self.generative_models.get_mut(&model_type) {
+            model.adapt_to_feedback(feedback_signal);
+        } else {
+            warn!("SynthesisGenerator: No model of type {:?} to adapt to feedback.", model_type);
+        }
     }
 }
