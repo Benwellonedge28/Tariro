@@ -50,7 +50,7 @@ use crate::omega_os::self_modification_agent::SelfModificationAgent; // Import S
 // Import Cognitive Arch modules
 use crate::cognitive_arch::meta_learner::MetaLearner;
 use crate::cognitive_arch::causal_reasoning::CausalReasoningEngine; // Import CausalReasoningEngine
-use crate::cognitive_arch::theory_of_mind::TheoryOfMindModule; // Import TheoryOfMindModule
+use crate::cognitive_arch::theory_of_mind::TheoryOfMindModule; // Import TheoryOfMindModule;
 use crate::cognitive_arch::analogical_reasoning::AnalogicalReasoningSystem; // Import AnalogicalReasoningSystem
 use crate::cognitive_arch::common_sense_reasoning::CommonSenseReasoningNetwork; // Import CommonSenseReasoningNetwork
 use crate::cognitive_arch::concept_formation::ConceptFormationModule; // Import ConceptFormationModule
@@ -62,6 +62,7 @@ use crate::cognitive_arch::metacognition::MetacognitionModule; // Import Metacog
 use crate::cognitive_arch::imagination::ImaginationModule; // Import ImaginationModule
 use crate::cognitive_arch::formal_reasoning::FormalReasoningModule; // Import FormalReasoningModule
 use crate::cognitive_arch::emotion_motivation::EmotionMotivationModule; // Import EmotionMotivationModule
+use crate::cognitive_arch::creativity::CreativityInnovationModule; // Import CreativityInnovationModule
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -145,6 +146,8 @@ pub struct AgiCoreEngine {
     pub formal_reasoning_module: Arc<FormalReasoningModule>,
     // Cognitive Arch EmotionMotivationModule
     pub emotion_motivation_module: Arc<EmotionMotivationModule>,
+    // Cognitive Arch CreativityInnovationModule
+    pub creativity_innovation_module: Arc<CreativityInnovationModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -387,7 +390,6 @@ impl AgiCoreEngine {
         // LifelongLearningModule Dummy
         struct LifelongLearningModuleDummy { event_bus: Arc<EventBus> }
         impl LifelongLearningModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { LifelongLearningModuleDummy { event_bus } } }
-        // Implement necessary dummy methods for LifelongLearningModule's trait/struct
         impl LifelongLearningModuleDummy {
             async fn integrate_new_experience(&self, _experience: crate::cognitive_arch::learning_memory_models::LearningExperience, _new_knowledge: Vec<crate::cognitive_arch::learning_memory_models::KnowledgeChunk>) -> Result<(), String> { warn!("Dummy LifelongLearningModule method called."); Ok(()) }
             async fn integrate_knowledge_from_source(&self, _source_module_id: &str, _relevant_info_summary: &str) -> Result<(), String> { warn!("Dummy LifelongLearningModule method called."); Ok(()) }
@@ -401,7 +403,7 @@ impl AgiCoreEngine {
             causal_reasoning_engine_arc.clone(), 
             Arc::new(CommonSenseReasoningNetwork::new_dummy(event_bus_arc.clone()))
         ));
-        let ll_dummy_service = LifelongLearningModule::as_os_service(); // Get service definition from real module
+        let ll_dummy_service = LifelongLearningModule::as_os_service();
         service_registry_arc.register_service(ll_dummy_service.clone()).await?;
 
         // CommonSenseReasoningNetwork Dummy
@@ -577,6 +579,23 @@ impl AgiCoreEngine {
         let frm_dummy_service = FormalReasoningModule::as_os_service();
         service_registry_arc.register_service(frm_dummy_service.clone()).await?;
 
+        // EmotionMotivationModule Dummy
+        struct EmotionMotivationModuleDummy { event_bus: Arc<EventBus> }
+        impl EmotionMotivationModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { EmotionMotivationModuleDummy { event_bus } } }
+        impl EmotionMotivationModuleDummy {
+            async fn regulate_emotional_state(&self, _perceived_threat: f64, _cognitive_load: f64) -> Result<crate::cognitive_arch::emotion_motivation_models::EmotionalState, String> { warn!("Dummy EmotionMotivationModule method called."); Err("Dummy module".to_string()) }
+            async fn align_motivation_to_goals(&self, _global_meta_goal_summary: &str) -> Result<crate::cognitive_arch::emotion_motivation_models::MotivationalDrive, String> { warn!("Dummy EmotionMotivationModule method called."); Err("Dummy module".to_string()) }
+            async fn detect_emotional_influence(&self, _external_agent_id: &str, _observed_communication: &str) -> Result<Option<crate::cognitive_arch::emotion_motivation_models::InfluenceAnalysis>, String> { warn!("Dummy EmotionMotivationModule method called."); Ok(None) }
+        }
+        let emotion_motivation_module_arc_dummy: Arc<EmotionMotivationModule> = Arc::new(EmotionMotivationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+        ));
+        let emm_dummy_service = EmotionMotivationModule::as_os_service();
+        service_registry_arc.register_service(emm_dummy_service.clone()).await?;
+
 
         // 3. Fully Initialize Modules (replacing dummies where needed)
         
@@ -720,6 +739,19 @@ impl AgiCoreEngine {
         let emotion_motivation_module_service = EmotionMotivationModule::as_os_service();
         service_registry_arc.register_service(emotion_motivation_module_service).await?;
 
+        // Initialize CreativityInnovationModule
+        let creativity_innovation_module_arc = Arc::new(CreativityInnovationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            hacse_orchestrator_arc.clone(),
+            common_sense_reasoning_network_arc.clone(),
+        ));
+        let creativity_innovation_module_service = CreativityInnovationModule::as_os_service();
+        service_registry_arc.register_service(creativity_innovation_module_service).await?;
+
+
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
         let ide_communication_bridge = Arc::new(CommunicationBridge::new(
@@ -763,6 +795,7 @@ impl AgiCoreEngine {
             imagination_module: imagination_module_arc.clone(), // Assign imagination module
             formal_reasoning_module: formal_reasoning_module_arc.clone(), // Assign formal reasoning module
             emotion_motivation_module: emotion_motivation_module_arc.clone(), // Assign emotion motivation module
+            creativity_innovation_module: creativity_innovation_module_arc.clone(), // Assign creativity innovation module
             service_command_rx,
         };
         
