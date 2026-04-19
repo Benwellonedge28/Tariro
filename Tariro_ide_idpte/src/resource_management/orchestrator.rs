@@ -37,7 +37,7 @@ pub struct SORAEOrcestrator {
     monitor: ResourceMonitor,
     predictor: Arc<Mutex<ResourcePredictor>>,
     optimizer: Arc<Mutex<OptimizationEngine>>,
-    allocator: ResourceAllocator,
+    allocator: Arc<Mutex<ResourceAllocator>>, // Allocator is now Arc<Mutex>
     // Channel for incoming resource requests from other parts of the AGI/OS
     request_rx: mpsc::Receiver<ResourceRequest>,
     request_tx: mpsc::Sender<ResourceRequest>,
@@ -55,7 +55,7 @@ impl SORAEOrcestrator {
             monitor: ResourceMonitor::new(options.system_id.clone()),
             predictor: Arc::new(Mutex::new(ResourcePredictor::new())),
             optimizer: Arc::new(Mutex::new(OptimizationEngine::new())),
-            allocator: ResourceAllocator::new(),
+            allocator: Arc::new(Mutex::new(ResourceAllocator::new())),
             request_rx,
             request_tx,
             compliance_directive_rx,
@@ -82,6 +82,7 @@ impl SORAEOrcestrator {
 
         let predictor_arc = self.predictor.clone();
         let optimizer_arc = self.optimizer.clone();
+        let allocator_arc = self.allocator.clone(); // Clone for use in main loop
         let mut request_rx = self.request_rx.take().expect("Request receiver already taken");
         let mut compliance_directive_rx = self.compliance_directive_rx.take().expect("Compliance directive receiver already taken");
 
@@ -107,7 +108,9 @@ impl SORAEOrcestrator {
 
             // Process incoming compliance directives
             while let Ok(directive) = compliance_directive_rx.try_recv() {
-                self.apply_compliance_directive(directive).await;
+                if let Ok(mut allocator) = allocator_arc.lock() {
+                    self.apply_compliance_directive(&mut allocator, directive).await;
+                }
             }
 
             // 1. Get current state
@@ -155,11 +158,16 @@ impl SORAEOrcestrator {
 
             // 6. Apply allocations, considering current snapshot and original requests for provisioning
             let current_resources_map = current_snapshot.available_resources.clone();
-            let results = self.allocator.apply_allocations(
-                ethically_approved_allocations,
-                &current_resources_map,
-                &pending_requests,
-            ).await;
+            let results = if let Ok(mut allocator) = allocator_arc.lock() {
+                 allocator.apply_allocations(
+                    ethically_approved_allocations,
+                    &current_resources_map,
+                    &pending_requests,
+                ).await
+            } else {
+                error!("Failed to lock allocator for applying allocations.");
+                HashMap::new()
+            };
 
             // Log or act on results and perform self-adaptive tuning
             let mut successful_allocations = 0;
@@ -215,7 +223,7 @@ impl SORAEOrcestrator {
     }
 
     /// Applies a compliance directive received from ALEC-A.
-    pub async fn apply_compliance_directive(&mut self, directive: ComplianceDirective) {
+    async fn apply_compliance_directive(&self, allocator: &mut ResourceAllocator, directive: ComplianceDirective) {
         info!("S.O.R.A.E.: Applying compliance directive: {:?}", directive);
         match directive {
             ComplianceDirective::EnforceResourceIsolation(entity_id) => {
@@ -224,8 +232,9 @@ impl SORAEOrcestrator {
             },
             ComplianceDirective::AdjustTaskPriority(task_id, new_priority) => {
                 info!("S.O.R.A.E.: Adjusting priority for task {} to {}.", task_id, new_priority);
-                // Logic to update the priority of the specified task in the allocator or scheduler
-                self.allocator.adjust_task_priority(&task_id, new_priority).await;
+                if let Err(e) = allocator.adjust_task_priority(&task_id, new_priority).await {
+                    error!("Failed to adjust task priority: {}", e);
+                }
             },
             ComplianceDirective::CapResourceUsage(entity_id, res_type, max_value) => {
                 info!("S.O.R.A.E.: Capping usage of {:?} for {} to {}.", res_type, entity_id, max_value);
@@ -238,7 +247,6 @@ impl SORAEOrcestrator {
             ComplianceDirective::Custom(action, value) => {
                 info!("S.O.R.A.E.: Applying custom compliance action: {} with value {}.", action, value);
             },
-            _ => warn!("S.O.R.A.E.: Unhandled compliance directive: {:?}", directive),
         }
     }
 }
