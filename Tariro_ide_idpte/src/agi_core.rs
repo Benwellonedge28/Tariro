@@ -52,6 +52,7 @@ use crate::cognitive_arch::meta_learner::MetaLearner;
 use crate::cognitive_arch::causal_reasoning::CausalReasoningEngine; // Import CausalReasoningEngine
 use crate::cognitive_arch::theory_of_mind::TheoryOfMindModule; // Import TheoryOfMindModule
 use crate::cognitive_arch::analogical_reasoning::AnalogicalReasoningSystem; // Import AnalogicalReasoningSystem
+use crate::cognitive_arch::common_sense_reasoning::CommonSenseReasoningNetwork; // Import CommonSenseReasoningNetwork
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -87,7 +88,7 @@ pub struct AgiCoreEngine {
     // Senders for compliance directives (to SORAEE and QR-CTFO)
     sorae_compliance_directive_sender: mpsc::Sender<SoraeComplianceDirective>,
     qrctfo_compliance_directive_sender: mpsc::Sender<ComplianceRemediationAction>,
-    // Meta-Goals module
+    // Meta-Goal Manager
     pub meta_goal_manager: Arc<Mutex<MetaGoalManager>>,
     // OMEGA OS Service Registry
     pub service_registry: Arc<ServiceRegistry>,
@@ -117,6 +118,8 @@ pub struct AgiCoreEngine {
     pub theory_of_mind_module: Arc<TheoryOfMindModule>,
     // Cognitive Arch AnalogicalReasoningSystem
     pub analogical_reasoning_system: Arc<AnalogicalReasoningSystem>,
+    // Cognitive Arch CommonSenseReasoningNetwork
+    pub common_sense_reasoning_network: Arc<CommonSenseReasoningNetwork>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -378,6 +381,12 @@ impl AgiCoreEngine {
         let analogical_reasoning_system_service = AnalogicalReasoningSystem::as_os_service();
         service_registry_arc.register_service(analogical_reasoning_system_service).await?;
 
+        // Initialize Cognitive Architecture CommonSenseReasoningNetwork
+        let common_sense_reasoning_network_arc = Arc::new(CommonSenseReasoningNetwork::new(event_bus_arc.clone()));
+        // Register CommonSenseReasoningNetwork as a service
+        let common_sense_reasoning_network_service = CommonSenseReasoningNetwork::as_os_service();
+        service_registry_arc.register_service(common_sense_reasoning_network_service).await?;
+
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
         let ide_communication_bridge = Arc::new(CommunicationBridge::new(
@@ -411,6 +420,7 @@ impl AgiCoreEngine {
             causal_reasoning_engine: causal_reasoning_engine_arc.clone(), // Assign causal reasoning engine
             theory_of_mind_module: theory_of_mind_module_arc.clone(), // Assign theory of mind module
             analogical_reasoning_system: analogical_reasoning_system_arc.clone(), // Assign analogical reasoning system
+            common_sense_reasoning_network: common_sense_reasoning_network_arc.clone(), // Assign common sense reasoning network
             service_command_rx,
         };
         
