@@ -71,6 +71,7 @@ use crate::omega_os::self_organization::SelfOrganizationModule; // Import SelfOr
 use crate::omega_os::self_healing::SelfHealingModule; // Import SelfHealingModule
 use crate::forecasting::forecasting::PredictiveForecastingModule; // Import PredictiveForecastingModule
 use crate::security::adversarial_robustness::AdversarialRobustnessModule; // Import AdversarialRobustnessModule
+use crate::security::trust_reputation::TrustReputationModule; // Import TrustReputationModule
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -172,6 +173,8 @@ pub struct AgiCoreEngine {
     pub ethical_forecasting_module: Arc<EthicalForecastingModule>,
     // Crypto Fabric QuantumSafeModule
     pub quantum_safe_module: Arc<QuantumSafeModule>,
+    // Security TrustReputationModule
+    pub trust_reputation_module: Arc<TrustReputationModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -767,22 +770,6 @@ impl AgiCoreEngine {
         let efm_dummy_service = EthicalForecastingModule::as_os_service();
         service_registry_arc.register_service(efm_dummy_service.clone()).await?;
 
-        // DataManager Dummy (needed by QuantumSafeModule)
-        struct DataManagerDummy { event_bus: Arc<EventBus> }
-        impl DataManagerDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { DataManagerDummy { event_bus } } }
-        impl DataManagerDummy {
-            async fn store_data(&self, _data_chunk: &crate::omega_os::data_models::DataChunk) -> Result<String, String> { warn!("Dummy DataManager method called."); Err("Dummy module".to_string()) }
-            async fn retrieve_data(&self, _data_id: &str) -> Result<crate::omega_os::data_models::DataChunk, String> { warn!("Dummy DataManager method called."); Err("Dummy module".to_string()) }
-            async fn update_data_encryption_policy(&self, _data_id: &str, _policy: &crate::omega_os::data_models::EncryptionPolicy) -> Result<(), String> { warn!("Dummy DataManager method called."); Ok(()) }
-        }
-        let data_manager_arc_dummy: Arc<DataManager> = Arc::new(DataManager::new(
-            storage_abstraction_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            event_bus_arc.clone(),
-        ));
-        let dm_dummy_service = DataManager::as_os_service();
-        service_registry_arc.register_service(dm_dummy_service.clone()).await?;
-
         // QuantumSafeModule Dummy
         struct QuantumSafeModuleDummy { event_bus: Arc<EventBus> }
         impl QuantumSafeModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { QuantumSafeModuleDummy { event_bus } } }
@@ -797,10 +784,29 @@ impl AgiCoreEngine {
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
-            data_manager_arc_dummy.clone(),
+            data_manager_arc.clone(), // This depends on the *fully initialized* DataManager
         ));
         let qsm_dummy_service = QuantumSafeModule::as_os_service();
         service_registry_arc.register_service(qsm_dummy_service.clone()).await?;
+
+        // TrustReputationModule Dummy
+        struct TrustReputationModuleDummy { event_bus: Arc<EventBus> }
+        impl TrustReputationModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { TrustReputationModuleDummy { event_bus } } }
+        impl TrustReputationModuleDummy {
+            async fn assess_agent_trust(&self, _agent_id: &str, _observed_behavior: &str) -> Result<crate::security::trust_reputation_models::AgentTrustScore, String> { warn!("Dummy TrustReputationModule method called."); Err("Dummy module".to_string()) }
+            async fn calculate_reputation_score(&self, _agent_id: &str, _new_trust_event: crate::security::trust_reputation_models::TrustEvent) -> Result<crate::security::trust_reputation_models::AgentTrustScore, String> { warn!("Dummy TrustReputationModule method called."); Err("Dummy module".to_string()) }
+            async fn calibrate_trust_ethically(&self, _agent_id: &str) -> Result<crate::security::trust_reputation_models::AgentTrustScore, String> { warn!("Dummy TrustReputationModule method called."); Err("Dummy module".to_string()) }
+        }
+        let trust_reputation_module_arc_dummy: Arc<TrustReputationModule> = Arc::new(TrustReputationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+        ));
+        let trm_dummy_service = TrustReputationModule::as_os_service();
+        service_registry_arc.register_service(trm_dummy_service.clone()).await?;
+
 
 
         // 3. Fully Initialize Modules (replacing dummies where needed)
@@ -1045,9 +1051,7 @@ impl AgiCoreEngine {
         let efm_service_full = EthicalForecastingModule::as_os_service();
         service_registry_arc.register_service(efm_service_full).await?;
 
-        // Fully initialize DataManager (needs QR-CTFO and StorageAbstraction, but StorageAbstraction needs DataManager. Using dummy for SA)
-        // DataManager is needed by QuantumSafeModule.
-        // Its new() method takes storage_abstraction_arc, qr_ctfo_orchestrator_arc, event_bus_arc
+        // Fully initialize DataManager
         service_registry_arc.deregister_service("data-manager").await?;
         let data_manager_arc = Arc::new(DataManager::new(
             storage_abstraction_arc.clone(), 
@@ -1057,7 +1061,8 @@ impl AgiCoreEngine {
         let dm_service_full = DataManager::as_os_service();
         service_registry_arc.register_service(dm_service_full).await?;
 
-        // Initialize QuantumSafeModule
+        // Re-initialize QuantumSafeModule
+        service_registry_arc.deregister_service("quantum-safe-module").await?;
         let quantum_safe_module_arc = Arc::new(QuantumSafeModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
@@ -1065,8 +1070,19 @@ impl AgiCoreEngine {
             meta_learner_arc.clone(),
             data_manager_arc.clone(),
         ));
-        let quantum_safe_module_service = QuantumSafeModule::as_os_service();
-        service_registry_arc.register_service(quantum_safe_module_service).await?;
+        let qsm_service_full = QuantumSafeModule::as_os_service();
+        service_registry_arc.register_service(qsm_service_full).await?;
+
+        // Initialize TrustReputationModule
+        let trust_reputation_module_arc = Arc::new(TrustReputationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            theory_of_mind_module_arc.clone(),
+        ));
+        let trust_reputation_module_service = TrustReputationModule::as_os_service();
+        service_registry_arc.register_service(trust_reputation_module_service).await?;
 
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
@@ -1120,6 +1136,7 @@ impl AgiCoreEngine {
             adversarial_robustness_module: adversarial_robustness_module_arc.clone(), // Assign adversarial robustness module
             ethical_forecasting_module: ethical_forecasting_module_arc.clone(), // Assign ethical forecasting module
             quantum_safe_module: quantum_safe_module_arc.clone(), // Assign quantum safe module
+            trust_reputation_module: trust_reputation_module_arc.clone(), // Assign trust reputation module
             service_command_rx,
         };
         
