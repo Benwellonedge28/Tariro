@@ -74,6 +74,7 @@ use crate::security::adversarial_robustness::AdversarialRobustnessModule; // Imp
 use crate::security::trust_reputation::TrustReputationModule; // Import TrustReputationModule
 use crate::security::deception_detection::DeceptionDetectionModule; // Import DeceptionDetectionModule
 use crate::security::data_privacy::DataPrivacyModule; // Import DataPrivacyModule
+use crate::security::hardware_security::HardwareSecurityModule; // Import HardwareSecurityModule
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -181,6 +182,8 @@ pub struct AgiCoreEngine {
     pub deception_detection_module: Arc<DeceptionDetectionModule>,
     // Security DataPrivacyModule
     pub data_privacy_module: Arc<DataPrivacyModule>,
+    // Security HardwareSecurityModule
+    pub hardware_security_module: Arc<HardwareSecurityModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -752,7 +755,7 @@ impl AgiCoreEngine {
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
-            self_healing_module_arc.clone(), // This depends on the *fully initialized* SelfHealingModule
+            self_healing_module_arc_dummy.clone(),
         ));
         let arm_dummy_service = AdversarialRobustnessModule::as_os_service();
         service_registry_arc.register_service(arm_dummy_service.clone()).await?;
@@ -798,7 +801,7 @@ impl AgiCoreEngine {
         struct DeceptionDetectionModuleDummy { event_bus: Arc<EventBus> }
         impl DeceptionDetectionModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { DeceptionDetectionModuleDummy { event_bus } } }
         impl DeceptionDetectionModuleDummy {
-            async fn detect_deception(&self, _observed_input: &str, _source_agent_id: &str) -> Result<Option<crate::security::deception_detection_models::DeceptionAttempt>, String> { warn!("Dummy DeceptionDetectionModule method called."); Ok(None) }
+            async fn detect_deception(&self, _observed_input: &str, _source_agent_id: &str) -> Result<Option<crate::security::deception_detection_models::DeceptionAttempt>, String> { warn!("Dummy DeceptionDetectionModule method called."); Err("Dummy module".to_string()) }
             async fn analyze_and_generate_countermeasure(&self, _deception_attempt: crate::security::deception_detection_models::DeceptionAttempt) -> Result<crate::security::deception_detection_models::CounterDeceptionStrategy, String> { warn!("Dummy DeceptionDetectionModule method called."); Err("Dummy module".to_string()) }
             async fn deploy_ethical_countermeasure(&self, _strategy_id: &str) -> Result<(), String> { warn!("Dummy DeceptionDetectionModule method called."); Ok(()) }
         }
@@ -831,6 +834,24 @@ impl AgiCoreEngine {
         ));
         let dpm_dummy_service = DataPrivacyModule::as_os_service();
         service_registry_arc.register_service(dpm_dummy_service.clone()).await?;
+
+        // HardwareSecurityModule Dummy
+        struct HardwareSecurityModuleDummy { event_bus: Arc<EventBus> }
+        impl HardwareSecurityModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { HardwareSecurityModuleDummy { event_bus } } }
+        impl HardwareSecurityModuleDummy {
+            async fn perform_hardware_attestation(&self, _component_id: &str, _current_state_hash: &str) -> Result<crate::security::hardware_security_models::HardwareAttestationReport, String> { warn!("Dummy HardwareSecurityModule method called."); Err("Dummy module".to_string()) }
+            async fn manage_secure_peripherals(&self, _peripheral_id: &str, _requested_action: &str, _initiating_module_id: &str) -> Result<(), String> { warn!("Dummy HardwareSecurityModule method called."); Ok(()) }
+            async fn monitor_ethical_hardware_interaction(&self, _interaction_log_id: &str) -> Result<crate::security::hardware_security_models::EthicalHardwareAccessRecord, String> { warn!("Dummy HardwareSecurityModule method called."); Err("Dummy module".to_string()) }
+        }
+        let hardware_security_module_arc_dummy: Arc<HardwareSecurityModule> = Arc::new(HardwareSecurityModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+        ));
+        let hsm_dummy_service = HardwareSecurityModule::as_os_service();
+        service_registry_arc.register_service(hsm_dummy_service.clone()).await?;
+
 
 
         // 3. Fully Initialize Modules (replacing dummies where needed)
@@ -1122,7 +1143,8 @@ impl AgiCoreEngine {
         let ddm_service_full = DeceptionDetectionModule::as_os_service();
         service_registry_arc.register_service(ddm_service_full).await?;
 
-        // Initialize DataPrivacyModule
+        // Re-initialize DataPrivacyModule
+        service_registry_arc.deregister_service("data-privacy-module").await?;
         let data_privacy_module_arc = Arc::new(DataPrivacyModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
@@ -1130,8 +1152,18 @@ impl AgiCoreEngine {
             meta_learner_arc.clone(),
             data_manager_arc.clone(),
         ));
-        let data_privacy_module_service = DataPrivacyModule::as_os_service();
-        service_registry_arc.register_service(data_privacy_module_service).await?;
+        let dpm_service_full = DataPrivacyModule::as_os_service();
+        service_registry_arc.register_service(dpm_service_full).await?;
+
+        // Initialize HardwareSecurityModule
+        let hardware_security_module_arc = Arc::new(HardwareSecurityModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+        ));
+        let hardware_security_module_service = HardwareSecurityModule::as_os_service();
+        service_registry_arc.register_service(hardware_security_module_service).await?;
 
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
@@ -1188,6 +1220,7 @@ impl AgiCoreEngine {
             trust_reputation_module: trust_reputation_module_arc.clone(), // Assign trust reputation module
             deception_detection_module: deception_detection_module_arc.clone(), // Assign deception detection module
             data_privacy_module: data_privacy_module_arc.clone(), // Assign data privacy module
+            hardware_security_module: hardware_security_module_arc.clone(), // Assign hardware security module
             service_command_rx,
         };
         
