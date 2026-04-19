@@ -390,6 +390,12 @@ impl AgiCoreEngine {
         let common_sense_reasoning_network_service = CommonSenseReasoningNetwork::as_os_service();
         service_registry_arc.register_service(common_sense_reasoning_network_service).await?;
 
+        // Initialize Cognitive Architecture ConceptFormationModule
+        let concept_formation_module_arc = Arc::new(ConceptFormationModule::new(event_bus_arc.clone()));
+        // Register ConceptFormationModule as a service
+        let concept_formation_module_service = ConceptFormationModule::as_os_service();
+        service_registry_arc.register_service(concept_formation_module_service).await?;
+
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
         let ide_communication_bridge = Arc::new(CommunicationBridge::new(
@@ -424,6 +430,7 @@ impl AgiCoreEngine {
             theory_of_mind_module: theory_of_mind_module_arc.clone(), // Assign theory of mind module
             analogical_reasoning_system: analogical_reasoning_system_arc.clone(), // Assign analogical reasoning system
             common_sense_reasoning_network: common_sense_reasoning_network_arc.clone(), // Assign common sense reasoning network
+            concept_formation_module: concept_formation_module_arc.clone(), // Assign concept formation module
             service_command_rx,
         };
         
