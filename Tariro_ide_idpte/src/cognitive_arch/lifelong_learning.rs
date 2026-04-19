@@ -19,8 +19,8 @@ use crate::compliance_advisor::orchestrator::AlecaOrchestrator; // For ethical v
 use crate::crypto_fabric::orchestrator::QrCtfoOrchestrator; // For cryptographic integrity
 use crate::cognitive_arch::curiosity_exploration::CuriosityExplorationModule; // For filling knowledge gaps
 use crate::cognitive_arch::concept_formation::ConceptFormationModule; // For new concepts
-use crate::cognitive_arch::causal_reasoning::CausalReasoningEngine; // For causal links
-use crate::cognitive_arch::common_sense_reasoning::CommonSenseReasoningNetwork; // For common sense consistency
+use crate::cognitive_arch::causal_reasoning::CausalReasoningEngine; // For pulling causal links
+use crate::cognitive_arch::common_sense_reasoning::CommonSenseReasoningNetwork; // For pulling common sense
 use crate::cognitive_arch::learning_models::VerificationStatus; // For alias clarity
 
 /// The Continual Lifelong Learning module.
@@ -153,7 +153,7 @@ impl LifelongLearningModule {
     /// Autonomously refines and updates knowledge chunks, prunes outdated information, and identifies gaps.
     pub async fn refine_knowledge_base(&self) -> Result<(), String> {
         info!("CLL: Autonomously refining knowledge base.");
-        let kb_guard = self.knowledge_base.lock().unwrap();
+        let mut kb_guard = self.knowledge_base.lock().unwrap();
         let consolidated_guard = self.consolidated_knowledge.lock().unwrap();
 
         let mut gaps_found = Vec::new();
@@ -167,19 +167,34 @@ impl LifelongLearningModule {
 
         // Simulate identifying knowledge gaps (e.g., missing causal links or concepts)
         // This would involve queries to CausalReasoningEngine, ConceptFormationModule, etc.
-        if self.causal_reasoning_engine.infer_causal_effects("some_graph_id", "A", "B").await.is_err() { // Mock check
+        // Example: Check if a crucial concept is missing or if a causal link is unverified
+        let missing_concept = self.concept_formation_module.process_data_stream(&crate::cognitive_arch::concept_models::RawDataStream{
+            id: format!("check_stream_{}", Uuid::new_v4()),
+            name: "Hypothetical new data stream.".to_string(),
+            data_type: "sensor_readings".to_string(),
+            source_module: "CLLModule".to_string(),
+            description: Some("Checking for new concepts.".to_string()),
+            sample_data_summary: "No clear patterns detected yet.".to_string(),
+            timestamp: Utc::now(),
+            data_privacy_level: None,
+            data_integrity_hash: None,
+        }).await.ok().and_then(|ids| ids.first().cloned());
+
+        if missing_concept.is_none() { // If ConceptFormationModule didn't yield new concepts from a mock stream
             let gap_id = format!("gap-{}", Uuid::new_v4());
             gaps_found.push(KnowledgeGap {
                 id: gap_id.clone(),
-                description: "Missing causal link between A and B.".to_string(),
-                inferred_missing_information: "Need to determine if A causes B.".to_string(),
-                identified_by_module: "CausalReasoningEngine".to_string(),
-                severity: 0.8,
-                suggested_exploration_target: "Experiment on A's effect on B.".to_string(),
+                description: "Potential for new concept discovery.".to_string(),
+                inferred_missing_information: "There might be undiscovered patterns in sensor data.".to_string(),
+                identified_by_module: "LifelongLearningModule".to_string(),
+                severity: 0.6,
+                suggested_exploration_target: "Explore sensor data for novel patterns.".to_string(),
                 timestamp: Utc::now(),
             });
             // Trigger CuriosityExplorationModule to fill this gap (Sub-Task 70.3)
-            self.curiosity_exploration_module.select_exploration_target(&gaps_found.last().unwrap().suggested_exploration_target).await?;
+            if let Some(target) = gaps_found.last().map(|g| g.suggested_exploration_target.clone()) {
+                self.curiosity_exploration_module.select_exploration_target(&target).await?;
+            }
         }
         
         if let Some(gap) = gaps_found.last() {
@@ -201,7 +216,7 @@ impl LifelongLearningModule {
                 ServiceCapability { name: "integrate_new_experience".to_string(), description: "Integrates a new learning experience and knowledge with integrity checks.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["write_knowledge".to_string()], requires_ethical_review: true },
                 ServiceCapability { name: "integrate_knowledge_from_source".to_string(), description: "Autonomously integrates knowledge from other cognitive modules.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["read_other_modules_knowledge".to_string()], requires_ethical_review: true },
                 ServiceCapability { name: "consolidate_knowledge".to_string(), description: "Consolidates knowledge into long-term memory with ethical vetting and robust forgetting prevention.".to_string(), parameters: HashMap::new(), output_schema: "ConsolidatedKnowledge".to_string(), requires_permissions: vec!["write_long_term_memory".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "refine_knowledge_base".to_string(), description: "Autonomously refines knowledge base, prunes, and identifies gaps.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["modify_knowledge_base".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "refine_knowledge_base".to_string(), description: "Autonomously refines knowledge base, prunes, and identifies gaps, triggering exploration.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["modify_knowledge_base".to_string()], requires_ethical_review: true },
             ],
             status: ServiceStatus::Running,
             registered_at: Utc::now(), 
