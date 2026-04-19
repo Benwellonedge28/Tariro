@@ -17,6 +17,7 @@ use chrono::{Utc, Duration as ChronoDuration};
 use tracing::{info, warn, error};
 
 use crate::compliance_advisor::conflict_resolver::ComplianceRemediationAction; // Import ComplianceRemediationAction
+use tokio::sync::mpsc; // For receiving compliance directives
 
 /// Configuration options for the QR-CTFO Orchestrator.
 #[derive(Debug, Clone)]
@@ -44,24 +45,31 @@ pub struct QrCtfoOrchestrator {
     policy_engine: Arc<Mutex<TrustPolicyEngine>>,
     pub comm_adapter: Arc<CommunicationAdapter>, // Make pub to be accessible by AgiCoreEngine
     current_options: Arc<Mutex<QrCtfoOptions>>,
+    compliance_directive_rx: mpsc::Receiver<ComplianceRemediationAction>, // Receiver for compliance directives
 }
 
 impl QrCtfoOrchestrator {
-    pub fn new(options: QrCtfoOptions, policy_engine: Arc<Mutex<TrustPolicyEngine>>) -> Self {
-        QrCtfoOrchestrator {
+    pub fn new(
+        options: QrCtfoOptions,
+        policy_engine: Arc<Mutex<TrustPolicyEngine>>,
+    ) -> (Self, mpsc::Sender<ComplianceRemediationAction>) { // Return sender for ALEC-A
+        let (tx, rx) = mpsc::channel(50); // Channel for ALEC-A directives
+        (QrCtfoOrchestrator {
             key_manager: Arc::new(Mutex::new(QrKeyManager::new())),
             policy_engine: policy_engine.clone(),
             comm_adapter: Arc::new(CommunicationAdapter::new(policy_engine)),
             current_options: Arc::new(Mutex::new(options)),
-        }
+            compliance_directive_rx: rx,
+        }, tx)
     }
 
     /// Starts the main QR-CTFO orchestration loop.
-    pub async fn start_loop(&self) -> Result<()> {
+    pub async fn start_loop(&mut self) -> Result<()> {
         let options_arc = self.current_options.clone();
         let key_manager_arc = self.key_manager.clone();
         let policy_engine_arc = self.policy_engine.clone();
         let comm_adapter_arc = self.comm_adapter.clone();
+        let mut compliance_directive_rx = self.compliance_directive_rx.take().expect("Compliance directive receiver already taken");
 
         info!("QR-CTFO Orchestrator started.");
 
@@ -75,6 +83,11 @@ impl QrCtfoOrchestrator {
         loop {
             let options = options_arc.lock().unwrap().clone();
             let now = Utc::now();
+
+            // Process incoming compliance directives
+            while let Ok(directive) = compliance_directive_rx.try_recv() {
+                self.apply_compliance_directive(directive).await;
+            }
 
             // 1. Policy Enforcement Check
             if now.timestamp() % options.policy_enforcement_interval_seconds as i64 == 0 {
@@ -142,13 +155,6 @@ impl QrCtfoOrchestrator {
                 }
                 last_policy_check = now;
             }
-
-            // Process incoming compliance directives
-            // This would likely come from an internal channel, not a separate loop.
-            // For now, it's a separate method that can be called.
-            // while let Ok(directive) = self.compliance_directive_rx.try_recv() { // Need to pass receiver into loop
-            //    self.apply_compliance_directive(directive).await;
-            // }
 
             // Sleep until next check based on the fastest interval
             let min_interval = *[options.policy_enforcement_interval_seconds,

@@ -32,6 +32,10 @@ use crate::compliance_advisor::conflict_resolver::ComplianceRemediationAction; /
 // Import Meta-Goals module
 use crate::agi_meta_goals::MetaGoalManager; 
 
+// Import OMEGA OS Service Framework
+use crate::omega_os::service_registry::ServiceRegistry;
+use crate::omega_os::service_models::{OsService, ServiceType, ServiceCapability, ServiceStatus};
+
 /// Trait for auditing different AGI system modules.
 /// This provides a standardized way for ALEC-A to query the compliance status of other modules.
 pub trait AgiSystemAuditor: Send + Sync {
@@ -58,11 +62,16 @@ pub struct AgiCoreEngine {
     qrctfo_compliance_directive_sender: mpsc::Sender<ComplianceRemediationAction>,
     // Meta-Goal Manager
     pub meta_goal_manager: Arc<Mutex<MetaGoalManager>>,
+    // OMEGA OS Service Registry
+    pub service_registry: Arc<ServiceRegistry>,
 }
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
         info!("Initializing AGI Core Engine...");
+
+        // Initialize OMEGA OS Service Registry
+        let service_registry_arc = Arc::new(ServiceRegistry::new());
 
         // Initialize Meta-Goal Manager
         let meta_goal_manager_arc = Arc::new(Mutex::new(MetaGoalManager::new()));
@@ -79,6 +88,24 @@ impl AgiCoreEngine {
             sorae_orchestrator_clone.lock().unwrap().start_loop().await;
         });
         info!("S.O.R.A.E. Orchestrator initialized and started.");
+        // Register SORAEE as a service
+        let sorae_service = OsService {
+            id: "soraee".to_string(),
+            name: "S.O.R.A.E.E. Orchestrator".to_string(),
+            description: "Self-Optimizing Resource Allocation Engine. Manages system resources.".to_string(),
+            service_type: ServiceType::ResourceManagement,
+            capabilities: vec![
+                ServiceCapability { name: "allocate_resources".to_string(), description: "Allocates computational resources.".to_string(), parameters: HashMap::new(), output_schema: "".to_string(), requires_permissions: vec![], requires_ethical_review: true },
+                ServiceCapability { name: "monitor_resources".to_string(), description: "Monitors system resource usage.".to_string(), parameters: HashMap::new(), output_schema: "".to_string(), requires_permissions: vec![], requires_ethical_review: false },
+            ],
+            status: ServiceStatus::Running,
+            registered_at: Utc::now(),
+            last_heartbeat: Utc::now(),
+            endpoints: HashMap::new(),
+            dependencies: vec![],
+            managed_by_agi_module: Some("ALEC-A".to_string()),
+        };
+        service_registry_arc.register_service(sorae_service).await?;
 
         // Initialize QR-CTFO Orchestrator
         let qr_ctfo_options = QrCtfoOptions::default();
@@ -94,10 +121,27 @@ impl AgiCoreEngine {
             }
         });
         info!("QR-CTFO Orchestrator initialized and started.");
+        // Register QR-CTFO as a service
+        let qrctfo_service = OsService {
+            id: "qr-ctfo".to_string(),
+            name: "QR-CTFO Orchestrator".to_string(),
+            description: "Quantum-Resistant Cryptographic & Trust Fabric Orchestrator. Manages crypto policies and keys.".to_string(),
+            service_type: ServiceType::Cryptography,
+            capabilities: vec![
+                ServiceCapability { name: "request_secure_session".to_string(), description: "Requests secure session keys.".to_string(), parameters: HashMap::new(), output_schema: "".to_string(), requires_permissions: vec![], requires_ethical_review: true },
+                ServiceCapability { name: "enforce_pqc_policy".to_string(), description: "Enforces PQC policies on communications.".to_string(), parameters: HashMap::new(), output_schema: "".to_string(), requires_permissions: vec![], requires_ethical_review: true },
+            ],
+            status: ServiceStatus::Running,
+            registered_at: Utc::now(),
+            last_heartbeat: Utc::now(),
+            endpoints: HashMap::new(),
+            dependencies: vec![],
+            managed_by_agi_module: Some("ALEC-A".to_string()),
+        };
+        service_registry_arc.register_service(qrctfo_service).await?;
 
         // Initialize HACSE Orchestrator
         let hacse_options = HacseOptions::default();
-        // Pass sorae_request_sender to HACSE for resource-aware generation
         let hacse_orchestrator = HacseOrchestrator::new(
             hacse_options, 
             meta_goal_manager_arc.clone(),
@@ -113,6 +157,24 @@ impl AgiCoreEngine {
             }
         });
         info!("HACSE Orchestrator initialized and started.");
+        // Register HACSE as a service
+        let hacse_service = OsService {
+            id: "hacse".to_string(),
+            name: "HACSE Orchestrator".to_string(),
+            description: "Human-AGI Co-Creative Synthesis Engine. Facilitates creative co-creation.".to_string(),
+            service_type: ServiceType::AGI_Module("HACSE".to_string()),
+            capabilities: vec![
+                ServiceCapability { name: "generate_artifact".to_string(), description: "Generates creative artifacts (code, text, image, audio).".to_string(), parameters: HashMap::new(), output_schema: "".to_string(), requires_permissions: vec![], requires_ethical_review: true },
+                ServiceCapability { name: "learn_human_style".to_string(), description: "Learns and adapts to human creative styles.".to_string(), parameters: HashMap::new(), output_schema: "".to_string(), requires_permissions: vec![], requires_ethical_review: false },
+            ],
+            status: ServiceStatus::Running,
+            registered_at: Utc::now(),
+            last_heartbeat: Utc::now(),
+            endpoints: HashMap::new(),
+            dependencies: vec!["soraee".to_string()],
+            managed_by_agi_module: Some("ALEC-A".to_string()),
+        };
+        service_registry_arc.register_service(hacse_service).await?;
 
         // Initialize ALEC-A Orchestrator (requires `self` reference for auditing)
         let aleca_options = AlecaOptions::default();
@@ -121,25 +183,21 @@ impl AgiCoreEngine {
                                                              Some(qrctfo_compliance_directive_sender_tx.clone())); // Use tx for ALEC-A
         let aleca_orchestrator_arc = Arc::new(Mutex::new(aleca_orchestrator_instance));
 
-        // Initialize Communication Bridge for IDE
-        let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
-        let ide_communication_bridge = Arc::new(CommunicationBridge::new(
-            Arc::new(crate::crypto_fabric::communication_adapter::CommunicationAdapter::new(qr_ctfo_policy_engine_arc.clone())), // Pass policy engine
-            ide_channel
-        ).await?);
-        info!("IDE Communication Bridge initialized and secured.");
-
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
             sorae_orchestrator_internal: sorae_orchestrator_arc,
             qr_ctfo_orchestrator,
-            ide_communication_bridge,
+            ide_communication_bridge: Arc::new(CommunicationBridge::new(
+                Arc::new(crate::crypto_fabric::communication_adapter::CommunicationAdapter::new(qr_ctfo_policy_engine_arc.clone())), // Pass policy engine
+                CommunicationChannel::InterProcess("tariro-ide-bridge".to_string())
+            ).await?),
             hacse_prompt_sender,
             hacse_orchestrator_internal: hacse_orchestrator_arc,
             aleca_orchestrator: aleca_orchestrator_arc.clone(), // Clone for return
             sorae_compliance_directive_sender: sorae_compliance_directive_sender.clone(),
             qrctfo_compliance_directive_sender: qrctfo_compliance_directive_sender_tx,
             meta_goal_manager: meta_goal_manager_arc,
+            service_registry: service_registry_arc.clone(), // Assign registry
         };
         
         let agi_auditor_arc = Arc::new(agi_core_engine_instance);
@@ -151,6 +209,25 @@ impl AgiCoreEngine {
                 eprintln!("ALEC-A Orchestrator failed: {:?}", e);
             }
         });
+
+        // Register ALEC-A as a service (after agi_auditor_arc is created)
+        let aleca_service = OsService {
+            id: "aleca".to_string(),
+            name: "ALEC-A Orchestrator".to_string(),
+            description: "Autonomous Legal & Ethical Compliance Advisor. Ensures system-wide compliance.".to_string(),
+            service_type: ServiceType::AGI_Module("ALEC-A".to_string()),
+            capabilities: vec![
+                ServiceCapability { name: "check_compliance".to_string(), description: "Checks compliance of AGI operations.".to_string(), parameters: HashMap::new(), output_schema: "".to_string(), requires_permissions: vec![], requires_ethical_review: true },
+                ServiceCapability { name: "perform_audit".to_string(), description: "Performs full system compliance audits.".to_string(), parameters: HashMap::new(), output_schema: "".to_string(), requires_permissions: vec![], requires_ethical_review: true },
+            ],
+            status: ServiceStatus::Running,
+            registered_at: Utc::now(),
+            last_heartbeat: Utc::now(),
+            endpoints: HashMap::new(),
+            dependencies: vec!["soraee".to_string(), "qr-ctfo".to_string()],
+            managed_by_agi_module: None, // ALEC-A manages itself
+        };
+        service_registry_arc.register_service(aleca_service).await?;
 
         Ok(agi_auditor_arc)
     }
