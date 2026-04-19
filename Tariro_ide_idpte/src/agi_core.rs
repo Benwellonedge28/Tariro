@@ -32,6 +32,7 @@ use crate::compliance_advisor::conflict_resolver::ComplianceRemediationAction; /
 
 // Import Meta-Goals module
 use crate::agi_meta_goals::MetaGoalManager; 
+use crate::agi_meta_goals::goal_management::GoalManagementModule; // Import GoalManagementModule
 
 // Import OMEGA OS Service Framework
 use crate::omega_os::service_registry::ServiceRegistry;
@@ -83,7 +84,7 @@ pub enum ServiceCommand {
 pub trait AgiSystemAuditor: Send + Sync {
     async fn get_sorae_audit_status(&self) -> ModuleAuditStatus;
     async fn get_qrctfo_audit_status(&self) -> ModuleAuditStatus;
-    async fn get_hacse_audit_status(&self) -> ModuleAuditStatus;
+    async fn fn get_hacse_audit_status(&self) -> ModuleAuditStatus;
 }
 
 pub struct AgiCoreEngine {
@@ -160,6 +161,8 @@ pub struct AgiCoreEngine {
     pub resource_optimization_module: Arc<ResourceOptimizationModule>,
     // OMEGA OS PredictiveForecastingModule
     pub predictive_forecasting_module: Arc<PredictiveForecastingModule>,
+    // AGI Meta Goals GoalManagementModule
+    pub goal_management_module: Arc<GoalManagementModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -699,6 +702,25 @@ impl AgiCoreEngine {
         let pfm_dummy_service = PredictiveForecastingModule::as_os_service();
         service_registry_arc.register_service(pfm_dummy_service.clone()).await?;
 
+        // GoalManagementModule Dummy
+        struct GoalManagementModuleDummy { event_bus: Arc<EventBus> }
+        impl GoalManagementModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { GoalManagementModuleDummy { event_bus } } }
+        impl GoalManagementModuleDummy {
+            async fn formulate_autonomous_goal(&self, _meta_goal_context: &str, _opportunity_summary: &str) -> Result<crate::agi_meta_goals::goal_management_models::AutonomousGoal, String> { warn!("Dummy GoalManagementModule method called."); Err("Dummy module".to_string()) }
+            async fn verify_goal_alignment(&self, _goal: &mut crate::agi_meta_goals::goal_management_models::AutonomousGoal) -> Result<crate::agi_meta_goals::goal_management_models::GoalAlignmentReport, String> { warn!("Dummy GoalManagementModule method called."); Err("Dummy module".to_string()) }
+            async fn optimize_goal_pursuit(&self, _goal_id: &str) -> Result<crate::agi_meta_goals::goal_management_models::GoalPursuitStrategy, String> { warn!("Dummy GoalManagementModule method called."); Err("Dummy module".to_string()) }
+        }
+        let goal_management_module_arc_dummy: Arc<GoalManagementModule> = Arc::new(GoalManagementModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            meta_goal_manager_arc.clone(),
+            hierarchical_rl_module_arc_dummy.clone(),
+        ));
+        let gmm_dummy_service = GoalManagementModule::as_os_service();
+        service_registry_arc.register_service(gmm_dummy_service.clone()).await?;
+
 
 
         // 3. Fully Initialize Modules (replacing dummies where needed)
@@ -881,7 +903,8 @@ impl AgiCoreEngine {
         let self_healing_module_service = SelfHealingModule::as_os_service();
         service_registry_arc.register_service(self_healing_module_service).await?;
 
-        // Initialize ResourceOptimizationModule
+        // Re-initialize ResourceOptimizationModule
+        service_registry_arc.deregister_service("resource-optimization-module").await?;
         let resource_optimization_module_arc = Arc::new(ResourceOptimizationModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
@@ -890,18 +913,32 @@ impl AgiCoreEngine {
             meta_goal_manager_arc.clone(),
             sorae_orchestrator_arc.clone(),
         ));
-        let resource_optimization_module_service = ResourceOptimizationModule::as_os_service();
-        service_registry_arc.register_service(resource_optimization_module_service).await?;
+        let rom_service_full = ResourceOptimizationModule::as_os_service();
+        service_registry_arc.register_service(rom_service_full).await?;
 
-        // Initialize PredictiveForecastingModule
+        // Re-initialize PredictiveForecastingModule
+        service_registry_arc.deregister_service("predictive-forecasting-module").await?;
         let predictive_forecasting_module_arc = Arc::new(PredictiveForecastingModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
         ));
-        let predictive_forecasting_module_service = PredictiveForecastingModule::as_os_service();
-        service_registry_arc.register_service(predictive_forecasting_module_service).await?;
+        let pfm_service_full = PredictiveForecastingModule::as_os_service();
+        service_registry_arc.register_service(pfm_service_full).await?;
+
+        // Initialize GoalManagementModule
+        let goal_management_module_arc = Arc::new(GoalManagementModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            meta_goal_manager_arc.clone(),
+            hierarchical_rl_module_arc.clone(),
+        ));
+        let goal_management_module_service = GoalManagementModule::as_os_service();
+        service_registry_arc.register_service(goal_management_module_service).await?;
+
 
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
@@ -951,6 +988,7 @@ impl AgiCoreEngine {
             self_healing_module: self_healing_module_arc.clone(), // Assign self-healing module
             resource_optimization_module: resource_optimization_module_arc.clone(), // Assign resource optimization module
             predictive_forecasting_module: predictive_forecasting_module_arc.clone(), // Assign predictive forecasting module
+            goal_management_module: goal_management_module_arc.clone(), // Assign goal management module
             service_command_rx,
         };
         
