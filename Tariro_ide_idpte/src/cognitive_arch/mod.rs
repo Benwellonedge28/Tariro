@@ -14,7 +14,9 @@ pub mod concept_models;
 pub mod concept_formation;
 pub mod h_rl_models;
 pub mod hierarchical_rl;
-pub mod learning_memory_models; // New module for learning memory models
-pub mod lifelong_learning; // New module for Continual Lifelong Learning
+pub mod learning_memory_models;
+pub mod lifelong_learning;
+pub mod exploration_models; // New module for exploration models
+pub mod curiosity_exploration; // New module for Curiosity-Driven Exploration
 
 // Add other cognitive architecture modules here.
