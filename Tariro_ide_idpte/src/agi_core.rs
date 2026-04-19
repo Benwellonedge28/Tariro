@@ -71,12 +71,12 @@ use crate::cognitive_arch::creativity::CreativityInnovationModule; // Import Cre
 use crate::omega_os::self_organization::SelfOrganizationModule; // Import SelfOrganizationModule
 use crate::omega_os::self_healing::SelfHealingModule; // Import SelfHealingModule
 use crate::forecasting::forecasting::PredictiveForecastingModule; // Import PredictiveForecastingModule
+use crate::forecasting::environmental_impact::EnvironmentalImpactModule; // Import EnvironmentalImpactModule
 use crate::security::adversarial_robustness::AdversarialRobustnessModule; // Import AdversarialRobustnessModule
 use crate::security::trust_reputation::TrustReputationModule; // Import TrustReputationModule
 use crate::security::deception_detection::DeceptionDetectionModule; // Import DeceptionDetectionModule
 use crate::security::data_privacy::DataPrivacyModule; // Import DataPrivacyModule
 use crate::security::hardware_security::HardwareSecurityModule; // Import HardwareSecurityModule
-use crate::environmental::environmental_impact::EnvironmentalImpactModule; // Import EnvironmentalImpactModule
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -170,6 +170,8 @@ pub struct AgiCoreEngine {
     pub resource_optimization_module: Arc<ResourceOptimizationModule>,
     // OMEGA OS PredictiveForecastingModule
     pub predictive_forecasting_module: Arc<PredictiveForecastingModule>,
+    // OMEGA OS EnvironmentalImpactModule
+    pub environmental_impact_module: Arc<EnvironmentalImpactModule>,
     // AGI Meta Goals GoalManagementModule
     pub goal_management_module: Arc<GoalManagementModule>,
     // Security AdversarialRobustnessModule
@@ -188,8 +190,6 @@ pub struct AgiCoreEngine {
     pub hardware_security_module: Arc<HardwareSecurityModule>,
     // Communication Bridge HumanAGITeamingModule
     pub human_agi_teaming_module: Arc<HumanAGITeamingModule>,
-    // Environmental EnvironmentalImpactModule
-    pub environmental_impact_module: Arc<EnvironmentalImpactModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -808,7 +808,7 @@ impl AgiCoreEngine {
         impl DeceptionDetectionModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { DeceptionDetectionModuleDummy { event_bus } } }
         impl DeceptionDetectionModuleDummy {
             async fn detect_deception(&self, _observed_input: &str, _source_agent_id: &str) -> Result<Option<crate::security::deception_detection_models::DeceptionAttempt>, String> { warn!("Dummy DeceptionDetectionModule method called."); Ok(None) }
-            async fn analyze_and_propose_countermeasure(&self, _deception_attempt: crate::security::deception_detection_models::DeceptionAttempt) -> Result<crate::security::deception_detection_models::CounterDeceptionStrategy, String> { warn!("Dummy DeceptionDetectionModule method called."); Err("Dummy module".to_string()) }
+            async fn analyze_and_generate_countermeasure(&self, _deception_attempt: crate::security::deception_detection_models::DeceptionAttempt) -> Result<crate::security::deception_detection_models::CounterDeceptionStrategy, String> { warn!("Dummy DeceptionDetectionModule method called."); Err("Dummy module".to_string()) }
             async fn deploy_ethical_countermeasure(&self, _strategy_id: &str) -> Result<(), String> { warn!("Dummy DeceptionDetectionModule method called."); Ok(()) }
         }
         let deception_detection_module_arc_dummy: Arc<DeceptionDetectionModule> = Arc::new(DeceptionDetectionModule::new(
@@ -881,20 +881,20 @@ impl AgiCoreEngine {
         struct EnvironmentalImpactModuleDummy { event_bus: Arc<EventBus> }
         impl EnvironmentalImpactModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { EnvironmentalImpactModuleDummy { event_bus } } }
         impl EnvironmentalImpactModuleDummy {
-            async fn monitor_environmental_footprint(&self, _metric_type: &str, _observed_value: f64, _unit: &str, _source_module_id: &str) -> Result<crate::environmental::environmental_models::EnvironmentalFootprint, String> { warn!("Dummy EnvironmentalImpactModule method called."); Err("Dummy module".to_string()) }
-            async fn optimize_sustainable_resources(&self, _resource_type: &str, _current_usage: f64) -> Result<(), String> { warn!("Dummy EnvironmentalImpactModule method called."); Ok(()) }
-            async fn propose_ethical_eco_interventions(&self, _target_ecosystem: &str, _problem_summary: &str) -> Result<crate::environmental::environmental_models::EcoInterventionStrategy, String> { warn!("Dummy EnvironmentalImpactModule method called."); Err("Dummy module".to_string()) }
+            async fn assess_ecological_footprint(&self, _operation_id: &str, _operation_summary: &str) -> Result<crate::forecasting::environmental_models::EcologicalFootprint, String> { warn!("Dummy EnvironmentalImpactModule method called."); Err("Dummy module".to_string()) }
+            async fn process_secure_environmental_data(&self, _data_point_summary: &str, _source: &str) -> Result<crate::forecasting::environmental_models::EnvironmentalDataPoint, String> { warn!("Dummy EnvironmentalImpactModule method called."); Err("Dummy module".to_string()) }
+            async fn generate_ethical_mitigation(&self, _footprint_id: &str) -> Result<crate::forecasting::environmental_models::MitigationPlan, String> { warn!("Dummy EnvironmentalImpactModule method called."); Err("Dummy module".to_string()) }
         }
         let environmental_impact_module_arc_dummy: Arc<EnvironmentalImpactModule> = Arc::new(EnvironmentalImpactModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
-            resource_optimization_module_arc.clone(), // This depends on the *fully initialized* ResourceOptimizationModule
-            self_organization_module_arc.clone(), // This depends on the *fully initialized* SelfOrganizationModule
+            predictive_forecasting_module_arc.clone(), // This depends on the *fully initialized* PredictiveForecastingModule
         ));
         let eim_dummy_service = EnvironmentalImpactModule::as_os_service();
         service_registry_arc.register_service(eim_dummy_service.clone()).await?;
+
 
 
         // 3. Fully Initialize Modules (replacing dummies where needed)
@@ -1101,6 +1101,18 @@ impl AgiCoreEngine {
         let pfm_service_full = PredictiveForecastingModule::as_os_service();
         service_registry_arc.register_service(pfm_service_full).await?;
 
+        // Re-initialize EnvironmentalImpactModule
+        service_registry_arc.deregister_service("environmental-impact-module").await?;
+        let environmental_impact_module_arc = Arc::new(EnvironmentalImpactModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            predictive_forecasting_module_arc.clone(),
+        ));
+        let eim_service_full = EnvironmentalImpactModule::as_os_service();
+        service_registry_arc.register_service(eim_service_full).await?;
+
         // Re-initialize GoalManagementModule
         service_registry_arc.deregister_service("goal-management-module").await?;
         let goal_management_module_arc = Arc::new(GoalManagementModule::new(
@@ -1228,8 +1240,7 @@ impl AgiCoreEngine {
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
-            resource_optimization_module_arc.clone(),
-            self_organization_module_arc.clone(),
+            predictive_forecasting_module_arc.clone(),
         ));
         let environmental_impact_module_service = EnvironmentalImpactModule::as_os_service();
         service_registry_arc.register_service(environmental_impact_module_service).await?;
@@ -1282,6 +1293,7 @@ impl AgiCoreEngine {
             self_healing_module: self_healing_module_arc.clone(), // Assign self-healing module
             resource_optimization_module: resource_optimization_module_arc.clone(), // Assign resource optimization module
             predictive_forecasting_module: predictive_forecasting_module_arc.clone(), // Assign predictive forecasting module
+            environmental_impact_module: environmental_impact_module_arc.clone(), // Assign environmental impact module
             goal_management_module: goal_management_module_arc.clone(), // Assign goal management module
             adversarial_robustness_module: adversarial_robustness_module_arc.clone(), // Assign adversarial robustness module
             ethical_forecasting_module: ethical_forecasting_module_arc.clone(), // Assign ethical forecasting module
@@ -1290,8 +1302,7 @@ impl AgiCoreEngine {
             deception_detection_module: deception_detection_module_arc.clone(), // Assign deception detection module
             data_privacy_module: data_privacy_module_arc.clone(), // Assign data privacy module
             hardware_security_module: hardware_security_module_arc.clone(), // Assign hardware security module
-            human_agi_teaming_module: human_agi_teaming_module_arc.clone(), // Assign human agi teaming module
-            environmental_impact_module: environmental_impact_module_arc.clone(), // Assign environmental impact module
+            human_agi_teaming_module: human_agi_teaming_module_arc.clone(), // Assign human-AGI teaming module
             service_command_rx,
         };
         
