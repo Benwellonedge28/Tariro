@@ -17,6 +17,8 @@ pub struct LegalRule {
     pub relevant_domains: Vec<String>, // e.g., "data_privacy", "child_protection", "financial_transactions"
     pub penalties: Vec<String>, // e.g., "fine", "imprisonment", "service_suspension"
     pub source_url: Option<String>,
+    pub ai_summary: Option<String>, // AI-generated summary of the rule
+    pub impact_assessment: Option<String>, // AI-generated assessment of impact on OMEGA OS
 }
 
 /// Represents an ethical mandate or axiom, possibly from EVAS.
@@ -29,6 +31,8 @@ pub struct EthicalMandate {
     pub relevant_agi_modules: Vec<String>, // e.g., "SORAEE", "QR-CTFO", "HACSE"
     pub origin: String, // e.g., "DAS-CP Framework", "SACC-ASI Specification", "User Defined"
     pub last_reviewed: DateTime<Utc>,
+    pub ai_summary: Option<String>, // AI-generated summary of the mandate
+    pub impact_assessment: Option<String>, // AI-generated assessment of impact on OMEGA OS
 }
 
 /// Level of enforcement for an ethical mandate.
