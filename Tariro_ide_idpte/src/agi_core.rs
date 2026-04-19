@@ -109,8 +109,6 @@ pub struct AgiCoreEngine {
     pub network_manager: Arc<NetworkManager>,
     // OMEGA OS Secure Channel Manager
     pub secure_channel_manager: Arc<SecureChannelManager>,
-    // OMEGA OS Storage Abstraction
-    pub storage_abstraction: Arc<StorageAbstraction>,
     // OMEGA OS Data Manager
     pub data_manager: Arc<DataManager>,
     // OMEGA OS Self-Modification Agent
@@ -382,8 +380,8 @@ impl AgiCoreEngine {
         let theory_of_mind_module_service = TheoryOfMindModule::as_os_service();
         service_registry_arc.register_service(theory_of_mind_module_service).await?;
 
-        // Initialize Cognitive Architecture ConceptFormationModule
-        // The ConceptFormationModule will also take ALEC-A, QR-CTFO, MetaLearner, CommonSenseReasoningNetwork, and LifelongLearningModule as dependencies
+        // Initialize Cognitive Architecture CommonSenseReasoningNetwork
+        // The CommonSenseReasoningNetwork now takes ALEC-A, QR-CTFO, ToM, and LifelongLearning dependencies
         let common_sense_reasoning_network_arc = Arc::new(CommonSenseReasoningNetwork::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
@@ -395,6 +393,8 @@ impl AgiCoreEngine {
         let common_sense_reasoning_network_service = CommonSenseReasoningNetwork::as_os_service();
         service_registry_arc.register_service(common_sense_reasoning_network_service).await?;
 
+        // Initialize Cognitive Architecture ConceptFormationModule
+        // The ConceptFormationModule will also take ALEC-A, QR-CTFO, MetaLearner, CommonSenseReasoningNetwork, and LifelongLearningModule as dependencies
         let concept_formation_module_arc = Arc::new(ConceptFormationModule::new(
             event_bus_arc.clone(), 
             meta_learner_arc.clone(), 
@@ -538,7 +538,6 @@ impl AgiCoreEngine {
         info!("AGI Core: Stopping service '{}'.", service_id);
         // Need to map service_id to ApplicationInstanceId and ProcessId
         // For now, assume service_id is directly mappable to an instance managed by AppLoader
-        // This simplified approach uses a direct mapping from service_id to a hypothetical ApplicationInstanceId
         // In a real system, you'd query the ServiceRegistry or a dedicated process map.
         self.app_loader.terminate_application(&format!("app-instance-{}", service_id)).await?;
         self.service_registry.update_service_status(service_id, Some(ServiceStatus::Stopped)).await?;
