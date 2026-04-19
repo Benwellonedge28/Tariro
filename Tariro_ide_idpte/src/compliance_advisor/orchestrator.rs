@@ -8,6 +8,7 @@ use crate::compliance_advisor::legal_framework_models::{LegalRule, EthicalMandat
 use crate::compliance_advisor::regulatory_monitor::RegulatoryMonitor;
 use crate::compliance_advisor::compliance_policy_manager::CompliancePolicyManager;
 use crate::compliance_advisor::conflict_resolver::ConflictResolver;
+use crate::compliance_advisor::ethical_decision_engine::EthicalDecisionEngine; // Import EthicalDecisionEngine
 
 use anyhow::Result;
 use tokio::time::{sleep, Duration};
@@ -37,15 +38,18 @@ pub struct AlecaOrchestrator {
     regulatory_monitor: RegulatoryMonitor,
     policy_manager: Arc<Mutex<CompliancePolicyManager>>,
     conflict_resolver: ConflictResolver,
+    ethical_decision_engine: Arc<Mutex<EthicalDecisionEngine>>, // Hold reference to EthicalDecisionEngine
     current_options: Arc<Mutex<AlecaOptions>>,
 }
 
 impl AlecaOrchestrator {
     pub fn new(options: AlecaOptions) -> Self {
+        let ethical_engine_arc = Arc::new(Mutex::new(EthicalDecisionEngine::new()));
         AlecaOrchestrator {
             regulatory_monitor: RegulatoryMonitor::new(),
-            policy_manager: Arc::new(Mutex::new(CompliancePolicyManager::new())),
+            policy_manager: Arc::new(Mutex::new(CompliancePolicyManager::new(ethical_engine_arc.clone()))),
             conflict_resolver: ConflictResolver::new(),
+            ethical_decision_engine: ethical_engine_arc,
             current_options: Arc::new(Mutex::new(options)),
         }
     }
@@ -54,7 +58,8 @@ impl AlecaOrchestrator {
     pub async fn start_loop(&mut self) -> Result<()> {
         let options_arc = self.current_options.clone();
         let policy_manager_arc = self.policy_manager.clone();
-        let conflict_resolver_arc = Arc::new(self.conflict_resolver.clone()); // ConflictResolver doesn't need Mutex for new method
+        let conflict_resolver_arc = Arc::new(self.conflict_resolver.clone()); 
+        // ConflictResolver is cloned because it's cheap and does not hold mutable state needing Mutex for now.
 
         info!("ALEC-A Orchestrator started.");
 
@@ -105,6 +110,16 @@ impl AlecaOrchestrator {
                         // In a real system, ALEC-A would trigger autonomous adjustments
                         // to system parameters or alert human oversight.
                     }
+                    // Also check for conflicts proactively when non-compliant
+                    let conflicting_policies = policy_manager.identify_conflicts("data_processing", &["maximize_data_sharing".to_string()]).await;
+                    if !conflicting_policies.is_empty() {
+                        let mediation = conflict_resolver_arc.mediate_conflicting_policies(
+                            "data_processing_context", 
+                            &conflicting_policies, 
+                            &["maximize_data_sharing".to_string()]).await?;
+                        warn!("ALEC-A: Mediated conflict: {}", mediation);
+                    }
+
                 } else {
                     info!("ALEC-A: AGI operation {} is compliant.", agi_operation_status.entity_id);
                 }

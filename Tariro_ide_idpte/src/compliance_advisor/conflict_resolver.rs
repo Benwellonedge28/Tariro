@@ -3,9 +3,10 @@
 //! Identifies and suggests resolutions for conflicts between policies, ethical mandates,
 //! and operational requirements.
 
-use crate::compliance_advisor::legal_framework_models::{ComplianceStatus, ComplianceViolation, ViolationSeverity};
+use crate::compliance_advisor::legal_framework_models::{ComplianceStatus, ComplianceViolation, ViolationSeverity, LegalRule, EthicalMandate};
 use anyhow::Result;
 use tracing::{info, warn};
+use std::collections::HashMap;
 
 /// The ConflictResolver assists in mitigating compliance risks.
 pub struct ConflictResolver {
@@ -48,10 +49,33 @@ impl ConflictResolver {
     }
 
     /// Provides guidance on how to balance conflicting legal/ethical requirements with operational goals.
-    pub async fn mediate_conflict(&self, conflict_scenario: &str) -> Result<String> {
-        info!("Conflict Resolver: Mediating scenario '{}'.", conflict_scenario);
+    /// This method would use AI-driven reasoning to find an optimal path.
+    pub async fn mediate_conflicting_policies(
+        &self,
+        context: &str,
+        conflicting_rules: &[(LegalRule, EthicalMandate)], // Example: A legal rule conflicts with an ethical mandate
+        operational_goals: &[String],
+    ) -> Result<String> {
+        info!("Conflict Resolver: Mediating conflicting policies for context '{}'.", context);
         // This would involve complex AI reasoning, potentially querying the Ethical Decision Engine
-        // and a knowledge graph of legal precedents.
-        Ok(format!("Mediation guidance for '{}': Prioritize human safety and long-term system integrity over short-term performance gains.", conflict_scenario))
+        // and a knowledge graph of legal precedents, simulating outcomes of different choices.
+
+        if conflicting_rules.is_empty() {
+            return Ok(format!("No explicit conflicts to mediate for context '{}'.", context));
+        }
+
+        let mut conflict_summary = String::from("Detected conflicts:\n");
+        for (legal, ethical) in conflicting_rules {
+            conflict_summary.push_str(&format!("- Legal: {} vs Ethical: {}\n", legal.title, ethical.title));
+        }
+        conflict_summary.push_str(&format!("Operational goals: {:?}\n", operational_goals));
+
+        // AI-driven mediation logic (placeholder)
+        // - Identify the root cause of the conflict.
+        // - Prioritize based on severity, enforcement level, and overarching AGI principles.
+        // - Suggest policy adjustments, operational changes, or human review.
+        let mediation_suggestion = format!("AI-Mediated Suggestion for '{}': Prioritize human safety and long-term system integrity over short-term operational gains. Seek human review if ambiguity persists. Consider re-framing operational goal to align with {}."), context, conflicting_rules[0].1.title);
+
+        Ok(mediation_suggestion)
     }
 }
