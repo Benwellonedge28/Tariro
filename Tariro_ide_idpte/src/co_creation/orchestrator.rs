@@ -26,6 +26,9 @@ use uuid::Uuid;
 use chrono::Utc; 
 use std::collections::HashMap;
 
+// Import ServiceCommand for sending commands to AgiCoreEngine
+use crate::agi_core::{ServiceCommand, ApplicationInfo as AgiCoreApplicationInfo}; // Alias if needed
+
 /// Configuration options for the HACSE Orchestrator.
 #[derive(Debug, Clone)]
 pub struct HacseOptions {
@@ -46,13 +49,14 @@ impl Default for HacseOptions {
 
 /// The main orchestrator for the Human-AGI Co-Creative Synthesis Engine.
 pub struct HacseOrchestrator {
-    style_learner: Arc<Mutex<HumanStyleLearner>>,
+    style_learner: Arc<Mutex<HumanCreativeStyleLearner>>,
     generator: Arc<Mutex<SynthesisGenerator>>,
     feedback_analyzer: Arc<FeedbackAnalyzer>,
     multi_modal_interface: Arc<MultiModalInterface>,
     meta_goal_manager: Arc<Mutex<MetaGoalManager>>, 
     sorae_request_sender: mpsc::Sender<ResourceRequest>,
     event_bus: Arc<EventBus>, // Integrated EventBus
+    service_command_sender: mpsc::Sender<ServiceCommand>, // To send commands to AgiCoreEngine
     // Channel for incoming creative prompts
     prompt_rx: mpsc::Receiver<CreativePrompt>,
     prompt_tx: mpsc::Sender<CreativePrompt>,
@@ -65,6 +69,7 @@ impl HacseOrchestrator {
         meta_goal_manager: Arc<Mutex<MetaGoalManager>>,
         sorae_sender: mpsc::Sender<ResourceRequest>,
         event_bus: Arc<EventBus>,
+        service_command_sender: mpsc::Sender<ServiceCommand>,
     ) -> Self {
         let (prompt_tx, prompt_rx) = mpsc::channel(100); 
         let style_learner_arc = Arc::new(Mutex::new(HumanStyleLearner::new()));
@@ -85,6 +90,7 @@ impl HacseOrchestrator {
             meta_goal_manager,
             sorae_request_sender: sorae_sender,
             event_bus,
+            service_command_sender,
             prompt_rx,
             prompt_tx,
             current_options: Arc::new(Mutex::new(options)),
@@ -107,7 +113,8 @@ impl HacseOrchestrator {
         let multi_modal_interface_arc = self.multi_modal_interface.clone();
         let meta_goal_manager_arc = self.meta_goal_manager.clone();
         let sorae_request_sender_clone = self.sorae_request_sender.clone();
-        let event_bus_arc = self.event_bus.clone(); // Clone for event publishing
+        let event_bus_arc = self.event_bus.clone(); 
+        let service_command_sender_clone = self.service_command_sender.clone();
 
         info!("HACSE Orchestrator started.");
         event_bus_arc.publish(EventEnvelope::new("HACSE".to_string(), OsEvent::SystemInitialized)).await;

@@ -10,7 +10,7 @@ use crate::compliance_advisor::compliance_policy_manager::CompliancePolicyManage
 use crate::compliance_advisor::conflict_resolver::{ConflictResolver, ComplianceRemediationAction};
 use crate::compliance_advisor::ethical_decision_engine::EthicalDecisionEngine;
 use crate::evas_evolution::EVASEngine;
-use crate::agi_core::AgiSystemAuditor; // Import the trait
+use crate::agi_core::{AgiSystemAuditor, ServiceCommand, ApplicationInfo as AgiCoreApplicationInfo}; // Import the trait and ServiceCommand
 
 use anyhow::Result;
 use tokio::time::{sleep, Duration};
@@ -57,6 +57,7 @@ pub struct AlecaOrchestrator {
     sorae_directive_sender: Option<mpsc::Sender<SoraeComplianceDirective>>,
     qrctfo_directive_sender: Option<mpsc::Sender<ComplianceRemediationAction>>,
     event_bus: Arc<EventBus>, // Integrated EventBus
+    service_command_sender: mpsc::Sender<ServiceCommand>, // To send commands to AgiCoreEngine
     current_options: Arc<Mutex<AlecaOptions>>,
 }
 
@@ -66,6 +67,7 @@ impl AlecaOrchestrator {
         sorae_sender: Option<mpsc::Sender<SoraeComplianceDirective>>,
         qrctfo_sender: Option<mpsc::Sender<ComplianceRemediationAction>>,
         event_bus: Arc<EventBus>,
+        service_command_sender: mpsc::Sender<ServiceCommand>, // New parameter
     ) -> Self {
         let evas_engine_arc = Arc::new(Mutex::new(EVASEngine::new()));
         let ethical_engine_arc = Arc::new(Mutex::new(EthicalDecisionEngine::new(evas_engine_arc.clone())));
@@ -78,6 +80,7 @@ impl AlecaOrchestrator {
             sorae_directive_sender: sorae_sender,
             qrctfo_directive_sender: qrctfo_sender,
             event_bus,
+            service_command_sender,
             current_options: Arc::new(Mutex::new(options)),
         }
     }
@@ -90,7 +93,8 @@ impl AlecaOrchestrator {
         let sorae_directive_sender_clone = self.sorae_directive_sender.clone();
         let qrctfo_directive_sender_clone = self.qrctfo_directive_sender.clone();
         let agi_system_auditor_clone = agi_system_auditor.clone();
-        let event_bus_arc = self.event_bus.clone(); // Clone for event publishing
+        let event_bus_arc = self.event_bus.clone(); 
+        let service_command_sender_clone = self.service_command_sender.clone();
 
         info!("ALEC-A Orchestrator started.");
         event_bus_arc.publish(EventEnvelope::new("ALEC-A".to_string(), OsEvent::SystemInitialized)).await;
@@ -148,9 +152,17 @@ impl AlecaOrchestrator {
                     }
                     for action in system_actions {
                         warn!("ALEC-A: Attempting autonomous remediation: {:?}", action);
-                        self.dispatch_remediation_action(action, 
-                            sorae_directive_sender_clone.clone(), 
-                            qrctfo_directive_sender_clone.clone()).await;
+                        // If remediation is a service management command, send it to AgiCoreEngine
+                        match action {
+                            ComplianceRemediationAction::SuspendAgiOperation(service_id) => {
+                                let _ = service_command_sender_clone.send(ServiceCommand::StopService(service_id)).await;
+                            },
+                            _ => { // For other actions, dispatch to SORAEE or QR-CTFO as before
+                                self.dispatch_remediation_action(action, 
+                                    sorae_directive_sender_clone.clone(), 
+                                    qrctfo_directive_sender_clone.clone()).await;
+                            }
+                        }
                     }
 
                     // Also check for conflicts proactively when non-compliant

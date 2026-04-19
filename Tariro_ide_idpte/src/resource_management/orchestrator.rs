@@ -19,6 +19,9 @@ use crate::omega_os::process_manager::{ProcessManager, ProcessId, ProcessStatus 
 use crate::omega_os::event_bus::EventBus;
 use crate::omega_os::event_models::{OsEvent, EventEnvelope};
 
+// Import ServiceCommand for sending commands to AgiCoreEngine
+use crate::agi_core::{ServiceCommand, ApplicationInfo as AgiCoreApplicationInfo}; // Alias if needed
+
 /// The SORAEOptions struct holds configuration for the S.O.R.A.E. Orchestrator.
 #[derive(Debug, Clone)] // Make it Debug and Clone for easier handling
 pub struct SORAEOptions {
@@ -45,6 +48,7 @@ pub struct SORAEOrcestrator {
     allocator: ResourceAllocator,
     process_manager: Arc<ProcessManager>, // Integrated ProcessManager
     event_bus: Arc<EventBus>, // Integrated EventBus
+    service_command_sender: mpsc::Sender<ServiceCommand>, // To send commands to AgiCoreEngine
     // Channel for incoming resource requests from other parts of the AGI/OS
     request_rx: mpsc::Receiver<ResourceRequest>,
     request_tx: mpsc::Sender<ResourceRequest>,
@@ -55,7 +59,12 @@ pub struct SORAEOrcestrator {
 }
 
 impl SORAEOrcestrator {
-    pub fn new(options: SORAEOptions, process_manager: Arc<ProcessManager>, event_bus: Arc<EventBus>) -> Self {
+    pub fn new(
+        options: SORAEOptions, 
+        process_manager: Arc<ProcessManager>, 
+        event_bus: Arc<EventBus>,
+        service_command_sender: mpsc::Sender<ServiceCommand>,
+    ) -> Self {
         let (request_tx, request_rx) = mpsc::channel(100); // Buffer for 100 pending requests
         let (compliance_directive_tx, compliance_directive_rx) = mpsc::channel(50); // Buffer for 50 directives
         SORAEOrcestrator {
@@ -65,6 +74,7 @@ impl SORAEOrcestrator {
             allocator: ResourceAllocator::new(),
             process_manager,
             event_bus,
+            service_command_sender,
             request_rx,
             request_tx,
             compliance_directive_rx,
@@ -92,7 +102,8 @@ impl SORAEOrcestrator {
         let predictor_arc = self.predictor.clone();
         let optimizer_arc = self.optimizer.clone();
         let process_manager_arc = self.process_manager.clone(); 
-        let event_bus_arc = self.event_bus.clone(); // Clone for event publishing
+        let event_bus_arc = self.event_bus.clone(); 
+        let service_command_sender_clone = self.service_command_sender.clone();
         let mut request_rx = self.request_rx.take().expect("Request receiver already taken");
         let mut compliance_directive_rx = self.compliance_directive_rx.take().expect("Compliance directive receiver already taken");
 
@@ -197,6 +208,30 @@ impl SORAEOrcestrator {
                         vec![(task_id.clone(), 1.0)].into_iter().collect() // Mock shortage
                     ))).await;
                 }
+            }
+
+            // Dynamic Service Scaling based on resource availability and need
+            if current_snapshot.available_resources.get(&ResourceType::Cpu).map_or(0.0, |&c| c) < 0.1 && successful_allocations < pending_requests.len() {
+                warn!("SORAEE: Critical CPU shortage detected. Considering scaling down non-essential services.");
+                let _ = service_command_sender_clone.send(ServiceCommand::StopService("hacse".to_string())).await;
+            } else if current_snapshot.available_resources.get(&ResourceType::Cpu).map_or(0.0, |&c| c) > 0.8 && failed_allocations > 0 {
+                info!("SORAEE: Ample CPU available, but allocations are failing. Consider scaling up essential services.");
+                // This would need ApplicationInfo. For mock, let's assume a 'critical_service' exists.
+                let mock_app_info = AgiCoreApplicationInfo {
+                    id: "critical_service".to_string(),
+                    name: "Critical System Service".to_string(),
+                    version: "1.0".to_string(),
+                    entry_point_command: "/usr/bin/critical_service".to_string(),
+                    default_args: vec![],
+                    required_capabilities: vec![],
+                    required_permissions: vec![],
+                    owner_id: "system".to_string(),
+                    description: "A critical OMEGA OS service.".to_string(),
+                    binary_path: "/usr/bin/critical_service".to_string(),
+                    verified: true,
+                    ethical_reviewed: true,
+                };
+                let _ = service_command_sender_clone.send(ServiceCommand::StartService(mock_app_info, None)).await;
             }
 
             // 7. S.O.R.A.E. Self-Adaptive Tuning

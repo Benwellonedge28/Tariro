@@ -46,6 +46,16 @@ use crate::omega_os::data_manager::DataManager; // Import DataManager
 use crate::omega_os::storage_abstraction::StorageAbstraction; // Import StorageAbstraction
 use crate::omega_os::data_models::EncryptionPolicy; // For example usage
 
+/// Commands for AgiCoreEngine to manage OMEGA OS services.
+#[derive(Debug, Clone)]
+pub enum ServiceCommand {
+    StartService(ApplicationInfo, Option<Vec<String>>),
+    StopService(String), // service_id
+    RestartService(String, ApplicationInfo, Option<Vec<String>>),
+    ReconfigureService(String, Value), // service_id, config_json
+    // Add more commands as needed for scaling, updates, etc.
+}
+
 /// Trait for auditing different AGI system modules.
 /// This provides a standardized way for ALEC-A to query the compliance status of other modules.
 pub trait AgiSystemAuditor: Send + Sync {
@@ -90,11 +100,16 @@ pub struct AgiCoreEngine {
     pub storage_abstraction: Arc<StorageAbstraction>,
     // OMEGA OS Data Manager
     pub data_manager: Arc<DataManager>,
+    // Receiver for Service Commands from other Orchestrators
+    service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
         info!("Initializing AGI Core Engine...");
+
+        // Create channel for service commands from other orchestrators
+        let (service_command_tx, service_command_rx) = mpsc::channel(100);
 
         // Initialize OMEGA OS Service Registry
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -203,7 +218,7 @@ impl AgiCoreEngine {
 
         // Initialize S.O.R.A.E. Orchestrator
         let sorae_options = SORAEOptions::default();
-        let mut sorae_orchestrator = SORAEOrcestrator::new(sorae_options.clone(), process_manager_arc.clone(), event_bus_arc.clone()); // Pass ProcessManager and EventBus
+        let sorae_orchestrator = SORAEOrcestrator::new(sorae_options.clone(), process_manager_arc.clone(), event_bus_arc.clone(), service_command_tx.clone()); // Pass service_command_tx
         let sorae_request_sender = sorae_orchestrator.get_request_sender();
         let sorae_compliance_directive_sender = sorae_orchestrator.get_compliance_directive_sender();
         let sorae_orchestrator_arc = Arc::new(Mutex::new(sorae_orchestrator)); // Keep an Arc for audit
@@ -303,6 +318,7 @@ impl AgiCoreEngine {
                                                              Some(sorae_compliance_directive_sender.clone()), 
                                                              Some(qrctfo_compliance_directive_sender_tx.clone()),
                                                              event_bus_arc.clone(), // Pass EventBus
+                                                             service_command_tx.clone(), // Pass service_command_tx
                                                         );
         let aleca_orchestrator_arc = Arc::new(Mutex::new(aleca_orchestrator_instance));
 
@@ -316,7 +332,7 @@ impl AgiCoreEngine {
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
-            sorae_orchestrator_internal: sorae_orchestrator_arc,
+            sorae_orchestrator_internal: sorae_orchestrator_arc.clone(),
             qr_ctfo_orchestrator: qr_ctfo_orchestrator_arc.clone(),
             ide_communication_bridge,
             hacse_prompt_sender,
@@ -334,6 +350,7 @@ impl AgiCoreEngine {
             secure_channel_manager: secure_channel_manager_arc.clone(), // Assign secure channel manager
             storage_abstraction: storage_abstraction_arc.clone(), // Assign storage abstraction
             data_manager: data_manager_arc.clone(), // Assign data manager
+            service_command_rx,
         };
         
         let agi_auditor_arc = Arc::new(agi_core_engine_instance);
@@ -365,52 +382,15 @@ impl AgiCoreEngine {
         };
         service_registry_arc.register_service(aleca_service).await?;
 
+        // Spawn task to handle service commands
+        let agi_core_engine_clone = agi_auditor_arc.clone();
+        tokio::spawn(async move {
+            let _ = agi_core_engine_clone.handle_service_commands().await;
+        });
+
         Ok(agi_auditor_arc)
     }
-}
 
-#[async_trait::async_trait]
-impl AgiSystemAuditor for AgiCoreEngine {
-    async fn get_sorae_audit_status(&self) -> ModuleAuditStatus {
-        info!("AgiSystemAuditor: Auditing S.O.R.A.E.");
-        let sorae = self.sorae_orchestrator_internal.lock().unwrap();
-        // Here, SORAEE would provide its internal health, compliance status, etc.
-        ModuleAuditStatus {
-            module_name: "SORAEE".to_string(),
-            compliant: true,
-            issues_found: vec![],
-            recommendations: vec!["Optimize energy usage by 10%.".to_string()],
-            last_audited: chrono::Utc::now(),
-        }
-    }
-
-    async fn get_qrctfo_audit_status(&self) -> ModuleAuditStatus {
-        info!("AgiSystemAuditor: Auditing QR-CTFO.");
-        let qrctfo_guard = self.qr_ctfo_orchestrator.lock().unwrap();
-        // Here, QR-CTFO would report key expiration, policy compliance, algorithm robustness.
-        ModuleAuditStatus {
-            module_name: "QR-CTFO".to_string(),
-            compliant: true,
-            issues_found: vec![],
-            recommendations: vec!["Rotate root keys bi-annually.".to_string()],
-            last_audited: chrono::Utc::now(),
-        }
-    }
-
-    async fn get_hacse_audit_status(&self) -> ModuleAuditStatus {
-        info!("AgiSystemAuditor: Auditing HACSE.");
-        // HACSE would report ethical alignment of generated content, fairness metrics, user feedback integration.
-        ModuleAuditStatus {
-            module_name: "HACSE".to_string(),
-            compliant: false,
-            issues_found: vec!["Stylistic drift detected from user preferences.".to_string()],
-            recommendations: vec!["Review human style learner parameters.".to_string()],
-            last_audited: chrono::Utc::now(),
-        }
-    }
-}
-
-impl AgiCoreEngine {
     /// Starts a service by loading its application and launching it.
     pub async fn start_service(&self, app_info: ApplicationInfo, args: Option<Vec<String>>) -> Result<String, String> {
         info!("AGI Core: Starting service '{}'.", app_info.name);
@@ -472,9 +452,10 @@ impl AgiCoreEngine {
                             // Update internal state or trigger further actions based on status change
                         },
                         OsEvent::ComplianceViolationDetected(status) => {
-                            error!("AGI Core: Compliance violation detected: {:?}.", status);
-                            // Potentially trigger autonomous service stop or reconfiguration
-                            // self.stop_service("some_service_id").await;
+                            error!("AGI Core: Compliance violation detected: {:?}. Attempting remediation via ServiceCommand.", status);
+                            // If ALEC-A detects a violation, it can send a ServiceCommand to AgiCoreEngine
+                            // For example, if status.entity_id was a service_id that needs to be stopped
+                            // self.service_command_tx.send(ServiceCommand::StopService(status.entity_id)).await;
                         }
                         _ => (),
                     }
@@ -482,5 +463,46 @@ impl AgiCoreEngine {
                 Err(e) => error!("AGI Core: Event bus receive error: {}", e),
             }
         }
+    }
+
+    /// Handles incoming ServiceCommands from other orchestrators.
+    pub async fn handle_service_commands(self: Arc<Self>) -> Result<()> {
+        info!("AGI Core: Starting service command handler.");
+        let mut receiver = self.service_command_rx.take().expect("Service command receiver already taken.");
+
+        loop {
+            match receiver.recv().await {
+                Some(command) => {
+                    info!("AGI Core: Received Service Command: {:?}", command);
+                    match command {
+                        ServiceCommand::StartService(app_info, args) => {
+                            if let Err(e) = self.start_service(app_info.clone(), args).await {
+                                error!("AGI Core: Failed to start service {}: {}", app_info.name, e);
+                            }
+                        },
+                        ServiceCommand::StopService(service_id) => {
+                            if let Err(e) = self.stop_service(&service_id).await {
+                                error!("AGI Core: Failed to stop service {}: {}", service_id, e);
+                            }
+                        },
+                        ServiceCommand::RestartService(service_id, app_info, args) => {
+                            if let Err(e) = self.restart_service(&service_id, app_info.clone(), args).await {
+                                error!("AGI Core: Failed to restart service {}: {}", service_id, e);
+                            }
+                        },
+                        ServiceCommand::ReconfigureService(service_id, config) => {
+                            if let Err(e) = self.reconfigure_service(&service_id, config).await {
+                                error!("AGI Core: Failed to reconfigure service {}: {}", service_id, e);
+                            }
+                        },
+                    }
+                },
+                None => {
+                    warn!("AGI Core: Service command channel closed.");
+                    break;
+                }
+            }
+        }
+        Ok(())
     }
 }
