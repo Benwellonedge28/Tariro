@@ -21,8 +21,12 @@ use uuid::Uuid;
 
 // Import other orchestrators for remediation actions
 use crate::resource_management::resource_models::ComplianceDirective as SoraeComplianceDirective; // Alias to avoid clash
-use crate::resource_management::orchestrator::SORAEOrcestrator; // For SORAEE directives
-use crate::crypto_fabric::orchestrator::QrCtfoOrchestrator; // For QR-CTFO directives
+// use crate::resource_management::orchestrator::SORAEOrcestrator; // For SORAEE directives
+// use crate::crypto_fabric::orchestrator::QrCtfoOrchestrator; // For QR-CTFO directives
+
+// Import EventBus
+use crate::omega_os::event_bus::EventBus;
+use crate::omega_os::event_models::{OsEvent, EventEnvelope};
 
 /// Configuration options for the ALEC-A Orchestrator.
 #[derive(Debug, Clone)]
@@ -52,6 +56,7 @@ pub struct AlecaOrchestrator {
     // Senders to other orchestrators for autonomous remediation actions
     sorae_directive_sender: Option<mpsc::Sender<SoraeComplianceDirective>>,
     qrctfo_directive_sender: Option<mpsc::Sender<ComplianceRemediationAction>>,
+    event_bus: Arc<EventBus>, // Integrated EventBus
     current_options: Arc<Mutex<AlecaOptions>>,
 }
 
@@ -60,7 +65,7 @@ impl AlecaOrchestrator {
         options: AlecaOptions,
         sorae_sender: Option<mpsc::Sender<SoraeComplianceDirective>>,
         qrctfo_sender: Option<mpsc::Sender<ComplianceRemediationAction>>,
-        // The AgiSystemAuditor will be set after AgiCoreEngine is constructed
+        event_bus: Arc<EventBus>,
     ) -> Self {
         let evas_engine_arc = Arc::new(Mutex::new(EVASEngine::new()));
         let ethical_engine_arc = Arc::new(Mutex::new(EthicalDecisionEngine::new(evas_engine_arc.clone())));
@@ -72,6 +77,7 @@ impl AlecaOrchestrator {
             evas_engine: evas_engine_arc,
             sorae_directive_sender: sorae_sender,
             qrctfo_directive_sender: qrctfo_sender,
+            event_bus,
             current_options: Arc::new(Mutex::new(options)),
         }
     }
@@ -84,14 +90,18 @@ impl AlecaOrchestrator {
         let sorae_directive_sender_clone = self.sorae_directive_sender.clone();
         let qrctfo_directive_sender_clone = self.qrctfo_directive_sender.clone();
         let agi_system_auditor_clone = agi_system_auditor.clone();
+        let event_bus_arc = self.event_bus.clone(); // Clone for event publishing
 
         info!("ALEC-A Orchestrator started.");
+        event_bus_arc.publish(EventEnvelope::new("ALEC-A".to_string(), OsEvent::SystemInitialized)).await;
 
         // Initial regulatory scan to load current rules
         let (initial_legal_rules, initial_ethical_mandates) = self.regulatory_monitor.scan_for_updates().await?;
         let mut policy_manager = policy_manager_arc.lock().unwrap();
-        policy_manager.update_legal_rules(initial_legal_rules).await;
-        policy_manager.update_ethical_mandates(initial_ethical_mandates).await;
+        policy_manager.update_legal_rules(initial_legal_rules.clone()).await;
+        for rule in initial_legal_rules { event_bus_arc.publish(EventEnvelope::new("ALEC-A".to_string(), OsEvent::LegalRuleUpdated(rule.id))).await; }
+        policy_manager.update_ethical_mandates(initial_ethical_mandates.clone()).await;
+        for mandate in initial_ethical_mandates { event_bus_arc.publish(EventEnvelope::new("ALEC-A".to_string(), OsEvent::EthicalAxiomProposed(mandate.id))).await; }
         drop(policy_manager);
 
         // Main loop for continuous compliance monitoring
@@ -108,8 +118,10 @@ impl AlecaOrchestrator {
                 info!("ALEC-A: Initiating regulatory scan for updates.");
                 let (new_legal_rules, new_ethical_mandates) = self.regulatory_monitor.scan_for_updates().await?;
                 let mut policy_manager = policy_manager_arc.lock().unwrap();
-                policy_manager.update_legal_rules(new_legal_rules).await;
-                policy_manager.update_ethical_mandates(new_ethical_mandates).await;
+                policy_manager.update_legal_rules(new_legal_rules.clone()).await;
+                for rule in new_legal_rules { event_bus_arc.publish(EventEnvelope::new("ALEC-A".to_string(), OsEvent::LegalRuleUpdated(rule.id))).await; }
+                policy_manager.update_ethical_mandates(new_ethical_mandates.clone()).await;
+                for mandate in new_ethical_mandates { event_bus_arc.publish(EventEnvelope::new("ALEC-A".to_string(), OsEvent::EthicalAxiomProposed(mandate.id))).await; }
                 last_regulatory_scan = now;
             }
 
@@ -128,6 +140,7 @@ impl AlecaOrchestrator {
 
                 if !agi_operation_status.is_compliant {
                     warn!("ALEC-A: Compliance violations detected for AGI operation {}. Resolving...", agi_operation_status.entity_id);
+                    event_bus_arc.publish(EventEnvelope::new("ALEC-A".to_string(), OsEvent::ComplianceViolationDetected(agi_operation_status.clone()))).await;
                     let (human_recommendations, system_actions) = conflict_resolver_arc.suggest_resolution(&agi_operation_status).await?;
 
                     for res in human_recommendations {
@@ -137,7 +150,7 @@ impl AlecaOrchestrator {
                         warn!("ALEC-A: Attempting autonomous remediation: {:?}", action);
                         self.dispatch_remediation_action(action, 
                             sorae_directive_sender_clone.clone(), 
-                            qrctfo_directive_directive_sender_clone.clone()).await;
+                            qrctfo_directive_sender_clone.clone()).await;
                     }
 
                     // Also check for conflicts proactively when non-compliant
@@ -159,7 +172,8 @@ impl AlecaOrchestrator {
             // 3. Periodic Full Self-Audit (more comprehensive check)
             if now.signed_duration_since(last_self_audit).num_seconds() as u64 >= options.self_audit_interval_seconds {
                 info!("ALEC-A: Initiating full system self-audit for compliance.");
-                self.perform_self_audit(agi_system_auditor_clone.clone()).await?;
+                let audit_report = self.perform_self_audit(agi_system_auditor_clone.clone()).await?;
+                event_bus_arc.publish(EventEnvelope::new("ALEC-A".to_string(), OsEvent::SystemAudited(audit_report.clone()))).await;
                 last_self_audit = now;
             }
 
@@ -198,6 +212,7 @@ impl AlecaOrchestrator {
             ComplianceRemediationAction::LogAndFlagForReview(entity_id) => {
                 warn!("ALEC-A: Action for human review: {}.", entity_id);
                 // Log to an audit trail and notify human administrator
+                self.event_bus.publish(EventEnvelope::new("ALEC-A".to_string(), OsEvent::Custom("HumanReviewRequest".to_string(), entity_id))).await;
             },
             ComplianceRemediationAction::Custom(action_type, value) => {
                 warn!("ALEC-A: Custom remediation action triggered: {} -> {}. Needs manual dispatch or specific integration.", action_type, value);

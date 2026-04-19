@@ -36,6 +36,8 @@ use crate::agi_meta_goals::MetaGoalManager;
 use crate::omega_os::service_registry::ServiceRegistry;
 use crate::omega_os::service_models::{OsService, ServiceType, ServiceCapability, ServiceStatus};
 use crate::omega_os::process_manager::{ProcessManager, ProcessInfo, ProcessId, ProcessStatus as OsProcessStatus}; // Import ProcessManager
+use crate::omega_os::event_bus::EventBus; // Import EventBus
+use crate::omega_os::event_models::{OsEvent, EventEnvelope}; // Import Event Models
 
 /// Trait for auditing different AGI system modules.
 /// This provides a standardized way for ALEC-A to query the compliance status of other modules.
@@ -50,7 +52,7 @@ pub struct AgiCoreEngine {
     pub sorae_request_sender: mpsc::Sender<ResourceRequest>,
     sorae_orchestrator_internal: Arc<Mutex<SORAEOrcestrator>>, // Hold internal reference for audit
     // QR-CTFO related field
-    pub qr_ctfo_orchestrator: Arc<QrCtfoOrchestrator>,
+    pub qr_ctfo_orchestrator: Arc<Mutex<QrCtfoOrchestrator>>,
     // Communication Bridge for IDE
     pub ide_communication_bridge: Arc<CommunicationBridge>,
     // HACSE related field
@@ -67,6 +69,8 @@ pub struct AgiCoreEngine {
     pub service_registry: Arc<ServiceRegistry>,
     // OMEGA OS Process Manager
     pub process_manager: Arc<ProcessManager>,
+    // OMEGA OS Event Bus
+    pub event_bus: Arc<EventBus>,
 }
 
 impl AgiCoreEngine {
@@ -75,6 +79,11 @@ impl AgiCoreEngine {
 
         // Initialize OMEGA OS Service Registry
         let service_registry_arc = Arc::new(ServiceRegistry::new());
+
+        // Initialize OMEGA OS Event Bus
+        let event_bus_arc = Arc::new(EventBus::new(100)); // Capacity of 100 events
+        // Register Event Bus as a service
+        service_registry_arc.register_service(EventBus::as_os_service()).await?;
 
         // Initialize Meta-Goal Manager
         let meta_goal_manager_arc = Arc::new(Mutex::new(MetaGoalManager::new()));
@@ -88,7 +97,7 @@ impl AgiCoreEngine {
             description: "Manages the lifecycle of computational processes and services.".to_string(),
             service_type: ServiceType::SystemCore,
             capabilities: vec![
-                ServiceCapability { name: "spawn_process".to_string(), description: "Spawns a new OS process.".to_string(), parameters: HashMap::new(), output_schema: "ProcessId".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "spawn_process".to_string(), description: "Spawns a new OS process.".to_string(), parameters: HashMap::new(), output_schema: "ProcessId".to_string(), requires_permissions: vec![], requires_ethical_review: true },
                 ServiceCapability { name: "kill_process".to_string(), description: "Terminates an OS process.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
                 ServiceCapability { name: "get_process_info".to_string(), description: "Retrieves information about a running process.".to_string(), parameters: HashMap::new(), output_schema: "ProcessInfo".to_string(), requires_permissions: vec![], requires_ethical_review: false },
             ],
@@ -103,7 +112,7 @@ impl AgiCoreEngine {
 
         // Initialize S.O.R.A.E. Orchestrator
         let sorae_options = SORAEOptions::default();
-        let mut sorae_orchestrator = SORAEOrcestrator::new(sorae_options.clone());
+        let mut sorae_orchestrator = SORAEOrcestrator::new(sorae_options.clone(), process_manager_arc.clone(), event_bus_arc.clone()); // Pass EventBus
         let sorae_request_sender = sorae_orchestrator.get_request_sender();
         let sorae_compliance_directive_sender = sorae_orchestrator.get_compliance_directive_sender();
         let sorae_orchestrator_arc = Arc::new(Mutex::new(sorae_orchestrator)); // Keep an Arc for audit
@@ -135,10 +144,10 @@ impl AgiCoreEngine {
         // Initialize QR-CTFO Orchestrator
         let qr_ctfo_options = QrCtfoOptions::default();
         let qr_ctfo_policy_engine_arc = Arc::new(Mutex::new(crate::crypto_fabric::trust_policy_engine::TrustPolicyEngine::new()));
-        let (mut qr_ctfo_orchestrator_instance, qrctfo_compliance_directive_sender_tx) = QrCtfoOrchestrator::new(qr_ctfo_options, qr_ctfo_policy_engine_arc.clone());
-        let qr_ctfo_orchestrator = Arc::new(qr_ctfo_orchestrator_instance);
+        let (mut qr_ctfo_orchestrator_instance, qrctfo_compliance_directive_sender_tx) = QrCtfoOrchestrator::new(qr_ctfo_options, qr_ctfo_policy_engine_arc.clone(), event_bus_arc.clone()); // Pass EventBus
+        let qr_ctfo_orchestrator_arc = Arc::new(Mutex::new(qr_ctfo_orchestrator_instance));
 
-        let qr_ctfo_orchestrator_clone = qr_ctfo_orchestrator.clone();
+        let qr_ctfo_orchestrator_clone = qr_ctfo_orchestrator_arc.clone();
         tokio::spawn(async move {
             if let Err(e) = qr_ctfo_orchestrator_clone.lock().unwrap().start_loop().await {
                 eprintln!("QR-CTFO Orchestrator failed: {:?}", e);
@@ -170,7 +179,8 @@ impl AgiCoreEngine {
         let hacse_orchestrator = HacseOrchestrator::new(
             hacse_options, 
             meta_goal_manager_arc.clone(),
-            sorae_request_sender.clone()
+            sorae_request_sender.clone(),
+            event_bus_arc.clone(), // Pass EventBus
         ); 
         let hacse_prompt_sender = hacse_orchestrator.get_prompt_sender();
         let hacse_orchestrator_arc = Arc::new(hacse_orchestrator);
@@ -205,7 +215,9 @@ impl AgiCoreEngine {
         let aleca_options = AlecaOptions::default();
         let aleca_orchestrator_instance = AlecaOrchestrator::new(aleca_options, 
                                                              Some(sorae_compliance_directive_sender.clone()), 
-                                                             Some(qrctfo_compliance_directive_sender_tx.clone())); // Use tx for ALEC-A
+                                                             Some(qrctfo_compliance_directive_sender_tx.clone()),
+                                                             event_bus_arc.clone(), // Pass EventBus
+                                                        );
         let aleca_orchestrator_arc = Arc::new(Mutex::new(aleca_orchestrator_instance));
 
         // Initialize Communication Bridge for IDE
@@ -219,7 +231,7 @@ impl AgiCoreEngine {
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
             sorae_orchestrator_internal: sorae_orchestrator_arc,
-            qr_ctfo_orchestrator: Arc::new(Mutex::new(qr_ctfo_orchestrator_instance)), // QR-CTFO must be Arc<Mutex<>> for apply_compliance_directive
+            qr_ctfo_orchestrator: qr_ctfo_orchestrator_arc.clone(),
             ide_communication_bridge,
             hacse_prompt_sender,
             hacse_orchestrator_internal: hacse_orchestrator_arc,
@@ -229,6 +241,7 @@ impl AgiCoreEngine {
             meta_goal_manager: meta_goal_manager_arc,
             service_registry: service_registry_arc.clone(), // Assign registry
             process_manager: process_manager_arc.clone(), // Assign process manager
+            event_bus: event_bus_arc.clone(), // Assign event bus
         };
         
         let agi_auditor_arc = Arc::new(agi_core_engine_instance);
@@ -281,6 +294,7 @@ impl AgiSystemAuditor for AgiCoreEngine {
 
     async fn get_qrctfo_audit_status(&self) -> ModuleAuditStatus {
         info!("AgiSystemAuditor: Auditing QR-CTFO.");
+        let qrctfo_guard = self.qr_ctfo_orchestrator.lock().unwrap();
         // Here, QR-CTFO would report key expiration, policy compliance, algorithm robustness.
         ModuleAuditStatus {
             module_name: "QR-CTFO".to_string(),

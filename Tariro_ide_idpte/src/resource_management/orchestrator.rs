@@ -6,7 +6,7 @@ use crate::resource_management::resource_monitor::ResourceMonitor;
 use crate::resource_management::resource_predictor::ResourcePredictor;
 use crate::resource_management::optimization_engine::{OptimizationEngine, OptimizationStrategyType};
 use crate::resource_management::resource_allocator::ResourceAllocator;
-use crate::resource_management::resource_models::{ResourceRequest, ResourceSnapshot, ComplianceDirective, ResourceType};
+use crate::resource_management::resource_models::{ResourceRequest, ResourceSnapshot, ComplianceDirective, ResourceType, AllocationResult};
 
 use tokio::sync::mpsc;
 use std::sync::{Arc, Mutex};
@@ -14,8 +14,10 @@ use std::collections::HashMap;
 use std::time::Duration;
 use tracing::{info, warn, error};
 
-// Import ProcessManager for integration
+// Import ProcessManager and EventBus for integration
 use crate::omega_os::process_manager::{ProcessManager, ProcessId, ProcessStatus as OsProcessStatus}; 
+use crate::omega_os::event_bus::EventBus;
+use crate::omega_os::event_models::{OsEvent, EventEnvelope};
 
 /// The SORAEOptions struct holds configuration for the S.O.R.A.E. Orchestrator.
 #[derive(Debug, Clone)] // Make it Debug and Clone for easier handling
@@ -42,6 +44,7 @@ pub struct SORAEOrcestrator {
     optimizer: Arc<Mutex<OptimizationEngine>>,
     allocator: ResourceAllocator,
     process_manager: Arc<ProcessManager>, // Integrated ProcessManager
+    event_bus: Arc<EventBus>, // Integrated EventBus
     // Channel for incoming resource requests from other parts of the AGI/OS
     request_rx: mpsc::Receiver<ResourceRequest>,
     request_tx: mpsc::Sender<ResourceRequest>,
@@ -52,7 +55,7 @@ pub struct SORAEOrcestrator {
 }
 
 impl SORAEOrcestrator {
-    pub fn new(options: SORAEOptions, process_manager: Arc<ProcessManager>) -> Self {
+    pub fn new(options: SORAEOptions, process_manager: Arc<ProcessManager>, event_bus: Arc<EventBus>) -> Self {
         let (request_tx, request_rx) = mpsc::channel(100); // Buffer for 100 pending requests
         let (compliance_directive_tx, compliance_directive_rx) = mpsc::channel(50); // Buffer for 50 directives
         SORAEOrcestrator {
@@ -61,6 +64,7 @@ impl SORAEOrcestrator {
             optimizer: Arc::new(Mutex::new(OptimizationEngine::new())),
             allocator: ResourceAllocator::new(),
             process_manager,
+            event_bus,
             request_rx,
             request_tx,
             compliance_directive_rx,
@@ -87,20 +91,27 @@ impl SORAEOrcestrator {
 
         let predictor_arc = self.predictor.clone();
         let optimizer_arc = self.optimizer.clone();
-        let process_manager_arc = self.process_manager.clone(); // Clone for use in spawned tasks if needed
+        let process_manager_arc = self.process_manager.clone(); 
+        let event_bus_arc = self.event_bus.clone(); // Clone for event publishing
         let mut request_rx = self.request_rx.take().expect("Request receiver already taken");
         let mut compliance_directive_rx = self.compliance_directive_rx.take().expect("Compliance directive receiver already taken");
 
         // Spawn a task for continuous monitoring
         let monitor_options_arc = self.current_options.clone();
         let monitor_system_id = initial_options.system_id.clone();
+        let monitor_event_bus_arc = event_bus_arc.clone();
         tokio::spawn(async move {
             let monitor_instance = ResourceMonitor::new(monitor_system_id);
             loop {
                 let current_interval = monitor_options_arc.lock().unwrap().monitoring_interval_seconds;
                 let snapshot = monitor_instance.get_current_snapshot().await;
                 if let Ok(mut predictor) = predictor_arc.lock() {
-                    predictor.feed_snapshot(snapshot);
+                    predictor.feed_snapshot(snapshot.clone());
+                    // Publish event for resource snapshot
+                    monitor_event_bus_arc.publish(EventEnvelope::new(
+                        "SORAEE".to_string(),
+                        OsEvent::Custom("ResourceSnapshot".to_string(), format!("{:?}", snapshot)),
+                    )).await;
                 }
                 tokio::time::sleep(Duration::from_secs(current_interval)).await;
             }
@@ -122,6 +133,7 @@ impl SORAEOrcestrator {
             // 2. Get pending resource requests
             let mut pending_requests: Vec<ResourceRequest> = Vec::new();
             while let Ok(req) = request_rx.try_recv() {
+                event_bus_arc.publish(EventEnvelope::new("SORAEE".to_string(), OsEvent::ResourceRequestReceived(req.clone()))).await;
                 pending_requests.push(req);
             }
 
@@ -166,6 +178,10 @@ impl SORAEOrcestrator {
                 &current_resources_map,
                 &pending_requests,
             ).await;
+            
+            for (_, result) in results.iter() {
+                event_bus_arc.publish(EventEnvelope::new("SORAEE".to_string(), OsEvent::ResourceAllocated(result.clone()))).await;
+            }
 
             // Log or act on results and perform self-adaptive tuning
             let mut successful_allocations = 0;
@@ -177,6 +193,9 @@ impl SORAEOrcestrator {
                 } else {
                     warn!("Task {}: Resource allocation failed: {}", task_id, result.message);
                     failed_allocations += 1;
+                    event_bus_arc.publish(EventEnvelope::new("SORAEE".to_string(), OsEvent::ResourceShortageDetected(
+                        vec![(task_id.clone(), 1.0)].into_iter().collect() // Mock shortage
+                    ))).await;
                 }
             }
 
@@ -186,12 +205,7 @@ impl SORAEOrcestrator {
             // 8. Optimization Strategy Learning from Feedback
             if let Ok(mut optimizer) = self.optimizer.lock() {
                 optimizer.learn_from_feedback(&pending_requests, &results).await;
-                // Example of dynamic strategy change: if RL is performing better than greedy, switch.
-                // This would be driven by performance metrics from the optimizer itself.
-                // For now, a simple switch if RL is implemented and deemed superior.
                 if optimizer.get_type() == OptimizationStrategyType::Greedy && successful_allocations > 0 && failed_allocations == 0 {
-                    // If greedy is doing well, might consider switching to RL for exploration/better long-term
-                    // or if the system hits a complex scenario. This is highly heuristic.
                     // optimizer.set_strategy(OptimizationStrategyType::ReinforcementLearning).await;
                 }
             }
@@ -223,6 +237,7 @@ impl SORAEOrcestrator {
     /// Applies a compliance directive received from ALEC-A.
     pub async fn apply_compliance_directive(&mut self, directive: ComplianceDirective) {
         info!("S.O.R.A.E.: Applying compliance directive: {:?}", directive);
+        let event_bus_arc = self.event_bus.clone();
         match directive {
             ComplianceDirective::EnforceResourceIsolation(entity_id) => {
                 warn!("S.O.R.A.E.: Enforcing resource isolation for {}. This may impact performance.", entity_id);
@@ -243,14 +258,22 @@ impl SORAEOrcestrator {
             },
             ComplianceDirective::Custom(action, value) => {
                 info!("S.O.R.A.E.: Applying custom compliance action: {} with value {}.", action, value);
-                if action == "suspend_agi_op" {
-                    if let Err(e) = self.process_manager.pause_process(&value).await {
-                        error!("S.O.R.A.E.: Failed to pause process {}: {}", value, e);
-                    }
-                } else if action == "resume_agi_op" {
-                    if let Err(e) = self.process_manager.resume_process(&value).await {
-                        error!("S.O.R.A.E.: Failed to resume process {}: {}", value, e);
-                    }
+                match action.as_str() {
+                    "suspend_agi_op" => {
+                        if let Err(e) = self.process_manager.pause_process(&value).await {
+                            error!("S.O.R.A.E.: Failed to pause process {}: {}", value, e);
+                        } else {
+                            event_bus_arc.publish(EventEnvelope::new("SORAEE".to_string(), OsEvent::ProcessTerminated(value, "suspended".to_string()))).await;
+                        }
+                    },
+                    "resume_agi_op" => {
+                        if let Err(e) = self.process_manager.resume_process(&value).await {
+                            error!("S.O.R.A.E.: Failed to resume process {}: {}", value, e);
+                        } else {
+                             event_bus_arc.publish(EventEnvelope::new("SORAEE".to_string(), OsEvent::ProcessSpawned(value, "resumed".to_string()))).await;
+                        }
+                    },
+                    _ => warn!("S.O.R.A.E.: Unhandled custom compliance action: {}", action),
                 }
             },
         }

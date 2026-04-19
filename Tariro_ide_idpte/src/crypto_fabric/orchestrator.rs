@@ -19,6 +19,10 @@ use tracing::{info, warn, error};
 use crate::compliance_advisor::conflict_resolver::ComplianceRemediationAction; // Import ComplianceRemediationAction
 use tokio::sync::mpsc; // For receiving compliance directives
 
+// Import EventBus
+use crate::omega_os::event_bus::EventBus;
+use crate::omega_os::event_models::{OsEvent, EventEnvelope};
+
 /// Configuration options for the QR-CTFO Orchestrator.
 #[derive(Debug, Clone)]
 pub struct QrCtfoOptions {
@@ -46,12 +50,14 @@ pub struct QrCtfoOrchestrator {
     pub comm_adapter: Arc<CommunicationAdapter>, // Make pub to be accessible by AgiCoreEngine
     current_options: Arc<Mutex<QrCtfoOptions>>,
     compliance_directive_rx: mpsc::Receiver<ComplianceRemediationAction>, // Receiver for compliance directives
+    event_bus: Arc<EventBus>, // Integrated EventBus
 }
 
 impl QrCtfoOrchestrator {
     pub fn new(
         options: QrCtfoOptions,
         policy_engine: Arc<Mutex<TrustPolicyEngine>>,
+        event_bus: Arc<EventBus>,
     ) -> (Self, mpsc::Sender<ComplianceRemediationAction>) { // Return sender for ALEC-A
         let (tx, rx) = mpsc::channel(50); // Channel for ALEC-A directives
         (QrCtfoOrchestrator {
@@ -60,6 +66,7 @@ impl QrCtfoOrchestrator {
             comm_adapter: Arc::new(CommunicationAdapter::new(policy_engine)),
             current_options: Arc::new(Mutex::new(options)),
             compliance_directive_rx: rx,
+            event_bus,
         }, tx)
     }
 
@@ -69,12 +76,14 @@ impl QrCtfoOrchestrator {
         let key_manager_arc = self.key_manager.clone();
         let policy_engine_arc = self.policy_engine.clone();
         let comm_adapter_arc = self.comm_adapter.clone();
+        let event_bus_arc = self.event_bus.clone(); // Clone for event publishing
         let mut compliance_directive_rx = self.compliance_directive_rx.take().expect("Compliance directive receiver already taken");
 
         info!("QR-CTFO Orchestrator started.");
 
         // Initial setup
         self.initial_setup().await?;
+        event_bus_arc.publish(EventEnvelope::new("QR-CTFO".to_string(), OsEvent::SystemInitialized)).await;
 
         // Main loop for continuous orchestration
         let mut last_algo_check = Utc::now();
@@ -97,8 +106,10 @@ impl QrCtfoOrchestrator {
                     // For now, passing empty algorithms, real check would involve probing active connections
                     if let Err(e) = policy_engine.evaluate_compliance(context, &[]).await {
                         warn!("QR-CTFO: Policy non-compliance detected for {}: {}", context, e);
+                        event_bus_arc.publish(EventEnvelope::new("QR-CTFO".to_string(), OsEvent::PqcPolicyEnforced(context.to_string()))).await;
+                        event_bus_arc.publish(EventEnvelope::new("QR-CTFO".to_string(), OsEvent::SecurityAlert(format!("Policy non-compliance for {}: {}", context, e)))).await;
                         // Trigger adaptation in communication_adapter or alert
-                        comm_adapter_arc.update_pqc_keys().await; // Attempt to re-secure
+                        comm_adapter_arc.update_pqc_keys().await;
                     }
                 }
             }
@@ -110,25 +121,29 @@ impl QrCtfoOrchestrator {
                     if let Some(key_pair) = key_manager.get_active_key_pair(&QrKeyUsage::KeyExchange).await {
                         if key_pair.expires_at < Utc::now() + ChronoDuration::days(7) { // Rotate if expiring in 7 days
                             info!("QR-CTFO: Key exchange key approaching expiration, initiating rotation.");
-                            let _ = key_manager.rotate_key_pair(QrKeyUsage::KeyExchange, QrAlgorithmType::KeyExchange(QrKeyExchangeAlg::Kyber), 365).await;
+                            let new_key = key_manager.rotate_key_pair(QrKeyUsage::KeyExchange, QrAlgorithmType::KeyExchange(QrKeyExchangeAlg::Kyber), 365).await;
+                            if let Ok(key) = new_key { event_bus_arc.publish(EventEnvelope::new("QR-CTFO".to_string(), OsEvent::QrKeyRotated(key.id))).await; }
                             // Notify communication adapter to update keys
                             comm_adapter_arc.update_pqc_keys().await;
                         }
                     } else { // No key exists, generate one
                         info!("QR-CTFO: No active key exchange key found, generating new one.");
-                        let _ = key_manager.generate_key_pair(QrAlgorithmType::KeyExchange(QrKeyExchangeAlg::Kyber), QrKeyUsage::KeyExchange, 365).await;
+                        let new_key = key_manager.generate_key_pair(QrAlgorithmType::KeyExchange(QrKeyExchangeAlg::Kyber), QrKeyUsage::KeyExchange, 365).await;
+                        if let Ok(key) = new_key { event_bus_arc.publish(EventEnvelope::new("QR-CTFO".to_string(), OsEvent::QrKeyRotated(key.id))).await; }
                         comm_adapter_arc.update_pqc_keys().await;
                     }
                     // Similar checks for DigitalSignature keys
                      if let Some(key_pair) = key_manager.get_active_key_pair(&QrKeyUsage::DigitalSignature).await {
                         if key_pair.expires_at < Utc::now() + ChronoDuration::days(7) { // Rotate if expiring in 7 days
                             info!("QR-CTFO: Digital signature key approaching expiration, initiating rotation.");
-                            let _ = key_manager.rotate_key_pair(QrKeyUsage::DigitalSignature, QrAlgorithmType::DigitalSignature(QrSignatureAlg::Dilithium), 365).await;
+                            let new_key = key_manager.rotate_key_pair(QrKeyUsage::DigitalSignature, QrAlgorithmType::DigitalSignature(QrSignatureAlg::Dilithium), 365).await;
+                            if let Ok(key) = new_key { event_bus_arc.publish(EventEnvelope::new("QR-CTFO".to_string(), OsEvent::QrKeyRotated(key.id))).await; }
                             comm_adapter_arc.update_pqc_keys().await;
                         }
                     } else { // No key exists, generate one
                         info!("QR-CTFO: No active digital signature key found, generating new one.");
-                        let _ = key_manager.generate_key_pair(QrAlgorithmType::DigitalSignature(QrSignatureAlg::Dilithium), QrKeyUsage::DigitalSignature, 365).await;
+                        let new_key = key_manager.generate_key_pair(QrAlgorithmType::DigitalSignature(QrSignatureAlg::Dilithium), QrKeyUsage::DigitalSignature, 365).await;
+                        if let Ok(key) = new_key { event_bus_arc.publish(EventEnvelope::new("QR-CTFO".to_string(), OsEvent::QrKeyRotated(key.id))).await; }
                         comm_adapter_arc.update_pqc_keys().await;
                     }
                 }
@@ -138,6 +153,7 @@ impl QrCtfoOrchestrator {
             if now.signed_duration_since(last_algo_check).num_seconds() as u64 >= options.new_algorithm_check_interval_seconds {
                 info!("QR-CTFO: Checking for new PQC algorithms or threats...");
                 self.fetch_threat_intelligence_and_algorithms().await;
+                event_bus_arc.publish(EventEnvelope::new("QR-CTFO".to_string(), OsEvent::SecurityAlert("New algorithm/threat check performed.".to_string()))).await;
                 last_algo_check = now;
             }
 
@@ -148,6 +164,7 @@ impl QrCtfoOrchestrator {
                 if !new_policies.is_empty() {
                     if let Ok(mut policy_engine) = policy_engine_arc.lock() {
                         for policy in new_policies {
+                            event_bus_arc.publish(EventEnvelope::new("QR-CTFO".to_string(), OsEvent::PqcPolicyEnforced(policy.id.clone()))).await;
                             let _ = policy_engine.update_policy(policy).await;
                         }
                         info!("QR-CTFO: Updated trust policies in engine.");
@@ -171,17 +188,20 @@ impl QrCtfoOrchestrator {
         // Generate Root of Trust key
         if key_manager.get_active_key_pair(&QrKeyUsage::RootOfTrust).await.is_none() {
             info!("QR-CTFO: Generating initial Root of Trust key pair (Kyber).");
-            let _ = key_manager.generate_key_pair(QrAlgorithmType::KeyExchange(QrKeyExchangeAlg::Kyber), QrKeyUsage::RootOfTrust, 3650).await;
+            let new_key = key_manager.generate_key_pair(QrAlgorithmType::KeyExchange(QrKeyExchangeAlg::Kyber), QrKeyUsage::RootOfTrust, 3650).await;
+            if let Ok(key) = new_key { self.event_bus.publish(EventEnvelope::new("QR-CTFO".to_string(), OsEvent::QrKeyRotated(key.id))).await; }
         }
         // Generate initial Key Exchange key
         if key_manager.get_active_key_pair(&QrKeyUsage::KeyExchange).await.is_none() {
             info!("QR-CTFO: Generating initial Key Exchange key pair (Kyber).");
-            let _ = key_manager.generate_key_pair(QrAlgorithmType::KeyExchange(QrKeyExchangeAlg::Kyber), QrKeyUsage::KeyExchange, 365).await;
+            let new_key = key_manager.generate_key_pair(QrAlgorithmType::KeyExchange(QrKeyExchangeAlg::Kyber), QrKeyUsage::KeyExchange, 365).await;
+            if let Ok(key) = new_key { self.event_bus.publish(EventEnvelope::new("QR-CTFO".to_string(), OsEvent::QrKeyRotated(key.id))).await; }
         }
         // Generate initial Digital Signature key
         if key_manager.get_active_key_pair(&QrKeyUsage::DigitalSignature).await.is_none() {
             info!("QR-CTFO: Generating initial Digital Signature key pair (Dilithium).");
-            let _ = key_manager.generate_key_pair(QrAlgorithmType::DigitalSignature(QrSignatureAlg::Dilithium), QrKeyUsage::DigitalSignature, 365).await;
+            let new_key = key_manager.generate_key_pair(QrAlgorithmType::DigitalSignature(QrSignatureAlg::Dilithium), QrKeyUsage::DigitalSignature, 365).await;
+            if let Ok(key) = new_key { self.event_bus.publish(EventEnvelope::new("QR-CTFO".to_string(), OsEvent::QrKeyRotated(key.id))).await; }
         }
         Ok(())}
 
@@ -239,11 +259,13 @@ impl QrCtfoOrchestrator {
     /// Applies a compliance directive received from ALEC-A.
     pub async fn apply_compliance_directive(&mut self, directive: ComplianceRemediationAction) {
         info!("QR-CTFO: Applying compliance directive: {:?}", directive);
+        let event_bus_arc = self.event_bus.clone();
         match directive {
             ComplianceRemediationAction::ForcePqcAlgorithmSwitch(channel_id, new_alg_type_str) => {
                 warn!("QR-CTFO: Forcing PQC algorithm switch for channel {} to {}.", channel_id, new_alg_type_str);
                 // Logic to update `CommunicationAdapter` with new algorithm for the channel
                 // and re-establish secure connection.
+                event_bus_arc.publish(EventEnvelope::new("QR-CTFO".to_string(), OsEvent::PqcPolicyEnforced(format!("Algorithm switch on {}", channel_id)))).await;
             },
             ComplianceRemediationAction::ForceKeyRotation(key_usage_type_str) => {
                 warn!("QR-CTFO: Forcing key rotation for usage type {}.", key_usage_type_str);
@@ -251,17 +273,20 @@ impl QrCtfoOrchestrator {
                 // For example, if key_usage_type_str == "KeyExchange", then trigger KEX key rotation.
                 if key_usage_type_str == "KeyExchange" {
                     let mut key_manager = self.key_manager.lock().unwrap();
-                    let _ = key_manager.rotate_key_pair(QrKeyUsage::KeyExchange, QrAlgorithmType::KeyExchange(QrKeyExchangeAlg::Kyber), 365).await;
+                    let new_key = key_manager.rotate_key_pair(QrKeyUsage::KeyExchange, QrAlgorithmType::KeyExchange(QrKeyExchangeAlg::Kyber), 365).await;
+                    if let Ok(key) = new_key { event_bus_arc.publish(EventEnvelope::new("QR-CTFO".to_string(), OsEvent::QrKeyRotated(key.id))).await; }
                     self.comm_adapter.update_pqc_keys().await;
                 } else if key_usage_type_str == "DigitalSignature" {
                     let mut key_manager = self.key_manager.lock().unwrap();
-                    let _ = key_manager.rotate_key_pair(QrKeyUsage::DigitalSignature, QrAlgorithmType::DigitalSignature(QrSignatureAlg::Dilithium), 365).await;
+                    let new_key = key_manager.rotate_key_pair(QrKeyUsage::DigitalSignature, QrAlgorithmType::DigitalSignature(QrSignatureAlg::Dilithium), 365).await;
+                    if let Ok(key) = new_key { event_bus_arc.publish(EventEnvelope::new("QR-CTFO".to_string(), OsEvent::QrKeyRotated(key.id))).await; }
                     self.comm_adapter.update_pqc_keys().await;
                 }
             },
             ComplianceRemediationAction::RequestHumanReview(entity_id) => {
                 warn!("QR-CTFO: Human review requested for {} due to compliance directive.", entity_id);
                 // Trigger an alert or notification to human operators
+                event_bus_arc.publish(EventEnvelope::new("QR-CTFO".to_string(), OsEvent::Custom("HumanReviewRequest".to_string(), entity_id))).await;
             },
             _ => warn!("QR-CTFO: Unhandled compliance directive: {:?}", directive),
         }

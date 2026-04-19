@@ -14,6 +14,10 @@ use crate::agi_meta_goals::{MetaGoalManager, MetaGoalStatus};
 // Import SORAEE for resource-aware generation
 use crate::resource_management::resource_models::{ResourceRequest, ResourceType};
 
+// Import EventBus
+use crate::omega_os::event_bus::EventBus;
+use crate::omega_os::event_models::{OsEvent, EventEnvelope};
+
 use anyhow::Result;
 use tokio::sync::mpsc;
 use std::sync::{Arc, Mutex};
@@ -47,8 +51,8 @@ pub struct HacseOrchestrator {
     feedback_analyzer: Arc<FeedbackAnalyzer>,
     multi_modal_interface: Arc<MultiModalInterface>,
     meta_goal_manager: Arc<Mutex<MetaGoalManager>>, 
-    // Sender to SORAEE for resource requests
     sorae_request_sender: mpsc::Sender<ResourceRequest>,
+    event_bus: Arc<EventBus>, // Integrated EventBus
     // Channel for incoming creative prompts
     prompt_rx: mpsc::Receiver<CreativePrompt>,
     prompt_tx: mpsc::Sender<CreativePrompt>,
@@ -59,7 +63,8 @@ impl HacseOrchestrator {
     pub fn new(
         options: HacseOptions, 
         meta_goal_manager: Arc<Mutex<MetaGoalManager>>,
-        sorae_sender: mpsc::Sender<ResourceRequest>
+        sorae_sender: mpsc::Sender<ResourceRequest>,
+        event_bus: Arc<EventBus>,
     ) -> Self {
         let (prompt_tx, prompt_rx) = mpsc::channel(100); 
         let style_learner_arc = Arc::new(Mutex::new(HumanStyleLearner::new()));
@@ -79,6 +84,7 @@ impl HacseOrchestrator {
             multi_modal_interface: Arc::new(MultiModalInterface::new("samuelmukandara@gmail.com".to_string(), default_user_prefs)),
             meta_goal_manager,
             sorae_request_sender: sorae_sender,
+            event_bus,
             prompt_rx,
             prompt_tx,
             current_options: Arc::new(Mutex::new(options)),
@@ -101,8 +107,10 @@ impl HacseOrchestrator {
         let multi_modal_interface_arc = self.multi_modal_interface.clone();
         let meta_goal_manager_arc = self.meta_goal_manager.clone();
         let sorae_request_sender_clone = self.sorae_request_sender.clone();
+        let event_bus_arc = self.event_bus.clone(); // Clone for event publishing
 
         info!("HACSE Orchestrator started.");
+        event_bus_arc.publish(EventEnvelope::new("HACSE".to_string(), OsEvent::SystemInitialized)).await;
 
         tokio::spawn(async move {
             loop {
@@ -112,27 +120,29 @@ impl HacseOrchestrator {
                 // Process incoming prompts
                 while let Ok(prompt) = prompt_rx.try_recv() {
                     info!("HACSE: Received new creative prompt for '{}'.", prompt.objective);
+                    event_bus_arc.publish(EventEnvelope::new("HACSE".to_string(), OsEvent::CreativePromptReceived(prompt.id.clone()))).await;
 
                     // Resource-Aware Generation: Request resources from SORAEE
                     let mut requested_resources = HashMap::new();
-                    // Estimate resource needs based on artifact type (placeholder logic)
                     match prompt.desired_artifact_type {
                         CreativeArtifactType::Code => { requested_resources.insert(ResourceType::Cpu, 0.2); },
                         CreativeArtifactType::Image => { requested_resources.insert(ResourceType::Gpu, 0.5); requested_resources.insert(ResourceType::Memory, 2.0); },
+                        CreativeArtifactType::Audio => { requested_resources.insert(ResourceType::Cpu, 0.3); requested_resources.insert(ResourceType::Memory, 1.0); },
                         _ => { requested_resources.insert(ResourceType::Cpu, 0.1); },
                     }
 
                     let resource_request = ResourceRequest {
                         task_id: format!("hacse-gen-{}", prompt.id),
                         requested_resources,
-                        min_required_resources: HashMap::new(), // Use same for simplicity
+                        min_required_resources: HashMap::new(), 
                         policies: vec![crate::resource_management::resource_models::AllocationPolicy::PerformanceOptimization],
                         urgency: 128,
                     };
 
                     info!("HACSE: Requesting resources from SORAEE for task {}.", resource_request.task_id);
-                    // In a real system, we'd wait for a response from SORAEE. For mock, assume success or just send.
-                    let _ = sorae_request_sender_clone.send(resource_request).await;
+                    let _ = sorae_request_sender_clone.send(resource_request.clone()).await;
+                    // In a real system, we'd wait for a response from SORAEE or subscribe to an event.
+                    // For now, proceed as if resources are granted.
 
                     // Retrieve user's learned style
                     let user_style = if let Ok(learner) = style_learner_arc.lock().ok() {
@@ -150,10 +160,12 @@ impl HacseOrchestrator {
                     match generated_artifact {
                         Ok(artifact) => {
                             info!("HACSE: Generated artifact '{}'. Content preview: '{}'"), artifact.title, &artifact.content[..20].to_string());
+                            event_bus_arc.publish(EventEnvelope::new("HACSE".to_string(), OsEvent::CreativeArtifactGenerated(artifact.clone()))).await;
                             multi_modal_interface_arc.present_artifact(&artifact).await;
 
                             // Process feedback
                             if let Some(feedback) = multi_modal_interface_arc.receive_feedback(&artifact.id).await {
+                                event_bus_arc.publish(EventEnvelope::new("HACSE".to_string(), OsEvent::HumanFeedbackReceived(feedback.artifact_id.clone()))).await;
                                 if let Err(e) = feedback_analyzer_arc.analyze_explicit_feedback(&feedback, &artifact).await {
                                     error!("Error analyzing explicit feedback: {}", e);
                                 }
@@ -167,7 +179,28 @@ impl HacseOrchestrator {
                 // Periodically process feedback
                 if now.timestamp() % options.feedback_processing_interval_seconds as i64 == 0 {
                     info!("HACSE: Periodically checking for feedback to process...");
-                    // ... (Implicit feedback simulation code)
+                    let mock_artifact_id = Uuid::new_v4().to_string();
+                    let mock_artifact = CreativeArtifact {
+                        id: mock_artifact_id.clone(),
+                        title: "Mock Implicit Artifact".to_string(),
+                        description: None,
+                        content: "This is some mock content that was edited by the user.".to_string(),
+                        artifact_type: CreativeArtifactType::Text,
+                        created_at: Utc::now(),
+                        contributors: vec!["Tariro_AGI".to_string(), "samuelmukandara@gmail.com".to_string()],
+                        version: 1,
+                        tags: vec![],
+                        parent_artifact_id: None,
+                        associated_styles: vec![],
+                        generative_model_used: crate::co_creation::creative_models::GenerativeModelType::TextGenerator,
+                    };
+                    // To avoid endless mocking, only simulate this if feedback processing interval is low
+                    if options.feedback_processing_interval_seconds < 30 {
+                        if let Err(e) = feedback_analyzer_arc.analyze_implicit_feedback(&mock_artifact, Some("User made minor edits to sentence structure.")).await {
+                            error!("Error analyzing implicit feedback: {}", e);
+                        }
+                    }
+
                 }
 
                 // Periodically update styles
@@ -221,7 +254,7 @@ impl HacseOrchestrator {
                         policies: vec![crate::resource_management::resource_models::AllocationPolicy::CostEfficiency],
                         urgency: 64,
                     };
-                    let _ = sorae_request_sender_clone.send(resource_request).await;
+                    let _ = sorae_request_sender_clone.send(resource_request.clone()).await;
 
                     let generated_suggestion_artifact = if let Ok(generator) = generator_arc.lock() {
                         generator.generate_artifact(&proactive_prompt, user_style.as_ref()).await
@@ -234,6 +267,7 @@ impl HacseOrchestrator {
                         Ok(artifact) => {
                             let suggestion_text = format!("New creative idea aligning with meta-goal '{}': '{}'. Content preview: '{}'"),
                                                         target_meta_goal.title, artifact.title, &artifact.content[..50].to_string());
+                            event_bus_arc.publish(EventEnvelope::new("HACSE".to_string(), OsEvent::NewCreativeSuggestion(artifact.id.clone()))).await;
                             multi_modal_interface_arc.present_suggestion(&suggestion_text).await;
                         },
                         Err(e) => error!("HACSE: Failed to generate proactive suggestion: {}", e),
