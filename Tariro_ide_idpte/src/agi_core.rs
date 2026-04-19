@@ -40,6 +40,8 @@ use crate::omega_os::event_bus::EventBus; // Import EventBus
 use crate::omega_os::event_models::{OsEvent, EventEnvelope}; // Import Event Models
 use crate::omega_os::runtime_environment::RuntimeEnvironment; // Import RuntimeEnvironment
 use crate::omega_os::app_loader::{AppLoader, ApplicationInfo}; // Import AppLoader
+use crate::omega_os::network_manager::NetworkManager; // Import NetworkManager
+use crate::omega_os::secure_channel_manager::SecureChannelManager; // Import SecureChannelManager
 
 /// Trait for auditing different AGI system modules.
 /// This provides a standardized way for ALEC-A to query the compliance status of other modules.
@@ -77,6 +79,10 @@ pub struct AgiCoreEngine {
     pub runtime_environment: Arc<RuntimeEnvironment>,
     // OMEGA OS Application Loader
     pub app_loader: Arc<AppLoader>,
+    // OMEGA OS Network Manager
+    pub network_manager: Arc<NetworkManager>,
+    // OMEGA OS Secure Channel Manager
+    pub secure_channel_manager: Arc<SecureChannelManager>,
 }
 
 impl AgiCoreEngine {
@@ -160,6 +166,22 @@ impl AgiCoreEngine {
         };
         service_registry_arc.register_service(app_loader_service).await?;
 
+        // Initialize OMEGA OS Network Manager
+        let network_manager_arc = Arc::new(NetworkManager::new(event_bus_arc.clone()));
+        // Register Network Manager as a service
+        let network_manager_service = NetworkManager::as_os_service();
+        service_registry_arc.register_service(network_manager_service).await?;
+
+        // Initialize OMEGA OS Secure Channel Manager
+        let qr_ctfo_options = QrCtfoOptions::default();
+        let qr_ctfo_policy_engine_arc = Arc::new(Mutex::new(crate::crypto_fabric::trust_policy_engine::TrustPolicyEngine::new()));
+        let (mut qr_ctfo_orchestrator_instance, qrctfo_compliance_directive_sender_tx) = QrCtfoOrchestrator::new(qr_ctfo_options, qr_ctfo_policy_engine_arc.clone(), event_bus_arc.clone()); // Pass EventBus
+        let qr_ctfo_orchestrator_arc = Arc::new(Mutex::new(qr_ctfo_orchestrator_instance));
+        let secure_channel_manager_arc = Arc::new(SecureChannelManager::new(qr_ctfo_orchestrator_arc.clone(), event_bus_arc.clone()));
+        // Register Secure Channel Manager as a service
+        let secure_channel_manager_service = SecureChannelManager::as_os_service();
+        service_registry_arc.register_service(secure_channel_manager_service).await?;
+
         // Initialize S.O.R.A.E. Orchestrator
         let sorae_options = SORAEOptions::default();
         let mut sorae_orchestrator = SORAEOrcestrator::new(sorae_options.clone(), process_manager_arc.clone(), event_bus_arc.clone()); // Pass ProcessManager and EventBus
@@ -191,12 +213,7 @@ impl AgiCoreEngine {
         };
         service_registry_arc.register_service(sorae_service).await?;
 
-        // Initialize QR-CTFO Orchestrator
-        let qr_ctfo_options = QrCtfoOptions::default();
-        let qr_ctfo_policy_engine_arc = Arc::new(Mutex::new(crate::crypto_fabric::trust_policy_engine::TrustPolicyEngine::new()));
-        let (mut qr_ctfo_orchestrator_instance, qrctfo_compliance_directive_sender_tx) = QrCtfoOrchestrator::new(qr_ctfo_options, qr_ctfo_policy_engine_arc.clone(), event_bus_arc.clone()); // Pass EventBus
-        let qr_ctfo_orchestrator_arc = Arc::new(Mutex::new(qr_ctfo_orchestrator_instance));
-
+        // Initialize QR-CTFO Orchestrator (continued from above)
         let qr_ctfo_orchestrator_clone = qr_ctfo_orchestrator_arc.clone();
         tokio::spawn(async move {
             if let Err(e) = qr_ctfo_orchestrator_clone.lock().unwrap().start_loop().await {
@@ -281,7 +298,7 @@ impl AgiCoreEngine {
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
             sorae_orchestrator_internal: sorae_orchestrator_arc,
-            qr_ctfo_orchestrator: qr_ctfo_orchestrator_arc.clone(), // Corrected from instance to arc
+            qr_ctfo_orchestrator: qr_ctfo_orchestrator_arc.clone(),
             ide_communication_bridge,
             hacse_prompt_sender,
             hacse_orchestrator_internal: hacse_orchestrator_arc,
@@ -294,6 +311,8 @@ impl AgiCoreEngine {
             event_bus: event_bus_arc.clone(), // Assign event bus
             runtime_environment: runtime_environment_arc.clone(), // Assign runtime environment
             app_loader: app_loader_arc.clone(), // Assign app loader
+            network_manager: network_manager_arc.clone(), // Assign network manager
+            secure_channel_manager: secure_channel_manager_arc.clone(), // Assign secure channel manager
         };
         
         let agi_auditor_arc = Arc::new(agi_core_engine_instance);
