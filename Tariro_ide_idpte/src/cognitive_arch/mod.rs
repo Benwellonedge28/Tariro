@@ -10,7 +10,11 @@ pub mod analogy_models;
 pub mod analogical_reasoning;
 pub mod common_sense_models;
 pub mod common_sense_reasoning;
-pub mod concept_models; // New module for concept formation models
-pub mod concept_formation; // New module for Unsupervised Concept Formation
+pub mod concept_models;
+pub mod concept_formation;
+pub mod h_rl_models;
+pub mod hierarchical_rl;
+pub mod learning_memory_models; // New module for learning memory models
+pub mod lifelong_learning; // New module for Continual Lifelong Learning
 
 // Add other cognitive architecture modules here.
