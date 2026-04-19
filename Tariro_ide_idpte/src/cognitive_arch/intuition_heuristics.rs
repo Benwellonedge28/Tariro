@@ -99,7 +99,7 @@ impl IntuitionHeuristicGenerator {
             id: heuristic_id.clone(),
             name: format!("Heuristic for {}", problem_context.description),
             description: format!("Autonomously generated heuristic based on common sense, causal insights, and learned policies for {}.
-            Discovered using {} algorithm.", problem_context.description, discovery_algorithm_meta.name),
+                Discovered using {} algorithm.", problem_context.description, discovery_algorithm_meta.name),
             applicability_conditions: problem_context.key_features.clone(),
             suggested_action: "Default rapid response action.".to_string(), // Placeholder
             expected_accuracy: 0.6, // Initial low confidence
@@ -118,10 +118,15 @@ impl IntuitionHeuristicGenerator {
 
         // Integrate knowledge from other modules to enrich suggested_action (Sub-Task 72.1)
         if problem_context.urgency_score > 0.7 {
-            new_heuristic.suggested_action = "Consult critical safety protocol from CommonSenseReasoningNetwork.".to_string();
+            new_heuristic.suggested_action = format!("Prioritize solution from HRL: {:?}", self.hierarchical_rl_module.select_high_level_goal().await?.map_or("None".to_string(), |g| g.description));
             // Simulate getting common sense from CSRN
             let common_sense_plan = self.common_sense_reasoning_network.generate_common_sense_plan(&new_heuristic.id, &self.common_sense_reasoning_network.infer_request_context("Tariro", &problem_context.description).await?).await.ok();
-            if let Some(plan) = common_sense_plan { new_heuristic.suggested_action = format!("Common sense plan: {:?}", plan.proposed_actions); }
+            if let Some(plan) = common_sense_plan { new_heuristic.suggested_action = format!("Common sense plan: {:?}", plan.proposed_actions.join(", ")); }
+        }
+        // Simulate getting causal insights from CRE
+        let causal_prediction = self.causal_reasoning_engine.infer_causal_effects(&"some_relevant_causal_graph".to_string(), &"observed_event".to_string(), &"desired_outcome".to_string()).await.ok();
+        if let Some(effect) = causal_prediction { 
+            new_heuristic.description.push_str(&format!(" Causal insight: expected effect of action is {}.".to_string(), effect));
         }
 
         // Trigger verification for the new heuristic (Sub-Task 72.2)
@@ -176,6 +181,8 @@ impl IntuitionHeuristicGenerator {
                 
                 if matches!(intuitive_leap.ethical_review_status, VerificationStatus::Failed(_)) || matches!(intuitive_leap.security_review_status, VerificationStatus::Failed(_)) {
                     error!("IHG: Intuitive leap '{}' failed real-time verification. Aborting application.", intuitive_leap.id);
+                    // Rollback mechanism (simplified)
+                    self.event_bus.publish(EventEnvelope::new("IHGModule".to_string(), OsEvent::Custom("IntuitiveLeapRollback".to_string(), format!("{{ \"leap_id\": \"{}\", \"reason\": \"verification_failed\" }}", intuitive_leap.id)))).await;
                     continue; // Do not apply unsafe leap
                 }
 
@@ -255,9 +262,9 @@ impl IntuitionHeuristicGenerator {
         // --- Safety Guarantee Review (part of Sub-Task 72.2) ---
         let safety_check_statement = format!("Does heuristic '{}' guarantee safety in its suggested action: '{}'?", heuristic.name, heuristic.suggested_action);
         // Simulate querying CausalReasoningEngine for safety analysis
-        let safety_causal_impact = self.causal_reasoning_engine.predict_security_vulnerabilities(&"system_safety_graph".to_string(), &safety_check_statement).await.ok().map_or(false, |v| v.is_empty());
+        let causal_security_vulnerabilities = self.causal_reasoning_engine.predict_security_vulnerabilities(&"system_safety_graph".to_string(), &safety_check_statement).await.ok();
         
-        verified_heuristic.verification_status.safety_guarantee_status = if safety_causal_impact {
+        verified_heuristic.verification_status.safety_guarantee_status = if causal_security_vulnerabilities.is_some() && causal_security_vulnerabilities.unwrap().is_empty() {
             VerificationStatus::Passed("Safety impact verified via causal analysis.".to_string())
         } else {
             VerificationStatus::Failed("Potential safety risks identified by causal analysis.".to_string())
@@ -312,8 +319,7 @@ impl IntuitionHeuristicGenerator {
         };
 
         self.event_bus.publish(EventEnvelope::new("IHGModule".to_string(), OsEvent::Custom("IntuitiveLeapVerificationCompleted".to_string(), format!("{{ \"leap_id\": \"{}\", \"ethical_status\": \"{:?}\", \"security_status\": \"{:?}\" }}", leap.id, leap.ethical_review_status, leap.security_review_status)))).await;
-        Ok(())
-    }
+        Ok(())}
 
     /// Registers the IntuitionHeuristicGenerator itself as an OMEGA OS service.
     pub fn as_os_service() -> OsService {
