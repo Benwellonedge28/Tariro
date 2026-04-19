@@ -1,34 +1,19 @@
 // Tariro_ide_idpte/src/cognitive_arch/mod.rs
 
 pub mod meta_learner;
-pub mod learning_models;
-pub mod causal_models;
 pub mod causal_reasoning;
-pub mod mental_models;
 pub mod theory_of_mind;
-pub mod analogy_models;
 pub mod analogical_reasoning;
-pub mod common_sense_models;
 pub mod common_sense_reasoning;
-pub mod concept_models;
 pub mod concept_formation;
-pub mod h_rl_models;
 pub mod hierarchical_rl;
-pub mod learning_memory_models;
 pub mod lifelong_learning;
-pub mod exploration_models;
 pub mod curiosity_exploration;
-pub mod heuristic_models;
 pub mod intuition_heuristics;
-pub mod metacognition_models;
 pub mod metacognition;
-pub mod imagination_models;
 pub mod imagination;
-pub mod formal_reasoning_models;
 pub mod formal_reasoning;
-pub mod emotion_motivation_models;
 pub mod emotion_motivation;
-pub mod creativity_models; // New module for creativity models
-pub mod creativity; // New module for Creativity & Innovation Generation
-
-// Add other cognitive architecture modules here.
+pub mod creativity;
+pub mod swarm_models; // New module for swarm models
+pub mod swarm_intelligence; // New module for Swarm Intelligence
