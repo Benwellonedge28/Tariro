@@ -38,6 +38,8 @@ use crate::omega_os::service_models::{OsService, ServiceType, ServiceCapability,
 use crate::omega_os::process_manager::{ProcessManager, ProcessInfo, ProcessId, ProcessStatus as OsProcessStatus}; // Import ProcessManager
 use crate::omega_os::event_bus::EventBus; // Import EventBus
 use crate::omega_os::event_models::{OsEvent, EventEnvelope}; // Import Event Models
+use crate::omega_os::runtime_environment::RuntimeEnvironment; // Import RuntimeEnvironment
+use crate::omega_os::app_loader::{AppLoader, ApplicationInfo}; // Import AppLoader
 
 /// Trait for auditing different AGI system modules.
 /// This provides a standardized way for ALEC-A to query the compliance status of other modules.
@@ -71,6 +73,10 @@ pub struct AgiCoreEngine {
     pub process_manager: Arc<ProcessManager>,
     // OMEGA OS Event Bus
     pub event_bus: Arc<EventBus>,
+    // OMEGA OS Runtime Environment
+    pub runtime_environment: Arc<RuntimeEnvironment>,
+    // OMEGA OS Application Loader
+    pub app_loader: Arc<AppLoader>,
 }
 
 impl AgiCoreEngine {
@@ -97,7 +103,7 @@ impl AgiCoreEngine {
             description: "Manages the lifecycle of computational processes and services.".to_string(),
             service_type: ServiceType::SystemCore,
             capabilities: vec![
-                ServiceCapability { name: "spawn_process".to_string(), description: "Spawns a new OS process.".to_string(), parameters: HashMap::new(), output_schema: "ProcessId".to_string(), requires_permissions: vec![], requires_ethical_review: true },
+                ServiceCapability { name: "spawn_process".to_string(), description: "Spawns a new OS process.".to_string(), parameters: HashMap::new(), output_schema: "ProcessId".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
                 ServiceCapability { name: "kill_process".to_string(), description: "Terminates an OS process.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
                 ServiceCapability { name: "get_process_info".to_string(), description: "Retrieves information about a running process.".to_string(), parameters: HashMap::new(), output_schema: "ProcessInfo".to_string(), requires_permissions: vec![], requires_ethical_review: false },
             ],
@@ -110,9 +116,51 @@ impl AgiCoreEngine {
         };
         service_registry_arc.register_service(process_manager_service).await?;
 
+        // Initialize OMEGA OS Runtime Environment
+        let runtime_environment_arc = Arc::new(RuntimeEnvironment::new());
+        // Register Runtime Environment as a service
+        let runtime_environment_service = OsService {
+            id: "os-runtime-env".to_string(),
+            name: "OMEGA OS Runtime Environment".to_string(),
+            description: "Manages isolated execution contexts for applications.".to_string(),
+            service_type: ServiceType::SystemCore,
+            capabilities: vec![
+                ServiceCapability { name: "prepare_context".to_string(), description: "Prepares an isolated application context.".to_string(), parameters: HashMap::new(), output_schema: "ApplicationContext".to_string(), requires_permissions: vec![], requires_ethical_review: true },
+                ServiceCapability { name: "terminate_context".to_string(), description: "Terminates an application context.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec![], requires_ethical_review: true },
+            ],
+            status: ServiceStatus::Running,
+            registered_at: Utc::now(),
+            last_heartbeat: Utc::now(),
+            endpoints: HashMap::new(),
+            dependencies: vec!["os-process-manager".to_string()],
+            managed_by_agi_module: None,
+        };
+        service_registry_arc.register_service(runtime_environment_service).await?;
+
+        // Initialize OMEGA OS Application Loader
+        let app_loader_arc = Arc::new(AppLoader::new(process_manager_arc.clone(), runtime_environment_arc.clone(), event_bus_arc.clone()));
+        // Register Application Loader as a service
+        let app_loader_service = OsService {
+            id: "os-app-loader".to_string(),
+            name: "OMEGA OS Application Loader".to_string(),
+            description: "Handles loading, verifying, and launching applications and services.".to_string(),
+            service_type: ServiceType::SystemCore,
+            capabilities: vec![
+                ServiceCapability { name: "load_application".to_string(), description: "Loads and verifies an application.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec![], requires_ethical_review: true },
+                ServiceCapability { name: "launch_application".to_string(), description: "Launches a verified application.".to_string(), parameters: HashMap::new(), output_schema: "ApplicationInstanceId".to_string(), requires_permissions: vec!["root".to_string()], requires_ethical_review: true },
+            ],
+            status: ServiceStatus::Running,
+            registered_at: Utc::now(),
+            last_heartbeat: Utc::now(),
+            endpoints: HashMap::new(),
+            dependencies: vec!["os-process-manager".to_string(), "os-runtime-env".to_string(), "os-event-bus".to_string()],
+            managed_by_agi_module: Some("ALEC-A".to_string()),
+        };
+        service_registry_arc.register_service(app_loader_service).await?;
+
         // Initialize S.O.R.A.E. Orchestrator
         let sorae_options = SORAEOptions::default();
-        let mut sorae_orchestrator = SORAEOrcestrator::new(sorae_options.clone(), process_manager_arc.clone(), event_bus_arc.clone()); // Pass EventBus
+        let mut sorae_orchestrator = SORAEOrcestrator::new(sorae_options.clone(), process_manager_arc.clone(), event_bus_arc.clone()); // Pass ProcessManager and EventBus
         let sorae_request_sender = sorae_orchestrator.get_request_sender();
         let sorae_compliance_directive_sender = sorae_orchestrator.get_compliance_directive_sender();
         let sorae_orchestrator_arc = Arc::new(Mutex::new(sorae_orchestrator)); // Keep an Arc for audit
@@ -242,6 +290,8 @@ impl AgiCoreEngine {
             service_registry: service_registry_arc.clone(), // Assign registry
             process_manager: process_manager_arc.clone(), // Assign process manager
             event_bus: event_bus_arc.clone(), // Assign event bus
+            runtime_environment: runtime_environment_arc.clone(), // Assign runtime environment
+            app_loader: app_loader_arc.clone(), // Assign app loader
         };
         
         let agi_auditor_arc = Arc::new(agi_core_engine_instance);
