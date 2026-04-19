@@ -63,7 +63,7 @@ impl SORAEOrcestrator {
         options: SORAEOptions, 
         process_manager: Arc<ProcessManager>, 
         event_bus: Arc<EventBus>,
-        service_command_sender: mpsc::Sender<ServiceCommand>,
+        service_command_sender: mpsc::Sender<ServiceCommand>, // New parameter
     ) -> Self {
         let (request_tx, request_rx) = mpsc::channel(100); // Buffer for 100 pending requests
         let (compliance_directive_tx, compliance_directive_rx) = mpsc::channel(50); // Buffer for 50 directives

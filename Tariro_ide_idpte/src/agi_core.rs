@@ -199,7 +199,7 @@ impl AgiCoreEngine {
         // Initialize QR-CTFO Orchestrator
         let qr_ctfo_options = QrCtfoOptions::default();
         let qr_ctfo_policy_engine_arc = Arc::new(Mutex::new(crate::crypto_fabric::trust_policy_engine::TrustPolicyEngine::new()));
-        let (mut qr_ctfo_orchestrator_instance, qrctfo_compliance_directive_sender_tx) = QrCtfoOrchestrator::new(qr_ctfo_options, qr_ctfo_policy_engine_arc.clone(), event_bus_arc.clone()); // Pass EventBus
+        let (qr_ctfo_orchestrator_instance, qrctfo_compliance_directive_sender_tx) = QrCtfoOrchestrator::new(qr_ctfo_options, qr_ctfo_policy_engine_arc.clone(), event_bus_arc.clone()); // Pass EventBus
         let qr_ctfo_orchestrator_arc = Arc::new(Mutex::new(qr_ctfo_orchestrator_instance));
         let secure_channel_manager_arc = Arc::new(SecureChannelManager::new(qr_ctfo_orchestrator_arc.clone(), event_bus_arc.clone()));
         // Register Secure Channel Manager as a service
@@ -389,6 +389,12 @@ impl AgiCoreEngine {
         let agi_core_engine_clone = agi_auditor_arc.clone();
         tokio::spawn(async move {
             let _ = agi_core_engine_clone.handle_service_commands().await;
+        });
+
+        // Spawn task to handle general OS events for self-healing and orchestration
+        let agi_core_engine_event_handler_clone = agi_auditor_arc.clone();
+        tokio::spawn(async move {
+            let _ = agi_core_engine_event_handler_clone.handle_os_event().await;
         });
 
         Ok(agi_auditor_arc)
