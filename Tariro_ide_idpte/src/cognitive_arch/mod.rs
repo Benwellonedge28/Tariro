@@ -21,5 +21,7 @@ pub mod embodied_models;
 pub mod embodied_cognition;
 pub mod intuitive_models;
 pub mod intuitive_physics_psychology;
-pub mod epistemic_models; // New module for epistemic models
-pub mod epistemic_reasoning; // New module for Epistemic Reasoning
+pub mod epistemic_models;
+pub mod epistemic_reasoning;
+pub mod affective_models; // New module for affective models
+pub mod affective_computing; // New module for Affective Computing
