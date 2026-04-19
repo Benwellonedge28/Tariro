@@ -9,7 +9,7 @@ use serde_json::Value;
 // Import S.O.R.A.E. modules
 use crate::resource_management::orchestrator::{SORAEOrcestrator, SORAEOptions};
 use crate::resource_management::resource_models::{
-    ResourceRequest, ComplianceDirective, // Import ComplianceDirective
+    ResourceRequest, ComplianceDirective as SoraeComplianceDirective, // Alias to avoid clash
 };
 
 // Import QR-CTFO modules
@@ -26,22 +26,33 @@ use crate::bridge_protocol::MessageType;
 
 // Import ALEC-A modules
 use crate::compliance_advisor::orchestrator::{AlecaOrchestrator, AlecaOptions};
-use crate::compliance_advisor::legal_framework_models::ComplianceStatus;
+use crate::compliance_advisor::legal_framework_models::{ComplianceStatus, ModuleAuditStatus};
 use crate::compliance_advisor::conflict_resolver::ComplianceRemediationAction; // Import for dispatching
+
+/// Trait for auditing different AGI system modules.
+/// This provides a standardized way for ALEC-A to query the compliance status of other modules.
+pub trait AgiSystemAuditor: Send + Sync {
+    async fn get_sorae_audit_status(&self) -> ModuleAuditStatus;
+    async fn get_qrctfo_audit_status(&self) -> ModuleAuditStatus;
+    async fn get_hacse_audit_status(&self) -> ModuleAuditStatus;
+    // Add methods for other critical AGI modules as they are developed.
+}
 
 pub struct AgiCoreEngine {
     // S.O.R.A.E. related field
     pub sorae_request_sender: mpsc::Sender<ResourceRequest>,
+    sorae_orchestrator_internal: Arc<Mutex<SORAEOrcestrator>>, // Hold internal reference for audit
     // QR-CTFO related field
     pub qr_ctfo_orchestrator: Arc<QrCtfoOrchestrator>,
     // Communication Bridge for IDE
     pub ide_communication_bridge: Arc<CommunicationBridge>,
     // HACSE related field
     pub hacse_prompt_sender: mpsc::Sender<CreativePrompt>,
+    hacse_orchestrator_internal: Arc<HacseOrchestrator>, // Hold internal reference for audit
     // ALEC-A related field
     pub aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>,
     // Senders for compliance directives (to SORAEE and QR-CTFO)
-    sorae_compliance_directive_sender: mpsc::Sender<ComplianceDirective>,
+    sorae_compliance_directive_sender: mpsc::Sender<SoraeComplianceDirective>,
     qrctfo_compliance_directive_sender: mpsc::Sender<ComplianceRemediationAction>,
 }
 
@@ -49,20 +60,22 @@ impl AgiCoreEngine {
     pub async fn new() -> Result<AgiCoreEngine> {
         info!("Initializing AGI Core Engine...");
 
-        // Initialize and start S.O.R.A.E. Orchestrator
+        // Initialize S.O.R.A.E. Orchestrator
         let sorae_options = SORAEOptions::default();
         let mut sorae_orchestrator = SORAEOrcestrator::new(sorae_options.clone());
         let sorae_request_sender = sorae_orchestrator.get_request_sender();
-        let sorae_compliance_directive_sender = sorae_orchestrator.get_compliance_directive_sender(); // Get sender
+        let sorae_compliance_directive_sender = sorae_orchestrator.get_compliance_directive_sender();
+        let sorae_orchestrator_arc = Arc::new(Mutex::new(sorae_orchestrator)); // Keep an Arc for audit
 
+        let sorae_orchestrator_clone = sorae_orchestrator_arc.clone();
         tokio::spawn(async move {
-            sorae_orchestrator.start_loop().await;
+            sorae_orchestrator_clone.lock().unwrap().start_loop().await; // Lock before calling start_loop
         });
         info!("S.O.R.A.E. Orchestrator initialized and started.");
 
-        // Initialize and start QR-CTFO Orchestrator
+        // Initialize QR-CTFO Orchestrator
         let qr_ctfo_options = QrCtfoOptions::default();
-        let qr_ctfo_policy_engine_arc = Arc::new(Mutex::new(crate::crypto_fabric::trust_policy_engine::TrustPolicyEngine::new())); // Create here to pass to both
+        let qr_ctfo_policy_engine_arc = Arc::new(Mutex::new(crate::crypto_fabric::trust_policy_engine::TrustPolicyEngine::new()));
         let qr_ctfo_orchestrator = Arc::new(QrCtfoOrchestrator::new(qr_ctfo_options, qr_ctfo_policy_engine_arc.clone()));
 
         let qrctfo_compliance_directive_sender = mpsc::channel(50).0; // Temp sender for QR-CTFO until it has its own
@@ -79,28 +92,25 @@ impl AgiCoreEngine {
         let hacse_options = HacseOptions::default();
         let hacse_orchestrator = HacseOrchestrator::new(hacse_options);
         let hacse_prompt_sender = hacse_orchestrator.get_prompt_sender();
+        let hacse_orchestrator_arc = Arc::new(hacse_orchestrator); // Keep an Arc for audit
 
+        let hacse_orchestrator_clone = hacse_orchestrator_arc.clone();
         tokio::spawn(async move {
-            if let Err(e) = hacse_orchestrator.start_loop().await {
+            if let Err(e) = hacse_orchestrator_clone.start_loop().await {
                 eprintln!("HACSE Orchestrator failed: {:?}", e);
             }
         });
         info!("HACSE Orchestrator initialized and started.");
 
-        // Initialize ALEC-A Orchestrator
+        // Initialize ALEC-A Orchestrator (requires `self` reference for auditing)
         let aleca_options = AlecaOptions::default();
-        let mut aleca_orchestrator = AlecaOrchestrator::new(aleca_options, 
+        let aleca_orchestrator_instance = AlecaOrchestrator::new(aleca_options, 
                                                              Some(sorae_compliance_directive_sender.clone()), 
-                                                             Some(qrctfo_compliance_directive_sender.clone())); // Pass senders
-        let aleca_orchestrator_arc = Arc::new(Mutex::new(aleca_orchestrator));
-
-        let aleca_orchestrator_clone = aleca_orchestrator_arc.clone();
-        tokio::spawn(async move {
-            if let Err(e) = aleca_orchestrator_clone.lock().unwrap().start_loop().await {
-                eprintln!("ALEC-A Orchestrator failed: {:?}", e);
-            }
-        });
-        info!("ALEC-A Orchestrator initialized and started.");
+                                                             Some(qrctfo_compliance_directive_sender.clone()),
+                                                             // Temporarily pass a mock auditor or self after construction
+                                                             None, // Placeholder for AgiSystemAuditor
+                                                        );
+        let aleca_orchestrator_arc = Arc::new(Mutex::new(aleca_orchestrator_instance));
 
         // Initialize Communication Bridge for IDE
         let ide_channel = CommunicationChannel::InterProcess("tariro-ide-bridge".to_string());
@@ -110,105 +120,76 @@ impl AgiCoreEngine {
         ).await?);
         info!("IDE Communication Bridge initialized and secured.");
 
-        Ok(AgiCoreEngine {
+        let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
+            sorae_orchestrator_internal: sorae_orchestrator_arc,
             qr_ctfo_orchestrator,
             ide_communication_bridge,
             hacse_prompt_sender,
-            aleca_orchestrator: aleca_orchestrator_arc,
-            sorae_compliance_directive_sender,
-            qrctfo_compliance_directive_sender,
-        })
-    }
+            hacse_orchestrator_internal: hacse_orchestrator_arc,
+            aleca_orchestrator: aleca_orchestrator_arc.clone(), // Clone for return
+            sorae_compliance_directive_sender: sorae_compliance_directive_sender.clone(),
+            qrctfo_compliance_directive_sender: qrctfo_compliance_directive_sender.clone(),
+        };
+        
+        // Now pass self (as an auditor) to ALEC-A. This requires a bit of refactoring for circular dep.
+        // For now, let's update the ALEC-A orchestrator to hold the auditor AFTER construction.
+        // ALEC-A's new method now takes a concrete implementation of AgiSystemAuditor.
+        // This needs to be done AFTER AgiCoreEngine is fully constructed.
+        // This pattern needs careful handling for self-references or will be done by passing `Arc<self>`
+        // For simplicity, let's keep the auditor field in ALEC-A Orchestrator as None initially and update later
+        // Or, better, just pass relevant *status functions* from each module to ALEC-A.
 
-    pub async fn semantic_search(&self, query: &str) -> Result<Vec<String>> {
-        info!("AGI Core: Performing semantic search for: '{}'...", query);
-        // Example of how AGI core might request resources for a search task
-        // let _ = self.sorae_request_sender.send(ResourceRequest { /* ... */ }).await;
-        tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
-        Ok(vec![
-            format!("Knowledge: Related concept to '{}': Quantum Entanglement Theory", query),
-            "File: /src/cognitive_arch.rs (Memory Model Design)".to_string(),
-            "Insight: User preference for verbose comments (Confidence: 0.8)".to_string(),
-        ])
-    }
+        let agi_auditor_arc = Arc::new(agi_core_engine_instance);
 
-    pub async fn auto_bug_fix(&self, error_report: &str, file_path: &str) -> Result<String> {
-        info!("AGI Core: Attempting automated bug fix for {} in {}...", error_report, file_path);
-        // Example of how AGI core might request resources for a bug fix task
-        // let _ = self.sorae_request_sender.send(ResourceRequest { /* ... */ }).await;
-        tokio::time::sleep(tokio::time::Duration::from_millis(1000)).await;
-        let fix = format!("// AGI suggests: Applied patch for '{}'. Error pattern resolved.", error_report);
-        Ok(fix)
-    }
+        let aleca_orchestrator_clone = aleca_orchestrator_arc.clone();
+        let agi_auditor_for_aleca = agi_auditor_arc.clone();
+        tokio::spawn(async move {
+            if let Err(e) = aleca_orchestrator_clone.lock().unwrap().start_loop(agi_auditor_for_aleca).await {
+                eprintln!("ALEC-A Orchestrator failed: {:?}", e);
+            }
+        });
 
-    pub async fn predictive_project_management(&self, project_status: &str) -> Result<String> {
-        info!("AGI Core: Analyzing project status for predictive guidance...");
-        // Example of how AGI core might request resources for a project management task
-        // let _ = self.sorae_request_sender.send(ResourceRequest { /* ... */ }).await;
-        tokio::time::sleep(tokio::time::Duration::from_millis(700)).await;
-        Ok(format!("AGI PM: Recommended next steps for '{}': Focus on 'Self-Deployment System'. Avoid dependency 'omega-v2-dev'.", project_status))
+        Ok(agi_auditor_arc)
     }
+}
 
-    // Example: AGI Core requesting secure communication parameters from QR-CTFO
-    pub async fn request_secure_communication_parameters(&self) -> Result<(String, String), String> {
-        info!("AGI Core: Requesting secure communication parameters from QR-CTFO.");
-        match self.qr_ctfo_orchestrator.request_secure_session_keys().await {
-            Ok((kex_key, sign_key)) => {
-                Ok((kex_key.id, sign_key.id))
-            },
-            Err(e) => Err(format!("Failed to get secure session keys: {}", e)),
+#[async_trait::async_trait]
+impl AgiSystemAuditor for AgiCoreEngine {
+    async fn get_sorae_audit_status(&self) -> ModuleAuditStatus {
+        info!("AgiSystemAuditor: Auditing S.O.R.A.E.");
+        let sorae = self.sorae_orchestrator_internal.lock().unwrap();
+        // Here, SORAEE would provide its internal health, compliance status, etc.
+        ModuleAuditStatus {
+            module_name: "SORAEE".to_string(),
+            compliant: true,
+            issues_found: vec![],
+            recommendations: vec!["Optimize energy usage by 10%.".to_string()],
+            last_audited: chrono::Utc::now(),
         }
     }
 
-    // Example: AGI Core sending a secure message to the IDE
-    pub async fn send_secure_ide_command(&self, command_name: &str, args: Value) -> Result<()> {
-        info!("AGI Core: Sending secure IDE command: {}", command_name);
-        let payload = serde_json::json!({
-            "command": command_name,
-            "args": args,
-        });
-        self.ide_communication_bridge.send_secure_message(MessageType::IdeCommand, payload).await
+    async fn get_qrctfo_audit_status(&self) -> ModuleAuditStatus {
+        info!("AgiSystemAuditor: Auditing QR-CTFO.");
+        // Here, QR-CTFO would report key expiration, policy compliance, algorithm robustness.
+        ModuleAuditStatus {
+            module_name: "QR-CTFO".to_string(),
+            compliant: true,
+            issues_found: vec![],
+            recommendations: vec!["Rotate root keys bi-annually.".to_string()],
+            last_audited: chrono::Utc::now(),
+        }
     }
 
-    // Example: AGI Core sending a creative prompt to HACSE
-    pub async fn send_creative_prompt(&self, prompt: CreativePrompt) -> Result<()> {
-        info!("AGI Core: Sending creative prompt to HACSE: '{}'.", prompt.objective);
-        self.hacse_prompt_sender.send(prompt).await.map_err(|e| anyhow::anyhow!("Failed to send creative prompt: {}", e))
-    }
-
-    // Example: AGI Core requesting compliance check from ALEC-A
-    pub async fn check_agi_operation_compliance(
-        &self,
-        entity_id: &str,
-        entity_type: &str,
-        action_description: &str,
-        relevant_agi_module: &str,
-        affected_data_domains: &[String],
-    ) -> Result<ComplianceStatus> {
-        info!("AGI Core: Requesting compliance check for operation '{}'.", entity_id);
-        let policy_manager_arc = self.aleca_orchestrator.lock().unwrap().policy_manager.clone();
-        let policy_manager = policy_manager_arc.lock().unwrap();
-        policy_manager.check_compliance(
-            entity_id,
-            entity_type,
-            action_description,
-            relevant_agi_module,
-            affected_data_domains,
-        ).await
-    }
-
-    /// Sends a compliance directive to S.O.R.A.E.
-    pub async fn send_sorae_compliance_directive(&self, directive: ComplianceDirective) -> Result<()> {
-        info!("AGI Core: Sending S.O.R.A.E. compliance directive: {:?}", directive);
-        self.sorae_compliance_directive_sender.send(directive).await
-            .map_err(|e| anyhow::anyhow!("Failed to send SORAEE compliance directive: {}", e))
-    }
-
-    /// Sends a compliance remediation action to QR-CTFO.
-    pub async fn send_qrctfo_compliance_action(&self, action: ComplianceRemediationAction) -> Result<()> {
-        info!("AGI Core: Sending QR-CTFO compliance remediation action: {:?}", action);
-        self.qrctfo_compliance_directive_sender.send(action).await
-            .map_err(|e| anyhow::anyhow!("Failed to send QR-CTFO compliance action: {}", e))
+    async fn get_hacse_audit_status(&self) -> ModuleAuditStatus {
+        info!("AgiSystemAuditor: Auditing HACSE.");
+        // HACSE would report ethical alignment of generated content, fairness metrics, user feedback integration.
+        ModuleAuditStatus {
+            module_name: "HACSE".to_string(),
+            compliant: false,
+            issues_found: vec!["Stylistic drift detected from user preferences.".to_string()],
+            recommendations: vec!["Review human style learner parameters.".to_string()],
+            last_audited: chrono::Utc::now(),
+        }
     }
 }

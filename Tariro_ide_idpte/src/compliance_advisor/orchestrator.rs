@@ -4,18 +4,20 @@
 //! This orchestrator drives the continuous process of monitoring, analyzing, and enforcing
 //! legal and ethical compliance across OMEGA OS operations.
 
-use crate::compliance_advisor::legal_framework_models::{LegalRule, EthicalMandate, ComplianceStatus};
+use crate::compliance_advisor::legal_framework_models::{LegalRule, EthicalMandate, ComplianceStatus, AuditReport, ModuleAuditStatus};
 use crate::compliance_advisor::regulatory_monitor::RegulatoryMonitor;
 use crate::compliance_advisor::compliance_policy_manager::CompliancePolicyManager;
 use crate::compliance_advisor::conflict_resolver::{ConflictResolver, ComplianceRemediationAction};
 use crate::compliance_advisor::ethical_decision_engine::EthicalDecisionEngine;
-use crate::evas_evolution::EVASEngine; // Import EVASEngine
+use crate::evas_evolution::EVASEngine;
+use crate::agi_core::AgiSystemAuditor; // Import the trait
 
 use anyhow::Result;
 use tokio::time::{sleep, Duration};
 use std::sync::{Arc, Mutex};
 use chrono::{Utc, Duration as ChronoDuration};
 use tracing::{info, warn, error};
+use uuid::Uuid;
 
 // Import other orchestrators for remediation actions
 use crate::resource_management::resource_models::ComplianceDirective as SoraeComplianceDirective; // Alias to avoid clash
@@ -46,7 +48,7 @@ pub struct AlecaOrchestrator {
     policy_manager: Arc<Mutex<CompliancePolicyManager>>,
     conflict_resolver: ConflictResolver,
     ethical_decision_engine: Arc<Mutex<EthicalDecisionEngine>>, 
-    evas_engine: Arc<Mutex<EVASEngine>>, // Added EVAS engine
+    evas_engine: Arc<Mutex<EVASEngine>>, 
     // Senders to other orchestrators for autonomous remediation actions
     sorae_directive_sender: Option<mpsc::Sender<SoraeComplianceDirective>>,
     qrctfo_directive_sender: Option<mpsc::Sender<ComplianceRemediationAction>>,
@@ -58,6 +60,7 @@ impl AlecaOrchestrator {
         options: AlecaOptions,
         sorae_sender: Option<mpsc::Sender<SoraeComplianceDirective>>,
         qrctfo_sender: Option<mpsc::Sender<ComplianceRemediationAction>>,
+        // The AgiSystemAuditor will be set after AgiCoreEngine is constructed
     ) -> Self {
         let evas_engine_arc = Arc::new(Mutex::new(EVASEngine::new()));
         let ethical_engine_arc = Arc::new(Mutex::new(EthicalDecisionEngine::new(evas_engine_arc.clone())));
@@ -74,12 +77,13 @@ impl AlecaOrchestrator {
     }
 
     /// Starts the main ALEC-A orchestration loop.
-    pub async fn start_loop(&mut self) -> Result<()> {
+    pub async fn start_loop(&mut self, agi_system_auditor: Arc<impl AgiSystemAuditor + 'static>) -> Result<()> {
         let options_arc = self.current_options.clone();
         let policy_manager_arc = self.policy_manager.clone();
         let conflict_resolver_arc = Arc::new(self.conflict_resolver.clone()); 
         let sorae_directive_sender_clone = self.sorae_directive_sender.clone();
         let qrctfo_directive_sender_clone = self.qrctfo_directive_sender.clone();
+        let agi_system_auditor_clone = agi_system_auditor.clone();
 
         info!("ALEC-A Orchestrator started.");
 
@@ -133,7 +137,7 @@ impl AlecaOrchestrator {
                         warn!("ALEC-A: Attempting autonomous remediation: {:?}", action);
                         self.dispatch_remediation_action(action, 
                             sorae_directive_sender_clone.clone(), 
-                            qrctfo_directive_sender_clone.clone()).await;
+                            qrctfo_directive_directive_sender_clone.clone()).await;
                     }
 
                     // Also check for conflicts proactively when non-compliant
@@ -155,8 +159,7 @@ impl AlecaOrchestrator {
             // 3. Periodic Full Self-Audit (more comprehensive check)
             if now.signed_duration_since(last_self_audit).num_seconds() as u64 >= options.self_audit_interval_seconds {
                 info!("ALEC-A: Initiating full system self-audit for compliance.");
-                // This would trigger a much deeper, system-wide audit of all AGI modules
-                // and OMEGA OS components against all known legal/ethical frameworks.
+                self.perform_self_audit(agi_system_auditor_clone.clone()).await?;
                 last_self_audit = now;
             }
 
@@ -200,5 +203,57 @@ impl AlecaOrchestrator {
                 warn!("ALEC-A: Custom remediation action triggered: {} -> {}. Needs manual dispatch or specific integration.", action_type, value);
             },
         }
+    }
+
+    /// Performs a comprehensive self-audit of all integrated AGI components.
+    async fn perform_self_audit(&self, agi_system_auditor: Arc<impl AgiSystemAuditor + 'static>) -> Result<AuditReport> {
+        info!("ALEC-A: Performing full system self-audit...");
+        let mut module_statuses = Vec::new();
+        let mut overall_compliant = true;
+        let mut critical_issues = Vec::new();
+        let mut overall_score = 1.0; // Assume perfect initially
+
+        // Query audit status from each major AGI module via AgiSystemAuditor trait
+        let sorae_status = agi_system_auditor.get_sorae_audit_status().await;
+        module_statuses.push(sorae_status.clone());
+        if !sorae_status.compliant { overall_compliant = false; overall_score -= 0.2; critical_issues.extend(sorae_status.issues_found); }
+
+        let qrctfo_status = agi_system_auditor.get_qrctfo_audit_status().await;
+        module_statuses.push(qrctfo_status.clone());
+        if !qrctfo_status.compliant { overall_compliant = false; overall_score -= 0.3; critical_issues.extend(qrctfo_status.issues_found); }
+
+        let hacse_status = agi_system_auditor.get_hacse_audit_status().await;
+        module_statuses.push(hacse_status.clone());
+        if !hacse_status.compliant { overall_compliant = false; overall_score -= 0.1; critical_issues.extend(hacse_status.issues_found); }
+
+        // Calculate overall score and summary
+        let summary = if overall_compliant {
+            "All audited modules are compliant and operating within ethical and legal boundaries.".to_string()
+        } else {
+            format!("Non-compliance issues detected in {} modules. Critical issues: {:?}", 
+                    module_statuses.iter().filter(|s| !s.compliant).count(), critical_issues)
+        };
+
+        let recommended_system_adjustments = if !overall_compliant {
+            vec!["Prioritize addressing critical compliance issues.".to_string(), "Review and update relevant policies.".to_string()]
+        } else {
+            vec!["Maintain vigilance and continue proactive monitoring.".to_string()]
+        };
+
+        let audit_report = AuditReport {
+            report_id: format!("audit-{}", Uuid::new_v4()),
+            timestamp: Utc::now(),
+            overall_compliant,
+            overall_score: overall_score.max(0.0),
+            summary,
+            module_statuses,
+            critical_issues,
+            recommended_system_adjustments,
+        };
+
+        info!("ALEC-A: Full system audit completed. Overall compliant: {}. Report ID: {}.", audit_report.overall_compliant, audit_report.report_id);
+        // In a real system, this report would be logged, potentially sent to human oversight,
+        // or used to trigger higher-level autonomous adjustments.
+        Ok(audit_report)
     }
 }

@@ -4,6 +4,7 @@
 
 use serde::{Serialize, Deserialize};
 use chrono::{Utc, DateTime};
+use std::collections::HashMap;
 
 /// Represents a specific legal code or regulation.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -82,4 +83,27 @@ pub enum ViolationSeverity {
     High,
     Medium,
     Low,
+}
+
+/// Represents the compliance status of a specific AGI module or component.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ModuleAuditStatus {
+    pub module_name: String,
+    pub compliant: bool,
+    pub issues_found: Vec<String>,
+    pub recommendations: Vec<String>,
+    pub last_audited: DateTime<Utc>,
+}
+
+/// A comprehensive audit report for the entire OMEGA OS / AGI system.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AuditReport {
+    pub report_id: String,
+    pub timestamp: DateTime<Utc>,
+    pub overall_compliant: bool,
+    pub overall_score: f64, // e.g., 0.0-1.0
+    pub summary: String,
+    pub module_statuses: Vec<ModuleAuditStatus>,
+    pub critical_issues: Vec<String>,
+    pub recommended_system_adjustments: Vec<String>, // High-level recommendations
 }
