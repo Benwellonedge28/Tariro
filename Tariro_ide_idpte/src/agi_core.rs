@@ -63,6 +63,7 @@ use crate::cognitive_arch::imagination::ImaginationModule; // Import Imagination
 use crate::cognitive_arch::formal_reasoning::FormalReasoningModule; // Import FormalReasoningModule
 use crate::cognitive_arch::emotion_motivation::EmotionMotivationModule; // Import EmotionMotivationModule
 use crate::cognitive_arch::creativity::CreativityInnovationModule; // Import CreativityInnovationModule
+use crate::omega_os::self_organization::SelfOrganizationModule; // Import SelfOrganizationModule
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -146,8 +147,8 @@ pub struct AgiCoreEngine {
     pub formal_reasoning_module: Arc<FormalReasoningModule>,
     // Cognitive Arch EmotionMotivationModule
     pub emotion_motivation_module: Arc<EmotionMotivationModule>,
-    // Cognitive Arch CreativityInnovationModule
-    pub creativity_innovation_module: Arc<CreativityInnovationModule>,
+    // OMEGA OS SelfOrganizationModule
+    pub self_organization_module: Arc<SelfOrganizationModule>,
     // Receiver for Service Commands from other Orchestrators
     service_command_rx: mpsc::Receiver<ServiceCommand>,
 }
@@ -596,6 +597,42 @@ impl AgiCoreEngine {
         let emm_dummy_service = EmotionMotivationModule::as_os_service();
         service_registry_arc.register_service(emm_dummy_service.clone()).await?;
 
+        // CreativityInnovationModule Dummy
+        struct CreativityInnovationModuleDummy { event_bus: Arc<EventBus> }
+        impl CreativityInnovationModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { CreativityInnovationModuleDummy { event_bus } } }
+        impl CreativityInnovationModuleDummy {
+            async fn generate_novel_solution(&self, _prompt: crate::cognitive_arch::creativity_models::CreativePrompt) -> Result<crate::cognitive_arch::creativity_models::NovelSolution, String> { warn!("Dummy CreativityInnovationModule method called."); Err("Dummy module".to_string()) }
+            async fn assess_originality_and_utility(&self, _solution: &mut crate::cognitive_arch::creativity_models::NovelSolution) -> Result<(), String> { warn!("Dummy CreativityInnovationModule method called."); Ok(()) }
+            async fn secure_ownership_and_rights(&self, _solution_id: &str, _claimant_id: &str, _claim_text: &str) -> Result<crate::cognitive_arch::creativity_models::PatentClaim, String> { warn!("Dummy CreativityInnovationModule method called."); Err("Dummy module".to_string()) }
+        }
+        let creativity_innovation_module_arc_dummy: Arc<CreativityInnovationModule> = Arc::new(CreativityInnovationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            hacse_orchestrator_arc.clone(),
+            common_sense_reasoning_network_arc_dummy.clone(),
+        ));
+        let cim_dummy_service = CreativityInnovationModule::as_os_service();
+        service_registry_arc.register_service(cim_dummy_service.clone()).await?;
+
+        // SelfOrganizationModule Dummy
+        struct SelfOrganizationModuleDummy { event_bus: Arc<EventBus> }
+        impl SelfOrganizationModuleDummy { fn new_dummy(event_bus: Arc<EventBus>) -> Self { SelfOrganizationModuleDummy { event_bus } } }
+        impl SelfOrganizationModuleDummy {
+            async fn monitor_emergent_behavior(&self, _observation_context: &str, _detected_system_changes: Vec<String>) -> Result<crate::omega_os::self_organization_models::EmergentBehaviorPattern, String> { warn!("Dummy SelfOrganizationModule method called."); Err("Dummy module".to_string()) }
+            async fn guide_self_organization(&self, _desired_outcome: &str, _target_components: Vec<String>, _proposed_changes: Vec<String>) -> Result<crate::omega_os::self_organization_models::SelfOrganizationDirective, String> { warn!("Dummy SelfOrganizationModule method called."); Err("Dummy module".to_string()) }
+        }
+        let self_organization_module_arc_dummy: Arc<SelfOrganizationModule> = Arc::new(SelfOrganizationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+        ));
+        let som_dummy_service = SelfOrganizationModule::as_os_service();
+        service_registry_arc.register_service(som_dummy_service.clone()).await?;
+
+
 
         // 3. Fully Initialize Modules (replacing dummies where needed)
         
@@ -729,15 +766,16 @@ impl AgiCoreEngine {
         let frm_service_full = FormalReasoningModule::as_os_service();
         service_registry_arc.register_service(frm_service_full).await?;
 
-        // Initialize EmotionMotivationModule
+        // Re-initialize EmotionMotivationModule
+        service_registry_arc.deregister_service("emotion-motivation-module").await?;
         let emotion_motivation_module_arc = Arc::new(EmotionMotivationModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             theory_of_mind_module_arc.clone(),
         ));
-        let emotion_motivation_module_service = EmotionMotivationModule::as_os_service();
-        service_registry_arc.register_service(emotion_motivation_module_service).await?;
+        let emm_service_full = EmotionMotivationModule::as_os_service();
+        service_registry_arc.register_service(emm_service_full).await?;
 
         // Initialize CreativityInnovationModule
         let creativity_innovation_module_arc = Arc::new(CreativityInnovationModule::new(
@@ -750,6 +788,16 @@ impl AgiCoreEngine {
         ));
         let creativity_innovation_module_service = CreativityInnovationModule::as_os_service();
         service_registry_arc.register_service(creativity_innovation_module_service).await?;
+
+        // Initialize SelfOrganizationModule
+        let self_organization_module_arc = Arc::new(SelfOrganizationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+        ));
+        let self_organization_module_service = SelfOrganizationModule::as_os_service();
+        service_registry_arc.register_service(self_organization_module_service).await?;
 
 
         // Initialize Communication Bridge for IDE
@@ -796,6 +844,7 @@ impl AgiCoreEngine {
             formal_reasoning_module: formal_reasoning_module_arc.clone(), // Assign formal reasoning module
             emotion_motivation_module: emotion_motivation_module_arc.clone(), // Assign emotion motivation module
             creativity_innovation_module: creativity_innovation_module_arc.clone(), // Assign creativity innovation module
+            self_organization_module: self_organization_module_arc.clone(), // Assign self-organization module
             service_command_rx,
         };
         
