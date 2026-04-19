@@ -1,4 +1,4 @@
-// src/agi_core.rs
+// Tariro_ide_idpte/src/agi_core.rs
 
 use tracing::{info, warn};
 use anyhow::Result;
@@ -363,7 +363,8 @@ impl AgiCoreEngine {
         service_registry_arc.register_service(meta_learner_service).await?;
 
         // Initialize Cognitive Architecture CausalReasoningEngine
-        let causal_reasoning_engine_arc = Arc::new(CausalReasoningEngine::new(event_bus_arc.clone()));
+        // The CausalReasoningEngine now takes ALEC-A orchestrator for ethical review of experiments
+        let causal_reasoning_engine_arc = Arc::new(CausalReasoningEngine::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone()));
         // Register CausalReasoningEngine as a service
         let causal_reasoning_engine_service = CausalReasoningEngine::as_os_service();
         service_registry_arc.register_service(causal_reasoning_engine_service).await?;
