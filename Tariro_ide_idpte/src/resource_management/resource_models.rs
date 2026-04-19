@@ -96,3 +96,23 @@ pub enum ComplianceDirective {
     RequestHumanReview(String), // entity_id for review
     Custom(String, String),
 }
+
+/// Represents a dynamic workload priority for a given task.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct WorkloadPriority {
+    pub task_id: String,
+    pub priority_score: u8, // 0-255, higher is more critical
+    pub source: String, // e.g., "ALEC-A_Directive", "User_Request", "SORAEE_Heuristic"
+    pub enforced_until: Option<chrono::DateTime<chrono::Utc>>, // Optional expiration
+}
+
+/// Represents a self-healing action that can be taken by S.O.R.A.E.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum HealingAction {
+    ReallocateResources(String), // task_id to reallocate resources for
+    SuspendTask(String), // task_id to suspend
+    RequestMoreResources(ResourceType, f64), // (resource_type, amount)
+    RestartModule(String), // module_name to restart
+    NotifyHuman(String), // message for human intervention
+    Custom(String, String),
+}
