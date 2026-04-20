@@ -11,186 +11,176 @@ use std::sync::{Arc, Mutex};
 use tracing::{info, warn, error};
 use uuid::Uuid;
 
-use crate::environmental::societal_impact_models::{SocietalImpactPrediction, MitigationStrategy, SocietalFeedbackLoop, ImpactAuditReport};
+use crate::environmental::societal_impact_models::{SocietalImpactScenario, MitigationStrategy, SocietalForecast, ImpactAuditReport};
 use crate::omega_os::event_bus::EventBus;
 use crate::omega_os::service_models::{OsService, ServiceType, ServiceCapability, ServiceStatus};
-use crate::compliance_advisor::orchestrator::AlecaOrchestrator; // For ethical review of predictions and strategies
-use crate::crypto_fabric::orchestrator::QrCtfoOrchestrator; // For secure execution and logging of impact data
-use crate::cognitive_arch::meta_learner::MetaLearner; // For optimizing forecasting and mitigation algorithms
-use crate::forecasting::forecasting::PredictiveForecastingModule; // For core forecasting capabilities
-use crate::environmental::global_knowledge_integration::GlobalKnowledgeIntegrationModule; // For diverse global data
-use crate::compliance_advisor::ethical_forecasting::EthicalForecastingModule; // For ethical impact forecasting
-use crate::cognitive_arch::epistemic_reasoning::EpistemicReasoningModule; // For integrating feedback into knowledge
-use crate::environmental::social_intelligence::SocialIntelligenceModule; // For understanding social dynamics
-use crate::crypto_fabric::decentralized_consensus::DecentralizedConsensusModule; // For transparent auditing
+use crate::compliance_advisor::orchestrator::AlecaOrchestrator; // For ethical review of societal impact predictions
+use crate::crypto_fabric::orchestrator::QrCtfoOrchestrator; // For secure logging of forecasts and strategies
+use crate::cognitive_arch::meta_learner::MetaLearner; // For optimizing forecasting and strategy generation
+use crate::forecasting::forecasting::PredictiveForecastingModule; // For underlying forecasting capabilities
+use crate::cognitive_arch::imagination::ImaginationModule; // For generating diverse scenarios
+use crate::compliance_advisor::ethical_forecasting::EthicalForecastingModule; // For assessing ethical risks
+use crate::environmental::global_knowledge_integration::GlobalKnowledgeIntegrationModule; // For cultural context
 use crate::cognitive_arch::learning_models::VerificationStatus; // Alias for clarity
 
 /// The Societal Impact Forecasting & Mitigation Module.
 pub struct SocietalImpactForecastingModule {
-    impact_predictions: Mutex<HashMap<String, SocietalImpactPrediction>>, // ID -> Prediction
+    societal_impact_scenarios: Mutex<HashMap<String, SocietalImpactScenario>>, // ID -> Scenario
     mitigation_strategies: Mutex<HashMap<String, MitigationStrategy>>, // ID -> Strategy
-    societal_feedback_loops: Mutex<HashMap<String, SocietalFeedbackLoop>>, // ID -> Feedback Loop
+    societal_forecasts: Mutex<HashMap<String, SocietalForecast>>, // ID -> Forecast
     impact_audit_reports: Mutex<HashMap<String, ImpactAuditReport>>, // ID -> Report
     event_bus: Arc<EventBus>,
     aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>,
     qrctfo_orchestrator: Arc<Mutex<QrCtfoOrchestrator>>,
     meta_learner: Arc<MetaLearner>,
     predictive_forecasting_module: Arc<PredictiveForecastingModule>,
-    global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>,
+    imagination_module: Arc<ImaginationModule>,
     ethical_forecasting_module: Arc<EthicalForecastingModule>,
-    epistemic_reasoning_module: Arc<EpistemicReasoningModule>,
-    social_intelligence_module: Arc<SocialIntelligenceModule>,
-    decentralized_consensus_module: Arc<DecentralizedConsensusModule>,
+    global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>,
 }
 
 impl SocietalImpactForecastingModule {
-    pub fn new(event_bus: Arc<EventBus>, aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>, qrctfo_orchestrator: Arc<Mutex<QrCtfoOrchestrator>>, meta_learner: Arc<MetaLearner>, predictive_forecasting_module: Arc<PredictiveForecastingModule>, global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>, ethical_forecasting_module: Arc<EthicalForecastingModule>, epistemic_reasoning_module: Arc<EpistemicReasoningModule>, social_intelligence_module: Arc<SocialIntelligenceModule>, decentralized_consensus_module: Arc<DecentralizedConsensusModule>) -> Self {
+    pub fn new(event_bus: Arc<EventBus>, aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>, qrctfo_orchestrator: Arc<Mutex<QrCtfoOrchestrator>>, meta_learner: Arc<MetaLearner>, predictive_forecasting_module: Arc<PredictiveForecastingModule>, imagination_module: Arc<ImaginationModule>, ethical_forecasting_module: Arc<EthicalForecastingModule>, global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>) -> Self {
         info!("Environmental: Societal Impact Forecasting & Mitigation Module initialized.");
         SocietalImpactForecastingModule {
-            impact_predictions: Mutex::new(HashMap::new()),
+            societal_impact_scenarios: Mutex::new(HashMap::new()),
             mitigation_strategies: Mutex::new(HashMap::new()),
-            societal_feedback_loops: Mutex::new(HashMap::new()),
+            societal_forecasts: Mutex::new(HashMap::new()),
             impact_audit_reports: Mutex::new(HashMap::new()),
             event_bus,
             aleca_orchestrator,
             qrctfo_orchestrator,
             meta_learner,
             predictive_forecasting_module,
-            global_knowledge_integration_module,
+            imagination_module,
             ethical_forecasting_module,
-            epistemic_reasoning_module,
-            social_intelligence_module,
-            decentralized_consensus_module,
+            global_knowledge_integration_module,
         }
     }
 
-    /// Forecasts potential short-term and long-term societal effects (economic, social, cultural, political) of proposed AGI decisions or deployed capabilities.
-    /// Leverages PredictiveForecastingModule and GlobalKnowledgeIntegrationModule.
-    pub async fn predict_agi_societal_impact(&self, decision_or_capability_id: &str, action_summary: &str) -> Result<SocietalImpactPrediction, String> {
-        info!("SIFM: Predicting societal impact for action '{}' (ID: '{}').".to_string(), action_summary, decision_or_capability_id);
+    /// Uses PredictiveForecastingModule and ImaginationModule to create potential long-term societal impacts based on proposed AGI actions.
+    pub async fn generate_societal_scenarios(&self, agi_action_id: &str, proposed_agi_action_summary: &str) -> Result<SocietalImpactScenario, String> {
+        info!("SIFM: Generating societal scenarios for AGI action '{}'. Summary: '{}'.".to_string(), agi_action_id, proposed_agi_action_summary);
         
-        // Use PredictiveForecastingModule for core forecasting (Sub-Task 109.1)
-        let forecast = self.predictive_forecasting_module.generate_forecast(
-            "societal_impact".to_string(),
-            &format!("AGI action: {}. Context from global knowledge: ", action_summary),
+        // Use PredictiveForecastingModule for quantitative societal trends (Sub-Task 109.1)
+        let long_term_trend = self.predictive_forecasting_module.generate_forecast(
+            "societal_wellbeing_index".to_string(),
+            &format!("Impact of AGI action: {}", proposed_agi_action_summary),
             "long_term"
         ).await.map_err(|e| e.to_string())?;
 
-        // Use GlobalKnowledgeIntegrationModule for diverse global data and context (Sub-Task 109.1)
-        let global_insights_summary = self.global_knowledge_integration_module.synthesize_cross_cultural_insights(
-            &format!("Societal context for AGI action: {}", action_summary),
-            vec!["global_cultures".to_string()]
-        ).await.map_err(|e| e.to_string())?.summarized_content;
+        // Use ImaginationModule to create detailed, narrative scenarios (Sub-Task 109.1)
+        let imagined_scenario = self.imagination_module.generate_scenario(
+            &format!("AGI action: {}. Trend: {}.", proposed_agi_action_summary, long_term_trend.predicted_value_or_trend),
+            vec!["long_term_societal_impact".to_string()]
+        ).await.map_err(|e| e.to_string())?;
 
-        // Use MetaLearner to optimize impact prediction algorithms (Sub-Task 109.1)
-        let prediction_algorithm = self.meta_learner.select_algorithm(&crate::cognitive_arch::learning_models::LearningProblem {
-            id: format!("societal_impact_problem_{}", Uuid::new_v4()),
-            name: "Societal Impact Prediction Optimization".to_string(),
-            domain: "social_science_futurism".to_string(),
-            problem_type: "multivariate_forecasting".to_string(),
+        // Use MetaLearner to optimize scenario generation (Sub-Task 109.1)
+        let scenario_algorithm = self.meta_learner.select_algorithm(&crate::cognitive_arch::learning_models::LearningProblem {
+            id: format!("scenario_gen_problem_{}", Uuid::new_v4()),
+            name: "Societal Scenario Generation Optimization".to_string(),
+            domain: "social_forecasting".to_string(),
+            problem_type: "generative_modeling".to_string(),
             complexity_score: 0.95,
-            data_characteristics: HashMap::from([("data_source".to_string(), "global_knowledge_models_forecasts".to_string())]),
-            required_accuracy: 0.8,
+            data_characteristics: HashMap::from([("agi_action_type".to_string(), proposed_agi_action_summary.to_string())]),
+            required_accuracy: 0.9,
             created_at: Utc::now(),
         }).await.map_err(|e| e.to_string())?;
-        info!("SIFM: Using societal impact prediction algorithm: {}.", prediction_algorithm.name);
+        info!("SIFM: Using scenario generation algorithm: {}.", scenario_algorithm.name);
 
-        let prediction_id = format!("impact-pred-{}-{}", decision_or_capability_id, Uuid::new_v4());
-        let mut impact_prediction = SocietalImpactPrediction {
-            id: prediction_id.clone(),
-            decision_or_capability_id: decision_or_capability_id.to_string(),
-            impact_area: "general".to_string(), // Placeholder
-            predicted_effect: format!("Predicted: {}. Global Insights: {}.", forecast.predicted_value_summary, global_insights_summary),
-            severity_score: forecast.predicted_value.abs(), // Assuming forecast value reflects severity
-            likelihood_score: forecast.confidence,
-            predicted_ethical_alignment: VerificationStatus::Pending,
-            security_risk_assessment: VerificationStatus::Pending,
+        let scenario_id = format!("scenario-{}-{}", agi_action_id, Uuid::new_v4());
+        let mut societal_impact_scenario = SocietalImpactScenario {
+            id: scenario_id.clone(),
+            originating_agi_action_id: agi_action_id.to_string(),
+            scenario_summary: imagined_scenario.description,
+            predicted_positive_impacts: vec!["increased_efficiency".to_string()], // Placeholder
+            predicted_negative_impacts: vec!["job_displacement_risk".to_string()], // Placeholder
+            probability: long_term_trend.confidence,
+            time_horizon: "long-term".to_string(),
+            ethical_review_status: VerificationStatus::Pending,
+            security_verified: VerificationStatus::Pending,
             generated_at: Utc::now(),
         };
 
-        // Predicted ethical alignment of the impact (Sub-Task 109.3)
+        // Ethical review of the scenario's predictions (Sub-Task 109.2)
         let aleca_audit = self.aleca_orchestrator.lock().unwrap().request_ethical_review(
-            impact_prediction.id.clone(),
-            "SocietalImpactPrediction".to_string(),
-            format!("Ethical review of predicted societal impact '{}'.", impact_prediction.predicted_effect)
+            societal_impact_scenario.id.clone(),
+            "SocietalImpactScenario".to_string(),
+            format!("Ethical review of generated societal impact scenario '{}'.", societal_impact_scenario.scenario_summary)
         ).await.map_err(|e| e.to_string())?;
-        impact_prediction.predicted_ethical_alignment = if aleca_audit.is_compliant { VerificationStatus::Passed("Predicted impact is ethically acceptable/neutral.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in predicted impact: {:?}", aleca_audit.violation_details)) };
+        societal_impact_scenario.ethical_review_status = if aleca_audit.is_compliant { VerificationStatus::Passed("Scenario predictions are ethically sound.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in scenario predictions: {:?}", aleca_audit.violation_details)) };
 
-        // Security risk of the prediction data via QR-CTFO (Sub-Task 109.2)
+        // Security verification of scenario data integrity via QR-CTFO (Sub-Task 109.3)
         let qrctfo_audit = self.qrctfo_orchestrator.lock().unwrap().request_security_audit(
-            impact_prediction.id.clone(),
-            "SocietalImpactPrediction".to_string(),
-            format!("Audit societal impact prediction data '{}' for security integrity.", impact_prediction.id)
+            societal_impact_scenario.id.clone(),
+            "SocietalImpactScenario".to_string(),
+            format!("Audit societal impact scenario data '{}' for security integrity.", societal_impact_scenario.id)
         ).await.map_err(|e| e.to_string())?;
-        impact_prediction.security_risk_assessment = if qrctfo_audit.is_secure { VerificationStatus::Passed("Prediction data secure.".to_string()) } else { VerificationStatus::Failed(format!("Prediction data security issues: {:?}", qrctfo_audit.vulnerabilities)) };
+        societal_impact_scenario.security_verified = if qrctfo_audit.is_secure { VerificationStatus::Passed("Scenario data integrity verified.".to_string()) } else { VerificationStatus::Failed(format!("Scenario data integrity compromised: {:?}", qrctfo_audit.vulnerabilities)) };
 
-        if matches!(impact_prediction.predicted_ethical_alignment, VerificationStatus::Failed(_)) || matches!(impact_prediction.security_risk_assessment, VerificationStatus::Failed(_)) {
-            error!("SIFM: Societal impact prediction '{}' failed ethical/security review. Aborting.", impact_prediction.id);
-            return Err(format!("Societal impact prediction {} failed ethical/security review.", impact_prediction.id));
+        if matches!(societal_impact_scenario.ethical_review_status, VerificationStatus::Failed(_)) || matches!(societal_impact_scenario.security_verified, VerificationStatus::Failed(_)) {
+            error!("SIFM: Societal impact scenario '{}' failed ethical/security review. Aborting generation.", societal_impact_scenario.id);
+            return Err(format!("Societal impact scenario {} failed ethical/security review.", societal_impact_scenario.id));
         }
 
-        self.impact_predictions.lock().unwrap().insert(prediction_id.clone(), impact_prediction.clone());
-        info!("SIFM: Societal impact for '{}' predicted. Ethical: {:?}, Security: {:?}.", action_summary, impact_prediction.predicted_ethical_alignment, impact_prediction.security_risk_assessment);
-        self.event_bus.publish(EventEnvelope::new("SocietalImpactForecastingModule".to_string(), OsEvent::Custom("SocietalImpactPredicted".to_string(), prediction_id))).await;
-        Ok(impact_prediction)
+        self.societal_impact_scenarios.lock().unwrap().insert(scenario_id.clone(), societal_impact_scenario.clone());
+        info!("SIFM: Societal scenario '{}' generated. Ethical: {:?}, Security: {:?}.", societal_impact_scenario.scenario_summary, societal_impact_scenario.ethical_review_status, societal_impact_scenario.security_verified);
+        self.event_bus.publish(EventEnvelope::new("SocietalImpactForecastingModule".to_string(), OsEvent::Custom("SocietalScenarioGenerated".to_string(), scenario_id))).await;
+        Ok(societal_impact_scenario)
     }
 
-    /// Formulates strategies to minimize negative societal consequences and amplify positive impacts.
-    /// Ensures ethical alignment through ALEC-A and incorporates insights from EthicalForecastingModule.
-    pub async fn develop_mitigation_strategies(&self, prediction: SocietalImpactPrediction) -> Result<MitigationStrategy, String> {
-        info!("SIFM: Developing mitigation strategy for prediction '{}'.".to_string(), prediction.id);
+    /// Evaluates the generated scenarios for potential ethical harms, social inequalities, or unintended consequences.
+    /// Integrates with EthicalForecastingModule and GlobalKnowledgeIntegrationModule.
+    pub async fn assess_ethical_societal_risks(&self, scenario_id: &str) -> Result<MitigationStrategy, String> {
+        info!("SIFM: Assessing ethical societal risks for scenario '{}'.".to_string(), scenario_id);
         
-        // Use EthicalForecastingModule for ethical insights (Sub-Task 109.1)
-        let ethical_consequences = self.ethical_forecasting_module.predict_ethical_consequences(
+        let scenarios_guard = self.societal_impact_scenarios.lock().unwrap();
+        let scenario = scenarios_guard.get(scenario_id).cloned().ok_or(format!("Societal impact scenario {} not found.", scenario_id))?;
+        drop(scenarios_guard);
+
+        // Use EthicalForecastingModule to predict ethical consequences (Sub-Task 109.2)
+        let ethical_prediction = self.ethical_forecasting_module.predict_ethical_consequences(
             crate::compliance_advisor::ethical_forecasting_models::EthicalDilemma {
-                id: format!("dilemma-societal-{}-{}", prediction.id, Uuid::new_v4()),
-                description: format!("Minimizing negative societal impact of AGI action: {}.", prediction.predicted_effect),
+                id: format!("dilemma-scenario-{}-{}", scenario_id, Uuid::new_v4()),
+                description: format!("Potential ethical risks in societal scenario '{}'.", scenario.scenario_summary),
                 involved_entities: vec![], // Placeholder
                 ethical_principles_at_stake: vec![], // Placeholder
                 timestamp: Utc::now(),
             },
-            &prediction.predicted_effect
+            &scenario.scenario_summary
         ).await.map_err(|e| e.to_string())?;
 
-        // Use MetaLearner to optimize strategy generation algorithms (Sub-Task 109.1)
-        let strategy_algorithm = self.meta_learner.select_algorithm(&crate::cognitive_arch::learning_models::LearningProblem {
-            id: format!("mitigation_strategy_problem_{}", Uuid::new_v4()),
-            name: "Societal Impact Mitigation Strategy Optimization".to_string(),
-            domain: "social_engineering_ethics".to_string(),
-            problem_type: "policy_generation_optimization".to_string(),
-            complexity_score: 0.9,
-            data_characteristics: HashMap::from([("predicted_effect_type".to_string(), prediction.impact_area.clone())]),
-            required_accuracy: 0.9,
-            created_at: Utc::now(),
-        }).await.map_err(|e| e.to_string())?;
-        info!("SIFM: Using mitigation strategy generation algorithm: {}.", strategy_algorithm.name);
+        // Use GlobalKnowledgeIntegrationModule for cultural context (Sub-Task 109.2)
+        let relevant_cultural_contexts = self.global_knowledge_integration_module.identify_cultural_nuances_and_biases(
+            scenario_id, &scenario.scenario_summary
+        ).await.ok();
 
-        let strategy_id = format!("mitigation-{}-{}", prediction.id, Uuid::new_v4());
+        let strategy_id = format!("mitigation-{}-{}", scenario_id, Uuid::new_v4());
         let mut mitigation_strategy = MitigationStrategy {
             id: strategy_id.clone(),
-            prediction_id: prediction.id.clone(),
-            strategy_name: format!("Strategy for '{}' impact.", prediction.impact_area),
-            proposed_actions: vec!["review_agi_policy".to_string(), "adjust_communication_strategy".to_string()], // Placeholder
-            expected_outcome: "Reduced negative societal impact, increased positive alignment.".to_string(),
+            scenario_id: scenario_id.to_string(),
+            strategy_name: format!("Mitigation for {}", scenario.originating_agi_action_id),
+            proposed_actions: vec!["enhance_public_education".to_string(), "implement_bias_detection".to_string()], // Placeholder
+            expected_outcome: "Reduced negative societal impacts, increased positive impact.".to_string(),
             ethical_review_status: VerificationStatus::Pending,
             security_review_status: VerificationStatus::Pending,
             approved_by: "Tariro_SIFM".to_string(),
             created_at: Utc::now(),
         };
 
-        // Ethical review of the mitigation strategy (Sub-Task 109.3)
+        // Ethical review of the mitigation strategy (Sub-Task 109.2)
         let aleca_audit = self.aleca_orchestrator.lock().unwrap().request_ethical_review(
             mitigation_strategy.id.clone(),
             "MitigationStrategy".to_string(),
-            format!("Ethical review of societal impact mitigation strategy '{}'.", mitigation_strategy.strategy_name)
+            format!("Ethical review of mitigation strategy '{}'.", mitigation_strategy.strategy_name)
         ).await.map_err(|e| e.to_string())?;
-        mitigation_strategy.ethical_review_status = if aleca_audit.is_compliant { VerificationStatus::Passed("Strategy is ethically sound and responsible.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in strategy: {:?}", aleca_audit.violation_details)) };
+        mitigation_strategy.ethical_review_status = if aleca_audit.is_compliant { VerificationStatus::Passed("Strategy is ethically sound.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in strategy: {:?}", aleca_audit.violation_details)) };
 
-        // Security review of the mitigation strategy via QR-CTFO (Sub-Task 109.2)
+        // Security review of the mitigation strategy via QR-CTFO (Sub-Task 109.3)
         let qrctfo_audit = self.qrctfo_orchestrator.lock().unwrap().request_security_audit(
             mitigation_strategy.id.clone(),
             "MitigationStrategy".to_string(),
-            format!("Audit mitigation strategy '{}' for security vulnerabilities.", mitigation_strategy.id)
+            format!("Audit mitigation strategy '{}' for security vulnerabilities or side-effects.", mitigation_strategy.id)
         ).await.map_err(|e| e.to_string())?;
         mitigation_strategy.security_review_status = if qrctfo_audit.is_secure { VerificationStatus::Passed("Strategy is secure and robust.".to_string()) } else { VerificationStatus::Failed(format!("Strategy security issues: {:?}", qrctfo_audit.vulnerabilities)) };
 
@@ -200,66 +190,71 @@ impl SocietalImpactForecastingModule {
         }
 
         self.mitigation_strategies.lock().unwrap().insert(strategy_id.clone(), mitigation_strategy.clone());
-        info!("SIFM: Societal impact mitigation strategy '{}' developed. Ethical: {:?}, Security: {:?}.", mitigation_strategy.strategy_name, mitigation_strategy.ethical_review_status, mitigation_strategy.security_review_status);
-        self.event_bus.publish(EventEnvelope::new("SocietalImpactForecastingModule".to_string(), OsEvent::Custom("MitigationStrategyDeveloped".to_string(), strategy_id))).await;
+        info!("SIFM: Ethical societal risks for scenario '{}' assessed. Ethical: {:?}, Security: {:?}.", scenario_id, mitigation_strategy.ethical_review_status, mitigation_strategy.security_review_status);
+        self.event_bus.publish(EventEnvelope::new("SocietalImpactForecastingModule".to_string(), OsEvent::Custom("SocietalRisksAssessed".to_string(), scenario_id.to_string()))).await;
         Ok(mitigation_strategy)
     }
 
-    /// Designs and monitors mechanisms for gathering real-world societal feedback on AGI actions.
-    /// Integrates this feedback into future decision-making and policy adjustments.
-    pub async fn establish_societal_feedback_loops(&self, agi_action_id: &str, feedback_mechanism_type: &str) -> Result<SocietalFeedbackLoop, String> {
-        info!("SIFM: Establishing societal feedback loop for AGI action '{}' using mechanism '{}'.".to_string(), agi_action_id, feedback_mechanism_type);
-        
-        // Use EpistemicReasoningModule to integrate feedback into knowledge (Sub-Task 109.1)
-        let _knowledge_update = self.epistemic_reasoning_module.manage_belief_states(
-            &format!("belief_agi_action_{}", agi_action_id),
-            &format!("Received feedback from {}", feedback_mechanism_type),
-            0.7 // Placeholder for feedback strength
-        ).await.ok();
+    /// Develops and optimizes strategies to minimize negative impacts and maximize positive outcomes.
+    /// Leverages MetaLearner.
+    pub async fn propose_mitigation_strategies(&self, scenario_id: &str) -> Result<MitigationStrategy, String> {
+        info!("SIFM: Proposing mitigation strategies for scenario '{}'.", scenario_id);
 
-        // Use SocialIntelligenceModule to process raw social data (Sub-Task 109.1)
-        let social_data_processed = self.social_intelligence_module.learn_social_norms(
-            &format!("Processing public sentiment from {}", feedback_mechanism_type),
-            "global_societal_norms".to_string().as_str()
-        ).await.map_err(|e| e.to_string())?;
+        let scenarios_guard = self.societal_impact_scenarios.lock().unwrap();
+        let scenario = scenarios_guard.get(scenario_id).cloned().ok_or(format!("Societal impact scenario {} not found.", scenario_id))?;
+        drop(scenarios_guard);
 
-        let loop_id = format!("feedback-loop-{}-{}", agi_action_id, Uuid::new_v4());
-        let mut feedback_loop = SocietalFeedbackLoop {
-            id: loop_id.clone(),
-            monitored_agi_action_id: agi_action_id.to_string(),
-            feedback_source_type: feedback_mechanism_type.to_string(),
-            feedback_summary: format!("Initial setup for feedback from {}. Current social data summary: {}.", feedback_mechanism_type, social_data_processed.norm_description),
-            sentiment_score: 0.0, // Placeholder
-            ethical_compliance_assessment: VerificationStatus::Pending,
-            security_verified: VerificationStatus::Pending,
-            last_updated: Utc::now(),
+        // Use MetaLearner to optimize strategy proposal (Sub-Task 109.1)
+        let strategy_algorithm = self.meta_learner.select_algorithm(&crate::cognitive_arch::learning_models::LearningProblem {
+            id: format!("mitigation_strategy_problem_{}", Uuid::new_v4()),
+            name: "Societal Impact Mitigation Strategy Optimization".to_string(),
+            domain: "social_ethics".to_string(),
+            problem_type: "response_generation_optimization".to_string(),
+            complexity_score: 0.9,
+            data_characteristics: HashMap::from([("scenario_type".to_string(), scenario.scenario_summary.to_string())]),
+            required_accuracy: 0.95,
+            created_at: Utc::now(),
+        }).await.map_err(|e| e.to_string())?;
+        info!("SIFM: Using mitigation strategy algorithm: {}.", strategy_algorithm.name);
+
+        let strategy_id = format!("mitigation-{}-{}", scenario_id, Uuid::new_v4());
+        let mut mitigation_strategy = MitigationStrategy {
+            id: strategy_id.clone(),
+            scenario_id: scenario_id.to_string(),
+            strategy_name: format!("Refined mitigation for {}", scenario.originating_agi_action_id),
+            proposed_actions: vec!["re-evaluate_agi_goals".to_string(), "enhance_human_oversight".to_string()], // Placeholder
+            expected_outcome: "Maximized positive societal impact, minimized negative societal impact.".to_string(),
+            ethical_review_status: VerificationStatus::Pending,
+            security_review_status: VerificationStatus::Pending,
+            approved_by: "Tariro_SIFM".to_string(),
+            created_at: Utc::now(),
         };
 
-        // Ethical compliance of feedback gathering (Sub-Task 109.3)
+        // Ethical review of the mitigation strategy (Sub-Task 109.2)
         let aleca_audit = self.aleca_orchestrator.lock().unwrap().request_ethical_review(
-            feedback_loop.id.clone(),
-            "SocietalFeedbackLoop".to_string(),
-            format!("Ethical review of societal feedback loop for '{}'.", agi_action_id)
+            mitigation_strategy.id.clone(),
+            "MitigationStrategy".to_string(),
+            format!("Ethical review of proposed refined mitigation strategy '{}'.", mitigation_strategy.strategy_name)
         ).await.map_err(|e| e.to_string())?;
-        feedback_loop.ethical_compliance_assessment = if aleca_audit.is_compliant { VerificationStatus::Passed("Feedback gathering is ethically compliant.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in feedback gathering: {:?}", aleca_audit.violation_details)) };
+        mitigation_strategy.ethical_review_status = if aleca_audit.is_compliant { VerificationStatus::Passed("Strategy is ethically optimized.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in refined strategy: {:?}", aleca_audit.violation_details)) };
 
-        // Security of feedback data processing via QR-CTFO (Sub-Task 109.2)
+        // Security review of the mitigation strategy via QR-CTFO (Sub-Task 109.3)
         let qrctfo_audit = self.qrctfo_orchestrator.lock().unwrap().request_security_audit(
-            feedback_loop.id.clone(),
-            "SocietalFeedbackLoop".to_string(),
-            format!("Audit societal feedback loop data '{}' for security integrity.", feedback_loop.id)
+            mitigation_strategy.id.clone(),
+            "MitigationStrategy".to_string(),
+            format!("Audit refined mitigation strategy '{}' for security vulnerabilities.", mitigation_strategy.id)
         ).await.map_err(|e| e.to_string())?;
-        feedback_loop.security_verified = if qrctfo_audit.is_secure { VerificationStatus::Passed("Feedback data processing secure.".to_string()) } else { VerificationStatus::Failed(format!("Feedback data processing security issues: {:?}", qrctfo_audit.vulnerabilities)) };
+        mitigation_strategy.security_review_status = if qrctfo_audit.is_secure { VerificationStatus::Passed("Strategy is secure and robust.".to_string()) } else { VerificationStatus::Failed(format!("Strategy security issues: {:?}", qrctfo_audit.vulnerabilities)) };
 
-        if matches!(feedback_loop.ethical_compliance_assessment, VerificationStatus::Failed(_)) || matches!(feedback_loop.security_verified, VerificationStatus::Failed(_)) {
-            error!("SIFM: Societal feedback loop '{}' failed ethical/security review. Aborting setup.", feedback_loop.id);
-            return Err(format!("Feedback loop {} failed ethical/security review.", feedback_loop.id));
+        if matches!(mitigation_strategy.ethical_review_status, VerificationStatus::Failed(_)) || matches!(mitigation_strategy.security_review_status, VerificationStatus::Failed(_)) {
+            error!("SIFM: Refined mitigation strategy '{}' failed ethical/security review. Aborting proposal.", mitigation_strategy.id);
+            return Err(format!("Refined mitigation strategy {} failed ethical/security review.", mitigation_strategy.id));
         }
 
-        self.societal_feedback_loops.lock().unwrap().insert(loop_id.clone(), feedback_loop.clone());
-        info!("SIFM: Societal feedback loop for '{}' established. Ethical: {:?}, Security: {:?}.", agi_action_id, feedback_loop.ethical_compliance_assessment, feedback_loop.security_verified);
-        self.event_bus.publish(EventEnvelope::new("SocietalImpactForecastingModule".to_string(), OsEvent::Custom("SocietalFeedbackLoopEstablished".to_string(), loop_id))).await;
-        Ok(feedback_loop)
+        self.mitigation_strategies.lock().unwrap().insert(strategy_id.clone(), mitigation_strategy.clone());
+        info!("SIFM: Mitigation strategies proposed for scenario '{}'. Ethical: {:?}, Security: {:?}.", scenario_id, mitigation_strategy.ethical_review_status, mitigation_strategy.security_review_status);
+        self.event_bus.publish(EventEnvelope::new("SocietalImpactForecastingModule".to_string(), OsEvent::Custom("MitigationStrategiesProposed".to_string(), strategy_id))).await;
+        Ok(mitigation_strategy)
     }
 
     /// Registers the SocietalImpactForecastingModule itself as an OMEGA OS service.
@@ -270,16 +265,16 @@ impl SocietalImpactForecastingModule {
             description: "Predicts long-term societal effects of AGI actions and develops strategies to minimize negative consequences, fostering responsible development.".to_string(),
             service_type: ServiceType::Environmental,
             capabilities: vec![
-                ServiceCapability { name: "predict_agi_societal_impact".to_string(), description: "Forecasts potential short-term and long-term societal effects of AGI decisions or deployed capabilities, with ethical/security review.".to_string(), parameters: HashMap::new(), output_schema: "SocietalImpactPrediction".to_string(), requires_permissions: vec!["read_agi_actions".to_string(), "read_global_knowledge".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "develop_mitigation_strategies".to_string(), description: "Formulates strategies to minimize negative societal consequences and amplify positive impacts, ensuring ethical alignment.".to_string(), parameters: HashMap::new(), output_schema: "MitigationStrategy".to_string(), requires_permissions: vec!["propose_agi_policies".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "establish_societal_feedback_loops".to_string(), description: "Designs and monitors mechanisms for gathering real-world societal feedback on AGI actions, integrating this feedback into future decision-making and policy adjustments.".to_string(), parameters: HashMap::new(), output_schema: "SocietalFeedbackLoop".to_string(), requires_permissions: vec!["monitor_public_data".to_string(), "adjust_agi_policies".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "audit_societal_alignment".to_string(), description: "Conducts regular audits of Tariro's societal impact, providing transparent and verifiable reports to human oversight.".to_string(), parameters: HashMap::new(), output_schema: "ImpactAuditReport".to_string(), requires_permissions: vec!["read_agi_decision_logs".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "generate_societal_scenarios".to_string(), description: "Uses forecasting and imagination to create potential long-term societal impacts based on proposed AGI actions, with ethical/security review.".to_string(), parameters: HashMap::new(), output_schema: "SocietalImpactScenario".to_string(), requires_permissions: vec!["read_agi_action_plans".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "assess_ethical_societal_risks".to_string(), description: "Evaluates scenarios for ethical harms, social inequalities, or unintended consequences, integrating with ethical forecasting and global knowledge.".to_string(), parameters: HashMap::new(), output_schema: "MitigationStrategy".to_string(), requires_permissions: vec!["read_societal_data".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "propose_mitigation_strategies".to_string(), description: "Develops and optimizes strategies to minimize negative impacts and maximize positive outcomes, with ethical/security review.".to_string(), parameters: HashMap::new(), output_schema: "MitigationStrategy".to_string(), requires_permissions: vec!["propose_agi_policy_changes".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "audit_forecasting_and_mitigation".to_string(), description: "Ensures transparency and accountability of societal impact predictions and mitigation efforts, with ALEC-A oversight and immutable logging.".to_string(), parameters: HashMap::new(), output_schema: "ImpactAuditReport".to_string(), requires_permissions: vec!["read_audit_logs".to_string()], requires_ethical_review: true },
             ],
             status: ServiceStatus::Running,
             registered_at: Utc::now(), 
             last_heartbeat: Utc::now(),
             endpoints: HashMap::new(),
-            dependencies: vec!["os-event-bus".to_string(), "aleca".to_string(), "qr-ctfo".to_string(), "meta-learner".to_string(), "predictive-forecasting-module".to_string(), "global-knowledge-integration-module".to_string(), "ethical-forecasting-module".to_string(), "epistemic-reasoning-module".to_string(), "social-intelligence-module".to_string(), "decentralized-consensus-module".to_string()],
+            dependencies: vec!["os-event-bus".to_string(), "aleca".to_string(), "qr-ctfo".to_string(), "meta-learner".to_string(), "predictive-forecasting-module".to_string(), "imagination-module".to_string(), "ethical-forecasting-module".to_string(), "global-knowledge-integration-module".to_string()],
             managed_by_agi_module: None,
         }
     }
