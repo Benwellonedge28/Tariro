@@ -39,7 +39,11 @@ pub mod prospective_memory_models;
 pub mod prospective_memory;
 pub mod memory_consolidation_models;
 pub mod memory_consolidation;
-pub mod agi_behavior_models; // New module for AGI behavior models
-pub mod agi_behavior_prediction; // New module for AGI Behavior Prediction
+pub mod agi_behavior_models;
+pub mod agi_behavior_prediction;
+pub mod self_awareness_models;
+pub mod self_awareness_introspection;
+pub mod xai_models; // New module for XAI models
+pub mod explainable_ai; // New module for Explainable AI
 
 // Add other cognitive architecture modules here.
