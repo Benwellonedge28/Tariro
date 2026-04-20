@@ -71,8 +71,10 @@ pub mod multi_modal_learning_representation;
 pub mod symbolic_neural_hybrid_reasoning;
 pub mod embodied_learning_skill_acquisition;
 pub mod dynamic_ontological_evolution;
-pub mod metaphorical_mapping_models; // New module for metaphorical mapping models
-pub mod metaphorical_mapping; // New module for Metaphorical Mapping
+pub mod metaphorical_mapping_models;
+pub mod metaphorical_mapping;
+pub mod epistemic_uncertainty_models; // New module for epistemic uncertainty models
+pub mod epistemic_uncertainty_quantification; // New module for Epistemic Uncertainty Quantification
 pub mod emotion_driven_cognitive_prioritization;
 pub mod meta_cognitive_self_regulation;
 pub mod abstract_task_decomposition_synthesis;
