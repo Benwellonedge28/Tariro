@@ -18,6 +18,6 @@ pub mod social_norms_learning;
 pub mod world_modeling_models;
 pub mod collaborative_world_modeling;
 pub mod global_knowledge_integration_synthesis;
-pub mod societal_impact_mitigation; // New module for Societal Impact Forecasting & Mitigation
+pub mod societal_impact_mitigation; // New module for Societal Impact Mitigation
 
 // Add other environmental modules here.
