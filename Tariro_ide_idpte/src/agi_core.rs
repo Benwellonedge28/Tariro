@@ -145,7 +145,7 @@ pub struct AgiCoreEngine {
     pub hierarchical_rl_module: Arc<HierarchicalRLModule>,
     pub lifelong_learning_module: Arc<LifelongLearningModule>,
     pub curiosity_exploration_module: Arc<CuriosityExplorationModule>,
-    pub intuition_heuristic_generator: Arc<IntuitionHeuristicGenerator>,
+    pub intuition_heuristics_generator: Arc<IntuitionHeuristicGenerator>,
     pub metacognition_module: Arc<MetacognitionModule>,
     pub imagination_module: Arc<ImaginationModule>,
     pub formal_reasoning_module: Arc<FormalReasoningModule>,
@@ -185,7 +185,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with ZKP & Privacy-Preserving AI...");
+        info!("Initializing AGI Core Engine with Zero-Knowledge Proofs...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -282,17 +282,7 @@ impl AgiCoreEngine {
         let adaptive_control_module_arc = Arc::new(AdaptiveControlModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), predictive_forecasting_module_arc.clone(), metacognition_dummy.clone(), ethical_forecasting_module_arc.clone(), dynamic_resource_reallocation_module_arc.clone(), self_evolution_module_arc.clone()));
         let predictive_maintenance_module_arc = Arc::new(PredictiveMaintenanceModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), predictive_forecasting_module_arc.clone(), metacognition_dummy.clone(), ethical_forecasting_module_arc.clone(), self_healing_module_arc.clone(), dynamic_resource_reallocation_module_arc.clone()));
         let red_team_simulation_module_arc = Arc::new(RedTeamSimulationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), adversarial_robustness_module_arc.clone(), ImaginationModule::new_dummy(event_bus_arc.clone()), self_healing_module_arc.clone(), self_evolution_module_arc.clone()));
-
-        // Initialize SecureEnclaveModule (Task 104)
-        let secure_enclave_module_arc = Arc::new(SecureEnclaveModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            hardware_security_module_arc.clone(),
-            data_privacy_module_arc.clone(),
-        ));
-        service_registry_arc.register_service(SecureEnclaveModule::as_os_service()).await?;
+        let secure_enclave_module_arc = Arc::new(SecureEnclaveModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), hardware_security_module_arc.clone(), data_privacy_module_arc.clone()));
 
         // Initialize DecentralizedConsensusModule (Task 105)
         let decentralized_consensus_module_arc = Arc::new(DecentralizedConsensusModule::new(
