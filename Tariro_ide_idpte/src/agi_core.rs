@@ -113,7 +113,7 @@ use crate::strategic_planning::hierarchical_planning::HierarchicalPlanningModule
 
 // Import Self-X modules
 use crate::omega_os::adaptive_self_organization::AdaptiveSelfOrganizationModule;
-use crate::omega_os::self_healing_optimization::SelfHealingResilienceOptimizationModule; // Import SelfHealingResilienceOptimizationModule
+use crate::omega_os::self_healing_optimization::SelfHealingResilienceOptimizationModule;
 use crate::omega_os::self_evolution_continuous_improvement::SelfEvolutionContinuousImprovementModule; // Import SelfEvolutionContinuousImprovementModule
 
 // Import Security modules
@@ -280,7 +280,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Empathy & Compassion Enhancement...");
+        info!("Initializing AGI Core Engine with Self-Evolution & Continuous Improvement...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -563,6 +563,7 @@ impl AgiCoreEngine {
             self_modification_agent_arc.clone(),
             ethical_governance_module_arc.clone(),
             secure_enclave_module_arc.clone(),
+            ethical_forecasting_module_arc.clone(),
         ));
         service_registry_arc.register_service(SelfEvolutionContinuousImprovementModule::as_os_service()).await?;
 
@@ -755,7 +756,7 @@ impl AgiCoreEngine {
             social_cognition_theory_of_mind_enhancement_module: social_cognition_theory_of_mind_enhancement_module_arc.clone(), // Assign social cognition & theory of mind enhancement module
             affective_computing_emotional_regulation_module: affective_computing_emotional_regulation_module_arc.clone(), // Assign affective computing & emotional regulation module
             empathy_compassion_enhancement_module: empathy_compassion_enhancement_module_arc.clone(), // Assign empathy & compassion enhancement module
-            adaptive_self_organization_module: Arc::new(AdaptiveSelfOrganizationModule::new_dummy(event_bus_arc.clone())),
+            adaptive_self_organization_module: adaptive_self_organization_module_arc.clone(), // Assign adaptive self-organization module
             self_healing_resilience_optimization_module: Arc::new(SelfHealingResilienceOptimizationModule::new_dummy(event_bus_arc.clone())),
             self_evolution_continuous_improvement_module: Arc::new(SelfEvolutionContinuousImprovementModule::new_dummy(event_bus_arc.clone())),
             security_posture_adaptation_module: Arc::new(SecurityPostureAdaptationModule::new_dummy(event_bus_arc.clone())),
@@ -819,7 +820,6 @@ impl AgiCoreEngine {
             ],
             status: ServiceStatus::Running,
             registered_at: Utc::now(),
-            last_heartbeat: Utc::now(),
             endpoints: HashMap::new(),
             dependencies: vec!["soraee".to_string(), "qr-ctfo".to_string()],
             managed_by_agi_module: None,
