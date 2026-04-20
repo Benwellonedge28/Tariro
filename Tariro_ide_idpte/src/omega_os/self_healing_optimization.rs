@@ -93,7 +93,7 @@ impl SelfHealingResilienceOptimizationModule {
         // Security vulnerabilities exposed by the failure (Sub-Task 142.3)
         let security_audit = self.red_team_simulation_module.run_vulnerability_assessment(
             &format!("Vulnerability assessment for failure in '{}'.", component_id),
-            "failure_induced_vulnerability_scan",
+            "general_problem_domain_security_assessment",
             vec!["data_exposure_risk".to_string(), "privilege_escalation_risk".to_string()]
         ).await.map_err(|e| e.to_string())?;
         failure_report.security_vulnerabilities = security_audit.vulnerabilities_detected;

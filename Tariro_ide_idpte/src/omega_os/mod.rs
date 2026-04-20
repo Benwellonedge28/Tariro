@@ -22,5 +22,7 @@ pub mod adaptive_self_organization_models;
 pub mod adaptive_self_organization;
 pub mod self_healing_models; // New module for self-healing models
 pub mod self_healing_optimization; // New module for Self-Healing & Resilience Optimization
+pub mod self_evolution_models; // New module for self-evolution models
+pub mod self_evolution_continuous_improvement; // New module for Self-Evolution & Continuous Improvement
 
 // Add other OMEGA OS core modules here.
