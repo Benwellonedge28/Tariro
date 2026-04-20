@@ -718,6 +718,21 @@ impl AgiCoreEngine {
         ));
         service_registry_arc.register_service(QuantumSafePostQuantumCryptographyIntegrationModule::as_os_service()).await?;
 
+        // Initialize AdvancedCausalDiscoveryInferenceModule (Task 153)
+        let advanced_causal_discovery_inference_module_arc = Arc::new(AdvancedCausalDiscoveryInferenceModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            causal_reasoning_engine_arc.clone(),
+            self_correction_biases_module_arc.clone(),
+            explainable_ai_module_arc.clone(),
+            moral_reasoning_module_arc.clone(),
+            digital_twin_simulation_module_arc.clone(),
+            epistemic_reasoning_module_arc.clone(),
+        ));
+        service_registry_arc.register_service(AdvancedCausalDiscoveryInferenceModule::as_os_service()).await?;
+
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
             sorae_orchestrator_internal: sorae_orchestrator_arc.clone(),
