@@ -75,9 +75,10 @@ pub mod metaphorical_mapping_models;
 pub mod metaphorical_mapping;
 pub mod epistemic_uncertainty_models;
 pub mod epistemic_uncertainty_quantification;
-pub mod affective_prioritization_models; // New module for affective prioritization models
-pub mod emotion_driven_cognitive_prioritization; // New module for Emotion-Driven Cognitive Prioritization
-pub mod meta_cognitive_self_regulation;
+pub mod affective_prioritization_models;
+pub mod emotion_driven_cognitive_prioritization;
+pub mod meta_cognitive_models; // New module for meta-cognitive models
+pub mod meta_cognitive_self_regulation; // New module for Meta-Cognitive Self-Regulation
 pub mod abstract_task_decomposition_synthesis;
 
 // Add other cognitive architecture modules here.
