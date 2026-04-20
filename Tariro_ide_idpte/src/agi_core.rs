@@ -109,6 +109,7 @@ use crate::cognitive_arch::social_cognition::SocialCognitionTheoryOfMindEnhancem
 use crate::cognitive_arch::affective_regulation::AffectiveComputingEmotionalRegulationModule;
 use crate::cognitive_arch::empathy_compassion::EmpathyCompassionEnhancementModule;
 use crate::cognitive_arch::advanced_causal_discovery::AdvancedCausalDiscoveryInferenceModule; // Import AdvancedCausalDiscoveryInferenceModule
+use crate::cognitive_arch::counterfactual_reasoning::CounterfactualReasoningScenarioPlanningModule; // Import CounterfactualReasoningScenarioPlanningModule
 
 // Import Strategic Planning modules
 use crate::strategic_planning::hierarchical_planning::HierarchicalPlanningModule;
@@ -282,7 +283,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Advanced Causal Discovery & Inference...");
+        info!("Initializing AGI Core Engine with Counterfactual Reasoning & Scenario Planning...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -370,6 +371,7 @@ impl AgiCoreEngine {
         let bio_integration_module_dummy = Arc::new(BioIntegrationModule::new_dummy(event_bus_arc.clone()));
         let autonomous_philanthropy_module_dummy = Arc::new(AutonomousPhilanthropyModule::new_dummy(event_bus_arc.clone()));
         let multi_agent_coordination_module_dummy = Arc::new(MultiAgentCoordinatIonModule::new_dummy(event_bus_arc.clone()));
+        let explainable_ai_module_dummy = Arc::new(ExplainableAIModule::new_dummy(event_bus_arc.clone()));
 
 
         // Full initialization sequence
@@ -732,6 +734,21 @@ impl AgiCoreEngine {
             epistemic_reasoning_module_arc.clone(),
         ));
         service_registry_arc.register_service(AdvancedCausalDiscoveryInferenceModule::as_os_service()).await?;
+
+        // Initialize CounterfactualReasoningScenarioPlanningModule (Task 154)
+        let counterfactual_reasoning_scenario_planning_module_arc = Arc::new(CounterfactualReasoningScenarioPlanningModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            digital_twin_simulation_module_arc.clone(),
+            imagination_dummy.clone(),
+            advanced_causal_discovery_inference_module_arc.clone(),
+            ethical_forecasting_module_arc.clone(),
+            societal_impact_forecasting_mitigation_module_arc.clone(),
+            moral_reasoning_module_arc.clone(),
+        ));
+        service_registry_arc.register_service(CounterfactualReasoningScenarioPlanningModule::as_os_service()).await?;
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
