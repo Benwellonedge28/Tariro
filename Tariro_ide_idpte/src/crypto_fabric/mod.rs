@@ -2,11 +2,10 @@
 
 pub mod orchestrator;
 pub mod communication_adapter;
-pub mod trust_policy_engine;
 pub mod quantum_safe;
-pub mod blockchain_models;
 pub mod decentralized_consensus;
-pub mod zko_models; // New module for zero-knowledge optimization models
-pub mod zero_knowledge_optimization; // New module for Zero-Knowledge Optimization
+pub mod zero_knowledge_proofs;
+pub mod digital_identity_models; // New module for digital identity models
+pub mod quantum_resistant_digital_identity_access_management; // New module for Quantum-Resistant Digital Identity & Access Management
 
-// Add other crypto fabric modules here.
+// Add other crypto-fabric modules here.
