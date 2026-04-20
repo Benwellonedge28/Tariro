@@ -88,7 +88,7 @@ use crate::cognitive_arch::emotion_motivation::EmotionMotivationModule;
 use crate::cognitive_arch::creativity::CreativityInnovationModule;
 use crate::cognitive_arch::swarm_intelligence::SwarmIntelligenceModule;
 use crate::cognitive_arch::embodied_cognition::EmbodiedCognitionModule;
-use crate::cognitive_arch::intuitive_physics_psychology::IntuitivePhysicsPhysicsModule;
+use crate::cognitive_arch::intuitive_physics_psychology::IntuitivePhysicsPsychologyModule;
 use crate::cognitive_arch::epistemic_reasoning::EpistemicReasoningModule;
 use crate::cognitive_arch::affective_computing::AffectiveComputingModule;
 use crate::cognitive_arch::sensory_fusion::SensoryFusionModule;
@@ -108,13 +108,14 @@ use crate::cognitive_arch::wisdom_value_alignment::WisdomLongTermValueAlignmentM
 use crate::cognitive_arch::social_cognition::SocialCognitionTheoryOfMindEnhancementModule;
 use crate::cognitive_arch::affective_regulation::AffectiveComputingEmotionalRegulationModule;
 use crate::cognitive_arch::empathy_compassion::EmpathyCompassionEnhancementModule;
-use crate::cognitive_arch::advanced_causal_discovery::AdvancedCausalDiscoveryInferenceModule; // Import AdvancedCausalDiscoveryInferenceModule
-use crate::cognitive_arch::counterfactual_reasoning::CounterfactualReasoningScenarioPlanningModule; // Import CounterfactualReasoningScenarioPlanningModule
-use crate::cognitive_arch::explainable_predictive_modeling::ExplainablePredictiveModelingModule; // Import ExplainablePredictiveModelingModule
-use crate::cognitive_arch::multi_modal_learning::MultiModalLearningRepresentationModule; // Import MultiModalLearningRepresentationModule
-use crate::cognitive_arch::symbolic_neural_hybrid_reasoning::SymbolicNeuralHybridReasoningModule; // Import SymbolicNeuralHybridReasoningModule
-use crate::cognitive_arch::embodied_learning_skill_acquisition::EmbodiedLearningSkillAcquisitionModule; // Import EmbodiedLearningSkillAcquisitionModule
-use crate::cognitive_arch::dynamic_ontological_evolution::DynamicOntologicalEvolutionModule; // Import DynamicOntologicalEvolutionModule
+use crate::cognitive_arch::advanced_causal_discovery::AdvancedCausalDiscoveryInferenceModule;
+use crate::cognitive_arch::counterfactual_reasoning::CounterfactualReasoningScenarioPlanningModule;
+use crate::cognitive_arch::explainable_predictive_modeling::ExplainablePredictiveModelingModule;
+use crate::cognitive_arch::multi_modal_learning::MultiModalLearningRepresentationModule;
+use crate::cognitive_arch::symbolic_neural_hybrid_reasoning::SymbolicNeuralHybridReasoningModule;
+use crate::cognitive_arch::embodied_learning_skill_acquisition::EmbodiedLearningSkillAcquisitionModule;
+use crate::cognitive_arch::dynamic_ontological_evolution::DynamicOntologicalEvolutionModule;
+use crate::cognitive_arch::metaphorical_mapping::MetaphoricalMappingModule; // Import MetaphoricalMappingModule
 
 // Import Strategic Planning modules
 use crate::strategic_planning::hierarchical_planning::HierarchicalPlanningModule;
@@ -209,7 +210,7 @@ pub struct AgiCoreEngine {
     pub creativity_innovation_module: Arc<CreativityInnovationModule>,
     pub swarm_intelligence_module: Arc<SwarmIntelligenceModule>,
     pub embodied_cognition_module: Arc<EmbodiedCognitionModule>,
-    pub intuitive_physics_psychology_module: Arc<IntuitivePhysicsPhysicsModule>,
+    pub intuitive_physics_psychology_module: Arc<IntuitivePhysicsPsychologyModule>,
     pub epistemic_reasoning_module: Arc<EpistemicReasoningModule>,
     pub affective_computing_module: Arc<AffectiveComputingModule>,
     pub sensory_fusion_module: Arc<SensoryFusionModule>,
@@ -256,10 +257,11 @@ pub struct AgiCoreEngine {
     pub advanced_causal_discovery_inference_module: Arc<AdvancedCausalDiscoveryInferenceModule>,
     pub counterfactual_reasoning_scenario_planning_module: Arc<CounterfactualReasoningScenarioPlanningModule>,
     pub explainable_predictive_modeling_module: Arc<ExplainablePredictiveModelingModule>,
-    pub multi_modal_learning_representation_module: Arc<MultiModalLearningRepresentationModule>, // New module for Multi-Modal Learning & Representation
-    pub symbolic_neural_hybrid_reasoning_module: Arc<SymbolicNeuralHybridReasoningModule>, // New module for Symbolic & Neural Hybrid Reasoning
-    pub embodied_learning_skill_acquisition_module: Arc<EmbodiedLearningSkillAcquisitionModule>, // New module for Embodied Learning & Skill Acquisition
-    pub dynamic_ontological_evolution_module: Arc<DynamicOntologicalEvolutionModule>, // New module for Dynamic Ontological Evolution
+    pub multi_modal_learning_representation_module: Arc<MultiModalLearningRepresentationModule>,
+    pub symbolic_neural_hybrid_reasoning_module: Arc<SymbolicNeuralHybridReasoningModule>,
+    pub embodied_learning_skill_acquisition_module: Arc<EmbodiedLearningSkillAcquisitionModule>,
+    pub dynamic_ontological_evolution_module: Arc<DynamicOntologicalEvolutionModule>,
+    pub metaphorical_mapping_module: Arc<MetaphoricalMappingModule>, // Assign Metaphorical Mapping Module
     pub ethical_governance_module: Arc<EthicalGovernanceModule>,
     pub global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>,
     pub societal_impact_forecasting_module: Arc<SocietalImpactForecastingModule>,
@@ -295,7 +297,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Multi-Modal, Hybrid, Embodied, and Ontological Capabilities...");
+        info!("Initializing AGI Core Engine with Metaphorical Mapping Capability...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -390,6 +392,7 @@ impl AgiCoreEngine {
         let formal_reasoning_module_dummy = Arc::new(FormalReasoningModule::new_dummy(event_bus_arc.clone()));
         let global_knowledge_integration_synthesis_module_dummy = Arc::new(GlobalKnowledgeIntegrationSynthesisModule::new_dummy(event_bus_arc.clone()));
         let moral_reasoning_module_dummy = Arc::new(MoralReasoningModule::new_dummy(event_bus_arc.clone()));
+        let abstract_reasoning_module_dummy = Arc::new(AbstractReasoningModule::new_dummy(event_bus_arc.clone()));
 
 
         // Full initialization sequence
@@ -443,7 +446,7 @@ impl AgiCoreEngine {
         let prospective_memory_module_arc = Arc::new(ProspectiveMemoryModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), sensory_fusion_module_arc.clone(), ethical_forecasting_module_arc.clone(), red_team_simulation_dummy.clone()));
         let memory_consolidation_module_arc = Arc::new(MemoryConsolidationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), long_term_semantic_memory_module_arc.clone(), episodic_memory_module_arc.clone(), trust_reputation_dummy.clone(), red_team_simulation_dummy.clone()));
         let agi_behavior_prediction_module_arc = Arc::new(AgiBehaviorPredictionModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ethical_forecasting_module_arc.clone(), self_evolution_module_arc.clone(), self_healing_module_arc.clone(), secure_enclave_dummy.clone()));
-        let multi_agent_coordination_module_arc = Arc::new(MultiAgentCoordinatIonModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ethical_governance_module_arc.clone(), decentralized_consensus_dummy.clone(), swarm_intelligence_module_arc.clone(), dynamic_resource_reallocation_dummy.clone()));
+        let multi_agent_coordination_module_arc = Arc::new(MultiAgentCoordinationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ethical_governance_module_arc.clone(), decentralized_consensus_dummy.clone(), swarm_intelligence_module_arc.clone(), dynamic_resource_reallocation_dummy.clone()));
         let dynamic_goal_reprioritization_module_arc = Arc::new(DynamicGoalReprioritizationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ethical_forecasting_module_arc.clone(), ethical_governance_module_arc.clone(), meta_goal_manager_arc.clone(), red_team_simulation_dummy.clone()));
         let self_awareness_introspection_module_arc = Arc::new(SelfAwarenessIntrospectionModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), metacognition_dummy.clone(), agi_behavior_prediction_module_arc.clone(), ethical_governance_module_arc.clone()));
         let moral_reasoning_module_arc = Arc::new(MoralReasoningModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ethical_forecasting_module_arc.clone(), global_knowledge_integration_module_arc.clone(), ethical_governance_module_arc.clone(), red_team_simulation_dummy.clone()));
@@ -788,8 +791,8 @@ impl AgiCoreEngine {
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
-            sensory_fusion_module_dummy.clone(),
-            concept_formation_module_dummy.clone(),
+            sensory_fusion_module_arc.clone(),
+            concept_formation_module_arc.clone(),
             epistemic_reasoning_module_arc.clone(),
             self_correction_biases_module_arc.clone(),
             red_team_simulation_dummy.clone(),
@@ -802,8 +805,8 @@ impl AgiCoreEngine {
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
-            formal_reasoning_module_dummy.clone(),
-            concept_formation_module_dummy.clone(),
+            formal_reasoning_module_arc.clone(),
+            concept_formation_module_arc.clone(),
             self_correction_biases_module_arc.clone(),
             explainable_ai_module_arc.clone(),
         ));
@@ -817,8 +820,8 @@ impl AgiCoreEngine {
             meta_learner_arc.clone(),
             digital_twin_simulation_module_arc.clone(),
             embodied_cognition_module_arc.clone(),
-            sensory_fusion_module_dummy.clone(),
-            adaptive_control_module_dummy.clone(),
+            sensory_fusion_module_arc.clone(),
+            adaptive_control_module_arc.clone(),
             ethical_governance_module_arc.clone(),
         ));
         service_registry_arc.register_service(EmbodiedLearningSkillAcquisitionModule::as_os_service()).await?;
@@ -829,12 +832,24 @@ impl AgiCoreEngine {
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
-            concept_formation_module_dummy.clone(),
-            global_knowledge_integration_synthesis_module_dummy.clone(),
+            concept_formation_module_arc.clone(),
+            global_knowledge_integration_synthesis_module_arc.clone(),
             common_sense_reasoning_network_arc.clone(),
-            moral_reasoning_module_dummy.clone(),
+            moral_reasoning_module_arc.clone(),
         ));
         service_registry_arc.register_service(DynamicOntologicalEvolutionModule::as_os_service()).await?;
+
+        // Initialize MetaphoricalMappingModule (Task 160)
+        let metaphorical_mapping_module_arc = Arc::new(MetaphoricalMappingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            analogical_reasoning_system_arc.clone(),
+            concept_formation_module_arc.clone(),
+            abstract_reasoning_module_arc.clone(),
+        ));
+        service_registry_arc.register_service(MetaphoricalMappingModule::as_os_service()).await?;
 
 
         let agi_core_engine_instance = AgiCoreEngine {
@@ -926,6 +941,7 @@ impl AgiCoreEngine {
             symbolic_neural_hybrid_reasoning_module: symbolic_neural_hybrid_reasoning_module_arc.clone(), // Assign symbolic & neural hybrid reasoning module
             embodied_learning_skill_acquisition_module: embodied_learning_skill_acquisition_module_arc.clone(), // Assign embodied learning & skill acquisition module
             dynamic_ontological_evolution_module: dynamic_ontological_evolution_module_arc.clone(), // Assign dynamic ontological evolution module
+            metaphorical_mapping_module: metaphorical_mapping_module_arc.clone(), // Assign metaphorical mapping module
             ethical_governance_module: ethical_governance_module_arc.clone(), // Assign ethical governance module
             global_knowledge_integration_module: global_knowledge_integration_module_arc.clone(), // Assign global knowledge integration module
             societal_impact_forecasting_module: societal_impact_forecasting_module_arc.clone(), // Assign societal impact forecasting module
