@@ -61,7 +61,9 @@ pub mod empathy_models;
 pub mod empathy_compassion;
 pub mod causal_reasoning_models;
 pub mod advanced_causal_discovery;
-pub mod counterfactual_reasoning_models; // New module for counterfactual reasoning models
-pub mod counterfactual_reasoning; // New module for Counterfactual Reasoning & Scenario Planning
+pub mod counterfactual_reasoning_models;
+pub mod counterfactual_reasoning;
+pub mod explainable_predictive_models; // New module for explainable predictive models
+pub mod explainable_predictive_modeling; // New module for Explainable & Trustworthy Predictive Modeling
 
 // Add other cognitive architecture modules here.
