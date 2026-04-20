@@ -151,7 +151,7 @@ pub struct AgiCoreEngine {
     pub hierarchical_rl_module: Arc<HierarchicalRLModule>,
     pub lifelong_learning_module: Arc<LifelongLearningModule>,
     pub curiosity_exploration_module: Arc<CuriosityExplorationModule>,
-    pub intuition_heuristics_generator: Arc<IntuitionHeuristicsGenerator>,
+    pub intuition_heuristics_generator: Arc<IntuitionHeuristicGenerator>,
     pub metacognition_module: Arc<MetacognitionModule>,
     pub imagination_module: Arc<ImaginationModule>,
     pub formal_reasoning_module: Arc<FormalReasoningModule>,
@@ -336,6 +336,19 @@ impl AgiCoreEngine {
             ethical_forecasting_module_arc.clone(),
         ));
         service_registry_arc.register_service(AttentionSalienceModule::as_os_service()).await?;
+
+        // Initialize WorkingMemoryModule (Task 115)
+        let working_memory_module_arc = Arc::new(WorkingMemoryModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            dynamic_resource_reallocation_module_arc.clone(),
+            data_privacy_module_arc.clone(),
+            secure_enclave_module_arc.clone(),
+            red_team_simulation_module_arc.clone(),
+        ));
+        service_registry_arc.register_service(WorkingMemoryModule::as_os_service()).await?;
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
