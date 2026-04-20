@@ -691,7 +691,7 @@ impl AgiCoreEngine {
             qr_ctfo_orchestrator: qr_ctfo_orchestrator_arc.clone(),
             ide_communication_bridge: Arc::new(CommunicationBridge::new_dummy()), // Placeholder
             hacse_prompt_sender,
-            hacse_orchestrator_internal: hacse_orchestrator_arc,
+                        hacse_orchestrator_internal: hacse_orchestrator_arc,
             aleca_orchestrator: aleca_orchestrator_arc.clone(), // Clone for return
             sorae_compliance_directive_sender,
             qrctfo_compliance_directive_sender: qrctfo_compliance_directive_sender_tx,
