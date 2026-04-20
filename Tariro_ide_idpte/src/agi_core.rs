@@ -26,7 +26,7 @@ use crate::crypto_fabric::zero_knowledge_proofs::ZeroKnowledgeProofsModule;
 // Import Communication Bridge
 use crate::communication_bridge::CommunicationBridge;
 use crate::communication_bridge::human_agi_teaming::HumanAGITeamingModule;
-use crate::communication_bridge::human_agi_skill_transfer::HumanAGISkillTransferModule; // Import HumanAGISkillTransferModule
+use crate::communication_bridge::human_agi_skill_transfer::HumanAGISkillTransferModule;
 
 // Import HACSE modules
 use crate::co_creation::orchestrator::{HacseOrchestrator, HacseOptions};
@@ -99,6 +99,7 @@ use crate::cognitive_arch::memory_consolidation::MemoryConsolidationModule;
 use crate::cognitive_arch::agi_behavior_prediction::AgiBehaviorPredictionModule;
 use crate::cognitive_arch::self_awareness_introspection::SelfAwarenessIntrospectionModule;
 use crate::cognitive_arch::explainable_ai::ExplainableAIModule;
+use crate::cognitive_arch::creative_problem_solving::CreativeProblemSolvingModule; // Import CreativeProblemSolvingModule
 
 // Import Strategic Planning modules
 use crate::strategic_planning::hierarchical_planning::HierarchicalPlanningModule;
@@ -125,7 +126,7 @@ use crate::environmental::autonomous_philanthropy::AutonomousPhilanthropyModule;
 use crate::environmental::multi_agent_coordination::MultiAgentCoordinationModule;
 use crate::environmental::proactive_empathy::ProactiveEmpathyModule;
 use crate::environmental::social_norms_learning::SocialNormsLearningModule;
-use crate::environmental::collaborative_world_modeling::CollaborativeWorldModelingModule; // Import CollaborativeWorldModelingModule
+use crate::environmental::collaborative_world_modeling::CollaborativeWorldModelingModule;
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -204,6 +205,7 @@ pub struct AgiCoreEngine {
     pub proactive_empathy_module: Arc<ProactiveEmpathyModule>,
     pub social_norms_learning_module: Arc<SocialNormsLearningModule>,
     pub collaborative_world_modeling_module: Arc<CollaborativeWorldModelingModule>,
+    pub creative_problem_solving_module: Arc<CreativeProblemSolvingModule>,
     pub ethical_governance_module: Arc<EthicalGovernanceModule>,
     pub global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>,
     pub societal_impact_forecasting_module: Arc<SocietalImpactForecastingModule>,
@@ -239,7 +241,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Collaborative World Modeling...");
+        info!("Initializing AGI Core Engine with Creative Problem Solving...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -375,20 +377,23 @@ impl AgiCoreEngine {
         let human_agi_skill_transfer_module_arc = Arc::new(HumanAGISkillTransferModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ethical_governance_module_arc.clone(), self_evolution_module_arc.clone(), global_knowledge_integration_module_arc.clone(), sensory_fusion_module_arc.clone()));
         let proactive_empathy_module_arc = Arc::new(ProactiveEmpathyModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), affective_computing_module_arc.clone(), theory_of_mind_module_arc.clone(), predictive_forecasting_module_arc.clone(), social_intelligence_module_arc.clone(), ethical_forecasting_module_arc.clone(), data_privacy_dummy.clone()));
         let social_norms_learning_module_arc = Arc::new(SocialNormsLearningModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), social_intelligence_module_arc.clone(), global_knowledge_integration_module_arc.clone(), moral_reasoning_module_arc.clone(), ethical_governance_module_arc.clone(), self_correction_biases_module_arc.clone()));
+        let collaborative_world_modeling_module_arc = Arc::new(CollaborativeWorldModelingModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), global_knowledge_integration_module_arc.clone(), multi_agent_coordination_module_arc.clone(), adversarial_robustness_module_arc.clone(), epistemic_reasoning_dummy.clone(), ethical_forecasting_module_arc.clone()));
 
-        // Initialize CollaborativeWorldModelingModule (Task 132)
-        let collaborative_world_modeling_module_arc = Arc::new(CollaborativeWorldModelingModule::new(
+        // Initialize CreativeProblemSolvingModule (Task 133)
+        let creative_problem_solving_module_arc = Arc::new(CreativeProblemSolvingModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
-            global_knowledge_integration_module_arc.clone(),
-            multi_agent_coordination_module_arc.clone(),
-            adversarial_robustness_module_arc.clone(),
+            imagination_dummy.clone(),
+            analogical_dummy.clone(),
+            concept_formation_dummy.clone(),
+            causal_reasoning_engine_arc.clone(),
             epistemic_reasoning_dummy.clone(),
             ethical_forecasting_module_arc.clone(),
+            digital_twin_simulation_module_arc.clone(),
         ));
-        service_registry_arc.register_service(CollaborativeWorldModelingModule::as_os_service()).await?;
+        service_registry_arc.register_service(CreativeProblemSolvingModule::as_os_service()).await?;
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
@@ -452,6 +457,7 @@ impl AgiCoreEngine {
             proactive_empathy_module: proactive_empathy_module_arc.clone(), // Assign proactive empathy module
             social_norms_learning_module: social_norms_learning_module_arc.clone(), // Assign social norms learning module
             collaborative_world_modeling_module: collaborative_world_modeling_module_arc.clone(), // Assign collaborative world modeling module
+            creative_problem_solving_module: creative_problem_solving_module_arc.clone(), // Assign creative problem solving module
             ethical_governance_module: ethical_governance_module_arc.clone(), // Assign ethical governance module
             global_knowledge_integration_module: global_knowledge_integration_module_arc.clone(), // Assign global knowledge integration module
             societal_impact_forecasting_module: societal_impact_forecasting_module_arc.clone(), // Assign societal impact forecasting module
