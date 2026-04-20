@@ -28,7 +28,9 @@ pub mod decentralized_governance_models;
 pub mod decentralized_governance_consensus;
 pub mod quantum_safe_crypto_models;
 pub mod quantum_safe_crypto;
-pub mod social_evolution_models; // New module for social evolution models
-pub mod simulated_social_evolution; // New module for Simulated Social Evolution & Cultural Learning
+pub mod social_evolution_models;
+pub mod simulated_social_evolution;
+pub mod resource_optimization_models; // New module for resource optimization models
+pub mod global_resource_flow_optimization_autonomous_philanthropy; // New module for Global Resource Flow Optimization & Autonomous Philanthropy
 
 // Add other environmental modules here.
