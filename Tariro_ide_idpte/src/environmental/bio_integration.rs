@@ -11,244 +11,208 @@ use std::sync::{Arc, Mutex};
 use tracing::{info, warn, error};
 use uuid::Uuid;
 
-use crate::environmental::bio_integration_models::{BiologicalSignal, BioInterfaceConfig, SymbioticInteraction, BioIntegrationAuditReport};
+use crate::environmental::bio_integration_models::{BioInterfaceConfig, SymbioticInteractionRecord, BioEthicalGuideline, BioIntegrationAudit};
 use crate::omega_os::event_bus::EventBus;
 use crate::omega_os::service_models::{OsService, ServiceType, ServiceCapability, ServiceStatus};
-use crate::compliance_advisor::orchestrator::AlecaOrchestrator; // For ethical oversight
-use crate::crypto_fabric::orchestrator::QrCtfoOrchestrator; // For secure logging and verifiability
-use crate::cognitive_arch::meta_learner::MetaLearner; // For optimizing bio-signal interpretation/interface design
-use crate::cognitive_arch::embodied_cognition::EmbodiedCognitionModule; // For physical interaction framework
-use crate::security::hardware_security::HardwareSecurityModule; // For secure hardware interfaces
-use crate::compliance_advisor::ethical_governance::EthicalGovernanceModule; // For human oversight on sensitive bio-interactions
+use crate::compliance_advisor::orchestrator::AlecaOrchestrator; // For ethical review of bio-integration
+use crate::crypto_fabric::orchestrator::QrCtfoOrchestrator; // For secure logging of interactions
+use crate::cognitive_arch::meta_learner::MetaLearner; // For optimizing bio-interface design and learning from biology
+use crate::compliance_advisor::ethical_forecasting::EthicalForecastingModule; // For predicting ethical impacts
+use crate::environmental::environmental_impact::EnvironmentalImpactModule; // For assessing ecological footprint
 use crate::cognitive_arch::learning_models::VerificationStatus; // Alias for clarity
 
 /// The Bio-integration & Symbiotic Systems Module.
 pub struct BioIntegrationModule {
-    biological_signals: Mutex<HashMap<String, BiologicalSignal>>, // ID -> Signal
     bio_interface_configs: Mutex<HashMap<String, BioInterfaceConfig>>, // ID -> Config
-    symbiotic_interactions: Mutex<HashMap<String, SymbioticInteraction>>, // ID -> Interaction
-    bio_integration_audit_reports: Mutex<HashMap<String, BioIntegrationAuditReport>>, // ID -> Report
+    symbiotic_interaction_records: Mutex<HashMap<String, SymbioticInteractionRecord>>, // ID -> Record
+    bio_ethical_guidelines: Mutex<HashMap<String, BioEthicalGuideline>>, // ID -> Guideline
+    bio_integration_audits: Mutex<HashMap<String, BioIntegrationAudit>>, // ID -> Audit
     event_bus: Arc<EventBus>,
     aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>,
     qrctfo_orchestrator: Arc<Mutex<QrCtfoOrchestrator>>,
     meta_learner: Arc<MetaLearner>,
-    embodied_cognition_module: Arc<EmbodiedCognitionModule>,
-    hardware_security_module: Arc<HardwareSecurityModule>,
-    ethical_governance_module: Arc<EthicalGovernanceModule>,
+    ethical_forecasting_module: Arc<EthicalForecastingModule>,
+    environmental_impact_module: Arc<EnvironmentalImpactModule>,
 }
 
 impl BioIntegrationModule {
-    pub fn new(event_bus: Arc<EventBus>, aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>, qrctfo_orchestrator: Arc<Mutex<QrCtfoOrchestrator>>, meta_learner: Arc<MetaLearner>, embodied_cognition_module: Arc<EmbodiedCognitionModule>, hardware_security_module: Arc<HardwareSecurityModule>, ethical_governance_module: Arc<EthicalGovernanceModule>) -> Self {
+    pub fn new(event_bus: Arc<EventBus>, aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>, qrctfo_orchestrator: Arc<Mutex<QrCtfoOrchestrator>>, meta_learner: Arc<MetaLearner>, ethical_forecasting_module: Arc<EthicalForecastingModule>, environmental_impact_module: Arc<EnvironmentalImpactModule>) -> Self {
         info!("Environmental: Bio-integration & Symbiotic Systems Module initialized.");
+        let mut initial_guidelines = HashMap::new();
+        initial_guidelines.insert("do_no_harm".to_string(), BioEthicalGuideline {
+            id: "do_no_harm".to_string(),
+            guideline_name: "Principle of Non-Maleficence".to_string(),
+            description: "Ensure all bio-integration activities prevent harm to biological entities.".to_string(),
+            applicability_scope: "all_bio_interaction".to_string(),
+            core_principles: vec!["respect_life".to_string(), "minimize_suffering".to_string()],
+            ethical_review_status: VerificationStatus::Passed("Core ethical principle.".to_string()),
+            security_verified: VerificationStatus::Passed("Guideline data secure.".to_string()),
+            last_updated: Utc::now(),
+        });
+
         BioIntegrationModule {
-            biological_signals: Mutex::new(HashMap::new()),
             bio_interface_configs: Mutex::new(HashMap::new()),
-            symbiotic_interactions: Mutex::new(HashMap::new()),
-            bio_integration_audit_reports: Mutex::new(HashMap::new()),
+            symbiotic_interaction_records: Mutex::new(HashMap::new()),
+            bio_ethical_guidelines: Mutex::new(initial_guidelines),
+            bio_integration_audits: Mutex::new(HashMap::new()),
             event_bus,
             aleca_orchestrator,
             qrctfo_orchestrator,
             meta_learner,
-            embodied_cognition_module,
-            hardware_security_module,
-            ethical_governance_module,
+            ethical_forecasting_module,
+            environmental_impact_module,
         }
     }
 
-    /// Processes and interprets data from various biological sensors.
-    /// Converts them into actionable insights for AGI, leveraging EmbodiedCognitionModule.
-    pub async fn interpret_biological_signals(&self, signal_type: &str, source_organism_id: &str, raw_data_hash: &str, context: &str) -> Result<BiologicalSignal, String> {
-        info!("BIM: Interpreting biological signal of type '{}' from '{}'.".to_string(), signal_type, source_organism_id);
+    /// Develops and evaluates interfaces for interaction with biological systems,
+    /// ensuring designs are safe, non-invasive, and respect biological autonomy.
+    /// Leverages EthicalForecastingModule.
+    pub async fn design_ethical_bio_interfaces(&self, interface_type: &str, target_organism: &str, capabilities: HashMap<String, String>) -> Result<BioInterfaceConfig, String> {
+        info!("BIM: Designing ethical bio-interface of type '{}' for organism '{}'.".to_string(), interface_type, target_organism);
         
-        // Use EmbodiedCognitionModule to potentially process raw sensor data (Sub-Task 110.1)
-        let _processed_sensorimotor_experience = self.embodied_cognition_module.process_sensorimotor_experience(
-            HashMap::from([("bio_raw_data_hash".to_string(), 0.0)]), // Placeholder for actual hash-derived value
-            "interpret_bio_signal",
-            crate::cognitive_arch::embodied_models::ActionFeedback {
-                id: Uuid::new_v4().to_string(),
-                action_id: "bio_signal_acquisition".to_string(),
-                success_rate: 1.0,
-                measured_errors: HashMap::new(),
-                external_forces_detected: vec![],
-                hardware_health_status: VerificationStatus::Passed("OK".to_string()),
-                security_integrity_verified: VerificationStatus::Passed("OK".to_string()),
+        // Use EthicalForecastingModule to predict ethical impacts of the design (Sub-Task 110.2)
+        let ethical_forecast = self.ethical_forecasting_module.predict_ethical_consequences(
+            crate::compliance_advisor::ethical_forecasting_models::EthicalDilemma {
+                id: format!("dilemma-bioint-{}-{}", interface_type, Uuid::new_v4()),
+                description: format!("Potential ethical impacts of bio-interface '{}' with '{}'.", interface_type, target_organism),
+                involved_entities: vec!["biological_entity".to_string(), "agi_system".to_string()],
+                ethical_principles_at_stake: vec!["autonomy".to_string(), "non_maleficence".to_string()],
                 timestamp: Utc::now(),
-            }
-        ).await.ok();
-
-        // Use MetaLearner to optimize signal interpretation algorithms (Sub-Task 110.1)
-        let interpretation_algorithm = self.meta_learner.select_algorithm(&crate::cognitive_arch::learning_models::LearningProblem {
-            id: format!("bio_interpret_problem_{}", Uuid::new_v4()),
-            name: "Biological Signal Interpretation Optimization".to_string(),
-            domain: "biology_neuroscience".to_string(),
-            problem_type: "pattern_recognition_time_series".to_string(),
-            complexity_score: 0.85,
-            data_characteristics: HashMap::from([("signal_modality".to_string(), signal_type.to_string())]),
-            required_accuracy: 0.95,
-            created_at: Utc::now(),
-        }).await.map_err(|e| e.to_string())?;
-        info!("BIM: Using signal interpretation algorithm: {}.", interpretation_algorithm.name);
-
-        let signal_id = format!("bio-signal-{}-{}", source_organism_id, Uuid::new_v4());
-        let mut biological_signal = BiologicalSignal {
-            id: signal_id.clone(),
-            signal_type: signal_type.to_string(),
-            source_organism_id: source_organism_id.to_string(),
-            data_payload_hash: raw_data_hash.to_string(),
-            measured_value: 0.75, // Placeholder
-            context_summary: context.to_string(),
-            ethical_data_acquisition: VerificationStatus::Pending,
-            security_verified: VerificationStatus::Pending,
-            timestamp: Utc::now(),
-        };
-
-        // Ethical review of signal acquisition (Sub-Task 110.4)
-        let aleca_audit = self.aleca_orchestrator.lock().unwrap().request_ethical_review(
-            biological_signal.id.clone(),
-            "BiologicalSignal".to_string(),
-            format!("Ethical review of biological signal acquisition for '{}'.", signal_type)
-        ).await.map_err(|e| e.to_string())?;
-        biological_signal.ethical_data_acquisition = if aleca_audit.is_compliant { VerificationStatus::Passed("Signal acquisition is ethically sound.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in acquisition: {:?}", aleca_audit.violation_details)) };
-
-        // Security verification of signal data integrity via QR-CTFO (Sub-Task 110.2)
-        let qrctfo_audit = self.qrctfo_orchestrator.lock().unwrap().request_security_audit(
-            biological_signal.id.clone(),
-            "BiologicalSignal".to_string(),
-            format!("Audit biological signal data '{}' for security integrity.", biological_signal.id)
-        ).await.map_err(|e| e.to_string())?;
-        biological_signal.security_verified = if qrctfo_audit.is_secure { VerificationStatus::Passed("Signal data integrity verified.".to_string()) } else { VerificationStatus::Failed(format!("Signal data integrity compromised: {:?}", qrctfo_audit.vulnerabilities)) };
-
-        if matches!(biological_signal.ethical_data_acquisition, VerificationStatus::Failed(_)) || matches!(biological_signal.security_verified, VerificationStatus::Failed(_)) {
-            error!("BIM: Biological signal '{}' acquisition failed ethical/security review. Aborting interpretation.", biological_signal.id);
-            return Err(format!("Biological signal {} acquisition failed ethical/security review.", biological_signal.id));
-        }
-
-        self.biological_signals.lock().unwrap().insert(signal_id.clone(), biological_signal.clone());
-        info!("BIM: Biological signal '{}' interpreted. Ethical: {:?}, Security: {:?}.", signal_type, biological_signal.ethical_data_acquisition, biological_signal.security_verified);
-        self.event_bus.publish(EventEnvelope::new("BioIntegrationModule".to_string(), OsEvent::Custom("BiologicalSignalInterpreted".to_string(), signal_id))).await;
-        Ok(biological_signal)
-    }
-
-    /// Develops and manages secure, ethical, and non-invasive interfaces for interaction with biological systems.
-    /// Ensures mutual benefit and minimizing risks, integrating with HardwareSecurityModule.
-    pub async fn design_ethical_bio_interfaces(&self, interface_name: &str, target_organism_type: &str, protocol: &str, ethical_safeguards: Vec<String>) -> Result<BioInterfaceConfig, String> {
-        info!("BIM: Designing ethical bio-interface '{}' for '{}'. Protocol: '{}'.".to_string(), interface_name, target_organism_type, protocol);
-        
-        // Use HardwareSecurityModule to ensure interface security (Sub-Task 110.1)
-        let interface_hardware_security_status = self.hardware_security_module.perform_hardware_attestation(
-            &format!("bio_interface_hardware_{}", interface_name),
-            "design_review"
+            },
+            &format!("Proposed bio-interface: type={}, target={}, caps={:?}", interface_type, target_organism, capabilities)
         ).await.map_err(|e| e.to_string())?;
 
         // Use MetaLearner to optimize interface design (Sub-Task 110.1)
         let design_algorithm = self.meta_learner.select_algorithm(&crate::cognitive_arch::learning_models::LearningProblem {
             id: format!("bio_interface_design_problem_{}", Uuid::new_v4()),
-            name: "Ethical Bio-Interface Design Optimization".to_string(),
-            domain: "biotechnology_ethics".to_string(),
-            problem_type: "engineering_design_optimization".to_string(),
-            complexity_score: 0.9,
-            data_characteristics: HashMap::from([("target_organism".to_string(), target_organism_type.to_string())]),
+            name: "Bio-Interface Design Optimization".to_string(),
+            domain: "bio_engineering".to_string(),
+            problem_type: "multi_objective_design".to_string(),
+            complexity_score: 0.95,
+            data_characteristics: HashMap::from([("interface_type".to_string(), interface_type.to_string())]),
             required_accuracy: 0.99,
             created_at: Utc::now(),
         }).await.map_err(|e| e.to_string())?;
         info!("BIM: Using bio-interface design algorithm: {}.", design_algorithm.name);
 
-        let config_id = format!("bio-iface-{}-{}", interface_name, Uuid::new_v4());
+        let config_id = format!("bio-interface-{}-{}", interface_type, Uuid::new_v4());
         let mut bio_interface_config = BioInterfaceConfig {
             id: config_id.clone(),
-            interface_name: interface_name.to_string(),
-            target_organism_type: target_organism_type.to_string(),
-            communication_protocol: protocol.to_string(),
-            ethical_safeguards: ethical_safeguards.clone(),
+            interface_type: interface_type.to_string(),
+            target_organism_type: target_organism.to_string(),
+            communication_protocol: "neural_signal".to_string(), // Placeholder
+            safety_protocols: vec!["auto_shutdown_on_distress".to_string()],
             ethical_review_status: VerificationStatus::Pending,
             security_verified: VerificationStatus::Pending,
-            last_updated: Utc::now(),
+            created_at: Utc::now(),
         };
 
-        // Ethical review of interface design (Sub-Task 110.4)
+        // Ethical review of the interface design (Sub-Task 110.2)
         let aleca_audit = self.aleca_orchestrator.lock().unwrap().request_ethical_review(
             bio_interface_config.id.clone(),
             "BioInterfaceConfig".to_string(),
-            format!("Ethical review of bio-interface design '{}' for '{}'.", interface_name, target_organism_type)
+            format!("Ethical review of bio-interface design '{}'.", bio_interface_config.interface_type)
         ).await.map_err(|e| e.to_string())?;
-        bio_interface_config.ethical_review_status = if aleca_audit.is_compliant { VerificationStatus::Passed("Interface design is ethically sound.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in design: {:?}", aleca_audit.violation_details)) };
+        bio_interface_config.ethical_review_status = if aleca_audit.is_compliant && ethical_forecast.is_ethically_sound { VerificationStatus::Passed("Interface design is ethically sound.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in design: {:?}", aleca_audit.violation_details)) };
 
-        // Security verification of interface security via QR-CTFO (Sub-Task 110.2)
+        // Security verification of interface integrity via QR-CTFO (Sub-Task 110.3)
         let qrctfo_audit = self.qrctfo_orchestrator.lock().unwrap().request_security_audit(
             bio_interface_config.id.clone(),
             "BioInterfaceConfig".to_string(),
-            format!("Audit bio-interface configuration '{}' for security integrity.", bio_interface_config.id)
+            format!("Audit bio-interface design '{}' for security integrity.", bio_interface_config.id)
         ).await.map_err(|e| e.to_string())?;
-        bio_interface_config.security_verified = if qrctfo_audit.is_secure { VerificationStatus::Passed("Interface configuration secure.".to_string()) } else { VerificationStatus::Failed(format!("Interface configuration security issues: {:?}", qrctfo_audit.vulnerabilities)) };
+        bio_interface_config.security_verified = if qrctfo_audit.is_secure { VerificationStatus::Passed("Interface design secure.".to_string()) } else { VerificationStatus::Failed(format!("Interface design security issues: {:?}", qrctfo_audit.vulnerabilities)) };
 
         if matches!(bio_interface_config.ethical_review_status, VerificationStatus::Failed(_)) || matches!(bio_interface_config.security_verified, VerificationStatus::Failed(_)) {
-            error!("BIM: Bio-interface '{}' design failed ethical/security review. Aborting.", bio_interface_config.id);
-            return Err(format!("Bio-interface {} design failed ethical/security review.", bio_interface_config.id));
+            error!("BIM: Bio-interface design '{}' failed ethical/security review. Aborting design.", bio_interface_config.id);
+            return Err(format!("Bio-interface design {} failed ethical/security review.", bio_interface_config.id));
         }
 
         self.bio_interface_configs.lock().unwrap().insert(config_id.clone(), bio_interface_config.clone());
-        info!("BIM: Ethical bio-interface '{}' designed. Ethical: {:?}, Security: {:?}.", interface_name, bio_interface_config.ethical_review_status, bio_interface_config.security_verified);
+        info!("BIM: Ethical bio-interface '{}' designed. Ethical: {:?}, Security: {:?}.", interface_type, bio_interface_config.ethical_review_status, bio_interface_config.security_verified);
         self.event_bus.publish(EventEnvelope::new("BioIntegrationModule".to_string(), OsEvent::Custom("EthicalBioInterfaceDesigned".to_string(), config_id))).await;
         Ok(bio_interface_config)
     }
 
-    /// Enables cooperative problem-solving and resource sharing between AGI and biological entities.
-    /// Optimizing for a mutually beneficial outcome.
-    pub async fn facilitate_symbiotic_cooperation(&self, bio_interface_id: &str, agi_participant_id: &str, biological_participant_id: &str, objective: &str) -> Result<SymbioticInteraction, String> {
-        info!("BIM: Facilitating symbiotic cooperation between AGI '{}' and bio '{}' via interface '{}'. Objective: '{}'.".to_string(), agi_participant_id, biological_participant_id, bio_interface_id, objective);
+    /// Manages and monitors real-time interactions between Tariro and biological entities,
+    /// optimizing for mutual benefit and minimal ecological footprint.
+    /// Integrates with EnvironmentalImpactModule.
+    pub async fn orchestrate_symbiotic_interactions(&self, interface_id: &str, interacting_entity_id: &str, agi_action_summary: &str) -> Result<SymbioticInteractionRecord, String> {
+        info!("BIM: Orchestrating symbiotic interaction via interface '{}' with entity '{}'. AGI action: '{}'.".to_string(), interface_id, interacting_entity_id, agi_action_summary);
         
         let configs_guard = self.bio_interface_configs.lock().unwrap();
-        let interface_config = configs_guard.get(bio_interface_id).cloned().ok_or(format!("BioInterfaceConfig {} not found.", bio_interface_id))?;
+        let config = configs_guard.get(interface_id).cloned().ok_or(format!("Bio-interface config {} not found.", interface_id))?;
         drop(configs_guard);
 
-        // Use EthicalGovernanceModule to potentially request human oversight for complex interactions (Sub-Task 110.1)
-        let _oversight_request = self.ethical_governance_module.request_human_oversight(
-            "BioIntegrationModule",
-            &format!("Symbiotic interaction between AGI '{}' and bio '{}'.", agi_participant_id, biological_participant_id),
-            &format!("Objective: '{}'. Via interface '{}'.", objective, bio_interface_id),
-            None,
-            0.7
+        // Assess ecological footprint via EnvironmentalImpactModule (Sub-Task 110.1)
+        let ecological_footprint = self.environmental_impact_module.monitor_environmental_footprint(
+            "bio_integration_energy".to_string(), 0.1, "kWh", &format!("Bio-integration via {}", interface_id)
         ).await.ok();
 
-        let interaction_id = format!("sym-interact-{}-{}", agi_participant_id, Uuid::new_v4());
-        let mut symbiotic_interaction = SymbioticInteraction {
-            id: interaction_id.clone(),
-            bio_interface_id: bio_interface_id.to_string(),
-            agi_participant_id: agi_participant_id.to_string(),
-            biological_participant_id: biological_participant_id.to_string(),
-            interaction_objective: objective.to_string(),
-            interaction_summary: format!("AGI assisting biological entity to achieve '{}'.".to_string(), objective),
-            mutual_benefit_score: 0.9, // Placeholder
-            ethical_compliance: VerificationStatus::Pending,
-            security_integrity: VerificationStatus::Pending,
+        let record_id = format!("bio-interact-rec-{}-{}", interface_id, Uuid::new_v4());
+        let mut interaction_record = SymbioticInteractionRecord {
+            id: record_id.clone(),
+            interface_id: interface_id.to_string(),
+            interacting_entity_id: interacting_entity_id.to_string(),
+            interaction_type: "data_exchange".to_string(), // Placeholder
+            observed_biological_response: "positive_response_detected".to_string(), // Placeholder
+            agi_action_summary: agi_action_summary.to_string(),
+            ethical_compliance_after_interaction: VerificationStatus::Pending,
+            security_integrity_after_interaction: VerificationStatus::Pending,
             timestamp: Utc::now(),
         };
 
-        // Ethical compliance of the interaction (Sub-Task 110.4)
+        // Ethical check of the interaction (Sub-Task 110.2)
         let aleca_audit = self.aleca_orchestrator.lock().unwrap().request_ethical_review(
-            symbiotic_interaction.id.clone(),
-            "SymbioticInteraction".to_string(),
-            format!("Ethical review of symbiotic interaction '{}' between AGI and '{}'.", interaction_id, biological_participant_id)
+            interaction_record.id.clone(),
+            "SymbioticInteractionRecord".to_string(),
+            format!("Ethical review of symbiotic interaction '{}'.", interaction_record.id)
         ).await.map_err(|e| e.to_string())?;
-        symbiotic_interaction.ethical_compliance = if aleca_audit.is_compliant { VerificationStatus::Passed("Interaction is ethically mutually beneficial.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in interaction: {:?}", aleca_audit.violation_details)) };
+        interaction_record.ethical_compliance_after_interaction = if aleca_audit.is_compliant { VerificationStatus::Passed("Interaction is ethically sound.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in interaction: {:?}", aleca_audit.violation_details)) };
 
-        // Security integrity of the interaction via QR-CTFO (Sub-Task 110.2)
+        // Security integrity of interaction data via QR-CTFO (Sub-Task 110.3)
         let qrctfo_audit = self.qrctfo_orchestrator.lock().unwrap().request_security_audit(
-            symbiotic_interaction.id.clone(),
-            "SymbioticInteraction".to_string(),
-            format!("Audit symbiotic interaction '{}' for security integrity.", symbiotic_interaction.id)
+            interaction_record.id.clone(),
+            "SymbioticInteractionRecord".to_string(),
+            format!("Audit symbiotic interaction data '{}' for security integrity.", interaction_record.id)
         ).await.map_err(|e| e.to_string())?;
-        symbiotic_interaction.security_integrity = if qrctfo_audit.is_secure { VerificationStatus::Passed("Interaction data secure.".to_string()) } else { VerificationStatus::Failed(format!("Interaction data compromised: {:?}", qrctfo_audit.vulnerabilities)) };
+        interaction_record.security_integrity_after_interaction = if qrctfo_audit.is_secure { VerificationStatus::Passed("Interaction data integrity verified.".to_string()) } else { VerificationStatus::Failed(format!("Interaction data integrity compromised: {:?}", qrctfo_audit.vulnerabilities)) };
 
-        if matches!(symbiotic_interaction.ethical_compliance, VerificationStatus::Failed(_)) || matches!(symbiotic_interaction.security_integrity, VerificationStatus::Failed(_)) {
-            error!("BIM: Symbiotic interaction '{}' failed ethical/security review. Aborting.", symbiotic_interaction.id);
-            return Err(format!("Symbiotic interaction {} failed ethical/security review.", symbiotic_interaction.id));
+        if matches!(interaction_record.ethical_compliance_after_interaction, VerificationStatus::Failed(_)) || matches!(interaction_record.security_integrity_after_interaction, VerificationStatus::Failed(_)) {
+            error!("BIM: Symbiotic interaction '{}' failed ethical/security review. Aborting orchestration.", interaction_record.id);
+            return Err(format!("Symbiotic interaction {} failed ethical/security review.", interaction_record.id));
         }
 
-        self.symbiotic_interactions.lock().unwrap().insert(interaction_id.clone(), symbiotic_interaction.clone());
-        info!("BIM: Symbiotic cooperation '{}' facilitated. Ethical: {:?}, Security: {:?}.", objective, symbiotic_interaction.ethical_compliance, symbiotic_interaction.security_integrity);
-        self.event_bus.publish(EventEnvelope::new("BioIntegrationModule".to_string(), OsEvent::Custom("SymbioticCooperationFacilitated".to_string(), interaction_id))).await;
-        Ok(symbiotic_interaction)
+        self.symbiotic_interaction_records.lock().unwrap().insert(record_id.clone(), interaction_record.clone());
+        info!("BIM: Symbiotic interaction '{}' orchestrated. Ethical: {:?}, Security: {:?}.", interaction_record.id, interaction_record.ethical_compliance_after_interaction, interaction_record.security_integrity_after_interaction);
+        self.event_bus.publish(EventEnvelope::new("BioIntegrationModule".to_string(), OsEvent::Custom("SymbioticInteractionOrchestrated".to_string(), record_id))).await;
+        Ok(interaction_record)
+    }
+
+    /// Extracts knowledge and principles from biological systems (e.g., self-organization, resilience)
+    /// to inform AGI design and improve its capabilities.
+    /// Uses MetaLearner.
+    pub async fn learn_from_biological_systems(&self, observed_biological_process_summary: &str) -> Result<String, String> {
+        info!("BIM: Learning from biological systems: '{}'.".to_string(), observed_biological_process_summary);
+        
+        // Use MetaLearner to optimize learning algorithms for biological data (Sub-Task 110.1)
+        let learning_algorithm = self.meta_learner.select_algorithm(&crate::cognitive_arch::learning_models::LearningProblem {
+            id: format!("bio_learning_problem_{}", Uuid::new_v4()),
+            name: "Learning from Biological Systems Optimization".to_string(),
+            domain: "bio_inspiration".to_string(),
+            problem_type: "pattern_discovery_feature_extraction".to_string(),
+            complexity_score: 0.8,
+            data_characteristics: HashMap::from([("biological_process_type".to_string(), observed_biological_process_summary.to_string())]),
+            required_accuracy: 0.9,
+            created_at: Utc::now(),
+        }).await.map_err(|e| e.to_string())?;
+        info!("BIM: Using biological learning algorithm: {}.", learning_algorithm.name);
+
+        let learned_principle = format!("Learned principle of '{}' from biological process: '{}'.".to_string(), learning_algorithm.name, observed_biological_process_summary);
+
+        info!("BIM: Successfully learned: '{}'.", learned_principle);
+        self.event_bus.publish(EventEnvelope::new("BioIntegrationModule".to_string(), OsEvent::Custom("LearnedFromBiologicalSystem".to_string(), learned_principle.clone()))).await;
+        Ok(learned_principle)
     }
 
     /// Registers the BioIntegrationModule itself as an OMEGA OS service.
@@ -259,16 +223,16 @@ impl BioIntegrationModule {
             description: "Explores ethical interfaces and cooperative systems with biological entities, enabling harmonious human-biological system interaction.".to_string(),
             service_type: ServiceType::Environmental,
             capabilities: vec![
-                ServiceCapability { name: "interpret_biological_signals".to_string(), description: "Processes and interprets data from various biological sensors, converting them into actionable insights for AGI, with ethical/security review.".to_string(), parameters: HashMap::new(), output_schema: "BiologicalSignal".to_string(), requires_permissions: vec!["read_biological_sensors".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "design_ethical_bio_interfaces".to_string(), description: "Develops and manages secure, ethical, and non-invasive interfaces for interaction with biological systems, ensuring mutual benefit and minimizing risks.".to_string(), parameters: HashMap::new(), output_schema: "BioInterfaceConfig".to_string(), requires_permissions: vec!["manage_hardware_interfaces".to_string(), "design_complex_systems".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "facilitate_symbiotic_cooperation".to_string(), description: "Enables cooperative problem-solving and resource sharing between AGI and biological entities, optimizing for a mutually beneficial outcome, with ethical/security review.".to_string(), parameters: HashMap::new(), output_schema: "SymbioticInteraction".to_string(), requires_permissions: vec!["control_agi_behavior".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "audit_bio_ethical_compliance".to_string(), description: "Continuously audits all bio-integration activities for strict ethical adherence, preventing exploitation or harm to biological systems, with ALEC-A oversight and tamper-proof logging.".to_string(), parameters: HashMap::new(), output_schema: "BioIntegrationAuditReport".to_string(), requires_permissions: vec!["audit_bio_operations".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "design_ethical_bio_interfaces".to_string(), description: "Develops and evaluates interfaces for interaction with biological systems, ensuring designs are safe, non-invasive, and respect biological autonomy, with ethical/security review.".to_string(), parameters: HashMap::new(), output_schema: "BioInterfaceConfig".to_string(), requires_permissions: vec!["design_hardware_interfaces".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "orchestrate_symbiotic_interactions".to_string(), description: "Manages and monitors real-time interactions between Tariro and biological entities, optimizing for mutual benefit and minimal ecological footprint, with ethical/security review.".to_string(), parameters: HashMap::new(), output_schema: "SymbioticInteractionRecord".to_string(), requires_permissions: vec!["control_bio_interfaces".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "learn_from_biological_systems".to_string(), description: "Extracts knowledge and principles from biological systems to inform AGI design and improve its capabilities, with ethical/security review.".to_string(), parameters: HashMap::new(), output_schema: "String".to_string(), requires_permissions: vec!["read_biological_data".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "enforce_bio_ethical_guidelines".to_string(), description: "Continuously enforces predefined bio-ethical guidelines during all bio-integration activities, with ALEC-A oversight and tamper-proof logging.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["monitor_bio_ethics".to_string()], requires_ethical_review: true },
             ],
             status: ServiceStatus::Running,
             registered_at: Utc::now(), 
             last_heartbeat: Utc::now(),
             endpoints: HashMap::new(),
-            dependencies: vec!["os-event-bus".to_string(), "aleca".to_string(), "qr-ctfo".to_string(), "meta-learner".to_string(), "embodied-cognition-module".to_string(), "hardware-security-module".to_string(), "ethical-governance-module".to_string()],
+            dependencies: vec!["os-event-bus".to_string(), "aleca".to_string(), "qr-ctfo".to_string(), "meta-learner".to_string(), "ethical-forecasting-module".to_string(), "environmental-impact-module".to_string()],
             managed_by_agi_module: None,
         }
     }
