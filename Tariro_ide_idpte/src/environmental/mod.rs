@@ -13,9 +13,9 @@ pub mod multi_agent_models;
 pub mod multi_agent_coordination;
 pub mod empathy_models;
 pub mod proactive_empathy;
-pub mod social_norms_models;
+pub mod social_norm_models;
 pub mod social_norms_learning;
-pub mod world_modeling_models; // New module for world modeling models
+pub mod collaborative_world_models; // New module for collaborative world models
 pub mod collaborative_world_modeling; // New module for Collaborative World Modeling
 
 // Add other environmental modules here.
