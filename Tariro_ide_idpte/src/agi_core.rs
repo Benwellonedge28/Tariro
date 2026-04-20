@@ -281,7 +281,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Universal Interoperability & Omni-Protocol Autonomy...");
+        info!("Initializing AGI Core Engine with Decentralized Governance & Verifiable Consensus...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -439,7 +439,7 @@ impl AgiCoreEngine {
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
             global_knowledge_integration_module_arc.clone(),
-            multi_agent_coordination_module_dummy.clone(),
+            multi_agent_coordination_module_arc.clone(),
             adversarial_robustness_module_arc.clone(),
             epistemic_reasoning_dummy.clone(),
             ethical_forecasting_dummy.clone(),
@@ -691,6 +691,19 @@ impl AgiCoreEngine {
         ));
         service_registry_arc.register_service(UniversalInteroperabilityOmniProtocolAutonomyModule::as_os_service()).await?;
 
+        // Initialize DecentralizedGovernanceVerifiableConsensusModule (Task 151)
+        let decentralized_governance_verifiable_consensus_module_arc = Arc::new(DecentralizedGovernanceVerifiableConsensusModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            decentralized_consensus_dummy.clone(),
+            ethical_governance_module_arc.clone(),
+            zero_knowledge_proofs_module_arc.clone(),
+            multi_agent_coordination_module_arc.clone(),
+        ));
+        service_registry_arc.register_service(DecentralizedGovernanceVerifiableConsensusModule::as_os_service()).await?;
+
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
             sorae_orchestrator_internal: sorae_orchestrator_arc.clone(),
@@ -825,7 +838,6 @@ impl AgiCoreEngine {
             ],
             status: ServiceStatus::Running,
             registered_at: Utc::now(),
-            last_heartbeat: Utc::now(),
             endpoints: HashMap::new(),
             dependencies: vec!["soraee".to_string(), "qr-ctfo".to_string()],
             managed_by_agi_module: None,
