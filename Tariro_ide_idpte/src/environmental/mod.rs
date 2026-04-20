@@ -19,6 +19,8 @@ pub mod world_modeling_models;
 pub mod collaborative_world_modeling;
 pub mod global_knowledge_integration_synthesis;
 pub mod societal_impact_mitigation;
-pub mod bio_integration_symbiotic_design; // New module for Bio-Integration & Symbiotic Design
+pub mod bio_integration_symbiotic_design;
+pub mod autonomous_philanthropy_models; // New module for autonomous philanthropy models
+pub mod autonomous_philanthropy_resource_deployment; // New module for Autonomous Philanthropy & Resource Deployment
 
 // Add other environmental modules here.
