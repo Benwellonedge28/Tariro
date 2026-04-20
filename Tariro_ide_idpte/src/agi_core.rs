@@ -115,7 +115,8 @@ use crate::cognitive_arch::multi_modal_learning::MultiModalLearningRepresentatio
 use crate::cognitive_arch::symbolic_neural_hybrid_reasoning::SymbolicNeuralHybridReasoningModule;
 use crate::cognitive_arch::embodied_learning_skill_acquisition::EmbodiedLearningSkillAcquisitionModule;
 use crate::cognitive_arch::dynamic_ontological_evolution::DynamicOntologicalEvolutionModule;
-use crate::cognitive_arch::metaphorical_mapping::MetaphoricalMappingModule; // Import MetaphoricalMappingModule
+use crate::cognitive_arch::metaphorical_mapping::MetaphoricalMappingModule;
+use crate::cognitive_arch::epistemic_uncertainty_quantification::EpistemicUncertaintyQuantificationModule; // Import EpistemicUncertaintyQuantificationModule
 
 // Import Strategic Planning modules
 use crate::strategic_planning::hierarchical_planning::HierarchicalPlanningModule;
@@ -261,7 +262,8 @@ pub struct AgiCoreEngine {
     pub symbolic_neural_hybrid_reasoning_module: Arc<SymbolicNeuralHybridReasoningModule>,
     pub embodied_learning_skill_acquisition_module: Arc<EmbodiedLearningSkillAcquisitionModule>,
     pub dynamic_ontological_evolution_module: Arc<DynamicOntologicalEvolutionModule>,
-    pub metaphorical_mapping_module: Arc<MetaphoricalMappingModule>, // Assign Metaphorical Mapping Module
+    pub metaphorical_mapping_module: Arc<MetaphoricalMappingModule>,
+    pub epistemic_uncertainty_quantification_module: Arc<EpistemicUncertaintyQuantificationModule>, // Assign Epistemic Uncertainty Module
     pub ethical_governance_module: Arc<EthicalGovernanceModule>,
     pub global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>,
     pub societal_impact_forecasting_module: Arc<SocietalImpactForecastingModule>,
@@ -297,7 +299,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Metaphorical Mapping Capability...");
+        info!("Initializing AGI Core Engine with Epistemic Uncertainty Quantification...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -393,6 +395,7 @@ impl AgiCoreEngine {
         let global_knowledge_integration_synthesis_module_dummy = Arc::new(GlobalKnowledgeIntegrationSynthesisModule::new_dummy(event_bus_arc.clone()));
         let moral_reasoning_module_dummy = Arc::new(MoralReasoningModule::new_dummy(event_bus_arc.clone()));
         let abstract_reasoning_module_dummy = Arc::new(AbstractReasoningModule::new_dummy(event_bus_arc.clone()));
+        let epistemic_reasoning_module_dummy = Arc::new(EpistemicReasoningModule::new_dummy(event_bus_arc.clone()));
 
 
         // Full initialization sequence
@@ -851,6 +854,19 @@ impl AgiCoreEngine {
         ));
         service_registry_arc.register_service(MetaphoricalMappingModule::as_os_service()).await?;
 
+        // Initialize EpistemicUncertaintyQuantificationModule (Task 161)
+        let epistemic_uncertainty_quantification_module_arc = Arc::new(EpistemicUncertaintyQuantificationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            epistemic_reasoning_module_arc.clone(),
+            curiosity_exploration_module_arc.clone(),
+            explainable_ai_module_arc.clone(),
+            data_manager_arc.clone(),
+            self_correction_biases_module_arc.clone(),
+        ));
+        service_registry_arc.register_service(EpistemicUncertaintyQuantificationModule::as_os_service()).await?;
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
@@ -942,6 +958,7 @@ impl AgiCoreEngine {
             embodied_learning_skill_acquisition_module: embodied_learning_skill_acquisition_module_arc.clone(), // Assign embodied learning & skill acquisition module
             dynamic_ontological_evolution_module: dynamic_ontological_evolution_module_arc.clone(), // Assign dynamic ontological evolution module
             metaphorical_mapping_module: metaphorical_mapping_module_arc.clone(), // Assign metaphorical mapping module
+            epistemic_uncertainty_quantification_module: epistemic_uncertainty_quantification_module_arc.clone(), // Assign Epistemic Uncertainty Quantification module
             ethical_governance_module: ethical_governance_module_arc.clone(), // Assign ethical governance module
             global_knowledge_integration_module: global_knowledge_integration_module_arc.clone(), // Assign global knowledge integration module
             societal_impact_forecasting_module: societal_impact_forecasting_module_arc.clone(), // Assign societal impact forecasting module
