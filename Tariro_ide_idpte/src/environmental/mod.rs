@@ -11,7 +11,9 @@ pub mod bio_integration;
 pub mod autonomous_philanthropy;
 pub mod multi_agent_models;
 pub mod multi_agent_coordination;
-pub mod empathy_models; // New module for empathy models
-pub mod proactive_empathy; // New module for Proactive Empathy
+pub mod empathy_models;
+pub mod proactive_empathy;
+pub mod social_norms_models; // New module for social norms models
+pub mod social_norms_learning; // New module for Social Norms Learning
 
 // Add other environmental modules here.
