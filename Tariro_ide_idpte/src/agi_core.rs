@@ -21,7 +21,7 @@ use crate::crypto_fabric::orchestrator::{QrCtfoOrchestrator, QrCtfoOptions};
 use crate::crypto_fabric::communication_adapter::CommunicationChannel;
 use crate::crypto_fabric::quantum_safe::QuantumSafeModule;
 use crate::crypto_fabric::decentralized_consensus::DecentralizedConsensusModule;
-use crate::crypto_fabric::zero_knowledge_optimization::ZeroKnowledgeOptimizationModule; // Import ZeroKnowledgeOptimizationModule
+use crate::crypto_fabric::zero_knowledge_proofs::ZeroKnowledgeProofsModule;
 
 // Import Communication Bridge
 use crate::communication_bridge::CommunicationBridge;
@@ -37,6 +37,7 @@ use crate::compliance_advisor::orchestrator::{AlecaOrchestrator, AlecaOptions};
 use crate::compliance_advisor::legal_framework_models::{ComplianceStatus, ModuleAuditStatus};
 use crate::compliance_advisor::conflict_resolver::ComplianceRemediationAction;
 use crate::compliance_advisor::ethical_forecasting::EthicalForecastingModule;
+use crate::compliance_advisor::ethical_governance::EthicalGovernanceModule; // Import EthicalGovernanceModule
 
 // Import Meta-Goals module
 use crate::agi_meta_goals::MetaGoalManager; 
@@ -156,6 +157,7 @@ pub struct AgiCoreEngine {
     pub intuitive_physics_psychology_module: Arc<IntuitivePhysicsPsychologyModule>,
     pub epistemic_reasoning_module: Arc<EpistemicReasoningModule>,
     pub affective_computing_module: Arc<AffectiveComputingModule>,
+    pub ethical_governance_module: Arc<EthicalGovernanceModule>,
     pub self_organization_module: Arc<SelfOrganizationModule>,
     pub self_healing_module: Arc<SelfHealingModule>,
     pub self_preservation_module: Arc<SelfPreservationModule>,
@@ -165,7 +167,7 @@ pub struct AgiCoreEngine {
     pub red_team_simulation_module: Arc<RedTeamSimulationModule>,
     pub secure_enclave_module: Arc<SecureEnclaveModule>,
     pub decentralized_consensus_module: Arc<DecentralizedConsensusModule>,
-    pub zero_knowledge_optimization_module: Arc<ZeroKnowledgeOptimizationModule>,
+    pub zero_knowledge_proofs_module: Arc<ZeroKnowledgeProofsModule>,
     pub resource_optimization_module: Arc<ResourceOptimizationModule>,
     pub dynamic_resource_reallocation_module: Arc<DynamicResourceReallocationModule>,
     pub predictive_forecasting_module: Arc<PredictiveForecastingModule>,
@@ -185,7 +187,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Zero-Knowledge Optimization...");
+        info!("Initializing AGI Core Engine with Ethical Governance...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -247,7 +249,8 @@ impl AgiCoreEngine {
         let formal_reasoning_dummy = Arc::new(FormalReasoningModule::new_dummy(event_bus_arc.clone()));
         let metacognition_dummy = Arc::new(MetacognitionModule::new_dummy(event_bus_arc.clone()));
         let ethical_forecasting_dummy = Arc::new(EthicalForecastingModule::new_dummy(event_bus_arc.clone()));
-        let quantum_safe_dummy = Arc::new(QuantumSafeModule::new_dummy(event_bus_arc.clone()));
+        let human_agi_teaming_dummy = Arc::new(HumanAGITeamingModule::new_dummy(event_bus_arc.clone()));
+        let decentralized_consensus_dummy = Arc::new(DecentralizedConsensusModule::new_dummy(event_bus_arc.clone()));
 
         // Full initialization sequence
         let lifelong_learning_module_arc = Arc::new(LifelongLearningModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), curiosity_dummy.clone(), concept_formation_dummy.clone(), causal_reasoning_engine_arc.clone(), common_sense_dummy.clone()));
@@ -286,17 +289,26 @@ impl AgiCoreEngine {
         let secure_enclave_module_arc = Arc::new(SecureEnclaveModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), hardware_security_module_arc.clone(), data_privacy_module_arc.clone()));
         let decentralized_consensus_module_arc = Arc::new(DecentralizedConsensusModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_privacy_module_arc.clone(), swarm_intelligence_module_arc.clone(), self_evolution_module_arc.clone()));
 
-        // Initialize ZeroKnowledgeOptimizationModule (Task 106)
-        let zero_knowledge_optimization_module_arc = Arc::new(ZeroKnowledgeOptimizationModule::new(
+        // Initialize ZeroKnowledgeProofsModule (Task 106)
+        let zero_knowledge_proofs_module_arc = Arc::new(ZeroKnowledgeProofsModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
             data_privacy_module_arc.clone(),
-            quantum_safe_module_arc.clone(),
-            secure_enclave_module_arc.clone(),
         ));
-        service_registry_arc.register_service(ZeroKnowledgeOptimizationModule::as_os_service()).await?;
+        service_registry_arc.register_service(ZeroKnowledgeProofsModule::as_os_service()).await?;
+
+        // Initialize EthicalGovernanceModule (Task 107)
+        let ethical_governance_module_arc = Arc::new(EthicalGovernanceModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            human_agi_teaming_module_arc.clone(),
+            decentralized_consensus_module_arc.clone(),
+        ));
+        service_registry_arc.register_service(EthicalGovernanceModule::as_os_service()).await?;
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
@@ -339,6 +351,7 @@ impl AgiCoreEngine {
             intuitive_physics_psychology_module: intuitive_physics_psychology_module_arc.clone(), // Assign intuitive physics psychology module
             epistemic_reasoning_module: epistemic_reasoning_module_arc.clone(), // Assign epistemic reasoning module
             affective_computing_module: affective_computing_module_arc.clone(), // Assign affective computing module
+            ethical_governance_module: ethical_governance_module_arc.clone(), // Assign ethical governance module
             self_organization_module: self_organization_module_arc.clone(), // Assign self-organization module
             self_healing_module: self_healing_module_arc.clone(), // Assign self-healing module
             self_preservation_module: self_preservation_module_arc.clone(), // Assign self-preservation module
@@ -348,7 +361,7 @@ impl AgiCoreEngine {
             red_team_simulation_module: red_team_simulation_module_arc.clone(), // Assign red team simulation module
             secure_enclave_module: secure_enclave_module_arc.clone(), // Assign secure enclave module
             decentralized_consensus_module: decentralized_consensus_module_arc.clone(), // Assign decentralized consensus module
-            zero_knowledge_optimization_module: zero_knowledge_optimization_module_arc.clone(), // Assign zero knowledge optimization module
+            zero_knowledge_proofs_module: zero_knowledge_proofs_module_arc.clone(), // Assign zero knowledge proofs module
             resource_optimization_module: resource_optimization_module_arc.clone(), // Assign resource optimization module
             dynamic_resource_reallocation_module: dynamic_resource_reallocation_module_arc.clone(), // Assign dynamic resource reallocation module
             predictive_forecasting_module: predictive_forecasting_module_arc.clone(), // Assign predictive forecasting module
