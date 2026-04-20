@@ -106,14 +106,14 @@ use crate::cognitive_arch::intuitive_reasoning::IntuitiveReasoningModule;
 use crate::cognitive_arch::wisdom_value_alignment::WisdomLongTermValueAlignmentModule;
 use crate::cognitive_arch::social_cognition::SocialCognitionTheoryOfMindEnhancementModule;
 use crate::cognitive_arch::affective_regulation::AffectiveComputingEmotionalRegulationModule;
-use crate::cognitive_arch::empathy_compassion::EmpathyCompassionEnhancementModule;
+use crate::cognitive_arch::empathy_compassion::EmpathyCompassionEnhancementModule; // Import EmpathyCompassionEnhancementModule
 
 // Import Strategic Planning modules
 use crate::strategic_planning::hierarchical_planning::HierarchicalPlanningModule;
 
 // Import Self-X modules
 use crate::omega_os::adaptive_self_organization::AdaptiveSelfOrganizationModule;
-use crate::omega_os::self_healing_optimization::SelfHealingResilienceOptimizationModule;
+use crate::omega_os::self_healing_optimization::SelfHealingResilienceOptimizationModule; // Import SelfHealingResilienceOptimizationModule
 use crate::omega_os::self_evolution_continuous_improvement::SelfEvolutionContinuousImprovementModule; // Import SelfEvolutionContinuousImprovementModule
 
 // Import Security modules
@@ -187,8 +187,8 @@ pub struct AgiCoreEngine {
     pub meta_learner: Arc<MetaLearner>,
     pub causal_reasoning_engine: Arc<CausalReasoningEngine>,
     pub theory_of_mind_module: Arc<TheoryOfMindModule>,
-    pub analogical_reasoning_system: Arc<AnalogicalReasoningSystem>,
-    pub common_sense_reasoning_network: Arc<CommonSenseReasoningNetwork>,
+    pub analogical_reasoning::AnalogicalReasoningSystem,
+    pub common_sense_reasoning::CommonSenseReasoningNetwork,
     pub concept_formation_module: Arc<ConceptFormationModule>,
     pub hierarchical_rl_module: Arc<HierarchicalRLModule>,
     pub lifelong_learning_module: Arc<LifelongLearningModule>,
@@ -757,7 +757,7 @@ impl AgiCoreEngine {
             affective_computing_emotional_regulation_module: affective_computing_emotional_regulation_module_arc.clone(), // Assign affective computing & emotional regulation module
             empathy_compassion_enhancement_module: empathy_compassion_enhancement_module_arc.clone(), // Assign empathy & compassion enhancement module
             adaptive_self_organization_module: adaptive_self_organization_module_arc.clone(), // Assign adaptive self-organization module
-            self_healing_resilience_optimization_module: Arc::new(SelfHealingResilienceOptimizationModule::new_dummy(event_bus_arc.clone())),
+            self_healing_resilience_optimization_module: self_healing_resilience_optimization_module_arc.clone(), // Assign self-healing & resilience optimization module
             self_evolution_continuous_improvement_module: Arc::new(SelfEvolutionContinuousImprovementModule::new_dummy(event_bus_arc.clone())),
             security_posture_adaptation_module: Arc::new(SecurityPostureAdaptationModule::new_dummy(event_bus_arc.clone())),
             human_agi_teaming_trust_building_module: Arc::new(HumanAGITeamingTrustBuildingModule::new_dummy(event_bus_arc.clone())),
