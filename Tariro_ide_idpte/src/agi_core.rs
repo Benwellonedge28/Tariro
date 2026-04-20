@@ -281,7 +281,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Decentralized Governance & Verifiable Consensus...");
+        info!("Initializing AGI Core Engine with Quantum-Safe Post-Quantum Cryptography Integration...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -704,6 +704,19 @@ impl AgiCoreEngine {
         ));
         service_registry_arc.register_service(DecentralizedGovernanceVerifiableConsensusModule::as_os_service()).await?;
 
+        // Initialize QuantumSafePostQuantumCryptographyIntegrationModule (Task 152)
+        let quantum_safe_post_quantum_cryptography_integration_module_arc = Arc::new(QuantumSafePostQuantumCryptographyIntegrationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            quantum_safe_module_arc.clone(),
+            secure_channel_manager_arc.clone(),
+            data_manager_arc.clone(),
+            data_privacy_dummy.clone(),
+        ));
+        service_registry_arc.register_service(QuantumSafePostQuantumCryptographyIntegrationModule::as_os_service()).await?;
+
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
             sorae_orchestrator_internal: sorae_orchestrator_arc.clone(),
@@ -783,8 +796,8 @@ impl AgiCoreEngine {
             societal_impact_forecasting_mitigation_module: societal_impact_forecasting_mitigation_module_arc.clone(), // Assign societal impact forecasting & mitigation module
             bio_integration_symbiotic_design_module: bio_integration_symbiotic_design_module_arc.clone(), // Assign bio-integration & symbiotic design module
             autonomous_philanthropy_resource_deployment_module: autonomous_philanthropy_resource_deployment_module_arc.clone(), // Assign autonomous philanthropy & resource deployment module
-            universal_interoperability_omni_protocol_autonomy_module: Arc::new(UniversalInteroperabilityOmniProtocolAutonomyModule::new_dummy(event_bus_arc.clone())),
-            decentralized_governance_verifiable_consensus_module: Arc::new(DecentralizedGovernanceVerifiableConsensusModule::new_dummy(event_bus_arc.clone())),
+            universal_interoperability_omni_protocol_autonomy_module: universal_interoperability_omni_protocol_autonomy_module_arc.clone(), // Assign universal interoperability & omni-protocol autonomy module
+            decentralized_governance_verifiable_consensus_module: decentralized_governance_verifiable_consensus_module_arc.clone(), // Assign decentralized governance & verifiable consensus module
             quantum_safe_post_quantum_cryptography_integration_module: Arc::new(QuantumSafePostQuantumCryptographyIntegrationModule::new_dummy(event_bus_arc.clone())),
             ethical_governance_module: ethical_governance_module_arc.clone(), // Assign ethical governance module
             global_knowledge_integration_module: global_knowledge_integration_module_arc.clone(), // Assign global knowledge integration module
