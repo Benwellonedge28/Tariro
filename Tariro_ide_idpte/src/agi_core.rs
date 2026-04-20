@@ -103,7 +103,7 @@ use crate::cognitive_arch::explainable_ai::ExplainableAIModule;
 use crate::cognitive_arch::creative_problem_solving::CreativeProblemSolvingModule;
 use crate::cognitive_arch::abstract_reasoning::AbstractReasoningModule;
 use crate::cognitive_arch::intuitive_reasoning::IntuitiveReasoningModule;
-use crate::cognitive_arch::wisdom_value_alignment::WisdomLongTermValueAlignmentModule; // Import WisdomLongTermValueAlignmentModule
+use crate::cognitive_arch::wisdom_value_alignment::WisdomLongTermValueAlignmentModule;
 use crate::cognitive_arch::social_cognition::SocialCognitionTheoryOfMindEnhancementModule; // Import SocialCognitionTheoryOfMindEnhancementModule
 use crate::cognitive_arch::affective_regulation::AffectiveComputingEmotionalRegulationModule; // Import AffectiveComputingEmotionalRegulationModule
 use crate::cognitive_arch::empathy_compassion::EmpathyCompassionEnhancementModule; // Import EmpathyCompassionEnhancementModule
