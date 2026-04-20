@@ -1,7 +1,7 @@
 // Tariro_ide_idpte/src/environmental/global_knowledge_models.rs
 
 //! Defines data models for Tariro's Global Knowledge Integration & Cross-Cultural Understanding module,
-//! including cultural contexts, knowledge sources, and cross-cultural insights.
+//! including knowledge sources, cultural context models, and synthesis reports.
 
 use serde::{Serialize, Deserialize};
 use chrono::{Utc, DateTime};
@@ -9,59 +9,57 @@ use std::collections::HashMap;
 
 use crate::cognitive_arch::learning_models::VerificationStatus; // For verification statuses
 
-/// Represents specific cultural norms, values, and communication styles.
+/// Represents a source of global knowledge, with metadata on its reliability and cultural origin.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CulturalContext {
+pub struct GlobalKnowledgeSource {
     pub id: String,
-    pub culture_name: String,
-    pub geographic_region: String,
-    pub language_dialect: String,
-    pub key_values: Vec<String>, // e.g., "collectivism", "individualism", "respect_for_elders"
-    pub communication_norms: HashMap<String, String>, // e.g., "directness": "low", "high_context": "true"
-    pub ethical_biases_assessed: VerificationStatus, // New: Ethical bias assessment of the cultural model
-    pub security_verified: VerificationStatus, // New: Security verification of context data
-    pub last_updated: DateTime<Utc>,
-}
-
-/// Metadata about an information source, especially its cultural origin and biases.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct KnowledgeSource {
-    pub id: String,
-    pub source_name: String,
-    pub source_url: Option<String>,
-    pub data_type: String, // e.g., "text", "video", "oral_tradition_record"
-    pub primary_culture_id: String, // ID of the CulturalContext most relevant to this source
-    pub political_leanings_score: f64, // -1.0 (left) to 1.0 (right), 0.0 (neutral)
-    pub factual_accuracy_score: f64, // 0.0 to 1.0, assessed by EpistemicReasoningModule
-    pub ethical_review_status: VerificationStatus, // New: Ethical review of the source's content and origin
-    pub security_integrity: VerificationStatus, // New: Security integrity of source access
+    pub name: String,
+    pub data_type: String, // e.g., "news_feed", "academic_paper", "social_media", "cultural_archive"
+    pub language_locale: String, // e.g., "en-US", "zh-CN", "ar-EG"
+    pub estimated_reliability: f64, // 0.0 to 1.0
+    pub cultural_origin_summary: String,
+    pub ethical_provenance_review: VerificationStatus, // New: Ethical review of knowledge source's origin
+    pub security_verified: VerificationStatus, // New: Security verification of source integrity
     pub last_crawled: DateTime<Utc>,
 }
 
-/// An understanding or conclusion derived from synthesizing knowledge across different cultures.
+/// A model representing the norms, values, and communication styles of a specific culture or group.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CrossCulturalInsight {
+pub struct CulturalContextModel {
     pub id: String,
-    pub insight_summary: String,
-    pub contributing_cultural_contexts: Vec<String>, // IDs of CulturalContexts
-    pub resolved_ambiguity_id: Option<String>, // ID of a related ambiguity resolved
-    pub confidence: f64, // 0.0 to 1.0
-    pub ethical_bias_assessed: VerificationStatus, // New: Ethical bias assessment of the insight
-    pub security_verified: VerificationStatus, // New: Security verification of insight data
+    pub culture_name: String,
+    pub key_values: Vec<String>,
+    pub communication_styles: HashMap<String, String>, // e.g., "directness": "low", "hierarchy_respect": "high"
+    pub observed_behaviors: Vec<String>,
+    pub ethical_bias_assessment: VerificationStatus, // New: Assessment for inherent biases in the model
+    pub security_integrity: VerificationStatus, // New: Security integrity of model data
+    pub last_updated: DateTime<Utc>,
+}
+
+/// A report summarizing synthesized knowledge from multiple global sources.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct KnowledgeSynthesisReport {
+    pub id: String,
+    pub query_context: String,
+    pub synthesized_topic: String,
+    pub summarized_content: String,
+    pub contributing_sources: Vec<String>, // IDs of GlobalKnowledgeSources
+    pub detected_biases: Vec<String>,
+    pub ethical_representation_status: VerificationStatus, // New: Ethical review of knowledge synthesis
+    pub security_integrity_status: VerificationStatus, // New: Security integrity of synthesis process
     pub generated_at: DateTime<Utc>,
 }
 
-/// A report summarizing the audit of global knowledge integration processes.
+/// A report summarizing an audit of cross-cultural interactions and understanding.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct GlobalKnowledgeAudit {
+pub struct CrossCulturalAudit {
     pub id: String,
-    pub scope: String, // e.g., "all_knowledge_sources", "cross_cultural_communication"
-    pub period_start: DateTime<Utc>,
-    pub period_end: DateTime<Utc>,
-    pub total_sources_integrated: u64,
-    pub cultural_biases_detected: Vec<String>,
-    pub ethical_compliance_status: VerificationStatus, // Overall ethical compliance of knowledge integration
-    pub security_integrity_status: VerificationStatus, // Overall security integrity of knowledge bases
+    pub interaction_id: String,
+    pub cultural_context_id: String,
+    pub interaction_summary: String,
+    pub outcome_assessment: String,
+    pub ethical_compliance_status: VerificationStatus, // Overall ethical compliance of cross-cultural interaction
+    pub security_integrity_status: VerificationStatus, // Overall security integrity of interaction data
     pub blockchain_record_hash: String, // New: Tamper-proof hash from QR-CTFO
     pub generated_at: DateTime<Utc>,
 }
