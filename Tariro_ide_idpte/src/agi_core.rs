@@ -110,6 +110,7 @@ use crate::cognitive_arch::affective_regulation::AffectiveComputingEmotionalRegu
 use crate::cognitive_arch::empathy_compassion::EmpathyCompassionEnhancementModule;
 use crate::cognitive_arch::advanced_causal_discovery::AdvancedCausalDiscoveryInferenceModule; // Import AdvancedCausalDiscoveryInferenceModule
 use crate::cognitive_arch::counterfactual_reasoning::CounterfactualReasoningScenarioPlanningModule; // Import CounterfactualReasoningScenarioPlanningModule
+use crate::cognitive_arch::explainable_predictive_modeling::ExplainablePredictiveModelingModule; // Import ExplainablePredictiveModelingModule
 
 // Import Strategic Planning modules
 use crate::strategic_planning::hierarchical_planning::HierarchicalPlanningModule;
@@ -283,7 +284,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Counterfactual Reasoning & Scenario Planning...");
+        info!("Initializing AGI Core Engine with Explainable & Trustworthy Predictive Modeling...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -617,7 +618,7 @@ impl AgiCoreEngine {
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
             human_agi_teaming_dummy.clone(),
-            explainable_ai_module_arc.clone(),
+            explainable_ai_module_dummy.clone(), // Use dummy for ExplainableAIModule for now
             trust_reputation_dummy.clone(),
             social_intelligence_module_arc.clone(),
         ));
@@ -728,7 +729,7 @@ impl AgiCoreEngine {
             meta_learner_arc.clone(),
             causal_reasoning_engine_arc.clone(),
             self_correction_biases_module_arc.clone(),
-            explainable_ai_module_arc.clone(),
+            explainable_ai_module_dummy.clone(), // Use dummy for ExplainableAIModule
             moral_reasoning_module_arc.clone(),
             digital_twin_simulation_module_arc.clone(),
             epistemic_reasoning_module_arc.clone(),
@@ -749,6 +750,20 @@ impl AgiCoreEngine {
             moral_reasoning_module_arc.clone(),
         ));
         service_registry_arc.register_service(CounterfactualReasoningScenarioPlanningModule::as_os_service()).await?;
+
+        // Initialize ExplainablePredictiveModelingModule (Task 155)
+        let explainable_predictive_modeling_module_arc = Arc::new(ExplainablePredictiveModelingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            explainable_ai_module_dummy.clone(), // Use dummy for ExplainableAIModule
+            epistemic_reasoning_module_arc.clone(),
+            predictive_forecasting_module_arc.clone(),
+            ethical_governance_module_arc.clone(),
+            red_team_simulation_dummy.clone(),
+        ));
+        service_registry_arc.register_service(ExplainablePredictiveModelingModule::as_os_service()).await?;
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
