@@ -336,19 +336,7 @@ impl AgiCoreEngine {
         let episodic_memory_module_arc = Arc::new(EpisodicMemoryModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_privacy_module_arc.clone(), secure_enclave_module_arc.clone(), causal_reasoning_engine_arc.clone(), metacognition_dummy.clone()));
         let prospective_memory_module_arc = Arc::new(ProspectiveMemoryModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), sensory_fusion_module_arc.clone(), ethical_forecasting_module_arc.clone(), red_team_simulation_module_arc.clone()));
         let memory_consolidation_module_arc = Arc::new(MemoryConsolidationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), long_term_semantic_memory_module_arc.clone(), episodic_memory_module_arc.clone(), trust_reputation_module_arc.clone(), red_team_simulation_module_arc.clone()));
-
-        // Initialize AgiBehaviorPredictionModule (Task 120)
-        let agi_behavior_prediction_module_arc = Arc::new(AgiBehaviorPredictionModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            ethical_forecasting_module_arc.clone(),
-            self_evolution_module_arc.clone(),
-            self_healing_module_arc.clone(),
-            secure_enclave_module_arc.clone(),
-        ));
-        service_registry_arc.register_service(AgiBehaviorPredictionModule::as_os_service()).await?;
+        let agi_behavior_prediction_module_arc = Arc::new(AgiBehaviorPredictionModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ethical_forecasting_module_arc.clone(), self_evolution_module_arc.clone(), self_healing_module_arc.clone(), secure_enclave_module_arc.clone()));
 
         // Initialize MultiAgentCoordinationModule (Task 121)
         let multi_agent_coordination_module_arc = Arc::new(MultiAgentCoordinationModule::new(
@@ -359,9 +347,22 @@ impl AgiCoreEngine {
             ethical_governance_module_arc.clone(),
             decentralized_consensus_module_arc.clone(),
             swarm_intelligence_module_arc.clone(),
-            dynamic_resource_reallocation_dummy.clone(),
+            dynamic_resource_reallocation_dummy.clone(), // Use dummy for now
         ));
         service_registry_arc.register_service(MultiAgentCoordinationModule::as_os_service()).await?;
+
+        // Initialize DynamicGoalReprioritizationModule (Task 122)
+        let dynamic_goal_reprioritization_module_arc = Arc::new(DynamicGoalReprioritizationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            ethical_forecasting_module_arc.clone(),
+            ethical_governance_module_arc.clone(),
+            meta_goal_manager_arc.clone(),
+            red_team_simulation_module_arc.clone(),
+        ));
+        service_registry_arc.register_service(DynamicGoalReprioritizationModule::as_os_service()).await?;
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
@@ -413,6 +414,7 @@ impl AgiCoreEngine {
             memory_consolidation_module: memory_consolidation_module_arc.clone(), // Assign memory consolidation module
             agi_behavior_prediction_module: agi_behavior_prediction_module_arc.clone(), // Assign AGI behavior prediction module
             multi_agent_coordination_module: multi_agent_coordination_module_arc.clone(), // Assign multi-agent coordination module
+            dynamic_goal_reprioritization_module: dynamic_goal_reprioritization_module_arc.clone(), // Assign dynamic goal reprioritization module
             ethical_governance_module: ethical_governance_module_arc.clone(), // Assign ethical governance module
             global_knowledge_integration_module: global_knowledge_integration_module_arc.clone(), // Assign global knowledge integration module
             societal_impact_forecasting_module: societal_impact_forecasting_module_arc.clone(), // Assign societal impact forecasting module
