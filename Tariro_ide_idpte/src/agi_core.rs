@@ -137,7 +137,7 @@ use crate::environmental::global_knowledge_integration::GlobalKnowledgeIntegrati
 use crate::environmental::societal_impact_forecasting::SocietalImpactForecastingModule;
 use crate::environmental::bio_integration::BioIntegrationModule;
 use crate::environmental::autonomous_philanthropy::AutonomousPhilanthropyModule;
-use crate::environmental::multi_agent_coordination::MultiAgentCoordinatIonModule;
+use crate::environmental::multi_agent_coordination::MultiAgentCoordinationModule;
 use crate::environmental::proactive_empathy::ProactiveEmpathyModule;
 use crate::environmental::social_norms_learning::SocialNormsLearningModule;
 use crate::environmental::collaborative_world_modeling::CollaborativeWorldModelingModule;
@@ -281,7 +281,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Autonomous Philanthropy & Resource Deployment...");
+        info!("Initializing AGI Core Engine with Universal Interoperability & Omni-Protocol Autonomy...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -439,7 +439,7 @@ impl AgiCoreEngine {
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
             global_knowledge_integration_module_arc.clone(),
-            multi_agent_coordination_module_arc.clone(),
+            multi_agent_coordination_module_dummy.clone(),
             adversarial_robustness_module_arc.clone(),
             epistemic_reasoning_dummy.clone(),
             ethical_forecasting_dummy.clone(),
@@ -676,6 +676,20 @@ impl AgiCoreEngine {
         ));
         service_registry_arc.register_service(AutonomousPhilanthropyResourceDeploymentModule::as_os_service()).await?;
 
+        // Initialize UniversalInteroperabilityOmniProtocolAutonomyModule (Task 150)
+        let universal_interoperability_omni_protocol_autonomy_module_arc = Arc::new(UniversalInteroperabilityOmniProtocolAutonomyModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            secure_channel_manager_arc.clone(),
+            network_manager_arc.clone(),
+            quantum_safe_module_arc.clone(),
+            ethical_governance_module_arc.clone(),
+            adaptive_control_module_dummy.clone(),
+            data_privacy_dummy.clone(),
+        ));
+        service_registry_arc.register_service(UniversalInteroperabilityOmniProtocolAutonomyModule::as_os_service()).await?;
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
@@ -755,7 +769,7 @@ impl AgiCoreEngine {
             global_knowledge_integration_synthesis_module: global_knowledge_integration_synthesis_module_arc.clone(), // Assign global knowledge integration & synthesis module
             societal_impact_forecasting_mitigation_module: societal_impact_forecasting_mitigation_module_arc.clone(), // Assign societal impact forecasting & mitigation module
             bio_integration_symbiotic_design_module: bio_integration_symbiotic_design_module_arc.clone(), // Assign bio-integration & symbiotic design module
-            autonomous_philanthropy_resource_deployment_module: Arc::new(AutonomousPhilanthropyResourceDeploymentModule::new_dummy(event_bus_arc.clone())),
+            autonomous_philanthropy_resource_deployment_module: autonomous_philanthropy_resource_deployment_module_arc.clone(), // Assign autonomous philanthropy & resource deployment module
             universal_interoperability_omni_protocol_autonomy_module: Arc::new(UniversalInteroperabilityOmniProtocolAutonomyModule::new_dummy(event_bus_arc.clone())),
             decentralized_governance_verifiable_consensus_module: Arc::new(DecentralizedGovernanceVerifiableConsensusModule::new_dummy(event_bus_arc.clone())),
             quantum_safe_post_quantum_cryptography_integration_module: Arc::new(QuantumSafePostQuantumCryptographyIntegrationModule::new_dummy(event_bus_arc.clone())),
