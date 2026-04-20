@@ -22,6 +22,7 @@ use crate::crypto_fabric::communication_adapter::CommunicationChannel;
 use crate::crypto_fabric::quantum_safe::QuantumSafeModule;
 use crate::crypto_fabric::decentralized_consensus::DecentralizedConsensusModule;
 use crate::crypto_fabric::zero_knowledge_proofs::ZeroKnowledgeProofsModule;
+use crate::crypto_fabric::quantum_resistant_digital_identity_access_management::QuantumResistantDigitalIdentityAccessManagementModule; // Import QuantumResistantDigitalIdentityAccessManagementModule
 
 // Import Communication Bridge
 use crate::communication_bridge::CommunicationBridge;
@@ -220,8 +221,8 @@ pub struct AgiCoreEngine {
     pub meta_learner: Arc<MetaLearner>,
     pub causal_reasoning_engine: Arc<CausalReasoningEngine>,
     pub theory_of_mind_module: Arc<TheoryOfMindModule>,
-    pub analogical_reasoning_system: Arc<AnalogicalReasoningSystem>,
-    pub common_sense_reasoning_network: Arc<CommonSenseReasoningNetwork>,
+    pub analogical_reasoning::AnalogicalReasoningSystem,
+    pub common_sense_reasoning::CommonSenseReasoningNetwork,
     pub concept_formation_module: Arc<ConceptFormationModule>,
     pub hierarchical_rl_module: Arc<HierarchicalRLModule>,
     pub lifelong_learning_module: Arc<LifelongLearningModule>,
@@ -287,7 +288,7 @@ pub struct AgiCoreEngine {
     pub dynamic_ontological_evolution_module: Arc<DynamicOntologicalEvolutionModule>,
     pub metaphorical_mapping_module: Arc<MetaphoricalMappingModule>,
     pub epistemic_uncertainty_quantification_module: Arc<EpistemicUncertaintyQuantificationModule>,
-    pub emotion_driven_cognitive_prioritization::EmotionDrivenCognitivePrioritizationModule,
+    pub emotion_driven_cognitive_prioritization_module: Arc<EmotionDrivenCognitivePrioritizationModule>,
     pub meta_cognitive_self_regulation_module: Arc<MetaCognitiveSelfRegulationModule>,
     pub abstract_task_decomposition_module: Arc<AbstractTaskDecompositionModule>,
     pub intuitive_physics_psychology_integration_module: Arc<IntuitivePhysicsPsychologyIntegrationModule>,
@@ -308,6 +309,7 @@ pub struct AgiCoreEngine {
     pub real_time_threat_intelligence_fusion_adaptive_defense_module: Arc<RealTimeThreatIntelligenceFusionAdaptiveDefenseModule>,
     pub explainable_security_decision_making_auditability_module: Arc<ExplainableSecurityDecisionMakingAuditabilityModule>, // New module for Explainable Security Decision Making & Auditability
     pub cognitive_integrity_anti_corruption_module: Arc<CognitiveIntegrityAntiCorruptionModule>, // New module for Cognitive Integrity & Anti-Corruption Mechanisms
+    pub quantum_resistant_digital_identity_access_management_module: Arc<QuantumResistantDigitalIdentityAccessManagementModule>, // New module for Quantum-Resistant Digital Identity & Access Management
     pub ethical_governance_module: Arc<EthicalGovernanceModule>,
     pub global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>,
     pub societal_impact_forecasting_module: Arc<SocietalImpactForecastingModule>,
@@ -342,7 +344,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Explainable Security Decision Making & Auditability...");
+        info!("Initializing AGI Core Engine with Quantum-Resistant Digital Identity & Access Management...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -477,6 +479,7 @@ impl AgiCoreEngine {
         let social_intelligence_module_arc = Arc::new(SocialIntelligenceModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), lifelong_learning_module_arc.clone(), theory_of_mind_module_arc.clone()));
         let swarm_intelligence_module_arc = Arc::new(SwarmIntelligenceModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), secure_channel_manager_arc.clone(), resource_optimization_module_arc.clone(), self_organization_module_arc.clone()));
         let embodied_cognition_module_arc = Arc::new(EmbodiedCognitionModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), hardware_security_module_arc.clone(), self_healing_module_arc.clone(), hierarchical_rl_module_arc.clone()));
+        let intuitive_physics_psychology_module_arc = Arc::new(IntuitivePhysicsPsychologyModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), embodied_cognition_module_arc.clone(), causal_reasoning_engine_arc.clone(), theory_of_mind_module_arc.clone(), social_intelligence_module_arc.clone()));
         let epistemic_reasoning_module_arc = Arc::new(EpistemicReasoningModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), lifelong_learning_module_arc.clone(), trust_reputation_module_arc.clone(), curiosity_exploration_module_arc.clone(), common_sense_reasoning_network_arc.clone(), data_manager_arc.clone()));
         let affective_computing_module_arc = Arc::new(AffectiveComputingModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), theory_of_mind_module_arc.clone(), social_intelligence_module_arc.clone(), data_privacy_module_arc.clone()));
         let self_preservation_module_arc = Arc::new(SelfPreservationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), self_healing_module_arc.clone(), resource_optimization_module_arc.clone(), adversarial_robustness_module_arc.clone(), environmental_impact_module_arc.clone()));
@@ -554,6 +557,9 @@ impl AgiCoreEngine {
         ));
         let cognitive_integrity_anti_corruption_module_arc = Arc::new(CognitiveIntegrityAntiCorruptionModule::new(
             event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qrctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), metacognition_module_arc.clone(), epistemic_uncertainty_quantification_module_arc.clone(), self_correction_biases_module_arc.clone(), formal_verification_ethical_constraints_module_arc.clone(), self_healing_module_arc.clone(), dynamic_ontological_evolution_module_arc.clone(),
+        ));
+        let quantum_resistant_digital_identity_access_management_module_arc = Arc::new(QuantumResistantDigitalIdentityAccessManagementModule::new(
+            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qrctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), quantum_safe_module_arc.clone(), secure_enclave_module_arc.clone(), trust_reputation_module_arc.clone(), dynamic_risk_assessment_mitigation_module_arc.clone(), real_time_threat_intelligence_fusion_adaptive_defense_module_arc.clone(), security_posture_adaptation_module_arc.clone(),
         ));
 
         let agi_core_engine_instance = AgiCoreEngine {
@@ -668,35 +674,35 @@ impl AgiCoreEngine {
             real_time_threat_intelligence_fusion_adaptive_defense_module: real_time_threat_intelligence_fusion_adaptive_defense_module_arc.clone(),
             explainable_security_decision_making_auditability_module: explainable_security_decision_making_auditability_module_arc.clone(),
             cognitive_integrity_anti_corruption_module: cognitive_integrity_anti_corruption_module_arc.clone(),
+            quantum_resistant_digital_identity_access_management_module: quantum_resistant_digital_identity_access_management_module_arc.clone(),
             ethical_governance_module: ethical_governance_module_arc.clone(),
-            global_knowledge_integration_module: Arc::new(GlobalKnowledgeIntegrationModule::new_dummy(event_bus_arc.clone())),
-            societal_impact_forecasting_module: Arc::new(SocietalImpactForecastingModule::new_dummy(event_bus_arc.clone())),
-            bio_integration_module: Arc::new(BioIntegrationModule::new_dummy(event_bus_arc.clone())),
-            autonomous_philanthropy_module: Arc::new(AutonomousPhilanthropyModule::new_dummy(event_bus_arc.clone())),
+            global_knowledge_integration_module: global_knowledge_integration_module_arc.clone(),
+            societal_impact_forecasting_module: societal_impact_forecasting_module_arc.clone(),
+            bio_integration_module: bio_integration_module_arc.clone(),
+            autonomous_philanthropy_module: autonomous_philanthropy_module_arc.clone(),
             collaborative_creativity_module: collaborative_creativity_module_arc.clone(),
-            self_organization_module: Arc::new(SelfOrganizationModule::new_dummy(event_bus_arc.clone())),
-            self_healing_module: Arc::new(SelfHealingModule::new_dummy(event_bus_arc.clone())),
-            self_preservation_module: Arc::new(SelfPreservationModule::new_dummy(event_bus_arc.clone())),
-            self_evolution_module: Arc::new(SelfEvolutionModule::new_dummy(event_bus_arc.clone())),
+            self_organization_module: self_organization_module_arc.clone(),
+            self_healing_module: self_healing_module_arc.clone(),
+            self_evolution_module: self_evolution_module_arc.clone(),
             adaptive_control_module: adaptive_control_module_arc.clone(),
             predictive_maintenance_module: predictive_maintenance_module_arc.clone(),
             red_team_simulation_module: red_team_simulation_module_arc.clone(),
             secure_enclave_module: secure_enclave_module_arc.clone(),
             decentralized_consensus_module: decentralized_consensus_module_arc.clone(),
             zero_knowledge_proofs_module: zero_knowledge_proofs_module_arc.clone(),
-            resource_optimization_module: Arc::new(ResourceOptimizationModule::new_dummy(event_bus_arc.clone())),
+            resource_optimization_module: resource_optimization_module_arc.clone(),
             dynamic_resource_reallocation_module: dynamic_resource_reallocation_module_arc.clone(),
             predictive_forecasting_module: predictive_forecasting_module_arc.clone(),
             goal_management_module: goal_management_module_arc.clone(),
-            adversarial_robustness_module: Arc::new(AdversarialRobustnessModule::new_dummy(event_bus_arc.clone())),
+            adversarial_robustness_module: adversarial_robustness_module_arc.clone(),
             ethical_forecasting_module: ethical_forecasting_module_arc.clone(),
-            quantum_safe_module: Arc::new(QuantumSafeModule::new_dummy(event_bus_arc.clone())),
+            quantum_safe_module: quantum_safe_module_arc.clone(),
             trust_reputation_module: trust_reputation_module_arc.clone(),
             deception_detection_module: deception_detection_module_arc.clone(),
             data_privacy_module: data_privacy_module_arc.clone(),
             hardware_security_module: hardware_security_module_arc.clone(),
             human_agi_teaming_module: human_agi_teaming_module_arc.clone(),
-            environmental_impact_module: Arc::new(EnvironmentalImpactModule::new_dummy(event_bus_arc.clone())),
+            environmental_impact_module: environmental_impact_module_arc.clone(),
             social_intelligence_module: social_intelligence_module_arc.clone(),
             service_command_rx,
         };
