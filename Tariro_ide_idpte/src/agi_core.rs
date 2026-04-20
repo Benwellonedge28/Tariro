@@ -143,6 +143,10 @@ use crate::environmental::collaborative_world_modeling::CollaborativeWorldModeli
 use crate::environmental::global_knowledge_integration_synthesis::GlobalKnowledgeIntegrationSynthesisModule; // Import GlobalKnowledgeIntegrationSynthesisModule
 use crate::environmental::societal_impact_mitigation::SocietalImpactForecastingMitigationModule; // Import SocietalImpactForecastingMitigationModule
 use crate::environmental::bio_integration_symbiotic_design::BioIntegrationSymbioticDesignModule; // Import BioIntegrationSymbioticDesignModule
+use crate::environmental::autonomous_philanthropy_resource_deployment::AutonomousPhilanthropyResourceDeploymentModule; // Import AutonomousPhilanthropyResourceDeploymentModule
+use crate::environmental::universal_interoperability::UniversalInteroperabilityOmniProtocolAutonomyModule; // Import UniversalInteroperabilityOmniProtocolAutonomyModule
+use crate::environmental::decentralized_governance_consensus::DecentralizedGovernanceVerifiableConsensusModule; // Import DecentralizedGovernanceVerifiableConsensusModule
+use crate::environmental::quantum_safe_crypto::QuantumSafePostQuantumCryptographyIntegrationModule; // Import QuantumSafePostQuantumCryptographyIntegrationModule
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -183,7 +187,7 @@ pub struct AgiCoreEngine {
     pub meta_learner: Arc<MetaLearner>,
     pub causal_reasoning_engine: Arc<CausalReasoningEngine>,
     pub theory_of_mind_module: Arc<TheoryOfMindModule>,
-    pub analogical_reasoning_system: Arc<AnalogicalReasoningSystem>,
+    pub analogical_reasoning::AnalogicalReasoningSystem,
     pub common_sense_reasoning_network: Arc<CommonSenseReasoningNetwork>,
     pub concept_formation_module: Arc<ConceptFormationModule>,
     pub hierarchical_rl_module: Arc<HierarchicalRLModule>,
@@ -752,7 +756,7 @@ impl AgiCoreEngine {
             affective_computing_emotional_regulation_module: affective_computing_emotional_regulation_module_arc.clone(), // Assign affective computing & emotional regulation module
             empathy_compassion_enhancement_module: empathy_compassion_enhancement_module_arc.clone(), // Assign empathy & compassion enhancement module
             adaptive_self_organization_module: adaptive_self_organization_module_arc.clone(), // Assign adaptive self-organization module
-            self_healing_resilience_optimization_module: Arc::new(SelfHealingResilienceOptimizationModule::new_dummy(event_bus_arc.clone())),
+            self_healing_resilience_optimization_module: self_healing_resilience_optimization_module_arc.clone(), // Assign self-healing & resilience optimization module
             self_evolution_continuous_improvement_module: Arc::new(SelfEvolutionContinuousImprovementModule::new_dummy(event_bus_arc.clone())),
             security_posture_adaptation_module: Arc::new(SecurityPostureAdaptationModule::new_dummy(event_bus_arc.clone())),
             human_agi_teaming_trust_building_module: Arc::new(HumanAGITeamingTrustBuildingModule::new_dummy(event_bus_arc.clone())),
