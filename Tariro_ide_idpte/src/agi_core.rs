@@ -21,7 +21,7 @@ use crate::crypto_fabric::orchestrator::{QrCtfoOrchestrator, QrCtfoOptions};
 use crate::crypto_fabric::communication_adapter::CommunicationChannel;
 use crate::crypto_fabric::quantum_safe::QuantumSafeModule;
 use crate::crypto_fabric::decentralized_consensus::DecentralizedConsensusModule;
-use crate::crypto_fabric::zero_knowledge_proofs::ZeroKnowledgeProofsModule; // Import ZeroKnowledgeProofsModule
+use crate::crypto_fabric::zero_knowledge_optimization::ZeroKnowledgeOptimizationModule; // Import ZeroKnowledgeOptimizationModule
 
 // Import Communication Bridge
 use crate::communication_bridge::CommunicationBridge;
@@ -165,7 +165,7 @@ pub struct AgiCoreEngine {
     pub red_team_simulation_module: Arc<RedTeamSimulationModule>,
     pub secure_enclave_module: Arc<SecureEnclaveModule>,
     pub decentralized_consensus_module: Arc<DecentralizedConsensusModule>,
-    pub zero_knowledge_proofs_module: Arc<ZeroKnowledgeProofsModule>,
+    pub zero_knowledge_optimization_module: Arc<ZeroKnowledgeOptimizationModule>,
     pub resource_optimization_module: Arc<ResourceOptimizationModule>,
     pub dynamic_resource_reallocation_module: Arc<DynamicResourceReallocationModule>,
     pub predictive_forecasting_module: Arc<PredictiveForecastingModule>,
@@ -185,7 +185,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Zero-Knowledge Proofs...");
+        info!("Initializing AGI Core Engine with Zero-Knowledge Optimization...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -247,6 +247,7 @@ impl AgiCoreEngine {
         let formal_reasoning_dummy = Arc::new(FormalReasoningModule::new_dummy(event_bus_arc.clone()));
         let metacognition_dummy = Arc::new(MetacognitionModule::new_dummy(event_bus_arc.clone()));
         let ethical_forecasting_dummy = Arc::new(EthicalForecastingModule::new_dummy(event_bus_arc.clone()));
+        let quantum_safe_dummy = Arc::new(QuantumSafeModule::new_dummy(event_bus_arc.clone()));
 
         // Full initialization sequence
         let lifelong_learning_module_arc = Arc::new(LifelongLearningModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), curiosity_dummy.clone(), concept_formation_dummy.clone(), causal_reasoning_engine_arc.clone(), common_sense_dummy.clone()));
@@ -283,28 +284,19 @@ impl AgiCoreEngine {
         let predictive_maintenance_module_arc = Arc::new(PredictiveMaintenanceModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), predictive_forecasting_module_arc.clone(), metacognition_dummy.clone(), ethical_forecasting_module_arc.clone(), self_healing_module_arc.clone(), dynamic_resource_reallocation_module_arc.clone()));
         let red_team_simulation_module_arc = Arc::new(RedTeamSimulationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), adversarial_robustness_module_arc.clone(), ImaginationModule::new_dummy(event_bus_arc.clone()), self_healing_module_arc.clone(), self_evolution_module_arc.clone()));
         let secure_enclave_module_arc = Arc::new(SecureEnclaveModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), hardware_security_module_arc.clone(), data_privacy_module_arc.clone()));
+        let decentralized_consensus_module_arc = Arc::new(DecentralizedConsensusModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_privacy_module_arc.clone(), swarm_intelligence_module_arc.clone(), self_evolution_module_arc.clone()));
 
-        // Initialize DecentralizedConsensusModule (Task 105)
-        let decentralized_consensus_module_arc = Arc::new(DecentralizedConsensusModule::new(
+        // Initialize ZeroKnowledgeOptimizationModule (Task 106)
+        let zero_knowledge_optimization_module_arc = Arc::new(ZeroKnowledgeOptimizationModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
             data_privacy_module_arc.clone(),
-            swarm_intelligence_module_arc.clone(),
-            self_evolution_module_arc.clone(),
+            quantum_safe_module_arc.clone(),
+            secure_enclave_module_arc.clone(),
         ));
-        service_registry_arc.register_service(DecentralizedConsensusModule::as_os_service()).await?;
-
-        // Initialize ZeroKnowledgeProofsModule (Task 106)
-        let zero_knowledge_proofs_module_arc = Arc::new(ZeroKnowledgeProofsModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            data_privacy_module_arc.clone(),
-        ));
-        service_registry_arc.register_service(ZeroKnowledgeProofsModule::as_os_service()).await?;
+        service_registry_arc.register_service(ZeroKnowledgeOptimizationModule::as_os_service()).await?;
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
@@ -356,7 +348,7 @@ impl AgiCoreEngine {
             red_team_simulation_module: red_team_simulation_module_arc.clone(), // Assign red team simulation module
             secure_enclave_module: secure_enclave_module_arc.clone(), // Assign secure enclave module
             decentralized_consensus_module: decentralized_consensus_module_arc.clone(), // Assign decentralized consensus module
-            zero_knowledge_proofs_module: zero_knowledge_proofs_module_arc.clone(), // Assign zero knowledge proofs module
+            zero_knowledge_optimization_module: zero_knowledge_optimization_module_arc.clone(), // Assign zero knowledge optimization module
             resource_optimization_module: resource_optimization_module_arc.clone(), // Assign resource optimization module
             dynamic_resource_reallocation_module: dynamic_resource_reallocation_module_arc.clone(), // Assign dynamic resource reallocation module
             predictive_forecasting_module: predictive_forecasting_module_arc.clone(), // Assign predictive forecasting module
