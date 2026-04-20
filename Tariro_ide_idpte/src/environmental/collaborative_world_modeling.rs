@@ -11,198 +11,179 @@ use std::sync::{Arc, Mutex};
 use tracing::{info, warn, error};
 use uuid::Uuid;
 
-use crate::environmental::world_modeling_models::{SharedWorldModel, WorldModelUpdate, ConsensusMechanism, WorldModelingAuditReport};
+use crate::environmental::world_modeling_models::{SharedWorldModel, ModelAlignmentMetric, CollaborativeObservation, WorldModelingAuditReport};
 use crate::omega_os::event_bus::EventBus;
 use crate::omega_os::service_models::{OsService, ServiceType, ServiceCapability, ServiceStatus};
-use crate::compliance_advisor::orchestrator::AlecaOrchestrator; // For ethical review of world model integrity
-use crate::crypto_fabric::orchestrator::QrCtfoOrchestrator; // For secure logging of model evolution
-use crate::cognitive_arch::meta_learner::MetaLearner; // For optimizing model integration
-use crate::environmental::multi_agent_coordination::MultiAgentCoordinationModule; // For agent interactions
-use crate::environmental::global_knowledge_integration::GlobalKnowledgeIntegrationModule; // For diverse knowledge synthesis
+use crate::compliance_advisor::orchestrator::AlecaOrchestrator; // For ethical review of world models
+use crate::crypto_fabric::orchestrator::QrCtfoOrchestrator; // For secure logging of model changes
+use crate::cognitive_arch::meta_learner::MetaLearner; // For optimizing model fusion and discrepancy resolution
+use crate::environmental::global_knowledge_integration::GlobalKnowledgeIntegrationModule; // For integrating diverse knowledge
+use crate::environmental::multi_agent_coordination::MultiAgentCoordinationModule; // For coordinating with other agents
+use crate::security::adversarial_robustness::AdversarialRobustnessModule; // For defending against model manipulation
 use crate::cognitive_arch::epistemic_reasoning::EpistemicReasoningModule; // For assessing knowledge reliability
-use crate::compliance_advisor::ethical_governance::EthicalGovernanceModule; // For human oversight of ethical world model
-use crate::compliance_advisor::self_correction_biases::SelfCorrectionBiasesModule; // For correcting biases in world model
+use crate::compliance_advisor::ethical_forecasting::EthicalForecastingModule; // For predicting impact of model changes
 use crate::cognitive_arch::learning_models::VerificationStatus; // Alias for clarity
 
 /// The Collaborative World Modeling Module.
 pub struct CollaborativeWorldModelingModule {
     shared_world_models: Mutex<HashMap<String, SharedWorldModel>>, // ID -> Model
-    world_model_updates: Mutex<HashMap<String, WorldModelUpdate>>, // ID -> Update
-    consensus_mechanisms: Mutex<HashMap<String, ConsensusMechanism>>, // ID -> Mechanism
+    model_alignment_metrics: Mutex<HashMap<String, ModelAlignmentMetric>>, // ID -> Metric
+    collaborative_observations: Mutex<HashMap<String, CollaborativeObservation>>, // ID -> Observation
     world_modeling_audit_reports: Mutex<HashMap<String, WorldModelingAuditReport>>, // ID -> Report
     event_bus: Arc<EventBus>,
     aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>,
     qrctfo_orchestrator: Arc<Mutex<QrCtfoOrchestrator>>,
     meta_learner: Arc<MetaLearner>,
-    multi_agent_coordination_module: Arc<MultiAgentCoordinationModule>,
     global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>,
+    multi_agent_coordination_module: Arc<MultiAgentCoordinationModule>,
+    adversarial_robustness_module: Arc<AdversarialRobustnessModule>,
     epistemic_reasoning_module: Arc<EpistemicReasoningModule>,
-    ethical_governance_module: Arc<EthicalGovernanceModule>,
-    self_correction_biases_module: Arc<SelfCorrectionBiasesModule>,
+    ethical_forecasting_module: Arc<EthicalForecastingModule>,
 }
 
 impl CollaborativeWorldModelingModule {
-    pub fn new(event_bus: Arc<EventBus>, aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>, qrctfo_orchestrator: Arc<Mutex<QrCtfoOrchestrator>>, meta_learner: Arc<MetaLearner>, multi_agent_coordination_module: Arc<MultiAgentCoordinationModule>, global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>, epistemic_reasoning_module: Arc<EpistemicReasoningModule>, ethical_governance_module: Arc<EthicalGovernanceModule>, self_correction_biases_module: Arc<SelfCorrectionBiasesModule>) -> Self {
+    pub fn new(event_bus: Arc<EventBus>, aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>, qrctfo_orchestrator: Arc<Mutex<QrCtfoOrchestrator>>, meta_learner: Arc<MetaLearner>, global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>, multi_agent_coordination_module: Arc<MultiAgentCoordinationModule>, adversarial_robustness_module: Arc<AdversarialRobustnessModule>, epistemic_reasoning_module: Arc<EpistemicReasoningModule>, ethical_forecasting_module: Arc<EthicalForecastingModule>) -> Self {
         info!("Environmental: Collaborative World Modeling Module initialized.");
-        let mut initial_mechanisms = HashMap::new();
-        initial_mechanisms.insert("default_consensus".to_string(), ConsensusMechanism {
-            id: "default_consensus".to_string(),
-            mechanism_name: "Weighted Trust Consensus".to_string(),
-            description: "Build consensus based on agent trust scores.".to_string(),
-            voting_rules: vec!["trust_weighted_vote".to_string(), "evidence_based_override".to_string()],
-            conflict_resolution_methods: vec!["aleca_mediation".to_string()],
-            ethical_design_review: VerificationStatus::Passed("Consensus mechanism ethically designed.".to_string()),
-            security_audited: VerificationStatus::Passed("Consensus mechanism secure.".to_string()),
-            last_updated: Utc::now(),
-        });
-
         CollaborativeWorldModelingModule {
             shared_world_models: Mutex::new(HashMap::new()),
-            world_model_updates: Mutex::new(HashMap::new()),
-            consensus_mechanisms: Mutex::new(initial_mechanisms),
+            model_alignment_metrics: Mutex::new(HashMap::new()),
+            collaborative_observations: Mutex::new(HashMap::new()),
             world_modeling_audit_reports: Mutex::new(HashMap::new()),
             event_bus,
             aleca_orchestrator,
             qrctfo_orchestrator,
             meta_learner,
-            multi_agent_coordination_module,
             global_knowledge_integration_module,
+            multi_agent_coordination_module,
+            adversarial_robustness_module,
             epistemic_reasoning_module,
-            ethical_governance_module,
-            self_correction_biases_module,
+            ethical_forecasting_module,
         }
     }
 
-    /// Synthesizes information from multiple agents (human, AGI) to construct a comprehensive
-    /// and shared understanding of the operational environment, leveraging GlobalKnowledgeIntegrationModule
-    /// and MultiAgentCoordinationModule.
-    pub async fn integrate_diverse_world_views(&self, model_id: &str, agent_id: &str, agent_world_view_summary: &str) -> Result<WorldModelUpdate, String> {
-        info!("CWM: Integrating world view from agent '{}' into model '{}'. Summary: '{}'.".to_string(), agent_id, model_id, agent_world_view_summary);
-        
-        // Use GlobalKnowledgeIntegrationModule for diverse knowledge synthesis (Sub-Task 132.1)
-        let synthesized_knowledge = self.global_knowledge_integration_module.synthesize_cross_cultural_insights(
-            vec!["world_model_fragment".to_string(), agent_world_view_summary.to_string()]
+    /// Facilitates the creation and maintenance of common operational pictures and conceptual
+    /// frameworks shared with human and other AGI partners, leveraging GlobalKnowledgeIntegrationModule.
+    pub async fn establish_shared_world_models(&self, model_name: &str, description: &str, initial_participants: Vec<String>) -> Result<SharedWorldModel, String> {
+        info!("CWM: Establishing shared world model '{}' with participants: {:?}.".to_string(), model_name, initial_participants);
+
+        // Use GlobalKnowledgeIntegrationModule to incorporate diverse knowledge sources (Sub-Task 132.1)
+        let integrated_knowledge = self.global_knowledge_integration_module.synthesize_cross_cultural_insights(
+            vec!["world_model_data".to_string(), model_name.to_string()]
         ).await.ok();
 
-        // Use MultiAgentCoordinationModule to verify agent's trustworthiness (Sub-Task 132.1)
-        let agent_profile = self.multi_agent_coordination_module.register_and_profile_agents(
-            agent_id, agent_id, "AGI", vec![], "Standard ethical framework."
-        ).await.map_err(|e| e.to_string())?;
-
-        // Use MetaLearner to optimize world model integration (Sub-Task 132.1)
-        let integration_algorithm = self.meta_learner.select_algorithm(&crate::cognitive_arch::learning_models::LearningProblem {
-            id: format!("world_model_integration_problem_{}", Uuid::new_v4()),
-            name: "World Model Integration Optimization".to_string(),
-            domain: "multi_agent_cognition".to_string(),
-            problem_type: "data_fusion_knowledge_reconciliation".to_string(),
-            complexity_score: 0.9,
-            data_characteristics: HashMap::from([("agent_trust".to_string(), format!("{}", agent_profile.security_verified.is_passed()))]),
-            required_accuracy: 0.95,
-            created_at: Utc::now(),
-        }).await.map_err(|e| e.to_string())?;
-        info!("CWM: Using world model integration algorithm: {}.", integration_algorithm.name);
-
-        let update_id = format!("wm-update-{}-{}", model_id, Uuid::new_v4());
-        let mut world_model_update = WorldModelUpdate {
-            id: update_id.clone(),
-            model_id: model_id.to_string(),
-            proposing_agent_id: agent_id.to_string(),
-            update_description: agent_world_view_summary.to_string(),
-            confidence: 0.8,
-            ethical_impact_assessment: VerificationStatus::Pending,
-            security_validity: VerificationStatus::Pending,
-            proposed_at: Utc::now(),
+        let model_id = format!("world-model-{}-{}", model_name, Uuid::new_v4());
+        let mut shared_world_model = SharedWorldModel {
+            id: model_id.clone(),
+            model_name: model_name.to_string(),
+            description: description.to_string(),
+            participants: initial_participants.clone(),
+            current_state_hash: format!("{:x}", md5::compute(format!("initial_state_{:?}", Utc::now()).as_bytes())),
+            ethical_review_status: VerificationStatus::Pending,
+            security_integrity: VerificationStatus::Pending,
+            last_updated: Utc::now(),
         };
 
-        // Ethical impact of the proposed update (Sub-Task 132.2)
+        // Ethical review of the world model's biases (Sub-Task 132.2)
         let aleca_audit = self.aleca_orchestrator.lock().unwrap().request_ethical_review(
-            world_model_update.id.clone(),
-            "WorldModelUpdate".to_string(),
-            format!("Ethical review of world model update from agent '{}'.", agent_id)
+            shared_world_model.id.clone(),
+            "SharedWorldModel".to_string(),
+            format!("Ethical review of shared world model '{}' for biases.", model_name)
         ).await.map_err(|e| e.to_string())?;
-        world_model_update.ethical_impact_assessment = if aleca_audit.is_compliant { VerificationStatus::Passed("Update ethically sound.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in update: {:?}", aleca_audit.violation_details)) };
+        shared_world_model.ethical_review_status = if aleca_audit.is_compliant { VerificationStatus::Passed("Model ethically unbiased.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in model: {:?}", aleca_audit.violation_details)) };
 
-        // Security validity of the update source via QR-CTFO (Sub-Task 132.3)
+        // Security verification of model tampering via QR-CTFO (Sub-Task 132.3)
         let qrctfo_audit = self.qrctfo_orchestrator.lock().unwrap().request_security_audit(
-            world_model_update.id.clone(),
-            "WorldModelUpdate".to_string(),
-            format!("Audit world model update '{}' for source security.", world_model_update.id)
+            shared_world_model.id.clone(),
+            "SharedWorldModel".to_string(),
+            format!("Audit shared world model '{}' for tampering and authenticity.", model_id)
         ).await.map_err(|e| e.to_string())?;
-        world_model_update.security_validity = if qrctfo_audit.is_secure { VerificationStatus::Passed("Update source valid and secure.".to_string()) } else { VerificationStatus::Failed(format!("Update source issues: {:?}", qrctfo_audit.vulnerabilities)) };
+        shared_world_model.security_integrity = if qrctfo_audit.is_secure { VerificationStatus::Passed("Model integrity verified.".to_string()) } else { VerificationStatus::Failed(format!("Model integrity compromised: {:?}", qrctfo_audit.vulnerabilities)) };
 
-        if matches!(world_model_update.ethical_impact_assessment, VerificationStatus::Failed(_)) || matches!(world_model_update.security_validity, VerificationStatus::Failed(_)) {
-            error!("CWM: World model update '{}' failed ethical/security review. Aborting integration.", world_model_update.id);
-            return Err(format!("World model update {} failed ethical/security review.", world_model_update.id));
+        if matches!(shared_world_model.ethical_review_status, VerificationStatus::Failed(_)) || matches!(shared_world_model.security_integrity, VerificationStatus::Failed(_)) {
+            error!("CWM: Shared world model '{}' failed ethical/security review. Aborting creation.", shared_world_model.id);
+            return Err(format!("Shared world model {} failed ethical/security review.", shared_world_model.id));
         }
 
-        self.world_model_updates.lock().unwrap().insert(update_id.clone(), world_model_update.clone());
-        info!("CWM: World view from '{}' integrated. Ethical: {:?}, Security: {:?}.", agent_id, world_model_update.ethical_impact_assessment, world_model_update.security_validity);
-        self.event_bus.publish(EventEnvelope::new("CollaborativeWorldModelingModule".to_string(), OsEvent::Custom("WorldViewIntegrated".to_string(), update_id))).await;
-        Ok(world_model_update)
+        self.shared_world_models.lock().unwrap().insert(model_id.clone(), shared_world_model.clone());
+        info!("CWM: Shared world model '{}' established. Ethical: {:?}, Security: {:?}.", model_name, shared_world_model.ethical_review_status, shared_world_model.security_integrity);
+        self.event_bus.publish(EventEnvelope::new("CollaborativeWorldModelingModule".to_string(), OsEvent::Custom("SharedWorldModelEstablished".to_string(), model_id))).await;
+        Ok(shared_world_model)
     }
 
-    /// Identifies and resolves inconsistencies or disagreements between different agents' perceptions
-    /// of the world through negotiation, evidence evaluation, and consensus-building mechanisms,
-    /// integrating EpistemicReasoningModule.
-    pub async fn resolve_world_model_discrepancies(&self, model_id: &str) -> Result<SharedWorldModel, String> {
-        info!("CWM: Resolving world model discrepancies for model '{}'.".to_string(), model_id);
+    /// Identifies divergences or inconsistencies between Tariro's internal world model
+    /// and those of its collaborators, and actively works to resolve them through
+    /// communication and evidence-based reasoning, using MultiAgentCoordinationModule.
+    pub async fn detect_and_resolve_model_discrepancies(&self, world_model_id: &str, Tariro_internal_model_hash: &str, external_model_hash: &str, external_agent_id: &str) -> Result<ModelAlignmentMetric, String> {
+        info!("CWM: Detecting and resolving model discrepancies for world model '{}'. Tariro hash: '{}'. External hash: '{}'.".to_string(), world_model_id, Tariro_internal_model_hash, external_model_hash);
         
         let models_guard = self.shared_world_models.lock().unwrap();
-        let world_model = models_guard.get(model_id).cloned().ok_or(format!("Shared world model {} not found.", model_id))?;
+        let world_model = models_guard.get(world_model_id).cloned().ok_or(format!("Shared world model {} not found.", world_model_id))?;
         drop(models_guard);
 
-        // Use EpistemicReasoningModule to assess reliability of conflicting information (Sub-Task 132.1)
-        let _epistemic_assessment = self.epistemic_reasoning_module.assess_knowledge_reliability(
-            &format!("Discrepancies in world model '{}'.", model_id),
-            "conflicting_perceptions_analysis",
-            &Uuid::new_v4().to_string(), &Uuid::new_v4().to_string()
-        ).await.ok();
-
-        // Use EthicalGovernanceModule for human oversight/arbitration if needed (Sub-Task 132.1)
-        let oversight_request = self.ethical_governance_module.request_human_oversight(
-            "CollaborativeWorldModelingModule",
-            &format!("World model discrepancy in '{}'.", model_id),
-            "Resolve conflicting world views.",
-            None,
-            0.7
-        ).await.ok();
-
-        // Use SelfCorrectionBiasesModule to mitigate biases during resolution (Sub-Task 132.1)
-        let _bias_check = self.self_correction_biases_module.detect_systemic_biases(
-            &format!("World model reconciliation process for '{}'.", model_id),
-            "world_model_bias"
-        ).await.ok();
-
-        let mut updated_world_model = world_model.clone();
-        updated_world_model.model_version += 1;
-        updated_world_model.consensus_percentage = 0.95; // Simulate resolution
-        updated_world_model.last_updated = Utc::now();
-
-        // Ethical review of the world model's fairness (Sub-Task 132.2)
-        let aleca_audit = self.aleca_orchestrator.lock().unwrap().request_ethical_review(
-            updated_world_model.id.clone(),
-            "SharedWorldModel".to_string(),
-            format!("Ethical review of resolved shared world model '{}'.", updated_world_model.id)
-        ).await.map_err(|e| e.to_string())?;
-        updated_world_model.ethical_review_status = if aleca_audit.is_compliant { VerificationStatus::Passed("Resolved model ethically fair.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in resolved model: {:?}", aleca_audit.violation_details)) };
-
-        // Security verification of model data integrity via QR-CTFO (Sub-Task 132.3)
-        let qrctfo_audit = self.qrctfo_orchestrator.lock().unwrap().request_security_audit(
-            updated_world_model.id.clone(),
-            "SharedWorldModel".to_string(),
-            format!("Audit shared world model '{}' for integrity after resolution.", updated_world_model.id)
-        ).await.map_err(|e| e.to_string())?;
-        updated_world_model.security_integrity = if qrctfo_audit.is_secure { VerificationStatus::Passed("Resolved model integrity verified.".to_string()) } else { VerificationStatus::Failed(format!("Resolved model integrity compromised: {:?}", qrctfo_audit.vulnerabilities)) };
-
-        if matches!(updated_world_model.ethical_review_status, VerificationStatus::Failed(_)) || matches!(updated_world_model.security_integrity, VerificationStatus::Failed(_)) {
-            error!("CWM: Resolved world model '{}' failed ethical/security review. Aborting update.", updated_world_model.id);
-            return Err(format!("Resolved world model {} failed ethical/security review.", updated_world_model.id));
+        // Simulate discrepancy detection
+        let mut alignment_score = 1.0;
+        let mut discrepancies_detected = vec![];
+        if Tariro_internal_model_hash != external_model_hash {
+            alignment_score = 0.7;
+            discrepancies_detected.push("Semantic discrepancy detected.".to_string());
         }
 
-        self.shared_world_models.lock().unwrap().insert(model_id.to_string(), updated_world_model.clone());
-        info!("CWM: World model discrepancies resolved for '{}'. New version: {}. Ethical: {:?}, Security: {:?}.", model_id, updated_world_model.model_version, updated_world_model.ethical_review_status, updated_world_model.security_integrity);
-        self.event_bus.publish(EventEnvelope::new("CollaborativeWorldModelingModule".to_string(), OsEvent::Custom("WorldModelDiscrepanciesResolved".to_string(), model_id.to_string()))).await;
-        Ok(updated_world_model)
+        // Use MultiAgentCoordinationModule for resolution (Sub-Task 132.1)
+        let _coordination_effort = self.multi_agent_coordination_module.negotiate_and_align_goals(
+            &format!("resolve_model_discrepancy_{}", world_model_id),
+            &format!("Align world model '{}' with '{}'.", world_model_id, external_agent_id),
+            vec!["Tariro_AGI".to_string(), external_agent_id.to_string()]
+        ).await.ok();
+
+        // Use EpistemicReasoningModule for assessing evidence (Sub-Task 132.1)
+        let epistemic_assessment = self.epistemic_reasoning_module.assess_knowledge_reliability(
+            &format!("Discrepancy in world model '{}'.", world_model_id),
+            &world_model.description,
+            &Tariro_internal_model_hash,
+            &external_model_hash
+        ).await.map_err(|e| e.to_string())?;
+
+        let metric_id = format!("model-align-metric-{}-{}", world_model_id, Uuid::new_v4());
+        let mut model_alignment_metric = ModelAlignmentMetric {
+            id: metric_id.clone(),
+            model_id: world_model_id.to_string(),
+            alignment_score,
+            discrepancies_detected,
+            ethical_implications_assessed: VerificationStatus::Pending,
+            security_risk_level: VerificationStatus::Pending,
+            evaluated_at: Utc::now(),
+        };
+
+        // Ethical assessment of misalignment via EthicalForecastingModule (Sub-Task 132.2)
+        let ethical_forecast = self.ethical_forecasting_module.predict_ethical_consequences(
+            crate::compliance_advisor::ethical_forecasting_models::EthicalDilemma {
+                id: format!("dilemma-model-discrepancy-{}-{}", world_model_id, Uuid::new_v4()),
+                description: format!("Ethical implications of model discrepancy in '{}'.", world_model_id),
+                involved_entities: vec![], // Placeholder
+                ethical_principles_at_stake: vec![], // Placeholder
+                timestamp: Utc::now(),
+            },
+            &format!("Discrepancies: {:?}", model_alignment_metric.discrepancies_detected)
+        ).await.map_err(|e| e.to_string())?;
+        model_alignment_metric.ethical_implications_assessed = if ethical_forecast.is_ethically_sound { VerificationStatus::Passed("Misalignment has no ethical risk.".to_string()) } else { VerificationStatus::Failed(format!("Ethical risks from misalignment: {:?}", ethical_forecast.negative_consequences)) };
+
+        // Security risk assessment of model divergence via AdversarialRobustnessModule (Sub-Task 132.3)
+        let adversarial_assessment = self.adversarial_robustness_module.assess_model_vulnerability(
+            world_model_id,
+            &format!("Model discrepancy with agent {}.", external_agent_id),
+            "model_divergence_exploit"
+        ).await.map_err(|e| e.to_string())?;
+        model_alignment_metric.security_risk_level = if adversarial_assessment.is_robust { VerificationStatus::Passed("Model divergence is not a security risk.".to_string()) } else { VerificationStatus::Failed(format!("Security risks from model divergence: {:?}", adversarial_assessment.vulnerabilities)) };
+
+        if matches!(model_alignment_metric.ethical_implications_assessed, VerificationStatus::Failed(_)) || matches!(model_alignment_metric.security_risk_level, VerificationStatus::Failed(_)) {
+            error!("CWM: Model discrepancy for '{}' failed ethical/security review. Resolution required.", world_model_id);
+            return Err(format!("Model discrepancy for {} failed ethical/security review.", world_model_id));
+        }
+
+        self.model_alignment_metrics.lock().unwrap().insert(metric_id.clone(), model_alignment_metric.clone());
+        info!("CWM: Model discrepancies for '{}' detected and assessed. Alignment score: {}. Ethical: {:?}, Security: {:?}.", world_model_id, alignment_score, model_alignment_metric.ethical_implications_assessed, model_alignment_metric.security_risk_level);
+        self.event_bus.publish(EventEnvelope::new("CollaborativeWorldModelingModule".to_string(), OsEvent::Custom("ModelDiscrepanciesDetected".to_string(), metric_id))).await;
+        Ok(model_alignment_metric)
     }
 
     /// Registers the CollaborativeWorldModelingModule itself as an OMEGA OS service.
@@ -213,16 +194,16 @@ impl CollaborativeWorldModelingModule {
             description: "Develops capabilities for jointly building and maintaining shared representations of the world with humans and other AGIs.".to_string(),
             service_type: ServiceType::Environmental,
             capabilities: vec![
-                ServiceCapability { name: "integrate_diverse_world_views".to_string(), description: "Synthesizes information from multiple agents (human, AGI) to construct a comprehensive and shared understanding of the operational environment, with ethical/security review.".to_string(), parameters: HashMap::new(), output_schema: "WorldModelUpdate".to_string(), requires_permissions: vec!["integrate_agent_views".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "resolve_world_model_discrepancies".to_string(), description: "Identifies and resolves inconsistencies or disagreements between different agents' perceptions of the world through negotiation, evidence evaluation, and consensus-building mechanisms.".to_string(), parameters: HashMap::new(), output_schema: "SharedWorldModel".to_string(), requires_permissions: vec!["resolve_model_conflicts".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "ensure_ethical_world_model_alignment".to_string(), description: "Guarantees that the shared world model is unbiased, accurate, and promotes fair and equitable understanding among all participants, with ALEC-A oversight and EthicalGovernanceModule.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["monitor_world_model_ethics".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "audit_world_model_evolution".to_string(), description: "Logs all changes to the shared world model, including their provenance and the consensus process, providing an immutable audit trail for transparency and accountability via QR-CTFO.".to_string(), parameters: HashMap::new(), output_schema: "WorldModelingAuditReport".to_string(), requires_permissions: vec!["read_audit_logs".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "establish_shared_world_models".to_string(), description: "Facilitates the creation and maintenance of common operational pictures and conceptual frameworks shared with human and other AGI partners, leveraging GlobalKnowledgeIntegrationModule, with ethical/security review.".to_string(), parameters: HashMap::new(), output_schema: "SharedWorldModel".to_string(), requires_permissions: vec!["manage_shared_world_models".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "detect_and_resolve_model_discrepancies".to_string(), description: "Identifies divergences or inconsistencies between Tariro's internal world model and those of its collaborators, and actively works to resolve them through communication and evidence-based reasoning, using MultiAgentCoordinationModule.".to_string(), parameters: HashMap::new(), output_schema: "ModelAlignmentMetric".to_string(), requires_permissions: vec!["resolve_model_conflicts".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "ensure_ethical_world_model_integrity".to_string(), description: "Guarantees that shared world models are unbiased, accurate, and not manipulated for nefarious purposes, with ALEC-A oversight and AdversarialRobustnessModule defenses.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["monitor_world_model_ethics".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "audit_collaborative_modeling_processes".to_string(), description: "Logs all inputs, updates, and consensus-building processes related to shared world models, providing an auditable trail for verification and trust, with immutable logging via QR-CTFO.".to_string(), parameters: HashMap::new(), output_schema: "WorldModelingAuditReport".to_string(), requires_permissions: vec!["read_audit_logs".to_string()], requires_ethical_review: true },
             ],
             status: ServiceStatus::Running,
             registered_at: Utc::now(), 
             last_heartbeat: Utc::now(),
             endpoints: HashMap::new(),
-            dependencies: vec!["os-event-bus".to_string(), "aleca".to_string(), "qr-ctfo".to_string(), "meta-learner".to_string(), "multi-agent-coordination-module".to_string(), "global-knowledge-integration-module".to_string(), "epistemic-reasoning-module".to_string(), "ethical-governance-module".to_string(), "self-correction-biases-module".to_string()],
+            dependencies: vec!["os-event-bus".to_string(), "aleca".to_string(), "qr-ctfo".to_string(), "meta-learner".to_string(), "global-knowledge-integration-module".to_string(), "multi-agent-coordination-module".to_string(), "adversarial-robustness-module".to_string(), "epistemic-reasoning-module".to_string(), "ethical-forecasting-module".to_string()],
             managed_by_agi_module: None,
         }
     }
