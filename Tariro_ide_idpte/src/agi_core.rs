@@ -88,7 +88,9 @@ use crate::cognitive_arch::affective_computing::AffectiveComputingModule;
 use crate::cognitive_arch::sensory_fusion::SensoryFusionModule;
 use crate::cognitive_arch::attention_salience::AttentionSalienceModule;
 use crate::cognitive_arch::working_memory::WorkingMemoryModule;
-use crate::cognitive_arch::long_term_semantic_memory::LongTermSemanticMemoryModule; // Import LongTermSemanticMemoryModule
+use crate::cognitive_arch::long_term_semantic_memory::LongTermSemanticMemoryModule;
+use crate::cognitive_arch::episodic_memory::EpisodicMemoryModule;
+use crate::cognitive_arch::prospective_memory::ProspectiveMemoryModule; // Import ProspectiveMemoryModule
 
 // Import Security modules
 use crate::security::adversarial_robustness::AdversarialRobustnessModule;
@@ -168,6 +170,8 @@ pub struct AgiCoreEngine {
     pub attention_salience_module: Arc<AttentionSalienceModule>,
     pub working_memory_module: Arc<WorkingMemoryModule>,
     pub long_term_semantic_memory_module: Arc<LongTermSemanticMemoryModule>,
+    pub episodic_memory_module: Arc<EpisodicMemoryModule>,
+    pub prospective_memory_module: Arc<ProspectiveMemoryModule>,
     pub ethical_governance_module: Arc<EthicalGovernanceModule>,
     pub global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>,
     pub societal_impact_forecasting_module: Arc<SocietalImpactForecastingModule>,
@@ -203,7 +207,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Long-Term Semantic Memory & Knowledge Graph...");
+        info!("Initializing AGI Core Engine with Prospective Memory & Goal-Oriented Recall...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -272,6 +276,9 @@ impl AgiCoreEngine {
         let imagination_dummy = Arc::new(ImaginationModule::new_dummy(event_bus_arc.clone()));
         let data_privacy_dummy = Arc::new(DataPrivacyModule::new_dummy(event_bus_arc.clone()));
         let environmental_impact_dummy = Arc::new(EnvironmentalImpactModule::new_dummy(event_bus_arc.clone()));
+        let red_team_simulation_dummy = Arc::new(RedTeamSimulationModule::new_dummy(event_bus_arc.clone()));
+        let secure_enclave_dummy = Arc::new(SecureEnclaveModule::new_dummy(event_bus_arc.clone()));
+        let dynamic_resource_reallocation_dummy = Arc::new(DynamicResourceReallocationModule::new_dummy(event_bus_arc.clone()));
 
         // Full initialization sequence
         let lifelong_learning_module_arc = Arc::new(LifelongLearningModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), curiosity_dummy.clone(), concept_formation_dummy.clone(), causal_reasoning_engine_arc.clone(), common_sense_dummy.clone()));
@@ -314,37 +321,12 @@ impl AgiCoreEngine {
         let global_knowledge_integration_module_arc = Arc::new(GlobalKnowledgeIntegrationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_manager_arc.clone(), social_intelligence_dummy.clone(), epistemic_reasoning_dummy.clone()));
         let societal_impact_forecasting_module_arc = Arc::new(SocietalImpactForecastingModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), predictive_forecasting_module_arc.clone(), imagination_dummy.clone(), ethical_forecasting_module_arc.clone(), global_knowledge_integration_module_arc.clone()));
         let bio_integration_module_arc = Arc::new(BioIntegrationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ethical_forecasting_module_arc.clone(), environmental_impact_dummy.clone()));
-        let autonomous_philanthropy_module_arc = Arc::new(AutonomousPhilanthropyModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), global_knowledge_integration_module_arc.clone(), societal_impact_forecasting_module_arc.clone(), dynamic_resource_reallocation_module_arc.clone()));
+        let autonomous_philanthropy_module_arc = Arc::new(AutonomousPhilanthropyModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), global_knowledge_integration_module_arc.clone(), societal_impact_forecasting_module_arc.clone(), dynamic_resource_reallocation_dummy.clone()));
         let collaborative_creativity_module_arc = Arc::new(CollaborativeCreativityModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), hacse_orchestrator_arc.clone(), global_knowledge_integration_module_arc.clone(), ethical_governance_module_arc.clone(), zero_knowledge_proofs_module_arc.clone()));
         let sensory_fusion_module_arc = Arc::new(SensoryFusionModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_manager_arc.clone(), metacognition_dummy.clone(), ethical_forecasting_module_arc.clone()));
-        let attention_salience_module_arc = Arc::new(AttentionSalienceModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), sensory_fusion_module_arc.clone(), dynamic_resource_reallocation_module_arc.clone(), ethical_forecasting_module_arc.clone()));
-
-        // Initialize WorkingMemoryModule (Task 115)
-        let working_memory_module_arc = Arc::new(WorkingMemoryModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            dynamic_resource_reallocation_module_arc.clone(),
-            data_privacy_module_arc.clone(),
-            secure_enclave_module_arc.clone(),
-            red_team_simulation_module_arc.clone(),
-        ));
-        service_registry_arc.register_service(WorkingMemoryModule::as_os_service()).await?;
-
-        // Initialize LongTermSemanticMemoryModule (Task 116)
-        let long_term_semantic_memory_module_arc = Arc::new(LongTermSemanticMemoryModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            data_manager_arc.clone(),
-            global_knowledge_integration_module_arc.clone(),
-            causal_reasoning_engine_arc.clone(),
-            epistemic_reasoning_module_arc.clone(),
-            trust_reputation_module_arc.clone(),
-        ));
-        service_registry_arc.register_service(LongTermSemanticMemoryModule::as_os_service()).await?;
+        let attention_salience_module_arc = Arc::new(AttentionSalienceModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), sensory_fusion_module_arc.clone(), dynamic_resource_reallocation_dummy.clone(), ethical_forecasting_module_arc.clone()));
+        let working_memory_module_arc = Arc::new(WorkingMemoryModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), dynamic_resource_reallocation_dummy.clone(), data_privacy_module_arc.clone(), secure_enclave_module_arc.clone(), red_team_simulation_module_arc.clone()));
+        let long_term_semantic_memory_module_arc = Arc::new(LongTermSemanticMemoryModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_manager_arc.clone(), global_knowledge_integration_module_arc.clone(), causal_reasoning_engine_arc.clone(), epistemic_reasoning_module_arc.clone(), trust_reputation_module_arc.clone()));
 
         // Initialize EpisodicMemoryModule (Task 117)
         let episodic_memory_module_arc = Arc::new(EpisodicMemoryModule::new(
@@ -358,6 +340,18 @@ impl AgiCoreEngine {
             metacognition_dummy.clone(),
         ));
         service_registry_arc.register_service(EpisodicMemoryModule::as_os_service()).await?;
+
+        // Initialize ProspectiveMemoryModule (Task 118)
+        let prospective_memory_module_arc = Arc::new(ProspectiveMemoryModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            sensory_fusion_module_arc.clone(),
+            ethical_forecasting_module_arc.clone(),
+            red_team_simulation_module_arc.clone(),
+        ));
+        service_registry_arc.register_service(ProspectiveMemoryModule::as_os_service()).await?;
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
@@ -404,6 +398,8 @@ impl AgiCoreEngine {
             attention_salience_module: attention_salience_module_arc.clone(), // Assign attention salience module
             working_memory_module: working_memory_module_arc.clone(), // Assign working memory module
             long_term_semantic_memory_module: long_term_semantic_memory_module_arc.clone(), // Assign long-term semantic memory module
+            episodic_memory_module: episodic_memory_module_arc.clone(), // Assign episodic memory module
+            prospective_memory_module: prospective_memory_module_arc.clone(), // Assign prospective memory module
             ethical_governance_module: ethical_governance_module_arc.clone(), // Assign ethical governance module
             global_knowledge_integration_module: global_knowledge_integration_module_arc.clone(), // Assign global knowledge integration module
             societal_impact_forecasting_module: societal_impact_forecasting_module_arc.clone(), // Assign societal impact forecasting module
