@@ -65,12 +65,14 @@ pub mod counterfactual_reasoning_models;
 pub mod counterfactual_reasoning;
 pub mod explainable_predictive_models;
 pub mod explainable_predictive_modeling;
-pub mod multi_modal_models; // New module for multi-modal models
-pub mod multi_modal_learning; // New module for Multi-Modal Learning & Representation
+pub mod multi_modal_models;
+pub mod multi_modal_learning;
 pub mod multi_modal_learning_representation;
 pub mod symbolic_neural_hybrid_reasoning;
 pub mod embodied_learning_skill_acquisition;
 pub mod dynamic_ontological_evolution;
+pub mod metaphorical_mapping_models; // New module for metaphorical mapping models
+pub mod metaphorical_mapping; // New module for Metaphorical Mapping
 pub mod emotion_driven_cognitive_prioritization;
 pub mod meta_cognitive_self_regulation;
 pub mod abstract_task_decomposition_synthesis;
