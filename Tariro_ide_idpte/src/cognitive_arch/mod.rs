@@ -33,9 +33,13 @@ pub mod working_memory_models;
 pub mod working_memory;
 pub mod long_term_memory_models;
 pub mod long_term_semantic_memory;
-pub mod episodic_memory_models; // New module for episodic memory models
-pub mod episodic_memory; // New module for Episodic Memory
-pub mod prospective_memory_models; // New module for prospective memory models
-pub mod prospective_memory; // New module for Prospective Memory
+pub mod episodic_memory_models;
+pub mod episodic_memory;
+pub mod prospective_memory_models;
+pub mod prospective_memory;
+pub mod memory_consolidation_models;
+pub mod memory_consolidation;
+pub mod agi_behavior_models; // New module for AGI behavior models
+pub mod agi_behavior_prediction; // New module for AGI Behavior Prediction
 
 // Add other cognitive architecture modules here.
