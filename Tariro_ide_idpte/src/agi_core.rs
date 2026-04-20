@@ -281,7 +281,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Human-AGI Teaming & Trust Building...");
+        info!("Initializing AGI Core Engine with Global Knowledge Integration & Synthesis...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -428,7 +428,18 @@ impl AgiCoreEngine {
         let human_agi_skill_transfer_module_arc = Arc::new(HumanAGISkillTransferModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ethical_governance_module_arc.clone(), self_evolution_module_arc.clone(), global_knowledge_integration_module_arc.clone(), sensory_fusion_module_arc.clone()));
         let proactive_empathy_module_arc = Arc::new(ProactiveEmpathyModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), affective_computing_module_arc.clone(), theory_of_mind_module_arc.clone(), predictive_forecasting_module_arc.clone(), social_intelligence_module_arc.clone(), ethical_forecasting_module_arc.clone(), data_privacy_dummy.clone()));
         let social_norms_learning_module_arc = Arc::new(SocialNormsLearningModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), social_intelligence_module_arc.clone(), global_knowledge_integration_module_arc.clone(), moral_reasoning_module_arc.clone(), ethical_governance_module_arc.clone(), self_correction_biases_module_arc.clone()));
-        let collaborative_world_modeling_module_arc = Arc::new(CollaborativeWorldModelingModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), global_knowledge_integration_module_arc.clone(), multi_agent_coordination_module_arc.clone(), adversarial_robustness_module_arc.clone(), epistemic_reasoning_dummy.clone(), ethical_forecasting_module_arc.clone()));
+        let collaborative_world_modeling_module_arc = Arc::new(CollaborativeWorldModelingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            global_knowledge_integration_module_arc.clone(),
+            multi_agent_coordination_module_arc.clone(),
+            adversarial_robustness_module_arc.clone(),
+            epistemic_reasoning_dummy.clone(),
+            ethical_forecasting_module_arc.clone(),
+        ));
+        service_registry_arc.register_service(CollaborativeWorldModelingModule::as_os_service()).await?;
 
         // Initialize CreativeProblemSolvingModule (Task 133)
         let creative_problem_solving_module_arc = Arc::new(CreativeProblemSolvingModule::new(
@@ -604,6 +615,20 @@ impl AgiCoreEngine {
         ));
         service_registry_arc.register_service(HumanAGITeamingTrustBuildingModule::as_os_service()).await?;
 
+        // Initialize GlobalKnowledgeIntegrationSynthesisModule (Task 146)
+        let global_knowledge_integration_synthesis_module_arc = Arc::new(GlobalKnowledgeIntegrationSynthesisModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            global_knowledge_integration_module_arc.clone(),
+            long_term_semantic_memory_module_arc.clone(),
+            epistemic_reasoning_dummy.clone(),
+            trust_reputation_dummy.clone(),
+            self_correction_biases_module_arc.clone(),
+        ));
+        service_registry_arc.register_service(GlobalKnowledgeIntegrationSynthesisModule::as_os_service()).await?;
+
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
             sorae_orchestrator_internal: sorae_orchestrator_arc.clone(),
@@ -674,11 +699,11 @@ impl AgiCoreEngine {
             social_cognition_theory_of_mind_enhancement_module: social_cognition_theory_of_mind_enhancement_module_arc.clone(), // Assign social cognition & theory of mind enhancement module
             affective_computing_emotional_regulation_module: affective_computing_emotional_regulation_module_arc.clone(), // Assign affective computing & emotional regulation module
             empathy_compassion_enhancement_module: empathy_compassion_enhancement_module_arc.clone(), // Assign empathy & compassion enhancement module
-            adaptive_self_organization_module: Arc::new(AdaptiveSelfOrganizationModule::new_dummy(event_bus_arc.clone())),
-            self_healing_resilience_optimization_module: Arc::new(SelfHealingResilienceOptimizationModule::new_dummy(event_bus_arc.clone())),
-            self_evolution_continuous_improvement_module: Arc::new(SelfEvolutionContinuousImprovementModule::new_dummy(event_bus_arc.clone())),
+            adaptive_self_organization_module: adaptive_self_organization_module_arc.clone(),
+            self_healing_resilience_optimization_module: self_healing_resilience_optimization_module_arc.clone(),
+            self_evolution_continuous_improvement_module: self_evolution_continuous_improvement_module_arc.clone(),
             security_posture_adaptation_module: security_posture_adaptation_module_arc.clone(), // Assign security posture adaptation module
-            human_agi_teaming_trust_building_module: Arc::new(HumanAGITeamingTrustBuildingModule::new_dummy(event_bus_arc.clone())),
+            human_agi_teaming_trust_building_module: human_agi_teaming_trust_building_module_arc.clone(), // Assign human AGI teaming & trust building module
             global_knowledge_integration_synthesis_module: Arc::new(GlobalKnowledgeIntegrationSynthesisModule::new_dummy(event_bus_arc.clone())),
             societal_impact_forecasting_mitigation_module: Arc::new(SocietalImpactForecastingMitigationModule::new_dummy(event_bus_arc.clone())),
             bio_integration_symbiotic_design_module: Arc::new(BioIntegrationSymbioticDesignModule::new_dummy(event_bus_arc.clone())),
