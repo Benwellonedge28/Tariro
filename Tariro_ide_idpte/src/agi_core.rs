@@ -27,7 +27,7 @@ use crate::crypto_fabric::zero_knowledge_proofs::ZeroKnowledgeProofsModule;
 use crate::communication_bridge::CommunicationBridge;
 use crate::communication_bridge::human_agi_teaming::HumanAGITeamingModule;
 use crate::communication_bridge::human_agi_skill_transfer::HumanAGISkillTransferModule;
-use crate::communication_bridge::human_agi_teaming_trust_building::HumanAGITeamingTrustBuildingModule; // Import HumanAGITeamingTrustBuildingModule
+use crate::communication_bridge::human_agi_teaming_trust_building::HumanAGITeamingTrustBuildingModule;
 
 // Import HACSE modules
 use crate::co_creation::orchestrator::{HacseOrchestrator, HacseOptions};
@@ -69,9 +69,9 @@ use crate::omega_os::self_preservation::SelfPreservationModule;
 use crate::omega_os::self_evolution::SelfEvolutionModule;
 use crate::omega_os::adaptive_control::AdaptiveControlModule;
 use crate::omega_os::predictive_maintenance::PredictiveMaintenanceModule;
-use crate::omega_os::adaptive_self_organization::AdaptiveSelfOrganizationModule; // Import AdaptiveSelfOrganizationModule
-use crate::omega_os::self_healing_optimization::SelfHealingResilienceOptimizationModule; // Import SelfHealingResilienceOptimizationModule
-use crate::omega_os::self_evolution_continuous_improvement::SelfEvolutionContinuousImprovementModule; // Import SelfEvolutionContinuousImprovementModule
+use crate::omega_os::adaptive_self_organization::AdaptiveSelfOrganizationModule;
+use crate::omega_os::self_healing_optimization::SelfHealingResilienceOptimizationModule;
+use crate::omega_os::self_evolution_continuous_improvement::SelfEvolutionContinuousImprovementModule;
 
 // Import Cognitive Arch modules
 use crate::cognitive_arch::meta_learner::MetaLearner;
@@ -108,9 +108,9 @@ use crate::cognitive_arch::creative_problem_solving::CreativeProblemSolvingModul
 use crate::cognitive_arch::abstract_reasoning::AbstractReasoningModule;
 use crate::cognitive_arch::intuitive_reasoning::IntuitiveReasoningModule;
 use crate::cognitive_arch::wisdom_value_alignment::WisdomLongTermValueAlignmentModule;
-use crate::cognitive_arch::social_cognition::SocialCognitionTheoryOfMindEnhancementModule; // Import SocialCognitionTheoryOfMindEnhancementModule
-use crate::cognitive_arch::affective_regulation::AffectiveComputingEmotionalRegulationModule; // Import AffectiveComputingEmotionalRegulationModule
-use crate::cognitive_arch::empathy_compassion::EmpathyCompassionEnhancementModule; // Import EmpathyCompassionEnhancementModule
+use crate::cognitive_arch::social_cognition::SocialCognitionTheoryOfMindEnhancementModule;
+use crate::cognitive_arch::affective_regulation::AffectiveComputingEmotionalRegulationModule;
+use crate::cognitive_arch::empathy_compassion::EmpathyCompassionEnhancementModule;
 
 // Import Strategic Planning modules
 use crate::strategic_planning::hierarchical_planning::HierarchicalPlanningModule;
@@ -124,7 +124,7 @@ use crate::security::hardware_security::HardwareSecurityModule;
 use crate::security::red_team_simulation::RedTeamSimulationModule;
 use crate::security::secure_enclave::SecureEnclaveModule;
 use crate::security::adversarial_ml_defense::AdversarialMLDefenseModule;
-use crate::security::security_posture_adaptation::SecurityPostureAdaptationModule; // Import SecurityPostureAdaptationModule
+use crate::security::security_posture_adaptation::SecurityPostureAdaptationModule;
 
 // Import Forecasting/Environmental
 use crate::forecasting::forecasting::PredictiveForecastingModule;
@@ -135,7 +135,7 @@ use crate::environmental::global_knowledge_integration::GlobalKnowledgeIntegrati
 use crate::environmental::societal_impact_forecasting::SocietalImpactForecastingModule;
 use crate::environmental::bio_integration::BioIntegrationModule;
 use crate::environmental::autonomous_philanthropy::AutonomousPhilanthropyModule;
-use crate::environmental::multi_agent_coordination::MultiAgentCoordinationModule;
+use crate::environmental::multi_agent_coordination::MultiAgentCoordinat ionModule;
 use crate::environmental::proactive_empathy::ProactiveEmpathyModule;
 use crate::environmental::social_norms_learning::SocialNormsLearningModule;
 use crate::environmental::collaborative_world_modeling::CollaborativeWorldModelingModule;
@@ -392,7 +392,7 @@ impl AgiCoreEngine {
         let secure_enclave_module_arc = Arc::new(SecureEnclaveModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), hardware_security_module_arc.clone(), data_privacy_module_arc.clone()));
         let decentralized_consensus_module_arc = Arc::new(DecentralizedConsensusModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_privacy_module_arc.clone(), swarm_intelligence_module_arc.clone(), self_evolution_module_arc.clone()));
         let zero_knowledge_proofs_module_arc = Arc::new(ZeroKnowledgeProofsModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_privacy_module_arc.clone()));
-        let ethical_governance_module_arc = Arc::new(EthicalGovernanceModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), human_agi_teaming_dummy.clone(), decentralized_consensus_dummy.clone()));
+        let ethical_governance_module_arc = Arc::new(EthicalGovernanceModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), human_agi_teaming_dummy.clone(), decentralized_consensus_module_arc.clone()));
         let global_knowledge_integration_module_arc = Arc::new(GlobalKnowledgeIntegrationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_manager_arc.clone(), social_intelligence_dummy.clone(), epistemic_reasoning_dummy.clone()));
         let societal_impact_forecasting_module_arc = Arc::new(SocietalImpactForecastingModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), predictive_forecasting_module_arc.clone(), imagination_dummy.clone(), ethical_forecasting_module_arc.clone(), global_knowledge_integration_module_arc.clone()));
         let bio_integration_module_arc = Arc::new(BioIntegrationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ethical_forecasting_module_arc.clone(), environmental_impact_dummy.clone()));
@@ -683,13 +683,14 @@ impl AgiCoreEngine {
         ));
         service_registry_arc.register_service(QuantumSafePostQuantumCryptographyIntegrationModule::as_os_service()).await?;
 
+
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
             sorae_orchestrator_internal: sorae_orchestrator_arc.clone(),
             qr_ctfo_orchestrator: qr_ctfo_orchestrator_arc.clone(),
             ide_communication_bridge: Arc::new(CommunicationBridge::new_dummy()), // Placeholder
             hacse_prompt_sender,
-            hacse_orchestrator_internal: hacse_orchestrator_arc,
+                        hacse_orchestrator_internal: hacse_orchestrator_arc,
             aleca_orchestrator: aleca_orchestrator_arc.clone(), // Clone for return
             sorae_compliance_directive_sender,
             qrctfo_compliance_directive_sender: qrctfo_compliance_directive_sender_tx,
@@ -797,8 +798,6 @@ impl AgiCoreEngine {
             social_intelligence_module: social_intelligence_module_arc.clone(), // Assign social intelligence module
             service_command_rx,
         });
-
-        let agi_auditor_arc = Arc::new(agi_core_engine_instance);
 
         let aleca_orchestrator_clone = aleca_orchestrator_arc.clone();
         let agi_auditor_for_aleca = agi_auditor_arc.clone();
