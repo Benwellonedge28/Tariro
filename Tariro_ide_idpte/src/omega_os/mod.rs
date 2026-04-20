@@ -22,7 +22,9 @@ pub mod predictive_maintenance;
 pub mod adaptive_self_organization;
 pub mod self_healing_optimization;
 pub mod self_evolution_continuous_improvement;
-pub mod self_evolving_models; // New module for self-evolving models
-pub mod self_evolving_data_structures_algorithmic_optimization; // New module for Self-Evolving Data Structures & Algorithmic Optimization
+pub mod self_evolving_models;
+pub mod self_evolving_data_structures_algorithmic_optimization;
+pub mod neuromorphic_models; // New module for neuromorphic models
+pub mod neuromorphic_hardware_integration_optimization; // New module for Neuromorphic Hardware Integration & Optimization
 
 // Add other OMEGA OS modules here.
