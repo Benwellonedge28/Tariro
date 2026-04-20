@@ -8,7 +8,8 @@ pub mod hardware_security;
 pub mod red_team_simulation;
 pub mod secure_enclave;
 pub mod adversarial_ml_defense;
-pub mod security_posture_models; // New module for security posture models
-pub mod security_posture_adaptation; // New module for Security Posture Adaptation
+pub mod security_posture_adaptation;
+pub mod risk_management_models; // New module for risk management models
+pub mod dynamic_risk_assessment_mitigation; // New module for Dynamic Risk Assessment & Mitigation
 
 // Add other security modules here.
