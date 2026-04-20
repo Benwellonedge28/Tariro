@@ -101,7 +101,8 @@ use crate::environmental::environmental_impact::EnvironmentalImpactModule;
 use crate::environmental::social_intelligence::SocialIntelligenceModule;
 use crate::environmental::global_knowledge_integration::GlobalKnowledgeIntegrationModule;
 use crate::environmental::societal_impact_forecasting::SocietalImpactForecastingModule;
-use crate::environmental::bio_integration::BioIntegrationModule; // Import BioIntegrationModule
+use crate::environmental::bio_integration::BioIntegrationModule;
+use crate::environmental::autonomous_philanthropy::AutonomousPhilanthropyModule; // Import AutonomousPhilanthropyModule
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -164,6 +165,7 @@ pub struct AgiCoreEngine {
     pub global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>,
     pub societal_impact_forecasting_module: Arc<SocietalImpactForecastingModule>,
     pub bio_integration_module: Arc<BioIntegrationModule>,
+    pub autonomous_philanthropy_module: Arc<AutonomousPhilanthropyModule>,
     pub self_organization_module: Arc<SelfOrganizationModule>,
     pub self_healing_module: Arc<SelfHealingModule>,
     pub self_preservation_module: Arc<SelfPreservationModule>,
@@ -193,7 +195,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Bio-integration...");
+        info!("Initializing AGI Core Engine with Autonomous Philanthropy...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -275,7 +277,7 @@ impl AgiCoreEngine {
         let predictive_forecasting_module_arc = Arc::new(PredictiveForecastingModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone()));
         let goal_management_module_arc = Arc::new(GoalManagementModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), meta_goal_manager_arc.clone(), hierarchical_rl_module_arc.clone()));
         let adversarial_robustness_module_arc = Arc::new(AdversarialRobustnessModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), self_healing_module_arc.clone()));
-        let ethical_forecasting_module_arc = Arc::new(EthicalForecastingModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), imagination_dummy.clone(), causal_reasoning_engine_arc.clone()));
+        let ethical_forecasting_module_arc = Arc::new(EthicalForecastingModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ImaginationModule::new_dummy(event_bus_arc.clone()), causal_reasoning_engine_arc.clone()));
         let quantum_safe_module_arc = Arc::new(QuantumSafeModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_manager_arc.clone()));
         let trust_reputation_module_arc = Arc::new(TrustReputationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), theory_of_mind_module_arc.clone()));
         let deception_detection_module_arc = Arc::new(DeceptionDetectionModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), theory_of_mind_module_arc.clone(), trust_reputation_module_arc.clone()));
@@ -299,31 +301,8 @@ impl AgiCoreEngine {
         let decentralized_consensus_module_arc = Arc::new(DecentralizedConsensusModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_privacy_module_arc.clone(), swarm_intelligence_module_arc.clone(), self_evolution_module_arc.clone()));
         let zero_knowledge_proofs_module_arc = Arc::new(ZeroKnowledgeProofsModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_privacy_module_arc.clone()));
         let ethical_governance_module_arc = Arc::new(EthicalGovernanceModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), human_agi_teaming_module_arc.clone(), decentralized_consensus_module_arc.clone()));
-
-        // Initialize GlobalKnowledgeIntegrationModule (Task 108)
-        let global_knowledge_integration_module_arc = Arc::new(GlobalKnowledgeIntegrationModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            data_manager_arc.clone(),
-            social_intelligence_module_arc.clone(),
-            epistemic_reasoning_module_arc.clone(),
-        ));
-        service_registry_arc.register_service(GlobalKnowledgeIntegrationModule::as_os_service()).await?;
-
-        // Initialize SocietalImpactForecastingModule (Task 109)
-        let societal_impact_forecasting_module_arc = Arc::new(SocietalImpactForecastingModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            predictive_forecasting_module_arc.clone(),
-            imagination_dummy.clone(),
-            ethical_forecasting_module_arc.clone(),
-            global_knowledge_integration_module_arc.clone(),
-        ));
-        service_registry_arc.register_service(SocietalImpactForecastingModule::as_os_service()).await?;
+        let global_knowledge_integration_module_arc = Arc::new(GlobalKnowledgeIntegrationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_manager_arc.clone(), social_intelligence_module_arc.clone(), epistemic_reasoning_module_arc.clone()));
+        let societal_impact_forecasting_module_arc = Arc::new(SocietalImpactForecastingModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), predictive_forecasting_module_arc.clone(), imagination_dummy.clone(), ethical_forecasting_module_arc.clone(), global_knowledge_integration_module_arc.clone()));
 
         // Initialize BioIntegrationModule (Task 110)
         let bio_integration_module_arc = Arc::new(BioIntegrationModule::new(
@@ -335,6 +314,18 @@ impl AgiCoreEngine {
             environmental_impact_module_arc.clone(),
         ));
         service_registry_arc.register_service(BioIntegrationModule::as_os_service()).await?;
+
+        // Initialize AutonomousPhilanthropyModule (Task 111)
+        let autonomous_philanthropy_module_arc = Arc::new(AutonomousPhilanthropyModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            global_knowledge_integration_module_arc.clone(),
+            societal_impact_forecasting_module_arc.clone(),
+            dynamic_resource_reallocation_module_arc.clone(),
+        ));
+        service_registry_arc.register_service(AutonomousPhilanthropyModule::as_os_service()).await?;
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
@@ -381,6 +372,7 @@ impl AgiCoreEngine {
             global_knowledge_integration_module: global_knowledge_integration_module_arc.clone(), // Assign global knowledge integration module
             societal_impact_forecasting_module: societal_impact_forecasting_module_arc.clone(), // Assign societal impact forecasting module
             bio_integration_module: bio_integration_module_arc.clone(), // Assign bio integration module
+            autonomous_philanthropy_module: autonomous_philanthropy_module_arc.clone(), // Assign autonomous philanthropy module
             self_organization_module: self_organization_module_arc.clone(), // Assign self-organization module
             self_healing_module: self_healing_module_arc.clone(), // Assign self-healing module
             self_preservation_module: self_preservation_module_arc.clone(), // Assign self-preservation module
