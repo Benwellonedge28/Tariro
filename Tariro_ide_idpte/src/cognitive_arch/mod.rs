@@ -61,5 +61,15 @@ pub mod empathy_models;
 pub mod empathy_compassion;
 pub mod causal_reasoning_models; // New module for causal reasoning models
 pub mod advanced_causal_discovery; // New module for Advanced Causal Discovery & Inference
+pub mod counterfactual_reasoning_models;
+pub mod counterfactual_reasoning;
+pub mod explainable_predictive_modeling;
+pub mod multi_modal_learning_representation;
+pub mod symbolic_neural_hybrid_reasoning;
+pub mod embodied_learning_skill_acquisition;
+pub mod dynamic_ontological_evolution;
+pub mod emotion_driven_cognitive_prioritization;
+pub mod meta_cognitive_self_regulation;
+pub mod abstract_task_decomposition_synthesis;
 
 // Add other cognitive architecture modules here.

@@ -145,7 +145,7 @@ impl AdvancedCausalDiscoveryInferenceModule {
 
         // Use ExplainableAIModule for transparent inference explanations (Sub-Task 153.1)
         let explanation = self.explainable_ai_module.generate_decision_explanations(
-            &Uuid::new_v4().to_string(),
+            &Uuid::new_v4().to_string(), // Dummy decision ID
             &format!("Explanation for counterfactual inference on model '{}' with intervention '{}'.", model.name, hypothetical_intervention),
             "AdvancedCausalDiscoveryInferenceModule"
         ).await.map_err(|e| e.to_string())?;
