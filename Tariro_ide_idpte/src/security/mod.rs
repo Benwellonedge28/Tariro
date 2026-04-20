@@ -13,7 +13,9 @@ pub mod risk_management_models;
 pub mod dynamic_risk_assessment_mitigation;
 pub mod threat_intelligence_models;
 pub mod real_time_threat_intelligence_fusion_adaptive_defense;
-pub mod explainable_security_models; // New module for explainable security models
-pub mod explainable_security_decision_making_auditability; // New module for Explainable Security Decision Making & Auditability
+pub mod explainable_security_models;
+pub mod explainable_security_decision_making_auditability;
+pub mod threat_anticipation_models; // New module for threat anticipation models
+pub mod proactive_threat_anticipation_pre_emption; // New module for Proactive Threat Anticipation & Pre-emption
 
 // Add other security modules here.
