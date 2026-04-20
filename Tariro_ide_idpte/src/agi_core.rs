@@ -27,7 +27,6 @@ use crate::crypto_fabric::zero_knowledge_proofs::ZeroKnowledgeProofsModule;
 use crate::communication_bridge::CommunicationBridge;
 use crate::communication_bridge::human_agi_teaming::HumanAGITeamingModule;
 use crate::communication_bridge::human_agi_skill_transfer::HumanAGISkillTransferModule;
-use crate::communication_bridge::human_agi_teaming_trust_building::HumanAGITeamingTrustBuildingModule;
 
 // Import HACSE modules
 use crate::co_creation::orchestrator::{HacseOrchestrator, HacseOptions};
@@ -69,9 +68,6 @@ use crate::omega_os::self_preservation::SelfPreservationModule;
 use crate::omega_os::self_evolution::SelfEvolutionModule;
 use crate::omega_os::adaptive_control::AdaptiveControlModule;
 use crate::omega_os::predictive_maintenance::PredictiveMaintenanceModule;
-use crate::omega_os::adaptive_self_organization::AdaptiveSelfOrganizationModule;
-use crate::omega_os::self_healing_optimization::SelfHealingResilienceOptimizationModule;
-use crate::omega_os::self_evolution_continuous_improvement::SelfEvolutionContinuousImprovementModule;
 
 // Import Cognitive Arch modules
 use crate::cognitive_arch::meta_learner::MetaLearner;
@@ -110,10 +106,15 @@ use crate::cognitive_arch::intuitive_reasoning::IntuitiveReasoningModule;
 use crate::cognitive_arch::wisdom_value_alignment::WisdomLongTermValueAlignmentModule;
 use crate::cognitive_arch::social_cognition::SocialCognitionTheoryOfMindEnhancementModule;
 use crate::cognitive_arch::affective_regulation::AffectiveComputingEmotionalRegulationModule;
-use crate::cognitive_arch::empathy_compassion::EmpathyCompassionEnhancementModule;
+use crate::cognitive_arch::empathy_compassion::EmpathyCompassionEnhancementModule; // Import EmpathyCompassionEnhancementModule
 
 // Import Strategic Planning modules
 use crate::strategic_planning::hierarchical_planning::HierarchicalPlanningModule;
+
+// Import Self-X modules
+use crate::omega_os::adaptive_self_organization::AdaptiveSelfOrganizationModule; // Import AdaptiveSelfOrganizationModule
+use crate::omega_os::self_healing_optimization::SelfHealingResilienceOptimizationModule; // Import SelfHealingResilienceOptimizationModule
+use crate::omega_os::self_evolution_continuous_improvement::SelfEvolutionContinuousImprovementModule; // Import SelfEvolutionContinuousImprovementModule
 
 // Import Security modules
 use crate::security::adversarial_robustness::AdversarialRobustnessModule;
@@ -124,7 +125,7 @@ use crate::security::hardware_security::HardwareSecurityModule;
 use crate::security::red_team_simulation::RedTeamSimulationModule;
 use crate::security::secure_enclave::SecureEnclaveModule;
 use crate::security::adversarial_ml_defense::AdversarialMLDefenseModule;
-use crate::security::security_posture_adaptation::SecurityPostureAdaptationModule;
+use crate::security::security_posture_adaptation::SecurityPostureAdaptationModule; // Import SecurityPostureAdaptationModule
 
 // Import Forecasting/Environmental
 use crate::forecasting::forecasting::PredictiveForecastingModule;
@@ -141,7 +142,7 @@ use crate::environmental::social_norms_learning::SocialNormsLearningModule;
 use crate::environmental::collaborative_world_modeling::CollaborativeWorldModelingModule;
 use crate::environmental::global_knowledge_integration_synthesis::GlobalKnowledgeIntegrationSynthesisModule; // Import GlobalKnowledgeIntegrationSynthesisModule
 use crate::environmental::societal_impact_mitigation::SocietalImpactForecastingMitigationModule; // Import SocietalImpactForecastingMitigationModule
-use crate::environmental::bio_integration_symbiotic_design::BioIntegrationSymbioticDesignModule; // Import BioIntegrationSymbioticDesignModule
+use use crate::environmental::bio_integration_symbiotic_design::BioIntegrationSymbioticDesignModule; // Import BioIntegrationSymbioticDesignModule
 use crate::environmental::autonomous_philanthropy_resource_deployment::AutonomousPhilanthropyResourceDeploymentModule; // Import AutonomousPhilanthropyResourceDeploymentModule
 use crate::environmental::universal_interoperability::UniversalInteroperabilityOmniProtocolAutonomyModule; // Import UniversalInteroperabilityOmniProtocolAutonomyModule
 use crate::environmental::decentralized_governance_consensus::DecentralizedGovernanceVerifiableConsensusModule; // Import DecentralizedGovernanceVerifiableConsensusModule
@@ -279,7 +280,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Quantum-Safe Post-Quantum Cryptography Integration...");
+        info!("Initializing AGI Core Engine with Affective Computing & Emotional Regulation...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -690,7 +691,7 @@ impl AgiCoreEngine {
             qr_ctfo_orchestrator: qr_ctfo_orchestrator_arc.clone(),
             ide_communication_bridge: Arc::new(CommunicationBridge::new_dummy()), // Placeholder
             hacse_prompt_sender,
-                        hacse_orchestrator_internal: hacse_orchestrator_arc,
+            hacse_orchestrator_internal: hacse_orchestrator_arc,
             aleca_orchestrator: aleca_orchestrator_arc.clone(), // Clone for return
             sorae_compliance_directive_sender,
             qrctfo_compliance_directive_sender: qrctfo_compliance_directive_sender_tx,
@@ -718,7 +719,7 @@ impl AgiCoreEngine {
             metacognition_module: metacognition_dummy.clone(), // Assign metacognition module
             imagination_module: imagination_dummy.clone(), // Assign imagination module
             formal_reasoning_module: formal_reasoning_dummy.clone(), // Assign formal reasoning module
-            emotion_motivation_module: emotion_motivation_dummy.clone(), // Assign emotion motivation module
+            emotion_motivation_module: Arc::new(EmotionMotivationModule::new_dummy(event_bus_arc.clone())),
             creativity_innovation_module: Arc::new(CreativityInnovationModule::new_dummy(event_bus_arc.clone())),
             swarm_intelligence_module: swarm_intelligence_module_arc.clone(), // Assign swarm intelligence module
             embodied_cognition_module: embodied_cognition_module_arc.clone(), // Assign embodied cognition module
@@ -753,19 +754,19 @@ impl AgiCoreEngine {
             goal_synthesis_emergent_objective_generation_module: goal_synthesis_emergent_objective_generation_module_arc.clone(), // Assign goal synthesis & emergent objective generation module
             social_cognition_theory_of_mind_enhancement_module: social_cognition_theory_of_mind_enhancement_module_arc.clone(), // Assign social cognition & theory of mind enhancement module
             affective_computing_emotional_regulation_module: affective_computing_emotional_regulation_module_arc.clone(), // Assign affective computing & emotional regulation module
-            empathy_compassion_enhancement_module: empathy_compassion_enhancement_module_arc.clone(), // Assign empathy & compassion enhancement module
-            adaptive_self_organization_module: adaptive_self_organization_module_arc.clone(), // Assign adaptive self-organization module
-            self_healing_resilience_optimization_module: self_healing_resilience_optimization_module_arc.clone(), // Assign self-healing & resilience optimization module
-            self_evolution_continuous_improvement_module: self_evolution_continuous_improvement_module_arc.clone(), // Assign self-evolution & continuous improvement module
-            security_posture_adaptation_module: security_posture_adaptation_module_arc.clone(), // Assign security posture adaptation module
-            human_agi_teaming_trust_building_module: human_agi_teaming_trust_building_module_arc.clone(), // Assign human-AGI teaming & trust building module
-            global_knowledge_integration_synthesis_module: global_knowledge_integration_synthesis_module_arc.clone(), // Assign global knowledge integration & synthesis module
-            societal_impact_forecasting_mitigation_module: societal_impact_forecasting_mitigation_module_arc.clone(), // Assign societal impact forecasting & mitigation module
-            bio_integration_symbiotic_design_module: bio_integration_symbiotic_design_module_arc.clone(), // Assign bio-integration & symbiotic design module
-            autonomous_philanthropy_resource_deployment_module: autonomous_philanthropy_resource_deployment_module_arc.clone(), // Assign autonomous philanthropy & resource deployment module
-            universal_interoperability_omni_protocol_autonomy_module: universal_interoperability_omni_protocol_autonomy_module_arc.clone(), // Assign universal interoperability & omni-protocol autonomy module
-            decentralized_governance_verifiable_consensus_module: decentralized_governance_verifiable_consensus_module_arc.clone(), // Assign decentralized governance & verifiable consensus module
-            quantum_safe_post_quantum_cryptography_integration_module: quantum_safe_post_quantum_cryptography_integration_module_arc.clone(), // Assign quantum-safe post-quantum cryptography integration module
+            empathy_compassion_enhancement_module: empathy_compassion_enhancement_module_arc.clone(),
+            adaptive_self_organization_module: Arc::new(AdaptiveSelfOrganizationModule::new_dummy(event_bus_arc.clone())),
+            self_healing_resilience_optimization_module: Arc::new(SelfHealingResilienceOptimizationModule::new_dummy(event_bus_arc.clone())),
+            self_evolution_continuous_improvement_module: Arc::new(SelfEvolutionContinuousImprovementModule::new_dummy(event_bus_arc.clone())),
+            security_posture_adaptation_module: Arc::new(SecurityPostureAdaptationModule::new_dummy(event_bus_arc.clone())),
+            human_agi_teaming_trust_building_module: Arc::new(HumanAGITeamingTrustBuildingModule::new_dummy(event_bus_arc.clone())),
+            global_knowledge_integration_synthesis_module: Arc::new(GlobalKnowledgeIntegrationSynthesisModule::new_dummy(event_bus_arc.clone())),
+            societal_impact_forecasting_mitigation_module: Arc::new(SocietalImpactForecastingMitigationModule::new_dummy(event_bus_arc.clone())),
+            bio_integration_symbiotic_design_module: Arc::new(BioIntegrationSymbioticDesignModule::new_dummy(event_bus_arc.clone())),
+            autonomous_philanthropy_resource_deployment_module: Arc::new(AutonomousPhilanthropyResourceDeploymentModule::new_dummy(event_bus_arc.clone())),
+            universal_interoperability_omni_protocol_autonomy_module: Arc::new(UniversalInteroperabilityOmniProtocolAutonomyModule::new_dummy(event_bus_arc.clone())),
+            decentralized_governance_verifiable_consensus_module: Arc::new(DecentralizedGovernanceVerifiableConsensusModule::new_dummy(event_bus_arc.clone())),
+            quantum_safe_post_quantum_cryptography_integration_module: Arc::new(QuantumSafePostQuantumCryptographyIntegrationModule::new_dummy(event_bus_arc.clone())),
             ethical_governance_module: ethical_governance_module_arc.clone(), // Assign ethical governance module
             global_knowledge_integration_module: global_knowledge_integration_module_arc.clone(), // Assign global knowledge integration module
             societal_impact_forecasting_module: societal_impact_forecasting_module_arc.clone(), // Assign societal impact forecasting module
