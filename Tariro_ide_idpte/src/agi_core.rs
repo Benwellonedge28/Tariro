@@ -58,7 +58,8 @@ use crate::omega_os::self_organization::SelfOrganizationModule;
 use crate::omega_os::self_healing::SelfHealingModule;
 use crate::omega_os::self_preservation::SelfPreservationModule;
 use crate::omega_os::self_evolution::SelfEvolutionModule;
-use crate::omega_os::adaptive_control::AdaptiveControlModule; // Import AdaptiveControlModule
+use crate::omega_os::adaptive_control::AdaptiveControlModule;
+use crate::omega_os::predictive_maintenance::PredictiveMaintenanceModule; // Import PredictiveMaintenanceModule
 
 // Import Cognitive Arch modules
 use crate::cognitive_arch::meta_learner::MetaLearner;
@@ -140,7 +141,7 @@ pub struct AgiCoreEngine {
     pub hierarchical_rl_module: Arc<HierarchicalRLModule>,
     pub lifelong_learning_module: Arc<LifelongLearningModule>,
     pub curiosity_exploration_module: Arc<CuriosityExplorationModule>,
-    pub intuition_heuristic_generator: Arc<IntuitionHeuristicGenerator>,
+    pub intuition_heuristics_generator: Arc<IntuitionHeuristicGenerator>,
     pub metacognition_module: Arc<MetacognitionModule>,
     pub imagination_module: Arc<ImaginationModule>,
     pub formal_reasoning_module: Arc<FormalReasoningModule>,
@@ -155,6 +156,8 @@ pub struct AgiCoreEngine {
     pub self_healing_module: Arc<SelfHealingModule>,
     pub self_preservation_module: Arc<SelfPreservationModule>,
     pub self_evolution_module: Arc<SelfEvolutionModule>,
+    pub adaptive_control_module: Arc<AdaptiveControlModule>,
+    pub predictive_maintenance_module: Arc<PredictiveMaintenanceModule>,
     pub resource_optimization_module: Arc<ResourceOptimizationModule>,
     pub dynamic_resource_reallocation_module: Arc<DynamicResourceReallocationModule>,
     pub predictive_forecasting_module: Arc<PredictiveForecastingModule>,
@@ -174,7 +177,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Adaptive Control...");
+        info!("Initializing AGI Core Engine with Predictive Maintenance...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -266,23 +269,12 @@ impl AgiCoreEngine {
         let epistemic_reasoning_module_arc = Arc::new(EpistemicReasoningModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), lifelong_learning_module_arc.clone(), trust_reputation_module_arc.clone(), curiosity_exploration_module_arc.clone(), common_sense_reasoning_network_arc.clone(), data_manager_arc.clone()));
         let affective_computing_module_arc = Arc::new(AffectiveComputingModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), theory_of_mind_module_arc.clone(), social_intelligence_module_arc.clone(), data_privacy_module_arc.clone()));
         let self_preservation_module_arc = Arc::new(SelfPreservationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), self_healing_module_arc.clone(), resource_optimization_module_arc.clone(), adversarial_robustness_module_arc.clone(), environmental_impact_module_arc.clone()));
-        let self_evolution_module_arc = Arc::new(SelfEvolutionModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), self_modification_agent_arc.clone(), formal_reasoning_module_arc.clone(), self_healing_module_arc.clone(), metacognition_module_arc.clone()));
+        let self_evolution_module_arc = Arc::new(SelfEvolutionModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), self_modification_agent_arc.clone(), formal_reasoning_dummy.clone(), self_healing_module_arc.clone(), metacognition_module_arc.clone()));
+        let dynamic_resource_reallocation_module_arc = Arc::new(DynamicResourceReallocationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), predictive_forecasting_module_arc.clone(), meta_goal_manager_arc.clone(), sorae_orchestrator_arc.clone(), resource_optimization_module_arc.clone()));
+        let adaptive_control_module_arc = Arc::new(AdaptiveControlModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), predictive_forecasting_module_arc.clone(), metacognition_module_arc.clone(), ethical_forecasting_module_arc.clone(), dynamic_resource_reallocation_module_arc.clone(), self_evolution_module_arc.clone()));
 
-        // Initialize Dynamic Resource Reallocation (Task 99)
-        let dynamic_resource_reallocation_module_arc = Arc::new(DynamicResourceReallocationModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            predictive_forecasting_module_arc.clone(),
-            meta_goal_manager_arc.clone(),
-            sorae_orchestrator_arc.clone(),
-            resource_optimization_module_arc.clone(),
-        ));
-        service_registry_arc.register_service(DynamicResourceReallocationModule::as_os_service()).await?;
-
-        // Initialize AdaptiveControlModule (Task 101)
-        let adaptive_control_module_arc = Arc::new(AdaptiveControlModule::new(
+        // Initialize PredictiveMaintenanceModule (Task 102)
+        let predictive_maintenance_module_arc = Arc::new(PredictiveMaintenanceModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
@@ -290,10 +282,10 @@ impl AgiCoreEngine {
             predictive_forecasting_module_arc.clone(),
             metacognition_module_arc.clone(),
             ethical_forecasting_module_arc.clone(),
+            self_healing_module_arc.clone(),
             dynamic_resource_reallocation_module_arc.clone(),
-            self_evolution_module_arc.clone(),
         ));
-        service_registry_arc.register_service(AdaptiveControlModule::as_os_service()).await?;
+        service_registry_arc.register_service(PredictiveMaintenanceModule::as_os_service()).await?;
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
@@ -340,6 +332,8 @@ impl AgiCoreEngine {
             self_healing_module: self_healing_module_arc.clone(), // Assign self-healing module
             self_preservation_module: self_preservation_module_arc.clone(), // Assign self-preservation module
             self_evolution_module: self_evolution_module_arc.clone(), // Assign self-evolution module
+            adaptive_control_module: adaptive_control_module_arc.clone(), // Assign adaptive control module
+            predictive_maintenance_module: predictive_maintenance_module_arc.clone(), // Assign predictive maintenance module
             resource_optimization_module: resource_optimization_module_arc.clone(), // Assign resource optimization module
             dynamic_resource_reallocation_module: dynamic_resource_reallocation_module_arc.clone(), // Assign dynamic resource reallocation module
             predictive_forecasting_module: predictive_forecasting_module_arc.clone(), // Assign predictive forecasting module
