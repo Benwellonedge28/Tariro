@@ -45,7 +45,21 @@ pub mod self_awareness_models;
 pub mod self_awareness_introspection;
 pub mod xai_models;
 pub mod explainable_ai;
-pub mod creative_problem_models; // New module for creative problem models
-pub mod creative_problem_solving; // New module for Creative Problem Solving
+pub mod creative_problem_models;
+pub mod creative_problem_solving;
+pub mod abstract_models;
+pub mod abstract_reasoning;
+pub mod intuitive_reasoning_models;
+pub mod intuitive_reasoning;
+pub mod wisdom_value_alignment_models;
+pub mod wisdom_value_alignment;
+pub mod social_cognition_models;
+pub mod social_cognition;
+pub mod affective_regulation_models;
+pub mod affective_regulation;
+pub mod empathy_models;
+pub mod empathy_compassion;
+pub mod causal_reasoning_models; // New module for causal reasoning models
+pub mod advanced_causal_discovery; // New module for Advanced Causal Discovery & Inference
 
 // Add other cognitive architecture modules here.
