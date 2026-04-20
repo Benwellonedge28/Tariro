@@ -22,7 +22,9 @@ pub mod societal_impact_mitigation;
 pub mod bio_integration_symbiotic_design;
 pub mod autonomous_philanthropy_models;
 pub mod autonomous_philanthropy_resource_deployment;
-pub mod universal_interoperability_models; // New module for Universal Interoperability models
-pub mod universal_interoperability; // New module for Universal Interoperability & Omni-Protocol Autonomy
+pub mod universal_interoperability_models;
+pub mod universal_interoperability;
+pub mod decentralized_governance_models; // New module for Decentralized Governance models
+pub mod decentralized_governance_consensus; // New module for Decentralized Governance & Verifiable Consensus
 
 // Add other environmental modules here.
