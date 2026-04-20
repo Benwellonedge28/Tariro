@@ -108,6 +108,7 @@ use crate::cognitive_arch::wisdom_value_alignment::WisdomLongTermValueAlignmentM
 use crate::cognitive_arch::social_cognition::SocialCognitionTheoryOfMindEnhancementModule;
 use crate::cognitive_arch::affective_regulation::AffectiveComputingEmotionalRegulationModule;
 use crate::cognitive_arch::empathy_compassion::EmpathyCompassionEnhancementModule;
+use crate::cognitive_arch::advanced_causal_discovery::AdvancedCausalDiscoveryInferenceModule; // Import AdvancedCausalDiscoveryInferenceModule
 
 // Import Strategic Planning modules
 use crate::strategic_planning::hierarchical_planning::HierarchicalPlanningModule;
@@ -281,7 +282,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Quantum-Safe Post-Quantum Cryptography Integration...");
+        info!("Initializing AGI Core Engine with Advanced Causal Discovery & Inference...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -798,7 +799,7 @@ impl AgiCoreEngine {
             autonomous_philanthropy_resource_deployment_module: autonomous_philanthropy_resource_deployment_module_arc.clone(), // Assign autonomous philanthropy & resource deployment module
             universal_interoperability_omni_protocol_autonomy_module: universal_interoperability_omni_protocol_autonomy_module_arc.clone(), // Assign universal interoperability & omni-protocol autonomy module
             decentralized_governance_verifiable_consensus_module: decentralized_governance_verifiable_consensus_module_arc.clone(), // Assign decentralized governance & verifiable consensus module
-            quantum_safe_post_quantum_cryptography_integration_module: Arc::new(QuantumSafePostQuantumCryptographyIntegrationModule::new_dummy(event_bus_arc.clone())),
+            quantum_safe_post_quantum_cryptography_integration_module: quantum_safe_post_quantum_cryptography_integration_module_arc.clone(), // Assign quantum-safe post-quantum cryptography integration module
             ethical_governance_module: ethical_governance_module_arc.clone(), // Assign ethical governance module
             global_knowledge_integration_module: global_knowledge_integration_module_arc.clone(), // Assign global knowledge integration module
             societal_impact_forecasting_module: societal_impact_forecasting_module_arc.clone(), // Assign societal impact forecasting module
