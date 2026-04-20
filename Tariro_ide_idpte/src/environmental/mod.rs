@@ -9,7 +9,9 @@ pub mod societal_impact_forecasting;
 pub mod bio_integration_models;
 pub mod bio_integration;
 pub mod autonomous_philanthropy;
-pub mod multi_agent_models; // New module for multi-agent models
-pub mod multi_agent_coordination; // New module for Multi-Agent Coordination
+pub mod multi_agent_models;
+pub mod multi_agent_coordination;
+pub mod empathy_models; // New module for empathy models
+pub mod proactive_empathy; // New module for Proactive Empathy
 
 // Add other environmental modules here.
