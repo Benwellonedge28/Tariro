@@ -389,19 +389,6 @@ impl AgiCoreEngine {
         ));
         service_registry_arc.register_service(DigitalTwinSimulationModule::as_os_service()).await?;
 
-        // Initialize HumanAGISkillTransferModule (Task 129)
-        let human_agi_skill_transfer_module_arc = Arc::new(HumanAGISkillTransferModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            ethical_governance_module_arc.clone(),
-            self_evolution_module_arc.clone(),
-            global_knowledge_integration_module_arc.clone(),
-            sensory_fusion_module_arc.clone(),
-        ));
-        service_registry_arc.register_service(HumanAGISkillTransferModule::as_os_service()).await?;
-
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
             sorae_orchestrator_internal: sorae_orchestrator_arc.clone(),
@@ -460,7 +447,6 @@ impl AgiCoreEngine {
             explainable_ai_module: explainable_ai_module_arc.clone(), // Assign explainable AI module
             self_correction_biases_module: self_correction_biases_module_arc.clone(), // Assign self-correction biases module
             digital_twin_simulation_module: digital_twin_simulation_module_arc.clone(), // Assign digital twin simulation module
-            human_agi_skill_transfer_module: human_agi_skill_transfer_module_arc.clone(), // Assign human AGI skill transfer module
             ethical_governance_module: ethical_governance_module_arc.clone(), // Assign ethical governance module
             global_knowledge_integration_module: global_knowledge_integration_module_arc.clone(), // Assign global knowledge integration module
             societal_impact_forecasting_module: societal_impact_forecasting_module_arc.clone(), // Assign societal impact forecasting module
