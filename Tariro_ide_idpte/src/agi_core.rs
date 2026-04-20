@@ -39,7 +39,7 @@ use crate::compliance_advisor::conflict_resolver::ComplianceRemediationAction;
 use crate::compliance_advisor::ethical_forecasting::EthicalForecastingModule;
 use crate::compliance_advisor::ethical_governance::EthicalGovernanceModule;
 use crate::compliance_advisor::moral_reasoning::MoralReasoningModule;
-use crate::compliance_advisor::self_correction_biases::SelfCorrectionBiasesModule; // Import SelfCorrectionBiasesModule
+use crate::compliance_advisor::self_correction_biases::SelfCorrectionBiasesModule;
 
 // Import Meta-Goals module
 use crate::agi_meta_goals::MetaGoalManager; 
@@ -97,6 +97,7 @@ use crate::cognitive_arch::prospective_memory::ProspectiveMemoryModule;
 use crate::cognitive_arch::memory_consolidation::MemoryConsolidationModule;
 use crate::cognitive_arch::agi_behavior_prediction::AgiBehaviorPredictionModule;
 use crate::cognitive_arch::self_awareness_introspection::SelfAwarenessIntrospectionModule;
+use crate::cognitive_arch::explainable_ai::ExplainableAIModule; // Import ExplainableAIModule
 
 // Import Strategic Planning modules
 use crate::strategic_planning::hierarchical_planning::HierarchicalPlanningModule;
@@ -149,8 +150,8 @@ pub struct AgiCoreEngine {
     qrctfo_compliance_directive_sender: mpsc::Sender<ComplianceRemediationAction>,
     pub meta_goal_manager: Arc<Mutex<MetaGoalManager>>,
     pub service_registry: Arc<ServiceRegistry>,
-    pub process_manager: Arc<ProcessManager>,
     pub event_bus: Arc<EventBus>,
+    pub process_manager: Arc<ProcessManager>,
     pub runtime_environment: Arc<RuntimeEnvironment>,
     pub app_loader: Arc<AppLoader>,
     pub network_manager: Arc<NetworkManager>,
@@ -191,6 +192,7 @@ pub struct AgiCoreEngine {
     pub self_awareness_introspection_module: Arc<SelfAwarenessIntrospectionModule>,
     pub moral_reasoning_module: Arc<MoralReasoningModule>,
     pub adversarial_ml_defense_module: Arc<AdversarialMLDefenseModule>,
+    pub explainable_ai_module: Arc<ExplainableAIModule>,
     pub ethical_governance_module: Arc<EthicalGovernanceModule>,
     pub global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>,
     pub societal_impact_forecasting_module: Arc<SocietalImpactForecastingModule>,
@@ -226,7 +228,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Self-Correction of Biases...");
+        info!("Initializing AGI Core Engine with Explainable AI (XAI) for Transparency & Trust...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -383,6 +385,19 @@ impl AgiCoreEngine {
         ));
         service_registry_arc.register_service(SelfCorrectionBiasesModule::as_os_service()).await?;
 
+        // Initialize ExplainableAIModule (Task 127)
+        let explainable_ai_module_arc = Arc::new(ExplainableAIModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            metacognition_dummy.clone(),
+            ethical_forecasting_module_arc.clone(),
+            ethical_governance_module_arc.clone(),
+            trust_reputation_dummy.clone(),
+        ));
+        service_registry_arc.register_service(ExplainableAIModule::as_os_service()).await?;
+
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
             sorae_orchestrator_internal: sorae_orchestrator_arc.clone(),
@@ -438,6 +453,7 @@ impl AgiCoreEngine {
             self_awareness_introspection_module: self_awareness_introspection_module_arc.clone(), // Assign self awareness introspection module
             moral_reasoning_module: moral_reasoning_module_arc.clone(), // Assign moral reasoning module
             adversarial_ml_defense_module: adversarial_ml_defense_module_arc.clone(), // Assign adversarial ML defense module
+            explainable_ai_module: explainable_ai_module_arc.clone(), // Assign explainable AI module
             self_correction_biases_module: self_correction_biases_module_arc.clone(), // Assign self-correction biases module
             ethical_governance_module: ethical_governance_module_arc.clone(), // Assign ethical governance module
             global_knowledge_integration_module: global_knowledge_integration_module_arc.clone(), // Assign global knowledge integration module
