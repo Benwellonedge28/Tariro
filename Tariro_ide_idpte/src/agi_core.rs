@@ -281,7 +281,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Global Knowledge Integration & Synthesis...");
+        info!("Initializing AGI Core Engine with Societal Impact Forecasting & Mitigation...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -629,6 +629,19 @@ impl AgiCoreEngine {
         ));
         service_registry_arc.register_service(GlobalKnowledgeIntegrationSynthesisModule::as_os_service()).await?;
 
+        // Initialize SocietalImpactForecastingMitigationModule (Task 147)
+        let societal_impact_forecasting_mitigation_module_arc = Arc::new(SocietalImpactForecastingMitigationModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            societal_impact_forecasting_module_arc.clone(),
+            predictive_forecasting_module_arc.clone(),
+            moral_reasoning_module_arc.clone(),
+            ethical_governance_module_arc.clone(),
+        ));
+        service_registry_arc.register_service(SocietalImpactForecastingMitigationModule::as_os_service()).await?;
+
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
             sorae_orchestrator_internal: sorae_orchestrator_arc.clone(),
@@ -699,12 +712,12 @@ impl AgiCoreEngine {
             social_cognition_theory_of_mind_enhancement_module: social_cognition_theory_of_mind_enhancement_module_arc.clone(), // Assign social cognition & theory of mind enhancement module
             affective_computing_emotional_regulation_module: affective_computing_emotional_regulation_module_arc.clone(), // Assign affective computing & emotional regulation module
             empathy_compassion_enhancement_module: empathy_compassion_enhancement_module_arc.clone(), // Assign empathy & compassion enhancement module
-            adaptive_self_organization_module: adaptive_self_organization_module_arc.clone(),
-            self_healing_resilience_optimization_module: self_healing_resilience_optimization_module_arc.clone(),
-            self_evolution_continuous_improvement_module: self_evolution_continuous_improvement_module_arc.clone(),
+            adaptive_self_organization_module: adaptive_self_organization_module_arc.clone(), // Assign adaptive self-organization module
+            self_healing_resilience_optimization_module: self_healing_resilience_optimization_module_arc.clone(), // Assign self-healing & resilience optimization module
+            self_evolution_continuous_improvement_module: self_evolution_continuous_improvement_module_arc.clone(), // Assign self-evolution & continuous improvement module
             security_posture_adaptation_module: security_posture_adaptation_module_arc.clone(), // Assign security posture adaptation module
             human_agi_teaming_trust_building_module: human_agi_teaming_trust_building_module_arc.clone(), // Assign human AGI teaming & trust building module
-            global_knowledge_integration_synthesis_module: Arc::new(GlobalKnowledgeIntegrationSynthesisModule::new_dummy(event_bus_arc.clone())),
+            global_knowledge_integration_synthesis_module: global_knowledge_integration_synthesis_module_arc.clone(), // Assign global knowledge integration & synthesis module
             societal_impact_forecasting_mitigation_module: Arc::new(SocietalImpactForecastingMitigationModule::new_dummy(event_bus_arc.clone())),
             bio_integration_symbiotic_design_module: Arc::new(BioIntegrationSymbioticDesignModule::new_dummy(event_bus_arc.clone())),
             autonomous_philanthropy_resource_deployment_module: Arc::new(AutonomousPhilanthropyResourceDeploymentModule::new_dummy(event_bus_arc.clone())),
