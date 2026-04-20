@@ -32,7 +32,9 @@ pub mod social_evolution_models;
 pub mod simulated_social_evolution;
 pub mod resource_optimization_models;
 pub mod global_resource_flow_optimization_autonomous_philanthropy;
-pub mod federated_learning_models; // New module for federated learning models
-pub mod decentralized_federated_learning_global_knowledge_synthesis; // New module for Decentralized Federated Learning for Global Knowledge Synthesis
+pub mod federated_learning_models;
+pub mod decentralized_federated_learning_global_knowledge_synthesis;
+pub mod global_crisis_models; // New module for global crisis models
+pub mod autonomous_global_crisis_response_management; // New module for Autonomous Global Crisis Response & Management
 
 // Add other environmental modules here.
