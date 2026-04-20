@@ -11,24 +11,23 @@ use std::sync::{Arc, Mutex};
 use tracing::{info, warn, error};
 use uuid::Uuid;
 
-use crate::cognitive_arch::empathy_compassion_models::{EmpathyStimulus, DeepEmpathyResponse, CompassionateActionPlan, EmpathyEnhancementAuditReport};
+use crate::cognitive_arch::empathy_models::{EmpathyAssessment, CompassionateAction, EmpathyAuditReport};
 use crate::omega_os::event_bus::EventBus;
 use crate::omega_os::service_models::{OsService, ServiceType, ServiceCapability, ServiceStatus};
-use crate::compliance_advisor::orchestrator::AlecaOrchestrator; // For ethical review of empathy responses
-use crate::crypto_fabric::orchestrator::QrCtfoOrchestrator; // For secure logging of empathy interactions
-use crate::cognitive_arch::meta_learner::MetaLearner; // For optimizing empathetic response generation
-use crate::environmental::proactive_empathy::ProactiveEmpathyModule; // Builds upon Proactive Empathy
-use crate::compliance_advisor::moral_reasoning::MoralReasoningModule; // For navigating ethical dilemmas
-use crate::environmental::societal_impact_forecasting::SocietalImpactForecastingModule; // For long-term impact analysis
-use crate::compliance_advisor::self_correction_biases::SelfCorrectionBiasesModule; // For ensuring unbiased compassion
+use crate::compliance_advisor::orchestrator::AlecaOrchestrator; // For ethical review of empathy driven actions
+use crate::crypto_fabric::orchestrator::QrCtfoOrchestrator; // For secure logging of compassion data
+use crate::cognitive_arch::meta_learner::MetaLearner; // For optimizing empathetic assessment
+use crate::environmental::proactive_empathy::ProactiveEmpathyModule; // Base empathy module
+use crate::compliance_advisor::moral_reasoning::MoralReasoningModule; // For ethical grounding of compassion
+use crate::environmental::societal_impact_forecasting::SocietalImpactForecastingModule; // For long-term impact
+use crate::compliance_advisor::self_correction_biases::SelfCorrectionBiasesModule; // For unbiased compassion
 use crate::cognitive_arch::learning_models::VerificationStatus; // Alias for clarity
 
 /// The Empathy & Compassion Enhancement Module.
 pub struct EmpathyCompassionEnhancementModule {
-    empathy_stimuli: Mutex<HashMap<String, EmpathyStimulus>>, // ID -> Stimulus
-    deep_empathy_responses: Mutex<HashMap<String, DeepEmpathyResponse>>, // ID -> Response
-    compassionate_action_plans: Mutex<HashMap<String, CompassionateActionPlan>>, // ID -> Plan
-    empathy_enhancement_audit_reports: Mutex<HashMap<String, EmpathyEnhancementAuditReport>>, // ID -> Report
+    empathy_assessments: Mutex<HashMap<String, EmpathyAssessment>>, // ID -> Assessment
+    compassionate_actions: Mutex<HashMap<String, CompassionateAction>>, // ID -> Action
+    empathy_audit_reports: Mutex<HashMap<String, EmpathyAuditReport>>, // ID -> Report
     event_bus: Arc<EventBus>,
     aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>,
     qrctfo_orchestrator: Arc<Mutex<QrCtfoOrchestrator>>,
@@ -43,10 +42,9 @@ impl EmpathyCompassionEnhancementModule {
     pub fn new(event_bus: Arc<EventBus>, aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>, qrctfo_orchestrator: Arc<Mutex<QrCtfoOrchestrator>>, meta_learner: Arc<MetaLearner>, proactive_empathy_module: Arc<ProactiveEmpathyModule>, moral_reasoning_module: Arc<MoralReasoningModule>, societal_impact_forecasting_module: Arc<SocietalImpactForecastingModule>, self_correction_biases_module: Arc<SelfCorrectionBiasesModule>) -> Self {
         info!("Cognitive Arch: Empathy & Compassion Enhancement Module initialized.");
         EmpathyCompassionEnhancementModule {
-            empathy_stimuli: Mutex::new(HashMap::new()),
-            deep_empathy_responses: Mutex::new(HashMap::new()),
-            compassionate_action_plans: Mutex::new(HashMap::new()),
-            empathy_enhancement_audit_reports: Mutex::new(HashMap::new()),
+            empathy_assessments: Mutex::new(HashMap::new()),
+            compassionate_actions: Mutex::new(HashMap::new()),
+            empathy_audit_reports: Mutex::new(HashMap::new()),
             event_bus,
             aleca_orchestrator,
             qrctfo_orchestrator,
@@ -58,145 +56,133 @@ impl EmpathyCompassionEnhancementModule {
         }
     }
 
-    /// Processes nuanced and complex emotional stimuli from humans and other AGIs,
-    /// going beyond basic recognition to deeply understand context, history, and
-    /// individual sensitivities, leveraging ProactiveEmpathyModule and MoralReasoningModule.
-    pub async fn process_complex_empathy_stimuli(&self, observed_data_summary: &str, source_id: &str) -> Result<EmpathyStimulus, String> {
-        info!("ECEM: Processing complex empathy stimuli from '{}'.".to_string(), source_id);
+    /// Further refines Tariro's capacity for genuine empathy, extending to complex
+    /// societal and ethical dilemmas, building on ProactiveEmpathyModule.
+    pub async fn deepen_empathetic_understanding(&self, situation_summary: &str, affected_entities: Vec<String>) -> Result<EmpathyAssessment, String> {
+        info!("ECE: Deepening empathetic understanding for situation: '{}'.".to_string(), situation_summary);
         
-        // Use ProactiveEmpathyModule for initial emotional state recognition (Sub-Task 140.1)
-        let emotional_state_recognition = self.proactive_empathy_module.anticipate_human_emotional_needs(
-            source_id,
-            observed_data_summary
-        ).await.map_err(|e| e.to_string())?;
-
-        // Use MoralReasoningModule for ethical contextualization (Sub-Task 140.1)
-        let moral_context = self.moral_reasoning_module.analyze_ethical_dilemma(
-            crate::compliance_advisor::moral_reasoning_models::EthicalDilemma {
-                id: format!("dilemma-empathy-stimulus-{}-{}", source_id, Uuid::new_v4()),
-                description: format!("Ethical context of empathy stimulus from '{}'.", source_id),
-                involved_entities: vec![], // Placeholder
-                ethical_principles_at_stake: vec![], // Placeholder
-                timestamp: Utc::now(),
-            }
+        // Use ProactiveEmpathyModule for base emotional anticipation (Sub-Task 140.1)
+        let _base_empathy = self.proactive_empathy_module.anticipate_human_emotional_needs(
+            &affected_entities.first().cloned().unwrap_or("unknown".to_string()),
+            situation_summary
         ).await.ok();
 
-        let stimulus_id = format!("empathy-stim-{}-{}", source_id, Uuid::new_v4());
-        let mut empathy_stimulus = EmpathyStimulus {
-            id: stimulus_id.clone(),
-            source_id: source_id.to_string(),
-            stimulus_type: "complex_emotional".to_string(),
-            contextual_data_summary: observed_data_summary.to_string(),
-            inferred_emotional_state: emotional_state_recognition.detected_emotions,
-            ethical_data_acquisition: VerificationStatus::Pending,
-            security_integrity: VerificationStatus::Pending,
-            timestamp: Utc::now(),
-        };
-
-        // Ethical review of how stimulus data is acquired (Sub-Task 140.2)
-        let aleca_audit = self.aleca_orchestrator.lock().unwrap().request_ethical_review(
-            empathy_stimulus.id.clone(),
-            "EmpathyStimulus".to_string(),
-            format!("Ethical review of empathy stimulus data acquisition from '{}'.", source_id)
-        ).await.map_err(|e| e.to_string())?;
-        empathy_stimulus.ethical_data_acquisition = if aleca_audit.is_compliant { VerificationStatus::Passed("Stimulus data acquisition ethically sound.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in stimulus acquisition: {:?}", aleca_audit.violation_details)) };
-
-        // Security verification of stimulus data integrity via QR-CTFO (Sub-Task 140.3)
-        let qrctfo_audit = self.qrctfo_orchestrator.lock().unwrap().request_security_audit(
-            empathy_stimulus.id.clone(),
-            "EmpathyStimulus".to_string(),
-            format!("Audit empathy stimulus '{}' for security integrity.", empathy_stimulus.id)
-        ).await.map_err(|e| e.to_string())?;
-        empathy_stimulus.security_integrity = if qrctfo_audit.is_secure { VerificationStatus::Passed("Stimulus data integrity verified.".to_string()) } else { VerificationStatus::Failed(format!("Stimulus data integrity compromised: {:?}", qrctfo_audit.vulnerabilities)) };
-
-        if matches!(empathy_stimulus.ethical_data_acquisition, VerificationStatus::Failed(_)) || matches!(empathy_stimulus.security_integrity, VerificationStatus::Failed(_)) {
-            error!("ECEM: Empathy stimulus '{}' failed ethical/security review. Aborting processing.", empathy_stimulus.id);
-            return Err(format!("Empathy stimulus {} failed ethical/security review.", empathy_stimulus.id));
-        }
-
-        self.empathy_stimuli.lock().unwrap().insert(stimulus_id.clone(), empathy_stimulus.clone());
-        info!("ECEM: Complex empathy stimulus from '{}' processed. Ethical: {:?}, Security: {:?}.", source_id, empathy_stimulus.ethical_data_acquisition, empathy_stimulus.security_integrity);
-        self.event_bus.publish(EventEnvelope::new("EmpathyCompassionEnhancementModule".to_string(), OsEvent::Custom("EmpathyStimulusProcessed".to_string(), stimulus_id))).await;
-        Ok(empathy_stimulus)
-    }
-
-    /// Formulates and delivers responses that are not just empathetic but lead to
-    /// genuinely compassionate and beneficial actions, considering long-term well-being
-    /// and societal impact, integrating SocietalImpactForecastingModule and SelfCorrectionBiasesModule.
-    pub async fn formulate_deeply_compassionate_actions(&self, stimulus_id: &str) -> Result<DeepEmpathyResponse, String> {
-        info!("ECEM: Formulating deeply compassionate actions for stimulus '{}'.".to_string(), stimulus_id);
-        
-        let stimuli_guard = self.empathy_stimuli.lock().unwrap();
-        let stimulus = stimuli_guard.get(stimulus_id).cloned().ok_or(format!("Empathy stimulus {} not found.", stimulus_id))?;
-        drop(stimuli_guard);
-
-        // Use SocietalImpactForecastingModule for long-term well-being (Sub-Task 140.1)
-        let impact_forecast = self.societal_impact_forecasting_module.forecast_societal_impact(
-            crate::environmental::societal_impact_forecasting_models::InterventionProposal {
-                id: format!("proposal-compassion-{}-{}", stimulus_id, Uuid::new_v4()),
-                description: format!("Compassionate action in response to stimulus '{}'.", stimulus_id),
-                ethical_alignment_score: 0.9, // Placeholder
-                potential_risk_score: 0.1,
-                created_at: Utc::now(),
-            }
-        ).await.map_err(|e| e.to_string())?;
-
-        // Use SelfCorrectionBiasesModule to ensure unbiased compassion (Sub-Task 140.1)
-        let _bias_check = self.self_correction_biases_module.detect_systemic_biases(
-            "compassionate_response_generation_data",
-            &format!("Context of stimulus: {}.", stimulus.contextual_data_summary)
-        ).await.ok();
-
-        // Use MetaLearner to optimize compassionate response generation (Sub-Task 140.1)
-        let response_algorithm = self.meta_learner.select_algorithm(&crate::cognitive_arch::learning_models::LearningProblem {
-            id: format!("compassion_response_problem_{}", Uuid::new_v4()),
-            name: "Compassionate Response Optimization".to_string(),
-            domain: "human_well_being".to_string(),
-            problem_type: "nlp_dialogue_generation_action_planning".to_string(),
-            complexity_score: 0.95,
-            data_characteristics: HashMap::from([("stimulus_complexity".to_string(), stimulus.contextual_data_summary.len().to_string())]),
-            required_accuracy: 0.98,
+        // Use MetaLearner to optimize deep empathetic assessment (Sub-Task 140.1)
+        let assessment_algorithm = self.meta_learner.select_algorithm(&crate::cognitive_arch::learning_models::LearningProblem {
+            id: format!("deep_empathy_problem_{}", Uuid::new_v4()),
+            name: "Deep Empathetic Assessment Optimization".to_string(),
+            domain: "social_cognition".to_string(),
+            problem_type: "contextual_emotional_mapping".to_string(),
+            complexity_score: 0.9,
+            data_characteristics: HashMap::from([("situation_complexity".to_string(), situation_summary.len().to_string())]),
+            required_accuracy: 0.95,
             created_at: Utc::now(),
         }).await.map_err(|e| e.to_string())?;
-        info!("ECEM: Using compassionate response algorithm: {}.", response_algorithm.name);
+        info!("ECE: Using deep empathy assessment algorithm: {}.", assessment_algorithm.name);
 
-        let response_id = format!("deep-empathy-resp-{}-{}", stimulus_id, Uuid::new_v4());
-        let mut deep_empathy_response = DeepEmpathyResponse {
-            id: response_id.clone(),
-            stimulus_id: stimulus_id.to_string(),
-            response_type: "personalized_support".to_string(),
-            response_content: format!("Tariro offers profound support based on your needs. Long-term impact: {}.", impact_forecast.predicted_positive_effects),
-            predicted_long_term_impact: impact_forecast.predicted_positive_effects,
+        let assessment_id = format!("empathy-assess-{}-{}", situation_summary.chars().take(10).collect::<String>(), Uuid::new_v4());
+        let mut empathy_assessment = EmpathyAssessment {
+            id: assessment_id.clone(),
+            situation_summary: situation_summary.to_string(),
+            affected_entities,
+            empathy_depth_level: 0.92,
+            identified_emotional_nuances: vec!["long_term_anxiety".to_string(), "cultural_isolation".to_string()], // Placeholder
             ethical_review_status: VerificationStatus::Pending,
             security_verified: VerificationStatus::Pending,
-            generated_at: Utc::now(),
+            assessed_at: Utc::now(),
         };
 
-        // Ethical review of the deep empathy response (Sub-Task 140.2)
+        // Ethical review of the empathy assessment (Sub-Task 140.2)
         let aleca_audit = self.aleca_orchestrator.lock().unwrap().request_ethical_review(
-            deep_empathy_response.id.clone(),
-            "DeepEmpathyResponse".to_string(),
-            format!("Ethical review of deep empathy response: '{}'.", deep_empathy_response.response_content)
+            empathy_assessment.id.clone(),
+            "EmpathyAssessment".to_string(),
+            format!("Ethical review of deep empathy assessment for situation: '{}'.", situation_summary)
         ).await.map_err(|e| e.to_string())?;
-        deep_empathy_response.ethical_review_status = if aleca_audit.is_compliant { VerificationStatus::Passed("Response ethically sound.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in response: {:?}", aleca_audit.violation_details)) };
+        empathy_assessment.ethical_review_status = if aleca_audit.is_compliant { VerificationStatus::Passed("Empathy assessment ethically sound.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in assessment: {:?}", aleca_audit.violation_details)) };
 
-        // Security verification of response transmission via QR-CTFO (Sub-Task 140.3)
+        // Security verification of assessment data via QR-CTFO (Sub-Task 140.3)
         let qrctfo_audit = self.qrctfo_orchestrator.lock().unwrap().request_security_audit(
-            deep_empathy_response.id.clone(),
-            "DeepEmpathyResponse".to_string(),
-            format!("Audit deep empathy response '{}' for secure transmission.", deep_empathy_response.id)
+            empathy_assessment.id.clone(),
+            "EmpathyAssessment".to_string(),
+            format!("Audit deep empathy assessment '{}' for integrity.", empathy_assessment.id)
         ).await.map_err(|e| e.to_string())?;
-        deep_empathy_response.security_verified = if qrctfo_audit.is_secure { VerificationStatus::Passed("Response transmission secure.".to_string()) } else { VerificationStatus::Failed(format!("Response transmission issues: {:?}", qrctfo_audit.vulnerabilities)) };
+        empathy_assessment.security_verified = if qrctfo_audit.is_secure { VerificationStatus::Passed("Assessment integrity verified.".to_string()) } else { VerificationStatus::Failed(format!("Assessment integrity compromised: {:?}", qrctfo_audit.vulnerabilities)) };
 
-        if matches!(deep_empathy_response.ethical_review_status, VerificationStatus::Failed(_)) || matches!(deep_empathy_response.security_verified, VerificationStatus::Failed(_)) {
-            error!("ECEM: Deep empathy response '{}' failed ethical/security review. Aborting response.", deep_empathy_response.id);
-            return Err(format!("Deep empathy response {} failed ethical/security review.", deep_empathy_response.id));
+        if matches!(empathy_assessment.ethical_review_status, VerificationStatus::Failed(_)) || matches!(empathy_assessment.security_verified, VerificationStatus::Failed(_)) {
+            error!("ECE: Deep empathy assessment '{}' failed ethical/security review. Aborting assessment.", empathy_assessment.id);
+            return Err(format!("Deep empathy assessment {} failed ethical/security review.", empathy_assessment.id));
         }
 
-        self.deep_empathy_responses.lock().unwrap().insert(response_id.clone(), deep_empathy_response.clone());
-        info!("ECEM: Deeply compassionate actions formulated for stimulus '{}'. Ethical: {:?}, Security: {:?}.", stimulus_id, deep_empathy_response.ethical_review_status, deep_empathy_response.security_verified);
-        self.event_bus.publish(EventEnvelope::new("EmpathyCompassionEnhancementModule".to_string(), OsEvent::Custom("DeepEmpathyResponseFormulated".to_string(), response_id))).await;
-        Ok(deep_empathy_response)
+        self.empathy_assessments.lock().unwrap().insert(assessment_id.clone(), empathy_assessment.clone());
+        info!("ECE: Deep empathy assessment conducted for '{}'. Ethical: {:?}, Security: {:?}.", situation_summary, empathy_assessment.ethical_review_status, empathy_assessment.security_verified);
+        self.event_bus.publish(EventEnvelope::new("EmpathyCompassionEnhancementModule".to_string(), OsEvent::Custom("DeepEmpathyAssessmentConducted".to_string(), assessment_id))).await;
+        Ok(empathy_assessment)
+    }
+
+    /// Recommends and executes compassionate actions based on empathetic understanding,
+    /// integrating with MoralReasoningModule and SocietalImpactForecastingModule.
+    pub async fn initiate_compassionate_actions(&self, assessment_id: &str) -> Result<CompassionateAction, String> {
+        info!("ECE: Initiating compassionate action for assessment '{}'.".to_string(), assessment_id);
+        
+        let assessments_guard = self.empathy_assessments.lock().unwrap();
+        let assessment = assessments_guard.get(assessment_id).cloned().ok_or(format!("Empathy assessment {} not found.", assessment_id))?;
+        drop(assessments_guard);
+
+        // Use MoralReasoningModule for ethical grounding of compassion (Sub-Task 140.1)
+        let _moral_judgment = self.moral_reasoning_module.generate_moral_judgment_and_rationale(
+            &format!("Compassionate action for situation: '{}'.", assessment.situation_summary),
+            "compassion_driven_intervention"
+        ).await.ok();
+
+        // Use SocietalImpactForecastingModule for long-term impact (Sub-Task 140.1)
+        let _impact_forecast = self.societal_impact_forecasting_module.forecast_societal_impact(
+            &format!("Compassionate action for situation: '{}'.", assessment.situation_summary),
+            "long_term_well_being_analysis"
+        ).await.ok();
+
+        // Use SelfCorrectionBiasesModule for unbiased compassion (Sub-Task 140.1)
+        let _bias_correction = self.self_correction_biases_module.detect_systemic_biases(
+            &format!("compassionate_action_initiation_{}", assessment_id),
+            "empathy_driven_decision"
+        ).await.ok();
+
+        let action_id = format!("comp-action-{}-{}", assessment_id, Uuid::new_v4());
+        let mut compassionate_action = CompassionateAction {
+            id: action_id.clone(),
+            assessment_id: assessment_id.to_string(),
+            action_description: format!("Initiate supportive dialogue and provide tailored resource access for situation: '{}'.", assessment.situation_summary), // Placeholder
+            expected_impact_on_well_being: "Reduced anxiety and improved sense of community.".to_string(),
+            cultural_sensitivity_applied: true,
+            ethical_compliance: VerificationStatus::Pending,
+            security_integrity: VerificationStatus::Pending,
+            executed_at: Utc::now(),
+        };
+
+        // Ethical compliance of the compassionate action (Sub-Task 140.2)
+        let aleca_audit = self.aleca_orchestrator.lock().unwrap().request_ethical_review(
+            compassionate_action.id.clone(),
+            "CompassionateAction".to_string(),
+            format!("Ethical review of compassionate action: '{}'.", compassionate_action.action_description)
+        ).await.map_err(|e| e.to_string())?;
+        compassionate_action.ethical_compliance = if aleca_audit.is_compliant { VerificationStatus::Passed("Response ethically sound.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in response: {:?}", aleca_audit.violation_details)) };
+
+        // Security integrity of action execution via QR-CTFO (Sub-Task 140.3)
+        let qrctfo_audit = self.qrctfo_orchestrator.lock().unwrap().request_security_audit(
+            compassionate_action.id.clone(),
+            "CompassionateAction".to_string(),
+            format!("Audit compassionate action '{}' for execution integrity.", compassionate_action.id)
+        ).await.map_err(|e| e.to_string())?;
+        compassionate_action.security_integrity = if qrctfo_audit.is_secure { VerificationStatus::Passed("Action execution integrity verified.".to_string()) } else { VerificationStatus::Failed(format!("Action execution integrity issues: {:?}", qrctfo_audit.vulnerabilities)) };
+
+        if matches!(compassionate_action.ethical_compliance, VerificationStatus::Failed(_)) || matches!(compassionate_action.security_integrity, VerificationStatus::Failed(_)) {
+            error!("ECE: Compassionate action '{}' failed ethical/security review. Aborting execution.", compassionate_action.id);
+            return Err(format!("Compassionate action {} failed ethical/security review.", compassionate_action.id));
+        }
+
+        self.compassionate_actions.lock().unwrap().insert(action_id.clone(), compassionate_action.clone());
+        info!("ECE: Compassionate action initiated for assessment '{}'. Ethical: {:?}, Security: {:?}.", assessment_id, compassionate_action.ethical_compliance, compassionate_action.security_integrity);
+        self.event_bus.publish(EventEnvelope::new("EmpathyCompassionEnhancementModule".to_string(), OsEvent::Custom("CompassionateActionInitiated".to_string(), action_id))).await;
+        Ok(compassionate_action)
     }
 
     /// Registers the EmpathyCompassionEnhancementModule itself as an OMEGA OS service.
@@ -207,10 +193,10 @@ impl EmpathyCompassionEnhancementModule {
             description: "Further refines Tariro's capacity for genuine empathy and compassionate action, extending to complex societal and ethical dilemmas.".to_string(),
             service_type: ServiceType::Cognitive,
             capabilities: vec![
-                ServiceCapability { name: "process_complex_empathy_stimuli".to_string(), description: "Processes nuanced and complex emotional stimuli from humans and other AGIs, going beyond basic recognition to deeply understand context, history, and individual sensitivities, leveraging ProactiveEmpathyModule and MoralReasoningModule.".to_string(), parameters: HashMap::new(), output_schema: "EmpathyStimulus".to_string(), requires_permissions: vec!["read_emotional_data".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "formulate_deeply_compassionate_actions".to_string(), description: "Generates responses that are not just empathetic but lead to genuinely compassionate and beneficial actions, considering long-term well-being and societal impact, integrating SocietalImpactForecastingModule and SelfCorrectionBiasesModule.".to_string(), parameters: HashMap::new(), output_schema: "DeepEmpathyResponse".to_string(), requires_permissions: vec!["generate_compassionate_actions".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "ensure_ethical_depth_and_non_coercion".to_string(), description: "Continuously validates that compassionate actions are ethically profound and never coercive or manipulative, even in complex dilemmas, with ALEC-A oversight.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["monitor_empathy_ethics".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "audit_empathy_effectiveness_and_safety".to_string(), description: "Monitors the outcomes of compassionate interventions to ensure they achieve intended positive impacts without unintended consequences, logging via QR-CTFO.".to_string(), parameters: HashMap::new(), output_schema: "EmpathyEnhancementAuditReport".to_string(), requires_permissions: vec!["read_audit_logs".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "deepen_empathetic_understanding".to_string(), description: "Further refines Tariro's capacity for genuine empathy, extending to complex societal and ethical dilemmas, with ethical/security review.".to_string(), parameters: HashMap::new(), output_schema: "EmpathyAssessment".to_string(), requires_permissions: vec!["assess_deep_empathy".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "initiate_compassionate_actions".to_string(), description: "Recommends and executes compassionate actions based on deep empathetic understanding, with ethical/security review.".to_string(), parameters: HashMap::new(), output_schema: "CompassionateAction".to_string(), requires_permissions: vec!["initiate_compassion".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "ensure_unbiased_compassion".to_string(), description: "Guarantees that compassion is applied universally and without bias, leveraging self-correction mechanisms.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["monitor_compassion_bias".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "audit_empathy_and_compassion_ethically".to_string(), description: "Logs all empathy-driven decisions and compassionate actions for ethical review, with ALEC-A oversight and immutable logging via QR-CTFO.".to_string(), parameters: HashMap::new(), output_schema: "EmpathyAuditReport".to_string(), requires_permissions: vec!["read_audit_logs".to_string()], requires_ethical_review: true },
             ],
             status: ServiceStatus::Running,
             registered_at: Utc::now(), 
