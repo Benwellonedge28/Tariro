@@ -56,7 +56,6 @@ pub struct SelfHealingAuditReport {
     pub period_end: DateTime<Utc>,
     pub total_failures_handled: u64,
     pub successful_repairs: u64,
-    pub detected_empathy_biases: Vec<String>,
     pub ethical_compliance_status: VerificationStatus, // Overall ethical compliance of self-healing
     pub security_integrity_status: VerificationStatus, // Overall security integrity of self-healing systems
     pub blockchain_record_hash: String, // New: Tamper-proof hash from QR-CTFO

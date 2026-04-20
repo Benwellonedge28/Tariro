@@ -93,8 +93,8 @@ impl SelfHealingResilienceOptimizationModule {
         // Security vulnerabilities exposed by the failure (Sub-Task 142.3)
         let security_audit = self.red_team_simulation_module.run_vulnerability_assessment(
             &format!("Vulnerability assessment for failure in '{}'.", component_id),
-            "general_problem_domain_security_assessment",
-            vec!["data_exposure_risk".to_string(), "privilege_escalation_risk".to_string()]
+            "failure_induced_vulnerability_scan",
+            vec!["data_breach_risk".to_string(), "privilege_escalation_risk".to_string()]
         ).await.map_err(|e| e.to_string())?;
         failure_report.security_vulnerabilities = security_audit.vulnerabilities_detected;
 
@@ -155,7 +155,7 @@ impl SelfHealingResilienceOptimizationModule {
             "RepairAction".to_string(),
             format!("Ethical review of repair action: '{}'.", repair_action.action_description)
         ).await.map_err(|e| e.to_string())?;
-        repair_action.ethical_compliance = if aleca_audit.is_compliant { VerificationStatus::Passed("Repair action ethically compliant.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in repair: {:?}", aleca_audit.violation_details)) };
+        repair_action.ethical_compliance = if aleca_audit.is_compliant { VerificationStatus::Passed("Repair action ethically sound.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in repair: {:?}", aleca_audit.violation_details)) };
 
         // Security audit of the repair implementation via QR-CTFO (Sub-Task 142.3)
         let qrctfo_audit = self.qrctfo_orchestrator.lock().unwrap().request_security_audit(
