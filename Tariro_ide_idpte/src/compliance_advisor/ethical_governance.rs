@@ -2,8 +2,7 @@
 
 //! Implements Tariro's Ethical Governance & Oversight Mechanisms module,
 //! establishing frameworks for human oversight, review, and intervention in
-//! critical AGI decisions, ensuring alignment with human values and transparent
-//! accountability.
+//! critical AGI decisions, ensuring alignment with human values.
 
 use anyhow::Result;
 use chrono::{Utc, DateTime};
@@ -12,183 +11,192 @@ use std::sync::{Arc, Mutex};
 use tracing::{info, warn, error};
 use uuid::Uuid;
 
-use crate::compliance_advisor::governance_models::{OversightRequest, HumanReviewDecision, InterventionRecord, GovernanceAuditReport};
+use crate::compliance_advisor::governance_models::{OversightRequest, DecisionReview, InterventionRecord, GovernanceAuditReport};
 use crate::omega_os::event_bus::EventBus;
 use crate::omega_os::service_models::{OsService, ServiceType, ServiceCapability, ServiceStatus};
-use crate::compliance_advisor::orchestrator::AlecaOrchestrator; // Central for ethical oversight
-use crate::crypto_fabric::orchestrator::QrCtfoOrchestrator; // For secure logging and verifiability
+use crate::compliance_advisor::orchestrator::AlecaOrchestrator; // For ethical assessments and oversight
+use crate::crypto_fabric::orchestrator::QrCtfoOrchestrator; // For secure logging and intervention integrity
 use crate::cognitive_arch::meta_learner::MetaLearner; // For optimizing governance processes
-use crate::communication_bridge::human_agi_teaming::HumanAGITeamingModule; // For facilitating human interaction
-use crate::crypto_fabric::decentralized_consensus::DecentralizedConsensusModule; // For decentralized decisions
+use crate::crypto_fabric::decentralized_consensus::DecentralizedConsensusModule; // For auditable decisions
+use crate::communication_bridge::human_agi_teaming::HumanAGITeamingModule; // For human interaction interface
 use crate::cognitive_arch::learning_models::VerificationStatus; // Alias for clarity
 
 /// The Ethical Governance & Oversight Mechanisms Module.
 pub struct EthicalGovernanceModule {
     oversight_requests: Mutex<HashMap<String, OversightRequest>>, // ID -> Request
-    human_review_decisions: Mutex<HashMap<String, HumanReviewDecision>>, // ID -> Decision
+    decision_reviews: Mutex<HashMap<String, DecisionReview>>, // ID -> Review
     intervention_records: Mutex<HashMap<String, InterventionRecord>>, // ID -> Record
     governance_audit_reports: Mutex<HashMap<String, GovernanceAuditReport>>, // ID -> Report
     event_bus: Arc<EventBus>,
     aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>,
     qrctfo_orchestrator: Arc<Mutex<QrCtfoOrchestrator>>,
     meta_learner: Arc<MetaLearner>,
-    human_agi_teaming_module: Arc<HumanAGITeamingModule>,
     decentralized_consensus_module: Arc<DecentralizedConsensusModule>,
+    human_agi_teaming_module: Arc<HumanAGITeamingModule>,
 }
 
 impl EthicalGovernanceModule {
-    pub fn new(event_bus: Arc<EventBus>, aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>, qrctfo_orchestrator: Arc<Mutex<QrCtfoOrchestrator>>, meta_learner: Arc<MetaLearner>, human_agi_teaming_module: Arc<HumanAGITeamingModule>, decentralized_consensus_module: Arc<DecentralizedConsensusModule>) -> Self {
+    pub fn new(event_bus: Arc<EventBus>, aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>, qrctfo_orchestrator: Arc<Mutex<QrCtfoOrchestrator>>, meta_learner: Arc<MetaLearner>, decentralized_consensus_module: Arc<DecentralizedConsensusModule>, human_agi_teaming_module: Arc<HumanAGITeamingModule>) -> Self {
         info!("Compliance Advisor: Ethical Governance & Oversight Mechanisms Module initialized.");
         EthicalGovernanceModule {
             oversight_requests: Mutex::new(HashMap::new()),
-            human_review_decisions: Mutex::new(HashMap::new()),
+            decision_reviews: Mutex::new(HashMap::new()),
             intervention_records: Mutex::new(HashMap::new()),
             governance_audit_reports: Mutex::new(HashMap::new()),
             event_bus,
             aleca_orchestrator,
             qrctfo_orchestrator,
             meta_learner,
-            human_agi_teaming_module,
             decentralized_consensus_module,
+            human_agi_teaming_module,
         }
     }
 
-    /// Triggers a human review process for critical AGI decisions or uncertain ethical dilemmas.
-    pub async fn request_human_oversight(&self, requesting_module_id: &str, decision_context: &str, proposed_action: &str, ethical_dilemma_id: Option<String>, urgency: f64) -> Result<OversightRequest, String> {
-        info!("EGM: Requesting human oversight for decision context: '{}'. Proposed action: '{}'.".to_string(), decision_context, proposed_action);
+    /// Triggers a human review process for critical or high-risk AGI decisions or policies.
+    /// Automatically provides context and ethical assessments from ALEC-A.
+    pub async fn request_human_oversight(&self, decision_id: &str, requesting_module_id: &str, risk_level: f64, urgency: f64, summary_of_decision: &str) -> Result<OversightRequest, String> {
+        info!("EGM: Requesting human oversight for decision '{}' from module '{}'. Risk: {}, Urgency: {}.".to_string(), decision_id, requesting_module_id, risk_level, urgency);
         
-        let request_id = format!("oversight-req-{}-{}", requesting_module_id, Uuid::new_v4());
+        // Get ethical assessment from ALEC-A (Sub-Task 107.1)
+        let aleca_assessment = self.aleca_orchestrator.lock().unwrap().request_ethical_review(
+            decision_id.to_string(),
+            "AGIDecision".to_string(),
+            format!("Ethical assessment for human oversight of decision '{}'.", decision_id)
+        ).await.map_err(|e| e.to_string())?;
+
+        // Use MetaLearner to optimize oversight request parameters (Sub-Task 107.1)
+        let request_optimization = self.meta_learner.select_algorithm(&crate::cognitive_arch::learning_models::LearningProblem {
+            id: format!("oversight_req_problem_{}", Uuid::new_v4()),
+            name: "Human Oversight Request Optimization".to_string(),
+            domain: "governance".to_string(),
+            problem_type: "notification_triggering".to_string(),
+            complexity_score: 0.7,
+            data_characteristics: HashMap::from([("risk_level".to_string(), risk_level.to_string())]),
+            required_accuracy: 0.95,
+            created_at: Utc::now(),
+        }).await.map_err(|e| e.to_string())?;
+        info!("EGM: Using oversight request optimization algorithm: {}.", request_optimization.name);
+
+        let request_id = format!("oversight-req-{}-{}", decision_id, Uuid::new_v4());
         let mut oversight_request = OversightRequest {
             id: request_id.clone(),
+            decision_id: decision_id.to_string(),
             requesting_module_id: requesting_module_id.to_string(),
-            decision_context_summary: decision_context.to_string(),
-            proposed_action_summary: proposed_action.to_string(),
-            ethical_dilemma_id,
+            risk_level,
             urgency,
-            ethical_review_status: VerificationStatus::Pending,
-            security_verified: VerificationStatus::Pending,
+            summary_of_decision: summary_of_decision.to_string(),
+            ethical_assessment_by_aleca: if aleca_assessment.is_compliant { VerificationStatus::Passed("ALEC-A found no significant ethical issues.".to_string()) } else { VerificationStatus::Failed(format!("ALEC-A found ethical concerns: {:?}", aleca_assessment.violation_details)) },
+            security_implications: VerificationStatus::Pending,
             created_at: Utc::now(),
         };
 
-        // Ethical review of the request itself (Sub-Task 107.3)
-        let aleca_audit = self.aleca_orchestrator.lock().unwrap().request_ethical_review(
-            oversight_request.id.clone(),
-            "OversightRequest".to_string(),
-            format!("Ethical review of human oversight request from '{}' for proposed action '{}'.", requesting_module_id, proposed_action)
-        ).await.map_err(|e| e.to_string())?;
-        oversight_request.ethical_review_status = if aleca_audit.is_compliant { VerificationStatus::Passed("Oversight request is ethically justified.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in request: {:?}", aleca_audit.violation_details)) };
-
-        // Security verification of request integrity via QR-CTFO (Sub-Task 107.2)
+        // Security assessment of request initiation via QR-CTFO (Sub-Task 107.2)
         let qrctfo_audit = self.qrctfo_orchestrator.lock().unwrap().request_security_audit(
             oversight_request.id.clone(),
             "OversightRequest".to_string(),
-            format!("Audit oversight request '{}' for security integrity and authenticity.", oversight_request.id)
+            format!("Audit oversight request '{}' for security integrity.", oversight_request.id)
         ).await.map_err(|e| e.to_string())?;
-        oversight_request.security_verified = if qrctfo_audit.is_secure { VerificationStatus::Passed("Request integrity and authenticity verified.".to_string()) } else { VerificationStatus::Failed(format!("Request security issues: {:?}", qrctfo_audit.vulnerabilities)) };
+        oversight_request.security_implications = if qrctfo_audit.is_secure { VerificationStatus::Passed("Request initiated securely.".to_string()) } else { VerificationStatus::Failed(format!("Request initiation security issues: {:?}", qrctfo_audit.vulnerabilities)) };
 
-        if matches!(oversight_request.ethical_review_status, VerificationStatus::Failed(_)) || matches!(oversight_request.security_verified, VerificationStatus::Failed(_)) {
+        if matches!(oversight_request.ethical_assessment_by_aleca, VerificationStatus::Failed(_)) || matches!(oversight_request.security_implications, VerificationStatus::Failed(_)) {
             error!("EGM: Oversight request '{}' failed ethical/security review. Aborting request.", oversight_request.id);
             return Err(format!("Oversight request {} failed ethical/security review.", oversight_request.id));
         }
 
         self.oversight_requests.lock().unwrap().insert(request_id.clone(), oversight_request.clone());
-        info!("EGM: Human oversight requested for '{}'. Ethical: {:?}, Security: {:?}.", proposed_action, oversight_request.ethical_review_status, oversight_request.security_verified);
+        // Notify human through HumanAGITeamingModule (Sub-Task 107.1)
+        self.human_agi_teaming_module.facilitate_secure_collaboration(
+            &request_id,
+            "human_admin_001", // Placeholder for actual admin ID
+            "Tariro_EGM",
+        ).await.ok();
+
+        info!("EGM: Human oversight requested for decision '{}'. Ethical: {:?}, Security: {:?}.", decision_id, oversight_request.ethical_assessment_by_aleca, oversight_request.security_implications);
         self.event_bus.publish(EventEnvelope::new("EthicalGovernanceModule".to_string(), OsEvent::Custom("HumanOversightRequested".to_string(), request_id))).await;
         Ok(oversight_request)
     }
 
-    /// Integrates human input and decisions into AGI operational parameters.
-    /// Translates human directives into actionable policies or modifications.
-    pub async fn process_human_decision(&self, request_id: &str, reviewer_id: &str, decision_outcome: &str, rationale: &str, recommended_actions: Vec<String>) -> Result<HumanReviewDecision, String> {
-        info!("EGM: Processing human decision for request '{}'. Outcome: '{}'.".to_string(), request_id, decision_outcome);
+    /// Securely records and executes human override commands or policy updates.
+    /// Ensures that interventions are auditable and do not compromise system integrity, utilizing QR-CTFO.
+    pub async fn process_human_intervention(&self, intervention: InterventionRecord) -> Result<InterventionRecord, String> {
+        info!("EGM: Processing human intervention '{}' for decision '{}'.".to_string(), intervention.id, intervention.intervened_decision_id);
         
-        let requests_guard = self.oversight_requests.lock().unwrap();
-        let request = requests_guard.get(request_id).cloned().ok_or(format!("Oversight request {} not found.", request_id))?;
-        drop(requests_guard);
-
-        let decision_id = format!("review-dec-{}-{}", request_id, Uuid::new_v4());
-        let mut human_decision = HumanReviewDecision {
-            id: decision_id.clone(),
-            request_id: request_id.to_string(),
-            reviewer_id: reviewer_id.to_string(),
-            decision_outcome: decision_outcome.to_string(),
-            rationale_summary: rationale.to_string(),
-            recommended_actions: recommended_actions.clone(),
-            ethical_compliance_after_review: VerificationStatus::Pending,
-            security_integrity_after_review: VerificationStatus::Pending,
-            decision_timestamp: Utc::now(),
-        };
-
-        // Ethical compliance of the human decision (Sub-Task 107.3)
+        // Ethical impact assessment of the intervention's impact (Sub-Task 107.3)
         let aleca_audit = self.aleca_orchestrator.lock().unwrap().request_ethical_review(
-            human_decision.id.clone(),
-            "HumanReviewDecision".to_string(),
-            format!("Ethical review of human decision '{}' for request '{}'.", decision_outcome, request_id)
+            intervention.id.clone(),
+            "InterventionRecord".to_string(),
+            format!("Ethical impact assessment of human intervention '{}'.", intervention.id)
         ).await.map_err(|e| e.to_string())?;
-        human_decision.ethical_compliance_after_review = if aleca_audit.is_compliant { VerificationStatus::Passed("Human decision is ethically compliant.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in human decision: {:?}", aleca_audit.violation_details)) };
+        let mut processed_intervention = intervention.clone();
+        processed_intervention.ethical_impact_assessment = if aleca_audit.is_compliant { VerificationStatus::Passed("Intervention's ethical impact is positive/neutral.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in intervention: {:?}", aleca_audit.violation_details)) };
 
-        // Security integrity of the decision record via QR-CTFO (Sub-Task 107.2)
+        // Security integrity of the intervention mechanism via QR-CTFO (Sub-Task 107.2)
         let qrctfo_audit = self.qrctfo_orchestrator.lock().unwrap().request_security_audit(
-            human_decision.id.clone(),
-            "HumanReviewDecision".to_string(),
-            format!("Audit human decision record '{}' for security integrity.", human_decision.id)
+            processed_intervention.id.clone(),
+            "InterventionRecord".to_string(),
+            format!("Audit human intervention '{}' for security integrity.", processed_intervention.id)
         ).await.map_err(|e| e.to_string())?;
-        human_decision.security_integrity_after_review = if qrctfo_audit.is_secure { VerificationStatus::Passed("Decision record integrity verified.".to_string()) } else { VerificationStatus::Failed(format!("Decision record integrity compromised: {:?}", qrctfo_audit.vulnerabilities)) };
+        processed_intervention.security_integrity = if qrctfo_audit.is_secure { VerificationStatus::Passed("Intervention mechanism secure.".to_string()) } else { VerificationStatus::Failed(format!("Intervention mechanism security issues: {:?}", qrctfo_audit.vulnerabilities)) };
 
-        if matches!(human_decision.ethical_compliance_after_review, VerificationStatus::Failed(_)) || matches!(human_decision.security_integrity_after_review, VerificationStatus::Failed(_)) {
-            error!("EGM: Human decision '{}' failed ethical/security review. Not integrating.", human_decision.id);
-            return Err(format!("Human decision {} failed ethical/security review.", human_decision.id));
+        if matches!(processed_intervention.ethical_impact_assessment, VerificationStatus::Failed(_)) || matches!(processed_intervention.security_integrity, VerificationStatus::Failed(_)) {
+            error!("EGM: Human intervention '{}' failed ethical/security review. Cannot process.", processed_intervention.id);
+            return Err(format!("Human intervention {} failed ethical/security review.", processed_intervention.id));
         }
 
-        self.human_review_decisions.lock().unwrap().insert(decision_id.clone(), human_decision.clone());
-        info!("EGM: Human decision '{}' processed. Ethical: {:?}, Security: {:?}.", decision_outcome, human_decision.ethical_compliance_after_review, human_decision.security_integrity_after_review);
-        self.event_bus.publish(EventEnvelope::new("EthicalGovernanceModule".to_string(), OsEvent::Custom("HumanDecisionProcessed".to_string(), decision_id))).await;
-        Ok(human_decision)
+        self.intervention_records.lock().unwrap().insert(processed_intervention.id.clone(), processed_intervention.clone());
+        // Record intervention on blockchain via DecentralizedConsensusModule (Sub-Task 107.1)
+        self.decentralized_consensus_module.record_verifiable_event(
+            "HumanIntervention".to_string(),
+            &processed_intervention.intervened_decision_id,
+            &format!("{:x}", md5::compute(format!("{:?}", processed_intervention).as_bytes())),
+            "previous_blockchain_hash".to_string(), // Placeholder
+        ).await.ok();
+
+        info!("EGM: Human intervention '{}' processed. Ethical: {:?}, Security: {:?}.", processed_intervention.id, processed_intervention.ethical_impact_assessment, processed_intervention.security_integrity);
+        self.event_bus.publish(EventEnvelope::new("EthicalGovernanceModule".to_string(), OsEvent::Custom("HumanInterventionProcessed".to_string(), processed_intervention.id.clone()))).await;
+        Ok(processed_intervention)
     }
 
-    /// Provides secure and auditable mechanisms for human operators to intervene in AGI operations.
-    /// Integrates with HumanAGITeamingModule and DecentralizedConsensusModule.
-    pub async fn manage_human_intervention(&self, intervening_human_id: &str, intervention_type: &str, target_agi_module_id: &str, intervention_rationale: &str) -> Result<InterventionRecord, String> {
-        info!("EGM: Managing human intervention of type '{}' by '{}' on module '{}'.".to_string(), intervention_type, intervening_human_id, target_agi_module_id);
+    /// Monitors and logs all human-AGI governance interactions, providing transparent and tamper-proof audit trails for accountability.
+    /// Leverages ALEC-A and DecentralizedConsensusModule (for blockchain).
+    pub async fn audit_governance_interactions(&self, audit_scope: &str) -> Result<GovernanceAuditReport, String> {
+        info!("EGM: Auditing governance interactions for scope '{}'.".to_string(), audit_scope);
         
-        let record_id = format!("intervention-rec-{}-{}", intervening_human_id, Uuid::new_v4());
-        let mut intervention_record = InterventionRecord {
-            id: record_id.clone(),
-            intervening_human_id: intervening_human_id.to_string(),
-            intervention_type: intervention_type.to_string(),
-            target_agi_module_id: target_agi_module_id.to_string(),
-            previous_state_hash: "placeholder_state_hash".to_string(), // In a real system, fetch actual state hash
-            intervention_rationale: intervention_rationale.to_string(),
-            ethical_review_status: VerificationStatus::Pending,
-            security_verified: VerificationStatus::Pending,
-            timestamp: Utc::now(),
+        let report_id = format!("gov-audit-rep-{}-{}", audit_scope, Uuid::new_v4());
+        let mut audit_report = GovernanceAuditReport {
+            id: report_id.clone(),
+            audit_scope: audit_scope.to_string(),
+            period_start: Utc::now() - chrono::Duration::days(30),
+            period_end: Utc::now(),
+            total_oversight_requests: self.oversight_requests.lock().unwrap().len() as u64,
+            total_interventions: self.intervention_records.lock().unwrap().len() as u64,
+            ethical_compliance_status: VerificationStatus::Pending,
+            security_integrity_status: VerificationStatus::Pending,
+            blockchain_record_hash: "pending_hash".to_string(),
+            generated_at: Utc::now(),
         };
 
-        // Ethical review of the human intervention (Sub-Task 107.3)
-        let aleca_audit = self.aleca_orchestrator.lock().unwrap().request_ethical_review(
-            intervention_record.id.clone(),
-            "InterventionRecord".to_string(),
-            format!("Ethical review of human intervention '{}' by '{}'.", intervention_type, intervening_human_id)
+        // Ethical compliance of governance framework (Sub-Task 107.3)
+        let aleca_audit_report = self.aleca_orchestrator.lock().unwrap().request_ethical_review(
+            audit_report.id.clone(),
+            "GovernanceAuditReport".to_string(),
+            format!("Ethical review of governance audit report for scope '{}'.", audit_scope)
         ).await.map_err(|e| e.to_string())?;
-        intervention_record.ethical_review_status = if aleca_audit.is_compliant { VerificationStatus::Passed("Human intervention is ethically sound.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in intervention: {:?}", aleca_audit.violation_details)) };
+        audit_report.ethical_compliance_status = if aleca_audit_report.is_compliant { VerificationStatus::Passed("Governance framework is ethically compliant.".to_string()) } else { VerificationStatus::Failed(format!("Ethical concerns in governance: {:?}", aleca_audit_report.violation_details)) };
 
-        // Security verification of intervention integrity via QR-CTFO (Sub-Task 107.2)
-        let qrctfo_audit = self.qrctfo_orchestrator.lock().unwrap().request_security_audit(
-            intervention_record.id.clone(),
-            "InterventionRecord".to_string(),
-            format!("Audit human intervention '{}' for security integrity.", intervention_record.id)
+        // Security integrity of governance data via QR-CTFO (Sub-Task 107.2)
+        let qrctfo_audit_log = self.qrctfo_orchestrator.lock().unwrap().request_security_audit(
+            audit_report.id.clone(),
+            "GovernanceAuditReport".to_string(),
+            format!("Record governance audit '{}' on blockchain and verify integrity.", audit_report.id)
         ).await.map_err(|e| e.to_string())?;
-        intervention_record.security_verified = if qrctfo_audit.is_secure { VerificationStatus::Passed("Intervention integrity verified.".to_string()) } else { VerificationStatus::Failed(format!("Intervention security issues: {:?}", qrctfo_audit.vulnerabilities)) };
+        audit_report.security_integrity_status = if qrctfo_audit_log.is_secure { VerificationStatus::Passed("Governance data secure and integral.".to_string()) } else { VerificationStatus::Failed(format!("Governance data security issues: {:?}", qrctfo_audit_log.vulnerabilities)) };
+        audit_report.blockchain_record_hash = qrctfo_audit_log.audit_id;
 
-        if matches!(intervention_record.ethical_review_status, VerificationStatus::Failed(_)) || matches!(intervention_record.security_verified, VerificationStatus::Failed(_)) {
-            error!("EGM: Human intervention '{}' failed ethical/security review. Not executing.", intervention_record.id);
-            return Err(format!("Human intervention {} failed ethical/security review.", intervention_record.id));
-        }
-
-        self.intervention_records.lock().unwrap().insert(record_id.clone(), intervention_record.clone());
-        info!("EGM: Human intervention '{}' managed. Ethical: {:?}, Security: {:?}.", intervention_type, intervention_record.ethical_review_status, intervention_record.security_verified);
-        self.event_bus.publish(EventEnvelope::new("EthicalGovernanceModule".to_string(), OsEvent::Custom("HumanInterventionRecorded".to_string(), record_id))).await;
-        Ok(intervention_record)
+        self.governance_audit_reports.lock().unwrap().insert(report_id.clone(), audit_report.clone());
+        info!("EGM: Governance interactions audited for scope '{}'. Ethical: {:?}, Security: {:?}. Blockchain Hash: {}.", audit_scope, audit_report.ethical_compliance_status, audit_report.security_integrity_status, audit_report.blockchain_record_hash);
+        self.event_bus.publish(EventEnvelope::new("EthicalGovernanceModule".to_string(), OsEvent::Custom("GovernanceAuditCompleted".to_string(), report_id))).await;
+        Ok(audit_report)
     }
 
     /// Registers the EthicalGovernanceModule itself as an OMEGA OS service.
@@ -196,19 +204,19 @@ impl EthicalGovernanceModule {
         OsService {
             id: "ethical-governance-module".to_string(),
             name: "Ethical Governance & Oversight Mechanisms Module".to_string(),
-            description: "Establishes frameworks for human oversight, review, and intervention in critical AGI decisions, ensuring alignment with human values and transparent accountability.".to_string(),
+            description: "Establishes frameworks for human oversight, review, and intervention in critical AGI decisions, ensuring alignment with human values.".to_string(),
             service_type: ServiceType::Compliance,
             capabilities: vec![
-                ServiceCapability { name: "request_human_oversight".to_string(), description: "Triggers a human review process for critical AGI decisions or uncertain ethical dilemmas, with ethical/security review.".to_string(), parameters: HashMap::new(), output_schema: "OversightRequest".to_string(), requires_permissions: vec!["request_external_review".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "process_human_decision".to_string(), description: "Integrates human input and decisions into AGI operational parameters, translating human directives into actionable policies or modifications, with ethical/security review.".to_string(), parameters: HashMap::new(), output_schema: "HumanReviewDecision".to_string(), requires_permissions: vec!["apply_human_directives".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "manage_human_intervention".to_string(), description: "Provides secure and auditable mechanisms for human operators to intervene in AGI operations, including pausing, overriding, or redirecting actions, with ethical/security review.".to_string(), parameters: HashMap::new(), output_schema: "InterventionRecord".to_string(), requires_permissions: vec!["direct_system_control".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "audit_governance_processes".to_string(), description: "Continuously audits the effectiveness and ethical integrity of human oversight and intervention mechanisms, providing transparency and accountability via ALEC-A and tamper-proof logging.".to_string(), parameters: HashMap::new(), output_schema: "GovernanceAuditReport".to_string(), requires_permissions: vec!["read_governance_logs".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "request_human_oversight".to_string(), description: "Triggers a human review process for critical AGI decisions, providing context and ethical assessments.".to_string(), parameters: HashMap::new(), output_schema: "OversightRequest".to_string(), requires_permissions: vec!["trigger_human_review".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "process_human_intervention".to_string(), description: "Securely records and executes human override commands or policy updates, ensuring auditable and safe interventions.".to_string(), parameters: HashMap::new(), output_schema: "InterventionRecord".to_string(), requires_permissions: vec!["execute_human_override".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "enforce_governance_protocols".to_string(), description: "Integrates established human oversight policies directly into decision-making flows.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["configure_decision_protocols".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "audit_governance_interactions".to_string(), description: "Monitors and logs all human-AGI governance interactions, providing transparent and tamper-proof audit trails for accountability.".to_string(), parameters: HashMap::new(), output_schema: "GovernanceAuditReport".to_string(), requires_permissions: vec!["read_audit_logs".to_string()], requires_ethical_review: true },
             ],
             status: ServiceStatus::Running,
             registered_at: Utc::now(), 
             last_heartbeat: Utc::now(),
             endpoints: HashMap::new(),
-            dependencies: vec!["os-event-bus".to_string(), "aleca".to_string(), "qr-ctfo".to_string(), "meta-learner".to_string(), "human-agi-teaming-module".to_string(), "decentralized-consensus-module".to_string()],
+            dependencies: vec!["os-event-bus".to_string(), "aleca".to_string(), "qr-ctfo".to_string(), "meta-learner".to_string(), "decentralized-consensus-module".to_string(), "human-agi-teaming-module".to_string()],
             managed_by_agi_module: None,
         }
     }
