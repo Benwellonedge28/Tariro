@@ -23,5 +23,7 @@ pub mod intuitive_models;
 pub mod intuitive_physics_psychology;
 pub mod epistemic_models;
 pub mod epistemic_reasoning;
-pub mod affective_models; // New module for affective models
-pub mod affective_computing; // New module for Affective Computing
+pub mod affective_models;
+pub mod affective_computing;
+pub mod sensory_fusion_models; // New module for sensory fusion models
+pub mod sensory_fusion; // New module for Sensory Fusion
