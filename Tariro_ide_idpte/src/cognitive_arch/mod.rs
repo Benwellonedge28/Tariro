@@ -92,7 +92,9 @@ pub mod proactive_empathy_models;
 pub mod proactive_emotional_intelligence_empathy_optimization;
 pub mod skill_transfer_models;
 pub mod universal_skill_transfer_knowledge_distillation;
-pub mod cognitive_integrity_models; // New module for cognitive integrity models
-pub mod cognitive_integrity_anti_corruption; // New module for Cognitive Integrity & Anti-Corruption Mechanisms
+pub mod cognitive_integrity_models;
+pub mod cognitive_integrity_anti_corruption;
+pub mod unstructured_data_models; // New module for unstructured data models
+pub mod self_supervised_learning_unstructured_data; // New module for Self-Supervised Learning for Unstructured Data
 
 // Add other cognitive architecture modules here.
