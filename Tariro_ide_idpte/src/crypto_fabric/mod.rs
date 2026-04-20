@@ -5,7 +5,9 @@ pub mod communication_adapter;
 pub mod quantum_safe;
 pub mod decentralized_consensus;
 pub mod zero_knowledge_proofs;
-pub mod digital_identity_models; // New module for digital identity models
-pub mod quantum_resistant_digital_identity_access_management; // New module for Quantum-Resistant Digital Identity & Access Management
+pub mod digital_identity_models;
+pub mod quantum_resistant_digital_identity_access_management;
+pub mod secure_multi_party_models; // New module for secure multi-party models
+pub mod secure_multi_party_computation_data_collaboration; // New module for Secure Multi-Party Computation for Data Collaboration
 
 // Add other crypto-fabric modules here.
