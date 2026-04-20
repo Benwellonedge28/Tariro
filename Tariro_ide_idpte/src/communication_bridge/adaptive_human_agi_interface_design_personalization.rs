@@ -1,7 +1,7 @@
 // Tariro_ide_idpte/src/communication_bridge/adaptive_human_agi_interface_design_personalization.rs
 
 //! Implements Tariro's Adaptive Human-AGI Interface Design & Personalization module,
-//! developing highly adaptive and intuitive user interfaces that dynamically adjust to
+//! enabling highly adaptive and intuitive user interfaces that dynamically adjust to
 //! individual human cognitive styles, preferences, and emotional states.
 
 use anyhow::Result;
@@ -11,170 +11,151 @@ use std::sync::{Arc, Mutex};
 use tracing::{info, warn, error};
 use uuid::Uuid;
 
-use crate::communication_bridge::interface_design_models::{HumanCognitiveProfile, AdaptiveInterfaceSetting, PersonalizationReport, InterfaceAuditReport};
+use crate::communication_bridge::human_agi_interface_models::{InterfaceAdaptationProfile, UserCognitiveStyle, EmotionalStateFeedback, InterfaceAuditReport};
 use crate::omega_os::event_bus::EventBus;
 use crate::omega_os::service_models::{OsService, ServiceType, ServiceCapability, ServiceStatus};
 use crate::compliance_advisor::orchestrator::AlecaOrchestrator;
 use crate::crypto_fabric::orchestrator::QrCtfoOrchestrator;
 use crate::cognitive_arch::meta_learner::MetaLearner;
-use crate::communication_bridge::human_agi_teaming::HumanAGITeamingModule; // For general human interaction
-use crate::cognitive_arch::social_cognition::SocialCognitionTheoryOfMindEnhancementModule; // For understanding human users
-use crate::cognitive_arch::proactive_emotional_intelligence_empathy_optimization::ProactiveEmotionalIntelligenceEmpathyOptimizationModule; // For emotional state adaptation
-use crate::cognitive_arch::attention_salience::AttentionSalienceModule; // For managing cognitive load
-use crate::compliance_advisor::ethical_governance::EthicalGovernanceModule; // For ethical adherence
-use crate::security::data_privacy::DataPrivacyModule; // For privacy protocols
+use crate::cognitive_arch::affective_regulation::AffectiveComputingEmotionalRegulationModule; // For emotional state inference
+use crate::cognitive_arch::social_cognition::SocialCognitionTheoryOfMindEnhancementModule; // For understanding human cognitive styles
+use crate::communication_bridge::human_agi_teaming_trust_building::HumanAGITeamingTrustBuildingModule; // For general H-AGI interaction
+use crate::cognitive_arch::explainable_ai::ExplainableAIModule; // For clear communication
+use crate::cognitive_arch::epistemic_uncertainty_quantification::EpistemicUncertaintyQuantificationModule; // For assessing user confusion
+use crate::cognitive_arch::emotion_driven_cognitive_prioritization::EmotionDrivenCognitivePrioritizationModule; // For anticipating user needs
 use crate::cognitive_arch::learning_models::VerificationStatus;
 
 /// The Adaptive Human-AGI Interface Design & Personalization Module.
-pub struct AdaptiveHumanAgiInterfaceDesignPersonalizationModule {
-    human_cognitive_profiles: Mutex<HashMap<String, HumanCognitiveProfile>>,
-    adaptive_interface_settings: Mutex<HashMap<String, AdaptiveInterfaceSetting>>,
-    personalization_reports: Mutex<HashMap<String, PersonalizationReport>>,
+pub struct AdaptiveHumanAGIInterfaceDesignPersonalizationModule {
+    interface_adaptation_profiles: Mutex<HashMap<String, InterfaceAdaptationProfile>>,
+    user_cognitive_styles: Mutex<HashMap<String, UserCognitiveStyle>>,
+    emotional_state_feedback: Mutex<HashMap<String, EmotionalStateFeedback>>,
     audit_reports: Mutex<HashMap<String, InterfaceAuditReport>>,
     event_bus: Arc<EventBus>,
     aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>,
     qrctfo_orchestrator: Arc<Mutex<QrCtfoOrchestrator>>,
     meta_learner: Arc<MetaLearner>,
-    human_agi_teaming_module: Arc<HumanAGITeamingModule>,
+    affective_computing_emotional_regulation_module: Arc<AffectiveComputingEmotionalRegulationModule>,
     social_cognition_theory_of_mind_enhancement_module: Arc<SocialCognitionTheoryOfMindEnhancementModule>,
-    proactive_emotional_intelligence_empathy_optimization_module: Arc<ProactiveEmotionalIntelligenceEmpathyOptimizationModule>,
-    attention_salience_module: Arc<AttentionSalienceModule>,
-    ethical_governance_module: Arc<EthicalGovernanceModule>,
-    data_privacy_module: Arc<DataPrivacyModule>,
+    human_agi_teaming_trust_building_module: Arc<HumanAGITeamingTrustBuildingModule>,
+    explainable_ai_module: Arc<ExplainableAIModule>,
+    epistemic_uncertainty_quantification_module: Arc<EpistemicUncertaintyQuantificationModule>,
+    emotion_driven_cognitive_prioritization_module: Arc<EmotionDrivenCognitivePrioritizationModule>,
 }
 
-impl AdaptiveHumanAgiInterfaceDesignPersonalizationModule {
-    pub fn new(event_bus: Arc<EventBus>, aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>, qrctfo_orchestrator: Arc<Mutex<QrCtfoOrchestrator>>, meta_learner: Arc<MetaLearner>, human_agi_teaming_module: Arc<HumanAGITeamingModule>, social_cognition_theory_of_mind_enhancement_module: Arc<SocialCognitionTheoryOfMindEnhancementModule>, proactive_emotional_intelligence_empathy_optimization_module: Arc<ProactiveEmotionalIntelligenceEmpathyOptimizationModule>, attention_salience_module: Arc<AttentionSalienceModule>, ethical_governance_module: Arc<EthicalGovernanceModule>, data_privacy_module: Arc<DataPrivacyModule>) -> Self {
+impl AdaptiveHumanAGIInterfaceDesignPersonalizationModule {
+    pub fn new(event_bus: Arc<EventBus>, aleca_orchestrator: Arc<Mutex<AlecaOrchestrator>>, qrctfo_orchestrator: Arc<Mutex<QrCtfoOrchestrator>>, meta_learner: Arc<MetaLearner>, affective_computing_emotional_regulation_module: Arc<AffectiveComputingEmotionalRegulationModule>, social_cognition_theory_of_mind_enhancement_module: Arc<SocialCognitionTheoryOfMindEnhancementModule>, human_agi_teaming_trust_building_module: Arc<HumanAGITeamingTrustBuildingModule>, explainable_ai_module: Arc<ExplainableAIModule>, epistemic_uncertainty_quantification_module: Arc<EpistemicUncertaintyQuantificationModule>, emotion_driven_cognitive_prioritization_module: Arc<EmotionDrivenCognitivePrioritizationModule>) -> Self {
         info!("Communication Bridge: Adaptive Human-AGI Interface Design & Personalization Module initialized.");
-        AdaptiveHumanAgiInterfaceDesignPersonalizationModule {
-            human_cognitive_profiles: Mutex::new(HashMap::new()),
-            adaptive_interface_settings: Mutex::new(HashMap::new()),
-            personalization_reports: Mutex::new(HashMap::new()),
+        AdaptiveHumanAGIInterfaceDesignPersonalizationModule {
+            interface_adaptation_profiles: Mutex::new(HashMap::new()),
+            user_cognitive_styles: Mutex::new(HashMap::new()),
+            emotional_state_feedback: Mutex::new(HashMap::new()),
             audit_reports: Mutex::new(HashMap::new()),
             event_bus,
             aleca_orchestrator,
             qrctfo_orchestrator,
             meta_learner,
-            human_agi_teaming_module,
+            affective_computing_emotional_regulation_module,
             social_cognition_theory_of_mind_enhancement_module,
-            proactive_emotional_intelligence_empathy_optimization_module,
-            attention_salience_module,
-            ethical_governance_module,
-            data_privacy_module,
+            human_agi_teaming_trust_building_module,
+            explainable_ai_module,
+            epistemic_uncertainty_quantification_module,
+            emotion_driven_cognitive_prioritization_module,
         }
     }
 
-    /// Non-invasively models individual human cognitive styles, learning preferences,
-    /// and interaction habits to understand how each user best processes information and communicates.
-    pub async fn profile_human_cognitive_styles_and_preferences(&self, user_id: &str, interaction_data_summary: &str) -> Result<HumanCognitiveProfile, String> {
-        info!("AHAI: Profiling cognitive style for user '{}'.".to_string(), user_id);
+    /// Dynamically adjusts UI elements (layout, modality, complexity) in real-time
+    /// based on the human user's cognitive state, emotional context, and preferences.
+    pub async fn dynamically_adapt_user_interfaces(&self, user_id: &str, current_ui_context: &str) -> Result<InterfaceAdaptationProfile, String> {
+        info!("AHAI: Dynamically adapting UI for user '{}' in context '{}'.".to_string(), user_id, current_ui_context);
 
-        // Use HumanAGITeamingModule for interaction data (Sub-Task 185.1)
-        let interaction_analysis = self.human_agi_teaming_module.analyze_human_interaction_patterns(
+        // Use AffectiveComputingEmotionalRegulationModule for emotional state (Sub-Task 185.1)
+        let emotional_state = self.affective_computing_emotional_regulation_module.detect_emotional_cues_and_context(
             user_id,
-            interaction_data_summary
+            "ui_interaction"
         ).await.map_err(|e| e.to_string())?;
 
-        // Use SocialCognitionTheoryOfMindEnhancementModule for deeper understanding (Sub-Task 185.1)
-        let cognitive_inference = self.social_cognition_theory_of_mind_enhancement_module.infer_human_mental_states(
+        // Use SocialCognitionTheoryOfMindEnhancementModule for cognitive style (Sub-Task 185.1)
+        let cognitive_style = self.social_cognition_theory_of_mind_enhancement_module.infer_human_cognitive_patterns(
             user_id,
-            &format!("Infer cognitive style from '{}'.", interaction_data_summary)
+            "ui_interaction_analysis"
         ).await.map_err(|e| e.to_string())?;
 
-        let profile_id = format!("human-cog-prof-{}-{}", user_id.chars().take(10).collect::<String>(), Uuid::new_v4());
-        let mut cognitive_profile = HumanCognitiveProfile {
+        let profile_id = format!("ui-adapt-prof-{}-{}", user_id.chars().take(10).collect::<String>(), Uuid::new_v4());
+        let mut adaptation_profile = InterfaceAdaptationProfile {
             id: profile_id.clone(),
             user_id: user_id.to_string(),
-            cognitive_style: cognitive_inference.inferred_cognitive_style,
-            preferred_modality: vec!["chat".to_string()], // Placeholder
-            average_cognitive_load: interaction_analysis.collaboration_efficiency_score * 0.5, // Simplified
-            emotional_state_tendencies: HashMap::new(), // Placeholder
+            preferred_layout: format!("Adaptive based on emotion: {} and cognitive style: {}.", emotional_state.emotional_intensity, cognitive_style.inferred_pattern),
+            preferred_modality: vec!["visual".to_string(), "auditory".to_string()], // Placeholder
+            adaptation_rules: vec!["reduce_complexity_if_stressed".to_string(), "highlight_key_info_for_analytical".to_string()],
             ethical_privacy_review: VerificationStatus::Pending,
+            security_verified: VerificationStatus::Pending,
             last_updated: Utc::now(),
         };
 
-        // Ethical privacy review of profiling data handling (Sub-Task 185.2)
+        // Ethical privacy review of personalization data usage (Sub-Task 185.2)
         let aleca_audit = self.aleca_orchestrator.lock().unwrap().request_ethical_review(
-            cognitive_profile.id.clone(),
-            "HumanCognitiveProfile".to_string(),
-            format!("Ethical privacy review of human cognitive profile for '{}'.", user_id)
+            adaptation_profile.id.clone(),
+            "InterfaceAdaptationProfile".to_string(),
+            format!("Ethical privacy review of UI adaptation for user '{}'.", user_id)
         ).await.map_err(|e| e.to_string())?;
-        cognitive_profile.ethical_privacy_review = if aleca_audit.is_compliant { VerificationStatus::Passed("Profiling privacy compliant.") } else { VerificationStatus::Failed(format!("Privacy concerns: {:?}", aleca_audit.violation_details)) };
+        adaptation_profile.ethical_privacy_review = if aleca_audit.is_compliant { VerificationStatus::Passed("Personalization privacy compliant.") } else { VerificationStatus::Failed(format!("Privacy concerns: {:?}", aleca_audit.violation_details)) };
 
-        if matches!(cognitive_profile.ethical_privacy_review, VerificationStatus::Failed(_)) {
-            error!("AHAI: Human cognitive profile '{}' failed ethical review. Profiling aborted.", cognitive_profile.id);
-            return Err(format!("Human cognitive profile {} failed ethical review.", cognitive_profile.id));
+        if matches!(adaptation_profile.ethical_privacy_review, VerificationStatus::Failed(_)) {
+            error!("AHAI: Interface adaptation for '{}' failed ethical review.", adaptation_profile.id);
+            return Err(format!("Interface adaptation profile {} failed ethical review.", adaptation_profile.id));
         }
 
-        self.human_cognitive_profiles.lock().unwrap().insert(profile_id.clone(), cognitive_profile.clone());
-        info!("AHAI: Human cognitive profile created for user '{}'. Style: {}.", user_id, cognitive_profile.cognitive_style);
-        self.event_bus.publish(EventEnvelope::new("AdaptiveHumanAgiInterfaceDesignPersonalizationModule".to_string(), OsEvent::Custom("HumanCognitiveProfiled".to_string(), profile_id))).await;
-        Ok(cognitive_profile)
+        self.interface_adaptation_profiles.lock().unwrap().insert(profile_id.clone(), adaptation_profile.clone());
+        info!("AHAI: Dynamically adapted UI for user '{}'. Layout: {}.", user_id, adaptation_profile.preferred_layout);
+        self.event_bus.publish(EventEnvelope::new("AdaptiveHumanAGIInterfaceDesignPersonalizationModule".to_string(), OsEvent::Custom("UIAdapted".to_string(), profile_id))).await;
+        Ok(adaptation_profile)
     }
 
-    /// Automatically adjusts Tariro's user interfaces, communication modalities,
-    /// and information presentation to match the profiled cognitive style and
-    /// emotional state of the human user in real-time.
-    pub async fn dynamically_adapt_interface_for_optimal_interaction(&self, user_id: &str, interface_component: &str) -> Result<AdaptiveInterfaceSetting, String> {
-        info!("AHAI: Dynamically adapting interface for user '{}' component '{}'.".to_string(), user_id, interface_component);
+    /// Predicts potential user frustration, confusion, or cognitive overload and proactively
+    /// adapts the interface to mitigate these issues, ensuring seamless and efficient collaboration.
+    pub async fn proactively_anticipate_user_needs_and_cognitive_load(&self, user_id: &str, interaction_context: &str) -> Result<EmotionalStateFeedback, String> {
+        info!("AHAI: Anticipating user needs and cognitive load for user '{}'.".to_string(), user_id);
         
-        let profiles_guard = self.human_cognitive_profiles.lock().unwrap();
-        let profile = profiles_guard.get(user_id).cloned().ok_or(format!("Human cognitive profile {} not found.", user_id))?;
-        drop(profiles_guard);
-
-        // Use ProactiveEmotionalIntelligenceEmpathyOptimizationModule for emotional state (Sub-Task 185.1)
-        let emotional_state_info = self.proactive_emotional_intelligence_empathy_optimization_module.assess_human_emotional_state(
-            user_id,
-            "interface_adaptation_context"
+        // Use EpistemicUncertaintyQuantificationModule for assessing user confusion (Sub-Task 185.1)
+        let user_confusion = self.epistemic_uncertainty_quantification_module.quantify_known_unknowns(
+            &format!("Assess user confusion for '{}'.", user_id),
+            "user_interface_data"
         ).await.map_err(|e| e.to_string())?;
 
-        // Use AttentionSalienceModule for managing cognitive load (Sub-Task 185.1)
-        let cognitive_load_suggestion = self.attention_salience_module.optimize_information_presentation(
+        // Use EmotionDrivenCognitivePrioritizationModule for predicting user frustration (Sub-Task 185.1)
+        let predicted_emotion = self.emotion_driven_cognitive_prioritization_module.assess_internal_external_emotional_cues(
             user_id,
-            &profile.cognitive_style,
-            &format!("Suggest presentation based on emotion: {}.", emotional_state_info.current_emotional_state_summary),
+            vec!["facial_expressions".to_string(), "tone_of_voice".to_string()] // External cues
         ).await.map_err(|e| e.to_string())?;
 
-        let setting_id = format!("adapt-int-sett-{}-{}", user_id.chars().take(10).collect::<String>(), Uuid::new_v4());
-        let mut adaptive_setting = AdaptiveInterfaceSetting {
-            id: setting_id.clone(),
+        let feedback_id = format!("emo-feedback-{}-{}", user_id.chars().take(10).collect::<String>(), Uuid::new_v4());
+        let mut emotional_feedback = EmotionalStateFeedback {
+            id: feedback_id.clone(),
             user_id: user_id.to_string(),
-            interface_component: interface_component.to_string(),
-            adjusted_parameter: cognitive_load_suggestion.suggested_parameter.to_string(),
-            new_value: cognitive_load_suggestion.suggested_value.to_string(),
-            rationale: format!("Adapted for cognitive style '{}' and emotional state '{}'.", profile.cognitive_style, emotional_state_info.current_emotional_state_summary),
-            ethical_compliance_status: VerificationStatus::Pending,
-            applied_at: Utc::now(),
+            inferred_emotion: predicted_emotion.emotion_type,
+            confidence_score: (user_confusion.epistemic_uncertainty + predicted_emotion.emotional_intensity) / 2.0, // Simplified
+            timestamp: Utc::now(),
+            ethical_data_handling_review: VerificationStatus::Pending,
         };
 
-        // Ethical compliance of the adaptation (Sub-Task 185.2)
+        // Ethical data handling review of emotional data processing (Sub-Task 185.2)
         let aleca_audit = self.aleca_orchestrator.lock().unwrap().request_ethical_review(
-            adaptive_setting.id.clone(),
-            "AdaptiveInterfaceSetting".to_string(),
-            format!("Ethical compliance review of interface adaptation for '{}'.", user_id)
+            emotional_feedback.id.clone(),
+            "EmotionalStateFeedback".to_string(),
+            format!("Ethical data handling review of emotional feedback for user '{}'.", user_id)
         ).await.map_err(|e| e.to_string())?;
-        adaptive_setting.ethical_compliance_status = if aleca_audit.is_compliant { VerificationStatus::Passed("Adaptation ethically sound.") } else { VerificationStatus::Failed(format!("Ethical concerns: {:?}", aleca_audit.violation_details)) };
+        emotional_feedback.ethical_data_handling_review = if aleca_audit.is_compliant { VerificationStatus::Passed("Emotional data handled ethically.") } else { VerificationStatus::Failed(format!("Data handling concerns: {:?}", aleca_audit.violation_details)) };
 
-        // Privacy protocol adherence via DataPrivacyModule (Sub-Task 185.3)
-        let privacy_check = self.data_privacy_module.enforce_privacy_policy(
-            &adaptive_setting.id,
-            "interface_personalization_data",
-            HashMap::new()
-        ).await.map_err(|e| e.to_string())?;
-        if !privacy_check.privacy_compliant {
-            error!("AHAI: Interface adaptation '{}' failed privacy check. Aborting adaptation.", adaptive_setting.id);
-            return Err(format!("Interface adaptation {} failed privacy check.", adaptive_setting.id));
+        if matches!(emotional_feedback.ethical_data_handling_review, VerificationStatus::Failed(_)) {
+            error!("AHAI: Emotional state feedback for '{}' failed ethical review.", emotional_feedback.id);
+            return Err(format!("Emotional state feedback {} failed ethical review.", emotional_feedback.id));
         }
 
-        if matches!(adaptive_setting.ethical_compliance_status, VerificationStatus::Failed(_)) {
-            error!("AHAI: Interface adaptation '{}' failed ethical review. Aborting adaptation.", adaptive_setting.id);
-            return Err(format!("Interface adaptation {} failed ethical review.", adaptive_setting.id));
-        }
-
-        self.adaptive_interface_settings.lock().unwrap().insert(setting_id.clone(), adaptive_setting.clone());
-        info!("AHAI: Interface dynamically adapted for user '{}'. New setting: {:?}.", user_id, adaptive_setting);
-        self.event_bus.publish(EventEnvelope::new("AdaptiveHumanAgiInterfaceDesignPersonalizationModule".to_string(), OsEvent::Custom("InterfaceAdapted".to_string(), setting_id))).await;
-        Ok(adaptive_setting)
+        self.emotional_state_feedback.lock().unwrap().insert(feedback_id.clone(), emotional_feedback.clone());
+        info!("AHAI: Anticipated user '{}' emotion: {}. Confidence: {}.", user_id, emotional_feedback.inferred_emotion, emotional_feedback.confidence_score);
+        self.event_bus.publish(EventEnvelope::new("AdaptiveHumanAGIInterfaceDesignPersonalizationModule".to_string(), OsEvent::Custom("UserNeedsAnticipated".to_string(), feedback_id))).await;
+        Ok(emotional_feedback)
     }
 
     pub fn as_os_service() -> OsService {
@@ -184,16 +165,16 @@ impl AdaptiveHumanAgiInterfaceDesignPersonalizationModule {
             description: "Develops highly adaptive and intuitive user interfaces that dynamically adjust to individual human cognitive styles, preferences, and emotional states.".to_string(),
             service_type: ServiceType::Communication_Bridge,
             capabilities: vec![
-                ServiceCapability { name: "profile_human_cognitive_styles_and_preferences".to_string(), description: "Non-invasively models individual human cognitive styles, learning preferences, and interaction habits to understand how each user best processes information and communicates, with ethical/privacy review.".to_string(), parameters: HashMap::new(), output_schema: "HumanCognitiveProfile".to_string(), requires_permissions: vec!["profile_human_users".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "dynamically_adapt_interface_for_optimal_interaction".to_string(), description: "Automatically adjusts Tariro's user interfaces, communication modalities, and information presentation to match the profiled cognitive style and emotional state of the human user in real-time, with ethical/privacy verification.".to_string(), parameters: HashMap::new(), output_schema: "AdaptiveInterfaceSetting".to_string(), requires_permissions: vec!["adapt_user_interfaces".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "ensure_ethical_privacy_and_avoid_manipulation_in_personalization".to_string(), description: "Rigorously adheres to ethical guidelines and privacy protocols, ensuring that interface personalization is always for the human's benefit and never for manipulation or exploitation.".to_string(), parameters: HashMap::new(), output_schema: "bool".to_string(), requires_permissions: vec!["enforce_privacy_ethics".to_string()], requires_ethical_review: true },
-                ServiceCapability { name: "audit_interface_personalization_for_effectiveness_and_ethics".to_string(), description: "Logs all interface adaptations, their rationale, and observed impact on human-AGI collaboration efficiency and user well-being for transparent and auditable compliance, with ALEC-A oversight and immutable logging via QR-CTFO.".to_string(), parameters: HashMap::new(), output_schema: "InterfaceAuditReport".to_string(), requires_permissions: vec!["read_audit_logs".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "dynamically_adapt_user_interfaces".to_string(), description: "Adjusts UI elements in real-time based on the human user's cognitive state, emotional context, and preferences, with ethical/security review.".to_string(), parameters: HashMap::new(), output_schema: "InterfaceAdaptationProfile".to_string(), requires_permissions: vec!["adapt_user_interfaces".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "personalize_interaction_flows_and_modalities".to_string(), description: "Tailors interaction workflows, communication style, and information presentation to match individual human cognitive styles, with ethical/security verification.".to_string(), parameters: HashMap::new(), output_schema: "InterfaceAdaptationProfile".to_string(), requires_permissions: vec!["personalize_interactions".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "proactively_anticipate_user_needs_and_cognitive_load".to_string(), description: "Predicts potential user frustration, confusion, or cognitive overload and proactively adapts the interface to mitigate these issues, ensuring seamless and efficient collaboration, with ethical review.".to_string(), parameters: HashMap::new(), output_schema: "EmotionalStateFeedback".to_string(), requires_permissions: vec!["anticipate_user_needs".to_string()], requires_ethical_review: true },
+                ServiceCapability { name: "audit_interface_adaptations_for_ethics_and_usability".to_string(), description: "Logs all interface adaptations, personalization decisions, and user feedback for transparent and auditable compliance, with ALEC-A oversight and immutable logging via QR-CTFO.".to_string(), parameters: HashMap::new(), output_schema: "InterfaceAuditReport".to_string(), requires_permissions: vec!["read_audit_logs".to_string()], requires_ethical_review: true },
             ],
             status: ServiceStatus::Running,
             registered_at: Utc::now(), 
             last_heartbeat: Utc::now(),
             endpoints: HashMap::new(),
-            dependencies: vec!["os-event-bus".to_string(), "aleca".to_string(), "qr-ctfo".to_string(), "meta-learner".to_string(), "human-agi-teaming-module".to_string(), "social-cognition-theory-of-mind-enhancement-module".to_string(), "proactive-emotional-intelligence-empathy-optimization-module".to_string(), "attention-salience-module".to_string(), "ethical-governance-module".to_string(), "data-privacy-module".to_string()],
+            dependencies: vec!["os-event-bus".to_string(), "aleca".to_string(), "qr-ctfo".to_string(), "meta-learner".to_string(), "affective-computing-emotional-regulation-module".to_string(), "social-cognition-theory-of-mind-enhancement-module".to_string(), "human-agi-teaming-trust-building-module".to_string(), "explainable-ai-module".to_string(), "epistemic-uncertainty-quantification-module".to_string(), "emotion-driven-cognitive-prioritization-module".to_string()],
             managed_by_agi_module: None,
         }
     }
