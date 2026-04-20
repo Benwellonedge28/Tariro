@@ -38,7 +38,8 @@ use crate::compliance_advisor::legal_framework_models::{ComplianceStatus, Module
 use crate::compliance_advisor::conflict_resolver::ComplianceRemediationAction;
 use crate::compliance_advisor::ethical_forecasting::EthicalForecastingModule;
 use crate::compliance_advisor::ethical_governance::EthicalGovernanceModule;
-use crate::compliance_advisor::moral_reasoning::MoralReasoningModule; // Import MoralReasoningModule
+use crate::compliance_advisor::moral_reasoning::MoralReasoningModule;
+use crate::compliance_advisor::self_correction_biases::SelfCorrectionBiasesModule; // Import SelfCorrectionBiasesModule
 
 // Import Meta-Goals module
 use crate::agi_meta_goals::MetaGoalManager; 
@@ -108,7 +109,7 @@ use crate::security::data_privacy::DataPrivacyModule;
 use crate::security::hardware_security::HardwareSecurityModule;
 use crate::security::red_team_simulation::RedTeamSimulationModule;
 use crate::security::secure_enclave::SecureEnclaveModule;
-use crate::security::adversarial_ml_defense::AdversarialMLDefenseModule; // Import AdversarialMLDefenseModule
+use crate::security::adversarial_ml_defense::AdversarialMLDefenseModule;
 
 // Import Forecasting/Environmental
 use crate::forecasting::forecasting::PredictiveForecastingModule;
@@ -225,7 +226,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Adversarial Machine Learning Defense...");
+        info!("Initializing AGI Core Engine with Self-Correction of Biases...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -353,19 +354,7 @@ impl AgiCoreEngine {
         let multi_agent_coordination_module_arc = Arc::new(MultiAgentCoordinationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ethical_governance_module_arc.clone(), decentralized_consensus_dummy.clone(), swarm_intelligence_module_arc.clone(), dynamic_resource_reallocation_dummy.clone()));
         let dynamic_goal_reprioritization_module_arc = Arc::new(DynamicGoalReprioritizationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ethical_forecasting_module_arc.clone(), ethical_governance_module_arc.clone(), meta_goal_manager_arc.clone(), red_team_simulation_dummy.clone()));
         let self_awareness_introspection_module_arc = Arc::new(SelfAwarenessIntrospectionModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), metacognition_dummy.clone(), agi_behavior_prediction_module_arc.clone(), ethical_governance_module_arc.clone()));
-
-        // Initialize MoralReasoningModule (Task 124)
-        let moral_reasoning_module_arc = Arc::new(MoralReasoningModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            ethical_forecasting_module_arc.clone(),
-            global_knowledge_integration_module_arc.clone(),
-            ethical_governance_module_arc.clone(),
-            red_team_simulation_dummy.clone(),
-        ));
-        service_registry_arc.register_service(MoralReasoningModule::as_os_service()).await?;
+        let moral_reasoning_module_arc = Arc::new(MoralReasoningModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ethical_forecasting_module_arc.clone(), global_knowledge_integration_module_arc.clone(), ethical_governance_module_arc.clone(), red_team_simulation_dummy.clone()));
 
         // Initialize AdversarialMLDefenseModule (Task 125)
         let adversarial_ml_defense_module_arc = Arc::new(AdversarialMLDefenseModule::new(
@@ -379,6 +368,20 @@ impl AgiCoreEngine {
             ethical_forecasting_module_arc.clone(),
         ));
         service_registry_arc.register_service(AdversarialMLDefenseModule::as_os_service()).await?;
+
+        // Initialize SelfCorrectionBiasesModule (Task 126)
+        let self_correction_biases_module_arc = Arc::new(SelfCorrectionBiasesModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            global_knowledge_integration_module_arc.clone(),
+            ethical_forecasting_module_arc.clone(),
+            red_team_simulation_dummy.clone(),
+            epistemic_reasoning_dummy.clone(),
+            dynamic_resource_reallocation_dummy.clone(),
+        ));
+        service_registry_arc.register_service(SelfCorrectionBiasesModule::as_os_service()).await?;
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
@@ -435,6 +438,7 @@ impl AgiCoreEngine {
             self_awareness_introspection_module: self_awareness_introspection_module_arc.clone(), // Assign self awareness introspection module
             moral_reasoning_module: moral_reasoning_module_arc.clone(), // Assign moral reasoning module
             adversarial_ml_defense_module: adversarial_ml_defense_module_arc.clone(), // Assign adversarial ML defense module
+            self_correction_biases_module: self_correction_biases_module_arc.clone(), // Assign self-correction biases module
             ethical_governance_module: ethical_governance_module_arc.clone(), // Assign ethical governance module
             global_knowledge_integration_module: global_knowledge_integration_module_arc.clone(), // Assign global knowledge integration module
             societal_impact_forecasting_module: societal_impact_forecasting_module_arc.clone(), // Assign societal impact forecasting module
