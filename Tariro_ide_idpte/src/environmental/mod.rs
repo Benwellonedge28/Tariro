@@ -22,11 +22,7 @@ pub mod societal_impact_mitigation;
 pub mod bio_integration_symbiotic_design;
 pub mod autonomous_philanthropy_models;
 pub mod autonomous_philanthropy_resource_deployment;
-pub mod universal_interoperability_models;
-pub mod universal_interoperability;
-pub mod decentralized_governance_models;
-pub mod decentralized_governance_consensus;
-pub mod quantum_safe_crypto_models; // New module for Quantum-Safe Crypto models
-pub mod quantum_safe_crypto; // New module for Quantum-Safe Post-Quantum Cryptography Integration
+pub mod universal_interoperability_models; // New module for Universal Interoperability models
+pub mod universal_interoperability; // New module for Universal Interoperability & Omni-Protocol Autonomy
 
 // Add other environmental modules here.
