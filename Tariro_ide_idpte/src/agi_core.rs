@@ -106,7 +106,7 @@ use crate::cognitive_arch::intuitive_reasoning::IntuitiveReasoningModule;
 use crate::cognitive_arch::wisdom_value_alignment::WisdomLongTermValueAlignmentModule;
 use crate::cognitive_arch::social_cognition::SocialCognitionTheoryOfMindEnhancementModule;
 use crate::cognitive_arch::affective_regulation::AffectiveComputingEmotionalRegulationModule;
-use crate::cognitive_arch::empathy_compassion::EmpathyCompassionEnhancementModule; // Import EmpathyCompassionEnhancementModule
+use crate::cognitive_arch::empathy_compassion::EmpathyCompassionEnhancementModule;
 
 // Import Strategic Planning modules
 use crate::strategic_planning::hierarchical_planning::HierarchicalPlanningModule;
