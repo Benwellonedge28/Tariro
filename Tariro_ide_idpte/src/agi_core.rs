@@ -87,7 +87,8 @@ use crate::cognitive_arch::epistemic_reasoning::EpistemicReasoningModule;
 use crate::cognitive_arch::affective_computing::AffectiveComputingModule;
 use crate::cognitive_arch::sensory_fusion::SensoryFusionModule;
 use crate::cognitive_arch::attention_salience::AttentionSalienceModule;
-use crate::cognitive_arch::working_memory::WorkingMemoryModule; // Import WorkingMemoryModule
+use crate::cognitive_arch::working_memory::WorkingMemoryModule;
+use crate::cognitive_arch::long_term_semantic_memory::LongTermSemanticMemoryModule; // Import LongTermSemanticMemoryModule
 
 // Import Security modules
 use crate::security::adversarial_robustness::AdversarialRobustnessModule;
@@ -166,6 +167,7 @@ pub struct AgiCoreEngine {
     pub sensory_fusion_module: Arc<SensoryFusionModule>,
     pub attention_salience_module: Arc<AttentionSalienceModule>,
     pub working_memory_module: Arc<WorkingMemoryModule>,
+    pub long_term_semantic_memory_module: Arc<LongTermSemanticMemoryModule>,
     pub ethical_governance_module: Arc<EthicalGovernanceModule>,
     pub global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>,
     pub societal_impact_forecasting_module: Arc<SocietalImpactForecastingModule>,
@@ -201,7 +203,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Working Memory & Cognitive Load Management...");
+        info!("Initializing AGI Core Engine with Long-Term Semantic Memory & Knowledge Graph...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -315,18 +317,7 @@ impl AgiCoreEngine {
         let autonomous_philanthropy_module_arc = Arc::new(AutonomousPhilanthropyModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), global_knowledge_integration_module_arc.clone(), societal_impact_forecasting_module_arc.clone(), dynamic_resource_reallocation_module_arc.clone()));
         let collaborative_creativity_module_arc = Arc::new(CollaborativeCreativityModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), hacse_orchestrator_arc.clone(), global_knowledge_integration_module_arc.clone(), ethical_governance_module_arc.clone(), zero_knowledge_proofs_module_arc.clone()));
         let sensory_fusion_module_arc = Arc::new(SensoryFusionModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_manager_arc.clone(), metacognition_dummy.clone(), ethical_forecasting_module_arc.clone()));
-
-        // Initialize AttentionSalienceModule (Task 114)
-        let attention_salience_module_arc = Arc::new(AttentionSalienceModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            sensory_fusion_module_arc.clone(),
-            dynamic_resource_reallocation_module_arc.clone(),
-            ethical_forecasting_module_arc.clone(),
-        ));
-        service_registry_arc.register_service(AttentionSalienceModule::as_os_service()).await?;
+        let attention_salience_module_arc = Arc::new(AttentionSalienceModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), sensory_fusion_module_arc.clone(), dynamic_resource_reallocation_module_arc.clone(), ethical_forecasting_module_arc.clone()));
 
         // Initialize WorkingMemoryModule (Task 115)
         let working_memory_module_arc = Arc::new(WorkingMemoryModule::new(
@@ -399,6 +390,7 @@ impl AgiCoreEngine {
             sensory_fusion_module: sensory_fusion_module_arc.clone(), // Assign sensory fusion module
             attention_salience_module: attention_salience_module_arc.clone(), // Assign attention salience module
             working_memory_module: working_memory_module_arc.clone(), // Assign working memory module
+            long_term_semantic_memory_module: long_term_semantic_memory_module_arc.clone(), // Assign long-term semantic memory module
             ethical_governance_module: ethical_governance_module_arc.clone(), // Assign ethical governance module
             global_knowledge_integration_module: global_knowledge_integration_module_arc.clone(), // Assign global knowledge integration module
             societal_impact_forecasting_module: societal_impact_forecasting_module_arc.clone(), // Assign societal impact forecasting module
