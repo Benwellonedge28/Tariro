@@ -118,7 +118,8 @@ use crate::cognitive_arch::dynamic_ontological_evolution::DynamicOntologicalEvol
 use crate::cognitive_arch::metaphorical_mapping::MetaphoricalMappingModule;
 use crate::cognitive_arch::epistemic_uncertainty_quantification::EpistemicUncertaintyQuantificationModule;
 use crate::cognitive_arch::emotion_driven_cognitive_prioritization::EmotionDrivenCognitivePrioritizationModule;
-use crate::cognitive_arch::meta_cognitive_self_regulation::MetaCognitiveSelfRegulationModule; // Import MetaCognitiveSelfRegulationModule
+use crate::cognitive_arch::meta_cognitive_self_regulation::MetaCognitiveSelfRegulationModule;
+use crate::strategic_planning::abstract_task_decomposition::AbstractTaskDecompositionModule; // Import AbstractTaskDecompositionModule
 
 // Import Strategic Planning modules
 use crate::strategic_planning::hierarchical_planning::HierarchicalPlanningModule;
@@ -213,7 +214,7 @@ pub struct AgiCoreEngine {
     pub creativity_innovation_module: Arc<CreativityInnovationModule>,
     pub swarm_intelligence_module: Arc<SwarmIntelligenceModule>,
     pub embodied_cognition_module: Arc<EmbodiedCognitionModule>,
-    pub intuitive_physics_psychology_module: Arc<IntuitivePhysicsPsychologyModule>,
+    pub intuitive_physics_psychology_module: Arc<IntuitivePhysicsPhysicsModule>,
     pub epistemic_reasoning_module: Arc<EpistemicReasoningModule>,
     pub affective_computing_module: Arc<AffectiveComputingModule>,
     pub sensory_fusion_module: Arc<SensoryFusionModule>,
@@ -266,8 +267,9 @@ pub struct AgiCoreEngine {
     pub dynamic_ontological_evolution_module: Arc<DynamicOntologicalEvolutionModule>,
     pub metaphorical_mapping_module: Arc<MetaphoricalMappingModule>,
     pub epistemic_uncertainty_quantification_module: Arc<EpistemicUncertaintyQuantificationModule>,
-    pub emotion_driven_cognitive_prioritization_module: Arc<EmotionDrivenCognitivePrioritizationModule>, // Assign EmotionDrivenCognitivePrioritizationModule
-    pub meta_cognitive_self_regulation_module: Arc<MetaCognitiveSelfRegulationModule>, // Assign MetaCognitiveSelfRegulationModule
+    pub emotion_driven_cognitive_prioritization_module: Arc<EmotionDrivenCognitivePrioritizationModule>,
+    pub meta_cognitive_self_regulation_module: Arc<MetaCognitiveSelfRegulationModule>,
+    pub abstract_task_decomposition_module: Arc<AbstractTaskDecompositionModule>, // Assign AbstractTaskDecompositionModule
     pub ethical_governance_module: Arc<EthicalGovernanceModule>,
     pub global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>,
     pub societal_impact_forecasting_module: Arc<SocietalImpactForecastingModule>,
@@ -303,7 +305,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Meta-Cognitive Self-Regulation...");
+        info!("Initializing AGI Core Engine with Abstract Task Decomposition & Synthesis...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -399,6 +401,9 @@ impl AgiCoreEngine {
         let global_knowledge_integration_synthesis_module_dummy = Arc::new(GlobalKnowledgeIntegrationSynthesisModule::new_dummy(event_bus_arc.clone()));
         let moral_reasoning_module_dummy = Arc::new(MoralReasoningModule::new_dummy(event_bus_arc.clone()));
         let abstract_reasoning_module_dummy = Arc::new(AbstractReasoningModule::new_dummy(event_bus_arc.clone()));
+        let epistemic_reasoning_module_dummy = Arc::new(EpistemicReasoningModule::new_dummy(event_bus_arc.clone()));
+        let hierarchical_planning_module_dummy = Arc::new(HierarchicalPlanningModule::new_dummy(event_bus_arc.clone()));
+        let collaborative_creativity_module_dummy = Arc::new(CollaborativeCreativityModule::new_dummy(event_bus_arc.clone()));
 
 
         // Full initialization sequence
@@ -822,7 +827,7 @@ impl AgiCoreEngine {
         let embodied_learning_skill_acquisition_module_arc = Arc::new(EmbodiedLearningSkillAcquisitionModule::new(
             event_bus_arc.clone(),
             aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
+            qr_ctfo_orchestr_arc.clone(),
             meta_learner_arc.clone(),
             digital_twin_simulation_module_arc.clone(),
             embodied_cognition_module_arc.clone(),
@@ -892,12 +897,25 @@ impl AgiCoreEngine {
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
-            metacognition_dummy.clone(),
+            metacognition_module_arc.clone(),
             dynamic_resource_reallocation_module_arc.clone(),
             explainable_ai_module_arc.clone(),
             moral_reasoning_module_arc.clone(),
         ));
         service_registry_arc.register_service(MetaCognitiveSelfRegulationModule::as_os_service()).await?;
+
+        // Initialize AbstractTaskDecompositionModule (Task 164)
+        let abstract_task_decomposition_module_arc = Arc::new(AbstractTaskDecompositionModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            hierarchical_planning_module_arc.clone(),
+            concept_formation_module_arc.clone(),
+            collaborative_creativity_module_arc.clone(),
+            moral_reasoning_module_arc.clone(),
+        ));
+        service_registry_arc.register_service(AbstractTaskDecompositionModule::as_os_service()).await?;
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
@@ -930,7 +948,7 @@ impl AgiCoreEngine {
             lifelong_learning_module: lifelong_learning_module_arc.clone(), // Assign lifelong learning module
             curiosity_exploration_module: curiosity_exploration_module_arc.clone(), // Assign curiosity exploration module
             intuition_heuristic_generator: intuition_heuristic_generator_dummy.clone(), // Assign intuition heuristic generator
-            metacognition_module: metacognition_dummy.clone(), // Assign metacognition module
+            metacognition_module: metacognition_module_arc.clone(), // Assign metacognition module
             imagination_module: imagination_dummy.clone(), // Assign imagination module
             formal_reasoning_module: formal_reasoning_module_arc.clone(), // Assign formal reasoning module
             emotion_motivation_module: emotion_motivation_dummy.clone(), // Assign emotion motivation module
@@ -950,7 +968,7 @@ impl AgiCoreEngine {
             agi_behavior_prediction_module: agi_behavior_prediction_module_arc.clone(), // Assign AGI behavior prediction module
             multi_agent_coordination_module: multi_agent_coordination_module_arc.clone(), // Assign multi-agent coordination module
             dynamic_goal_reprioritization_module: dynamic_goal_reprioritization_module_arc.clone(), // Assign dynamic goal reprioritization module
-            hierarchical_planning_module: Arc::new(HierarchicalPlanningModule::new_dummy(event_bus_arc.clone())),
+            hierarchical_planning_module: hierarchical_planning_module_arc.clone(),
             self_awareness_introspection_module: self_awareness_introspection_module_arc.clone(), // Assign self awareness introspection module
             moral_reasoning_module: moral_reasoning_module_arc.clone(), // Assign moral reasoning module
             adversarial_ml_defense_module: adversarial_ml_defense_module_arc.clone(), // Assign adversarial ML defense module
@@ -991,7 +1009,8 @@ impl AgiCoreEngine {
             metaphorical_mapping_module: metaphorical_mapping_module_arc.clone(), // Assign metaphorical mapping module
             epistemic_uncertainty_quantification_module: epistemic_uncertainty_quantification_module_arc.clone(), // Assign Epistemic Uncertainty Quantification module
             emotion_driven_cognitive_prioritization_module: emotion_driven_cognitive_prioritization_module_arc.clone(), // Assign Emotion Driven Cognitive Prioritization module
-            meta_cognitive_self_regulation_module: Arc::new(MetaCognitiveSelfRegulationModule::new_dummy(event_bus_arc.clone())),
+            meta_cognitive_self_regulation_module: meta_cognitive_self_regulation_module_arc.clone(), // Assign MetaCognitiveSelfRegulationModule
+            abstract_task_decomposition_module: abstract_task_decomposition_module_arc.clone(), // Assign AbstractTaskDecompositionModule
             ethical_governance_module: ethical_governance_module_arc.clone(), // Assign ethical governance module
             global_knowledge_integration_module: global_knowledge_integration_module_arc.clone(), // Assign global knowledge integration module
             societal_impact_forecasting_module: societal_impact_forecasting_module_arc.clone(), // Assign societal impact forecasting module
