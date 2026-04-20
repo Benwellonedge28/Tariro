@@ -25,5 +25,9 @@ pub mod epistemic_models;
 pub mod epistemic_reasoning;
 pub mod affective_models;
 pub mod affective_computing;
-pub mod sensory_fusion_models; // New module for sensory fusion models
-pub mod sensory_fusion; // New module for Sensory Fusion
+pub mod sensory_fusion_models;
+pub mod sensory_fusion;
+pub mod attention_models; // New module for attention models
+pub mod attention_salience; // New module for Attention & Salience Detection
+
+// Add other cognitive architecture modules here.
