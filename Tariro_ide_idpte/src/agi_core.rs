@@ -54,7 +54,7 @@ use crate::agi_meta_goals::dynamic_goal_alignment::DynamicGoalAlignmentModule; /
 // Import OMEGA OS Service Framework
 use crate::omega_os::service_registry::ServiceRegistry;
 use crate::omega_os::service_models::{OsService, ServiceType, ServiceCapability, ServiceStatus};
-use crate::omega_os::process_manager::{ProcessManager, ProcessId, ProcessStatus as OsProcessStatus};
+use crate::omega_os::process_manager::{ProcessManager, ProcessInfo, ProcessId, ProcessStatus as OsProcessStatus};
 use crate::omega_os::event_bus::EventBus;
 use crate::omega_os::event_models::{OsEvent, EventEnvelope};
 use crate::omega_os::runtime_environment::RuntimeEnvironment;
@@ -125,7 +125,8 @@ use crate::cognitive_arch::intuitive_physics_psychology_integration::IntuitivePh
 use crate::cognitive_arch::advanced_hierarchical_rl::AdvancedHierarchicalRLModule;
 use crate::cognitive_arch::advanced_curious_exploration::AdvancedCuriousExplorationModule;
 use crate::cognitive_arch::lifelong_meta_learning::LifelongMetaLearningModule;
-use crate::cognitive_arch::omni_sensory_abstract_representation::OmniSensoryAbstractRepresentationModule; // Import OmniSensoryAbstractRepresentationModule
+use crate::cognitive_arch::advanced_epistemic_logic_trust_reasoning::AdvancedEpistemicLogicTrustReasoningModule; // Import AdvancedEpistemicLogicTrustReasoningModule
+use crate::cognitive_arch::omni_sensory_abstract_representation::OmniSensoryAbstractRepresentationModule;
 
 // Import Strategic Planning modules
 use crate::strategic_planning::hierarchical_planning::HierarchicalPlanningModule;
@@ -166,7 +167,7 @@ use crate::environmental::social_norms_learning::SocialNormsLearningModule;
 use crate::environmental::collaborative_world_modeling::CollaborativeWorldModelingModule;
 use crate::environmental::global_knowledge_integration_synthesis::GlobalKnowledgeIntegrationSynthesisModule; // Import GlobalKnowledgeIntegrationSynthesisModule
 use crate::environmental::societal_impact_mitigation::SocietalImpactForecastingMitigationModule; // Import SocietalImpactForecastingMitigationModule
-use crate::environmental::bio_integration_symbiotic_design::BioIntegrationSymbioticDesignModule; // Import BioIntegrationSymbioticDesignModule
+use use crate::environmental::bio_integration_symbiotic_design::BioIntegrationSymbioticDesignModule; // Import BioIntegrationSymbioticDesignModule
 use crate::environmental::autonomous_philanthropy_resource_deployment::AutonomousPhilanthropyResourceDeploymentModule; // Import AutonomousPhilanthropyResourceDeploymentModule
 use crate::environmental::universal_interoperability::UniversalInteroperabilityOmniProtocolAutonomyModule; // Import UniversalInteroperabilityOmniProtocolAutonomyModule
 use crate::environmental::decentralized_governance_consensus::DecentralizedGovernanceVerifiableConsensusModule; // Import DecentralizedGovernanceVerifiableConsensusModule
@@ -286,8 +287,9 @@ pub struct AgiCoreEngine {
     pub lifelong_meta_learning_module: Arc<LifelongMetaLearningModule>,
     pub dynamic_goal_alignment_module: Arc<DynamicGoalAlignmentModule>,
     pub simulated_social_evolution_module: Arc<SimulatedSocialEvolutionModule>,
-    pub dynamic_ethical_constraint_generation_module: Arc<DynamicEthicalConstraintGenerationModule>, // New module for Dynamic Ethical Constraint Generation
-    pub omni_sensory_abstract_representation_module: Arc<OmniSensoryAbstractRepresentationModule>, // New module for Omni-Sensory Abstract Representation
+    pub dynamic_ethical_constraint_generation_module: Arc<DynamicEthicalConstraintGenerationModule>,
+    pub omni_sensory_abstract_representation_module: Arc<OmniSensoryAbstractRepresentationModule>,
+    pub advanced_epistemic_logic_trust_reasoning_module: Arc<AdvancedEpistemicLogicTrustReasoningModule>, // Import AdvancedEpistemicLogicTrustReasoningModule
     pub ethical_governance_module: Arc<EthicalGovernanceModule>,
     pub global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>,
     pub societal_impact_forecasting_module: Arc<SocietalImpactForecastingModule>,
@@ -323,7 +325,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with FULL batch of 20 features (153-172)...");
+        info!("Initializing AGI Core Engine with additional cognitive and environmental modules...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -390,7 +392,7 @@ impl AgiCoreEngine {
         let moral_reasoning_module_arc = Arc::new(MoralReasoningModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), Arc::new(EthicalForecastingModule::new_dummy(event_bus_arc.clone())), Arc::new(GlobalKnowledgeIntegrationModule::new_dummy(event_bus_arc.clone())), Arc::new(EthicalGovernanceModule::new_dummy(event_bus_arc.clone())), Arc::new(RedTeamSimulationModule::new_dummy(event_bus_arc.clone()))));
         let ethical_governance_module_arc = Arc::new(EthicalGovernanceModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), Arc::new(HumanAGITeamingModule::new_dummy(event_bus_arc.clone())), Arc::new(DecentralizedConsensusModule::new_dummy(event_bus_arc.clone()))));
         let ethical_forecasting_module_arc = Arc::new(EthicalForecastingModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), imagination_module_arc.clone(), causal_reasoning_engine_arc.clone()));
-        let self_correction_biases_module_arc = Arc::new(SelfCorrectionBiasesModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), Arc::new(GlobalKnowledgeIntegrationModule::new_dummy(event_bus_arc.clone())), ethical_forecasting_module_arc.clone(), Arc::new(RedTeamSimulationModule::new_dummy(event_bus_arc.clone())), Arc::new(EpistemicReasoningModule::new_dummy(event_bus_arc.clone())), Arc::new(DynamicResourceReallocationModule::new_dummy(event_bus_arc.clone()))));
+        let self_correction_biases_module_arc = Arc::new(SelfCorrectionBiasesModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), Arc::new(GlobalKnowledgeIntegrationModule::new_dummy(event_bus_arc.clone())), ethical_forecasting_module_arc.clone(), Arc::new(RedTeamSimulationModule::new_dummy(event_bus_arc.clone())), epistemic_reasoning_module_arc.clone(), Arc::new(DynamicResourceReallocationModule::new_dummy(event_bus_arc.clone()))));
         let epistemic_reasoning_module_arc = Arc::new(EpistemicReasoningModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), lifelong_learning_module_arc.clone(), Arc::new(TrustReputationModule::new_dummy(event_bus_arc.clone())), curiosity_exploration_module_arc.clone(), common_sense_reasoning_network_arc.clone(), data_manager_arc.clone()));
         let hierarchical_planning_module_arc = Arc::new(HierarchicalPlanningModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), meta_goal_manager_arc.clone(), hierarchical_rl_module_arc.clone()));
         let abstract_task_decomposition_module_arc = Arc::new(AbstractTaskDecompositionModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), hierarchical_planning_module_arc.clone(), concept_formation_module_arc.clone(), Arc::new(CollaborativeCreativityModule::new_dummy(event_bus_arc.clone())), moral_reasoning_module_arc.clone()));
@@ -407,12 +409,51 @@ impl AgiCoreEngine {
         let data_privacy_module_arc = Arc::new(DataPrivacyModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_manager_arc.clone()));
         let red_team_simulation_module_arc = Arc::new(RedTeamSimulationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), Arc::new(AdversarialRobustnessModule::new_dummy(event_bus_arc.clone())), imagination_module_arc.clone(), Arc::new(SelfHealingModule::new_dummy(event_bus_arc.clone())), Arc::new(SelfEvolutionModule::new_dummy(event_bus_arc.clone()))));
 
+        // Modules that need to be initialized before their dependents
+        // Base Modules:
+        // - meta_learner_arc
+        // - causal_reasoning_engine_arc
+        // - theory_of_mind_module_arc
+        // - lifelong_learning_module_arc
+        // - concept_formation_module_arc
+        // - common_sense_reasoning_network_arc
+        // - curiosity_exploration_module_arc
+        // - analogical_reasoning_system_arc
+        // - hierarchical_rl_module_arc
+        // - formal_reasoning_module_arc
+        // - imagination_module_arc
+        // - affective_computing_module_arc
+        // - sensory_fusion_module_arc
+        // - attention_salience_module_arc
+        // - self_awareness_introspection_module_arc
+        // - metacognition_module_arc
+        // - explainable_ai_module_arc
+        // - moral_reasoning_module_arc
+        // - ethical_governance_module_arc
+        // - ethical_forecasting_module_arc
+        // - self_correction_biases_module_arc
+        // - epistemic_reasoning_module_arc
+        // - hierarchical_planning_module_arc
+        // - abstract_task_decomposition_module_arc
+        // - goal_management_module_arc
+        // - intuitive_physics_psychology_module_arc
+        // - global_knowledge_integration_synthesis_module_arc
+        // - societal_impact_forecasting_mitigation_module_arc
+        // - predictive_forecasting_module_arc
+        // - dynamic_resource_reallocation_module_arc
+        // - collaborative_creativity_module_arc
+        // - social_intelligence_module_arc
+        // - proactive_empathy_module_arc
+        // - adaptive_control_module_arc
+        // - data_privacy_module_arc
+        // - red_team_simulation_module_arc
+
         // New feature modules for Task 153-172
         let advanced_causal_discovery_inference_module_arc = Arc::new(AdvancedCausalDiscoveryInferenceModule::new(
-            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), causal_reasoning_engine_arc.clone(), self_correction_biases_module_arc.clone(), explainable_ai_module_arc.clone(), moral_reasoning_module_arc.clone(), Arc::new(DigitalTwinSimulationModule::new_dummy(event_bus_arc.clone())), epistemic_reasoning_module_arc.clone(),
+            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), causal_reasoning_engine_arc.clone(), self_correction_biases_module_arc.clone(), explainable_ai_module_arc.clone(), moral_reasoning_module_arc.clone(), digital_twin_simulation_module_arc.clone(), epistemic_reasoning_module_arc.clone(),
         ));
         let counterfactual_reasoning_scenario_planning_module_arc = Arc::new(CounterfactualReasoningScenarioPlanningModule::new(
-            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), Arc::new(DigitalTwinSimulationModule::new_dummy(event_bus_arc.clone())), imagination_module_arc.clone(), advanced_causal_discovery_inference_module_arc.clone(), ethical_forecasting_module_arc.clone(), societal_impact_forecasting_mitigation_module_arc.clone(), moral_reasoning_module_arc.clone(),
+            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), digital_twin_simulation_module_arc.clone(), imagination_module_arc.clone(), advanced_causal_discovery_inference_module_arc.clone(), ethical_forecasting_module_arc.clone(), societal_impact_forecasting_mitigation_module_arc.clone(), moral_reasoning_module_arc.clone(),
         ));
         let explainable_predictive_modeling_module_arc = Arc::new(ExplainablePredictiveModelingModule::new(
             event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), explainable_ai_module_arc.clone(), epistemic_reasoning_module_arc.clone(), predictive_forecasting_module_arc.clone(), ethical_governance_module_arc.clone(), red_team_simulation_module_arc.clone(),
@@ -424,7 +465,7 @@ impl AgiCoreEngine {
             event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), formal_reasoning_module_arc.clone(), concept_formation_module_arc.clone(), self_correction_biases_module_arc.clone(), explainable_ai_module_arc.clone(),
         ));
         let embodied_learning_skill_acquisition_module_arc = Arc::new(EmbodiedLearningSkillAcquisitionModule::new(
-            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), Arc::new(DigitalTwinSimulationModule::new_dummy(event_bus_arc.clone())), Arc::new(EmbodiedCognitionModule::new_dummy(event_bus_arc.clone())), sensory_fusion_module_arc.clone(), adaptive_control_module_arc.clone(), ethical_governance_module_arc.clone(),
+            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), digital_twin_simulation_module_arc.clone(), Arc::new(EmbodiedCognitionModule::new_dummy(event_bus_arc.clone())), sensory_fusion_module_arc.clone(), adaptive_control_module_arc.clone(), ethical_governance_module_arc.clone(),
         ));
         let dynamic_ontological_evolution_module_arc = Arc::new(DynamicOntologicalEvolutionModule::new(
             event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), concept_formation_module_arc.clone(), global_knowledge_integration_synthesis_module_arc.clone(), common_sense_reasoning_network_arc.clone(), moral_reasoning_module_arc.clone(),
@@ -436,35 +477,39 @@ impl AgiCoreEngine {
             event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), epistemic_reasoning_module_arc.clone(), curiosity_exploration_module_arc.clone(), explainable_ai_module_arc.clone(), data_manager_arc.clone(), self_correction_biases_module_arc.clone(),
         ));
         let emotion_driven_cognitive_prioritization_module_arc = Arc::new(EmotionDrivenCognitivePrioritizationModule::new(
-            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qrctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), affective_computing_module_arc.clone(), self_awareness_introspection_module_arc.clone(), Arc::new(DynamicGoalReprioritizationModule::new_dummy(event_bus_arc.clone())), attention_salience_module_arc.clone(), moral_reasoning_module_arc.clone(), imagination_module_arc.clone(),
+            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), affective_computing_module_arc.clone(), self_awareness_introspection_module_arc.clone(), Arc::new(DynamicGoalReprioritizationModule::new_dummy(event_bus_arc.clone())), attention_salience_module_arc.clone(), moral_reasoning_module_arc.clone(), imagination_module_arc.clone(),
         ));
         let meta_cognitive_self_regulation_module_arc = Arc::new(MetaCognitiveSelfRegulationModule::new(
-            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qrctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), metacognition_module_arc.clone(), dynamic_resource_reallocation_module_arc.clone(), explainable_ai_module_arc.clone(), moral_reasoning_module_arc.clone(),
+            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), metacognition_module_arc.clone(), dynamic_resource_reallocation_module_arc.clone(), explainable_ai_module_arc.clone(), moral_reasoning_module_arc.clone(),
         ));
         let intuitive_physics_psychology_integration_module_arc = Arc::new(IntuitivePhysicsPsychologyIntegrationModule::new(
-            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qrctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), intuitive_physics_psychology_module_arc.clone(), sensory_fusion_module_arc.clone(), theory_of_mind_module_arc.clone(), affective_computing_module_arc.clone(), formal_reasoning_module_arc.clone(), moral_reasoning_module_arc.clone(),
+            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), intuitive_physics_psychology_module_arc.clone(), sensory_fusion_module_arc.clone(), theory_of_mind_module_arc.clone(), affective_computing_module_arc.clone(), formal_reasoning_module_arc.clone(), moral_reasoning_module_arc.clone(),
         ));
         let advanced_hierarchical_rl_module_arc = Arc::new(AdvancedHierarchicalRLModule::new(
-            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qrctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), hierarchical_rl_module_arc.clone(), goal_management_module_arc.clone(), abstract_task_decomposition_module_arc.clone(), moral_reasoning_module_arc.clone(),
+            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), hierarchical_rl_module_arc.clone(), goal_management_module_arc.clone(), abstract_task_decomposition_module_arc.clone(), moral_reasoning_module_arc.clone(),
         ));
         let advanced_curious_exploration_module_arc = Arc::new(AdvancedCuriousExplorationModule::new(
-            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qrctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), curiosity_exploration_module_arc.clone(), epistemic_uncertainty_quantification_module_arc.clone(), imagination_module_arc.clone(), moral_reasoning_module_arc.clone(),
+            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), curiosity_exploration_module_arc.clone(), epistemic_uncertainty_quantification_module_arc.clone(), imagination_module_arc.clone(), moral_reasoning_module_arc.clone(),
         ));
         let lifelong_meta_learning_module_arc = Arc::new(LifelongMetaLearningModule::new(
-            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qrctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), lifelong_learning_module_arc.clone(), metacognition_module_arc.clone(), self_correction_biases_module_arc.clone(),
+            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), lifelong_learning_module_arc.clone(), metacognition_module_arc.clone(), self_correction_biases_module_arc.clone(),
         ));
         let dynamic_goal_alignment_module_arc = Arc::new(DynamicGoalAlignmentModule::new(
-            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qrctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ethical_governance_module_arc.clone(), goal_management_module_arc.clone(), moral_reasoning_module_arc.clone(), social_intelligence_module_arc.clone(),
+            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ethical_governance_module_arc.clone(), goal_management_module_arc.clone(), moral_reasoning_module_arc.clone(), social_intelligence_module_arc.clone(),
         ));
         let simulated_social_evolution_module_arc = Arc::new(SimulatedSocialEvolutionModule::new(
-            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qrctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), Arc::new(DigitalTwinSimulationModule::new_dummy(event_bus_arc.clone())), social_intelligence_module_arc.clone(), ethical_governance_module_arc.clone(), moral_reasoning_module_arc.clone(), self_correction_biases_module_arc.clone(),
+            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), digital_twin_simulation_module_arc.clone(), social_intelligence_module_arc.clone(), ethical_governance_module_arc.clone(), moral_reasoning_module_arc.clone(), self_correction_biases_module_arc.clone(),
         ));
         let dynamic_ethical_constraint_generation_module_arc = Arc::new(DynamicEthicalConstraintGenerationModule::new(
-            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qrctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ethical_forecasting_module_arc.clone(), moral_reasoning_module_arc.clone(), ethical_governance_module_arc.clone(), formal_reasoning_module_arc.clone(),
+            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ethical_forecasting_module_arc.clone(), moral_reasoning_module_arc.clone(), ethical_governance_module_arc.clone(), formal_reasoning_module_arc.clone(),
         ));
         let omni_sensory_abstract_representation_module_arc = Arc::new(OmniSensoryAbstractRepresentationModule::new(
-            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qrctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), sensory_fusion_module_arc.clone(), Arc::new(AbstractReasoningModule::new_dummy(event_bus_arc.clone())), epistemic_reasoning_module_arc.clone(), data_privacy_module_arc.clone(),
+            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), sensory_fusion_module_arc.clone(), abstract_reasoning_module_arc.clone(), epistemic_reasoning_module_arc.clone(), data_privacy_module_arc.clone(),
         ));
+        let advanced_epistemic_logic_trust_reasoning_module_arc = Arc::new(AdvancedEpistemicLogicTrustReasoningModule::new(
+            event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), epistemic_reasoning_module_arc.clone(), self_awareness_introspection_module_arc.clone(), Arc::new(TrustReputationModule::new_dummy(event_bus_arc.clone())), formal_reasoning_module_arc.clone(), self_correction_biases_module_arc.clone(),
+        ));
+
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
@@ -484,7 +529,7 @@ impl AgiCoreEngine {
             app_loader: app_loader_arc.clone(),
             network_manager: network_manager_arc.clone(),
             secure_channel_manager: secure_channel_manager_arc.clone(),
-            storage_abstraction: storage_abstraction_arc.clone(),
+            storage_abstraction: Arc::new(StorageAbstraction::new(event_bus_arc.clone())),
             data_manager: data_manager_arc.clone(),
             self_modification_agent: self_modification_agent_arc.clone(),
             meta_learner: meta_learner_arc.clone(),
@@ -496,11 +541,11 @@ impl AgiCoreEngine {
             hierarchical_rl_module: hierarchical_rl_module_arc.clone(),
             lifelong_learning_module: lifelong_learning_module_arc.clone(),
             curiosity_exploration_module: curiosity_exploration_module_arc.clone(),
-            intuition_heuristic_generator: intuition_heuristic_generator_dummy.clone(),
+            intuition_heuristic_generator: Arc::new(IntuitionHeuristicGenerator::new_dummy(event_bus_arc.clone())),
             metacognition_module: metacognition_module_arc.clone(),
             imagination_module: imagination_module_arc.clone(),
             formal_reasoning_module: formal_reasoning_module_arc.clone(),
-            emotion_motivation_module: emotion_motivation_dummy.clone(),
+            emotion_motivation_module: Arc::new(EmotionMotivationModule::new_dummy(event_bus_arc.clone())),
             creativity_innovation_module: Arc::new(CreativityInnovationModule::new_dummy(event_bus_arc.clone())),
             swarm_intelligence_module: Arc::new(SwarmIntelligenceModule::new_dummy(event_bus_arc.clone())),
             embodied_cognition_module: Arc::new(EmbodiedCognitionModule::new_dummy(event_bus_arc.clone())),
@@ -515,7 +560,7 @@ impl AgiCoreEngine {
             prospective_memory_module: Arc::new(ProspectiveMemoryModule::new_dummy(event_bus_arc.clone())),
             memory_consolidation_module: Arc::new(MemoryConsolidationModule::new_dummy(event_bus_arc.clone())),
             agi_behavior_prediction_module: Arc::new(AgiBehaviorPredictionModule::new_dummy(event_bus_arc.clone())),
-            multi_agent_coordination_module: Arc::new(MultiAgentCoordinationModule::new_dummy(event_bus_arc.clone())),
+            multi_agent_coordination_module: Arc::new(MultiAgentCoordinatIonModule::new_dummy(event_bus_arc.clone())),
             dynamic_goal_reprioritization_module: Arc::new(DynamicGoalReprioritizationModule::new_dummy(event_bus_arc.clone())),
             hierarchical_planning_module: hierarchical_planning_module_arc.clone(),
             self_awareness_introspection_module: self_awareness_introspection_module_arc.clone(),
@@ -523,13 +568,13 @@ impl AgiCoreEngine {
             adversarial_ml_defense_module: Arc::new(AdversarialMLDefenseModule::new_dummy(event_bus_arc.clone())),
             explainable_ai_module: explainable_ai_module_arc.clone(),
             self_correction_biases_module: self_correction_biases_module_arc.clone(),
-            digital_twin_simulation_module: Arc::new(DigitalTwinSimulationModule::new_dummy(event_bus_arc.clone())),
+            digital_twin_simulation_module: digital_twin_simulation_module_arc.clone(),
             human_agi_skill_transfer_module: Arc::new(HumanAGISkillTransferModule::new_dummy(event_bus_arc.clone())),
             proactive_empathy_module: proactive_empathy_module_arc.clone(),
             social_norms_learning_module: Arc::new(SocialNormsLearningModule::new_dummy(event_bus_arc.clone())),
             collaborative_world_modeling_module: Arc::new(CollaborativeWorldModelingModule::new_dummy(event_bus_arc.clone())),
             creative_problem_solving_module: Arc::new(CreativeProblemSolvingModule::new_dummy(event_bus_arc.clone())),
-            abstract_reasoning_module: Arc::new(AbstractReasoningModule::new_dummy(event_bus_arc.clone())),
+            abstract_reasoning_module: abstract_reasoning_module_arc.clone(),
             intuitive_reasoning_module: Arc::new(IntuitiveReasoningModule::new_dummy(event_bus_arc.clone())),
             wisdom_long_term_value_alignment_module: Arc::new(WisdomLongTermValueAlignmentModule::new_dummy(event_bus_arc.clone())),
             goal_synthesis_emergent_objective_generation_module: Arc::new(GoalSynthesisEmergentObjectiveGenerationModule::new_dummy(event_bus_arc.clone())),
@@ -568,6 +613,7 @@ impl AgiCoreEngine {
             simulated_social_evolution_module: simulated_social_evolution_module_arc.clone(),
             dynamic_ethical_constraint_generation_module: dynamic_ethical_constraint_generation_module_arc.clone(),
             omni_sensory_abstract_representation_module: omni_sensory_abstract_representation_module_arc.clone(),
+            advanced_epistemic_logic_trust_reasoning_module: advanced_epistemic_logic_trust_reasoning_module_arc.clone(),
             ethical_governance_module: ethical_governance_module_arc.clone(),
             global_knowledge_integration_module: Arc::new(GlobalKnowledgeIntegrationModule::new_dummy(event_bus_arc.clone())),
             societal_impact_forecasting_module: Arc::new(SocietalImpactForecastingModule::new_dummy(event_bus_arc.clone())),
@@ -595,7 +641,7 @@ impl AgiCoreEngine {
             deception_detection_module: Arc::new(DeceptionDetectionModule::new_dummy(event_bus_arc.clone())),
             data_privacy_module: data_privacy_module_arc.clone(),
             hardware_security_module: Arc::new(HardwareSecurityModule::new_dummy(event_bus_arc.clone())),
-            human_agi_teaming_module: human_agi_teaming_dummy.clone(),
+            human_agi_teaming_module: Arc::new(HumanAGITeamingModule::new_dummy(event_bus_arc.clone())),
             environmental_impact_module: Arc::new(EnvironmentalImpactModule::new_dummy(event_bus_arc.clone())),
             social_intelligence_module: social_intelligence_module_arc.clone(),
             service_command_rx,
@@ -622,6 +668,7 @@ impl AgiCoreEngine {
         service_registry_arc.register_service(EpistemicUncertaintyQuantificationModule::as_os_service()).await?;
         service_registry_arc.register_service(EmotionDrivenCognitivePrioritizationModule::as_os_service()).await?;
         service_registry_arc.register_service(MetaCognitiveSelfRegulationModule::as_os_service()).await?;
+        service_registry_arc.register_service(AbstractTaskDecompositionModule::as_os_service()).await?;
         service_registry_arc.register_service(IntuitivePhysicsPsychologyIntegrationModule::as_os_service()).await?;
         service_registry_arc.register_service(AdvancedHierarchicalRLModule::as_os_service()).await?;
         service_registry_arc.register_service(AdvancedCuriousExplorationModule::as_os_service()).await?;
@@ -630,8 +677,9 @@ impl AgiCoreEngine {
         service_registry_arc.register_service(SimulatedSocialEvolutionModule::as_os_service()).await?;
         service_registry_arc.register_service(DynamicEthicalConstraintGenerationModule::as_os_service()).await?;
         service_registry_arc.register_service(OmniSensoryAbstractRepresentationModule::as_os_service()).await?;
+        service_registry_arc.register_service(AdvancedEpistemicLogicTrustReasoningModule::as_os_service()).await?;
 
-        info!("AGI Core Engine fully initialized with Tasks 153-172 integrated.");
+        info!("AGI Core Engine fully initialized with Tasks 153-172 AND Task 173 integrated.");
         Ok(Arc::new(agi_core_engine_instance))
     }
 
