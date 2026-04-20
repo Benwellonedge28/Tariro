@@ -99,7 +99,8 @@ use crate::cognitive_arch::memory_consolidation::MemoryConsolidationModule;
 use crate::cognitive_arch::agi_behavior_prediction::AgiBehaviorPredictionModule;
 use crate::cognitive_arch::self_awareness_introspection::SelfAwarenessIntrospectionModule;
 use crate::cognitive_arch::explainable_ai::ExplainableAIModule;
-use crate::cognitive_arch::creative_problem_solving::CreativeProblemSolvingModule; // Import CreativeProblemSolvingModule
+use crate::cognitive_arch::creative_problem_solving::CreativeProblemSolvingModule;
+use crate::cognitive_arch::abstract_reasoning::AbstractReasoningModule; // Import AbstractReasoningModule
 
 // Import Strategic Planning modules
 use crate::strategic_planning::hierarchical_planning::HierarchicalPlanningModule;
@@ -206,6 +207,7 @@ pub struct AgiCoreEngine {
     pub social_norms_learning_module: Arc<SocialNormsLearningModule>,
     pub collaborative_world_modeling_module: Arc<CollaborativeWorldModelingModule>,
     pub creative_problem_solving_module: Arc<CreativeProblemSolvingModule>,
+    pub abstract_reasoning_module: Arc<AbstractReasoningModule>,
     pub ethical_governance_module: Arc<EthicalGovernanceModule>,
     pub global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>,
     pub societal_impact_forecasting_module: Arc<SocietalImpactForecastingModule>,
@@ -241,7 +243,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Creative Problem Solving...");
+        info!("Initializing AGI Core Engine with Abstract Reasoning & Metaphorical Thinking...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -395,6 +397,18 @@ impl AgiCoreEngine {
         ));
         service_registry_arc.register_service(CreativeProblemSolvingModule::as_os_service()).await?;
 
+        // Initialize AbstractReasoningModule (Task 134)
+        let abstract_reasoning_module_arc = Arc::new(AbstractReasoningModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            analogical_dummy.clone(),
+            concept_formation_dummy.clone(),
+            explainable_ai_module_arc.clone(),
+        ));
+        service_registry_arc.register_service(AbstractReasoningModule::as_os_service()).await?;
+
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
             sorae_orchestrator_internal: sorae_orchestrator_arc.clone(),
@@ -458,6 +472,7 @@ impl AgiCoreEngine {
             social_norms_learning_module: social_norms_learning_module_arc.clone(), // Assign social norms learning module
             collaborative_world_modeling_module: collaborative_world_modeling_module_arc.clone(), // Assign collaborative world modeling module
             creative_problem_solving_module: creative_problem_solving_module_arc.clone(), // Assign creative problem solving module
+            abstract_reasoning_module: abstract_reasoning_module_arc.clone(),
             ethical_governance_module: ethical_governance_module_arc.clone(), // Assign ethical governance module
             global_knowledge_integration_module: global_knowledge_integration_module_arc.clone(), // Assign global knowledge integration module
             societal_impact_forecasting_module: societal_impact_forecasting_module_arc.clone(), // Assign societal impact forecasting module
