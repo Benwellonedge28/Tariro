@@ -94,7 +94,9 @@ pub mod skill_transfer_models;
 pub mod universal_skill_transfer_knowledge_distillation;
 pub mod cognitive_integrity_models;
 pub mod cognitive_integrity_anti_corruption;
-pub mod unstructured_data_models; // New module for unstructured data models
-pub mod self_supervised_learning_unstructured_data; // New module for Self-Supervised Learning for Unstructured Data
+pub mod unstructured_data_models; 
+pub mod self_supervised_learning_unstructured_data; 
+pub mod learning_pathway_models; // New module for learning pathway models
+pub mod hyper_personalized_adaptive_learning_pathways; // New module for Hyper-Personalized & Adaptive Learning Pathways
 
 // Add other cognitive architecture modules here.
