@@ -88,7 +88,9 @@ pub mod omni_sensory_models;
 pub mod omni_sensory_abstract_representation;
 pub mod advanced_epistemic_models;
 pub mod advanced_epistemic_logic_trust_reasoning;
-pub mod proactive_empathy_models; // New module for proactive empathy models
-pub mod proactive_emotional_intelligence_empathy_optimization; // New module for Proactive Emotional Intelligence & Empathy Optimization
+pub mod proactive_empathy_models;
+pub mod proactive_emotional_intelligence_empathy_optimization;
+pub mod skill_transfer_models; // New module for skill transfer models
+pub mod universal_skill_transfer_knowledge_distillation; // New module for Universal Skill Transfer & Knowledge Distillation
 
 // Add other cognitive architecture modules here.
