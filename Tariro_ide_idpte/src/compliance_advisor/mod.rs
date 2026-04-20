@@ -4,7 +4,10 @@ pub mod orchestrator;
 pub mod legal_framework_models;
 pub mod conflict_resolver;
 pub mod ethical_forecasting;
-pub mod governance_models; // New module for governance models
-pub mod ethical_governance; // New module for Ethical Governance
+pub mod ethical_governance;
+pub mod moral_reasoning;
+pub mod self_correction_biases;
+pub mod ethical_constraint_models;
+pub mod dynamic_ethical_constraint_generation; // New module for Dynamic Ethical Constraint Generation
 
 // Add other compliance advisor modules here.
