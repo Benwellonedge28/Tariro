@@ -281,7 +281,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Societal Impact Forecasting & Mitigation...");
+        info!("Initializing AGI Core Engine with Bio-Integration & Symbiotic Design...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -642,6 +642,21 @@ impl AgiCoreEngine {
         ));
         service_registry_arc.register_service(SocietalImpactForecastingMitigationModule::as_os_service()).await?;
 
+        // Initialize BioIntegrationSymbioticDesignModule (Task 148)
+        let bio_integration_symbiotic_design_module_arc = Arc::new(BioIntegrationSymbioticDesignModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            bio_integration_module_arc.clone(),
+            sensory_fusion_module_arc.clone(),
+            environmental_impact_dummy.clone(),
+            ethical_governance_module_arc.clone(),
+            red_team_simulation_dummy.clone(),
+            digital_twin_simulation_module_dummy.clone(),
+        ));
+        service_registry_arc.register_service(BioIntegrationSymbioticDesignModule::as_os_service()).await?;
+
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
             sorae_orchestrator_internal: sorae_orchestrator_arc.clone(),
@@ -718,7 +733,7 @@ impl AgiCoreEngine {
             security_posture_adaptation_module: security_posture_adaptation_module_arc.clone(), // Assign security posture adaptation module
             human_agi_teaming_trust_building_module: human_agi_teaming_trust_building_module_arc.clone(), // Assign human AGI teaming & trust building module
             global_knowledge_integration_synthesis_module: global_knowledge_integration_synthesis_module_arc.clone(), // Assign global knowledge integration & synthesis module
-            societal_impact_forecasting_mitigation_module: Arc::new(SocietalImpactForecastingMitigationModule::new_dummy(event_bus_arc.clone())),
+            societal_impact_forecasting_mitigation_module: societal_impact_forecasting_mitigation_module_arc.clone(), // Assign societal impact forecasting & mitigation module
             bio_integration_symbiotic_design_module: Arc::new(BioIntegrationSymbioticDesignModule::new_dummy(event_bus_arc.clone())),
             autonomous_philanthropy_resource_deployment_module: Arc::new(AutonomousPhilanthropyResourceDeploymentModule::new_dummy(event_bus_arc.clone())),
             universal_interoperability_omni_protocol_autonomy_module: Arc::new(UniversalInteroperabilityOmniProtocolAutonomyModule::new_dummy(event_bus_arc.clone())),
@@ -776,6 +791,7 @@ impl AgiCoreEngine {
             ],
             status: ServiceStatus::Running,
             registered_at: Utc::now(),
+            last_heartbeat: Utc::now(),
             endpoints: HashMap::new(),
             dependencies: vec!["soraee".to_string(), "qr-ctfo".to_string()],
             managed_by_agi_module: None,
