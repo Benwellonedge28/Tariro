@@ -20,6 +20,7 @@ use crate::resource_management::dynamic_reallocation::DynamicResourceReallocatio
 use crate::crypto_fabric::orchestrator::{QrCtfoOrchestrator, QrCtfoOptions};
 use crate::crypto_fabric::communication_adapter::CommunicationChannel;
 use crate::crypto_fabric::quantum_safe::QuantumSafeModule;
+use crate::crypto_fabric::decentralized_consensus::DecentralizedConsensusModule; // Import DecentralizedConsensusModule
 
 // Import Communication Bridge
 use crate::communication_bridge::CommunicationBridge;
@@ -90,7 +91,7 @@ use crate::security::deception_detection::DeceptionDetectionModule;
 use crate::security::data_privacy::DataPrivacyModule;
 use crate::security::hardware_security::HardwareSecurityModule;
 use crate::security::red_team_simulation::RedTeamSimulationModule;
-use crate::security::secure_enclave::SecureEnclaveModule; // Import SecureEnclaveModule
+use crate::security::secure_enclave::SecureEnclaveModule;
 
 // Import Forecasting/Environmental
 use crate::forecasting::forecasting::PredictiveForecastingModule;
@@ -162,6 +163,7 @@ pub struct AgiCoreEngine {
     pub predictive_maintenance_module: Arc<PredictiveMaintenanceModule>,
     pub red_team_simulation_module: Arc<RedTeamSimulationModule>,
     pub secure_enclave_module: Arc<SecureEnclaveModule>,
+    pub decentralized_consensus_module: Arc<DecentralizedConsensusModule>,
     pub resource_optimization_module: Arc<ResourceOptimizationModule>,
     pub dynamic_resource_reallocation_module: Arc<DynamicResourceReallocationModule>,
     pub predictive_forecasting_module: Arc<PredictiveForecastingModule>,
@@ -181,7 +183,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Secure Enclave...");
+        info!("Initializing AGI Core Engine with Decentralized Consensus...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -277,19 +279,7 @@ impl AgiCoreEngine {
         let dynamic_resource_reallocation_module_arc = Arc::new(DynamicResourceReallocationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), predictive_forecasting_module_arc.clone(), meta_goal_manager_arc.clone(), sorae_orchestrator_arc.clone(), resource_optimization_module_arc.clone()));
         let adaptive_control_module_arc = Arc::new(AdaptiveControlModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), predictive_forecasting_module_arc.clone(), metacognition_dummy.clone(), ethical_forecasting_module_arc.clone(), dynamic_resource_reallocation_module_arc.clone(), self_evolution_module_arc.clone()));
         let predictive_maintenance_module_arc = Arc::new(PredictiveMaintenanceModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), predictive_forecasting_module_arc.clone(), metacognition_dummy.clone(), ethical_forecasting_module_arc.clone(), self_healing_module_arc.clone(), dynamic_resource_reallocation_module_arc.clone()));
-
-        // Initialize RedTeamSimulationModule (Task 103)
-        let red_team_simulation_module_arc = Arc::new(RedTeamSimulationModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            adversarial_robustness_module_arc.clone(),
-            ImaginationModule::new_dummy(event_bus_arc.clone()), // Placeholder ImaginationModule
-            self_healing_module_arc.clone(),
-            self_evolution_module_arc.clone(),
-        ));
-        service_registry_arc.register_service(RedTeamSimulationModule::as_os_service()).await?;
+        let red_team_simulation_module_arc = Arc::new(RedTeamSimulationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), adversarial_robustness_module_arc.clone(), ImaginationModule::new_dummy(event_bus_arc.clone()), self_healing_module_arc.clone(), self_evolution_module_arc.clone()));
 
         // Initialize SecureEnclaveModule (Task 104)
         let secure_enclave_module_arc = Arc::new(SecureEnclaveModule::new(
@@ -301,6 +291,18 @@ impl AgiCoreEngine {
             data_privacy_module_arc.clone(),
         ));
         service_registry_arc.register_service(SecureEnclaveModule::as_os_service()).await?;
+
+        // Initialize DecentralizedConsensusModule (Task 105)
+        let decentralized_consensus_module_arc = Arc::new(DecentralizedConsensusModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            data_privacy_module_arc.clone(),
+            swarm_intelligence_module_arc.clone(),
+            self_evolution_module_arc.clone(),
+        ));
+        service_registry_arc.register_service(DecentralizedConsensusModule::as_os_service()).await?;
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
@@ -333,7 +335,7 @@ impl AgiCoreEngine {
             lifelong_learning_module: lifelong_learning_module_arc.clone(), // Assign lifelong learning module
             curiosity_exploration_module: curiosity_exploration_module_arc.clone(), // Assign curiosity exploration module
             intuition_heuristic_generator: Arc::new(IntuitionHeuristicGenerator::new_dummy(event_bus_arc.clone())),
-            metacognition_module: metacognition_module_arc.clone(), // Assign metacognition module
+            metacognition_module: metacognition_dummy.clone(), // Assign metacognition module
             imagination_module: Arc::new(ImaginationModule::new_dummy(event_bus_arc.clone())),
             formal_reasoning_module: formal_reasoning_dummy.clone(), // Assign formal reasoning module
             emotion_motivation_module: Arc::new(EmotionMotivationModule::new_dummy(event_bus_arc.clone())),
@@ -351,6 +353,7 @@ impl AgiCoreEngine {
             predictive_maintenance_module: predictive_maintenance_module_arc.clone(), // Assign predictive maintenance module
             red_team_simulation_module: red_team_simulation_module_arc.clone(), // Assign red team simulation module
             secure_enclave_module: secure_enclave_module_arc.clone(), // Assign secure enclave module
+            decentralized_consensus_module: decentralized_consensus_module_arc.clone(), // Assign decentralized consensus module
             resource_optimization_module: resource_optimization_module_arc.clone(), // Assign resource optimization module
             dynamic_resource_reallocation_module: dynamic_resource_reallocation_module_arc.clone(), // Assign dynamic resource reallocation module
             predictive_forecasting_module: predictive_forecasting_module_arc.clone(), // Assign predictive forecasting module
