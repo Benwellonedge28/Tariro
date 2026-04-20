@@ -1,7 +1,7 @@
 // Tariro_ide_idpte/src/environmental/societal_impact_models.rs
 
 //! Defines data models for Tariro's Societal Impact Forecasting & Mitigation module,
-//! including societal impact forecasts, mitigation strategies, and risk assessments.
+//! including societal impact predictions, mitigation strategies, and feedback loops.
 
 use serde::{Serialize, Deserialize};
 use chrono::{Utc, DateTime};
@@ -9,58 +9,58 @@ use std::collections::HashMap;
 
 use crate::cognitive_arch::learning_models::VerificationStatus; // For verification statuses
 
-/// A prediction of future societal changes or effects resulting from AGI actions.
+/// Represents a forecast of potential societal effects of AGI actions or capabilities.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SocietalImpactForecast {
+pub struct SocietalImpactPrediction {
     pub id: String,
-    pub agi_action_summary: String, // The AGI action being forecasted (e.g., "automate global logistics")
-    pub predicted_effects: HashMap<String, String>, // e.g., "employment_rate": "-15%", "global_gdp": "+10%"
-    pub confidence: f64, // 0.0 to 1.0
-    pub forecast_horizon: String, // e.g., "5_years", "20_years"
-    pub ethical_impact_assessment: VerificationStatus, // New: Ethical assessment of the predicted impacts
-    pub security_vulnerability_potential: VerificationStatus, // New: Security assessment of potential societal vulnerabilities
+    pub decision_or_capability_id: String,
+    pub impact_area: String, // e.g., "employment", "privacy", "cultural_cohesion", "global_equity"
+    pub predicted_effect: String, // e.g., "job_displacement", "enhanced_surveillance", "cultural_homogenization"
+    pub severity_score: f64, // 0.0 to 1.0 (magnitude of impact)
+    pub likelihood_score: f64, // 0.0 to 1.0 (probability of occurrence)
+    pub predicted_ethical_alignment: VerificationStatus, // New: Predicted ethical alignment of the impact
+    pub security_risk_assessment: VerificationStatus, // New: Security risk of the prediction data
     pub generated_at: DateTime<Utc>,
 }
 
-/// A formulated plan to reduce negative societal impacts or enhance positive ones.
+/// A formulated strategy to minimize negative societal consequences and amplify positive impacts.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MitigationStrategy {
     pub id: String,
-    pub forecast_id: String,
+    pub prediction_id: String,
     pub strategy_name: String,
-    pub proposed_actions: Vec<String>, // e.g., "invest_in_retraining_programs", "establish_universal_basic_income"
-    pub expected_outcome_summary: String,
+    pub proposed_actions: Vec<String>, // e.g., "implement_retraining_programs", "enhance_data_anonymization", "promote_cultural_exchange_algorithms"
+    pub expected_outcome: String,
     pub ethical_review_status: VerificationStatus, // New: Ethical review of the mitigation strategy
-    pub security_implications: VerificationStatus, // New: Security implications of the strategy
-    pub approved_by: String, // e.g., "Tariro_SIFM", "ALEC-A", "HumanOversightCommittee"
+    pub security_review_status: VerificationStatus, // New: Security review of the mitigation strategy
+    pub approved_by: String, // e.g., "Tariro_SIFM", "ALEC-A", "HumanOversight"
     pub created_at: DateTime<Utc>,
 }
 
-/// An evaluation of potential societal risks associated with an AGI action or system.
+/// A mechanism for gathering and integrating real-world societal feedback.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SocietalRiskAssessment {
+pub struct SocietalFeedbackLoop {
     pub id: String,
-    pub agi_action_id: String, // The action or system being assessed
-    pub risk_type: String, // e.g., "ethical_misalignment", "economic_disruption", "social_inequality"
-    pub severity: f64, // 0.0 (low) to 1.0 (catastrophic)
-    pub likelihood: f64, // 0.0 to 1.0
-    pub identified_vulnerabilities: Vec<String>,
-    pub ethical_analysis: VerificationStatus, // New: Deep ethical analysis of the risk
-    pub security_audit: VerificationStatus, // New: Security audit of the risk assessment process
-    pub timestamp: DateTime<Utc>,
+    pub monitored_agi_action_id: String,
+    pub feedback_source_type: String, // e.g., "social_media_analysis", "public_opinion_polls", "expert_panels"
+    pub feedback_summary: String,
+    pub sentiment_score: f64, // -1.0 (negative) to 1.0 (positive)
+    pub ethical_compliance_assessment: VerificationStatus, // New: Ethical compliance of feedback gathering
+    pub security_verified: VerificationStatus, // New: Security of feedback data processing
+    pub last_updated: DateTime<Utc>,
 }
 
-/// A report summarizing the audit of societal impact forecasting and mitigation processes.
+/// A report summarizing the audit of Tariro's societal impact analyses and mitigation efforts.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ImpactAuditReport {
     pub id: String,
-    pub strategy_id: String,
+    pub audit_scope: String, // e.g., "all_predictions", "specific_mitigation_strategies"
     pub period_start: DateTime<Utc>,
     pub period_end: DateTime<Utc>,
-    pub actual_impact_observed: HashMap<String, String>,
-    pub effectiveness_of_mitigation: f64, // 0.0 to 1.0
-    pub ethical_compliance_status: VerificationStatus, // Overall ethical compliance of impact management
-    pub security_integrity_status: VerificationStatus, // Overall security integrity of impact management systems
+    pub total_predictions_audited: u64,
+    pub total_mitigation_strategies_deployed: u64,
+    pub ethical_compliance_status: VerificationStatus, // Overall ethical compliance of societal impact management
+    pub security_integrity_status: VerificationStatus, // Overall security integrity of impact data
     pub blockchain_record_hash: String, // New: Tamper-proof hash from QR-CTFO
     pub generated_at: DateTime<Utc>,
 }
