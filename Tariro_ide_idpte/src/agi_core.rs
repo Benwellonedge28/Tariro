@@ -30,7 +30,7 @@ use crate::communication_bridge::human_agi_teaming::HumanAGITeamingModule;
 // Import HACSE modules
 use crate::co_creation::orchestrator::{HacseOrchestrator, HacseOptions};
 use crate::co_creation::creative_models::CreativePrompt;
-use crate::co_creation::collaborative_creativity::CollaborativeCreativityModule; // Import CollaborativeCreativityModule
+use crate::co_creation::collaborative_creativity::CollaborativeCreativityModule;
 
 // Import ALEC-A modules
 use crate::compliance_advisor::orchestrator::{AlecaOrchestrator, AlecaOptions};
@@ -85,6 +85,7 @@ use crate::cognitive_arch::embodied_cognition::EmbodiedCognitionModule;
 use crate::cognitive_arch::intuitive_physics_psychology::IntuitivePhysicsPsychologyModule;
 use crate::cognitive_arch::epistemic_reasoning::EpistemicReasoningModule;
 use crate::cognitive_arch::affective_computing::AffectiveComputingModule;
+use crate::cognitive_arch::sensory_fusion::SensoryFusionModule; // Import SensoryFusionModule
 
 // Import Security modules
 use crate::security::adversarial_robustness::AdversarialRobustnessModule;
@@ -102,7 +103,7 @@ use crate::environmental::social_intelligence::SocialIntelligenceModule;
 use crate::environmental::global_knowledge_integration::GlobalKnowledgeIntegrationModule;
 use crate::environmental::societal_impact_forecasting::SocietalImpactForecastingModule;
 use crate::environmental::bio_integration::BioIntegrationModule;
-use crate::environmental::autonomous_philanthropy::AutonomousPhilanthropyModule; // Import AutonomousPhilanthropyModule
+use crate::environmental::autonomous_philanthropy::AutonomousPhilanthropyModule;
 
 /// Commands for AgiCoreEngine to manage OMEGA OS services.
 #[derive(Debug, Clone)]
@@ -150,7 +151,7 @@ pub struct AgiCoreEngine {
     pub hierarchical_rl_module: Arc<HierarchicalRLModule>,
     pub lifelong_learning_module: Arc<LifelongLearningModule>,
     pub curiosity_exploration_module: Arc<CuriosityExplorationModule>,
-    pub intuition_heuristics_generator: Arc<IntuitionHeuristicsGenerator>,
+    pub intuition_heuristic_generator: Arc<IntuitionHeuristicGenerator>,
     pub metacognition_module: Arc<MetacognitionModule>,
     pub imagination_module: Arc<ImaginationModule>,
     pub formal_reasoning_module: Arc<FormalReasoningModule>,
@@ -161,6 +162,7 @@ pub struct AgiCoreEngine {
     pub intuitive_physics_psychology_module: Arc<IntuitivePhysicsPsychologyModule>,
     pub epistemic_reasoning_module: Arc<EpistemicReasoningModule>,
     pub affective_computing_module: Arc<AffectiveComputingModule>,
+    pub sensory_fusion_module: Arc<SensoryFusionModule>,
     pub ethical_governance_module: Arc<EthicalGovernanceModule>,
     pub global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>,
     pub societal_impact_forecasting_module: Arc<SocietalImpactForecastingModule>,
@@ -196,7 +198,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Advanced Human-AGI Collaborative Creativity...");
+        info!("Initializing AGI Core Engine with Sensory Fusion...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -307,18 +309,7 @@ impl AgiCoreEngine {
         let global_knowledge_integration_module_arc = Arc::new(GlobalKnowledgeIntegrationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_manager_arc.clone(), social_intelligence_module_arc.clone(), epistemic_reasoning_module_arc.clone()));
         let societal_impact_forecasting_module_arc = Arc::new(SocietalImpactForecastingModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), predictive_forecasting_module_arc.clone(), imagination_dummy.clone(), ethical_forecasting_module_arc.clone(), global_knowledge_integration_module_arc.clone()));
         let bio_integration_module_arc = Arc::new(BioIntegrationModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), ethical_forecasting_module_arc.clone(), environmental_impact_module_arc.clone()));
-
-        // Initialize AutonomousPhilanthropyModule (Task 111)
-        let autonomous_philanthropy_module_arc = Arc::new(AutonomousPhilanthropyModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            global_knowledge_integration_module_arc.clone(),
-            societal_impact_forecasting_module_arc.clone(),
-            dynamic_resource_reallocation_module_arc.clone(),
-        ));
-        service_registry_arc.register_service(AutonomousPhilanthropyModule::as_os_service()).await?;
+        let autonomous_philanthropy_module_arc = Arc::new(AutonomousPhilanthropyModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), global_knowledge_integration_module_arc.clone(), societal_impact_forecasting_module_arc.clone(), dynamic_resource_reallocation_module_arc.clone()));
 
         // Initialize CollaborativeCreativityModule (Task 112)
         let collaborative_creativity_module_arc = Arc::new(CollaborativeCreativityModule::new(
