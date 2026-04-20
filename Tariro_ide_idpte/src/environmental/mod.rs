@@ -18,6 +18,9 @@ pub mod social_norms_learning;
 pub mod world_modeling_models;
 pub mod collaborative_world_modeling;
 pub mod global_knowledge_integration_synthesis;
-pub mod societal_impact_mitigation; // New module for Societal Impact Forecasting & Mitigation
+pub mod societal_impact_mitigation;
+pub mod bio_integration_symbiotic_design;
+pub mod autonomous_philanthropy_models; // New module for Autonomous Philanthropy models
+pub mod autonomous_philanthropy_resource_deployment; // New module for Autonomous Philanthropy & Resource Deployment
 
 // Add other environmental modules here.
