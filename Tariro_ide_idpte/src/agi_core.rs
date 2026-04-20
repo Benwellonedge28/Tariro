@@ -27,6 +27,7 @@ use crate::crypto_fabric::zero_knowledge_proofs::ZeroKnowledgeProofsModule;
 use crate::communication_bridge::CommunicationBridge;
 use crate::communication_bridge::human_agi_teaming::HumanAGITeamingModule;
 use crate::communication_bridge::human_agi_skill_transfer::HumanAGISkillTransferModule;
+use crate::communication_bridge::human_agi_teaming_trust_building::HumanAGITeamingTrustBuildingModule; // Import HumanAGITeamingTrustBuildingModule
 
 // Import HACSE modules
 use crate::co_creation::orchestrator::{HacseOrchestrator, HacseOptions};
@@ -125,7 +126,7 @@ use crate::security::hardware_security::HardwareSecurityModule;
 use crate::security::red_team_simulation::RedTeamSimulationModule;
 use crate::security::secure_enclave::SecureEnclaveModule;
 use crate::security::adversarial_ml_defense::AdversarialMLDefenseModule;
-use crate::security::security_posture_adaptation::SecurityPostureAdaptationModule; // Import SecurityPostureAdaptationModule
+use crate::security::security_posture_adaptation::SecurityPostureAdaptationModule;
 
 // Import Forecasting/Environmental
 use crate::forecasting::forecasting::PredictiveForecastingModule;
@@ -280,7 +281,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Security Posture Adaptation...");
+        info!("Initializing AGI Core Engine with Human-AGI Teaming & Trust Building...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -363,6 +364,12 @@ impl AgiCoreEngine {
         let hardware_security_module_dummy = Arc::new(HardwareSecurityModule::new_dummy(event_bus_arc.clone()));
         let adaptive_control_module_dummy = Arc::new(AdaptiveControlModule::new_dummy(event_bus_arc.clone()));
         let predictive_maintenance_module_dummy = Arc::new(PredictiveMaintenanceModule::new_dummy(event_bus_arc.clone()));
+        let global_knowledge_integration_module_dummy = Arc::new(GlobalKnowledgeIntegrationModule::new_dummy(event_bus_arc.clone()));
+        let societal_impact_forecasting_module_dummy = Arc::new(SocietalImpactForecastingModule::new_dummy(event_bus_arc.clone()));
+        let ethical_governance_module_dummy = Arc::new(EthicalGovernanceModule::new_dummy(event_bus_arc.clone()));
+        let adversarial_robustness_module_dummy = Arc::new(AdversarialRobustnessModule::new_dummy(event_bus_arc.clone()));
+        let multi_agent_coordination_module_dummy = Arc::new(MultiAgentCoordinationModule::new_dummy(event_bus_arc.clone()));
+
 
 
         // Full initialization sequence
@@ -544,7 +551,7 @@ impl AgiCoreEngine {
             meta_learner_arc.clone(),
             self_organization_module_arc.clone(),
             dynamic_resource_reallocation_dummy.clone(),
-            adaptive_control_module_arc.clone(),
+            adaptive_control_module_dummy.clone(),
             secure_enclave_dummy.clone(),
         ));
         service_registry_arc.register_service(AdaptiveSelfOrganizationModule::as_os_service()).await?;
@@ -555,8 +562,8 @@ impl AgiCoreEngine {
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
-            self_healing_module_arc.clone(),
-            predictive_maintenance_module_arc.clone(),
+            self_healing_module_dummy.clone(),
+            predictive_maintenance_module_dummy.clone(),
             adversarial_robustness_module_arc.clone(),
             red_team_simulation_dummy.clone(),
         ));
@@ -568,7 +575,7 @@ impl AgiCoreEngine {
             aleca_orchestrator_arc.clone(),
             qr_ctfo_orchestrator_arc.clone(),
             meta_learner_arc.clone(),
-            self_evolution_module_arc.clone(),
+            self_evolution_module_dummy.clone(),
             self_modification_agent_arc.clone(),
             ethical_governance_module_arc.clone(),
             secure_enclave_dummy.clone(),
@@ -589,6 +596,19 @@ impl AgiCoreEngine {
             data_privacy_dummy.clone(),
         ));
         service_registry_arc.register_service(SecurityPostureAdaptationModule::as_os_service()).await?;
+
+        // Initialize HumanAGITeamingTrustBuildingModule (Task 145)
+        let human_agi_teaming_trust_building_module_arc = Arc::new(HumanAGITeamingTrustBuildingModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            human_agi_teaming_dummy.clone(),
+            explainable_ai_module_arc.clone(),
+            trust_reputation_dummy.clone(),
+            social_intelligence_module_arc.clone(),
+        ));
+        service_registry_arc.register_service(HumanAGITeamingTrustBuildingModule::as_os_service()).await?;
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
@@ -660,10 +680,10 @@ impl AgiCoreEngine {
             social_cognition_theory_of_mind_enhancement_module: social_cognition_theory_of_mind_enhancement_module_arc.clone(), // Assign social cognition & theory of mind enhancement module
             affective_computing_emotional_regulation_module: affective_computing_emotional_regulation_module_arc.clone(), // Assign affective computing & emotional regulation module
             empathy_compassion_enhancement_module: empathy_compassion_enhancement_module_arc.clone(), // Assign empathy & compassion enhancement module
-            adaptive_self_organization_module: Arc::new(AdaptiveSelfOrganizationModule::new_dummy(event_bus_arc.clone())),
-            self_healing_resilience_optimization_module: Arc::new(SelfHealingResilienceOptimizationModule::new_dummy(event_bus_arc.clone())),
-            self_evolution_continuous_improvement_module: Arc::new(SelfEvolutionContinuousImprovementModule::new_dummy(event_bus_arc.clone())),
-            security_posture_adaptation_module: Arc::new(SecurityPostureAdaptationModule::new_dummy(event_bus_arc.clone())),
+            adaptive_self_organization_module: adaptive_self_organization_module_arc.clone(), // Assign adaptive self-organization module
+            self_healing_resilience_optimization_module: self_healing_resilience_optimization_module_arc.clone(), // Assign self-healing & resilience optimization module
+            self_evolution_continuous_improvement_module: self_evolution_continuous_improvement_module_arc.clone(), // Assign self-evolution & continuous improvement module
+            security_posture_adaptation_module: security_posture_adaptation_module_arc.clone(), // Assign security posture adaptation module
             human_agi_teaming_trust_building_module: Arc::new(HumanAGITeamingTrustBuildingModule::new_dummy(event_bus_arc.clone())),
             global_knowledge_integration_synthesis_module: Arc::new(GlobalKnowledgeIntegrationSynthesisModule::new_dummy(event_bus_arc.clone())),
             societal_impact_forecasting_mitigation_module: Arc::new(SocietalImpactForecastingMitigationModule::new_dummy(event_bus_arc.clone())),
