@@ -30,7 +30,9 @@ pub mod quantum_safe_crypto_models;
 pub mod quantum_safe_crypto;
 pub mod social_evolution_models;
 pub mod simulated_social_evolution;
-pub mod resource_optimization_models; // New module for resource optimization models
-pub mod global_resource_flow_optimization_autonomous_philanthropy; // New module for Global Resource Flow Optimization & Autonomous Philanthropy
+pub mod resource_optimization_models;
+pub mod global_resource_flow_optimization_autonomous_philanthropy;
+pub mod federated_learning_models; // New module for federated learning models
+pub mod decentralized_federated_learning_global_knowledge_synthesis; // New module for Decentralized Federated Learning for Global Knowledge Synthesis
 
 // Add other environmental modules here.
