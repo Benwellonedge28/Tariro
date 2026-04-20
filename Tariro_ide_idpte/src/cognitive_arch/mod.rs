@@ -84,7 +84,9 @@ pub mod intuitive_physics_psychology_integration;
 pub mod advanced_hierarchical_rl;
 pub mod advanced_curious_exploration;
 pub mod lifelong_meta_learning;
-pub mod omni_sensory_models; // New module for omni-sensory models
-pub mod omni_sensory_abstract_representation; // New module for Omni-Sensory Abstract Representation
+pub mod omni_sensory_models;
+pub mod omni_sensory_abstract_representation;
+pub mod advanced_epistemic_models; // New module for advanced epistemic models
+pub mod advanced_epistemic_logic_trust_reasoning; // New module for Advanced Epistemic Logic & Trust Reasoning
 
 // Add other cognitive architecture modules here.
