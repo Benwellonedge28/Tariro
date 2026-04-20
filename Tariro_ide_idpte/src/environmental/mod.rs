@@ -26,7 +26,9 @@ pub mod universal_interoperability_models;
 pub mod universal_interoperability;
 pub mod decentralized_governance_models;
 pub mod decentralized_governance_consensus;
-pub mod quantum_safe_crypto_models; // New module for quantum-safe crypto models
-pub mod quantum_safe_crypto; // New module for Quantum-Safe Post-Quantum Cryptography Integration
+pub mod quantum_safe_crypto_models;
+pub mod quantum_safe_crypto;
+pub mod social_evolution_models; // New module for social evolution models
+pub mod simulated_social_evolution; // New module for Simulated Social Evolution & Cultural Learning
 
 // Add other environmental modules here.
