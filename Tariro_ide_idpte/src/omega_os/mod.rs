@@ -24,7 +24,5 @@ pub mod self_healing_models;
 pub mod self_healing_optimization;
 pub mod self_evolution_models; // New module for self-evolution models
 pub mod self_evolution_continuous_improvement; // New module for Self-Evolution & Continuous Improvement
-pub mod security_posture_adaptation_models; // New module for security posture adaptation models
-pub mod security_posture_adaptation; // New module for Security Posture Adaptation
 
 // Add other OMEGA OS core modules here.
