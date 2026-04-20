@@ -84,8 +84,8 @@ impl CreativeProblemSolvingModule {
         let knowledge_assessment = self.epistemic_reasoning_module.assess_knowledge_reliability(
             &format!("Knowledge related to problem '{}'.", problem_description),
             context,
-            "current_knowledge_base_hash", // Placeholder
-            "external_data_source_hash" // Placeholder
+            "no_existing_data_hash", // Assuming new data
+            "external_data_source_hash" // Assuming new data
         ).await.map_err(|e| e.to_string())?;
 
         let problem_id = format!("problem-def-{}-{}", Uuid::new_v4(), Utc::now().timestamp());
