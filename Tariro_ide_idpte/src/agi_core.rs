@@ -60,7 +60,7 @@ use crate::agi_meta_goals::dynamic_goal_alignment::DynamicGoalAlignmentModule;
 // Import OMEGA OS Service Framework
 use crate::omega_os::service_registry::ServiceRegistry;
 use crate::omega_os::service_models::{OsService, ServiceType, ServiceCapability, ServiceStatus};
-use crate::omega_os::process_manager::{ProcessManager, ProcessId, ProcessStatus as OsProcessStatus};
+use crate::omega_os::process_manager::{ProcessManager, ProcessInfo, ProcessId, ProcessStatus as OsProcessStatus};
 use crate::omega_os::event_bus::EventBus;
 use crate::omega_os::event_models::{OsEvent, EventEnvelope};
 use crate::omega_os::runtime_environment::RuntimeEnvironment;
@@ -177,7 +177,7 @@ use crate::environmental::global_knowledge_integration::GlobalKnowledgeIntegrati
 use crate::environmental::societal_impact_forecasting::SocietalImpactForecastingModule;
 use crate::environmental::bio_integration::BioIntegrationModule;
 use crate::environmental::autonomous_philanthropy::AutonomousPhilanthropyModule;
-use crate::environmental::multi_agent_coordination::MultiAgentCoordinationModule;
+use crate::environmental::multi_agent_coordination::MultiAgentCoordinatIonModule;
 use crate::environmental::proactive_empathy::ProactiveEmpathyModule;
 use crate::environmental::social_norms_learning::SocialNormsLearningModule;
 use crate::environmental::collaborative_world_modeling::CollaborativeWorldModelingModule;
@@ -228,7 +228,7 @@ pub struct AgiCoreEngine {
     pub causal_reasoning_engine: Arc<CausalReasoningEngine>,
     pub theory_of_mind_module: Arc<TheoryOfMindModule>,
     pub analogical_reasoning_system: Arc<AnalogicalReasoningSystem>,
-    pub common_sense_reasoning_network: Arc<CommonSenseReasoningNetwork>,
+    pub common_sense_reasoning::CommonSenseReasoningNetwork,
     pub concept_formation_module: Arc<ConceptFormationModule>,
     pub hierarchical_rl_module: Arc<HierarchicalRLModule>,
     pub lifelong_learning_module: Arc<LifelongLearningModule>,
@@ -356,7 +356,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Adaptive Human-AGI Interface Design & Personalization...");
+        info!("Initializing AGI Core Engine with Decentralized Federated Learning for Global Knowledge Synthesis...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -610,6 +610,7 @@ impl AgiCoreEngine {
             app_loader: app_loader_arc.clone(),
             network_manager: network_manager_arc.clone(),
             secure_channel_manager: secure_channel_manager_arc.clone(),
+            storage_abstraction: Arc::new(StorageAbstraction::new(event_bus_arc.clone())),
             data_manager: data_manager_arc.clone(),
             self_modification_agent: self_modification_agent_arc.clone(),
             meta_learner: meta_learner_arc.clone(),
