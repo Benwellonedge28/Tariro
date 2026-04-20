@@ -17,7 +17,6 @@ pub mod social_norms_models;
 pub mod social_norms_learning;
 pub mod world_modeling_models;
 pub mod collaborative_world_modeling;
-pub mod global_knowledge_integration_synthesis_models; // New module for global knowledge models
 pub mod global_knowledge_integration_synthesis; // New module for Global Knowledge Integration & Synthesis
 
 // Add other environmental modules here.
