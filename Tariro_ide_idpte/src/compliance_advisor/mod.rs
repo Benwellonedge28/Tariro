@@ -3,7 +3,8 @@
 pub mod orchestrator;
 pub mod legal_framework_models;
 pub mod conflict_resolver;
-pub mod ethical_forecasting_models; // New module for ethical forecasting models
-pub mod ethical_forecasting; // New module for Proactive Ethical Forecasting
+pub mod ethical_forecasting;
+pub mod governance_models; // New module for governance models
+pub mod ethical_governance; // New module for Ethical Governance
 
 // Add other compliance advisor modules here.
