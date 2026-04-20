@@ -776,7 +776,6 @@ impl AgiCoreEngine {
             ],
             status: ServiceStatus::Running,
             registered_at: Utc::now(),
-            last_heartbeat: Utc::now(),
             endpoints: HashMap::new(),
             dependencies: vec!["soraee".to_string(), "qr-ctfo".to_string()],
             managed_by_agi_module: None,
