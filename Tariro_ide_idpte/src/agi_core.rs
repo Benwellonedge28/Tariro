@@ -90,8 +90,9 @@ use crate::cognitive_arch::attention_salience::AttentionSalienceModule;
 use crate::cognitive_arch::working_memory::WorkingMemoryModule;
 use crate::cognitive_arch::long_term_semantic_memory::LongTermSemanticMemoryModule;
 use crate::cognitive_arch::episodic_memory::EpisodicMemoryModule;
-use crate::cognitive_arch::prospective_memory::ProspectiveMemoryModule; // Import ProspectiveMemoryModule
-use crate::cognitive_arch::memory_consolidation::MemoryConsolidationModule; // Import MemoryConsolidationModule
+use crate::cognitive_arch::prospective_memory::ProspectiveMemoryModule;
+use crate::cognitive_arch::memory_consolidation::MemoryConsolidationModule;
+use crate::cognitive_arch::agi_behavior_prediction::AgiBehaviorPredictionModule; // Import AgiBehaviorPredictionModule
 
 // Import Security modules
 use crate::security::adversarial_robustness::AdversarialRobustnessModule;
@@ -174,6 +175,7 @@ pub struct AgiCoreEngine {
     pub episodic_memory_module: Arc<EpisodicMemoryModule>,
     pub prospective_memory_module: Arc<ProspectiveMemoryModule>,
     pub memory_consolidation_module: Arc<MemoryConsolidationModule>,
+    pub agi_behavior_prediction_module: Arc<AgiBehaviorPredictionModule>,
     pub ethical_governance_module: Arc<EthicalGovernanceModule>,
     pub global_knowledge_integration_module: Arc<GlobalKnowledgeIntegrationModule>,
     pub societal_impact_forecasting_module: Arc<SocietalImpactForecastingModule>,
@@ -209,7 +211,7 @@ pub struct AgiCoreEngine {
 
 impl AgiCoreEngine {
     pub async fn new() -> Result<Arc<Self>> {
-        info!("Initializing AGI Core Engine with Memory Consolidation & Forgetting...");
+        info!("Initializing AGI Core Engine with Predictive Modeling of AGI Behavior...");
 
         let (service_command_tx, service_command_rx) = mpsc::channel(100);
         let service_registry_arc = Arc::new(ServiceRegistry::new());
@@ -330,18 +332,7 @@ impl AgiCoreEngine {
         let working_memory_module_arc = Arc::new(WorkingMemoryModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), dynamic_resource_reallocation_dummy.clone(), data_privacy_module_arc.clone(), secure_enclave_module_arc.clone(), red_team_simulation_module_arc.clone()));
         let long_term_semantic_memory_module_arc = Arc::new(LongTermSemanticMemoryModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_manager_arc.clone(), global_knowledge_integration_module_arc.clone(), causal_reasoning_engine_arc.clone(), epistemic_reasoning_module_arc.clone(), trust_reputation_module_arc.clone()));
         let episodic_memory_module_arc = Arc::new(EpisodicMemoryModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), data_privacy_module_arc.clone(), secure_enclave_module_arc.clone(), causal_reasoning_engine_arc.clone(), metacognition_dummy.clone()));
-
-        // Initialize ProspectiveMemoryModule (Task 118)
-        let prospective_memory_module_arc = Arc::new(ProspectiveMemoryModule::new(
-            event_bus_arc.clone(),
-            aleca_orchestrator_arc.clone(),
-            qr_ctfo_orchestrator_arc.clone(),
-            meta_learner_arc.clone(),
-            sensory_fusion_module_arc.clone(),
-            ethical_forecasting_module_arc.clone(),
-            red_team_simulation_module_arc.clone(),
-        ));
-        service_registry_arc.register_service(ProspectiveMemoryModule::as_os_service()).await?;
+        let prospective_memory_module_arc = Arc::new(ProspectiveMemoryModule::new(event_bus_arc.clone(), aleca_orchestrator_arc.clone(), qr_ctfo_orchestrator_arc.clone(), meta_learner_arc.clone(), sensory_fusion_module_arc.clone(), ethical_forecasting_module_arc.clone(), red_team_simulation_module_arc.clone()));
 
         // Initialize MemoryConsolidationModule (Task 119)
         let memory_consolidation_module_arc = Arc::new(MemoryConsolidationModule::new(
@@ -355,6 +346,19 @@ impl AgiCoreEngine {
             red_team_simulation_module_arc.clone(),
         ));
         service_registry_arc.register_service(MemoryConsolidationModule::as_os_service()).await?;
+
+        // Initialize AgiBehaviorPredictionModule (Task 120)
+        let agi_behavior_prediction_module_arc = Arc::new(AgiBehaviorPredictionModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            ethical_forecasting_module_arc.clone(),
+            self_evolution_module_arc.clone(),
+            self_healing_module_arc.clone(),
+            secure_enclave_module_arc.clone(),
+        ));
+        service_registry_arc.register_service(AgiBehaviorPredictionModule::as_os_service()).await?;
 
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
@@ -404,6 +408,7 @@ impl AgiCoreEngine {
             episodic_memory_module: episodic_memory_module_arc.clone(), // Assign episodic memory module
             prospective_memory_module: prospective_memory_module_arc.clone(), // Assign prospective memory module
             memory_consolidation_module: memory_consolidation_module_arc.clone(), // Assign memory consolidation module
+            agi_behavior_prediction_module: agi_behavior_prediction_module_arc.clone(), // Assign AGI behavior prediction module
             ethical_governance_module: ethical_governance_module_arc.clone(), // Assign ethical governance module
             global_knowledge_integration_module: global_knowledge_integration_module_arc.clone(), // Assign global knowledge integration module
             societal_impact_forecasting_module: societal_impact_forecasting_module_arc.clone(), // Assign societal impact forecasting module
