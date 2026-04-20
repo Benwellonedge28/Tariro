@@ -1,7 +1,7 @@
 // Tariro_ide_idpte/src/environmental/global_knowledge_models.rs
 
-//! Defines data models for Tariro's Global Knowledge Integration & Cross-Cultural Understanding module,
-//! including cultural contexts, knowledge sources, and cross-cultural insights.
+//! Defines data models for Tariro's Global Knowledge Integration & Synthesis module,
+//! including integrated knowledge graphs, knowledge alignment metrics, and source trust.
 
 use serde::{Serialize, Deserialize};
 use chrono::{Utc, DateTime};
@@ -9,57 +9,55 @@ use std::collections::HashMap;
 
 use crate::cognitive_arch::learning_models::VerificationStatus; // For verification statuses
 
-/// A structured representation of cultural norms, values, beliefs, and practices.
+/// A comprehensive, synthesized knowledge representation, potentially a semantic graph.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CulturalContext {
+pub struct IntegratedKnowledgeGraph {
     pub id: String,
-    pub culture_name: String,
-    pub geographical_regions: Vec<String>,
-    pub key_values: HashMap<String, String>, // e.g., "family_importance": "high", "individualism": "low"
-    pub communication_styles: Vec<String>, // e.g., "high_context", "indirect"
-    pub ethical_nuances: HashMap<String, String>, // Specific ethical considerations in this culture
-    pub ethical_review_status: VerificationStatus, // New: Ethical review of cultural data representation
-    pub security_verified: VerificationStatus, // New: Security verification of cultural data integrity
+    pub graph_name: String,
+    pub summary: String,
+    pub num_nodes: u64,
+    pub num_edges: u64,
+    pub ethical_data_provenance: VerificationStatus, // New: Ethical review of knowledge source
+    pub data_integrity_verified: VerificationStatus, // New: Data integrity verification for graph
     pub last_updated: DateTime<Utc>,
 }
 
-/// Metadata about an external knowledge repository or data stream.
+/// A metric representing how well new knowledge aligns with existing knowledge and beliefs.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct KnowledgeSource {
+pub struct KnowledgeAlignmentMetric {
     pub id: String,
-    pub name: String,
-    pub url: Option<String>,
-    pub data_format: String,
-    pub reliability_score: f64, // 0.0 to 1.0, based on EpistemicReasoningModule
-    pub perceived_biases: Vec<String>, // e.g., "western_centric", "corporate_funded"
-    pub ethical_provenance: VerificationStatus, // New: Ethical review of knowledge source's origins and practices
-    pub security_integrity: VerificationStatus, // New: Security integrity of the knowledge source
-    pub last_accessed: DateTime<Utc>,
+    pub knowledge_graph_id: String,
+    pub new_data_id: String,
+    pub alignment_score: f64, // 0.0 (contradictory) to 1.0 (perfectly aligned)
+    pub discrepancies_identified: Vec<String>,
+    pub ethical_implications_assessed: VerificationStatus, // New: Ethical assessment of knowledge conflicts
+    pub security_risk_level: VerificationStatus, // New: Security risk of knowledge injection
+    pub evaluated_at: DateTime<Utc>,
 }
 
-/// An insight or understanding derived from analyzing knowledge across multiple cultural contexts.
+/// A rating of the trustworthiness of a specific knowledge source.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CrossCulturalInsight {
+pub struct KnowledgeSourceTrust {
     pub id: String,
-    pub insight_summary: String,
-    pub related_cultural_contexts: Vec<String>, // IDs of CulturalContexts involved
-    pub implications_for_interaction: String,
-    pub ethical_impact_assessment: VerificationStatus, // New: Ethical impact of the insight
-    pub security_integrity: VerificationStatus, // New: Security integrity of the insight generation
-    pub generated_at: DateTime<Utc>,
+    pub source_identifier: String, // e.g., URL, publisher name, AGI ID
+    pub trust_score: f64, // 0.0 (unreliable) to 1.0 (highly trustworthy)
+    pub factors_influencing_trust: HashMap<String, String>, // e.g., "peer_review": "high", "bias_detection": "low"
+    pub ethical_source_assessment: VerificationStatus, // New: Ethical assessment of source motives
+    pub security_of_source_data: VerificationStatus, // New: Security assessment of source data transmission
+    pub last_evaluated: DateTime<Utc>,
 }
 
 /// A report summarizing the audit of global knowledge integration processes.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct GlobalKnowledgeAudit {
+pub struct KnowledgeIntegrationAuditReport {
     pub id: String,
-    pub scope: String, // e.g., "all_knowledge_sources", "cultural_context_models"
+    pub scope: String, // e.g., "all_knowledge_ingestion", "critical_scientific_updates"
     pub period_start: DateTime<Utc>,
     pub period_end: DateTime<Utc>,
     pub total_sources_processed: u64,
-    pub detected_biases: Vec<String>,
+    pub total_contradictions_resolved: u64,
     pub ethical_compliance_status: VerificationStatus, // Overall ethical compliance of knowledge integration
-    pub security_integrity_status: VerificationStatus, // Overall security integrity of knowledge systems
+    pub security_integrity_status: VerificationStatus, // Overall security integrity of knowledge integration systems
     pub blockchain_record_hash: String, // New: Tamper-proof hash from QR-CTFO
     pub generated_at: DateTime<Utc>,
 }
