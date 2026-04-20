@@ -7,7 +7,8 @@ pub mod data_privacy;
 pub mod hardware_security;
 pub mod red_team_simulation;
 pub mod secure_enclave;
-pub mod bias_correction_models; // New module for bias correction models
-pub mod bias_self_correction; // New module for Bias Self-Correction
+pub mod adversarial_ml_defense;
+pub mod security_posture_models; // New module for security posture models
+pub mod security_posture_adaptation; // New module for Security Posture Adaptation
 
 // Add other security modules here.
