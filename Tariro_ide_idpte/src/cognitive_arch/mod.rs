@@ -27,7 +27,11 @@ pub mod affective_models;
 pub mod affective_computing;
 pub mod sensory_fusion_models;
 pub mod sensory_fusion;
-pub mod attention_models; // New module for attention models
-pub mod attention_salience; // New module for Attention & Salience Detection
+pub mod attention_models;
+pub mod attention_salience;
+pub mod working_memory_models;
+pub mod working_memory;
+pub mod long_term_memory_models; // New module for long-term memory models
+pub mod long_term_semantic_memory; // New module for Long-Term Semantic Memory
 
 // Add other cognitive architecture modules here.
