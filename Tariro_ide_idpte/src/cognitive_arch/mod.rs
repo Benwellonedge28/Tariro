@@ -31,7 +31,11 @@ pub mod attention_models;
 pub mod attention_salience;
 pub mod working_memory_models;
 pub mod working_memory;
-pub mod long_term_memory_models; // New module for long-term memory models
-pub mod long_term_semantic_memory; // New module for Long-Term Semantic Memory
+pub mod long_term_memory_models;
+pub mod long_term_semantic_memory;
+pub mod episodic_memory_models; // New module for episodic memory models
+pub mod episodic_memory; // New module for Episodic Memory
+pub mod prospective_memory_models; // New module for prospective memory models
+pub mod prospective_memory; // New module for Prospective Memory
 
 // Add other cognitive architecture modules here.
