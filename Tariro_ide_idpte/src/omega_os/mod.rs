@@ -1,9 +1,9 @@
 // Tariro_ide_idpte/src/omega_os/mod.rs
 
+pub mod service_registry;
 pub mod process_manager;
 pub mod event_bus;
-pub mod service_registry;
-pub mod service_models;
+pub mod event_models;
 pub mod runtime_environment;
 pub mod app_loader;
 pub mod network_manager;
@@ -20,9 +20,7 @@ pub mod adaptive_control;
 pub mod predictive_maintenance;
 pub mod adaptive_self_organization_models;
 pub mod adaptive_self_organization;
-pub mod self_healing_models;
-pub mod self_healing_optimization;
-pub mod self_evolution_models; // New module for self-evolution models
-pub mod self_evolution_continuous_improvement; // New module for Self-Evolution & Continuous Improvement
+pub mod self_healing_models; // New module for self-healing models
+pub mod self_healing_optimization; // New module for Self-Healing & Resilience Optimization
 
-// Add other OMEGA OS modules here.
+// Add other OMEGA OS core modules here.
