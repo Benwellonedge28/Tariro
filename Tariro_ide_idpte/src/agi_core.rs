@@ -139,7 +139,6 @@ pub struct AgiCoreEngine {
     pub app_loader: Arc<AppLoader>,
     pub network_manager: Arc<NetworkManager>,
     pub secure_channel_manager: Arc<SecureChannelManager>,
-    pub storage_abstraction: Arc<StorageAbstraction>,
     pub data_manager: Arc<DataManager>,
     pub self_modification_agent: Arc<SelfModificationAgent>,
     pub meta_learner: Arc<MetaLearner>,
@@ -151,7 +150,7 @@ pub struct AgiCoreEngine {
     pub hierarchical_rl_module: Arc<HierarchicalRLModule>,
     pub lifelong_learning_module: Arc<LifelongLearningModule>,
     pub curiosity_exploration_module: Arc<CuriosityExplorationModule>,
-    pub intuition_heuristic_generator: Arc<IntuitionHeuristicGenerator>,
+    pub intuition_heuristics_generator: Arc<IntuitionHeuristicsGenerator>,
     pub metacognition_module: Arc<MetacognitionModule>,
     pub imagination_module: Arc<ImaginationModule>,
     pub formal_reasoning_module: Arc<FormalReasoningModule>,
@@ -324,6 +323,18 @@ impl AgiCoreEngine {
         ));
         service_registry_arc.register_service(CollaborativeCreativityModule::as_os_service()).await?;
 
+        // Initialize SensoryFusionModule (Task 113)
+        let sensory_fusion_module_arc = Arc::new(SensoryFusionModule::new(
+            event_bus_arc.clone(),
+            aleca_orchestrator_arc.clone(),
+            qr_ctfo_orchestrator_arc.clone(),
+            meta_learner_arc.clone(),
+            data_manager_arc.clone(),
+            metacognition_dummy.clone(),
+            ethical_forecasting_module_arc.clone(),
+        ));
+        service_registry_arc.register_service(SensoryFusionModule::as_os_service()).await?;
+
         let agi_core_engine_instance = AgiCoreEngine {
             sorae_request_sender,
             sorae_orchestrator_internal: sorae_orchestrator_arc.clone(),
@@ -365,6 +376,7 @@ impl AgiCoreEngine {
             intuitive_physics_psychology_module: intuitive_physics_psychology_module_arc.clone(), // Assign intuitive physics psychology module
             epistemic_reasoning_module: epistemic_reasoning_module_arc.clone(), // Assign epistemic reasoning module
             affective_computing_module: affective_computing_module_arc.clone(), // Assign affective computing module
+            sensory_fusion_module: sensory_fusion_module_arc.clone(), // Assign sensory fusion module
             ethical_governance_module: ethical_governance_module_arc.clone(), // Assign ethical governance module
             global_knowledge_integration_module: global_knowledge_integration_module_arc.clone(), // Assign global knowledge integration module
             societal_impact_forecasting_module: societal_impact_forecasting_module_arc.clone(), // Assign societal impact forecasting module
