@@ -90,7 +90,9 @@ pub mod advanced_epistemic_models;
 pub mod advanced_epistemic_logic_trust_reasoning;
 pub mod proactive_empathy_models;
 pub mod proactive_emotional_intelligence_empathy_optimization;
-pub mod skill_transfer_models; // New module for skill transfer models
-pub mod universal_skill_transfer_knowledge_distillation; // New module for Universal Skill Transfer & Knowledge Distillation
+pub mod skill_transfer_models;
+pub mod universal_skill_transfer_knowledge_distillation;
+pub mod cognitive_integrity_models; // New module for cognitive integrity models
+pub mod cognitive_integrity_anti_corruption; // New module for Cognitive Integrity & Anti-Corruption Mechanisms
 
 // Add other cognitive architecture modules here.
