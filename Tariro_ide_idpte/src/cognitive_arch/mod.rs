@@ -77,8 +77,10 @@ pub mod epistemic_uncertainty_models;
 pub mod epistemic_uncertainty_quantification;
 pub mod affective_prioritization_models;
 pub mod emotion_driven_cognitive_prioritization;
-pub mod meta_cognitive_models; // New module for meta-cognitive models
-pub mod meta_cognitive_self_regulation; // New module for Meta-Cognitive Self-Regulation
+pub mod meta_cognitive_models;
+pub mod meta_cognitive_self_regulation;
+pub mod intuitive_common_sense_models; // New module for intuitive common sense models
+pub mod intuitive_physics_psychology_integration; // New module for Intuitive Physics & Psychology Integration
 pub mod abstract_task_decomposition_synthesis;
 
 // Add other cognitive architecture modules here.
