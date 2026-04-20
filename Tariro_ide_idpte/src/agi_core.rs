@@ -112,7 +112,7 @@ use crate::cognitive_arch::empathy_compassion::EmpathyCompassionEnhancementModul
 use crate::strategic_planning::hierarchical_planning::HierarchicalPlanningModule;
 
 // Import Self-X modules
-use crate::omega_os::adaptive_self_organization::AdaptiveSelfOrganizationModule; // Import AdaptiveSelfOrganizationModule
+use crate::omega_os::adaptive_self_organization::AdaptiveSelfOrganizationModule;
 use crate::omega_os::self_healing_optimization::SelfHealingResilienceOptimizationModule; // Import SelfHealingResilienceOptimizationModule
 use crate::omega_os::self_evolution_continuous_improvement::SelfEvolutionContinuousImprovementModule; // Import SelfEvolutionContinuousImprovementModule
 
