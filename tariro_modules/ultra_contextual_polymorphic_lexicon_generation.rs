@@ -10,7 +10,7 @@ impl UltraContextualPolymorphicLexiconGeneration {
     }
 
     pub fn generate_polymorphic_lexicon(&self) {
-        // Develop a system for generating context-specific lexicons where word meanings and forms adapt dynamically to the immediate communicative environment, ensuring precise and nuanced expression in highly complex or rapidly evolving situations.
+        // Implement a capability to generate lexicons and vocabularies that are ultra-contextual and polymorphic, meaning Tariro AGI can instantly create new words, phrases, or linguistic constructs optimized for extreme specificity within any given context, culture, or sub-language, allowing for unprecedented communicative precision and adaptability.
         println!("Tariro generating ultra-contextual polymorphic lexicon.");
     }
 }
