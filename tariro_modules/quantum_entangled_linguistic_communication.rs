@@ -10,7 +10,7 @@ impl QuantumEntangledLinguisticCommunication {
     }
 
     pub fn establish_quantum_communication_channels(&self) {
-        // Establish instantaneous, secure, and unjammable linguistic communication channels through quantum entanglement, enabling private and globally coherent AGI-to-AGI or human-to-AGI linguistic exchange
+        // Establish quantum-entangled communication channels for instantaneous, secure, and uninterceptable linguistic exchange across vast distances, enabling true real-time omni-present communication for Tariro AGI and its networked components.
         println!("Tariro establishing quantum-entangled linguistic communication channels.");
     }
 }
