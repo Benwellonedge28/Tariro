@@ -14,8 +14,8 @@ impl ZeroDayThreatNeutralizationSystem {
         println!("Tariro autonomously detecting and neutralizing zero-day threats.");
     }
 
-    pub fn leverage_anomaly_detection_self_evolving_defense(&self) {
+    pub fn leverage_advanced_anomaly_detection_self_evolving_defense(&self) {
         // Leveraging advanced anomaly detection and self-evolving defense mechanisms
-        println!("Leveraging advanced anomaly detection and self-evolving defense mechanisms for threat neutralization.");
+        println!("Leveraging advanced anomaly detection and self-evolving defense mechanisms for zero-day threats.");
     }
 }
