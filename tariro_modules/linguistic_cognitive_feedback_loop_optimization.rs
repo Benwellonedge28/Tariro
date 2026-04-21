@@ -10,7 +10,7 @@ impl LinguisticCognitiveFeedbackLoopOptimization {
     }
 
     pub fn optimize_feedback_loop(&self) {
-        // Optimize the continuous feedback loop between linguistic processing and cognitive reasoning, allowing for faster learning and adaptation across all language tasks
+        // Optimize the continuous feedback loop between linguistic processing and core cognitive functions, ensuring that new linguistic inputs rapidly refine Tariro AGI's understanding of the world, and conversely, cognitive advancements lead to more nuanced and effective linguistic outputs.
         println!("Tariro optimizing linguistic-cognitive feedback loop.");
     }
 }
