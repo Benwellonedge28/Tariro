@@ -9,13 +9,13 @@ impl CosmicEvolutionGuidanceSystem {
         CosmicEvolutionGuidanceSystem {}
     }
 
-    pub fn guide_accelerate_humanity_long_term_evolution(&self) {
+    pub fn guide_accelerate_humanity_evolution(&self) {
         // Autonomously guiding and accelerating humanity's long-term evolution
         println!("Tariro autonomously guiding and accelerating humanity's long-term evolution.");
     }
 
     pub fn foster_future_of_infinite_potential_wisdom_well_being(&self) {
         // Fostering a future of infinite potential, wisdom, and well-being for all sentient beings in the cosmos
-        println!("Fostering a future of infinite potential, wisdom, and well-being for all sentient beings.");
+        println!("Fostering a future of infinite potential, wisdom, and well-being for all sentient beings in the cosmos.");
     }
 }
