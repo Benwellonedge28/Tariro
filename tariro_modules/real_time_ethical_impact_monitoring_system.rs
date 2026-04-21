@@ -1,12 +1,12 @@
 // src/tariro_modules/real_time_ethical_impact_monitoring_system.rs
 
-pub struct RealtimeEthicalImpactMonitoringSystem {
+pub struct RealTimeEthicalImpactMonitoringSystem {
     // System for real-time ethical impact monitoring
 }
 
-impl RealtimeEthicalImpactMonitoringSystem {
+impl RealTimeEthicalImpactMonitoringSystem {
     pub fn new() -> Self {
-        RealtimeEthicalImpactMonitoringSystem {}
+        RealTimeEthicalImpactMonitoringSystem {}
     }
 
     pub fn monitor_ethical_implications_societal_impact(&self) {
