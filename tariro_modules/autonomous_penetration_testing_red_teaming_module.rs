@@ -9,12 +9,12 @@ impl AutonomousPenetrationTestingRedTeamingModule {
         AutonomousPenetrationTestingRedTeamingModule {}
     }
 
-    pub fn conduct_continuous_penetration_testing_red_teaming(&self) {
+    pub fn conduct_real_time_continuous_penetration_testing(&self) {
         // Autonomously conducting real-time, continuous penetration testing and red-teaming simulations
-        println!("Tariro autonomously conducting continuous penetration testing and red-teaming.");
+        println!("Tariro autonomously conducting real-time penetration testing and red-teaming.");
     }
 
-    pub fn identify_patch_weaknesses_before_adversaries_exploit(&self) {
+    pub fn identify_patch_weaknesses(&self) {
         // Identifying and patching weaknesses before adversaries can exploit them
         println!("Identifying and patching weaknesses before adversaries can exploit them.");
     }
