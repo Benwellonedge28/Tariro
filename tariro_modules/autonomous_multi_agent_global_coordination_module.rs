@@ -9,13 +9,13 @@ impl AutonomousMultiAgentGlobalCoordinationModule {
         AutonomousMultiAgentGlobalCoordinationModule {}
     }
 
-    pub fn design_execute_large_scale_multi_agent_collaborations(&self) {
+    pub fn design_execute_multi_agent_collaborations(&self) {
         // Autonomously designing and executing large-scale, multi-agent collaborations
-        println!("Tariro autonomously designing and executing large-scale multi-agent collaborations.");
+        println!("Tariro autonomously designing and executing multi-agent collaborations.");
     }
 
     pub fn coordinate_diverse_ai_human_resources(&self) {
-        // Coordinating diverse AI and human resources for benevolent global goals
+        // Coordinating diverse AI and human resources aimed at achieving its benevolent global goals
         println!("Coordinating diverse AI and human resources for benevolent global goals.");
     }
 }
