@@ -15,6 +15,7 @@ pub mod serialization;
 pub mod exchange;
 pub mod registry_interop;
 pub mod gateway;
+pub mod ontological_ip;
 
 use models::{IpAsset, IpType, IpDomain, IpStatus};
 
@@ -36,6 +37,7 @@ pub struct IpManagementPanel {
     pub ip_exchange_protocol: exchange::DecentralizedIpExchange,
     pub registry_interop: registry_interop::OmniversalRegistryInterop,
     pub api_gateway: gateway::IpApiGateway,
+    pub ontological_ip_manager: ontological_ip::OntologicalIpManager,
 }
 
 impl IpManagementPanel {
@@ -57,6 +59,7 @@ impl IpManagementPanel {
             ip_exchange_protocol: exchange::DecentralizedIpExchange::default(),
             registry_interop: registry_interop::OmniversalRegistryInterop::default(),
             api_gateway: gateway::IpApiGateway::default(),
+            ontological_ip_manager: ontological_ip::OntologicalIpManager::default(),
         }
     }
 }
