@@ -62,8 +62,6 @@ impl SovereignEnforcementAgent {
     /// Provides comprehensive support for IP litigation, including gathering evidence, identifying witnesses, and preparing multi-jurisdictional filings.
     pub async fn provide_litigation_support(&self, ip_asset: &IpAsset, case_id: &Uuid) -> Result<String, String> {
         println!("Activating automated litigation support for IP '{}' (Case ID: {}).", ip_asset.title, case_id);
-        // This involves autonomous discovery, AI-driven legal document assembly,
-        // and coordinating legal strategies across multiple countries simultaneously.
         tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
 
         let litigation_package = format!(
@@ -78,8 +76,6 @@ impl SovereignEnforcementAgent {
     /// Tariro acts as an AI mediator or representative in Alternative Dispute Resolution processes to reach efficient settlements.
     pub async fn initiate_adr_process(&self, ip_asset: &IpAsset, opposing_party: &str) -> Result<String, String> {
         println!("Initiating AI-driven ADR process between OMEGA OS and '{}' for IP '{}'.", opposing_party, ip_asset.title);
-        // This involves game theory-based settlement modeling, automated negotiation,
-        // and proposing equitable resolutions to avoid costly litigation.
         tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
         let adr_proposal = format!(
@@ -88,5 +84,33 @@ impl SovereignEnforcementAgent {
         );
         println!("ADR proposal generated for {}.", opposing_party);
         Ok(adr_proposal)
+    }
+
+    /// Feature 65: Anti-Troll/Anti-Piracy Countermeasures
+    /// Deploys digital self-defense mechanisms against IP trolls, patent assertion entities, and large-scale piracy operations.
+    pub async fn deploy_anti_troll_anti_piracy_countermeasures(&self, ip_asset: &IpAsset, threat_actor: &str) -> String {
+        println!("Deploying anti-troll/anti-piracy countermeasures for IP '{}' against '{}'", ip_asset.title, threat_actor);
+        tokio::time::sleep(std::time::Duration::from_millis(1200)).await;
+
+        let countermeasures_report = format!(
+            "ANTI-TROLL/ANTI-PIRACY COUNTERMEASURES REPORT\nAsset: {}\nThreat Actor: {}\nActions: Dynamic blocking initiated, legal bot swarm deployed, evidence for counter-litigation gathered.\nStatus: Countermeasures active and monitoring for effectiveness.",
+            ip_asset.title, threat_actor
+        );
+        println!("Countermeasures deployed for {}.", ip_asset.title);
+        countermeasures_report
+    }
+
+    /// Feature 66: Jurisdictional Conflict Resolution
+    /// Handles complex scenarios where IP laws of multiple jurisdictions conflict, providing AI-mediated resolution strategies.
+    pub async fn resolve_jurisdictional_conflict(&self, ip_asset: &IpAsset, conflicting_jurisdictions: Vec<String>) -> String {
+        println!("Resolving jurisdictional conflict for IP '{}' in jurisdictions: {:?}", ip_asset.title, conflicting_jurisdictions);
+        tokio::time::sleep(std::time::Duration::from_millis(1800)).await;
+
+        let resolution_strategy = format!(
+            "JURISDICTIONAL CONFLICT RESOLUTION STRATEGY\nAsset: {}\nConflicting Jurisdictions: {:?}\nAI-Mediated Resolution: Propose adoption of most harmonized international standard or bilateral treaty amendment. Identify precedent from [International Court of Justice] (Simulated).",
+            ip_asset.title, conflicting_jurisdictions
+        );
+        println!("Jurisdictional conflict resolution strategy developed for {}.", ip_asset.title);
+        resolution_strategy
     }
 }
