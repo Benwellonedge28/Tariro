@@ -9,6 +9,7 @@ pub mod collaboration;
 pub mod licensing;
 pub mod policy;
 pub mod enforcement;
+pub mod resource_management;
 
 use models::{IpAsset, IpType, IpDomain, IpStatus};
 
@@ -24,6 +25,7 @@ pub struct IpManagementPanel {
     pub licensing_engine: licensing::IpLicensingEngine,
     pub policy_manager: policy::IpPolicyManager,
     pub enforcement_agent: enforcement::SovereignEnforcementAgent,
+    pub resource_allocator: resource_management::IpResourceAllocator,
 }
 
 impl IpManagementPanel {
@@ -39,6 +41,7 @@ impl IpManagementPanel {
             licensing_engine: licensing::IpLicensingEngine::default(),
             policy_manager: policy::IpPolicyManager::default(),
             enforcement_agent: enforcement::SovereignEnforcementAgent::default(),
+            resource_allocator: resource_management::IpResourceAllocator::default(),
         }
     }
 }
