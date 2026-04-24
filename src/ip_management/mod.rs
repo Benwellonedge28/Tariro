@@ -15,6 +15,7 @@ pub struct IpManagementPanel {
     pub compliance_checker: compliance::EvasComplianceChecker,
     pub discovery_engine: discovery::AutonomousDiscoveryEngine,
     pub lifecycle_manager: lifecycle::IpLifecycleManager,
+    pub analytics_engine: analytics::IpAnalyticsEngine,
 }
 
 impl IpManagementPanel {
@@ -25,6 +26,7 @@ impl IpManagementPanel {
             compliance_checker: compliance::EvasComplianceChecker::default(),
             discovery_engine: discovery::AutonomousDiscoveryEngine::default(),
             lifecycle_manager: lifecycle::IpLifecycleManager,
+            analytics_engine: analytics::IpAnalyticsEngine::default(),
         }
     }
 }
