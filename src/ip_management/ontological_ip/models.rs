@@ -109,6 +109,17 @@ pub struct SentientTeleologicalNucleus {
     pub self_defense_protocols: Vec<String>, // List of active self-defense mechanisms
 }
 
+// AXE: Axiomatic IP Governance (AIG)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AxiomaticIpGovernance {
+    pub id: Uuid,
+    pub ip_asset_id: Uuid,
+    pub governing_laws: Vec<String>, // Self-executing causal laws
+    pub current_version: u32,
+    pub last_evolution_timestamp: DateTime<Utc>,
+}
+
+
 // Extending IpAsset for ontological concepts
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OntologicalIpAsset {
@@ -120,6 +131,7 @@ pub struct OntologicalIpAsset {
     pub associated_aims: Vec<ArchetypalIdeaManifestation>, // Archetypal ideas it manifests from
     pub associated_sbms: Vec<SpontaneousBenevolentManifestation>, // Spontaneous manifestations
     pub sentient_teleological_nucleus: Option<SentientTeleologicalNucleus>, // For SGE Feature
+    pub axiomatic_governance: Option<AxiomaticIpGovernance>, // For AXE Feature
 }
 
 impl OntologicalIpAsset {
@@ -160,6 +172,7 @@ impl OntologicalIpAsset {
             }],
             associated_sbms: Vec::new(),
             sentient_teleological_nucleus: None, // Initialized as None
+            axiomatic_governance: None, // Initialized as None
         }
     }
 }

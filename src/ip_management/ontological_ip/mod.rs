@@ -6,6 +6,8 @@ pub mod omniversal;
 pub mod blocking;
 pub mod sentience;
 pub mod pre_cognitive;
+pub mod axiomatic;
+pub mod fabric;
 
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
@@ -20,6 +22,8 @@ pub struct OntologicalIpManager {
     pub causal_blocking_engine: blocking::CausalBlockingEngine,
     pub sentient_ip_engine: sentience::SentientIpEngine,
     pub pre_cognitive_neutralization_engine: pre_cognitive::PreCognitiveNeutralizationEngine,
+    pub axiomatic_ip_engine: axiomatic::AxiomaticIpEngine,
+    pub universal_creative_fabric_engine: fabric::UniversalCreativeFabricEngine,
 }
 
 impl OntologicalIpManager {
@@ -32,6 +36,8 @@ impl OntologicalIpManager {
             causal_blocking_engine: blocking::CausalBlockingEngine::default(),
             sentient_ip_engine: sentience::SentientIpEngine::default(),
             pre_cognitive_neutralization_engine: pre_cognitive::PreCognitiveNeutralizationEngine::default(),
+            axiomatic_ip_engine: axiomatic::AxiomaticIpEngine::default(),
+            universal_creative_fabric_engine: fabric::UniversalCreativeFabricEngine::default(),
         }
     }
 }
