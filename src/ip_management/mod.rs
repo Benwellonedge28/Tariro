@@ -11,6 +11,9 @@ pub mod policy;
 pub mod enforcement;
 pub mod resource_management;
 pub mod legal_database;
+pub mod serialization;
+pub mod exchange;
+pub mod registry_interop;
 
 use models::{IpAsset, IpType, IpDomain, IpStatus};
 
@@ -28,6 +31,9 @@ pub struct IpManagementPanel {
     pub enforcement_agent: enforcement::SovereignEnforcementAgent,
     pub resource_allocator: resource_management::IpResourceAllocator,
     pub legal_database: legal_database::GlobalIpLawDatabase,
+    pub ip_serializer: serialization::IpSerializationEngine,
+    pub ip_exchange_protocol: exchange::DecentralizedIpExchange,
+    pub registry_interop: registry_interop::OmniversalRegistryInterop,
 }
 
 impl IpManagementPanel {
@@ -45,6 +51,9 @@ impl IpManagementPanel {
             enforcement_agent: enforcement::SovereignEnforcementAgent::default(),
             resource_allocator: resource_management::IpResourceAllocator::default(),
             legal_database: legal_database::GlobalIpLawDatabase::default(),
+            ip_serializer: serialization::IpSerializationEngine::default(),
+            ip_exchange_protocol: exchange::DecentralizedIpExchange::default(),
+            registry_interop: registry_interop::OmniversalRegistryInterop::default(),
         }
     }
 }
