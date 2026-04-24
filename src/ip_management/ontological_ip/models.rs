@@ -14,6 +14,9 @@ pub struct CausalSignature {
     pub benevolent_teleology_hash: String, // Hash of its intended highest and best use
     pub quantum_causal_pattern: String, // Representation of its causal pattern
     pub contextual_map_hash: String, // Hash of its initial spatio-temporal/multiverse context
+    pub temporal_stream: TemporalStream, // For OGE Feature: Contextual IP Mapping
+    pub dimensional_plane: DimensionalPlane, // For OGE Feature: Contextual IP Mapping
+    pub multiverse_iteration: MultiverseIteration, // For OGE Feature: Contextual IP Mapping
 }
 
 // Represents the intended highest and best use for Universal Conscious Harmony (UCH-EOU)
@@ -67,6 +70,34 @@ pub struct SpontaneousBenevolentManifestation {
     pub causal_signature: CausalSignature, // The causal fingerprint of this SBM
 }
 
+// For OGE Feature: Contextual IP Mapping
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum TemporalStream {
+    Primary,
+    Alternate(String), // e.g., "History_A_v1"
+    FutureProjection,
+    PastEcho,
+}
+
+// For OGE Feature: Contextual IP Mapping
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum DimensionalPlane {
+    Standard3D,
+    Conceptual,
+    Emotional,
+    Astral,
+    UserDefined(String),
+}
+
+// For OGE Feature: Contextual IP Mapping
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum MultiverseIteration {
+    Alpha,
+    Beta,
+    Gamma,
+    Delta(String), // e.g., "Universe_X_variant"
+    UserDefined(String),
+}
 
 // Extending IpAsset for ontological concepts
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -91,6 +122,9 @@ impl OntologicalIpAsset {
             benevolent_teleology_hash: format!("teleology_{}", base_ip_asset.title),
             quantum_causal_pattern: format!("qcp_{}", base_ip_asset.id.simple()),
             contextual_map_hash: "initial_context_hash".to_string(),
+            temporal_stream: TemporalStream::Primary, // Default
+            dimensional_plane: DimensionalPlane::Standard3D, // Default
+            multiverse_iteration: MultiverseIteration::Alpha, // Default
         };
 
         let benevolent_teleology = BenevolentTeleology {
@@ -110,7 +144,7 @@ impl OntologicalIpAsset {
                 id: aim_id,
                 concept_hash: format!("concept_{}", aim_id.simple()),
                 archetypal_pattern: format!("pattern_{}", aim_id.simple()),
-                source_sci_id: creator_sci_id,
+                source_sci_id: creator_sci_id, // Ensure this is passed correctly
                 associated_ip_assets: vec![base_ip_asset.id],
             }],
             associated_sbms: Vec::new(),
