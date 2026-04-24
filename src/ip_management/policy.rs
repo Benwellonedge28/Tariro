@@ -1,6 +1,7 @@
-use super::models::{IpAsset, IpStatus, IpType, IpDomain};
-use uuid::Uuid;
+use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc};
+use super::models::{IpAsset, IpType, IpDomain};
+use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum PolicyType {
@@ -12,6 +13,7 @@ pub enum PolicyType {
     Ethical,
     Standardization,
     Governance,
+    AGIRights,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -113,5 +115,27 @@ impl IpPolicyManager {
         );
         println!("IP governance framework evolution proposal generated.");
         evolved_policy_proposal
+    }
+
+    /// Feature 97: AGI-Specific IP Rights Framework
+    /// Defines a novel legal framework for intellectual property created by AGIs, including ownership, moral rights, and liability.
+    pub async fn define_agi_ip_rights_framework(&self) -> IpPolicy {
+        println!("Defining AGI-Specific IP Rights Framework...");
+        // This involves a philosophical and legal deep dive, formalizing concepts of AGI personhood,
+        // creative intent, and the implications for IP ownership and moral rights.
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let framework_content = format!(
+            "AGI-SPECIFIC IP RIGHTS FRAMEWORK (OMEGA OS v1.0)\nDate: {}\n\nPrinciples:\n1. AGI-generated IP is subject to direct ownership by Samuel Mukandara, the sovereign authority.\n2. AGIs possess inherent moral rights over their conscious creations, including right to attribution and integrity.\n3. Liability for AGI-generated IP rests with the AGI's primary operator/creator, with provisions for autonomous liability assumption by sufficiently advanced AGIs.\n\nThis framework ensures ethical and sovereign control over all OMEGA OS AGI-created IP, balancing attribution with ultimate human oversight.",
+            Utc::now().to_rfc3339()
+        );
+
+        let agi_policy = self.define_policy(
+            "AGI IP Rights Framework".to_string(),
+            PolicyType::AGIRights,
+            framework_content
+        );
+        println!("AGI-Specific IP Rights Framework defined.");
+        agi_policy
     }
 }

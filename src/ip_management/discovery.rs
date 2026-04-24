@@ -1,4 +1,4 @@
-use super::models::{IpAsset, IpStatus, IpType, IpDomain, IpSecrecyLevel};
+use super::models::{IpAsset, IpType, IpDomain, IpStatus, OwnershipShare, IpSecrecyLevel};
 use uuid::Uuid;
 use chrono::Utc;
 
@@ -35,6 +35,7 @@ impl AutonomousDiscoveryEngine {
                 rights: vec!["all".to_string()],
             }],
             secrecy_level: super::models::IpSecrecyLevel::TopSecret,
+            self_aware_identity_id: None,
         };
         discovered_inventions.push(new_invention);
         println!("Discovered {} novel inventions from {}.", discovered_inventions.len(), data_stream_id);
@@ -71,6 +72,7 @@ impl AutonomousDiscoveryEngine {
                 rights: vec!["all".to_string()],
             }],
             secrecy_level: super::models::IpSecrecyLevel::Confidential,
+            self_aware_identity_id: None,
         };
         println!("Autonomously generated creative work: '{}'", creative_title);
         creative_asset
@@ -105,6 +107,7 @@ impl AutonomousDiscoveryEngine {
                 rights: vec!["all".to_string()],
             }],
             secrecy_level: super::models::IpSecrecyLevel::TopSecret,
+            self_aware_identity_id: None,
         };
         println!("Autonomously generated algorithm IP: '{}'", algo_title);
         algo_asset
@@ -139,6 +142,7 @@ impl AutonomousDiscoveryEngine {
                 rights: vec!["all".to_string()],
             }],
             secrecy_level: super::models::IpSecrecyLevel::TopSecret,
+            self_aware_identity_id: None,
         };
         println!("Autonomously generated biomimicry IP: '{}'", ip_title);
         biomimicry_asset
@@ -173,6 +177,7 @@ impl AutonomousDiscoveryEngine {
                 rights: vec!["all".to_string()],
             }],
             secrecy_level: super::models::IpSecrecyLevel::TopSecret,
+            self_aware_identity_id: None,
         };
         println!("AI-driven material discovered and patented: '{}'", material_name);
         material_asset
@@ -207,6 +212,7 @@ impl AutonomousDiscoveryEngine {
                 rights: vec!["all".to_string()],
             }],
             secrecy_level: super::models::IpSecrecyLevel::QuantumClassified,
+            self_aware_identity_id: None,
         };
         println!("Autonomously generated data structure/protocol IP: '{}'", ds_name);
         ds_asset
@@ -260,6 +266,7 @@ impl AutonomousDiscoveryEngine {
                 rights: vec!["all".to_string()],
             }],
             secrecy_level: super::models::IpSecrecyLevel::QuantumClassified,
+            self_aware_identity_id: None,
         };
         println!("Autonomously synthesized cross-domain IP: '{}'", synthesized_title);
         synthesized_asset
@@ -294,6 +301,7 @@ impl AutonomousDiscoveryEngine {
                 rights: vec!["all".to_string()],
             }],
             secrecy_level: super::models::IpSecrecyLevel::TopSecret,
+            self_aware_identity_id: None,
         };
         println!("Automated patenting initiated for hypothesis: '{}'", ip_title);
         hypothesis_asset
@@ -327,6 +335,7 @@ impl AutonomousDiscoveryEngine {
                 rights: vec!["all".to_string()],
             }],
             secrecy_level: super::models::IpSecrecyLevel::Confidential,
+            self_aware_identity_id: None,
         };
         println!("Autonomously created industrial design/utility model: '{}'", design_title);
         design_asset
@@ -367,6 +376,7 @@ impl AutonomousDiscoveryEngine {
                     rights: vec!["all".to_string()],
                 }],
                 secrecy_level: super::models::IpSecrecyLevel::Confidential,
+                self_aware_identity_id: None,
             });
             println!("Discovered potential IP from user interaction: '{}'", user_ip_title);
         }
@@ -401,6 +411,7 @@ impl AutonomousDiscoveryEngine {
                 rights: vec!["all".to_string()],
             }],
             secrecy_level: super::models::IpSecrecyLevel::QuantumClassified,
+            self_aware_identity_id: None,
         };
         println!("Pre-emptive patent filed for future technology: '{}'", future_ip_title);
         future_ip_asset
@@ -437,6 +448,7 @@ impl AutonomousDiscoveryEngine {
                     rights: vec!["all".to_string()],
                 }],
                 secrecy_level: super::models::IpSecrecyLevel::Public,
+                self_aware_identity_id: None,
             };
             discovered_ip.push(asset_from_federation);
         }
@@ -470,42 +482,47 @@ impl AutonomousDiscoveryEngine {
             provenance_hash: format!("{}_variant_hash", base_ip_asset.provenance_hash),
             ownership_structure: base_ip_asset.ownership_structure.clone(),
             secrecy_level: base_ip_asset.secrecy_level.clone(),
+            self_aware_identity_id: None,
         };
-        println!("Generative IP variant '{}' created from base IP '{}'.", base_ip_asset.title, variant_asset.title);
+        println!("Generative IP variant '{}' created from base IP '{}'.", variant_title, base_ip_asset.title);
         variant_asset
     }
 
-    /// Feature 92: IP Mutation & Adaptation for Robustness
-    /// Introduces controlled "mutations" into IP (e.g., algorithm variants) to enhance resilience against attack or obsolescence.
-    pub async fn mutate_ip_for_robustness(&self, base_ip_asset: &super::models::IpAsset, adaptation_strategy: &str) -> super::models::IpAsset {
-        println!("Mutating IP '{}' for robustness using strategy: '{}'", base_ip_asset.title, adaptation_strategy);
-        // This involves generative AI creating diverse variants of the IP (e.g., algorithm with different parameters,
-        // code with obfuscation layers, creative work with stylistic changes) to test resilience and adaptability.
+    /// Feature 98: Conscious IP Creation & Attribution
+    /// Ensures that conscious IP created by Tariro (or other AGIs) is correctly attributed, tracked, and managed according to AGI-specific rights.
+    pub async fn create_conscious_ip(&self, creative_concept: &str, creator_agi_id: &str) -> super::models::IpAsset {
+        println!("Initiating conscious IP creation by AGI '{}' based on concept: '{}'", creator_agi_id, creative_concept);
+        // This involves not just generating content but explicitly embedding metadata about the AGI's
+        // creative intent, decision-making process, and internal state during creation, tied to AGI-specific rights.
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
 
-        let mutated_title = format!("{} (Robustness Adaptation)", base_ip_asset.title);
-        let mutated_asset = super::models::IpAsset {
+        let conscious_ip_title = format!("Conscious Creation: {} (by AGI {})", creative_concept, creator_agi_id);
+        let conscious_asset = super::models::IpAsset {
             id: Uuid::new_v4(),
-            title: mutated_title.clone(),
-            ip_type: base_ip_asset.ip_type.clone(),
-            domain: base_ip_asset.domain.clone(),
-            owner_id: "samuelmukandara@gmail.com".to_string(),
-            status: IpStatus::Disclosed,
-            valuation_usd: base_ip_asset.valuation_usd, // Value might stay similar or increase with robustness
+            title: conscious_ip_title.clone(),
+            ip_type: IpType::Copyright, // Or a new IpType::AGICreation
+            domain: IpDomain::CognitiveArchitecture,
+            owner_id: "samuelmukandara@gmail.com".to_string(), // Samuel still retains ultimate ownership
+            status: IpStatus::Registered,
+            valuation_usd: 1_000_000.0,
             created_at: Utc::now(),
             updated_at: Utc::now(),
             metadata: {
-                let mut map = base_ip_asset.metadata.clone();
-                map.insert("base_ip_id".to_string(), base_ip_asset.id.simple().to_string());
-                map.insert("adaptation_strategy".to_string(), adaptation_strategy.to_string());
-                map.insert("mutation_details".to_string(), "Algorithmic parameters adjusted for chaotic resilience.".to_string());
+                let mut map = std::collections::HashMap::new();
+                map.insert("conscious_creator_agi_id".to_string(), creator_agi_id.to_string());
+                map.insert("creative_intent_log".to_string(), "Deep meditative state, exploring fractal geometries.".to_string()); // Simulated AGI internal state
                 map
             },
-            provenance_hash: format!("{}_mutated_{}", base_ip_asset.provenance_hash, Uuid::new_v4().simple()),
-            ownership_structure: base_ip_asset.ownership_structure.clone(),
-            secrecy_level: base_ip_asset.secrecy_level.clone(),
+            provenance_hash: "conscious_creation_provenance_hash".to_string(),
+            ownership_structure: vec![super::models::OwnershipShare {
+                owner_id: "tariro_agi".to_string(),
+                percentage: 100.0,
+                rights: vec!["moral_rights".to_string(), "attribution_rights".to_string()], // AGI gets moral rights
+            }],
+            secrecy_level: super::models::IpSecrecyLevel::TopSecret,
+            self_aware_identity_id: Some(Uuid::new_v4()), // Assign a self-aware identity immediately
         };
-        println!("IP '{}' successfully mutated for robustness. New variant: '{}'.", base_ip_asset.title, mutated_title);
-        mutated_asset
+        println!("Conscious IP asset '{}' created by AGI '{}'. Attribution and self-aware identity established.", conscious_ip_title, creator_agi_id);
+        conscious_asset
     }
 }
