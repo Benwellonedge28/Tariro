@@ -1,4 +1,4 @@
-use super::models::{IpAsset, IpType, IpDomain, IpStatus};
+use super::models::{IpAsset, IpType, IpDomain, IpStatus, OwnershipShare};
 use uuid::Uuid;
 use chrono::Utc;
 
@@ -22,6 +22,7 @@ impl UniversalIpRegistrationEngine {
             metadata: std::collections::HashMap::new(),
             provenance_hash: "initial_draft_hash".to_string(),
             ownership_structure: Vec::new(), // Initialize as empty
+            secrecy_level: super::models::IpSecrecyLevel::Confidential,
         };
 
         // IP Lifecycle: Conception -> Disclosed (Feature 6 interaction)
@@ -114,6 +115,7 @@ impl UniversalIpRegistrationEngine {
             },
             provenance_hash: "document_based_initial_hash".to_string(),
             ownership_structure: Vec::new(),
+            secrecy_level: super::models::IpSecrecyLevel::Confidential,
         };
 
         // Simulate review and submission process
@@ -140,5 +142,42 @@ impl UniversalIpRegistrationEngine {
         );
         println!("Automated Invention Disclosure and Patent Draft created.");
         Ok(disclosure_text)
+    }
+
+    /// Feature 42: Autonomous Trademark & Brand Creation
+    /// Generates unique, legally defensible trademarks and brands for new OMEGA OS initiatives or products.
+    pub async fn create_autonomous_trademark_and_brand(&self, product_or_initiative: &str) -> IpAsset {
+        println!("Autonomously creating trademark and brand for: '{}'", product_or_initiative);
+        // This involves generative AI for branding concepts, linguistic analysis for uniqueness,
+        // and integration with trademark databases for global conflict checking.
+        tokio::time::sleep(std::time::Duration::from_millis(900)).await;
+
+        let brand_name = format!("OMNI-CORE {} (TM)", product_or_initiative.to_uppercase());
+        let trademark_asset = IpAsset {
+            id: Uuid::new_v4(),
+            title: brand_name.clone(),
+            ip_type: IpType::Trademark,
+            domain: IpDomain::Design, // Branding often falls under design/marketing IP
+            owner_id: "samuelmukandara@gmail.com".to_string(),
+            status: IpStatus::PendingRegistration,
+            valuation_usd: 750_000.0,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            metadata: {
+                let mut map = std::collections::HashMap::new();
+                map.insert("product_initiative".to_string(), product_or_initiative.to_string());
+                map.insert("brand_slogan".to_string(), format!("The Future of {}", product_or_initiative));
+                map
+            },
+            provenance_hash: "trademark_provenance_hash".to_string(),
+            ownership_structure: vec![OwnershipShare {
+                owner_id: "tariro_agi".to_string(),
+                percentage: 100.0,
+                rights: vec!["all".to_string()],
+            }],
+            secrecy_level: super::models::IpSecrecyLevel::Confidential,
+        };
+        println!("Autonomously created trademark and brand: '{}'", brand_name);
+        trademark_asset
     }
 }

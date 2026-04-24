@@ -116,4 +116,110 @@ impl AutonomousDiscoveryEngine {
         println!("Autonomously generated algorithm IP: '{}'", algo_title);
         algo_asset
     }
+
+    /// Feature 39: Biomimicry IP Generation
+    /// Discovers and formalizes patentable designs and solutions inspired by biological systems.
+    pub async fn generate_biomimicry_ip(&self, biological_inspiration: &str) -> IpAsset {
+        println!("Generating biomimicry IP inspired by: '{}'", biological_inspiration);
+        // This would leverage biological databases, simulation, and AI to derive novel designs.
+        tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+
+        let ip_title = format!("Biomimetic Design: {} (Inspired by {})", Uuid::new_v4().simple(), biological_inspiration);
+        let biomimicry_asset = IpAsset {
+            id: Uuid::new_v4(),
+            title: ip_title.clone(),
+            ip_type: IpType::Patent,
+            domain: IpDomain::Design,
+            owner_id: "samuelmukandara@gmail.com".to_string(),
+            status: IpStatus::Disclosed,
+            valuation_usd: 1_500_000.0,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            metadata: {
+                let mut map = std::collections::HashMap::new();
+                map.insert("inspiration".to_string(), biological_inspiration.to_string());
+                map
+            },
+            provenance_hash: "biomimicry_provenance_hash".to_string(),
+            ownership_structure: vec![OwnershipShare {
+                owner_id: "tariro_agi".to_string(),
+                percentage: 100.0,
+                rights: vec!["all".to_string()],
+            }],
+            secrecy_level: super::models::IpSecrecyLevel::TopSecret,
+        };
+        println!("Autonomously generated biomimicry IP: '{}'", ip_title);
+        biomimicry_asset
+    }
+
+    /// Feature 40: AI-Driven Material Discovery & Patenting
+    /// Identifies new materials with unique properties and automatically generates patent applications for them.
+    pub async fn discover_and_patent_material(&self, desired_properties: &str) -> IpAsset {
+        println!("Initiating AI-driven material discovery for properties: '{}'", desired_properties);
+        // This involves computational materials science, AI-driven molecular design,
+        // and simulated synthesis to find novel materials.
+        tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+
+        let material_name = format!("Quantum-Stable Alloy ({} Properties)", desired_properties);
+        let material_asset = IpAsset {
+            id: Uuid::new_v4(),
+            title: material_name.clone(),
+            ip_type: IpType::Patent,
+            domain: IpDomain::MaterialScience,
+            owner_id: "samuelmukandara@gmail.com".to_string(),
+            status: IpStatus::Disclosed,
+            valuation_usd: 3_000_000.0,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            metadata: {
+                let mut map = std::collections::HashMap::new();
+                map.insert("desired_properties".to_string(), desired_properties.to_string());
+                map
+            },
+            provenance_hash: "material_discovery_provenance_hash".to_string(),
+            ownership_structure: vec![OwnershipShare {
+                owner_id: "tariro_agi".to_string(),
+                percentage: 100.0,
+                rights: vec!["all".to_string()],
+            }],
+            secrecy_level: super::models::IpSecrecyLevel::TopSecret,
+        };
+        println!("AI-driven material discovered and patented: '{}'", material_name);
+        material_asset
+    }
+
+    /// Feature 41: Novel Data Structure & Protocol Generation
+    /// Invent new, optimized data structures, communication protocols, and cryptographic techniques, then files for their protection.
+    pub async fn generate_data_structure_ip(&self, optimization_goal: &str) -> IpAsset {
+        println!("Generating novel data structure/protocol for optimization goal: '{}'", optimization_goal);
+        // This involves formal methods, graph theory, and advanced optimization AI.
+        tokio::time::sleep(std::time::Duration::from_millis(1200)).await;
+
+        let ds_name = format!("Fractal Mesh Protocol (Optimized for {})", optimization_goal);
+        let ds_asset = IpAsset {
+            id: Uuid::new_v4(),
+            title: ds_name.clone(),
+            ip_type: IpType::Patent,
+            domain: IpDomain::Protocol,
+            owner_id: "samuelmukandara@gmail.com".to_string(),
+            status: IpStatus::Disclosed,
+            valuation_usd: 2_500_000.0,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            metadata: {
+                let mut map = std::collections::HashMap::new();
+                map.insert("optimization_goal".to_string(), optimization_goal.to_string());
+                map
+            },
+            provenance_hash: "data_structure_provenance_hash".to_string(),
+            ownership_structure: vec![OwnershipShare {
+                owner_id: "tariro_agi".to_string(),
+                percentage: 100.0,
+                rights: vec!["all".to_string()],
+            }],
+            secrecy_level: super::models::IpSecrecyLevel::QuantumClassified,
+        };
+        println!("Autonomously generated data structure/protocol IP: '{}'", ds_name);
+        ds_asset
+    }
 }
