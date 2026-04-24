@@ -39,6 +39,13 @@ pub enum IpStatus {
     Obfuscated,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct OwnershipShare {
+    pub owner_id: String, // e.g., Samuel Mukandara, AGI_X, Human_Y
+    pub percentage: f64,  // Share of ownership (0.0 to 100.0)
+    pub rights: Vec<String>, // Specific rights (e.g., "monetize", "modify", "distribute")
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IpAsset {
     pub id: Uuid,
@@ -52,6 +59,7 @@ pub struct IpAsset {
     pub updated_at: DateTime<Utc>,
     pub metadata: std::collections::HashMap<String, String>,
     pub provenance_hash: String, // Quantum-secured hash
+    pub ownership_structure: Vec<OwnershipShare>, // New field for Feature 10
 }
 
 impl IpAsset {

@@ -5,6 +5,9 @@ pub mod compliance;
 pub mod discovery;
 pub mod analytics;
 pub mod lifecycle;
+pub mod collaboration;
+pub mod licensing;
+pub mod policy;
 
 use models::{IpAsset, IpType, IpDomain, IpStatus};
 
@@ -16,6 +19,9 @@ pub struct IpManagementPanel {
     pub discovery_engine: discovery::AutonomousDiscoveryEngine,
     pub lifecycle_manager: lifecycle::IpLifecycleManager,
     pub analytics_engine: analytics::IpAnalyticsEngine,
+    pub collaboration_manager: collaboration::IpCollaborationManager,
+    pub licensing_engine: licensing::IpLicensingEngine,
+    pub policy_manager: policy::IpPolicyManager,
 }
 
 impl IpManagementPanel {
@@ -27,6 +33,9 @@ impl IpManagementPanel {
             discovery_engine: discovery::AutonomousDiscoveryEngine::default(),
             lifecycle_manager: lifecycle::IpLifecycleManager,
             analytics_engine: analytics::IpAnalyticsEngine::default(),
+            collaboration_manager: collaboration::IpCollaborationManager::default(),
+            licensing_engine: licensing::IpLicensingEngine::default(),
+            policy_manager: policy::IpPolicyManager::default(),
         }
     }
 }
