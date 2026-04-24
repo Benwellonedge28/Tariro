@@ -1,7 +1,6 @@
-use serde::{Serialize, Deserialize};
-use chrono::{DateTime, Utc};
-use super::models::{IpAsset, IpType, IpDomain};
+use super::models::{IpAsset, IpStatus, IpType, IpDomain};
 use uuid::Uuid;
+use chrono::{DateTime, Utc};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum PolicyType {
@@ -12,6 +11,7 @@ pub enum PolicyType {
     Monetization,
     Ethical,
     Standardization,
+    Governance,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -97,5 +97,21 @@ impl IpPolicyManager {
         );
         println!("IP interoperability standards generated for {}.", scope_description);
         standards_document
+    }
+
+    /// Feature 95: IP Governance Evolution Framework
+    /// Enables the autonomous evolution of IP governance rules and policies based on learning from past compliance/enforcement activities.
+    pub async fn evolve_ip_governance_framework(&self, context_summary: &str) -> String {
+        println!("Evolving IP governance framework based on context: '{}'", context_summary);
+        // This involves AI analysis of past compliance reports, ethical flags, enforcement outcomes,
+        // and system-wide performance data to identify necessary adjustments to governance policies.
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let evolved_policy_proposal = format!(
+            "IP GOVERNANCE EVOLUTION FRAMEWORK PROPOSAL\nContext Summary: {}\nDate: {}\n\nProposed Policy Updates:\n- Based on recent [compliance incidents], recommend strengthening 'Ethical IP Use' clause (linked to Feature 59).\n- New protocol for 'Cross-AGI IP Trust Anchors' (Feature 33) to be integrated into standard IP sharing policies.\n- Streamlined dispute resolution process for minor infringements (linked to Feature 61).",
+            context_summary, Utc::now().to_rfc3339()
+        );
+        println!("IP governance framework evolution proposal generated.");
+        evolved_policy_proposal
     }
 }

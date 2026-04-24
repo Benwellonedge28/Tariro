@@ -92,10 +92,10 @@ impl IpLicensingEngine {
 
     /// Feature 86: Adaptive IP License Generation
     /// Dynamically generates licenses that adapt to changes in IP usage context, market conditions, or legal frameworks.
-    pub async fn generate_adaptive_license(&self, ip_asset: &IpAsset, base_terms: &str, context_factors: std::collections::HashMap<String, String>) -> Result<LicenseAgreement, String> {
+    pub async fn generate_adaptive_license(&self, ip_asset: &super::models::IpAsset, base_terms: &str, context_factors: std::collections::HashMap<String, String>) -> Result<LicenseAgreement, String> {
         println!("Generating adaptive license for IP '{}' with base terms: '{}' and factors: {:?}", ip_asset.title, base_terms, context_factors);
         // This involves AI analysis of current legal, market, and usage data to modify standard clauses
-        // or introduce dynamic terms (e.g., royalty rates that adjust with market share).}
+        // or introduce dynamic terms (e.g., royalty rates that adjust with market share).
         tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
 
         let mut adapted_terms = format!(
