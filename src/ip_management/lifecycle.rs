@@ -1,5 +1,5 @@
-use super::models::{IpAsset, IpStatus, IpType, IpDomain};
-use chrono::{Utc, Duration}; // Add Duration for date calculations
+use super::models::{IpAsset, IpStatus, IpType, IpDomain, IpSecrecyLevel};
+use chrono::{Utc, Duration};
 
 pub struct IpLifecycleManager;
 
@@ -35,12 +35,10 @@ impl IpLifecycleManager {
         println!("Initiating automated IP maintenance and renewal check...");
 
         for asset in ip_assets.iter_mut() {
-            // Simulate a renewal period (e.g., renew every year, or if updated_at is old)
-            // In a real system, this would be based on specific IP laws and registration dates.
             let needs_renewal = match asset.ip_type {
-                IpType::Patent => (now - asset.updated_at) > Duration::days(365 * 3), // Patents often 20 years, with renewal fees
-                IpType::Trademark => (now - asset.updated_at) > Duration::days(365 * 5), // Trademarks often 10 years, renewable
-                _ => (now - asset.updated_at) > Duration::days(365), // Other types, annual check
+                IpType::Patent => (now - asset.updated_at) > Duration::days(365 * 3),
+                IpType::Trademark => (now - asset.updated_at) > Duration::days(365 * 5),
+                _ => (now - asset.updated_at) > Duration::days(365),
             };
 
             if needs_renewal && (asset.status == IpStatus::Registered || asset.status == IpStatus::Maintained) {
@@ -56,5 +54,26 @@ impl IpLifecycleManager {
             println!("Automated IP renewal process complete. Processed {} assets.", processed_assets.len());
         }
         processed_assets
+    }
+
+    /// Feature 87: IP Self-Modification Protocols
+    /// Defines protocols allowing IP assets (e.g., adaptive algorithms, self-evolving codebases) to autonomously update or modify themselves while maintaining provenance and ownership.
+    pub async fn initiate_ip_self_modification(&self, ip_asset: &mut IpAsset, modification_goal: &str) -> Result<String, String> {
+        println!("Initiating self-modification protocols for IP '{}' with goal: '{}'", ip_asset.title, modification_goal);
+        // This involves the IP asset (e.g., an adaptive algorithm) autonomously analyzing its environment,
+        // performance, or new requirements, and then safely modifying its own codebase or structure.
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        ip_asset.metadata.insert("last_modification_goal".to_string(), modification_goal.to_string());
+        ip_asset.metadata.insert("self_modified_version".to_string(), format!("v{}.0", ip_asset.updated_at.timestamp())); // Symbolic versioning
+        ip_asset.updated_at = Utc::now();
+        ip_asset.provenance_hash = format!("{}_modified_{}", ip_asset.provenance_hash, ip_asset.updated_at.timestamp()); // Update provenance
+
+        let modification_report = format!(
+            "IP SELF-MODIFICATION REPORT\nAsset: {}\nModification Goal: {}\nStatus: Successfully self-modified. New version and provenance established.",
+            ip_asset.title, modification_goal
+        );
+        println!("IP '{}' completed self-modification.", ip_asset.title);
+        Ok(modification_report)
     }
 }

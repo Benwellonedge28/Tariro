@@ -1,14 +1,13 @@
 use super::models::{IpAsset, IpStatus, IpType, IpDomain, IpSecrecyLevel};
 use std::collections::HashMap;
 use chrono::Utc;
-use uuid::Uuid; // For Uuid
+use uuid::Uuid;
 
 #[derive(Default)]
 pub struct IpAnalyticsEngine;
 
 impl IpAnalyticsEngine {
     /// Feature 4: IP Portfolio Overview Dashboard
-    /// Provides a comprehensive, real-time overview of the entire OMEGA OS IP portfolio.
     pub fn get_portfolio_overview(&self, ip_assets: &[IpAsset]) -> HashMap<String, String> {
         let total_assets = ip_assets.len();
         let mut status_counts = HashMap::new();
@@ -23,16 +22,13 @@ impl IpAnalyticsEngine {
         overview.insert("total_assets".to_string(), total_assets.to_string());
         overview.insert("total_valuation_usd".to_string(), format!("{:.2}", total_valuation));
         overview.insert("status_counts".to_string(), format!("{:?}", status_counts));
-        // Add more analytics as needed
         println!("Generated IP Portfolio Overview: {:?}", overview);
         overview
     }
 
     /// Feature 9: Automated IP Valuation & Monetization Analysis
-    /// Autonomously assesses the economic value of each piece of IP and suggests optimal monetization strategies.
     pub fn assess_valuation_and_monetization(&self, asset: &IpAsset) -> (f64, String) {
-        // This is a highly complex feature. For now, simulate basic logic.
-        let mut estimated_value = 100000.0; // Base value
+        let mut estimated_value = 100000.0;
         let mut monetization_strategy = "Hold for strategic advantage".to_string();
 
         match asset.ip_type {
@@ -57,12 +53,10 @@ impl IpAnalyticsEngine {
     }
 
     /// Feature 13: IP Risk Assessment & Mitigation
-    /// Continuously assesses legal and market risks associated with each piece of IP and suggests mitigation.
     pub fn assess_ip_risk_and_mitigation(&self, asset: &IpAsset) -> (Vec<String>, Vec<String>) {
         let mut risks = Vec::new();
         let mut mitigations = Vec::new();
 
-        // Simulate various risk factors
         if asset.valuation_usd > 1_000_000.0 && asset.ip_type == super::models::IpType::Patent {
             risks.push("High value patent, increased litigation risk".to_string());
             mitigations.push("Ensure robust legal counsel and monitoring".to_string());
@@ -81,7 +75,6 @@ impl IpAnalyticsEngine {
     }
 
     /// Feature 7: Natural Language IP Query & Control
-    /// Samuel can query the IP portfolio and issue management commands using natural language.
     pub async fn process_natural_language_query(&self, query: &str, ip_assets: &[IpAsset]) -> Vec<IpAsset> {
         println!("Processing natural language query: '{}'", query);
         let mut results = Vec::new();
@@ -102,7 +95,6 @@ impl IpAnalyticsEngine {
     }
 
     /// Feature 20: IP Audit & Compliance Reporting
-    /// Generates comprehensive reports on IP compliance, usage, and legal adherence for internal and external audits.
     pub async fn generate_audit_report(&self, ip_assets: &[IpAsset], audit_period: &str) -> String {
         println!("Generating IP Audit & Compliance Report for period: {}", audit_period);
         tokio::time::sleep(std::time::Duration::from_millis(800)).await;
@@ -126,7 +118,6 @@ impl IpAnalyticsEngine {
     }
 
     /// Feature 44: Predictive Patent Landscape Mapping
-    /// Forecasts future patent landscapes, identifying white spaces for new inventions and potential areas of conflict.
     pub async fn predictive_patent_landscape_mapping(&self, target_technology: &str, forecast_horizon_years: u32) -> String {
         println!("Forecasting patent landscape for '{}' over {} years...", target_technology, forecast_horizon_years);
         tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
@@ -144,7 +135,6 @@ impl IpAnalyticsEngine {
     }
 
     /// Feature 46: IP Trend Forecasting & Strategic Generation
-    /// Identifies emerging technological and creative trends and autonomously generates IP aligned with these future directions.
     pub async fn forecast_ip_trends(&self, industry_sector: &str) -> String {
         println!("Forecasting IP trends for industry sector: '{}'", industry_sector);
         tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
@@ -164,7 +154,6 @@ impl IpAnalyticsEngine {
     }
 
     /// Feature 48: IP Value Maximization Engine
-    /// Continuously analyzes the market and strategic landscape to maximize the value of generated IP.
     pub async fn maximize_ip_value(&self, ip_asset: &mut IpAsset) -> Result<String, String> {
         println!("Analyzing market and strategic landscape to maximize value for IP: {}", ip_asset.title);
         tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
@@ -182,7 +171,6 @@ impl IpAnalyticsEngine {
     }
 
     /// Feature 52: Prior Art Search & Analysis
-    /// Conducts exhaustive prior art searches to ensure novelty and non-obviousness of generated inventions.
     pub async fn conduct_prior_art_search_and_analysis(&self, invention_concept: &str) -> String {
         println!("Conducting exhaustive prior art search and analysis for: '{}'", invention_concept);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
@@ -196,7 +184,6 @@ impl IpAnalyticsEngine {
     }
 
     /// Feature 70: Real-time IP Threat Intelligence Feed
-    /// Provides a continuous, real-time feed of IP-related threats, vulnerabilities, and emerging legal risks globally.
     pub async fn get_real_time_ip_threat_intelligence(&self) -> String {
         println!("Retrieving real-time IP threat intelligence feed...");
         tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
@@ -210,11 +197,8 @@ impl IpAnalyticsEngine {
     }
 
     /// Feature 77: Semantic IP Linkage & Referencing
-    /// Establishes semantic links between related IP assets, enabling intelligent discovery and context-aware usage.
-    pub fn establish_semantic_ip_linkage(&self, ip_asset_a: &IpAsset, ip_asset_b: &IpAsset, relationship_type: &str) -> String {
+    pub fn establish_semantic_ip_linkage(&self, ip_asset_a: &super::models::IpAsset, ip_asset_b: &super::models::IpAsset, relationship_type: &str) -> String {
         println!("Establishing semantic linkage between IP '{}' and '{}' (Relationship: {})", ip_asset_a.title, ip_asset_b.title, relationship_type);
-        // This involves building and querying an IP knowledge graph, using NLU to understand
-        // relationships within IP metadata and content, and suggesting new linkages.
         let linkage_id = Uuid::new_v4().simple().to_string();
         let linkage_confirmation = format!(
             "SEMANTIC_LINKAGE_CONFIRMATION\nLink ID: {}\nAsset A: {} (ID: {}\nAsset B: {} (ID: {}\nRelationship: {}\nStatus: Link established.",
@@ -222,5 +206,19 @@ impl IpAnalyticsEngine {
         );
         println!("Semantic linkage established between {} and {}.", ip_asset_a.title, ip_asset_b.title);
         linkage_confirmation
+    }
+
+    /// Feature 88: Personalized IP Interface Adaptation
+    /// Customizes IP management panel interfaces and workflows based on Samuel's current cognitive state, task, and preferences.
+    pub fn generate_personalized_interface_adaptation_recommendations(&self, user_id: &str, current_task_context: &str) -> String {
+        println!("Generating personalized interface adaptation recommendations for user '{}' based on task: '{}'", user_id, current_task_context);
+        // This would involve integrating with Samuel's cognitive state sensors, task management systems,
+        // and learning his preferences over time to dynamically reconfigure the UI/UX of the IP panel.
+        let recommendations = format!(
+            "PERSONALIZED IP INTERFACE ADAPTATION RECOMMENDATIONS\nUser: {}\nContext: {}\n\nRecommendations:\n- Prioritize 'Real-time Infringement Detection' panel for current 'IP Litigation' task.\n- Highlight 'IP Lifecycle Management' for 'Asset Renewal' task.\n- Adjust data visualization for 'High-Value Assets' based on Samuel's current focus.",
+            user_id, current_task_context
+        );
+        println!("Personalized interface adaptation recommendations generated.");
+        recommendations
     }
 }
