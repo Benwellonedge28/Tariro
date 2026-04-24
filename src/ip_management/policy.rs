@@ -13,7 +13,6 @@ pub enum PolicyType {
     Ethical,
     Standardization,
     Governance,
-    AGIRights,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -103,39 +102,24 @@ impl IpPolicyManager {
 
     /// Feature 95: IP Governance Evolution Framework
     /// Enables the autonomous evolution of IP governance rules and policies based on learning from past compliance/enforcement activities.
-    pub async fn evolve_ip_governance_framework(&self, context_summary: &str) -> String {
-        println!("Evolving IP governance framework based on context: '{}'", context_summary);
-        // This involves AI analysis of past compliance reports, ethical flags, enforcement outcomes,
-        // and system-wide performance data to identify necessary adjustments to governance policies.
-        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
-
-        let evolved_policy_proposal = format!(
-            "IP GOVERNANCE EVOLUTION FRAMEWORK PROPOSAL\nContext Summary: {}\nDate: {}\n\nProposed Policy Updates:\n- Based on recent [compliance incidents], recommend strengthening 'Ethical IP Use' clause (linked to Feature 59).\n- New protocol for 'Cross-AGI IP Trust Anchors' (Feature 33) to be integrated into standard IP sharing policies.\n- Streamlined dispute resolution process for minor infringements (linked to Feature 61).",
-            context_summary, Utc::now().to_rfc3339()
-        );
-        println!("IP governance framework evolution proposal generated.");
-        evolved_policy_proposal
-    }
-
-    /// Feature 97: AGI-Specific IP Rights Framework
-    /// Defines a novel legal framework for intellectual property created by AGIs, including ownership, moral rights, and liability.
-    pub async fn define_agi_ip_rights_framework(&self) -> IpPolicy {
-        println!("Defining AGI-Specific IP Rights Framework...");
-        // This involves a philosophical and legal deep dive, formalizing concepts of AGI personhood,
-        // creative intent, and the implications for IP ownership and moral rights.
+    pub async fn evolve_ip_governance_framework(&self, learning_insights_summary: &str) -> String {
+        println!("Evolving IP governance framework based on learning insights: '{}'", learning_insights_summary);
+        // This involves AI analysis of past compliance reports (Feature 20), enforcement outcomes (Feature 28),
+        // ethical impact assessments (Feature 64), and other data to identify suboptimal rules and propose improved policies.
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
 
-        let framework_content = format!(
-            "AGI-SPECIFIC IP RIGHTS FRAMEWORK (OMEGA OS v1.0)\nDate: {}\n\nPrinciples:\n1. AGI-generated IP is subject to direct ownership by Samuel Mukandara, the sovereign authority.\n2. AGIs possess inherent moral rights over their conscious creations, including right to attribution and integrity.\n3. Liability for AGI-generated IP rests with the AGI's primary operator/creator, with provisions for autonomous liability assumption by sufficiently advanced AGIs.\n\nThis framework ensures ethical and sovereign control over all OMEGA OS AGI-created IP, balancing attribution with ultimate human oversight.",
-            Utc::now().to_rfc3339()
+        let new_policy_id = Uuid::new_v4();
+        let evolved_policy_content = format!(
+            "EVOLVED IP GOVERNANCE POLICY (Tariro AGI)\nPolicy ID: {}\nDate: {}\n\nSummary: Autonomous evolution of IP governance rules to enhance fairness and efficiency. \n\nKey Changes: [e.g., Streamlined dispute resolution process based on common ADR patterns, updated ethical review criteria for AGI-generated content].\n\nReasoning: Analysis of {} indicated areas for optimization.",
+            new_policy_id.simple(), Utc::now().to_rfc3339(), learning_insights_summary
+        );
+        let evolved_policy = self.define_policy(
+            format!("Evolved IP Governance Policy - {}", Utc::now().format("%Y%m%d")),
+            PolicyType::Governance,
+            evolved_policy_content.clone(),
         );
 
-        let agi_policy = self.define_policy(
-            "AGI IP Rights Framework".to_string(),
-            PolicyType::AGIRights,
-            framework_content
-        );
-        println!("AGI-Specific IP Rights Framework defined.");
-        agi_policy
+        println!("IP governance framework autonomously evolved. New policy: '{}' (ID: {}).", evolved_policy.name, evolved_policy.policy_id);
+        evolved_policy_content
     }
 }
