@@ -1,13 +1,14 @@
 use super::models::{IpAsset, IpType};
 use chrono::{Utc, Duration};
+use uuid::Uuid; // Added for LicenseAgreement
 
 #[derive(Default)]
 pub struct IpLicensingEngine {}
 
 #[derive(Debug, Clone)]
 pub struct LicenseAgreement {
-    pub license_id: uuid::Uuid,
-    pub asset_id: uuid::Uuid,
+    pub license_id: Uuid,
+    pub asset_id: Uuid,
     pub licensee_id: String,
     pub agreement_terms: String,
     pub start_date: chrono::DateTime<Utc>,
@@ -31,7 +32,7 @@ impl IpLicensingEngine {
         agreement_terms.push_str("Standard clauses for indemnification, warranties, and governing law apply.");
 
         let license = LicenseAgreement {
-            license_id: uuid::Uuid::new_v4(),
+            license_id: Uuid::new_v4(),
             asset_id: asset.id,
             licensee_id: licensee.to_string(),
             agreement_terms,
@@ -57,5 +58,30 @@ impl IpLicensingEngine {
             IpType::IndigenousKnowledge => "Indigenous Knowledge",
             IpType::MetaIp => "Meta IP",
         }
+    }
+
+    /// Feature 58: Dynamic IP Licensing Compliance Monitoring
+    /// Monitors usage of licensed OMEGA OS IP to ensure compliance with agreement terms, detecting and reporting violations.
+    pub async fn monitor_licensing_compliance(&self, license_agreement: &LicenseAgreement) -> Vec<String> {
+        println!("Monitoring compliance for license ID {} (Asset ID: {}).", license_agreement.license_id, license_agreement.asset_id);
+        // This involves continuous monitoring of licensee's public usage, API calls,
+        // and reported metrics, compared against the agreement terms (NLP analysis).
+        tokio::time::sleep(std::time::Duration::from_millis(700)).await;
+
+        let mut violations = Vec::new();
+        // Simulate a compliance check
+        if license_agreement.royalty_rate.is_some() && license_agreement.royalty_rate.unwrap() < 5.0 {
+            // Placeholder: Assume minimum royalty is 5%
+            violations.push(format!("Royalty rate violation: Expected >= 5%, Found {:.2}%", license_agreement.royalty_rate.unwrap()));
+            println!("Compliance violation detected for license {}: Royalty rate.", license_agreement.license_id);
+        } else if license_agreement.is_exclusive && Utc::now().minute() % 2 == 0 { // Simulate occasional violation
+             violations.push("Potential exclusivity violation detected (simulated)".to_string());
+             println!("Compliance violation detected for license {}: Exclusivity.", license_agreement.license_id);
+        }
+
+        if violations.is_empty() {
+            println!("License {} is compliant.", license_agreement.license_id);
+        }
+        violations
     }
 }

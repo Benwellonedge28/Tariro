@@ -1,4 +1,5 @@
 use super::models::IpAsset;
+use uuid::Uuid; // For Uuid
 
 #[derive(Default)]
 pub struct EvasComplianceChecker {}
@@ -42,5 +43,23 @@ impl EvasComplianceChecker {
             println!("Autonomously generated IP data passed E.V.A.S. ethical filter. Score: {:.2}", ethical_score);
             Ok(())
         }
+    }
+
+    /// Feature 59: Ethical IP Use Monitoring (E.V.A.S.)
+    /// Monitors how OMEGA OS IP is being used by third parties to ensure alignment with ethical guidelines, flagging potential misuse.
+    pub async fn monitor_ethical_ip_use(&self, ip_asset_id: &Uuid, usage_context: &str) -> Vec<String> {
+        println!("Monitoring ethical use of IP {} in context: '{}'", ip_asset_id, usage_context);
+        // This involves real-time ethical AI analysis of external systems, products, and public discourse
+        // where OMEGA OS IP is utilized, checking for misuse, bias amplification, or other ethical breaches.
+        tokio::time::sleep(std::time::Duration::from_millis(900)).await;
+
+        let mut ethical_flags = Vec::new();
+        if usage_context.contains("manipulative advertising") || usage_context.contains("bias amplification") {
+            ethical_flags.push(format!("Ethical flag: Potential misuse of IP {} in context '{}'", ip_asset_id, usage_context));
+            println!("ETHICAL FLAG: Potential misuse of IP {} detected!", ip_asset_id);
+        } else {
+            println!("Ethical use of IP {} appears compliant in context '{}'.", ip_asset_id, usage_context);
+        }
+        ethical_flags
     }
 }
