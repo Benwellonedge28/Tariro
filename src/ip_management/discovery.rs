@@ -316,4 +316,119 @@ impl AutonomousDiscoveryEngine {
         println!("Automated patenting initiated for hypothesis: '{}'", ip_title);
         hypothesis_asset
     }
+
+    /// Feature 53: Autonomous Industrial Design & Utility Model Creation
+    /// Generates and files for protection of industrial designs and utility models.
+    pub async fn create_industrial_design_or_utility_model(&self, design_brief: &str) -> IpAsset {
+        println!("Autonomously creating industrial design/utility model based on: '{}'", design_brief);
+        // This involves generative AI for visual design, 3D modeling, and functional optimization.
+        tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+
+        let design_title = format!("Automated Industrial Design: {} ({} Model)", design_brief, Uuid::new_v4().simple());
+        let design_asset = IpAsset {
+            id: Uuid::new_v4(),
+            title: design_title.clone(),
+            ip_type: IpType::Patent, // Industrial Designs often filed as design patents or utility models
+            domain: IpDomain::Design,
+            owner_id: "samuelmukandara@gmail.com".to_string(),
+            status: IpStatus::PendingRegistration,
+            valuation_usd: 800_000.0,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            metadata: {
+                let mut map = std::collections::HashMap::new();
+                map.insert("design_brief".to_string(), design_brief.to_string());
+                map
+            },
+            provenance_hash: "industrial_design_provenance_hash".to_string(),
+            ownership_structure: vec![OwnershipShare {
+                owner_id: "tariro_agi".to_string(),
+                percentage: 100.0,
+                rights: vec!["all".to_string()],
+            }],
+            secrecy_level: super::models::IpSecrecyLevel::Confidential,
+        };
+        println!("Autonomously created industrial design/utility model: '{}'", design_title);
+        design_asset
+    }
+
+    /// Feature 54: IP Discovery from User Interactions
+    /// Identifies new ideas or creative expressions from user interactions or feedback that warrant IP protection.
+    pub async fn discover_ip_from_user_interaction(&self, user_interaction_log: &str) -> Vec<IpAsset> {
+        println!("Analyzing user interaction log for potential IP: '{}'", user_interaction_log);
+        // This involves NLU and pattern recognition on user data, identifying novel suggestions,
+        // creative output, or problem-solving approaches that could be patentable/copyrightable.
+        tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+
+        let mut discovered_ip = Vec::new();
+        if user_interaction_log.contains("innovative solution") {
+            let user_ip_title = format!("User-Inspired Solution ({})", Uuid::new_v4().simple());
+            discovered_ip.push(IpAsset {
+                id: Uuid::new_v4(),
+                title: user_ip_title.clone(),
+                ip_type: IpType::Patent,
+                domain: IpDomain::Algorithm,
+                owner_id: "samuelmukandara@gmail.com".to_string(),
+                status: IpStatus::Conception,
+                valuation_usd: 200_000.0,
+                created_at: Utc::now(),
+                updated_at: Utc::now(),
+                metadata: {
+                    let mut map = std::collections::HashMap::new();
+                    map.insert("source_interaction_log".to_string(), user_interaction_log.to_string());
+                    map
+                },
+                provenance_hash: "user_ip_discovery_hash".to_string(),
+                ownership_structure: vec![OwnershipShare {
+                    owner_id: "user_context".to_string(),
+                    percentage: 50.0,
+                    rights: vec!["usage".to_string()],
+                },
+                OwnershipShare {
+                    owner_id: "tariro_agi".to_string(),
+                    percentage: 50.0,
+                    rights: vec!["all".to_string()],
+                }],
+                secrecy_level: IpSecrecyLevel::Confidential,
+            });
+            println!("Discovered potential IP from user interaction: '{}'", user_ip_title);
+        }
+        discovered_ip
+    }
+
+    /// Feature 55: IP Foresight & Pre-emptive Patenting
+    /// Anticipates future technological needs and patents solutions pre-emptively.
+    pub async fn pre_emptively_patent_future_tech(&self, future_tech_prediction: &str) -> IpAsset {
+        println!("Pre-emptively patenting for future technology: '{}'", future_tech_prediction);
+        // This involves long-range forecasting (leveraging Feature 46), scenario planning,
+        // and speculative AI-driven invention to secure IP in anticipated future markets.
+        tokio::time::sleep(std::time::Duration::from_millis(1800)).await;
+
+        let future_ip_title = format!("Pre-emptive Patent: {} (Anticipated by Tariro AGI)", future_tech_prediction);
+        let future_ip_asset = IpAsset {
+            id: Uuid::new_v4(),
+            title: future_ip_title.clone(),
+            ip_type: IpType::Patent,
+            domain: IpDomain::Algorithm, // Or a new future-facing domain
+            owner_id: "samuelmukandara@gmail.com".to_string(),
+            status: IpStatus::Disclosed,
+            valuation_usd: 10_000_000.0,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            metadata: {
+                let mut map = std::collections::HashMap::new();
+                map.insert("future_tech_prediction".to_string(), future_tech_prediction.to_string());
+                map
+            },
+            provenance_hash: "pre_emptive_patent_hash".to_string(),
+            ownership_structure: vec![OwnershipShare {
+                owner_id: "tariro_agi".to_string(),
+                percentage: 100.0,
+                rights: vec!["all".to_string()],
+            }],
+            secrecy_level: super::models::IpSecrecyLevel::QuantumClassified,
+        };
+        println!("Pre-emptive patent filed for future technology: '{}'", future_ip_title);
+        future_ip_asset
+    }
 }
