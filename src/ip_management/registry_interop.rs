@@ -24,4 +24,18 @@ impl OmniversalRegistryInterop {
         println!("Omniversal registry interaction complete. Response: {}", response);
         response
     }
+
+    /// Feature 79: Cross-AGI IP Rights Translation
+    /// Translates IP rights and licenses into formats understandable and enforceable by other AGI systems.
+    pub fn translate_cross_agi_ip_rights(&self, ip_asset_id: &Uuid, target_agi_id: &str, rights_format: &str) -> String {
+        println!("Translating IP rights for asset {} to AGI {} in format {}.", ip_asset_id, target_agi_id, rights_format);
+        // This involves semantic parsing of OMEGA OS IP rights, mapping them to the legal and operational frameworks
+        // of other AGI systems, ensuring mutual understanding and enforceability.
+        let translated_rights = format!(
+            "CROSS_AGI_RIGHTS_TRANSLATION\nAsset: {}\nTarget AGI: {}\nTranslated Rights ({} format): [Specific rights and obligations in AGI-compatible syntax].",
+            ip_asset_id.simple(), target_agi_id, rights_format
+        );
+        println!("IP rights for {} translated for {}.", ip_asset_id, target_agi_id);
+        translated_rights
+    }
 }

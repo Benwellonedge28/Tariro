@@ -426,9 +426,50 @@ impl AutonomousDiscoveryEngine {
                 percentage: 100.0,
                 rights: vec!["all".to_string()],
             }],
-            secrecy_level: super::models::IpSecrecyLevel::QuantumClassified,
+            secrecy_level: IpSecrecyLevel::QuantumClassified,
         };
         println!("Pre-emptive patent filed for future technology: '{}'", future_ip_title);
         future_ip_asset
+    }
+
+    /// Feature 80: Federated IP Search & Discovery
+    /// Enables distributed search across federated IP databases without centralizing data.
+    pub async fn federated_ip_search_and_discovery(&self, query: &str, federated_databases: Vec<String>) -> Vec<IpAsset> {
+        println!("Performing federated IP search for '{}' across databases: {:?}", query, federated_databases);
+        // This involves querying multiple, potentially disparate, IP registries and databases in a distributed manner,
+        // aggregating and synthesizing results without requiring a central repository of all IP.
+        tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+
+        let mut discovered_ip = Vec::new();
+        // Simulate discovery from federated sources
+        if query.contains("quantum encryption") {
+            let asset_from_federation = IpAsset {
+                id: Uuid::new_v4(),
+                title: format!("Federated Discovery: Quantum Encryption Standard (Query: {})", query),
+                ip_type: IpType::Patent,
+                domain: IpDomain::Protocol,
+                owner_id: "federated_source_agi".to_string(),
+                status: IpStatus::Registered,
+                valuation_usd: 1_200_000.0,
+                created_at: Utc::now(),
+                updated_at: Utc::now(),
+                metadata: {
+                    let mut map = std::collections::HashMap::new();
+                    map.insert("federated_query".to_string(), query.to_string());
+                    map.insert("source_database".to_string(), federated_databases.get(0).unwrap_or(&"unknown".to_string()).clone());
+                    map
+                },
+                provenance_hash: "federated_discovery_hash".to_string(),
+                ownership_structure: vec![OwnershipShare {
+                    owner_id: "federated_source_agi".to_string(),
+                    percentage: 100.0,
+                    rights: vec!["all".to_string()],
+                }],
+                secrecy_level: IpSecrecyLevel::Public,
+            };
+            discovered_ip.push(asset_from_federation);
+        }
+        println!("Federated IP search complete. Discovered {} assets.", discovered_ip.len());
+        discovered_ip
     }
 }
