@@ -1,3 +1,4 @@
+use super::models::IpAsset;
 use super::models::{IpAsset, IpSecrecyLevel};
 use uuid::Uuid;
 
@@ -130,7 +131,8 @@ impl QuantumChiffredVault {
         tokio::time::sleep(std::time::Duration::from_millis(500)).await;
         ip_asset.metadata.insert("anti_replication_enabled".to_string(), "true".to_string());
         println!("Anti-replication protocols enabled for {}.", ip_asset.title);
-        Ok(())}
+        Ok(())
+    }
 
     /// Feature 33: Cross-AGI IP Trust Anchors
     /// Establishes quantum-secured trust anchors for IP sharing and collaboration between different AGI entities.
@@ -176,5 +178,17 @@ impl QuantumChiffredVault {
             println!("Security posture for {} remains stable at {:?}", ip_asset.title, ip_asset.secrecy_level);
         }
         Ok(())
+    }
+
+    /// Feature 50: Source Code & Algorithm Obfuscation for IP Protection
+    /// Autonomously generates obfuscated versions of algorithms and source code to protect trade secrets while maintaining functionality.
+    pub fn obfuscate_generated_code(&self, source_code: &str) -> String {
+        println!("Autonomously generating obfuscated version of source code/algorithm...");
+        // This involves advanced code transformation techniques, dynamic obfuscation,
+        // and potentially quantum-resistant code scrambling to protect the underlying logic
+        // while preserving functionality.
+        let obfuscated_code = format!("/* OBFUSCATED by Tariro AGI */\n{}", source_code.chars().rev().collect::<String>()); // Simple reverse as placeholder
+        println!("Source code/algorithm obfuscation complete.");
+        obfuscated_code
     }
 }

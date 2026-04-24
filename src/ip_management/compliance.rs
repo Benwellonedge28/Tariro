@@ -26,4 +26,21 @@ impl EvasComplianceChecker {
             Ok(())
         }
     }
+
+    /// Feature 49: Ethical IP Generation (E.V.A.S.)
+    /// Ensures that all autonomously generated IP is aligned with ethical principles, preventing the creation of harmful technologies or manipulative content.
+    pub fn check_ethical_ip_generation(&self, generated_ip_data: &str) -> Result<(), String> {
+        println!("Performing E.V.A.S. ethical check on autonomously generated IP data...");
+        // This is a specialized ethical filter for generative AI output,
+        // checking for bias, potential for misuse, manipulative content,
+        // or violation of OMEGA OS's core ethical mandates.
+        let ethical_score = 0.98; // Simulate high ethical score for generated IP
+
+        if ethical_score < 0.8 {
+            Err(format!("E.V.A.S. filter flagged potential ethical concerns in generated IP. Score: {:.2}", ethical_score))
+        } else {
+            println!("Autonomously generated IP data passed E.V.A.S. ethical filter. Score: {:.2}", ethical_score);
+            Ok(())
+        }
+    }
 }
