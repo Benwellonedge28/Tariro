@@ -53,4 +53,28 @@ impl IpAnalyticsEngine {
         println!("Assessed IP: {} - Value: {:.2} USD, Strategy: {}", asset.title, estimated_value, monetization_strategy);
         (estimated_value, monetization_strategy)
     }
+
+    /// Feature 13: IP Risk Assessment & Mitigation
+    /// Continuously assesses legal and market risks associated with each piece of IP and suggests mitigation.
+    pub fn assess_ip_risk_and_mitigation(&self, asset: &IpAsset) -> (Vec<String>, Vec<String>) {
+        let mut risks = Vec::new();
+        let mut mitigations = Vec::new();
+
+        // Simulate various risk factors
+        if asset.valuation_usd > 1_000_000.0 && asset.ip_type == super::models::IpType::Patent {
+            risks.push("High value patent, increased litigation risk".to_string());
+            mitigations.push("Ensure robust legal counsel and monitoring".to_string());
+        }
+        if asset.status == IpStatus::PendingRegistration {
+            risks.push("Vulnerable during pending registration phase".to_string());
+            mitigations.push("Expedite registration process, maintain trade secret status until granted".to_string());
+        }
+        if asset.domain == super::models::IpDomain::CognitiveArchitecture {
+            risks.push("Novel IP domain, uncertain legal precedents".to_string());
+            mitigations.push("Proactively engage legal scholars and policy makers".to_string());
+        }
+
+        println!("IP Risk Assessment for {}: Risks: {:?}, Mitigations: {:?}", asset.title, risks, mitigations);
+        (risks, mitigations)
+    }
 }

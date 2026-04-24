@@ -68,4 +68,23 @@ impl UniversalIpRegistrationEngine {
         println!("Global database integration complete for {}. No immediate conflicts found (simulated).", asset.title);
         Ok(())
     }
+
+    /// Feature 5: Autonomous IP Naming & Branding Engine
+    /// Tariro autonomously generates unique, legally sound names, brands, and logos for all IP, checking for conflicts globally.
+    pub async fn generate_autonomous_ip_name(&self, domain: &IpDomain) -> Result<String, String> {
+        // This would involve advanced NLU and generative AI to create names,
+        // followed by real-time checks against trademark databases (integrating Feature 3 logic).
+        let proposed_name = format!("OMEGA-IP-{}-{}", domain.to_string().to_uppercase(), Uuid::new_v4().to_string().split('-').next().unwrap());
+        println!("Autonomously generated IP name: {}. Checking for conflicts...", proposed_name);
+
+        // Simulate conflict check (can reuse part of integrate_with_global_databases logic)
+        tokio::time::sleep(std::time::Duration::from_millis(300)).await;
+        let conflict_found = false; // For demonstration, assume no conflict
+        if conflict_found {
+            Err(format!("Conflict found for proposed IP name: {}", proposed_name))
+        } else {
+            println!("IP name '{}' is legally sound (simulated).", proposed_name);
+            Ok(proposed_name)
+        }
+    }
 }
