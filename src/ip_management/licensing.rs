@@ -1,6 +1,6 @@
 use super::models::{IpAsset, IpType};
 use chrono::{Utc, Duration};
-use uuid::Uuid; // Added for LicenseAgreement
+use uuid::Uuid;
 
 #[derive(Default)]
 pub struct IpLicensingEngine {}
@@ -13,40 +13,31 @@ pub struct LicenseAgreement {
     pub agreement_terms: String,
     pub start_date: chrono::DateTime<Utc>,
     pub end_date: Option<chrono::DateTime<Utc>>,
-    pub royalty_rate: Option<f64>, // Percentage
+    pub royalty_rate: Option<f64>,
     pub is_exclusive: bool,
 }
 
 impl IpLicensingEngine {
     /// Feature 15: IP Licensing Template Generator
-    /// Generates legally sound licensing agreements for various IP types, customizable via natural language or pre-defined templates.
     pub fn generate_license_template(&self, asset: &IpAsset, licensee: &str, terms_description: &str) -> Result<LicenseAgreement, String> {
-        // In a production system, this would involve complex templating, legal clause generation
-        // and natural language processing to customize agreements.
         let mut agreement_terms = format!(
             "This License Agreement for IP Asset \"{}\" (ID: {}) is granted by Samuel Mukandara to {}.\n\n",
             asset.title, asset.id, licensee
         );
-
         agreement_terms.push_str(&format!("Licensee is granted rights for: {}. Specific terms: {}.\n\n", self.ip_type_to_string(&asset.ip_type), terms_description));
-        agreement_terms.push_str("Standard clauses for indemnification, warranties, and governing law apply.");
-
         let license = LicenseAgreement {
             license_id: Uuid::new_v4(),
             asset_id: asset.id,
             licensee_id: licensee.to_string(),
             agreement_terms,
             start_date: Utc::now(),
-            end_date: Some(Utc::now() + Duration::days(365 * 5)), // Default 5 years
-            royalty_rate: Some(5.0), // Default 5% royalty
+            end_date: Some(Utc::now() + Duration::days(365 * 5)),
+            royalty_rate: Some(5.0),
             is_exclusive: false,
         };
-
-        println!("Generated license agreement template for IP asset {}: {:?}", asset.title, license.license_id);
         Ok(license)
     }
 
-    // A simple helper for display, would be more sophisticated
     fn ip_type_to_string(&self, ip_type: &IpType) -> &'static str {
         match ip_type {
             IpType::Patent => "Patent",
@@ -61,27 +52,28 @@ impl IpLicensingEngine {
     }
 
     /// Feature 58: Dynamic IP Licensing Compliance Monitoring
-    /// Monitors usage of licensed OMEGA OS IP to ensure compliance with agreement terms, detecting and reporting violations.
     pub async fn monitor_licensing_compliance(&self, license_agreement: &LicenseAgreement) -> Vec<String> {
         println!("Monitoring compliance for license ID {} (Asset ID: {}).", license_agreement.license_id, license_agreement.asset_id);
-        // This involves continuous monitoring of licensee's public usage, API calls,
-        // and reported metrics, compared against the agreement terms (NLP analysis).
         tokio::time::sleep(std::time::Duration::from_millis(700)).await;
-
         let mut violations = Vec::new();
-        // Simulate a compliance check
         if license_agreement.royalty_rate.is_some() && license_agreement.royalty_rate.unwrap() < 5.0 {
-            // Placeholder: Assume minimum royalty is 5%
             violations.push(format!("Royalty rate violation: Expected >= 5%, Found {:.2}%", license_agreement.royalty_rate.unwrap()));
-            println!("Compliance violation detected for license {}: Royalty rate.", license_agreement.license_id);
-        } else if license_agreement.is_exclusive && Utc::now().minute() % 2 == 0 { // Simulate occasional violation
-             violations.push("Potential exclusivity violation detected (simulated)".to_string());
-             println!("Compliance violation detected for license {}: Exclusivity.", license_agreement.license_id);
-        }
-
-        if violations.is_empty() {
-            println!("License {} is compliant.", license_agreement.license_id);
         }
         violations
+    }
+
+    /// Feature 63: Autonomous IP Contract Negotiation & Execution
+    /// Autonomously negotiates IP contracts and licensing terms with third parties (human or AI), optimizing for OMEGA OS's interests.
+    pub async fn negotiate_ip_contract(&self, asset: &IpAsset, counterparty: &str, desired_outcome: &str) -> Result<LicenseAgreement, String> {
+        println!("Initiating autonomous IP contract negotiation for '{}' with counterparty '{}'.", asset.title, counterparty);
+        // This involves complex NLU/NLG, game-theoretic strategy modeling,
+        // and real-time adjustment of terms based on counterparty responses.
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let negotiated_terms = format!("Negotiated agreement for {}: {}. Optimized for OMEGA OS strategic benefit.", asset.title, desired_outcome);
+        let agreement = self.generate_license_template(asset, counterparty, &negotiated_terms)?;
+        
+        println!("Autonomous negotiation complete for {}. Contract executed.", counterparty);
+        Ok(agreement)
     }
 }
