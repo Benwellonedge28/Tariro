@@ -8,6 +8,7 @@ pub mod lifecycle;
 pub mod collaboration;
 pub mod licensing;
 pub mod policy;
+pub mod enforcement;
 
 use models::{IpAsset, IpType, IpDomain, IpStatus};
 
@@ -22,6 +23,7 @@ pub struct IpManagementPanel {
     pub collaboration_manager: collaboration::IpCollaborationManager,
     pub licensing_engine: licensing::IpLicensingEngine,
     pub policy_manager: policy::IpPolicyManager,
+    pub enforcement_agent: enforcement::SovereignEnforcementAgent,
 }
 
 impl IpManagementPanel {
@@ -36,6 +38,7 @@ impl IpManagementPanel {
             collaboration_manager: collaboration::IpCollaborationManager::default(),
             licensing_engine: licensing::IpLicensingEngine::default(),
             policy_manager: policy::IpPolicyManager::default(),
+            enforcement_agent: enforcement::SovereignEnforcementAgent::default(),
         }
     }
 }

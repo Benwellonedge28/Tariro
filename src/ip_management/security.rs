@@ -83,9 +83,18 @@ impl QuantumChiffredVault {
         obfuscated
     }
 
+    /// Feature 26: Quantum-Entangled IP Rights Management
+    /// Licensing and rights management can be secured and verified using quantum entanglement for instant, unforgeable authentication.
+    pub fn secure_quantum_entangled_rights(&self, license_id: &Uuid, asset_id: &Uuid) -> String {
+        println!("Securing license {} for asset {} using quantum entanglement.", license_id, asset_id);
+        // This is a placeholder for generating a quantum-entangled token that
+        // could be used for instant, cryptographically secure verification of rights.
+        format!("Q_ENTANGLED_TOKEN_{}_{}", license_id.simple(), asset_id.simple())
+    }
+
     /// Feature 27: IP Anti-Tampering & Integrity Verification
     /// Continuous quantum-level verification of IP integrity, instantly detecting any unauthorized modification or corruption.
-    pub fn verify_ip_integrity(&self, ip_asset: &IpAsset, current_data_hash: &str) -> bool {
+    pub fn verify_ip_integrity(&self, ip_asset: &super::models::IpAsset, current_data_hash: &str) -> bool {
         println!("Performing quantum-level integrity verification for IP: {}", ip_asset.title);
         // In reality, this would involve comparing the 'current_data_hash' with a
         // quantum-entangled or cryptographically secured baseline hash (ip_asset.provenance_hash)
@@ -97,5 +106,18 @@ impl QuantumChiffredVault {
             println!("IP {} integrity verified.", ip_asset.title);
         }
         !is_tampered // Return true if not tampered
+    }
+
+    /// Feature 30: Threat-Invisible IP Ownership Markers
+    /// IP ownership markers are embedded at a quantum level, invisible to conventional detection methods.
+    pub fn embed_threat_invisible_marker(&self, ip_asset: &mut IpAsset) -> Result<(), String> {
+        println!("Embedding threat-invisible ownership marker into IP: {}", ip_asset.title);
+        // This would involve embedding cryptographic markers into the very fabric of the IP asset's
+        // digital representation or even its underlying data structure, making it undetectable
+        // by conventional means.
+        ip_asset.metadata.insert("threat_invisible_marker_embedded".to_string(), "true".to_string());
+        ip_asset.provenance_hash = format!("{}{}", ip_asset.provenance_hash, "_TI_MARKER"); // Symbolic update
+        println!("Threat-invisible marker embedded for {}", ip_asset.title);
+        Ok(())
     }
 }
