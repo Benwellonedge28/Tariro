@@ -471,7 +471,41 @@ impl AutonomousDiscoveryEngine {
             ownership_structure: base_ip_asset.ownership_structure.clone(),
             secrecy_level: base_ip_asset.secrecy_level.clone(),
         };
-        println!("Generative IP variant '{}' created from base IP '{}'.", variant_title, base_ip_asset.title);
+        println!("Generative IP variant '{}' created from base IP '{}'.", base_ip_asset.title, variant_asset.title);
         variant_asset
+    }
+
+    /// Feature 92: IP Mutation & Adaptation for Robustness
+    /// Introduces controlled "mutations" into IP (e.g., algorithm variants) to enhance resilience against attack or obsolescence.
+    pub async fn mutate_ip_for_robustness(&self, base_ip_asset: &super::models::IpAsset, adaptation_strategy: &str) -> super::models::IpAsset {
+        println!("Mutating IP '{}' for robustness using strategy: '{}'", base_ip_asset.title, adaptation_strategy);
+        // This involves generative AI creating diverse variants of the IP (e.g., algorithm with different parameters,
+        // code with obfuscation layers, creative work with stylistic changes) to test resilience and adaptability.
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let mutated_title = format!("{} (Robustness Adaptation)", base_ip_asset.title);
+        let mutated_asset = super::models::IpAsset {
+            id: Uuid::new_v4(),
+            title: mutated_title.clone(),
+            ip_type: base_ip_asset.ip_type.clone(),
+            domain: base_ip_asset.domain.clone(),
+            owner_id: "samuelmukandara@gmail.com".to_string(),
+            status: IpStatus::Disclosed,
+            valuation_usd: base_ip_asset.valuation_usd, // Value might stay similar or increase with robustness
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            metadata: {
+                let mut map = base_ip_asset.metadata.clone();
+                map.insert("base_ip_id".to_string(), base_ip_asset.id.simple().to_string());
+                map.insert("adaptation_strategy".to_string(), adaptation_strategy.to_string());
+                map.insert("mutation_details".to_string(), "Algorithmic parameters adjusted for chaotic resilience.".to_string());
+                map
+            },
+            provenance_hash: format!("{}_mutated_{}", base_ip_asset.provenance_hash, Uuid::new_v4().simple()),
+            ownership_structure: base_ip_asset.ownership_structure.clone(),
+            secrecy_level: base_ip_asset.secrecy_level.clone(),
+        };
+        println!("IP '{}' successfully mutated for robustness. New variant: '{}'.", base_ip_asset.title, mutated_title);
+        mutated_asset
     }
 }

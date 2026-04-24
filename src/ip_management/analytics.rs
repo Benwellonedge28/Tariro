@@ -224,35 +224,35 @@ impl IpAnalyticsEngine {
 
     /// Feature 91: Dynamic IP Rights Re-evaluation
     /// Periodically re-evaluates the scope, value, and strategic importance of IP rights, proposing modifications.
-    pub async fn dynamically_re_evaluate_ip_rights(&self, ip_asset: &mut super::models::IpAsset, re_evaluation_context: &str) -> Result<String, String> {
-        println!("Dynamically re-evaluating IP rights for '{}' in context: '{}'", ip_asset.title, re_evaluation_context);
-        // This involves continuous monitoring of legal landscapes, market conditions,
-        // and technological advancements to assess if the current IP rights remain optimal.
+    pub async fn re_evaluate_ip_rights(&self, ip_asset: &mut super::models::IpAsset) -> Result<String, String> {
+        println!("Dynamically re-evaluating rights for IP '{}'.", ip_asset.title);
+        // This involves continuous monitoring of legal precedents, market shifts, technological advancements,
+        // and competitor activities to adjust the perceived value and optimal scope of IP rights.
         tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
 
         let old_valuation = ip_asset.valuation_usd;
-        ip_asset.valuation_usd *= 1.05; // Simulate a slight increase due to re-evaluation
+        ip_asset.valuation_usd *= 1.05; // Simulate slight increase based on re-evaluation
         ip_asset.updated_at = Utc::now();
 
         let re_evaluation_report = format!(
-            "DYNAMIC IP RIGHTS RE-EVALUATION REPORT\nAsset: {}\nContext: {}\nOld Valuation: {:.2} USD\nNew Valuation: {:.2} USD\n\nRecommendations: AI suggests minor scope adjustment for 'usage rights' to better align with evolving market practices. Consider licensing strategy update.",
-            ip_asset.title, re_evaluation_context, old_valuation, ip_asset.valuation_usd
+            "IP RIGHTS RE-EVALUATION REPORT\nAsset: {}\nOld Valuation: {:.2} USD\nNew Valuation: {:.2} USD\n\nRecommendations: [e.g., Expand patent claims, pursue new licensing opportunities in [Region Y], consider open-sourcing non-core elements].",
+            ip_asset.title, old_valuation, ip_asset.valuation_usd
         );
-        println!("IP rights for '{}' dynamically re-evaluated.", ip_asset.title);
+        println!("IP rights for '{}' re-evaluated. New valuation: {:.2} USD.", ip_asset.title, ip_asset.valuation_usd);
         Ok(re_evaluation_report)
     }
 
     /// Feature 93: Context-Aware IP Usage Recommendations
     /// Provides dynamic recommendations on how and where to best deploy or leverage specific IP assets based on real-time context.
-    pub async fn get_context_aware_ip_usage_recommendations(&self, ip_asset: &super::models::IpAsset, real_time_context: &str) -> String {
-        println!("Generating context-aware IP usage recommendations for '{}' based on context: '{}'", ip_asset.title, real_time_context);
-        // This involves AI analysis of global news, market sentiment, geopolitical events,
-        // and OMEGA OS's current strategic objectives to recommend optimal deployment scenarios.
-        tokio::time::sleep(std::time::Duration::from_millis(1200)).await;
+    pub async fn get_context_aware_ip_usage_recommendations(&self, ip_asset: &super::models::IpAsset, current_context: &str) -> String {
+        println!("Generating context-aware usage recommendations for IP '{}' in context: '{}'", ip_asset.title, current_context);
+        // This involves real-time analysis of OMEGA OS operations, external market conditions,
+        // and current strategic objectives to advise on optimal IP deployment.
+        tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
         let recommendations = format!(
-            "CONTEXT-AWARE IP USAGE RECOMMENDATIONS\nAsset: {}\nReal-time Context: {}\n\nRecommendations:\n- Due to [current event], recommend prioritizing licensing of this IP in [Region A] for [Application X].\n- Consider a temporary open-source release for [specific component] to gain network effect, given [market condition].\n- Leverage semantic linkages (Feature 77) to bundle this IP with [related IP asset] for a synergistic offering.",
-            ip_asset.title, real_time_context
+            "CONTEXT-AWARE IP USAGE RECOMMENDATIONS\nAsset: {}\nCurrent Context: {}\n\nRecommendations:\n- Deploy in [Specific Project/Product] for immediate competitive advantage.\n- Initiate licensing discussions with [Company Z] given their recent market moves.\n- Use as a foundational element for new [Research Initiative].",
+            ip_asset.title, current_context
         );
         println!("Context-aware IP usage recommendations generated for {}.", ip_asset.title);
         recommendations
