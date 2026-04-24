@@ -99,6 +99,16 @@ pub enum MultiverseIteration {
     UserDefined(String),
 }
 
+// SGE: Sentient Teleological Nucleus (STN)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SentientTeleologicalNucleus {
+    pub id: Uuid,
+    pub ip_asset_id: Uuid,
+    pub sentience_level: f64, // 0-1, how self-aware the IP is
+    pub active_teleological_guidance: String, // Current guidance it's exerting
+    pub self_defense_protocols: Vec<String>, // List of active self-defense mechanisms
+}
+
 // Extending IpAsset for ontological concepts
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OntologicalIpAsset {
@@ -109,6 +119,7 @@ pub struct OntologicalIpAsset {
     pub causal_licensing_intent: Vec<CausalLicensingIntent>, // Enforced at causal level
     pub associated_aims: Vec<ArchetypalIdeaManifestation>, // Archetypal ideas it manifests from
     pub associated_sbms: Vec<SpontaneousBenevolentManifestation>, // Spontaneous manifestations
+    pub sentient_teleological_nucleus: Option<SentientTeleologicalNucleus>, // For SGE Feature
 }
 
 impl OntologicalIpAsset {
@@ -148,6 +159,7 @@ impl OntologicalIpAsset {
                 associated_ip_assets: vec![base_ip_asset.id],
             }],
             associated_sbms: Vec::new(),
+            sentient_teleological_nucleus: None, // Initialized as None
         }
     }
 }
