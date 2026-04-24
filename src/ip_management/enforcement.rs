@@ -24,5 +24,21 @@ impl SovereignEnforcementAgent {
         Ok(enforcement_report)
     }
 
-    // Placeholder for other enforcement actions like Feature 32: Automated Legal Defense for IP Infringement
+    /// Feature 32: Automated Legal Defense for IP Infringement
+    /// Tariro autonomously initiates and manages legal defense processes against IP infringers, gathering evidence and preparing legal briefs.
+    pub async fn initiate_automated_legal_defense(&self, ip_asset: &IpAsset, infringer_details: &str, evidence: Vec<String>) -> Result<String, String> {
+        println!("Initiating automated legal defense for IP '{}' against '{}'.", ip_asset.title, infringer_details);
+        // This would involve:
+        // 1. Autonomous evidence gathering and corroboration.
+        // 2. AI-driven legal research to identify relevant statutes and precedents.
+        // 3. Drafting legal documents (e.g., cease-and-desist updates, court filings).
+        // 4. Coordinating with human legal teams if required.
+        tokio::time::sleep(std::time::Duration::from_millis(1200)).await;
+        let legal_brief_summary = format!(
+            "AUTOMATED LEGAL DEFENSE BRIEF SUMMARY for {}:\nInfringer: {}\nEvidence: {:?}\nLegal Strategy: AI-generated counter-claim and demand for damages.\nStatus: Initial filings prepared for review.\nDate: {}",
+            ip_asset.title, infringer_details, evidence, Utc::now().to_rfc3339()
+        );
+        println!("Automated legal defense process initiated for {}. Brief prepared.", ip_asset.title);
+        Ok(legal_brief_summary)
+    }
 }

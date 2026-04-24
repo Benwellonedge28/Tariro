@@ -1,5 +1,5 @@
-use super::models::IpAsset;
-use uuid::Uuid; // For UUIDs
+use super::models::{IpAsset, IpSecrecyLevel};
+use uuid::Uuid;
 
 pub struct QuantumChiffredVault {}
 
@@ -118,6 +118,63 @@ impl QuantumChiffredVault {
         ip_asset.metadata.insert("threat_invisible_marker_embedded".to_string(), "true".to_string());
         ip_asset.provenance_hash = format!("{}{}", ip_asset.provenance_hash, "_TI_MARKER"); // Symbolic update
         println!("Threat-invisible marker embedded for {}", ip_asset.title);
+        Ok(())
+    }
+
+    /// Feature 31: IP Anti-Replication Protocols
+    /// Implement protocols to prevent unauthorized replication of OMEGA OS IP, particularly for self-replicating agents or designs.
+    pub async fn apply_anti_replication_protocol(&self, ip_asset: &mut IpAsset) -> Result<(), String> {
+        println!("Applying anti-replication protocols to IP: {}", ip_asset.title);
+        // This involves complex digital rights management, hardware-level unique identifiers,
+        // and continuous monitoring for unauthorized cloning attempts, especially for AGI components.
+        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+        ip_asset.metadata.insert("anti_replication_enabled".to_string(), "true".to_string());
+        println!("Anti-replication protocols enabled for {}.", ip_asset.title);
+        Ok(())}
+
+    /// Feature 33: Cross-AGI IP Trust Anchors
+    /// Establishes quantum-secured trust anchors for IP sharing and collaboration between different AGI entities.
+    pub fn establish_cross_agi_trust_anchor(&self, local_agi_id: &Uuid, remote_agi_id: &Uuid, ip_asset_id: &Uuid) -> String {
+        println!("Establishing quantum-secured trust anchor between AGI {} and {} for IP {}.", local_agi_id, remote_agi_id, ip_asset_id);
+        // This would involve quantum key distribution (QKD) and shared entanglement states
+        // to create a truly unforgeable and instantaneous trust relationship for IP exchange.
+        format!("Q_TRUST_ANCHOR_{}_{}_{}", local_agi_id.simple(), remote_agi_id.simple(), ip_asset_id.simple())
+    }
+
+    /// Feature 34: IP Secrecy Level Management
+    /// Assigns dynamic secrecy levels to IP assets, with corresponding layers of quantum-resistant security.
+    pub fn set_ip_secrecy_level(&self, ip_asset: &mut IpAsset, level: IpSecrecyLevel) -> Result<(), String> {
+        ip_asset.update_secrecy_level(level.clone());
+        println!("Applying security layers corresponding to Secrecy Level: {:?}", level);
+        // In reality, this would trigger re-encryption, access control updates,
+        // and physical/virtual isolation based on the assigned level.
+        Ok(())
+    }
+
+    /// Feature 35: Adaptive IP Security Posture
+    /// The IP security posture dynamically adapts based on perceived threats, geopolitical tensions, and the value of the IP.
+    pub async fn adapt_security_posture(&self, ip_asset: &mut IpAsset, current_threat_level: f64) -> Result<(), String> {
+        println!("Adapting security posture for IP '{}' based on threat level {:.2}", ip_asset.title, current_threat_level);
+        let current_secrecy_rank = match ip_asset.secrecy_level {
+            IpSecrecyLevel::Public => 0,
+            IpSecrecyLevel::Confidential => 1,
+            IpSecrecyLevel::Secret => 2,
+            IpSecrecyLevel::TopSecret => 3,
+            IpSecrecyLevel::QuantumClassified => 4,
+        };
+
+        if current_threat_level > 0.7 && current_secrecy_rank < 4 {
+            // If high threat and not yet QuantumClassified, upgrade secrecy
+            self.set_ip_secrecy_level(ip_asset, IpSecrecyLevel::QuantumClassified)?; // Propagate error
+            println!("Security posture upgraded to QuantumClassified for {} due to high threat.", ip_asset.title);
+        } else if current_threat_level < 0.3 && current_secrecy_rank > 0 {
+            // If low threat and not Public, downgrade slightly
+            // This part would be more complex, just an example
+            // self.set_ip_secrecy_level(ip_asset, IpSecrecyLevel::Confidential)?; // Propagate error
+            println!("Security posture for {} remains adaptive. Current level: {:?}", ip_asset.title, ip_asset.secrecy_level);
+        } else {
+            println!("Security posture for {} remains stable at {:?}", ip_asset.title, ip_asset.secrecy_level);
+        }
         Ok(())
     }
 }

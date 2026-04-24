@@ -1,6 +1,7 @@
-use serde::{Serialize, Deserialize};
+use super::models::{IpAsset, IpSecrecyLevel};
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum IpType {
@@ -60,6 +61,7 @@ pub struct IpAsset {
     pub metadata: std::collections::HashMap<String, String>,
     pub provenance_hash: String, // Quantum-secured hash
     pub ownership_structure: Vec<OwnershipShare>, // New field for Feature 10
+    pub secrecy_level: IpSecrecyLevel, // New field for Feature 34
 }
 
 impl IpAsset {
@@ -73,5 +75,12 @@ impl IpAsset {
     pub fn update_provenance_hash(&mut self, new_hash: String) {
         self.provenance_hash = new_hash;
         self.updated_at = Utc::now();
+    }
+
+    /// Feature 34: IP Secrecy Level Management - Update secrecy level
+    pub fn update_secrecy_level(&mut self, new_level: IpSecrecyLevel) {
+        self.secrecy_level = new_level;
+        self.updated_at = Utc::now();
+        println!("IP Asset '{}' secrecy level updated to {:?}", self.title, new_level);
     }
 }
