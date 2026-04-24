@@ -14,6 +14,7 @@ pub mod legal_database;
 pub mod serialization;
 pub mod exchange;
 pub mod registry_interop;
+pub mod gateway;
 
 use models::{IpAsset, IpType, IpDomain, IpStatus};
 
@@ -34,6 +35,7 @@ pub struct IpManagementPanel {
     pub ip_serializer: serialization::IpSerializationEngine,
     pub ip_exchange_protocol: exchange::DecentralizedIpExchange,
     pub registry_interop: registry_interop::OmniversalRegistryInterop,
+    pub api_gateway: gateway::IpApiGateway,
 }
 
 impl IpManagementPanel {
@@ -54,6 +56,7 @@ impl IpManagementPanel {
             ip_serializer: serialization::IpSerializationEngine::default(),
             ip_exchange_protocol: exchange::DecentralizedIpExchange::default(),
             registry_interop: registry_interop::OmniversalRegistryInterop::default(),
+            api_gateway: gateway::IpApiGateway::default(),
         }
     }
 }

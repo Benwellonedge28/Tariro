@@ -1,6 +1,7 @@
 use super::models::{IpAsset, IpStatus, IpType, IpDomain, IpSecrecyLevel};
 use std::collections::HashMap;
 use chrono::Utc;
+use uuid::Uuid; // For Uuid
 
 #[derive(Default)]
 pub struct IpAnalyticsEngine;
@@ -206,5 +207,20 @@ impl IpAnalyticsEngine {
         );
         println!("Real-time IP threat intelligence feed updated.");
         threat_feed
+    }
+
+    /// Feature 77: Semantic IP Linkage & Referencing
+    /// Establishes semantic links between related IP assets, enabling intelligent discovery and context-aware usage.
+    pub fn establish_semantic_ip_linkage(&self, ip_asset_a: &IpAsset, ip_asset_b: &IpAsset, relationship_type: &str) -> String {
+        println!("Establishing semantic linkage between IP '{}' and '{}' (Relationship: {})", ip_asset_a.title, ip_asset_b.title, relationship_type);
+        // This involves building and querying an IP knowledge graph, using NLU to understand
+        // relationships within IP metadata and content, and suggesting new linkages.
+        let linkage_id = Uuid::new_v4().simple().to_string();
+        let linkage_confirmation = format!(
+            "SEMANTIC_LINKAGE_CONFIRMATION\nLink ID: {}\nAsset A: {} (ID: {}\nAsset B: {} (ID: {}\nRelationship: {}\nStatus: Link established.",
+            linkage_id, ip_asset_a.title, ip_asset_a.id.simple(), ip_asset_b.title, ip_asset_b.id.simple(), relationship_type
+        );
+        println!("Semantic linkage established between {} and {}.", ip_asset_a.title, ip_asset_b.title);
+        linkage_confirmation
     }
 }
