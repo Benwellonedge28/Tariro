@@ -222,4 +222,61 @@ impl AutonomousDiscoveryEngine {
         println!("Autonomously generated data structure/protocol IP: '{}'", ds_name);
         ds_asset
     }
+
+    /// Feature 43: IP Gap Analysis & Proactive Creation
+    /// Identifies areas where OMEGA OS lacks IP protection and autonomously generates relevant inventions or creative works to fill those gaps.
+    pub async fn perform_ip_gap_analysis_and_create(&self, current_ip_assets: &[IpAsset], strategic_domains: Vec<IpDomain>) -> Vec<IpAsset> {
+        println!("Performing IP Gap Analysis and Proactive Creation...");
+        tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+
+        let mut newly_created_ip = Vec::new();
+        for domain in strategic_domains {
+            let has_ip_in_domain = current_ip_assets.iter().any(|asset| asset.domain == domain);
+            if !has_ip_in_domain {
+                println!("Detected IP gap in domain: {:?}. Proactively creating new IP.", domain);
+                // Simulate creating a new algorithm or creative work to fill the gap
+                let new_asset = self.generate_algorithm_ip(&format!("Filling {} IP gap", domain.to_string())).await;
+                newly_created_ip.push(new_asset);
+            }
+        }
+        println!("IP Gap Analysis complete. Proactively created {} new IP assets.", newly_created_ip.len());
+        newly_created_ip
+    }
+
+    /// Feature 45: Cross-Domain IP Synthesis
+    /// Generates IP by combining concepts from disparate domains (e.g., a musical composition influencing a new algorithm, an ethical framework inspiring a new material).
+    pub async fn synthesize_cross_domain_ip(&self, domain_a: IpDomain, domain_b: IpDomain, concept_link: &str) -> IpAsset {
+        println!("Synthesizing cross-domain IP from {:?} and {:?} with link: '{}'", domain_a, domain_b, concept_link);
+        // This involves complex AI reasoning, analogy-making, and conceptual blending across diverse knowledge graphs.
+        tokio::time::sleep(std::time::Duration::from_millis(1800)).await;
+
+        let synthesized_title = format!("Synthesized IP: {} & {} ({})", domain_a.to_string(), domain_b.to_string(), concept_link);
+        let synthesized_asset = IpAsset {
+            id: Uuid::new_v4(),
+            title: synthesized_title.clone(),
+            ip_type: IpType::Patent, // Likely patentable for novel cross-domain solutions
+            domain: IpDomain::MetaIp, // A new domain for truly synthesized IP
+            owner_id: "samuelmukandara@gmail.com".to_string(),
+            status: IpStatus::Disclosed,
+            valuation_usd: 7_000_000.0,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            metadata: {
+                let mut map = std::collections::HashMap::new();
+                map.insert("source_domain_a".to_string(), domain_a.to_string());
+                map.insert("source_domain_b".to_string(), domain_b.to_string());
+                map.insert("concept_link".to_string(), concept_link.to_string());
+                map
+            },
+            provenance_hash: "cross_domain_synthesis_hash".to_string(),
+            ownership_structure: vec![OwnershipShare {
+                owner_id: "tariro_agi".to_string(),
+                percentage: 100.0,
+                rights: vec!["all".to_string()],
+            }],
+            secrecy_level: super::models::IpSecrecyLevel::QuantumClassified,
+        };
+        println!("Autonomously synthesized cross-domain IP: '{}'", synthesized_title);
+        synthesized_asset
+    }
 }

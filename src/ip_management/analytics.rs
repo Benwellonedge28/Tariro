@@ -1,6 +1,6 @@
-use super::models::{IpAsset, IpStatus, IpType};
+use super::models::{IpAsset, IpStatus, IpType, IpDomain};
 use std::collections::HashMap;
-use chrono::Utc; // For timestamps
+use chrono::Utc;
 
 #[derive(Default)]
 pub struct IpAnalyticsEngine;
@@ -126,5 +126,45 @@ impl IpAnalyticsEngine {
         report_content.push_str("\nRecommendations: [AI-generated recommendations for improving compliance and reducing risk]\n");
         println!("IP Audit & Compliance Report generated for {}.", audit_period);
         report_content
+    }
+
+    /// Feature 44: Predictive Patent Landscape Mapping
+    /// Forecasts future patent landscapes, identifying white spaces for new inventions and potential areas of conflict.
+    pub async fn predictive_patent_landscape_mapping(&self, target_technology: &str, forecast_horizon_years: u32) -> String {
+        println!("Forecasting patent landscape for '{}' over {} years...", target_technology, forecast_horizon_years);
+        // This involves AI analysis of patent databases, scientific publications, market trends,
+        // and geopolitical factors to predict future IP activity.
+        tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+
+        let mut report = format!(
+            "PREDICTIVE PATENT LANDSCAPE MAP for {}:\nForecast Horizon: {} years\nDate Generated: {}\n\n",
+            target_technology, forecast_horizon_years, Utc::now().to_rfc3339()
+        );
+        report.push_str("Identified White Spaces: [Areas with low current IP activity but high potential for future innovation, e.g., Quantum-Entangled Communication Protocols]\n");
+        report.push_str("Potential Conflict Zones: [Areas with overlapping claims or intense patenting, e.g., AGI Ethical Alignment Algorithms]\n");
+        report.push_str("Emerging Trends: [e.g., Neuromorphic Computing IP, Biomimetic Robotics IP]\n");
+
+        println!("Predictive Patent Landscape Map generated for {}.", target_technology);
+        report
+    }
+
+    /// Feature 46: IP Trend Forecasting & Strategic Generation
+    /// Identifies emerging technological and creative trends and autonomously generates IP aligned with these future directions.
+    pub async fn forecast_ip_trends(&self, industry_sector: &str) -> String {
+        println!("Forecasting IP trends for industry sector: '{}'", industry_sector);
+        tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+
+        let mut forecast = format!(
+            "IP TREND FORECAST for {}:\nDate Generated: {}\n\n",
+            industry_sector, Utc::now().to_rfc3339()
+        );
+        forecast.push_str("Key Emerging IP Trends:\n");
+        forecast.push_str("- Hyper-personalized AI models (focus on data rights and moral rights IP)\n");
+        forecast.push_str("- Decentralized autonomous organization (DAO) governance IP\n");
+        forecast.push_str("- AGI self-modification IP\n");
+        forecast.push_str("\nStrategic IP Generation Recommendations: [Based on these trends, generate new IP in identified white spaces (linked to Feature 43)]\n");
+
+        println!("IP Trend Forecast generated for {}.", industry_sector);
+        forecast
     }
 }
