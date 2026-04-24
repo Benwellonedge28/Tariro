@@ -4,6 +4,7 @@ pub mod security;
 pub mod compliance;
 pub mod discovery;
 pub mod analytics;
+pub mod lifecycle;
 
 use models::{IpAsset, IpType, IpDomain, IpStatus};
 
@@ -13,6 +14,7 @@ pub struct IpManagementPanel {
     pub security_vault: security::QuantumChiffredVault,
     pub compliance_checker: compliance::EvasComplianceChecker,
     pub discovery_engine: discovery::AutonomousDiscoveryEngine,
+    pub lifecycle_manager: lifecycle::IpLifecycleManager,
 }
 
 impl IpManagementPanel {
@@ -22,6 +24,7 @@ impl IpManagementPanel {
             security_vault: security::QuantumChiffredVault::new(),
             compliance_checker: compliance::EvasComplianceChecker::default(),
             discovery_engine: discovery::AutonomousDiscoveryEngine::default(),
+            lifecycle_manager: lifecycle::IpLifecycleManager,
         }
     }
 }
