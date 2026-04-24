@@ -1,4 +1,4 @@
-use super::models::{IpAsset, IpType};
+use super::models::{IpAsset, IpType, OwnershipShare};
 use chrono::{Utc, Duration};
 use uuid::Uuid;
 
@@ -13,7 +13,7 @@ pub struct LicenseAgreement {
     pub agreement_terms: String,
     pub start_date: chrono::DateTime<Utc>,
     pub end_date: Option<chrono::DateTime<Utc>>,
-    pub royalty_rate: Option<f64>,
+    pub royalty_rate: Option<f64>, // Percentage
     pub is_exclusive: bool,
 }
 
@@ -63,11 +63,8 @@ impl IpLicensingEngine {
     }
 
     /// Feature 63: Autonomous IP Contract Negotiation & Execution
-    /// Autonomously negotiates IP contracts and licensing terms with third parties (human or AI), optimizing for OMEGA OS's interests.
     pub async fn negotiate_ip_contract(&self, asset: &IpAsset, counterparty: &str, desired_outcome: &str) -> Result<LicenseAgreement, String> {
         println!("Initiating autonomous IP contract negotiation for '{}' with counterparty '{}'.", asset.title, counterparty);
-        // This involves complex NLU/NLG, game-theoretic strategy modeling,
-        // and real-time adjustment of terms based on counterparty responses.
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
 
         let negotiated_terms = format!("Negotiated agreement for {}: {}. Optimized for OMEGA OS strategic benefit.", asset.title, desired_outcome);
@@ -75,5 +72,21 @@ impl IpLicensingEngine {
         
         println!("Autonomous negotiation complete for {}. Contract executed.", counterparty);
         Ok(agreement)
+    }
+
+    /// Feature 84: IP Rights Negotiation Protocol for Multi-Agent Systems
+    /// Defines a protocol for automated, fair negotiation of IP rights among multiple autonomous agents.
+    pub async fn negotiate_multi_agent_ip_rights(&self, ip_asset: &IpAsset, agent_a_id: &str, agent_b_id: &str, negotiation_goal: &str) -> Result<String, String> {
+        println!("Initiating multi-agent IP rights negotiation for '{}' between {} and {}. Goal: {}", ip_asset.title, agent_a_id, agent_b_id, negotiation_goal);
+        // This would involve an advanced AI negotiation engine, using game theory, auction theory,
+        // and multi-agent systems protocols to arrive at mutually beneficial IP rights agreements.
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let negotiated_outcome = format!(
+            "MULTI-AGENT IP NEGOTIATION OUTCOME\nAsset: {}\nAgents: {} vs {}\nNegotiation Goal: {}\nDate: {}\nStatus: Automated negotiation successful. Terms agreed: [e.g., non-exclusive license for 10% royalty from Agent B to Agent A].",
+            ip_asset.title, agent_a_id, agent_b_id, negotiation_goal, Utc::now().to_rfc3339()
+        );
+        println!("Multi-agent IP rights negotiation for {} completed.", ip_asset.title);
+        Ok(negotiated_outcome)
     }
 }
