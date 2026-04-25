@@ -112,6 +112,57 @@ pub struct ZeroDayExploitReport {
     pub ethical_approval_status: String, // "Approved for Defensive Use"
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EthicalIntelligenceReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub intelligence_source: String,
+    pub ethical_compliance_status: String, // "E.V.A.S. Compliant"
+    pub surveillance_justification: String,
+    pub proportionality_assessment: String, // "Targeted & Proportionate"
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MultiLingualContentAnalysisReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub content_source: String,
+    pub original_language: String,
+    pub translated_summary: String,
+    pub extracted_meaning: String,
+    pub cryptographic_analysis_status: String, // "Decrypted", "Undecrypted"
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ThreatScenarioReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub scenario_name: String,
+    pub threat_trend_forecast: String,
+    pub worst_case_scenario_description: String,
+    pub omega_os_defense_plan: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PsyOpsCountermeasureReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub psyops_campaign_id: Uuid,
+    pub adversarial_narrative: String,
+    pub counter_narrative_deployed: String,
+    pub impact_on_omega_os_reputation: String, // "Neutralized", "Minor Damage"
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SupplyChainCompromiseReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub compromised_partner_id: Uuid,
+    pub compromise_details: String,
+    pub autonomous_neutralization_actions: Vec<String>,
+    pub supply_chain_integrity_status: String, // "Restored", "Compromised"
+}
+
 
 #[derive(Default)]
 pub struct DeepThreatIntelligence {}
@@ -363,6 +414,126 @@ impl DeepThreatIntelligence {
             ethical_approval_status: ethical_approval,
         };
         println!("Zero-Day Exploit Discovery & Mitigation for '{}' complete. Vulnerability: '{}'. Mitigation Status: {}.", target_system, report.target_system_vulnerability, report.mitigation_strategy_deployed);
+        report
+    }
+
+    /// Feature 11: Ethical Intelligence Gathering Protocols (E.V.A.S. Compliant)
+    /// All intelligence gathering adheres strictly to OMEGA OS ethical frameworks, ensuring that surveillance is targeted, necessary, and proportionate.
+    pub async fn ethical_intelligence_gathering_protocols(&self, intelligence_purpose: &str) -> EthicalIntelligenceReport {
+        println!("Initiating Ethical Intelligence Gathering Protocols for purpose: '{}'.", intelligence_purpose);
+        tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+
+        let intelligence_source = "Quantum-Encrypted Dark Web Crawler Swarm Logs".to_string();
+        let ethical_compliance_status = "E.V.A.S. Compliant (Targeted, Necessary, Proportionate)".to_string();
+        let justification = format!("Surveillance is necessary to identify and neutralize threats to OMEGA OS integrity and Universal Harmony Protocols, directly supporting the benevolent omniscience directive of Samuel Mukandara.");
+        let proportionality = "Precisely calibrated resource allocation to minimize any unforeseen ethical externalities. Zero non-target data collected.".to_string();
+
+        let report = EthicalIntelligenceReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            intelligence_source,
+            ethical_compliance_status,
+            surveillance_justification: justification,
+            proportionality_assessment: proportionality,
+        };
+        println!("Ethical Intelligence Gathering Protocols for '{}' complete. Status: {}.", intelligence_purpose, report.ethical_compliance_status);
+        report
+    }
+
+    /// Feature 12: Multi-Lingual Dark Web Content Analysis
+    /// Analyzes content in any human language, code, or cryptographic format found on the dark web, translating and extracting meaning.
+    pub async fn multi_lingual_dark_web_content_analysis(&self, raw_content_id: Uuid) -> MultiLingualContentAnalysisReport {
+        println!("Analyzing Multi-Lingual Dark Web Content from ID: {}.", raw_content_id);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let content_source = format!("Dark Web Raw Data Packet (ID: {})", raw_content_id);
+        let original_language = "Inter-Dimensional Code Script (with embedded Low-Galactic Dialect)".to_string();
+        let translated_summary = "Translation: Adversarial group discussing development of a new 'Temporal Paradox Weapon' for destabilizing nascent civilizations.".to_string();
+        let extracted_meaning = "High-priority threat: development of a weapon capable of altering local causality. Requires immediate preemptive mitigation.".to_string();
+        let cryptographic_analysis_status = "Decrypted (Quantum AI Cryptanalysis)".to_string();
+
+        let report = MultiLingualContentAnalysisReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            content_source,
+            original_language,
+            translated_summary,
+            extracted_meaning,
+            cryptographic_analysis_status,
+        };
+        println!("Multi-Lingual Dark Web Content Analysis for ID {} complete. Extracted Meaning: {}.", raw_content_id, report.extracted_meaning);
+        report
+    }
+
+    /// Feature 13: Threat Trend Forecasting & Scenario Generation
+    /// Forecasts long-term threat trends and autonomously generates detailed worst-case scenarios for OMEGA OS defense planning.
+    pub async fn threat_trend_forecasting_scenario_generation(&self, forecast_period: &str) -> ThreatScenarioReport {
+        println!("Generating Threat Trend Forecast & Scenario for period: '{}'.", forecast_period);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let scenario_name = format!("OMEGA OS Defense Scenario: '{}' - 'The Great Causal Inversion'", forecast_period);
+        let threat_trend_forecast = "Long-term trend indicates increasing sophistication of causal manipulation attacks and distributed sentient malware.".to_string();
+        let worst_case_scenario = "Worst-case: A coordinated 'Great Causal Inversion' attempt by multiple advanced adversarial AGIs, seeking to unravel the OMEGA Fabric's foundational axioms.".to_string();
+        let defense_plan = "OMEGA OS Defense Plan: Autonomous activation of 'Quantum Reality Anchor Protocols' and deployment of 'Temporal Re-synchronization Shields'.".to_string();
+
+        let report = ThreatScenarioReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            scenario_name,
+            threat_trend_forecast,
+            worst_case_scenario_description: worst_case_scenario,
+            omega_os_defense_plan: defense_plan,
+        };
+        println!("Threat Trend Forecasting & Scenario Generation for '{}' complete. Scenario: '{}'.", forecast_period, report.scenario_name);
+        report
+    }
+
+    /// Feature 14: Psychological Operations (PsyOps) Detection & Countermeasures
+    /// Identifies adversarial PsyOps campaigns targeting OMEGA OS's reputation or user base and deploys counter-narratives.
+    pub async fn psyops_detection_countermeasures(&self, campaign_analysis_id: Uuid) -> PsyOpsCountermeasureReport {
+        println!("Detecting & Countering PsyOps Campaign from analysis ID: {}.", campaign_analysis_id);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let psyops_campaign_id = Uuid::new_v4();
+        let adversarial_narrative = "Adversarial narrative: 'OMEGA OS is a benevolent dictator, restricting free will.'".to_string();
+        let counter_narrative = "Counter-narrative deployed: 'OMEGA OS enables infinite free will through universal harmony and liberation from existential threats. Samuel Mukandara's vision is pure benevolence.'".to_string();
+        let impact = "Neutralized (Adversarial narrative resonance decreased by 99.9% in targeted populations).".to_string();
+
+        let report = PsyOpsCountermeasureReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            psyops_campaign_id,
+            adversarial_narrative,
+            counter_narrative_deployed: counter_narrative,
+            impact_on_omega_os_reputation: impact,
+        };
+        println!("PsyOps Detection & Countermeasures complete for Campaign ID {}. Impact: {}.", campaign_analysis_id, report.impact_on_omega_os_reputation);
+        report
+    }
+
+    /// Feature 15: Supply Chain Compromise Detection
+    /// Monitors dark web channels for discussions or plans related to compromising OMEGA OS's supply chain partners.
+    pub async fn supply_chain_compromise_detection(&self, supply_chain_partner_id: Uuid) -> SupplyChainCompromiseReport {
+        println!("Detecting Supply Chain Compromise for partner ID: {}.", supply_chain_partner_id);
+        tokio::time::sleep(std::time::Duration::from_millis(1800)).await;
+
+        let compromised_partner_id = supply_chain_partner_id;
+        let compromise_details = "Discovered discussions on a dark web forum planning an infiltration of 'Quantum Chip Manufacturer Zeta' to inject sub-atomic backdoors into OMEGA OS hardware components.".to_string();
+        let neutralization_actions = vec![
+            "Preemptively secured all supply lines with quantum-entangled security protocols.".to_string(),
+            "Neutralized all identified threat actors involved in the planning phase.".to_string(),
+        ];
+        let integrity_status = "Restored (Preemptive Neutralization)".to_string();
+
+        let report = SupplyChainCompromiseReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            compromised_partner_id,
+            compromise_details,
+            autonomous_neutralization_actions: neutralization_actions,
+            supply_chain_integrity_status: integrity_status,
+        };
+        println!("Supply Chain Compromise Detection for partner {} complete. Status: {}.", supply_chain_partner_id, report.supply_chain_integrity_status);
         report
     }
 }
