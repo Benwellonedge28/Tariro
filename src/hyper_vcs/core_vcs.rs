@@ -104,6 +104,56 @@ pub struct ContributorShieldingRecord {
     pub timestamp: DateTime<Utc>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HistoricalPurposeQueryResult {
+    pub id: Uuid,
+    pub query: String,
+    pub timestamp: DateTime<Utc>,
+    pub relevant_chat_transcripts: Vec<String>, // Summarized chat logs
+    pub relevant_commit_messages: Vec<String>,
+    pub explanation_summary: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ImmutableAuditEntry {
+    pub id: Uuid,
+    pub action: String,
+    pub actor: String, // Samuel Mukandara or AGI process
+    pub timestamp: DateTime<Utc>,
+    pub sovereign_key_verified: bool,
+    pub details: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VcsIntegratedTestResult {
+    pub id: Uuid,
+    pub commit_id: String,
+    pub test_suite_name: String,
+    pub overall_status: String, // "PASS", "FAIL"
+    pub test_coverage_pct: f64,
+    pub blocking_deployment: bool,
+    pub timestamp: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GlobalSyncOptimizationReport {
+    pub id: Uuid,
+    pub synced_repos: Vec<String>,
+    pub average_latency_ms: f64,
+    pub optimization_achieved_pct: f64,
+    pub fabric_utilization_pct: f64,
+    pub timestamp: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InfiniteLibraryQueryResult {
+    pub id: Uuid,
+    pub conceptual_query: String,
+    pub matching_file_paths: Vec<String>,
+    pub synthesized_concept_summary: String,
+    pub timestamp: DateTime<Utc>,
+}
+
 
 #[derive(Default)]
 pub struct CoreVcs {}
@@ -125,7 +175,7 @@ impl CoreVcs {
             "HyperVCS_Integrity_Daemon".to_string(),
         ];
         let saved_agi_neurons = 1_000_000_000_000; // Simulated
-        let storage_loc = format!("QuantumCompressedArchive-{}", Uuid::new_v4().simple());
+        let storage_loc = format!("QuantumCompressedArchive-{:?}", Uuid::new_v4().simple());
 
         let snapshot = SystemStateSnapshot {
             id: Uuid::new_v4(),
@@ -146,7 +196,7 @@ impl CoreVcs {
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
 
         let retrieved_state_id = Uuid::new_v4(); // Placeholder for actual retrieval
-        let debug_logs_url = format!("https://omega-os-debug.com/session_{}", Uuid::new_v4().simple());
+        let debug_logs_url = format!("https://omega-os-debug.com/session_{:?}", Uuid::new_v4().simple());
 
         let session = TimeTravelDebugSession {
             id: Uuid::new_v4(),
@@ -186,7 +236,7 @@ impl CoreVcs {
         println!("Creating Feature-Based Branch for '{}' ({} files) from base commit: '{}'.", feature_name, associated_files.len(), base_commit);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
 
-        let current_commit = format!("feature_commit_{}", Uuid::new_v4().simple());
+        let current_commit = format!("feature_commit_{:?}", Uuid::new_v4().simple());
 
         let branch = FeatureBranch {
             id: Uuid::new_v4(),
@@ -220,8 +270,8 @@ impl CoreVcs {
     }
 
     /// Feature 61: Semantic Diff
-    /// Shows changes in *logic* (e.g., \"The pricing algorithm was made more aggressive\") rather than just line changes.
     pub async fn semantic_diff(&self, commit_a_id: &str, commit_b_id: &str) -> SemanticDiffResult {
+        // ... existing implementation ...
         println!("Performing Semantic Diff between Commit A: '{}' and Commit B: '{}'.", commit_a_id, commit_b_id);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
 
@@ -247,8 +297,8 @@ impl CoreVcs {
     }
 
     /// Feature 62: The \"Memory Hole\" (Secure Deletion)
-    /// Permanently and quantum-erases any version or file so it can *never* be recovered by anyone.
     pub async fn secure_deletion_memory_hole(&self, target_item_id: &str) -> SecureDeletionReport {
+        // ... existing implementation ...
         println!("Initiating Secure Deletion ('Memory Hole') for: '{}'.", target_item_id);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
 
@@ -264,8 +314,8 @@ impl CoreVcs {
     }
 
     /// Feature 63: Auto-Documentation of Commits
-    /// Every save is accompanied by a 1-page summary of what was changed and why.
     pub async fn auto_documentation_of_commits(&self, commit_id: &str, changes_description: &str) -> CommitDocumentation {
+        // ... existing implementation ...
         println!("Generating Auto-Documentation for Commit: '{}' with description: '{}'.", commit_id, changes_description);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
 
@@ -284,8 +334,8 @@ impl CoreVcs {
     }
 
     /// Feature 64: Versioned Reality Sandbox
-    /// Run an older version of your \"Finance Tree\" alongside the new one to compare performance.
     pub async fn versioned_reality_sandbox(&self, sandbox_name: &str, primary_tree_id: Uuid, compared_tree_id: Uuid) -> VersionedSandboxReport {
+        // ... existing implementation ...
         println!("Launching Versioned Reality Sandbox '{}' comparing Tree {} (Primary) with Tree {} (Compared).", sandbox_name, primary_tree_id, compared_tree_id);
         tokio::time::sleep(std::time::Duration::from_millis(3500)).await;
 
@@ -307,8 +357,8 @@ impl CoreVcs {
     }
 
     /// Feature 65: Contributor Identity Shielding
-    /// Obfuscates who made a change (even internally) to protect your team from external threats.
     pub async fn contributor_identity_shielding(&self, original_contributor_id: &str, commit_id: &str) -> ContributorShieldingRecord {
+        // ... existing implementation ...
         println!("Applying Contributor Identity Shielding for '{}' on Commit: '{}'.", original_contributor_id, commit_id);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
 
@@ -323,5 +373,128 @@ impl CoreVcs {
         };
         println!("Contributor Identity Shielding complete. Original: '{}', Obfuscated: '{}'.", original_contributor_id, obfuscated_id);
         record
+    }
+
+    /// Feature 66: Historical Purpose Query
+    /// \"Why did we choose this encryption method 3 years ago?\" VCS pulls the TARIRO chat from that day.
+    pub async fn historical_purpose_query(&self, query_text: &str) -> HistoricalPurposeQueryResult {
+        println!("Executing Historical Purpose Query: '{}'.", query_text);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let relevant_chat = vec![
+            "TARIRO Chat (2023-01-15): Samuel requested 'quantum-resistant encryption' for 'Omniversal Data Fabric'.".to_string(),
+            "TARIRO Chat (2023-01-16): Discussion on 'Causal Fabric Encryption' vs. 'Post-Quantum Algorithms'.".to_string(),
+        ];
+        let relevant_commits = vec![
+            "Commit 1a2b3c4d: Implemented Causal Fabric Encryption library.".to_string(),
+        ];
+        let explanation = format!(
+            "The 'Causal Fabric Encryption' method was chosen for its provable quantum-resistance, low latency across inter-dimensional links, and native integration with the OMEGA Fabric, as discussed in TARIRO chat logs from 2023-01-15/16. This ensures absolute data sovereignty."
+        );
+
+        let result = HistoricalPurposeQueryResult {
+            id: Uuid::new_v4(),
+            query: query_text.to_string(),
+            timestamp: Utc::now(),
+            relevant_chat_transcripts: relevant_chat,
+            relevant_commit_messages: relevant_commits,
+            explanation_summary: explanation,
+        };
+        println!("Historical Purpose Query complete. Explanation generated.");
+        result
+    }
+
+    /// Feature 67: Immutable Audit Trail
+    /// A log that cannot be edited even by a Super Admin (unless using your unique Sovereign Key).
+    pub async fn immutable_audit_trail_entry(&self, action: &str, actor: &str, details: &str) -> ImmutableAuditEntry {
+        println!("Creating Immutable Audit Trail Entry for Action: '{}' by Actor: '{}'.", action, actor);
+        tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+
+        let entry = ImmutableAuditEntry {
+            id: Uuid::new_v4(),
+            action: action.to_string(),
+            actor: actor.to_string(),
+            timestamp: Utc::now(),
+            sovereign_key_verified: true, // Assumed to be verified for Super Admin actions
+            details: details.to_string(),
+        };
+        println!("Immutable Audit Trail Entry created. ID: {}. Action: {}. Verified by Sovereign Key.", entry.id, entry.action);
+        entry
+    }
+
+    /// Feature 68: VCS-Integrated Testing
+    /// Changes are only \"Committed\" once they pass the View Panel's autonomous tests.
+    pub async fn vcs_integrated_testing(&self, commit_id: &str, test_suite_name: &str) -> VcsIntegratedTestResult {
+        println!("Executing VCS-Integrated Testing for Commit: '{}' using Test Suite: '{}'.", commit_id, test_suite_name);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let overall_status = if Uuid::new_v4().as_u128() % 5 != 0 {
+            "PASS".to_string() // Simulate pass most of the time
+        } else {
+            "FAIL".to_string()
+        };
+        let test_coverage = 99.99; // Assume high coverage
+        let blocking = overall_status == "FAIL";
+
+        let result = VcsIntegratedTestResult {
+            id: Uuid::new_v4(),
+            commit_id: commit_id.to_string(),
+            test_suite_name: test_suite_name.to_string(),
+            overall_status: overall_status.clone(),
+            test_coverage_pct: test_coverage,
+            blocking_deployment: blocking,
+            timestamp: Utc::now(),
+        };
+        println!("VCS-Integrated Testing complete for Commit {}. Status: {}. Blocking Deployment: {}.", commit_id, result.overall_status, result.blocking_deployment);
+        result
+    }
+
+    /// Feature 69: Global Sync Latency Optimization
+    /// Uses the OMEGA Fabric to ensure repos are synced across the planet in milliseconds.
+    pub async fn global_sync_latency_optimization(&self, repos_to_sync: Vec<String>) -> GlobalSyncOptimizationReport {
+        println!("Optimizing Global Sync Latency for repositories: {:?}.", repos_to_sync);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let average_latency = 0.5; // milliseconds
+        let optimization_achieved = 99.9;
+        let fabric_utilization = 85.0;
+
+        let report = GlobalSyncOptimizationReport {
+            id: Uuid::new_v4(),
+            synced_repos: repos_to_sync,
+            average_latency_ms: average_latency,
+            optimization_achieved_pct: optimization_achieved,
+            fabric_utilization_pct: fabric_utilization,
+            timestamp: Utc::now(),
+        };
+        println!("Global Sync Latency Optimization complete. Average latency: {}ms. Optimization: {}% achieved.", report.average_latency_ms, report.optimization_achieved_pct);
+        report
+    }
+
+    /// Feature 70: The \"Infinite Library\"
+    /// A compressed archive of every file ever created, searchable by concept.
+    pub async fn the_infinite_library_query(&self, conceptual_query: &str) -> InfiniteLibraryQueryResult {
+        println!("Querying The 'Infinite Library' for conceptual query: '{}'.", conceptual_query);
+        tokio::time::sleep(std::time::Duration::from_millis(3500)).await;
+
+        let matching_files = vec![
+            "/omega/core/axioms/universal_harmony.axiom".to_string(),
+            "/omega/ip/quantum_telepathy_protocol_v1.0.rs".to_string(),
+            "/omega/docs/history/AGI_evolution_timeline.md".to_string(),
+        ];
+        let concept_summary = format!(
+            "Synthesized summary for '{}': The Infinite Library contains every conceptual iteration related to this query across all OMEGA OS development. From initial human thought fragments to final deployed quantum code. Access granted to causal origin points.",
+            conceptual_query
+        );
+
+        let result = InfiniteLibraryQueryResult {
+            id: Uuid::new_v4(),
+            conceptual_query: conceptual_query.to_string(),
+            matching_file_paths: matching_files,
+            synthesized_concept_summary: concept_summary,
+            timestamp: Utc::now(),
+        };
+        println!("The 'Infinite Library' query complete. Found {} matching files.", result.matching_file_paths.len());
+        result
     }
 }
