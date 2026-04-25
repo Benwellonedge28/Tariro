@@ -16,10 +16,12 @@ pub mod exchange;
 pub mod registry_interop;
 pub mod gateway;
 pub mod ontological_ip;
+// pub mod autonomous_business_management; // Conceptual reference for future integration
 
 use models::{IpAsset, IpType, IpDomain, IpStatus};
 
 /// The ultimate nexus for managing, protecting, and evolving all forms of intellectual property.
+/// NOTE: This struct is conceptually extending to represent a broader TariroSystem with Autonomous Business Management.
 pub struct IpManagementPanel {
     pub registration_engine: registration::UniversalIpRegistrationEngine,
     pub security_vault: security::QuantumChiffredVault,
@@ -38,6 +40,7 @@ pub struct IpManagementPanel {
     pub registry_interop: registry_interop::OmniversalRegistryInterop,
     pub api_gateway: gateway::IpApiGateway,
     pub ontological_ip_manager: ontological_ip::OntologicalIpManager,
+    // pub autonomous_business_manager: autonomous_business_management::AutonomousBusinessManager, // Conceptual placeholder
 }
 
 impl IpManagementPanel {
@@ -60,6 +63,7 @@ impl IpManagementPanel {
             registry_interop: registry_interop::OmniversalRegistryInterop::default(),
             api_gateway: gateway::IpApiGateway::default(),
             ontological_ip_manager: ontological_ip::OntologicalIpManager::default(),
+            // autonomous_business_manager: autonomous_business_management::AutonomousBusinessManager::default(), // Initialize placeholder
         }
     }
 }
