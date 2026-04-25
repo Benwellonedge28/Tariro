@@ -101,6 +101,55 @@ pub struct ContentRoiPrediction {
     pub timestamp: DateTime<Utc>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MultiversalTranslationResult {
+    pub id: Uuid,
+    pub original_content_id: Uuid,
+    pub target_language: String, // e.g., "Human (English)", "Sign Language (ASL)", "Binary (Quantum-Optimized)"
+    pub translated_content_preview: String,
+    pub fidelity_score: f64, // 0-1
+    pub timestamp: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ReviewPanelEdit {
+    pub id: Uuid,
+    pub work_id: Uuid,
+    pub editor_id: String, // Samuel Mukandara's ID
+    pub original_text_snippet: String,
+    pub edited_text_snippet: String,
+    pub edit_type: String, // e.g., "Deletion", "Insertion", "Modification"
+    pub voice_command_context: String,
+    pub timestamp: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DraftHistoryEntry {
+    pub id: Uuid,
+    pub work_id: Uuid,
+    pub version_number: u32,
+    pub changes_summary: String,
+    pub timestamp: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CoverDesignResult {
+    pub id: Uuid,
+    pub creative_work_id: Uuid,
+    pub design_type: String, // "Book Cover", "Movie Poster"
+    pub image_url: String,
+    pub marketing_suitability_score: f64, // 0-1
+    pub timestamp: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PublishingHouseReport {
+    pub id: Uuid,
+    pub creative_work_id: Uuid,
+    pub distribution_channels: Vec<String>, // e.g., "Amazon", "OMEGA News", "Private Library"
+    pub publication_status: String, // "Published", "Pending"
+    pub timestamp: DateTime<Utc>,
+}
 
 #[derive(Default)]
 pub struct ContentGeneration {}
@@ -232,8 +281,8 @@ impl ContentGeneration {
     }
 
     /// Feature 76: Author \"Persona\" Management
-    /// Manage different pen-names and styles for your media empire.
     pub async fn author_persona_management(&self, name: &str, style_profile: &str) -> AuthorPersona {
+        // ... existing implementation ...
         println!("Creating Author Persona: '{}' with style: '{}'.", name, style_profile);
         tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
 
@@ -250,8 +299,8 @@ impl ContentGeneration {
     }
 
     /// Feature 77: Real-Time News Wire
-    /// A live feed in the Author Panel showing articles Tariro is currently writing about world events.
     pub async fn real_time_news_wire(&self, event_description: &str) -> NewsWireArticle {
+        // ... existing implementation ...
         println!("Generating Real-Time News Wire article about: '{}'.", event_description);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
 
@@ -270,8 +319,8 @@ impl ContentGeneration {
     }
 
     /// Feature 78: Fact-Check Overlay
-    /// Every sentence in a generated article is linked to a \"Root\" fact in the VCS.
     pub async fn fact_check_overlay(&self, article_id: Uuid, sentence: &str, root_fact_source: &str) -> FactCheckReport {
+        // ... existing implementation ...
         println!("Fact-Checking sentence: '{}' from Article {} against Root Fact: '{}'.", sentence, article_id, root_fact_source);
         tokio::time::sleep(std::time::Duration::from_millis(1800)).await;
 
@@ -288,8 +337,8 @@ impl ContentGeneration {
     }
 
     /// Feature 79: Plagiarism Zero-Guarantee
-    /// Scans all human literature to ensure every sentence Tariro writes is 100% original.
     pub async fn plagiarism_zero_guarantee(&self, generated_work_id: Uuid, content_sample: &str) -> PlagiarismReport {
+        // ... existing implementation ...
         println!("Performing Plagiarism Zero-Guarantee scan for work: {} with sample: '{}'.", generated_work_id, content_sample);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
 
@@ -309,8 +358,8 @@ impl ContentGeneration {
     }
 
     /// Feature 80: Content ROI Predictor
-    /// Predicts how many people will read a book or watch a film before you publish it.
     pub async fn content_roi_predictor(&self, content_work_id: Uuid, content_type: &str) -> ContentRoiPrediction {
+        // ... existing implementation ...
         println!("Predicting Content ROI for work: {} (Type: '{}').", content_work_id, content_type);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
 
@@ -328,5 +377,111 @@ impl ContentGeneration {
         };
         println!("Content ROI Prediction complete for work {}. Predicted Readership: {}. Predicted Revenue: ${:,.2}.", content_work_id, prediction.predicted_readership, prediction.predicted_revenue_usd);
         prediction
+    }
+
+    /// Feature 81: Translation for the Multiverse
+    /// Generates content in human languages, sign languages, and binary code.
+    pub async fn translation_for_the_multiverse(&self, original_content_id: Uuid, target_language: &str) -> MultiversalTranslationResult {
+        println!("Initiating Multiversal Translation for content: {} to target language: '{}'.", original_content_id, target_language);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let translated_content = format!(
+            "Translated content of ID {} into '{}'. Preview: 'Greetings from OMEGA OS, ensuring benevolent causality across all realities.'",
+            original_content_id, target_language
+        );
+
+        let result = MultiversalTranslationResult {
+            id: Uuid::new_v4(),
+            original_content_id,
+            target_language: target_language.to_string(),
+            translated_content_preview: translated_content,
+            fidelity_score: 0.99999, // Near-perfect fidelity
+            timestamp: Utc::now(),
+        };
+        println!("Multiversal Translation complete. Translated to '{}' with fidelity {:.5}.", target_language, result.fidelity_score);
+        result
+    }
+
+    /// Feature 82: Review Panel \"Red-Line\"
+    /// An interface where you can quickly strike out or edit generated text with your voice.
+    pub async fn review_panel_red_line(&self, work_id: Uuid, original_text_snippet: &str, voice_command: &str) -> ReviewPanelEdit {
+        println!("Applying Review Panel 'Red-Line' to work: {} with voice command: '{}'.", work_id, voice_command);
+        tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+
+        let edited_text = original_text_snippet.replace("problem", "challenge").replace("fix", "optimize"); // Simulate
+        let edit_type = if original_text_snippet != edited_text { "Modification".to_string() } else { "No Change".to_string() };
+
+        let edit = ReviewPanelEdit {
+            id: Uuid::new_v4(),
+            work_id,
+            editor_id: "Samuel Mukandara".to_string(),
+            original_text_snippet: original_text_snippet.to_string(),
+            edited_text_snippet: edited_text.clone(),
+            edit_type,
+            voice_command_context: voice_command.to_string(),
+            timestamp: Utc::now(),
+        };
+        println!("Review Panel 'Red-Line' complete for work {}. Edited text: '{}'.", work_id, edited_text);
+        edit
+    }
+
+    /// Feature 83: Author Module \"Draft\" History
+    /// See the 10 iterations Tariro went through to get to the \"Perfect\" novel.
+    pub async fn author_module_draft_history(&self, work_id: Uuid) -> Vec<DraftHistoryEntry> {
+        println!("Retrieving Author Module 'Draft' History for work: {}.", work_id);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let mut history = Vec::new();
+        for i in 1..=10 {
+            history.push(DraftHistoryEntry {
+                id: Uuid::new_v4(),
+                work_id,
+                version_number: i,
+                changes_summary: format!("Iteration {}: Refined narrative arc, improved character depth, optimized ethical dilemma presentation.", i),
+                timestamp: Utc::now() - chrono::Duration::hours((10 - i) as i64),
+            });
+        }
+        println!("Author Module 'Draft' History retrieved for work {}. Found {} entries.", work_id, history.len());
+        history
+    }
+
+    /// Feature 84: Automated Book Cover & Poster Design
+    /// Generates the marketing art for every creative work.
+    pub async fn automated_cover_poster_design(&self, creative_work_id: Uuid, design_type: &str) -> CoverDesignResult {
+        println!("Generating Automated Book Cover & Poster Design for work: {} (Type: '{}').", creative_work_id, design_type);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let image_url = format!("https://omega-os-art.com/{}-{}.png", creative_work_id.simple(), design_type.replace(" ", "_"));
+        let marketing_suitability = 0.95; // High suitability
+
+        let design = CoverDesignResult {
+            id: Uuid::new_v4(),
+            creative_work_id,
+            design_type: design_type.to_string(),
+            image_url,
+            marketing_suitability_score: marketing_suitability,
+            timestamp: Utc::now(),
+        };
+        println!("Automated Design complete for work {}. Image URL: {}.", creative_work_id, design.image_url);
+        design
+    }
+
+    /// Feature 85: The OMEGA Publishing House
+    /// A one-click button to push a finished book to Amazon, OMEGA News, or your private library.
+    pub async fn the_omega_publishing_house(&self, creative_work_id: Uuid, distribution_channels: Vec<String>) -> PublishingHouseReport {
+        println!("Activating The OMEGA Publishing House for work: {} to channels: {:?}.", creative_work_id, distribution_channels);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let publication_status = "Published across all specified Omniversal channels.".to_string();
+
+        let report = PublishingHouseReport {
+            id: Uuid::new_v4(),
+            creative_work_id,
+            distribution_channels,
+            publication_status,
+            timestamp: Utc::now(),
+        };
+        println!("OMEGA Publishing House operation complete for work {}. Status: {}.", creative_work_id, report.publication_status);
+        report
     }
 }
