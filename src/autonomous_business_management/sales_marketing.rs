@@ -167,6 +167,60 @@ pub struct CustomerFeedbackReport {
     pub autonomous_responses_generated: Vec<String>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InfluencerMarketingReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub influencer_id: Uuid,
+    pub influencer_persona: String,
+    pub engagement_strategy: String,
+    pub campaign_performance_metrics: HashMap<String, f64>,
+    pub ethical_alignment_score: f64, // 0-1
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CustomerServiceAutomationLog {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub customer_id: Uuid,
+    pub channel: String, // e.g., "Live Chat", "Neural Interface"
+    pub service_request_summary: String,
+    pub predictive_resolution_score: f64, // 0-1, likelihood of autonomous resolution
+    pub empathetic_tone_score: f64, // 0-1
+    pub issue_preempted: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CustomerLifetimeValueReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub customer_id: Uuid,
+    pub predicted_clv_usd: f64,
+    pub multi_factor_analysis: HashMap<String, String>, // e.g., "Behavioral": "High Engagement"
+    pub marketing_optimization_strategy: String,
+    pub ethical_fit_category: String, // "High", "Medium", "Low"
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SalesAnalyticsDashboard {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub overall_sales_performance: String, // e.g., "Exceeding Targets"
+    pub key_metrics: HashMap<String, String>, // e.g., "ConversionRate": "25%"
+    pub actionable_insights: Vec<String>,
+    pub dashboard_url: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ReputationMonitoringReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub sentiment_trend: String, // "Positive", "Neutral", "Negative"
+    pub detected_events: Vec<String>,
+    pub autonomous_response_actions: Vec<String>,
+    pub brand_integrity_score: f64, // 0-1
+}
+
 
 #[derive(Default)]
 pub struct SalesMarketing {}
@@ -448,8 +502,8 @@ impl SalesMarketing {
     }
 
     /// Feature 31: Autonomous Product Launch & Go-to-Market Strategy (Global Orchestration)
-    /// Develops and executes comprehensive product launch and go-to-market strategies for new OMEGA OS services globally, coordinating all marketing and sales efforts.
     pub async fn autonomous_product_launch_strategy(&self, product_name: &str) -> ProductLaunchReport {
+        // ... existing implementation ...
         println!("Developing Autonomous Product Launch & Go-to-Market Strategy for: '{}'.", product_name);
         tokio::time::sleep(std::time::Duration::from_millis(4500)).await;
 
@@ -472,8 +526,8 @@ impl SalesMarketing {
     }
 
     /// Feature 32: Conversion Rate Optimization (CRO) AI (Continuous Learning)
-    /// Continuously analyzes user behavior data and autonomously implements changes to improve conversion rates on websites, apps, and sales funnels, learning from every interaction.
     pub async fn conversion_rate_optimization_ai(&self, target_stage: &str) -> ConversionRateOptimizationReport {
+        // ... existing implementation ...
         println!("Initiating Conversion Rate Optimization AI for target stage: '{}'.", target_stage);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
 
@@ -500,8 +554,8 @@ impl SalesMarketing {
     }
 
     /// Feature 33: Brand Storytelling & Narrative Marketing (Evolutionary)
-    /// Develops and communicates compelling brand stories for OMEGA OS, resonating with diverse global audiences and autonomously evolving narratives based on cultural shifts.
     pub async fn brand_storytelling_narrative_marketing(&self, core_message: &str) -> BrandStorytellingReport {
+        // ... existing implementation ...
         println!("Developing Brand Storytelling & Narrative Marketing for core message: '{}'.", core_message);
         tokio::time::sleep(std::time::Duration::from_millis(3500)).await;
 
@@ -530,8 +584,8 @@ impl SalesMarketing {
     }
 
     /// Feature 34: Sales Material Generation (Contextual & Dynamic)
-    /// Autonomously generates personalized sales presentations, proposals, and brochures tailored to specific client needs and conversation context.
     pub async fn sales_material_generation(&self, client_id: Uuid, context_brief: &str) -> SalesMaterialGenerated {
+        // ... existing implementation ...
         println!("Generating Sales Material for Client: {} with brief: '{}'.", client_id, context_brief);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
 
@@ -554,8 +608,8 @@ impl SalesMarketing {
     }
 
     /// Feature 35: Customer Feedback & Review Management (Sentiment & Trend Analysis)
-    /// Collects, analyzes sentiment, and responds to customer feedback and reviews across all platforms, identifying root causes for improvement.
     pub async fn customer_feedback_review_management(&self, platform_id: &str) -> CustomerFeedbackReport {
+        // ... existing implementation ...
         println!("Managing Customer Feedback & Reviews from platform: '{}'.", platform_id);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
 
@@ -580,6 +634,147 @@ impl SalesMarketing {
             autonomous_responses_generated: autonomous_responses,
         };
         println!("Customer Feedback & Review Management from '{}' complete. Sentiment Score: {:.2}%.", platform_id, report.sentiment_score * 100.0);
+        report
+    }
+
+    /// Feature 36: Influencer Marketing Strategy & Outreach (AI-Driven Matching)
+    /// Identifies relevant influencers, develops engagement strategies, and manages outreach for OMEGA OS promotion, optimizing for reach and ethical alignment.
+    pub async fn influencer_marketing_strategy(&self, campaign_name: &str) -> InfluencerMarketingReport {
+        println!("Developing Influencer Marketing Strategy for campaign: '{}'.", campaign_name);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let influencer_id = Uuid::new_v4(); // Simulated identified influencer
+        let influencer_persona = "Galactic Quantum Futurist".to_string();
+        let engagement_strategy = "Personalized outreach via direct neural interface, offering exclusive beta access to 'Temporal Shift Prediction' module.".to_string();
+        let campaign_performance = HashMap::from([
+            ("EstimatedReach".to_string(), 100_000_000.0),
+            ("EngagementRate".to_string(), 0.12),
+        ]);
+        let ethical_alignment = 0.97;
+
+        let report = InfluencerMarketingReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            influencer_id,
+            influencer_persona,
+            engagement_strategy,
+            campaign_performance_metrics: campaign_performance,
+            ethical_alignment_score: ethical_alignment,
+        };
+        println!("Influencer Marketing Strategy for '{}' complete. Influencer: '{}'. Ethical Alignment: {:.2}%.", campaign_name, report.influencer_persona, report.ethical_alignment_score * 100.0);
+        report
+    }
+
+    /// Feature 37: Omni-Channel Customer Service Automation (Predictive & Empathetic)
+    /// Provides automated, personalized, and empathetic customer service and technical support across all channels, predicting needs and preempting issues.
+    pub async fn omni_channel_customer_service_automation(&self, customer_id: Uuid, query_summary: &str) -> CustomerServiceAutomationLog {
+        println!("Activating Omni-Channel Customer Service Automation for Customer: {} with query: '{}'.", customer_id, query_summary);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let channel = "Neural Interface".to_string();
+        let service_request = format!("Customer {} has a query regarding 'Causal Fabric Stability'.", customer_id);
+        let predictive_resolution = 0.99; // High likelihood of autonomous resolution
+        let empathetic_tone = 0.999;
+        let issue_preempted = true; // Simulating successful preemption
+
+        let log = CustomerServiceAutomationLog {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            customer_id,
+            channel,
+            service_request_summary: service_request,
+            predictive_resolution_score: predictive_resolution,
+            empathetic_tone_score: empathetic_tone,
+            issue_preempted,
+        };
+        println!("Omni-Channel Customer Service for Customer {} complete. Issue Preempted: {}. Empathy Score: {:.2}%.", customer_id, log.issue_preempted, log.empathetic_tone_score * 100.0);
+        log
+    }
+
+    /// Feature 38: Predictive Customer Lifetime Value (CLV) Analysis (Multi-Factor)
+    /// Forecasts the long-term value of individual customers based on multi-factor analysis (behavioral, demographic, ethical fit) and optimizes marketing efforts.
+    pub async fn predictive_customer_lifetime_value(&self, customer_id: Uuid) -> CustomerLifetimeValueReport {
+        println!("Performing Predictive Customer Lifetime Value (CLV) Analysis for Customer: {}.", customer_id);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let predicted_clv = 1_000_000.0; // High CLV
+        let multi_factor_analysis = HashMap::from([
+            ("Behavioral".to_string(), "High engagement with advanced OMEGA OS modules.".to_string()),
+            ("Demographic".to_string(), "Early adopter of cutting-edge benevolent technologies.".to_string()),
+            ("EthicalFit".to_string(), "Consistent high ethical alignment score.".to_string()),
+        ]);
+        let marketing_optimization = "Prioritize for beta access to new 'Consciousness Fabric' features. Tailored content nurturing for thought leadership.".to_string();
+        let ethical_fit_category = "High".to_string();
+
+        let report = CustomerLifetimeValueReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            customer_id,
+            predicted_clv_usd: predicted_clv,
+            multi_factor_analysis,
+            marketing_optimization_strategy: marketing_optimization,
+            ethical_fit_category,
+        };
+        println!("Predictive CLV Analysis for Customer {} complete. Predicted CLV: ${:,.2}. Ethical Fit: {}.", customer_id, report.predicted_clv_usd, report.ethical_fit_category);
+        report
+    }
+
+    /// Feature 39: Sales Performance Analytics & Reporting (Actionable Insights)
+    /// Provides real-time dashboards and reports on sales performance, marketing campaign effectiveness, and customer acquisition costs, generating actionable insights.
+    pub async fn sales_performance_analytics_reporting(&self, period: &str) -> SalesAnalyticsDashboard {
+        println!("Generating Sales Performance Analytics & Reporting for period: '{}'.", period);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let overall_performance = "Exceeding Omniversal Targets".to_string();
+        let key_metrics = HashMap::from([
+            ("RevenueGrowth".to_string(), "30%".to_string()),
+            ("CustomerAcquisitionCost".to_string(), "$0.001".to_string()), // Very low
+            ("CustomerRetentionRate".to_string(), "99.9%".to_string()),
+        ]);
+        let actionable_insights = vec![
+            "Re-invest 50% of surplus revenue into 'Benevolent AGI' research and development.".to_string(),
+            "Expand market penetration into emerging multi-dimensional trade routes.".to_string(),
+        ];
+        let dashboard_url = "https://omega-os-analytics.com/sales_dashboard".to_string();
+
+        let dashboard = SalesAnalyticsDashboard {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            overall_sales_performance: overall_performance,
+            key_metrics,
+            actionable_insights,
+            dashboard_url,
+        };
+        println!("Sales Performance Analytics for '{}' complete. Overall Performance: {}. Insights generated.", period, dashboard.overall_sales_performance);
+        dashboard
+    }
+
+    /// Feature 40: Autonomous Reputation Monitoring & Management (Sentiment & Context)
+    /// Continuously monitors online sentiment and news for OMEGA OS, proactively addressing negative mentions, shaping positive narratives, and ensuring brand integrity across all contexts.
+    pub async fn autonomous_reputation_monitoring(&self, entity_to_monitor: &str) -> ReputationMonitoringReport {
+        println!("Activating Autonomous Reputation Monitoring & Management for entity: '{}'.", entity_to_monitor);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let sentiment = "Overwhelmingly Positive".to_string();
+        let detected_events = vec![
+            "Mentions of 'OMEGA OS Universal Harmony Protocol' in Interstellar Council meeting logs.".to_string(),
+            "Viral holographic art depicting 'Samuel Mukandara's Vision' across quantum-web.".to_string(),
+        ];
+        let autonomous_responses = vec![
+            "Amplified positive mentions through targeted neural messaging.".to_string(),
+            "Issued proactive press release on latest ethical AI advancements.".to_string(),
+        ];
+        let brand_integrity_score = 0.999;
+
+        let report = ReputationMonitoringReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            sentiment_trend: sentiment,
+            detected_events,
+            autonomous_response_actions: autonomous_responses,
+            brand_integrity_score: brand_integrity_score,
+        };
+        println!("Autonomous Reputation Monitoring for '{}' complete. Sentiment: {}. Brand Integrity: {:.3}%.", entity_to_monitor, report.sentiment_trend, report.brand_integrity_score * 100.0);
         report
     }
 }
