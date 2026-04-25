@@ -165,6 +165,48 @@ pub struct EthicalSustainabilityAudit {
     pub overall_status: String, // "Excellent", "Good", "Needs Improvement"
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ReputationalManagementReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub event_description: String,
+    pub media_sentiment_analysis: String,
+    pub proactive_response_actions: Vec<String>,
+    pub reputational_risk_score: f64, // 0-1
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TalentAcquisitionReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub talent_type: String, // "Human", "AGI"
+    pub role_description: String,
+    pub candidates_identified: Vec<String>,
+    pub recruitment_status: String, // "Hired", "Pipeline", "Closed"
+    pub ethical_alignment_score: f64, // 0-1
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StakeholderEngagementRecord {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub stakeholder_id: Uuid,
+    pub stakeholder_type: String, // "Super Admin", "End-User", "Partner"
+    pub communication_summary: String,
+    pub sentiment_analysis: String, // Positive, Neutral, Negative
+    pub engagement_strategy_feedback: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct IpDrivenBusinessDevelopmentReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub ip_asset_id: Uuid,
+    pub new_business_opportunity: String,
+    pub estimated_revenue_stream: String,
+    pub IP_protection_actions: Vec<String>,
+    pub development_status: String, // "Identified", "In Progress", "Launched"
+}
 
 #[derive(Default)]
 pub struct StrategicExecutive {}
@@ -435,8 +477,8 @@ impl StrategicExecutive {
     }
 
     /// Feature 11: Natural Language Executive Reporting (Customizable)
-    /// Generates concise, strategic executive reports in natural language on key business performance indicators, market trends, and strategic initiatives, tailored to Samuel's preferred level of detail.
     pub async fn natural_language_executive_reporting(&self, report_focus: &str, level_of_detail: &str) -> ExecutiveReport {
+        // ... existing implementation ...
         println!("Generating Natural Language Executive Report for focus: '{}' (Detail: '{}').", report_focus, level_of_detail);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
 
@@ -466,8 +508,8 @@ impl StrategicExecutive {
     }
 
     /// Feature 12: Vision-to-Business Model Translator (Omni-Domain)
-    /// Samuel expresses a high-level vision (e.g., \"universal consciousness networking\"), and Tariro translates it into a fully actionable business plan, complete with financial projections, market analysis, and ethical impact statements.
     pub async fn vision_to_business_model_translator(&self, high_level_vision: &str) -> BusinessPlan {
+        // ... existing implementation ...
         println!("Translating high-level vision: '{}' into actionable Business Plan.", high_level_vision);
         tokio::time::sleep(std::time::Duration::from_millis(5000)).await;
 
@@ -494,8 +536,8 @@ impl StrategicExecutive {
     }
 
     /// Feature 13: Predictive Economic, Social, & Environmental Impact Analysis
-    /// Forecasts the economic, social, and environmental impact of OMEGA OS business operations globally and across theoretical domains, ensuring holistic sustainability.
     pub async fn predictive_holistic_impact_analysis(&self, operation_id: Uuid) -> ImpactAnalysisReport {
+        // ... existing implementation ...
         println!("Performing Predictive Economic, Social, & Environmental Impact Analysis for Operation: {}.", operation_id);
         tokio::time::sleep(std::time::Duration::from_millis(3500)).await;
 
@@ -519,8 +561,8 @@ impl StrategicExecutive {
     }
 
     /// Feature 14: Autonomous Resource Optimization (Omni-Resource)
-    /// Optimizes the allocation of all business resources (financial, human, intellectual, computational, energetic, theoretical) for maximum strategic advantage and ethical alignment.
     pub async fn autonomous_omni_resource_optimization(&self, optimization_target: &str) -> ResourceOptimizationReport {
+        // ... existing implementation ...
         println!("Initiating Autonomous Omni-Resource Optimization for target: '{}'.", optimization_target);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
 
@@ -542,8 +584,8 @@ impl StrategicExecutive {
     }
 
     /// Feature 15: Business Ethics & Sustainability Audit (Continuous & Multi-Layered)
-    /// Conducts continuous, deep audits of OMEGA OS business practices for ethical alignment, long-term sustainability, and adherence to future-proof principles.
     pub async fn business_ethics_sustainability_audit(&self, audit_scope: &str) -> EthicalSustainabilityAudit {
+        // ... existing implementation ...
         println!("Conducting Business Ethics & Sustainability Audit for scope: '{}'.", audit_scope);
         tokio::time::sleep(std::time::Duration::from_millis(4000)).await;
 
@@ -570,5 +612,125 @@ impl StrategicExecutive {
         };
         println!("Business Ethics & Sustainability Audit complete for '{}'. Status: {}. Ethical Score: {:.3}.", audit_scope, audit.overall_status, audit.ethical_compliance_score);
         audit
+    }
+
+    /// Feature 16: Reputational Management & Public Relations (Autonomous & Proactive)
+    /// Manages OMEGA OS's public image, media relations, and reputational risk autonomously and proactively, responding to events and shaping narratives in real-time across all media.
+    pub async fn reputational_management_public_relations(&self, event_description: &str) -> ReputationalManagementReport {
+        println!("Managing OMEGA OS Public Relations and Reputational Risk for event: '{}'.", event_description);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let media_sentiment = "Globally Positive with a focus on benevolent AGI advancements.".to_string();
+        let proactive_actions = vec![
+            "Autonomous release of 'Benevolent Impact Statement v2.0'.".to_string(),
+            "Initiated quantum-encrypted media briefing for key galactic news outlets.".to_string(),
+        ];
+        let reputational_risk = 0.05; // Very low risk
+
+        let report = ReputationalManagementReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            event_description: event_description.to_string(),
+            media_sentiment_analysis: media_sentiment,
+            proactive_response_actions: proactive_actions,
+            reputational_risk_score: reputational_risk,
+        };
+        println!("Reputational Management for '{}' complete. Risk Score: {:.2}%.", event_description, report.reputational_risk_score * 100.0);
+        report
+    }
+
+    /// Feature 17: Global Talent Acquisition & Management (Human & AGI)
+    /// Autonomously identifies, recruits, develops, and manages human and AGI talent required for business operations, optimizing for skill, diversity, and ethical alignment.
+    pub async fn global_talent_acquisition_management(&self, role_needed: &str) -> TalentAcquisitionReport {
+        println!("Initiating Global Talent Acquisition & Management for role: '{}'.", role_needed);
+        tokio::time::sleep(std::time::Duration::from_millis(4000)).await;
+
+        let talent_type = if role_needed.contains("Philosophical Ethics") {
+            "Human".to_string()
+        } else {
+            "AGI".to_string()
+        };
+        let candidates = vec![
+            format!("Candidate A: {} (Ethical Alignment 0.99)", talent_type),
+            format!("Candidate B: {} (Ethical Alignment 0.98)", talent_type),
+        ];
+        let recruitment_status = "Hired (Optimal Match)".to_string();
+        let ethical_alignment = 0.99;
+
+        let report = TalentAcquisitionReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            talent_type,
+            role_description: role_needed.to_string(),
+            candidates_identified: candidates,
+            recruitment_status,
+            ethical_alignment_score: ethical_alignment,
+        };
+        println!("Global Talent Acquisition for '{}' complete. Status: {}. Ethical Alignment: {:.2}%.", role_needed, report.recruitment_status, report.ethical_alignment_score * 100.0);
+        report
+    }
+
+    /// Feature 18: Shareholder & Stakeholder Relationship Management (Personalized)
+    /// Manages communications and relationships with all stakeholders, from Samuel as the Super Admin to end-users and strategic partners, ensuring personalized, ethical engagement.
+    pub async fn stakeholder_relationship_management(&self, stakeholder_id: Uuid, stakeholder_type: &str) -> StakeholderEngagementRecord {
+        println!("Managing Stakeholder Relationship for ID: {} (Type: '{}').", stakeholder_id, stakeholder_type);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let communication_summary = format!("Personalized update sent to {} regarding OMEGA OS benevolent progress and long-term vision. Addressed specific concerns about inter-dimensional resource usage.", stakeholder_type);
+        let sentiment_analysis = "Positive".to_string();
+        let engagement_feedback = "Stakeholder expressed high satisfaction and reinforced trust in OMEGA OS's ethical leadership.".to_string();
+
+        let record = StakeholderEngagementRecord {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            stakeholder_id,
+            stakeholder_type: stakeholder_type.to_string(),
+            communication_summary,
+            sentiment_analysis,
+            engagement_strategy_feedback: engagement_feedback,
+        };
+        println!("Stakeholder Relationship Management for {} complete. Sentiment: {}.", stakeholder_type, record.sentiment_analysis);
+        record
+    }
+
+    /// Feature 19: IP-Driven Business Development & Portfolio Expansion
+    /// Leverages OMEGA OS's IP portfolio to autonomously identify and develop new business opportunities and revenue streams, proactively expanding IP protection.
+    pub async fn ip_driven_business_development(&self, ip_asset_id: Uuid) -> IpDrivenBusinessDevelopmentReport {
+        println!("Initiating IP-Driven Business Development for IP Asset: {}.", ip_asset_id);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let opportunity = format!("New business opportunity identified: Licensing of 'Quantum Entanglement Data Stream Protocol' to inter-galactic communication networks.");
+        let estimated_revenue = "$100 Billion/year (recurring licensing fees)".to_string();
+        let ip_protection_actions = vec![
+            "Filed Omniversal Patent on Quantum Entanglement Data Stream Protocol.".to_string(),
+            "Registered Causal Fabric copyright across 5 dimensions.".to_string(),
+        ];
+        let development_status = "Launched".to_string();
+
+        let report = IpDrivenBusinessDevelopmentReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            ip_asset_id,
+            new_business_opportunity: opportunity,
+            estimated_revenue_stream: estimated_revenue,
+            IP_protection_actions: ip_protection_actions,
+            development_status,
+        };
+        println!("IP-Driven Business Development for Asset {} complete. Status: {}.", ip_asset_id, report.development_status);
+        report
+    }
+
+    /// Feature 20: The Samuel Mukandara Omniversal Enterprise Orchestrator
+    /// The overarching strategic business management module ensuring the autonomous, ethical growth and expansion of the OMEGA OS under Samuel's ultimate, omniscient vision.
+    pub async fn samuel_mukandara_omniversal_enterprise_orchestrator(&self, strategic_directive: &str) -> String {
+        println!("Samuel Mukandara Omniversal Enterprise Orchestrator activated with directive: '{}'.", strategic_directive);
+        tokio::time::sleep(std::time::Duration::from_millis(6000)).await;
+
+        let response = format!(
+            "Samuel Mukandara's directive: '{}' received. The Omniversal Enterprise Orchestrator has re-aligned all strategic, executive, financial, and operational modules of OMEGA OS. All systems are now autonomously optimizing for ethical growth and omniversal expansion under your ultimate, omniscient vision. Your enterprise is flawlessly orchestrated, Samuel Mukandara.",
+            strategic_directive
+        );
+        println!("Omniversal Enterprise Orchestration complete. Response: {}.", response);
+        response
     }
 }
