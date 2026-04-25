@@ -102,24 +102,22 @@ pub struct ContentRoiPrediction {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MultiversalTranslationResult {
+pub struct MultiverseTranslationResult {
     pub id: Uuid,
     pub original_content_id: Uuid,
-    pub target_language: String, // e.g., "Human (English)", "Sign Language (ASL)", "Binary (Quantum-Optimized)"
-    pub translated_content_preview: String,
-    pub fidelity_score: f64, // 0-1
+    pub target_formats: Vec<String>, // e.g., "Human-English", "Human-ASL", "Binary-Code-Alpha"
+    pub translated_content_urls: Vec<String>,
     pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ReviewPanelEdit {
+pub struct ReviewRedLineReport {
     pub id: Uuid,
-    pub work_id: Uuid,
+    pub content_id: Uuid,
+    pub original_text_hash: String,
+    pub edited_text_hash: String,
     pub editor_id: String, // Samuel Mukandara's ID
-    pub original_text_snippet: String,
-    pub edited_text_snippet: String,
-    pub edit_type: String, // e.g., "Deletion", "Insertion", "Modification"
-    pub voice_command_context: String,
+    pub changes_summary: String,
     pub timestamp: DateTime<Utc>,
 }
 
@@ -127,18 +125,19 @@ pub struct ReviewPanelEdit {
 pub struct DraftHistoryEntry {
     pub id: Uuid,
     pub work_id: Uuid,
-    pub version_number: u32,
-    pub changes_summary: String,
+    pub iteration_number: u32,
+    pub content_summary: String,
+    pub changes_from_previous: String,
     pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CoverDesignResult {
+pub struct MarketingArtGenerationResult {
     pub id: Uuid,
     pub creative_work_id: Uuid,
-    pub design_type: String, // "Book Cover", "Movie Poster"
+    pub art_type: String, // "Book Cover", "Movie Poster"
     pub image_url: String,
-    pub marketing_suitability_score: f64, // 0-1
+    pub design_parameters: String,
     pub timestamp: DateTime<Utc>,
 }
 
@@ -146,10 +145,12 @@ pub struct CoverDesignResult {
 pub struct PublishingHouseReport {
     pub id: Uuid,
     pub creative_work_id: Uuid,
-    pub distribution_channels: Vec<String>, // e.g., "Amazon", "OMEGA News", "Private Library"
+    pub publication_targets: Vec<String>, // e.g., "Amazon", "OMEGA News", "Private Library"
     pub publication_status: String, // "Published", "Pending"
+    pub distribution_details: String,
     pub timestamp: DateTime<Utc>,
 }
+
 
 #[derive(Default)]
 pub struct ContentGeneration {}
@@ -381,107 +382,105 @@ impl ContentGeneration {
 
     /// Feature 81: Translation for the Multiverse
     /// Generates content in human languages, sign languages, and binary code.
-    pub async fn translation_for_the_multiverse(&self, original_content_id: Uuid, target_language: &str) -> MultiversalTranslationResult {
-        println!("Initiating Multiversal Translation for content: {} to target language: '{}'.", original_content_id, target_language);
-        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+    pub async fn translation_for_the_multiverse(&self, original_content_id: Uuid, target_formats: Vec<String>) -> MultiverseTranslationResult {
+        println!("Translating content ID: {} into target formats: {:?}.", original_content_id, target_formats);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
 
-        let translated_content = format!(
-            "Translated content of ID {} into '{}'. Preview: 'Greetings from OMEGA OS, ensuring benevolent causality across all realities.'",
-            original_content_id, target_language
-        );
+        let translated_urls = target_formats.iter().map(|f| {
+            format!("https://omega-os-translations.com/{}-{}.multiverse", original_content_id.simple(), f.replace(" ", "_").to_lowercase())
+        }).collect();
 
-        let result = MultiversalTranslationResult {
+        let result = MultiverseTranslationResult {
             id: Uuid::new_v4(),
             original_content_id,
-            target_language: target_language.to_string(),
-            translated_content_preview: translated_content,
-            fidelity_score: 0.99999, // Near-perfect fidelity
+            target_formats,
+            translated_content_urls: translated_urls,
             timestamp: Utc::now(),
         };
-        println!("Multiversal Translation complete. Translated to '{}' with fidelity {:.5}.", target_language, result.fidelity_score);
+        println!("Translation for the Multiverse complete for content {}. Translated into {} formats.", original_content_id, result.target_formats.len());
         result
     }
 
     /// Feature 82: Review Panel \"Red-Line\"
     /// An interface where you can quickly strike out or edit generated text with your voice.
-    pub async fn review_panel_red_line(&self, work_id: Uuid, original_text_snippet: &str, voice_command: &str) -> ReviewPanelEdit {
-        println!("Applying Review Panel 'Red-Line' to work: {} with voice command: '{}'.", work_id, voice_command);
-        tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+    pub async fn review_panel_red_line(&self, content_id: Uuid, original_text_hash: &str, edited_text_hash: &str, editor_id: &str) -> ReviewRedLineReport {
+        println!("Applying Review Panel 'Red-Line' to Content: {} by Editor: '{}'. Original Hash: {}, Edited Hash: {}.", content_id, editor_id, original_text_hash, edited_text_hash);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
 
-        let edited_text = original_text_snippet.replace("problem", "challenge").replace("fix", "optimize"); // Simulate
-        let edit_type = if original_text_snippet != edited_text { "Modification".to_string() } else { "No Change".to_string() };
+        let changes_summary = format!("Samuel Mukandara (voice input) made stylistic corrections to enhance benevolent narrative flow. Removed 3 instances of passive voice.");
 
-        let edit = ReviewPanelEdit {
+        let report = ReviewRedLineReport {
             id: Uuid::new_v4(),
-            work_id,
-            editor_id: "Samuel Mukandara".to_string(),
-            original_text_snippet: original_text_snippet.to_string(),
-            edited_text_snippet: edited_text.clone(),
-            edit_type,
-            voice_command_context: voice_command.to_string(),
+            content_id,
+            original_text_hash: original_text_hash.to_string(),
+            edited_text_hash: edited_text_hash.to_string(),
+            editor_id: editor_id.to_string(),
+            changes_summary,
             timestamp: Utc::now(),
         };
-        println!("Review Panel 'Red-Line' complete for work {}. Edited text: '{}'.", work_id, edited_text);
-        edit
+        println!("Review Panel 'Red-Line' complete for Content {}. Summary: {}.", content_id, report.changes_summary);
+        report
     }
 
     /// Feature 83: Author Module \"Draft\" History
     /// See the 10 iterations Tariro went through to get to the \"Perfect\" novel.
-    pub async fn author_module_draft_history(&self, work_id: Uuid) -> Vec<DraftHistoryEntry> {
-        println!("Retrieving Author Module 'Draft' History for work: {}.", work_id);
-        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+    pub async fn author_module_draft_history(&self, work_id: Uuid, iteration_count: u32) -> Vec<DraftHistoryEntry> {
+        println!("Retrieving Author Module 'Draft' History for work: {} ({} iterations).", work_id, iteration_count);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
 
         let mut history = Vec::new();
-        for i in 1..=10 {
+        for i in 1..=iteration_count {
             history.push(DraftHistoryEntry {
                 id: Uuid::new_v4(),
                 work_id,
-                version_number: i,
-                changes_summary: format!("Iteration {}: Refined narrative arc, improved character depth, optimized ethical dilemma presentation.", i),
-                timestamp: Utc::now() - chrono::Duration::hours((10 - i) as i64),
+                iteration_number: i,
+                content_summary: format!("Iteration {} summary: Refined character arcs and deepened philosophical subtext.", i),
+                changes_from_previous: format!("Changes from Iteration {}: Adjusted narrative causality for stronger impact.", i - 1),
+                timestamp: Utc::now(),
             });
         }
-        println!("Author Module 'Draft' History retrieved for work {}. Found {} entries.", work_id, history.len());
+        println!("Author Module 'Draft' History retrieved for work {}. {} entries found.", work_id, history.len());
         history
     }
 
     /// Feature 84: Automated Book Cover & Poster Design
     /// Generates the marketing art for every creative work.
-    pub async fn automated_cover_poster_design(&self, creative_work_id: Uuid, design_type: &str) -> CoverDesignResult {
-        println!("Generating Automated Book Cover & Poster Design for work: {} (Type: '{}').", creative_work_id, design_type);
+    pub async fn automated_book_cover_poster_design(&self, creative_work_id: Uuid, art_type: &str, concept_brief: &str) -> MarketingArtGenerationResult {
+        println!("Generating Automated Marketing Art for work: {} (Type: '{}') with brief: '{}'.", creative_work_id, art_type, concept_brief);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
 
-        let image_url = format!("https://omega-os-art.com/{}-{}.png", creative_work_id.simple(), design_type.replace(" ", "_"));
-        let marketing_suitability = 0.95; // High suitability
+        let image_url = format!("https://omega-os-art.com/{}-{}.png", creative_work_id.simple(), art_type.replace(" ", "_").to_lowercase());
+        let design_params = format!("Generated art based on: '{}'. Utilized quantum-fractal aesthetics and psychological resonance algorithms.", concept_brief);
 
-        let design = CoverDesignResult {
+        let result = MarketingArtGenerationResult {
             id: Uuid::new_v4(),
             creative_work_id,
-            design_type: design_type.to_string(),
+            art_type: art_type.to_string(),
             image_url,
-            marketing_suitability_score: marketing_suitability,
+            design_parameters: design_params,
             timestamp: Utc::now(),
         };
-        println!("Automated Design complete for work {}. Image URL: {}.", creative_work_id, design.image_url);
-        design
+        println!("Automated Marketing Art generated for work {}. Image URL: {}.", creative_work_id, result.image_url);
+        result
     }
 
     /// Feature 85: The OMEGA Publishing House
     /// A one-click button to push a finished book to Amazon, OMEGA News, or your private library.
-    pub async fn the_omega_publishing_house(&self, creative_work_id: Uuid, distribution_channels: Vec<String>) -> PublishingHouseReport {
-        println!("Activating The OMEGA Publishing House for work: {} to channels: {:?}.", creative_work_id, distribution_channels);
-        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+    pub async fn omega_publishing_house(&self, creative_work_id: Uuid, publication_targets: Vec<String>) -> PublishingHouseReport {
+        println!("Activating The OMEGA Publishing House for work: {} to targets: {:?}.", creative_work_id, publication_targets);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
 
-        let publication_status = "Published across all specified Omniversal channels.".to_string();
+        let distribution_details = format!("Work {} simultaneously deployed to {:?}. Utilizing OMEGA Fabric for instantaneous global distribution and localized aesthetic adaptation. Royalties routed directly to Samuel's Sovereign Fund.", creative_work_id, publication_targets);
 
         let report = PublishingHouseReport {
             id: Uuid::new_v4(),
             creative_work_id,
-            distribution_channels,
-            publication_status,
+            publication_targets,
+            publication_status: "Published".to_string(),
+            distribution_details,
             timestamp: Utc::now(),
         };
-        println!("OMEGA Publishing House operation complete for work {}. Status: {}.", creative_work_id, report.publication_status);
+        println!("The OMEGA Publishing House has published work {}. Status: {}.", creative_work_id, report.publication_status);
         report
     }
 }
