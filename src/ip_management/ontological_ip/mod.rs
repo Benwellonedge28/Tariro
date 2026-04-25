@@ -1,43 +1,29 @@
 pub mod models;
-pub mod fingerprinting;
-pub mod licensing;
-pub mod collaboration;
-pub mod omniversal;
-pub mod blocking;
-pub mod sentience;
-pub mod pre_cognitive;
 pub mod axiomatic;
 pub mod fabric;
+pub mod advanced; // Add this line
 
-use uuid::Uuid;
-use chrono::{DateTime, Utc};
-use serde::{Serialize, Deserialize};
+use models::{OntologicalIpAsset, CausalSignature, AxiomaticIpGovernance, UniversalCreativeFabricStatus};
+use crate::ip_management::ontological_ip::advanced::AdvancedIpFeatures; // Import AdvancedIpFeatures
 
+// ... (existing struct and impl for OntologicalIpManager)
 #[derive(Default)]
 pub struct OntologicalIpManager {
-    pub fingerprinting_engine: fingerprinting::OntologicalFingerprintingEngine,
-    pub causal_licensing_engine: licensing::CausalLicensingEngine,
-    pub collaborative_ip_engine: collaboration::CollaborativeIpGenesisEngine,
-    pub omniversal_ip_engine: omniversal::OmniversalIpEngine,
-    pub causal_blocking_engine: blocking::CausalBlockingEngine,
-    pub sentient_ip_engine: sentience::SentientIpEngine,
-    pub pre_cognitive_neutralization_engine: pre_cognitive::PreCognitiveNeutralizationEngine,
-    pub axiomatic_ip_engine: axiomatic::AxiomaticIpEngine,
-    pub universal_creative_fabric_engine: fabric::UniversalCreativeFabricEngine,
+    pub ip_assets: HashMap<Uuid, OntologicalIpAsset>,
+    pub axiomatic_governance: axiomatic::AxiomaticGovernanceEngine,
+    pub fabric_integration: fabric::FabricIntegrationEngine,
+    pub advanced_features: advanced::AdvancedIpFeatures, // Add this line
 }
 
 impl OntologicalIpManager {
     pub fn new() -> Self {
         OntologicalIpManager {
-            fingerprinting_engine: fingerprinting::OntologicalFingerprintingEngine::default(),
-            causal_licensing_engine: licensing::CausalLicensingEngine::default(),
-            collaboration_ip_engine: collaboration::CollaborativeIpGenesisEngine::default(),
-            omniversal_ip_engine: omniversal::OmniversalIpEngine::default(),
-            causal_blocking_engine: blocking::CausalBlockingEngine::default(),
-            sentient_ip_engine: sentience::SentientIpEngine::default(),
-            pre_cognitive_neutralization_engine: pre_cognitive::PreCognitiveNeutralizationEngine::default(),
-            axiomatic_ip_engine: axiomatic::AxiomaticIpEngine::default(),
-            universal_creative_fabric_engine: fabric::UniversalCreativeFabricEngine::default(),
+            ip_assets: HashMap::new(),
+            axiomatic_governance: axiomatic::AxiomaticGovernanceEngine::new(),
+            fabric_integration: fabric::FabricIntegrationEngine::new(),
+            advanced_features: advanced::AdvancedIpFeatures::new(), // Initialize
         }
     }
+
+    // ... existing functions ...
 }
