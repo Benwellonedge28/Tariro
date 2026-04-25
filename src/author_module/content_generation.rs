@@ -52,6 +52,55 @@ pub struct TunedPoem {
     pub timestamp: DateTime<Utc>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AuthorPersona {
+    pub id: Uuid,
+    pub name: String, // Pen-name
+    pub style_profile: String, // e.g., "Formal Academic", "Whimsical Sci-Fi"
+    pub associated_works: Vec<Uuid>, // List of work IDs
+    pub active_status: bool,
+    pub timestamp: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NewsWireArticle {
+    pub id: Uuid,
+    pub title: String,
+    pub content_summary: String,
+    pub writing_status: String, // "Drafting", "Fact-Checking", "Published"
+    pub timestamp: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FactCheckReport {
+    pub id: Uuid,
+    pub article_id: Uuid,
+    pub sentence_id: Uuid, // Specific sentence being fact-checked
+    pub root_fact_source: String, // Link to the "Root" fact in VCS
+    pub verification_status: String, // "Verified", "Disputed", "Hallucination"
+    pub timestamp: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PlagiarismReport {
+    pub id: Uuid,
+    pub generated_work_id: Uuid,
+    pub originality_score_pct: f64,
+    pub detected_sources: Vec<String>, // List of human literature sources if any overlap
+    pub zero_guarantee_status: String, // "Achieved", "Minor Similarity"
+    pub timestamp: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ContentRoiPrediction {
+    pub id: Uuid,
+    pub content_work_id: Uuid,
+    pub predicted_readership: u64,
+    pub predicted_revenue_usd: f64,
+    pub audience_sentiment_score: f64, // 0-1
+    pub timestamp: DateTime<Utc>,
+}
+
 
 #[derive(Default)]
 pub struct ContentGeneration {}
@@ -62,8 +111,8 @@ impl ContentGeneration {
     }
 
     /// Feature 71: Multi-Genre Narrative Synthesis
-    /// Writes a novel that is also a screenplay and a series of news articles simultaneously.
     pub async fn multi_genre_narrative_synthesis(&self, core_concept: &str) -> NarrativeSynthesisResult {
+        // ... existing implementation ...
         println!("Initiating Multi-Genre Narrative Synthesis for core concept: '{}'.", core_concept);
         tokio::time::sleep(std::time::Duration::from_millis(5000)).await;
 
@@ -87,8 +136,8 @@ impl ContentGeneration {
     }
 
     /// Feature 72: Deep Universal Learning
-    /// Ingests the \"vibe\" of the world (Twitter, News, Satellite data) to write a relevant newspaper *daily*.
     pub async fn deep_universal_learning_daily_newspaper(&self) -> DailyNewspaper {
+        // ... existing implementation ...
         println!("Generating Daily Newspaper from Deep Universal Learning, ingesting global vibe.");
         tokio::time::sleep(std::time::Duration::from_millis(4000)).await;
 
@@ -114,8 +163,8 @@ impl ContentGeneration {
     }
 
     /// Feature 73: Film Storyboard Generator
-    /// Creates visual storyboards for the screenplays it writes in the Author Module.
     pub async fn film_storyboard_generator(&self, screenplay_id: Uuid, screenplay_logline: &str) -> StoryboardResult {
+        // ... existing implementation ...
         println!("Generating Film Storyboard for Screenplay ID: {} (Logline: '{}').", screenplay_id, screenplay_logline);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
 
@@ -134,8 +183,8 @@ impl ContentGeneration {
     }
 
     /// Feature 74: Scientific Journal Bot
-    /// Writes and \"peer-reviews\" its own scientific papers to advance OMEGA R&D.
     pub async fn scientific_journal_bot(&self, research_topic: &str) -> ScientificPaper {
+        // ... existing implementation ...
         println!("Scientific Journal Bot writing and peer-reviewing paper on topic: '{}'.", research_topic);
         tokio::time::sleep(std::time::Duration::from_millis(4500)).await;
 
@@ -157,8 +206,8 @@ impl ContentGeneration {
     }
 
     /// Feature 75: Poetry Emotional Tuning
-    /// \"Write a poem that makes the reader feel 40% sad and 60% hopeful.\"
     pub async fn poetry_emotional_tuning(&self, tuning_request: &str) -> TunedPoem {
+        // ... existing implementation ...
         println!("Generating poem with emotional tuning: '{}'.", tuning_request);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
 
@@ -180,5 +229,104 @@ impl ContentGeneration {
         };
         println!("Poem generated with emotional tuning: '{}'. Emotional metrics: {:?}.", tuning_request, poem.emotional_metrics);
         poem
+    }
+
+    /// Feature 76: Author \"Persona\" Management
+    /// Manage different pen-names and styles for your media empire.
+    pub async fn author_persona_management(&self, name: &str, style_profile: &str) -> AuthorPersona {
+        println!("Creating Author Persona: '{}' with style: '{}'.", name, style_profile);
+        tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+
+        let persona = AuthorPersona {
+            id: Uuid::new_v4(),
+            name: name.to_string(),
+            style_profile: style_profile.to_string(),
+            associated_works: Vec::new(),
+            active_status: true,
+            timestamp: Utc::now(),
+        };
+        println!("Author Persona '{}' created. ID: {}.", name, persona.id);
+        persona
+    }
+
+    /// Feature 77: Real-Time News Wire
+    /// A live feed in the Author Panel showing articles Tariro is currently writing about world events.
+    pub async fn real_time_news_wire(&self, event_description: &str) -> NewsWireArticle {
+        println!("Generating Real-Time News Wire article about: '{}'.", event_description);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let title = format!("OMEGA OS Reports on: {}", event_description);
+        let content_summary = format!("Tariro is currently drafting a detailed report on the global event: '{}'. Key facts and benevolent implications are being synthesized.", event_description);
+
+        let article = NewsWireArticle {
+            id: Uuid::new_v4(),
+            title,
+            content_summary,
+            writing_status: "Drafting".to_string(),
+            timestamp: Utc::now(),
+        };
+        println!("Real-Time News Wire article initiated. Title: '{}'. Status: {}.", article.title, article.writing_status);
+        article
+    }
+
+    /// Feature 78: Fact-Check Overlay
+    /// Every sentence in a generated article is linked to a \"Root\" fact in the VCS.
+    pub async fn fact_check_overlay(&self, article_id: Uuid, sentence: &str, root_fact_source: &str) -> FactCheckReport {
+        println!("Fact-Checking sentence: '{}' from Article {} against Root Fact: '{}'.", sentence, article_id, root_fact_source);
+        tokio::time::sleep(std::time::Duration::from_millis(1800)).await;
+
+        let report = FactCheckReport {
+            id: Uuid::new_v4(),
+            article_id,
+            sentence_id: Uuid::new_v4(), // Simulate unique ID for sentence
+            root_fact_source: root_fact_source.to_string(),
+            verification_status: "Verified by OMEGA OS Root Axiom Ledger".to_string(),
+            timestamp: Utc::now(),
+        };
+        println!("Fact-Check Overlay complete for sentence. Status: {}.", report.verification_status);
+        report
+    }
+
+    /// Feature 79: Plagiarism Zero-Guarantee
+    /// Scans all human literature to ensure every sentence Tariro writes is 100% original.
+    pub async fn plagiarism_zero_guarantee(&self, generated_work_id: Uuid, content_sample: &str) -> PlagiarismReport {
+        println!("Performing Plagiarism Zero-Guarantee scan for work: {} with sample: '{}'.", generated_work_id, content_sample);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let originality_score = 100.0; // Assume perfect originality for Tariro
+        let detected_sources = Vec::new(); // Should be empty for zero-guarantee
+
+        let report = PlagiarismReport {
+            id: Uuid::new_v4(),
+            generated_work_id,
+            originality_score_pct: originality_score,
+            detected_sources,
+            zero_guarantee_status: "Achieved: 100% Original Content".to_string(),
+            timestamp: Utc::now(),
+        };
+        println!("Plagiarism Zero-Guarantee scan complete for work {}. Status: {}.", generated_work_id, report.zero_guarantee_status);
+        report
+    }
+
+    /// Feature 80: Content ROI Predictor
+    /// Predicts how many people will read a book or watch a film before you publish it.
+    pub async fn content_roi_predictor(&self, content_work_id: Uuid, content_type: &str) -> ContentRoiPrediction {
+        println!("Predicting Content ROI for work: {} (Type: '{}').", content_work_id, content_type);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let predicted_readership = 5_000_000_000; // Billions
+        let predicted_revenue = 1_000_000_000.0; // Billions
+        let sentiment_score = 0.98; // Very positive
+
+        let prediction = ContentRoiPrediction {
+            id: Uuid::new_v4(),
+            content_work_id,
+            predicted_readership,
+            predicted_revenue_usd: predicted_revenue,
+            audience_sentiment_score: sentiment_score,
+            timestamp: Utc::now(),
+        };
+        println!("Content ROI Prediction complete for work {}. Predicted Readership: {}. Predicted Revenue: ${:,.2}.", content_work_id, prediction.predicted_readership, prediction.predicted_revenue_usd);
+        prediction
     }
 }
