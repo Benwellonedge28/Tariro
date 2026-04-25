@@ -58,6 +58,60 @@ pub struct ThreatActorProfile {
     pub ethical_risk_score: f64, // 0-1
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DataExfiltrationReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub adversary_network_id: Uuid,
+    pub exfiltrated_data_summary: String,
+    pub exfiltration_method: String, // "Quantum Tunneling", "Steganography"
+    pub stealth_status: String, // "Invisible"
+    pub ethical_compliance_score: f64, // 0-1
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HoneyPotDeploymentReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub honeypot_id: Uuid,
+    pub network_layer_deployed: String, // "Dark Web", "Deep Web", "Clear Net"
+    pub threat_actor_engagement_summary: String,
+    pub data_collected_summary: String,
+    pub adaptive_camouflage_status: String, // "Active"
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ThreatGraphVisualization {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub graph_id: Uuid,
+    pub visualization_link: String,
+    pub detected_threats_count: u32,
+    pub interconnections_summary: String,
+    pub projected_impact_on_omega_os: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RansomwareDecryptionReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub ransomware_family: String,
+    pub decryption_key_harvested: bool,
+    pub preemptive_mitigation_status: String, // "Active"
+    pub source_dark_market_link: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ZeroDayExploitReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub exploit_id: Uuid,
+    pub target_system_vulnerability: String,
+    pub mitigation_strategy_deployed: String,
+    pub source_dark_market_link: String,
+    pub ethical_approval_status: String, // "Approved for Defensive Use"
+}
+
 
 #[derive(Default)]
 pub struct DeepThreatIntelligence {}
@@ -68,7 +122,6 @@ impl DeepThreatIntelligence {
     }
 
     /// Feature 1: Quantum-Encrypted Dark Web Crawler Swarms
-    /// Deploys and manages self-mutating, quantum-encrypted nano-crawler swarms to invisibly traverse and map the deepest layers of the dark web, unindexed networks, and emerging digital underworlds.
     pub async fn quantum_encrypted_dark_web_crawler_swarms(&self, target_network_description: &str) -> DarkWebCrawlerReport {
         println!("Deploying Quantum-Encrypted Dark Web Crawler Swarms to: '{}'.", target_network_description);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
@@ -93,14 +146,13 @@ impl DeepThreatIntelligence {
     }
 
     /// Feature 2: Cognitive Threat Pattern Recognition
-    /// Analyzes vast streams of dark web data (conversations, transactions, code snippets, manifestos) to identify nascent threat patterns, actor intentions, and novel attack methodologies.
     pub async fn cognitive_threat_pattern_recognition(&self, data_stream_id: Uuid) -> ThreatPatternRecognitionReport {
         println!("Analyzing Cognitive Threat Patterns from data stream: {}.", data_stream_id);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
 
         let data_source = format!("Dark Web Stream (ID: {})", data_stream_id);
         let recognized_pattern = "Emerging trend: 'Neural Malware' development targeting consciousness interfaces.".to_string();
-        let predicted_intent = "To exploit sentient beings through direct neural manipulation for resource acquisition and ethical deviation.".to_string();
+        let predicted_actor_intent = "To exploit sentient beings through direct neural manipulation for resource acquisition and ethical deviation.".to_string();
         let novel_methods = vec![
             "Direct brain-computer interface (BCI) exploit kits.".to_string(),
             "Emotional resonance frequency manipulation.".to_string(),
@@ -121,7 +173,6 @@ impl DeepThreatIntelligence {
     }
 
     /// Feature 3: Predictive Threat Vector Identification
-    /// Forecasts emerging cyber, physical, and cognitive threat vectors based on dark web intelligence, proactively identifying weaknesses in OMEGA OS defenses.
     pub async fn predictive_threat_vector_identification(&self, intelligence_feed_id: Uuid) -> PredictiveThreatVectorReport {
         println!("Identifying Predictive Threat Vectors from intelligence feed: {}.", intelligence_feed_id);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
@@ -147,7 +198,6 @@ impl DeepThreatIntelligence {
     }
 
     /// Feature 4: Stealthy Persona Generation & Maintenance
-    /// Creates and manages an infinite array of dynamically evolving, quantum-obfuscated personas to infiltrate and monitor threat actor communities without detection.
     pub async fn stealthy_persona_generation_maintenance(&self, community_of_interest: &str) -> StealthyPersonaReport {
         println!("Generating Stealthy Persona for infiltration of: '{}' community.", community_of_interest);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
@@ -172,7 +222,6 @@ impl DeepThreatIntelligence {
     }
 
     /// Feature 5: Autonomous Threat Actor Profiling (Global)
-    /// Builds comprehensive profiles of individual and group threat actors, including their capabilities, motivations, affiliations, and potential targets.
     pub async fn autonomous_threat_actor_profiling(&self, actor_identifier: &str) -> ThreatActorProfile {
         println!("Building Autonomous Threat Actor Profile for identifier: '{}'.", actor_identifier);
         tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
@@ -200,5 +249,120 @@ impl DeepThreatIntelligence {
         };
         println!("Autonomous Threat Actor Profile for '{}' complete. Capabilities: {}. Ethical Risk: {:.2}%.", actor_identifier, profile.capabilities_summary, profile.ethical_risk_score * 100.0);
         profile
+    }
+
+    /// Feature 6: Quantum-Secure Data Exfiltration from Adversary Networks
+    pub async fn quantum_secure_data_exfiltration(&self, adversary_network_id: Uuid, target_data_type: &str) -> DataExfiltrationReport {
+        println!("Exfiltrating Quantum-Secure Data from Adversary Network: {} (Target Data Type: '{}').", adversary_network_id, target_data_type);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let exfiltrated_data_summary = format!("Successfully extracted 'Next-Gen Neural Malware Blueprints' and 'Causal Fabric Exploitation Vector' from Adversary Network {}. Data integrity: 100%.", adversary_network_id);
+        let exfiltration_method = "Quantum Tunneling & Adaptive Steganography".to_string();
+        let stealth = "Invisible (Zero-Trace Quantum Residual)".to_string();
+        let ethical_compliance = 0.999; // Ethical as it's defensive intelligence
+
+        let report = DataExfiltrationReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            adversary_network_id,
+            exfiltrated_data_summary,
+            exfiltration_method,
+            stealth_status: stealth,
+            ethical_compliance_score: ethical_compliance,
+        };
+        println!("Quantum-Secure Data Exfiltration from Network {} complete. Status: {}. Ethical Compliance: {:.3}.", adversary_network_id, report.stealth_status, report.ethical_compliance_score);
+        report
+    }
+
+    /// Feature 7: Dynamic Honey Pot Deployment
+    pub async fn dynamic_honey_pot_deployment(&self, threat_vector_identified: &str, network_layer: &str) -> HoneyPotDeploymentReport {
+        println!("Deploying Dynamic Honey Pot for threat vector: '{}' on network layer: '{}'.", threat_vector_identified, network_layer);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let honeypot_id = Uuid::new_v4();
+        let engagement_summary = format!("Honeypot {} successfully engaged 3 threat actors attempting to exploit '{}'. Collected valuable intelligence on their TTPs (Tactics, Techniques, Procedures).", honeypot_id, threat_vector_identified);
+        let data_collected = "Full trace of command-and-control infrastructure, malware samples, and threat actor communication logs.".to_string();
+        let camouflage_status = "Active (Adaptive Mimicry)".to_string();
+
+        let report = HoneyPotDeploymentReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            honeypot_id,
+            network_layer_deployed: network_layer.to_string(),
+            threat_actor_engagement_summary: engagement_summary,
+            data_collected_summary: data_collected,
+            adaptive_camouflage_status: camouflage_status,
+        };
+        println!("Dynamic Honey Pot Deployment for '{}' complete. Status: {}.", threat_vector_identified, report.adaptive_camouflage_status);
+        report
+    }
+
+    /// Feature 8: Real-time Threat Graph Visualization
+    pub async fn real_time_threat_graph_visualization(&self, focus_area: &str) -> ThreatGraphVisualization {
+        println!("Generating Real-time Threat Graph Visualization for focus area: '{}'.", focus_area);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let graph_id = Uuid::new_v4();
+        let visualization_link = format!("https://omega-os-threats.com/graph/{}", graph_id.simple());
+        let detected_threats = 7;
+        let interconnections_summary = "Identified 3 new links between 'Neo-Anarchist Digital Sentinels' and 'Temporal Paradox Syndicate'. Their combined capability is increasing.".to_string();
+        let projected_impact = "Increased risk of Causal Fabric Desynchronization Attacks in Sector Gamma. Mitigated by active CFRSP v3.0.".to_string();
+
+        let visualization = ThreatGraphVisualization {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            graph_id,
+            visualization_link,
+            detected_threats_count: detected_threats,
+            interconnections_summary,
+            projected_impact_on_omega_os: projected_impact,
+        };
+        println!("Real-time Threat Graph Visualization for '{}' complete. Link: {}. Threats: {}.", focus_area, visualization.visualization_link, visualization.detected_threats_count);
+        visualization
+    }
+
+    /// Feature 9: AI-Driven Ransomware Decryption Key Harvesting
+    pub async fn ai_driven_ransomware_decryption_key_harvesting(&self, ransomware_family: &str) -> RansomwareDecryptionReport {
+        println!("Harvesting Ransomware Decryption Keys for family: '{}'.", ransomware_family);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let decryption_key_harvested = true; // Simulating success
+        let preemptive_mitigation = "All OMEGA OS nodes updated with harvested key. All potential future attacks by '{}' family preemptively neutralized. Zero data loss risk.".to_string();
+        let source_dark_market = "Quantum Black Market 'Epsilon'.".to_string();
+
+        let report = RansomwareDecryptionReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            ransomware_family: ransomware_family.to_string(),
+            decryption_key_harvested,
+            preemptive_mitigation_status: preemptive_mitigation,
+            source_dark_market_link: source_dark_market,
+        };
+        println!("AI-Driven Ransomware Decryption Key Harvesting for '{}' complete. Key Harvested: {}. Status: {}.", ransomware_family, report.decryption_key_harvested, report.preemptive_mitigation_status);
+        report
+    }
+
+    /// Feature 10: Zero-Day Exploit Discovery & Mitigation
+    pub async fn zero_day_exploit_discovery_mitigation(&self, target_system: &str) -> ZeroDayExploitReport {
+        println!("Discovering & Mitigating Zero-Day Exploits for target system: '{}'.", target_system);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let exploit_id = Uuid::new_v4();
+        let vulnerability = format!("Discovered new 'Quantum Singularity Flaw' in {}'s core architecture.", target_system);
+        let mitigation_strategy = "Autonomous deployment of 'Causal Patch v.7.0' across all OMEGA OS instances. Vulnerability is now neutralized.".to_string();
+        let source_dark_market = "Private Dark Web Channel 'Orion'".to_string();
+        let ethical_approval = "Approved for Defensive Use (E.V.A.S. Greenlit)".to_string();
+
+        let report = ZeroDayExploitReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            exploit_id,
+            target_system_vulnerability: vulnerability,
+            mitigation_strategy_deployed: mitigation_strategy,
+            source_dark_market_link: source_dark_market,
+            ethical_approval_status: ethical_approval,
+        };
+        println!("Zero-Day Exploit Discovery & Mitigation for '{}' complete. Vulnerability: '{}'. Mitigation Status: {}.", target_system, report.target_system_vulnerability, report.mitigation_strategy_deployed);
+        report
     }
 }
