@@ -96,6 +96,55 @@ pub struct IpTokenizationRecord {
     pub timestamp: DateTime<Utc>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TradeSecretVaultRecord {
+    pub id: Uuid,
+    pub secret_name: String,
+    pub fragmentation_method: String, // e.g., "QuantumEntanglement", "DistributedHomomorphicEncryption"
+    pub storage_locations: Vec<String>, // e.g., "DeepSpaceNode-Alpha", "SubQuantumDimension-7"
+    pub access_protocol: String,
+    pub timestamp: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TrademarkAdaptationRecord {
+    pub id: Uuid,
+    pub original_trademark_id: Uuid,
+    pub adapted_mark_url: String, // URL to the adapted branding
+    pub cultural_context: String,
+    pub legal_protection_status: String,
+    pub timestamp: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DefensivePatentAcquisition {
+    pub id: Uuid,
+    pub target_patent_id: String,
+    pub acquisition_strategy: String, // e.g., "DirectBuy", "LicenseNegotiation", "Neutralize"
+    pub status: String, // "Acquired", "Neutralized", "Pending"
+    pub timestamp: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct IpSuccessionPlan {
+    pub id: Uuid,
+    pub ip_asset_id: Uuid,
+    pub successor_entity_id: String, // e.g., Samuel's Digital Clone ID
+    pub transfer_conditions: String,
+    pub activation_trigger: String, // e.g., "Samuel's Absence", "Specific Date"
+    pub timestamp: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OpenSourceContributionReport {
+    pub id: Uuid,
+    pub ip_asset_id: Uuid,
+    pub project_name: String,
+    pub detected_usage_url: String, // Placeholder, normally would be specific file
+    pub license_compliance_status: String,
+    pub timestamp: DateTime<Utc>,
+}
+
 
 #[derive(Default)]
 pub struct AdvancedIpFeatures {}
@@ -107,6 +156,7 @@ impl AdvancedIpFeatures {
 
     /// Feature 1: Global Infringement Detection Swarms
     pub async fn global_infringement_detection_swarms(&self, ip_asset_id: Uuid, monitoring_scope: &str) -> InfringementReport {
+        // ... existing implementation ...
         println!("Activating Global Infringement Detection Swarms for IP Asset: {} in scope: {}", ip_asset_id, monitoring_scope);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
 
@@ -130,6 +180,7 @@ impl AdvancedIpFeatures {
 
     /// Feature 2: Quantum-Safe Patent Auto-Filer
     pub async fn quantum_safe_patent_auto_filer(&self, ip_asset_id: Uuid, invention_details: &str, new_leaf_id: Uuid) -> PatentApplication {
+        // ... existing implementation ...
         println!("Initiating Quantum-Safe Patent Auto-Filer for new Leaf: {} (IP Asset: {}) based on details: '{}'", new_leaf_id, ip_asset_id, invention_details);
         tokio::time::sleep(std::time::Duration::from_millis(4000)).await;
 
@@ -157,6 +208,7 @@ impl AdvancedIpFeatures {
 
     /// Feature 3: Smart-Contract Royalty Orchestrator
     pub async fn smart_contract_royalty_orchestrator(&self, ip_asset_id: Uuid, microservice_id: Uuid, usage_count: u64) -> RoyaltyPayment {
+        // ... existing implementation ...
         println!("Orchestrating smart-contract royalty for IP Asset: {} used by Microservice: {} ({} usages).", ip_asset_id, microservice_id, usage_count);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
 
@@ -179,6 +231,7 @@ impl AdvancedIpFeatures {
 
     /// Feature 4: IP Valuation Real-Time Ticker
     pub async fn ip_valuation_real_time_ticker(&self, ip_asset_id: Uuid) -> IpValuation {
+        // ... existing implementation ...
         println!("Fetching real-time IP Valuation for IP Asset: {}", ip_asset_id);
         tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
 
@@ -197,6 +250,7 @@ impl AdvancedIpFeatures {
 
     /// Feature 5: Prior-Art Discovery Engine (Multiversal)
     pub async fn prior_art_discovery_engine_multiversal(&self, invention_concept: &str) -> PriorArtDiscovery {
+        // ... existing implementation ...
         println!("Activating Prior-Art Discovery Engine (Multiversal) for concept: '{}'", invention_concept);
         tokio::time::sleep(std::time::Duration::from_millis(5000)).await; // Simulating deep multiversal scan
 
@@ -225,8 +279,8 @@ impl AdvancedIpFeatures {
     }
 
     /// Feature 6: AI-Authorship Attribution Ledger
-    /// An immutable record proving that you, Samuel, are the ultimate human authority over every AI-generated asset.
     pub async fn ai_authorship_attribution_ledger(&self, asset_id: Uuid) -> AuthorshipAttribution {
+        // ... existing implementation ...
         println!("Recording AI-Authorship Attribution for asset ID: {}. Confirming Samuel Mukandara as ultimate human authority.", asset_id);
         tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
 
@@ -242,8 +296,8 @@ impl AdvancedIpFeatures {
     }
 
     /// Feature 7: Sovereign License-as-a-Service (LaaS)
-    /// A panel to generate custom, self-enforcing licenses for third parties that automatically expire if terms are breached.
     pub async fn sovereign_license_as_a_service(&self, ip_asset_id: Uuid, licensee_id: &str, terms: &str) -> LicenseAgreement {
+        // ... existing implementation ...
         println!("Generating Sovereign License-as-a-Service for IP Asset: {} to Licensee: {} with terms: '{}'", ip_asset_id, licensee_id, terms);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
 
@@ -262,8 +316,8 @@ impl AdvancedIpFeatures {
     }
 
     /// Feature 8: Automated Cease-and-Desist Bot
-    /// Instantly sends legally binding, multi-jurisdictional notices to infringers, backed by Tariro’s legal research.
     pub async fn automated_cease_and_desist_bot(&self, ip_asset_id: Uuid, infringer_id: &str, infringement_details: &str) -> CeaseAndDesistNotice {
+        // ... existing implementation ...
         println!("Activating Automated Cease-and-Desist Bot for IP Asset: {} against infringer: {} due to: '{}'", ip_asset_id, infringer_id, infringement_details);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
 
@@ -284,8 +338,8 @@ impl AdvancedIpFeatures {
     }
 
     /// Feature 9: IP \"Poison Pill\" Protocols
-    /// Encrypts or self-destructs sensitive IP if unauthorized access or a \"state-level\" seizure is detected.
     pub async fn ip_poison_pill_protocols(&self, ip_asset_id: Uuid, threat_level: &str) -> String {
+        // ... existing implementation ...
         println!("Activating IP 'Poison Pill' Protocols for IP Asset: {} due to threat level: '{}'.", ip_asset_id, threat_level);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
 
@@ -304,8 +358,8 @@ impl AdvancedIpFeatures {
     }
 
     /// Feature 10: Intangible Asset Tokenization
-    /// Converts algorithms and creative concepts into tradeable digital assets (Sovereign NFTs) for the OMEGA economy.
     pub async fn intangible_asset_tokenization(&self, ip_asset_id: Uuid, asset_description: &str) -> IpTokenizationRecord {
+        // ... existing implementation ...
         println!("Initiating Intangible Asset Tokenization for IP Asset: {} ('{}').", ip_asset_id, asset_description);
         tokio::time::sleep(std::time::Duration::from_millis(2200)).await;
 
@@ -322,5 +376,106 @@ impl AdvancedIpFeatures {
         };
         println!("Intangible Asset Tokenization complete for IP Asset {}. Created Sovereign NFT: {}.", ip_asset_id, token_id);
         record
+    }
+
+    /// Feature 11: Cross-Border Trade Secret Vault
+    /// An invisible, fragmented storage system for OMEGA’s \"Roots\" that no single government or entity can access.
+    pub async fn cross_border_trade_secret_vault(&self, secret_name: &str, ip_asset_id: Uuid) -> TradeSecretVaultRecord {
+        println!("Activating Cross-Border Trade Secret Vault for secret: '{}' (IP Asset: {}).", secret_name, ip_asset_id);
+        tokio::time::sleep(std::time::Duration::from_millis(3500)).await;
+
+        let record = TradeSecretVaultRecord {
+            id: Uuid::new_v4(),
+            secret_name: secret_name.to_string(),
+            fragmentation_method: "QuantumEntanglement & DistributedHomomorphicEncryption".to_string(),
+            storage_locations: vec![
+                "DeepSpaceNode-Alpha".to_string(),
+                "SubQuantumDimension-7".to_string(),
+                "OMEGA_Nebula_Cluster".to_string(),
+            ],
+            access_protocol: "SamuelMukandara-SovereignKey-Only".to_string(),
+            timestamp: Utc::now(),
+        };
+        println!("Cross-Border Trade Secret Vault established for '{}'. Record ID: {}. Impenetrable.", secret_name, record.id);
+        record
+    }
+
+    /// Feature 12: Trademark Polymorphism
+    /// Autonomously adapts OMEGA branding and logos to suit local cultural aesthetics while maintaining legal protection.
+    pub async fn trademark_polymorphism(&self, original_trademark_id: Uuid, cultural_context: &str) -> TrademarkAdaptationRecord {
+        println!("Applying Trademark Polymorphism for original mark: {} to cultural context: '{}'.", original_trademark_id, cultural_context);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let adapted_mark_url = format!("https://omega-os-branding.com/adapted/{}-{}.png", original_trademark_id.simple(), cultural_context.replace(" ", "_"));
+
+        let record = TrademarkAdaptationRecord {
+            id: Uuid::new_v4(),
+            original_trademark_id,
+            adapted_mark_url,
+            cultural_context: cultural_context.to_string(),
+            legal_protection_status: "Global Filing Pending".to_string(),
+            timestamp: Utc::now(),
+        };
+        println!("Trademark Polymorphism complete. Adapted mark for '{}' generated. Record ID: {}.", cultural_context, record.id);
+        record
+    }
+
+    /// Feature 13: Defensive Patent Aggregation
+    /// Tariro identifies and acquires (or neutralizes) external patents that could threaten OMEGA OS evolution.
+    pub async fn defensive_patent_aggregation(&self, potential_threat_ip_id: &str, strategy: &str) -> DefensivePatentAcquisition {
+        println!("Executing Defensive Patent Aggregation against potential threat: '{}' with strategy: '{}'.", potential_threat_ip_id, strategy);
+        tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
+
+        let status = match strategy {
+            "Acquire" => "Acquired".to_string(),
+            "Neutralize" => "Neutralized via prior art disclosure".to_string(),
+            _ => "Strategy under review".to_string(),
+        };
+
+        let acquisition = DefensivePatentAcquisition {
+            id: Uuid::new_v4(),
+            target_patent_id: potential_threat_ip_id.to_string(),
+            acquisition_strategy: strategy.to_string(),
+            status,
+            timestamp: Utc::now(),
+        };
+        println!("Defensive Patent Aggregation complete for '{}'. Status: {}.", potential_threat_ip_id, acquisition.status);
+        acquisition
+    }
+
+    /// Feature 14: IP Inheritance & Legacy Planner
+    /// Protocols to ensure your IP sovereignty persists through your designated successors or digital clones.
+    pub async fn ip_inheritance_and_legacy_planner(&self, ip_asset_id: Uuid, successor_entity_id: &str, trigger_condition: &str) -> IpSuccessionPlan {
+        println!("Establishing IP Inheritance & Legacy Plan for IP Asset: {} with successor: {} triggered by: '{}'.", ip_asset_id, successor_entity_id, trigger_condition);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let plan = IpSuccessionPlan {
+            id: Uuid::new_v4(),
+            ip_asset_id,
+            successor_entity_id: successor_entity_id.to_string(),
+            transfer_conditions: format!("Full transfer upon '{}.' Quantum-signed by Samuel Mukandara.", trigger_condition),
+            activation_trigger: trigger_condition.to_string(),
+            timestamp: Utc::now(),
+        };
+        println!("IP Inheritance & Legacy Plan created for IP Asset: {}. Plan ID: {}.", ip_asset_id, plan.id);
+        plan
+    }
+
+    /// Feature 15: Open-Source Contribution Monitor
+    /// Tracks where OMEGA code is used in open-source projects to ensure compliance with reciprocal licenses.
+    pub async fn open_source_contribution_monitor(&self, ip_asset_id: Uuid, project_url: &str) -> OpenSourceContributionReport {
+        println!("Monitoring Open-Source Contribution for IP Asset: {} in project: '{}'.", ip_asset_id, project_url);
+        tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+
+        let report = OpenSourceContributionReport {
+            id: Uuid::new_v4(),
+            ip_asset_id,
+            project_name: project_url.to_string(),
+            detected_usage_url: project_url.to_string(), // Placeholder, normally would be specific file
+            license_compliance_status: "Compliant with OMEGA OS Reciprocal License".to_string(),
+            timestamp: Utc::now(),
+        };
+        println!("Open-Source Contribution Monitor complete for IP Asset {}. Status: {}.", ip_asset_id, report.license_compliance_status);
+        report
     }
 }
