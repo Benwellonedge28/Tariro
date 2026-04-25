@@ -61,17 +61,17 @@ pub struct SemanticDiffResult {
     pub id: Uuid,
     pub commit_a_id: String,
     pub commit_b_id: String,
-    pub semantic_changes: Vec<String>, // e.g., "The pricing algorithm was made more aggressive", "Security policy updated"
-    pub file_changes_count: u32,
+    pub logical_changes: Vec<String>, // e.g., "The pricing algorithm was made more aggressive"
+    pub file_changes: Vec<String>,
     pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MemoryHoleOperation {
+pub struct SecureDeletionReport {
     pub id: Uuid,
-    pub target_item_id: String, // Hash or ID of the item to delete
-    pub operation_type: String, // "QuantumErase", "ImmutableSeal"
-    pub status: String, // "Completed", "PendingVerification"
+    pub target_item_id: String, // File path, commit ID, etc.
+    pub deletion_method: String, // "Quantum Erasure", "Causal Disentanglement"
+    pub verification_status: String, // "Irreversibly Erased"
     pub timestamp: DateTime<Utc>,
 }
 
@@ -79,19 +79,18 @@ pub struct MemoryHoleOperation {
 pub struct CommitDocumentation {
     pub id: Uuid,
     pub commit_id: String,
-    pub summary_text: String,
-    pub rationale_text: String,
-    pub impact_analysis: String,
+    pub summary: String, // 1-page summary of changes
+    pub rationale: String,
     pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct VersionedSandboxRun {
+pub struct VersionedSandboxReport {
     pub id: Uuid,
-    pub project_id: Uuid,
-    pub version_a_commit_id: String,
-    pub version_b_commit_id: String,
-    pub comparison_results: String, // e.g., "Version B shows 10% performance improvement in simulated quantum financial transactions"
+    pub sandbox_name: String,
+    pub primary_tree_id: Uuid,
+    pub compared_tree_id: Uuid,
+    pub performance_comparison: String,
     pub timestamp: DateTime<Utc>,
 }
 
@@ -99,8 +98,9 @@ pub struct VersionedSandboxRun {
 pub struct ContributorShieldingRecord {
     pub id: Uuid,
     pub original_contributor_id: String,
-    pub obfuscated_id: String,
-    pub change_set_ids: Vec<Uuid>, // Associated changesets that were shielded
+    pub obfuscated_contributor_id: String,
+    pub commit_ids: Vec<String>,
+    pub shielding_status: String, // "Active", "Retired"
     pub timestamp: DateTime<Utc>,
 }
 
@@ -220,112 +220,108 @@ impl CoreVcs {
     }
 
     /// Feature 61: Semantic Diff
-    /// Shows changes in *logic* (e.g., "The pricing algorithm was made more aggressive") rather than just line changes.
+    /// Shows changes in *logic* (e.g., \"The pricing algorithm was made more aggressive\") rather than just line changes.
     pub async fn semantic_diff(&self, commit_a_id: &str, commit_b_id: &str) -> SemanticDiffResult {
-        println!("Performing Semantic Diff between commit {} and {}.", commit_a_id, commit_b_id);
+        println!("Performing Semantic Diff between Commit A: '{}' and Commit B: '{}'.", commit_a_id, commit_b_id);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
 
-        let semantic_changes = vec![
-            "The pricing algorithm was made 15% more aggressive for inter-dimensional services.".to_string(),
-            "Authentication protocol upgraded to require 5th-dimensional causal signatures.".to_string(),
+        let logical_changes = vec![
+            "Pricing algorithm was adjusted to prioritize benevolent impact over pure profit maximization.".to_string(),
+            "Resource allocation logic now accounts for inter-dimensional energy fluctuations.".to_string(),
         ];
-        let file_changes_count = 12;
+        let file_changes = vec![
+            "src/pricing_engine/mod.rs".to_string(),
+            "src/resource_manager/allocation.rs".to_string(),
+        ];
 
         let result = SemanticDiffResult {
             id: Uuid::new_v4(),
             commit_a_id: commit_a_id.to_string(),
             commit_b_id: commit_b_id.to_string(),
-            semantic_changes,
-            file_changes_count,
+            logical_changes,
+            file_changes,
             timestamp: Utc::now(),
         };
-        println!("Semantic Diff complete. Found {} logical changes between commits.", result.semantic_changes.len());
+        println!("Semantic Diff complete. Identified {} logical changes.", result.logical_changes.len());
         result
     }
 
     /// Feature 62: The \"Memory Hole\" (Secure Deletion)
     /// Permanently and quantum-erases any version or file so it can *never* be recovered by anyone.
-    pub async fn memory_hole_secure_deletion(&self, target_item_id: &str, operation_type: &str) -> MemoryHoleOperation {
-        println!("Initiating 'Memory Hole' Secure Deletion for item: '{}' using operation: '{}'.", target_item_id, operation_type);
+    pub async fn secure_deletion_memory_hole(&self, target_item_id: &str) -> SecureDeletionReport {
+        println!("Initiating Secure Deletion ('Memory Hole') for: '{}'.", target_item_id);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
 
-        let status = if operation_type == "QuantumErase" {
-            "Completed: Item quantum-erased across all realities and causal backups. Irrecoverable.".to_string()
-        } else {
-            "Completed: Item immutably sealed and cryptographically isolated. Access impossible.".to_string()
-        };
-
-        let operation = MemoryHoleOperation {
+        let report = SecureDeletionReport {
             id: Uuid::new_v4(),
             target_item_id: target_item_id.to_string(),
-            operation_type: operation_type.to_string(),
-            status,
+            deletion_method: "Quantum Erasure & Causal Disentanglement".to_string(),
+            verification_status: "Irreversibly Erased from all known realities and causal timelines.".to_string(),
             timestamp: Utc::now(),
         };
-        println!("'Memory Hole' operation complete for item {}. Status: {}.", target_item_id, operation.status);
-        operation
+        println!("Secure Deletion ('Memory Hole') complete for '{}'. Status: {}.", target_item_id, report.verification_status);
+        report
     }
 
     /// Feature 63: Auto-Documentation of Commits
     /// Every save is accompanied by a 1-page summary of what was changed and why.
-    pub async fn auto_documentation_of_commits(&self, commit_id: &str, changes_summary: &str) -> CommitDocumentation {
-        println!("Generating Auto-Documentation for commit: '{}' with summary: '{}'.", commit_id, changes_summary);
+    pub async fn auto_documentation_of_commits(&self, commit_id: &str, changes_description: &str) -> CommitDocumentation {
+        println!("Generating Auto-Documentation for Commit: '{}' with description: '{}'.", commit_id, changes_description);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
 
-        let rationale = format!("Changes were implemented to align with Samuel Mukandara's directive for '{}'.", changes_summary);
-        let impact = "Expected to improve ontological stability by 0.5%.".to_string();
+        let summary = format!("One-page summary of Commit {}: {}. Includes impact analysis on OMEGA OS Causal Fabric and ethical alignment metrics.", commit_id, changes_description);
+        let rationale = format!("Rationale for commit: Strategic adjustment based on predictive modeling of inter-dimensional resource availability.");
 
         let doc = CommitDocumentation {
             id: Uuid::new_v4(),
             commit_id: commit_id.to_string(),
-            summary_text: changes_summary.to_string(),
-            rationale_text: rationale,
-            impact_analysis: impact,
+            summary,
+            rationale,
             timestamp: Utc::now(),
         };
-        println!("Auto-Documentation for commit {} complete. Doc ID: {}.", commit_id, doc.id);
+        println!("Auto-Documentation for Commit {} complete. Document ID: {}.", commit_id, doc.id);
         doc
     }
 
     /// Feature 64: Versioned Reality Sandbox
     /// Run an older version of your \"Finance Tree\" alongside the new one to compare performance.
-    pub async fn versioned_reality_sandbox(&self, project_id: Uuid, version_a_commit: &str, version_b_commit: &str) -> VersionedSandboxRun {
-        println!("Launching Versioned Reality Sandbox for Project: {} to compare {} vs {}.", project_id, version_a_commit, version_b_commit);
-        tokio::time::sleep(std::time::Duration::from_millis(4000)).await;
+    pub async fn versioned_reality_sandbox(&self, sandbox_name: &str, primary_tree_id: Uuid, compared_tree_id: Uuid) -> VersionedSandboxReport {
+        println!("Launching Versioned Reality Sandbox '{}' comparing Tree {} (Primary) with Tree {} (Compared).", sandbox_name, primary_tree_id, compared_tree_id);
+        tokio::time::sleep(std::time::Duration::from_millis(3500)).await;
 
-        let comparison_results = format!(
-            "Sandbox Comparison Results for Project {}:\nVersion {} (old 'Finance Tree') processed 1000 transactions in 1.2s.\nVersion {} (new 'Finance Tree') processed 1000 transactions in 0.8s, showing a 33% performance improvement in simulated quantum financial transactions. No regressions detected.",
-            project_id, version_a_commit, version_b_commit
+        let performance_comparison = format!(
+            "Sandbox results for '{}': Primary Tree (Finance v2.0) shows 15% efficiency gain over Compared Tree (Finance v1.0) in 'Quantum Credit Allocation'. No unforeseen side effects detected. Recommended for full deployment.",
+            sandbox_name
         );
 
-        let run = VersionedSandboxRun {
+        let report = VersionedSandboxReport {
             id: Uuid::new_v4(),
-            project_id,
-            version_a_commit_id: version_a_commit.to_string(),
-            version_b_commit_id: version_b_commit.to_string(),
-            comparison_results,
+            sandbox_name: sandbox_name.to_string(),
+            primary_tree_id,
+            compared_tree_id,
+            performance_comparison,
             timestamp: Utc::now(),
         };
-        println!("Versioned Reality Sandbox run complete. Results for Project {}: {}.", project_id, run.comparison_results);
-        run
+        println!("Versioned Reality Sandbox '{}' complete. Performance comparison: {}.", sandbox_name, report.performance_comparison);
+        report
     }
 
     /// Feature 65: Contributor Identity Shielding
     /// Obfuscates who made a change (even internally) to protect your team from external threats.
-    pub async fn contributor_identity_shielding(&self, original_contributor_id: &str, change_set_ids: Vec<Uuid>) -> ContributorShieldingRecord {
-        println!("Applying Contributor Identity Shielding for '{}' across {} changesets.", original_contributor_id, change_set_ids.len());
-        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+    pub async fn contributor_identity_shielding(&self, original_contributor_id: &str, commit_id: &str) -> ContributorShieldingRecord {
+        println!("Applying Contributor Identity Shielding for '{}' on Commit: '{}'.", original_contributor_id, commit_id);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
 
-        let obfuscated_id = format!("ShieldedContributor-{}", Uuid::new_v4().simple());
-
+        let obfuscated_id = format!("Shielded_Contributor_{}", Uuid::new_v4().simple());
         let record = ContributorShieldingRecord {
             id: Uuid::new_v4(),
             original_contributor_id: original_contributor_id.to_string(),
-            obfuscated_id: obfuscated_id.clone(),
-            change_set_ids,
+            obfuscated_contributor_id: obfuscated_id.clone(),
+            commit_ids: vec![commit_id.to_string()],
+            shielding_status: "Active".to_string(),
             timestamp: Utc::now(),
         };
-        println!("Contributor Identity Shielding complete. Original ID '{}' now appears as '{}'.", original_contributor_id, obfuscated_id);
+        println!("Contributor Identity Shielding complete. Original: '{}', Obfuscated: '{}'.", original_contributor_id, obfuscated_id);
         record
     }
 }
