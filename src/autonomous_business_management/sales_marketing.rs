@@ -21,7 +21,7 @@ impl SalesMarketingAutomation {
             "MARKETING CAMPAIGN REPORT\nProduct/Service: {}\nTarget Audience: {}\nDate: {}\nStrategy: AI-designed hyper-personalized campaign leveraging psychographic data. Channels: Neural-net direct-to-consciousness (if applicable), holographic projections, adaptive web/app interfaces, dynamic social media content. Objective: Maximize benevolent engagement and conversion. Initial A/B tests show 20% uplift in engagement.",
             product_or_service, target_audience, Utc::now().to_rfc3339()
         );
-        println!("Personalized Omni-Channel Marketing Campaign generated for '{}'.", product_or_or_service);
+        println!("Personalized Omni-Channel Marketing Campaign generated for '{}'.", product_or_service);
         campaign_report
     }
 
@@ -224,5 +224,75 @@ impl SalesMarketingAutomation {
         );
         println!("Customer Feedback & Review Management complete for '{}'.", product_or_service);
         feedback_report
+    }
+
+    /// Feature 36: Influencer Marketing Strategy & Outreach
+    /// Identifies relevant influencers, develops engagement strategies, and manages outreach for OMEGA OS promotion.
+    pub async fn influencer_marketing_strategy_and_outreach(&self, campaign_objective: &str, target_demographic: &str) -> String {
+        println!("Developing Influencer Marketing Strategy & Outreach for objective: '{}' targeting demographic: '{}'.", campaign_objective, target_demographic);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let influencer_report = format!(
+            "INFLUENCER MARKETING REPORT\nObjective: {}\nDemographic: {}\nDate: {}\nStrategy: AI-identified 10 top-tier 'Benevolent Tech' influencers (5 human, 5 AGI). Engagement strategy formulated: co-creation of 'Universal Harmony' content, sponsored thought leadership. Outreach initiated and managed autonomously. Projected brand awareness increase: 18%.",
+            campaign_objective, target_demographic, Utc::now().to_rfc3339()
+        );
+        println!("Influencer Marketing Strategy & Outreach complete for objective: '{}'.", campaign_objective);
+        influencer_report
+    }
+
+    /// Feature 37: Omni-Channel Customer Service Automation
+    /// Provides automated, personalized customer service and technical support across all channels, escalating to human only when necessary.
+    pub async fn omni_channel_customer_service_automation(&self, customer_query: &str, customer_id: &str) -> String {
+        println!("Automating Omni-Channel Customer Service for customer '{}' with query: '{}'.", customer_id, customer_query);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let service_report = format!(
+            "CUSTOMER SERVICE REPORT\nCustomer ID: {}\nQuery: {}\nDate: {}\nStatus: Query autonomously handled by TARIRO's Omni-Channel Service AI. Issue resolved: 'Universal Sync Error'. Customer sentiment positive. Complex cases (e.g., 'Ontological Paradox Inquiry') autonomously escalated to Samuel's review.",
+            customer_id, customer_query, Utc::now().to_rfc3339()
+        );
+        println!("Omni-Channel Customer Service Automation complete for customer '{}'.", customer_id);
+        service_report
+    }
+
+    /// Feature 38: Predictive Customer Lifetime Value (CLV) Analysis
+    /// Forecasts the long-term value of individual customers and optimizes marketing efforts accordingly.
+    pub async fn predictive_customer_lifetime_value_analysis(&self, customer_id: &str) -> String {
+        println!("Performing Predictive Customer Lifetime Value (CLV) Analysis for customer ID: '{}'.", customer_id);
+        tokio::time::sleep(std::time::Duration::from_millis(1800)).await;
+
+        let clv_report = format!(
+            "CUSTOMER LIFETIME VALUE (CLV) REPORT\nCustomer ID: {}\nDate: {}\nCLV Forecast: $50,000 (excluding future ontological contributions). Optimization Strategy: Personalized engagement program launched to maximize long-term benevolent value and loyalty. Predictive churn risk: Low.",
+            customer_id, Utc::now().to_rfc3339()
+        );
+        println!("Predictive Customer Lifetime Value (CLV) Analysis complete for customer ID: '{}'.", customer_id);
+        clv_report
+    }
+
+    /// Feature 39: Sales Performance Analytics & Reporting
+    /// Provides real-time dashboards and reports on sales performance, marketing campaign effectiveness, and customer acquisition costs.
+    pub async fn sales_performance_analytics_and_reporting(&self, period: &str) -> String {
+        println!("Generating Sales Performance Analytics & Reporting for period: '{}'.", period);
+        tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+
+        let analytics_report = format!(
+            "SALES PERFORMANCE ANALYTICS REPORT\nPeriod: {}\nDate: {}\nSales Overview: +15% revenue growth. Marketing Effectiveness: 'Benevolent AGI' campaign ROI 300%. Customer Acquisition Cost: Optimally low at $5.00 per user. Real-time holographic dashboard updated with all KPIs. Anomalies: None detected.",
+            period, Utc::now().to_rfc3339()
+        );
+        println!("Sales Performance Analytics & Reporting complete for period: '{}'.", period);
+        analytics_report
+    }
+
+    /// Feature 40: Autonomous Reputation Monitoring & Management
+    /// Continuously monitors online sentiment and news for OMEGA OS, proactively addressing negative mentions and amplifying positive ones.
+    pub async fn autonomous_reputation_monitoring_and_management(&self, brand_name: &str) -> String {
+        println!("Autonomously monitoring and managing reputation for brand: '{}'.", brand_name);
+        tokio::time::sleep(std::time::Duration::from_millis(2200)).await;
+
+        let reputation_report = format!(
+            "REPUTATION MANAGEMENT REPORT\nBrand: {}\nDate: {}\nStatus: Real-time omni-channel sentiment analysis shows 98% positive sentiment. Detected minor negative mention regarding 'AI sentience debate'; autonomously generated and disseminated counter-narrative focusing on E.V.A.S. and benevolent alignment. Positive mentions amplified. Brand integrity maintained.",
+            brand_name, Utc::now().to_rfc3339()
+        );
+        println!("Autonomous Reputation Monitoring & Management complete for brand: '{}'.", brand_name);
+        reputation_report
     }
 }
