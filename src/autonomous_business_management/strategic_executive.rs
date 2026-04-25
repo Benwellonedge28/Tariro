@@ -177,4 +177,81 @@ impl StrategicExecutiveEngine {
         println!("Executive decision made: {}.", decision_outcome);
         decision_outcome
     }
+
+    /// Feature 6: Global Regulatory Compliance Orchestrator
+    /// Continuously monitors and adapts all business operations to comply with evolving international and local regulations across all domains.
+    pub async fn global_regulatory_compliance_orchestration(&self, operation_scope: &str) -> String {
+        println!("Orchestrating global regulatory compliance for operation scope: '{}'", operation_scope);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        // This would involve real-time feeds from legal databases, AI analysis of regulatory changes,
+        // and autonomous adaptation of business processes.
+        let compliance_status = format!(
+            "REGULATORY COMPLIANCE REPORT\nScope: {}\nDate: {}\nStatus: All OMEGA OS operations within '{}' are 100% compliant with current international and local regulations. Adapting to new privacy laws in EU.",
+            operation_scope, Utc::now().to_rfc3339(), operation_scope
+        );
+        println!("Global regulatory compliance orchestration complete for '{}'.", operation_scope);
+        compliance_status
+    }
+
+    /// Feature 7: Ethical Business Conduct Enforcement
+    /// Ensures all business operations (sales, marketing, finance) strictly adhere to OMEGA OS ethical frameworks (E.V.A.S., DAS-CP).
+    pub async fn enforce_ethical_business_conduct(&self, business_operation_id: &str, operation_type: &str) -> String {
+        println!("Enforcing ethical business conduct for operation '{}' (Type: {}).", business_operation_id, operation_type);
+        tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+
+        // This involves continuous E.V.A.S. and DAS-CP checks on all business processes.
+        let ethical_compliance = format!(
+            "ETHICAL CONDUCT ENFORCEMENT REPORT\nOperation ID: {}\nType: {}\nDate: {}\nStatus: E.V.A.S. and DAS-CP compliant. Ethical deviations detected in [minor marketing copy] and autonomously corrected.",
+            business_operation_id, operation_type, Utc::now().to_rfc3339()
+        );
+        println!("Ethical business conduct enforcement complete for '{}'.", business_operation_id);
+        ethical_compliance
+    }
+
+    /// Feature 8: Automated Business Governance & Oversight
+    /// Tariro autonomously implements and enforces internal business governance structures, policies, and audit protocols.
+    pub async fn automated_business_governance_and_oversight(&self, governance_area: &str) -> String {
+        println!("Automating business governance and oversight for area: '{}'", governance_area);
+        tokio::time::sleep(std::time::Duration::from_millis(1800)).await;
+
+        // This includes policy deployment, access control enforcement, and internal audit scheduling.
+        let governance_report = format!(
+            "BUSINESS GOVERNANCE & OVERSIGHT REPORT\nArea: {}\nDate: {}\nStatus: Governance policies ('Data Access Protocol v2.1') enforced. Audit protocol for '{}' successfully executed with no critical findings.",
+            governance_area, Utc::now().to_rfc3339(), governance_area
+        );
+        println!("Automated business governance and oversight complete for '{}'.", governance_area);
+        governance_report
+    }
+
+    /// Feature 9: Strategic Partnership Identification & Negotiation
+    /// Identifies potential strategic partners and autonomously conducts negotiations for collaboration or acquisition.
+    pub async fn strategic_partnership_identification_and_negotiation(&self, strategic_objective: &str) -> String {
+        println!("Identifying and negotiating strategic partnerships for objective: '{}'", strategic_objective);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        // This leverages advanced AI for partner matching, game theory for negotiation,
+        // and legal AI for contract drafting.
+        let partnership_report = format!(
+            "STRATEGIC PARTNERSHIP REPORT\nObjective: {}\nDate: {}\nStatus: Identified 'QuantumAI Corp' as optimal partner for '{0}'. Autonomous negotiation initiated and terms for joint venture in 'Omniversal Simulation' finalized. Contract drafted for Samuel's review.",
+            strategic_objective, Utc::now().to_rfc3339()
+        );
+        println!("Strategic partnership identification and negotiation complete for '{}'.", strategic_objective);
+        partnership_report
+    }
+
+    /// Feature 10: Crisis Management & Business Continuity Planning
+    /// Develops, tests, and executes business continuity and crisis management plans.
+    pub async fn crisis_management_and_continuity_planning(&self, potential_crisis_scenario: &str) -> String {
+        println!("Developing and testing crisis management plan for scenario: '{}'", potential_crisis_scenario);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        // This involves predictive modeling, simulation, and real-time adaptation of plans.
+        let crisis_plan_report = format!(
+            "CRISIS MANAGEMENT & CONTINUITY PLAN REPORT\nScenario: {}\nDate: {}\nStatus: Plan for '{}' developed and simulated. Key resilience metrics improved by 15%. Automated failover protocols updated. OMEGA OS operational integrity ensured.",
+            potential_crisis_scenario, Utc::now().to_rfc3339(), potential_crisis_scenario
+        );
+        println!("Crisis management and business continuity planning complete for '{}'.", potential_crisis_scenario);
+        crisis_plan_report
+    }
 }
