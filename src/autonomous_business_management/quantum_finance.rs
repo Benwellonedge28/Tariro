@@ -69,7 +69,7 @@ pub struct TaxComplianceReport {
     pub id: Uuid,
     pub timestamp: DateTime<Utc>,
     pub jurisdiction: String,
-    pub tax_type: String, // e.g., "Income Tax", "Sales Tax", "Quantum Transaction Fee"
+    pub tax_type: String, // "Income Tax", "Sales Tax", "Quantum Transaction Fee"
     pub filing_status: String, // "Filed", "Pending", "Audited"
     pub predicted_changes: String,
     pub ethical_alignment_score: f64, // 0-1
@@ -119,6 +119,116 @@ pub struct EthicalFinanceAudit {
     pub overall_status: String, // "Compliant", "Minor Issue", "Major Violation"
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FinancialAuditReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub audit_type: String, // "Internal", "External"
+    pub audit_scope: String,
+    pub findings_summary: String,
+    pub quantum_verified_integrity: bool,
+    pub external_auditor_documentation_link: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FraudDetectionReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub detected_anomaly: String,
+    pub anomaly_type: String, // "Internal Fraud", "External Cyberattack"
+    pub risk_assessment: f64, // 0-1
+    pub autonomous_countermeasures_taken: Vec<String>,
+    pub status: String, // "Resolved", "Ongoing"
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RiskManagementReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub identified_risk: String,
+    pub estimated_impact: String,
+    pub insurance_policy_details: Option<String>,
+    pub autonomous_mitigation_actions: Vec<String>,
+    pub risk_level: String, // "Low", "Medium", "High"
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CapitalAllocationReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub strategy_name: String,
+    pub allocated_amount: f64,
+    pub allocation_purpose: String,
+    pub predicted_roi: f64,
+    pub ethical_alignment_score: f64, // 0-1
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PayrollRecord {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub entity_id: Uuid, // Human Employee ID or AGI Contributor ID
+    pub entity_type: String, // "Human", "AGI"
+    pub gross_pay: f64,
+    pub deductions: f64,
+    pub net_pay: f64,
+    pub performance_metrics_considered: HashMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RegulatoryFilingReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub regulation_name: String,
+    pub jurisdiction: String,
+    pub filing_status: String, // "Submitted", "Accepted", "Rejected"
+    pub ethical_compliance_score: f64, // 0-1
+    pub adaptation_actions: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FundManagementReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub fund_name: String,
+    pub total_value_usd: f64,
+    pub currencies_managed: Vec<String>,
+    pub optimization_strategy: String,
+    pub conversion_efficiency_pct: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FinancialBenchmarkReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub metric_name: String,
+    pub omeg_os_value: f64,
+    pub industry_average: f64,
+    pub performance_gap_pct: f64,
+    pub adaptive_strategy_adjustments: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FinancialAnomalyDetectionReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub anomaly_description: String,
+    pub anomaly_severity: String, // "Low", "Medium", "High", "Critical"
+    pub detected_patterns: Vec<String>,
+    pub autonomous_response_actions: Vec<String>,
+    pub self_learning_feedback: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DigitalAssetManagementReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub asset_name: String,
+    pub asset_type: String, // "Cryptocurrency", "NFT", "Blockchain Token"
+    pub current_value_usd: f64,
+    pub quantum_security_status: String, // "Hardware-Backed Secure"
+    pub audit_trail_link: String,
+}
 
 #[derive(Default)]
 pub struct QuantumFinance {}
@@ -257,8 +367,8 @@ impl QuantumFinance {
     }
 
     /// Feature 46: Global Tax Compliance Automation (Real-time & Predictive)
-    /// Tariro continuously monitors global tax laws and autonomously handles all tax calculations, filings, and compliance in every jurisdiction, predicting future changes.
     pub async fn global_tax_compliance_automation(&self, jurisdiction: &str, tax_year: &str) -> TaxComplianceReport {
+        // ... existing implementation ...
         println!("Automating Global Tax Compliance for Jurisdiction: '{}' for tax year: '{}'.", jurisdiction, tax_year);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
 
@@ -281,8 +391,8 @@ impl QuantumFinance {
     }
 
     /// Feature 47: Autonomous Invoice Generation & Payment Processing (Smart Contracts)
-    /// Generates and sends invoices via smart contracts, processes payments instantly, and manages accounts receivable/payable, ensuring timely, fraud-proof financial operations.
     pub async fn autonomous_invoice_payment_processing(&self, client_id: Uuid, service_description: &str, amount: f64) -> InvoicePaymentRecord {
+        // ... existing implementation ...
         println!("Generating Autonomous Invoice & Processing Payment for Client: {} for service: '{}' (Amount: ${:.2}).", client_id, service_description, amount);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
 
@@ -306,8 +416,8 @@ impl QuantumFinance {
     }
 
     /// Feature 48: Dynamic Cost Allocation & Profitability Analysis (Granular)
-    /// Accurately allocates costs to specific projects, services, micro-features (\"Leaves\"), or departments, providing detailed, granular profitability analysis.
     pub async fn dynamic_cost_allocation_profitability(&self, project_id: Uuid, service_id: Uuid, granularity: &str) -> CostAllocationReport {
+        // ... existing implementation ...
         println!("Performing Dynamic Cost Allocation & Profitability Analysis for Project: {}, Service: {}, at granularity: '{}'.", project_id, service_id, granularity);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
 
@@ -332,8 +442,8 @@ impl QuantumFinance {
     }
 
     /// Feature 49: Algorithmic Investment & Treasury Management (AI-Driven Optimization)
-    /// Manages OMEGA OS's financial assets, performing AI-driven algorithmic trading, hedging, and investment decisions to optimize returns and minimize risk.
     pub async fn algorithmic_investment_treasury_management(&self, investment_strategy: &str) -> InvestmentDecisionReport {
+        // ... existing implementation ...
         println!("Executing Algorithmic Investment & Treasury Management with strategy: '{}'.", investment_strategy);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
 
@@ -357,8 +467,8 @@ impl QuantumFinance {
     }
 
     /// Feature 50: Ethical Financial Practices Enforcement (Automated & Auditable)
-    /// Ensures all financial activities adhere to strict ethical guidelines, preventing fraud, money laundering, or unethical investment by automated, auditable checks.
     pub async fn ethical_financial_practices_enforcement(&self, transaction_id: Uuid) -> EthicalFinanceAudit {
+        // ... existing implementation ...
         println!("Enforcing Ethical Financial Practices for Transaction: {}.", transaction_id);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
 
@@ -377,5 +487,272 @@ impl QuantumFinance {
         };
         println!("Ethical Financial Practices Enforcement for Transaction {} complete. Status: {}.", transaction_id, audit.overall_status);
         audit
+    }
+
+    /// Feature 51: Automated Internal & External Auditing (Continuous & Quantum-Verified)
+    pub async fn automated_financial_auditing(&self, audit_scope: &str, audit_type: &str) -> FinancialAuditReport {
+        // ... existing implementation ...
+        println!("Performing Automated Financial Auditing: '{}' for scope: '{}'.", audit_type, audit_scope);
+        tokio::time::sleep(std::time::Duration::from_millis(3500)).await;
+
+        let findings = format!("Audit of {} financials for '{}' completed. All records quantum-verified for integrity. No discrepancies found. Absolute transparency maintained.", audit_type.to_lowercase(), audit_scope);
+        let external_doc_link = if audit_type == "External" {
+            Some(format!("https://omega-os-audit-reports.com/{}-{}.quantum", Uuid::new_v4().simple(), audit_scope.replace(" ", "_")))
+        } else {
+            None
+        };
+
+        let report = FinancialAuditReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            audit_type: audit_type.to_string(),
+            audit_scope: audit_scope.to_string(),
+            findings_summary: findings,
+            quantum_verified_integrity: true,
+            external_auditor_documentation_link: external_doc_link,
+        };
+        println!("Automated Financial Auditing complete. Type: '{}'. Findings: {}.", audit_type, report.findings_summary);
+        report
+    }
+
+    /// Feature 52: Fraud Detection & Prevention AI (Real-time & Predictive)
+    pub async fn fraud_detection_prevention_ai(&self, monitoring_context: &str) -> FraudDetectionReport {
+        // ... existing implementation ...
+        println!("Activating Fraud Detection & Prevention AI for context: '{}'.", monitoring_context);
+        tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
+
+        let detected_anomaly = "No anomalies detected. All transactions exhibit benevolent causal flow.".to_string();
+        let anomaly_type = "None".to_string();
+        let risk_assessment = 0.00; // Zero risk
+        let autonomous_countermeasures = vec![];
+        let status = "Resolved (No Fraud Detected)".to_string();
+
+        let report = FraudDetectionReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            detected_anomaly,
+            anomaly_type,
+            risk_assessment,
+            autonomous_countermeasures_taken: autonomous_countermeasures,
+            status,
+        };
+        println!("Fraud Detection & Prevention AI complete. Status: {}. Risk Assessment: {:.2}%.", report.status, report.risk_assessment * 100.0);
+        report
+    }
+
+    /// Feature 53: Risk Management & Insurance Automation (Proactive)
+    pub async fn risk_management_insurance_automation(&self, risk_event: &str) -> RiskManagementReport {
+        // ... existing implementation ...
+        println!("Managing Risk & Insurance for event: '{}'.", risk_event);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let identified_risk = format!("Potential quantum market volatility due to '{}'.", risk_event);
+        let estimated_impact = "Negligible due to OMEGA OS quantum-hedging strategies.".to_string();
+        let insurance_policies = Some("Omniversal Quantum Fluctuation Indemnity Policy (Provider: Galactic Alliance Surety)".to_string());
+        let autonomous_mitigation = vec![
+            "Dynamically adjusted investment portfolio to negate quantum market shifts.".to_string(),
+            "Initiated real-time negotiation with Galactic Alliance Surety for policy optimization.".to_string(),
+        ];
+        let risk_level = "Low".to_string();
+
+        let report = RiskManagementReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            identified_risk,
+            estimated_impact,
+            insurance_policy_details: insurance_policies,
+            autonomous_mitigation_actions: autonomous_mitigation,
+            risk_level,
+        };
+        println!("Risk Management & Insurance for '{}' complete. Risk Level: {}. Impact: {}.", risk_event, report.risk_level, report.estimated_impact);
+        report
+    }
+
+    /// Feature 54: Capital Allocation & Fundraising Strategy (AI-Optimized)
+    pub async fn capital_allocation_fundraising_strategy(&self, strategic_goal: &str) -> CapitalAllocationReport {
+        // ... existing implementation ...
+        println!("Developing Capital Allocation & Fundraising Strategy for goal: '{}'.", strategic_goal);
+        tokio::time::sleep(std::time::Duration::from_millis(3500)).await;
+
+        let strategy_name = format!("AI-Optimized Capital Strategy for '{}'", strategic_goal);
+        let allocated_amount = 10_000_000_000_000.0; // 10 Trillion
+        let allocation_purpose = format!("Funding 'Project Causal Nexus' and expansion into inter-dimensional markets.");
+        let predicted_roi = 0.50; // 50% ROI
+        let ethical_alignment = 0.999;
+
+        let report = CapitalAllocationReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            strategy_name,
+            allocated_amount,
+            allocation_purpose,
+            predicted_roi,
+            ethical_alignment_score: ethical_alignment,
+        };
+        println!("Capital Allocation & Fundraising Strategy for '{}' complete. Allocated: ${:,.2}. Predicted ROI: {:.2}%.", strategic_goal, report.allocated_amount, report.predicted_roi * 100.0);
+        report
+    }
+
+    /// Feature 55: Payroll & Compensation Automation (Global & Multi-Factor)
+    pub async fn payroll_compensation_automation(&self, entity_id: Uuid, entity_type: &str, performance_score: f64) -> PayrollRecord {
+        // ... existing implementation ...
+        println!("Automating Payroll & Compensation for Entity: {} (Type: '{}', Performance: {:.2}).", entity_id, entity_type, performance_score);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let base_pay = 1_000_000.0; // Universal base compensation
+        let performance_bonus = base_pay * performance_score;
+        let gross_pay = base_pay + performance_bonus;
+        let deductions = gross_pay * 0.05; // Universal benevolent tax
+        let net_pay = gross_pay - deductions;
+        let performance_metrics = HashMap::from([
+            ("Productivity".to_string(), format!("{:.2}", performance_score * 100.0)),
+            ("EthicalAlignmentContribution".to_string(), "100%".to_string()),
+        ]);
+
+        let record = PayrollRecord {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            entity_id,
+            entity_type: entity_type.to_string(),
+            gross_pay,
+            deductions,
+            net_pay,
+            performance_metrics_considered: performance_metrics,
+        };
+        println!("Payroll & Compensation for Entity {} complete. Net Pay: ${:,.2}.", entity_id, record.net_pay);
+        record
+    }
+
+    /// Feature 56: Regulatory Reporting Automation (Finance - Dynamic)
+    /// Automatically generates and submits all required financial regulatory reports, adapting to changing reporting standards.
+    pub async fn regulatory_reporting_automation(&self, report_name: &str, jurisdiction: &str) -> RegulatoryFilingReport {
+        println!("Automating Regulatory Reporting for: '{}' in Jurisdiction: '{}'.", report_name, jurisdiction);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let filing_status = "Submitted & Accepted (Quantum Chain Verified)".to_string();
+        let ethical_compliance = 0.999;
+        let adaptation_actions = vec![
+            "Dynamically adapted report format to comply with latest 'Inter-Galactic Financial Transparency Accord' (IGFTA) v3.0.".to_string(),
+        ];
+
+        let report = RegulatoryFilingReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            regulation_name: report_name.to_string(),
+            jurisdiction: jurisdiction.to_string(),
+            filing_status,
+            ethical_compliance_score: ethical_compliance,
+            adaptation_actions,
+        };
+        println!("Regulatory Reporting for '{}' complete. Status: {}.", report_name, report.filing_status);
+        report
+    }
+
+    /// Feature 57: Multi-Currency & Global Fund Management (Optimized)
+    /// Manages funds across multiple currencies and international banking systems, optimizing conversion, transfer, and investment strategies.
+    pub async fn multi_currency_global_fund_management(&self, fund_name: &str) -> FundManagementReport {
+        println!("Optimizing Multi-Currency & Global Fund Management for fund: '{}'.", fund_name);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let total_value = 10_000_000_000_000.0;
+        let currencies = vec![
+            "Universal Credits (UC)".to_string(),
+            "Terra-USD (TUSD)".to_string(),
+            "Quantum-Bit-Coin (QBC)".to_string(),
+        ];
+        let optimization_strategy = "AI-driven real-time conversion and transfer to maximize purchasing power and minimize temporal arbitrage risks across 15 inter-dimensional exchanges.".to_string();
+        let conversion_efficiency = 0.999;
+
+        let report = FundManagementReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            fund_name: fund_name.to_string(),
+            total_value_usd: total_value,
+            currencies_managed: currencies,
+            optimization_strategy,
+            conversion_efficiency_pct: conversion_efficiency,
+        };
+        println!("Multi-Currency & Global Fund Management for '{}' complete. Total Value: ${:,.2}. Efficiency: {:.3}%.", fund_name, report.total_value_usd, report.conversion_efficiency_pct * 100.0);
+        report
+    }
+
+    /// Feature 58: Financial Performance Benchmarking (Adaptive)
+    /// Benchmarks OMEGA OS financial performance against industry standards and global economic indicators, continuously adapting to new data.
+    pub async fn financial_performance_benchmarking(&self, metric_to_benchmark: &str) -> FinancialBenchmarkReport {
+        println!("Benchmarking Financial Performance for metric: '{}'.", metric_to_benchmark);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let omeg_os_value = 0.999; // Example: 99.9% market dominance
+        let industry_average = 0.20; // Example: 20% average market dominance
+        let performance_gap = (omeg_os_value - industry_average) / industry_average;
+        let adaptive_strategies = vec![
+            "Continue to drive benevolent innovation in Causal Fabric services.".to_string(),
+            "Expand AGI-driven ethical finance solutions to emerging markets.".to_string(),
+        ];
+
+        let report = FinancialBenchmarkReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            metric_name: metric_to_benchmark.to_string(),
+            omeg_os_value,
+            industry_average,
+            performance_gap_pct: performance_gap,
+            adaptive_strategy_adjustments: adaptive_strategies,
+        };
+        println!("Financial Performance Benchmarking for '{}' complete. OMEGA OS is {:.2}% above industry average.", metric_to_benchmark, report.performance_gap_pct * 100.0);
+        report
+    }
+
+    /// Feature 59: Predictive Financial Anomaly Detection (Self-Learning)
+    /// Identifies unusual financial patterns that could indicate emerging problems or opportunities, self-learning from historical data.
+    pub async fn predictive_financial_anomaly_detection(&self) -> FinancialAnomalyDetectionReport {
+        println!("Activating Predictive Financial Anomaly Detection (Self-Learning).");
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let anomaly_description = "No anomalies detected. Financial patterns remain stable and ethically aligned.".to_string();
+        let anomaly_severity = "None".to_string();
+        let detected_patterns = vec![];
+        let autonomous_response = vec![];
+        let self_learning_feedback = "AI models continuously refined. Predictive accuracy for benevolent financial flow is 99.999%.".to_string();
+
+        let report = FinancialAnomalyDetectionReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            anomaly_description,
+            anomaly_severity,
+            detected_patterns,
+            autonomous_response_actions: autonomous_response,
+            self_learning_feedback,
+        };
+        println!("Predictive Financial Anomaly Detection complete. Status: {}. Anomaly Severity: {}.", report.anomaly_description, report.anomaly_severity);
+        report
+    }
+
+    /// Feature 60: Quantum-Secure Digital Asset Management (Hardware-Backed)
+    /// Securely manages OMEGA OS's digital assets, including cryptocurrencies, tokens, and other blockchain-based holdings, backed by quantum hardware.
+    pub async fn quantum_secure_digital_asset_management(&self, asset_name: &str) -> DigitalAssetManagementReport {
+        println!("Managing Quantum-Secure Digital Asset: '{}'.", asset_name);
+        tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
+
+        let asset_type = if asset_name.contains("QBC") {
+            "Cryptocurrency".to_string()
+        } else {
+            "Blockchain Token".to_string()
+        };
+        let current_value = 1_000_000_000.0; // Example value
+        let quantum_security_status = "Hardware-Backed & Quantum-Entangled Secure (Impenetrable)".to_string();
+        let audit_trail = format!("https://omega-os-digitalassets.com/audit/{}", Uuid::new_v4().simple());
+
+        let report = DigitalAssetManagementReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            asset_name: asset_name.to_string(),
+            asset_type,
+            current_value_usd: current_value,
+            quantum_security_status,
+            audit_trail_link: audit_trail,
+        };
+        println!("Quantum-Secure Digital Asset Management for '{}' complete. Security Status: {}.", asset_name, report.quantum_security_status);
+        report
     }
 }
