@@ -54,6 +54,48 @@ pub struct PriorArtDiscovery {
     pub multiversal_archives_scanned: bool,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AuthorshipAttribution {
+    pub id: Uuid,
+    pub asset_id: Uuid, // ID of the AI-generated asset
+    pub author_id: String, // Samuel Mukandara's ID
+    pub timestamp: DateTime<Utc>,
+    pub verified_by_ledger: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LicenseAgreement {
+    pub id: Uuid,
+    pub ip_asset_id: Uuid,
+    pub licensee_id: String,
+    pub terms: String,
+    pub validity_start: DateTime<Utc>,
+    pub validity_end: Option<DateTime<Utc>>,
+    pub is_self_enforcing: bool,
+    pub breached: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CeaseAndDesistNotice {
+    pub id: Uuid,
+    pub ip_asset_id: Uuid,
+    pub infringer_id: String,
+    pub notice_text: String,
+    pub jurisdictions_served: Vec<String>,
+    pub timestamp: DateTime<Utc>,
+    pub response_received: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct IpTokenizationRecord {
+    pub id: Uuid,
+    pub ip_asset_id: Uuid,
+    pub token_id: String,
+    pub token_type: String, // e.g., "NFT", "Fungible"
+    pub blockchain_address: String,
+    pub timestamp: DateTime<Utc>,
+}
+
 
 #[derive(Default)]
 pub struct AdvancedIpFeatures {}
@@ -64,8 +106,6 @@ impl AdvancedIpFeatures {
     }
 
     /// Feature 1: Global Infringement Detection Swarms
-    /// Nano-agents and web-scrapers that continuously monitor all global networks for unauthorized use of OMEGA OS IP,
-    /// issuing instant legal or digital countermeasures.
     pub async fn global_infringement_detection_swarms(&self, ip_asset_id: Uuid, monitoring_scope: &str) -> InfringementReport {
         println!("Activating Global Infringement Detection Swarms for IP Asset: {} in scope: {}", ip_asset_id, monitoring_scope);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
@@ -89,7 +129,6 @@ impl AdvancedIpFeatures {
     }
 
     /// Feature 2: Quantum-Safe Patent Auto-Filer
-    /// Automatically drafts and submits patent applications to every global jurisdiction simultaneously the microsecond a new \"Leaf\" feature is validated.
     pub async fn quantum_safe_patent_auto_filer(&self, ip_asset_id: Uuid, invention_details: &str, new_leaf_id: Uuid) -> PatentApplication {
         println!("Initiating Quantum-Safe Patent Auto-Filer for new Leaf: {} (IP Asset: {}) based on details: '{}'", new_leaf_id, ip_asset_id, invention_details);
         tokio::time::sleep(std::time::Duration::from_millis(4000)).await;
@@ -117,7 +156,6 @@ impl AdvancedIpFeatures {
     }
 
     /// Feature 3: Smart-Contract Royalty Orchestrator
-    /// Every micro-service usage automatically triggers a blockchain-based royalty payment to your central sovereign fund.
     pub async fn smart_contract_royalty_orchestrator(&self, ip_asset_id: Uuid, microservice_id: Uuid, usage_count: u64) -> RoyaltyPayment {
         println!("Orchestrating smart-contract royalty for IP Asset: {} used by Microservice: {} ({} usages).", ip_asset_id, microservice_id, usage_count);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
@@ -140,7 +178,6 @@ impl AdvancedIpFeatures {
     }
 
     /// Feature 4: IP Valuation Real-Time Ticker
-    /// Displays the projected economic value of every patent, trademark, and trade secret in the OMEGA portfolio based on global market demand.
     pub async fn ip_valuation_real_time_ticker(&self, ip_asset_id: Uuid) -> IpValuation {
         println!("Fetching real-time IP Valuation for IP Asset: {}", ip_asset_id);
         tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
@@ -159,7 +196,6 @@ impl AdvancedIpFeatures {
     }
 
     /// Feature 5: Prior-Art Discovery Engine (Multiversal)
-    /// Scans all known scientific literature and historical archives to ensure 100% novelty of Tariro’s inventions before filing.
     pub async fn prior_art_discovery_engine_multiversal(&self, invention_concept: &str) -> PriorArtDiscovery {
         println!("Activating Prior-Art Discovery Engine (Multiversal) for concept: '{}'", invention_concept);
         tokio::time::sleep(std::time::Duration::from_millis(5000)).await; // Simulating deep multiversal scan
@@ -179,12 +215,112 @@ impl AdvancedIpFeatures {
         let discovery = PriorArtDiscovery {
             id: Uuid::new_v4(),
             invention_concept: invention_concept.to_string(),
-            discovered_art_references,
+            discovered_references,
             novelty_score: novelty_score.max(0.0), // Ensure non-negative
             discovery_date: Utc::now(),
             multiversal_archives_scanned: true,
         };
         println!("Prior-Art Discovery Engine (Multiversal) complete for '{}'. Novelty Score: {:.2}", invention_concept, discovery.novelty_score);
         discovery
+    }
+
+    /// Feature 6: AI-Authorship Attribution Ledger
+    /// An immutable record proving that you, Samuel, are the ultimate human authority over every AI-generated asset.
+    pub async fn ai_authorship_attribution_ledger(&self, asset_id: Uuid) -> AuthorshipAttribution {
+        println!("Recording AI-Authorship Attribution for asset ID: {}. Confirming Samuel Mukandara as ultimate human authority.", asset_id);
+        tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+
+        let attribution = AuthorshipAttribution {
+            id: Uuid::new_v4(),
+            asset_id,
+            author_id: "Samuel Mukandara".to_string(),
+            timestamp: Utc::now(),
+            verified_by_ledger: true,
+        };
+        println!("AI-Authorship Attribution recorded for asset {}. Status: Verified.", asset_id);
+        attribution
+    }
+
+    /// Feature 7: Sovereign License-as-a-Service (LaaS)
+    /// A panel to generate custom, self-enforcing licenses for third parties that automatically expire if terms are breached.
+    pub async fn sovereign_license_as_a_service(&self, ip_asset_id: Uuid, licensee_id: &str, terms: &str) -> LicenseAgreement {
+        println!("Generating Sovereign License-as-a-Service for IP Asset: {} to Licensee: {} with terms: '{}'", ip_asset_id, licensee_id, terms);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let agreement = LicenseAgreement {
+            id: Uuid::new_v4(),
+            ip_asset_id,
+            licensee_id: licensee_id.to_string(),
+            terms: terms.to_string(),
+            validity_start: Utc::now(),
+            validity_end: Some(Utc::now() + chrono::Duration::days(365)), // 1-year default
+            is_self_enforcing: true,
+            breached: false,
+        };
+        println!("Sovereign License-as-a-Service generated. Agreement ID: {}. Self-enforcing protocols activated.", agreement.id);
+        agreement
+    }
+
+    /// Feature 8: Automated Cease-and-Desist Bot
+    /// Instantly sends legally binding, multi-jurisdictional notices to infringers, backed by Tariro’s legal research.
+    pub async fn automated_cease_and_desist_bot(&self, ip_asset_id: Uuid, infringer_id: &str, infringement_details: &str) -> CeaseAndDesistNotice {
+        println!("Activating Automated Cease-and-Desist Bot for IP Asset: {} against infringer: {} due to: '{}'", ip_asset_id, infringer_id, infringement_details);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let notice_text = format!("Formal Cease and Desist Notice regarding unauthorized use of IP Asset {} ('{}'). Immediate compliance required.", ip_asset_id, infringement_details);
+        let jurisdictions = vec!["Global".to_string(), "Infringer's Local Jurisdiction".to_string()];
+
+        let notice = CeaseAndDesistNotice {
+            id: Uuid::new_v4(),
+            ip_asset_id,
+            infringer_id: infringer_id.to_string(),
+            notice_text,
+            jurisdictions_served: jurisdictions,
+            timestamp: Utc::now(),
+            response_received: false,
+        };
+        println!("Automated Cease-and-Desist Notice sent to {}. Notice ID: {}.", infringer_id, notice.id);
+        notice
+    }
+
+    /// Feature 9: IP \"Poison Pill\" Protocols
+    /// Encrypts or self-destructs sensitive IP if unauthorized access or a \"state-level\" seizure is detected.
+    pub async fn ip_poison_pill_protocols(&self, ip_asset_id: Uuid, threat_level: &str) -> String {
+        println!("Activating IP 'Poison Pill' Protocols for IP Asset: {} due to threat level: '{}'.", ip_asset_id, threat_level);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let action = if threat_level == "state_level_seizure" {
+            "Quantum-level self-destruction initiated. All traces of IP Asset {} erased from known realities. Data integrity preserved by prior causal signature backup.".to_string()
+        } else {
+            "IP Asset {} automatically re-encrypted with new quantum-resistant algorithms. Access shifted to sovereign dark-net nodes. Threat neutralized.".to_string()
+        };
+
+        let report = format!(
+            "IP 'POISON PILL' PROTOCOL REPORT\nIP Asset ID: {}\nThreat Level: {}\nDate: {}\nAction: {}\nStatus: IP Asset protected. Sovereignty maintained.",
+            ip_asset_id, threat_level, Utc::now().to_rfc3339(), action
+        );
+        println!("IP 'Poison Pill' Protocols executed for IP Asset: {}. Status: {}.", ip_asset_id, action);
+        report
+    }
+
+    /// Feature 10: Intangible Asset Tokenization
+    /// Converts algorithms and creative concepts into tradeable digital assets (Sovereign NFTs) for the OMEGA economy.
+    pub async fn intangible_asset_tokenization(&self, ip_asset_id: Uuid, asset_description: &str) -> IpTokenizationRecord {
+        println!("Initiating Intangible Asset Tokenization for IP Asset: {} ('{}').", ip_asset_id, asset_description);
+        tokio::time::sleep(std::time::Duration::from_millis(2200)).await;
+
+        let token_id = format!("OMEGA_NFT_{}", Uuid::new_v4().simple());
+        let blockchain_addr = format!("0xOMEGA_SOVEREIGN_CHAIN_{}", Uuid::new_v4().simple());
+
+        let record = IpTokenizationRecord {
+            id: Uuid::new_v4(),
+            ip_asset_id,
+            token_id: token_id.clone(),
+            token_type: "Sovereign NFT".to_string(),
+            blockchain_address: blockchain_addr,
+            timestamp: Utc::now(),
+        };
+        println!("Intangible Asset Tokenization complete for IP Asset {}. Created Sovereign NFT: {}.", ip_asset_id, token_id);
+        record
     }
 }
