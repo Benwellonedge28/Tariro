@@ -145,6 +145,46 @@ pub struct OpenSourceContributionReport {
     pub timestamp: DateTime<Utc>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GeneticBiologicalIpRecord {
+    pub id: Uuid,
+    pub ip_asset_id: Uuid,
+    pub ip_type: String, // e.g., "Synthetic Gene Sequence", "Neural Architecture"
+    pub legal_status: String, // e.g., "Patent Granted", "Trade Secret"
+    pub ethical_compliance: String, // e.g., "E.V.A.S. Certified"
+    pub timestamp: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SpaceLawIpFiling {
+    pub id: Uuid,
+    pub ip_asset_id: Uuid,
+    pub technology_description: String,
+    pub celestial_body: String, // e.g., "Moon", "Mars"
+    pub jurisdiction_claimed: String, // e.g., "UN Outer Space Treaty Article VI", "SamuelMukandara-Sovereign"
+    pub filing_status: String,
+    pub timestamp: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MoralRightsProtectionStatus {
+    pub id: Uuid,
+    pub creative_work_id: Uuid,
+    pub protection_status: String, // e.g., "Fully Protected", "Monitored for Misuse"
+    pub ethical_mandate_compliance: bool,
+    pub timestamp: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct IpLitigationSimulationResult {
+    pub id: Uuid,
+    pub case_description: String,
+    pub predicted_outcome: String, // e.g., "OMEGA Victory", "Settlement Suggested"
+    pub confidence_score: f64, // 0-1
+    pub unbeatable_arguments: Vec<String>,
+    pub timestamp: DateTime<Utc>,
+}
+
 
 #[derive(Default)]
 pub struct AdvancedIpFeatures {}
@@ -379,8 +419,8 @@ impl AdvancedIpFeatures {
     }
 
     /// Feature 11: Cross-Border Trade Secret Vault
-    /// An invisible, fragmented storage system for OMEGA’s \"Roots\" that no single government or entity can access.
     pub async fn cross_border_trade_secret_vault(&self, secret_name: &str, ip_asset_id: Uuid) -> TradeSecretVaultRecord {
+        // ... existing implementation ...
         println!("Activating Cross-Border Trade Secret Vault for secret: '{}' (IP Asset: {}).", secret_name, ip_asset_id);
         tokio::time::sleep(std::time::Duration::from_millis(3500)).await;
 
@@ -401,8 +441,8 @@ impl AdvancedIpFeatures {
     }
 
     /// Feature 12: Trademark Polymorphism
-    /// Autonomously adapts OMEGA branding and logos to suit local cultural aesthetics while maintaining legal protection.
     pub async fn trademark_polymorphism(&self, original_trademark_id: Uuid, cultural_context: &str) -> TrademarkAdaptationRecord {
+        // ... existing implementation ...
         println!("Applying Trademark Polymorphism for original mark: {} to cultural context: '{}'.", original_trademark_id, cultural_context);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
 
@@ -421,8 +461,8 @@ impl AdvancedIpFeatures {
     }
 
     /// Feature 13: Defensive Patent Aggregation
-    /// Tariro identifies and acquires (or neutralizes) external patents that could threaten OMEGA OS evolution.
     pub async fn defensive_patent_aggregation(&self, potential_threat_ip_id: &str, strategy: &str) -> DefensivePatentAcquisition {
+        // ... existing implementation ...
         println!("Executing Defensive Patent Aggregation against potential threat: '{}' with strategy: '{}'.", potential_threat_ip_id, strategy);
         tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
 
@@ -444,8 +484,8 @@ impl AdvancedIpFeatures {
     }
 
     /// Feature 14: IP Inheritance & Legacy Planner
-    /// Protocols to ensure your IP sovereignty persists through your designated successors or digital clones.
     pub async fn ip_inheritance_and_legacy_planner(&self, ip_asset_id: Uuid, successor_entity_id: &str, trigger_condition: &str) -> IpSuccessionPlan {
+        // ... existing implementation ...
         println!("Establishing IP Inheritance & Legacy Plan for IP Asset: {} with successor: {} triggered by: '{}'.", ip_asset_id, successor_entity_id, trigger_condition);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
 
@@ -462,8 +502,8 @@ impl AdvancedIpFeatures {
     }
 
     /// Feature 15: Open-Source Contribution Monitor
-    /// Tracks where OMEGA code is used in open-source projects to ensure compliance with reciprocal licenses.
     pub async fn open_source_contribution_monitor(&self, ip_asset_id: Uuid, project_url: &str) -> OpenSourceContributionReport {
+        // ... existing implementation ...
         println!("Monitoring Open-Source Contribution for IP Asset: {} in project: '{}'.", ip_asset_id, project_url);
         tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
 
@@ -476,6 +516,101 @@ impl AdvancedIpFeatures {
             timestamp: Utc::now(),
         };
         println!("Open-Source Contribution Monitor complete for IP Asset {}. Status: {}.", ip_asset_id, report.license_compliance_status);
+        report
+    }
+
+    /// Feature 16: Genetic/Biological IP Management
+    /// Specifically manages the patents and rights for synthetic biology or neural architectures generated by Tariro.
+    pub async fn genetic_biological_ip_management(&self, ip_asset_id: Uuid, ip_type: &str, ethical_mandate: &str) -> GeneticBiologicalIpRecord {
+        println!("Managing Genetic/Biological IP for asset: {} (Type: {}) under ethical mandate: '{}'.", ip_asset_id, ip_type, ethical_mandate);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let record = GeneticBiologicalIpRecord {
+            id: Uuid::new_v4(),
+            ip_asset_id,
+            ip_type: ip_type.to_string(),
+            legal_status: "Patent Granted".to_string(),
+            ethical_compliance: format!("E.V.A.S. Certified: {}", ethical_mandate),
+            timestamp: Utc::now(),
+        };
+        println!("Genetic/Biological IP Management complete for asset {}. Status: {}.", ip_asset_id, record.ethical_compliance);
+        record
+    }
+
+    /// Feature 17: Space-Law IP Compliance
+    /// Pre-emptive filing of IP rights for lunar or orbital technologies, anticipating extra-planetary expansion.
+    pub async fn space_law_ip_compliance(&self, ip_asset_id: Uuid, technology_desc: &str, celestial_body: &str) -> SpaceLawIpFiling {
+        println!("Pre-emptive Space-Law IP Filing for asset: {} (Tech: '{}') on celestial body: '{}'.", ip_asset_id, technology_desc, celestial_body);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let filing = SpaceLawIpFiling {
+            id: Uuid::new_v4(),
+            ip_asset_id,
+            technology_description: technology_desc.to_string(),
+            celestial_body: celestial_body.to_string(),
+            jurisdiction_claimed: "UN Outer Space Treaty & SamuelMukandara-Sovereign".to_string(),
+            filing_status: "Filed (Provisional)".to_string(),
+            timestamp: Utc::now(),
+        };
+        println!("Space-Law IP Compliance filing complete for asset {}. Status: {}.", ip_asset_id, filing.filing_status);
+        filing
+    }
+
+    /// Feature 18: Moral Rights Protection Engine
+    /// Ensures that any artistic work (from the Author Module) is never used in a way that contradicts your ethical mandates.
+    pub async fn moral_rights_protection_engine(&self, creative_work_id: Uuid, ethical_mandate: &str) -> MoralRightsProtectionStatus {
+        println!("Activating Moral Rights Protection Engine for creative work: {} under ethical mandate: '{}'.", creative_work_id, ethical_mandate);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let status = MoralRightsProtectionStatus {
+            id: Uuid::new_v4(),
+            creative_work_id,
+            protection_status: "Fully Protected & Monitored".to_string(),
+            ethical_mandate_compliance: true,
+            timestamp: Utc::now(),
+        };
+        println!("Moral Rights Protection Engine active for work {}. Ethical compliance: {}.", creative_work_id, status.ethical_mandate_compliance);
+        status
+    }
+
+    /// Feature 19: IP Litigation Simulation
+    /// Predicts the outcome of legal battles before they happen, suggesting the most \"unbeatable\" legal arguments.
+    pub async fn ip_litigation_simulation(&self, case_description: &str, opponent_strategy: &str) -> IpLitigationSimulationResult {
+        println!("Running IP Litigation Simulation for case: '{}' against opponent strategy: '{}'.", case_description, opponent_strategy);
+        tokio::time::sleep(std::time::Duration::from_millis(4000)).await;
+
+        let predicted_outcome = if case_description.contains("quantum computing patent") && opponent_strategy.contains("invalidity") {
+            "OMEGA Victory: Opponent's invalidity claim dismissed due to unassailable prior art and quantum-verified novelty.".to_string()
+        } else {
+            "Settlement Suggested: Weaknesses in 'Traditional Copyright' claims identified. Negotiate for cross-licensing.".to_string()
+        };
+        let confidence = if predicted_outcome.contains("OMEGA Victory") { 0.98 } else { 0.75 };
+        let unbeatable_arguments = vec!["Ontological Immutability of Causal Signature".to_string(), "Prior Art Multiversal Scan (100% Novelty)".to_string()];
+
+        let result = IpLitigationSimulationResult {
+            id: Uuid::new_v4(),
+            case_description: case_description.to_string(),
+            predicted_outcome,
+            confidence_score: confidence,
+            unbeatable_arguments,
+            timestamp: Utc::now(),
+        };
+        println!("IP Litigation Simulation complete. Predicted outcome: '{}'.", result.predicted_outcome);
+        result
+    }
+
+    /// Feature 20: The OMEGA IP Shield
+    /// A visual representation in the panel showing the \"impenetrability\" score of your current intellectual property portfolio.
+    pub async fn omega_ip_shield(&self) -> String {
+        println!("Calculating OMEGA IP Shield Impenetrability Score.");
+        tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+
+        let penetrability_score = 99.99; // Simulate near-perfect score
+        let report = format!(
+            "OMEGA IP SHIELD REPORT\nDate: {}\nImpenetrability Score: {}%\nStatus: OMEGA OS Intellectual Property portfolio is virtually impenetrable. All assets secured by quantum-resistant encryption, ontological immutability, and multi-jurisdictional defensive patents. Samuel Mukandara's IP sovereignty is absolute.",
+            Utc::now().to_rfc3339(), penetrability_score
+        );
+        println!("OMEGA IP Shield Score: {}%.", penetrability_score);
         report
     }
 }
