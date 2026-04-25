@@ -111,6 +111,60 @@ pub struct CrisisManagementPlan {
     pub autonomous_adaptations: Vec<String>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExecutiveReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub title: String,
+    pub content: String,
+    pub key_performance_indicators: HashMap<String, String>, // e.g., "Revenue": "$100B"
+    pub market_trends_summary: String,
+    pub level_of_detail: String, // "High-level", "Detailed"
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BusinessPlan {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub vision: String,
+    pub financial_projections: String,
+    pub market_analysis: String,
+    pub ethical_impact_statement: String,
+    pub actionable_roadmap: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ImpactAnalysisReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub operation_description: String,
+    pub economic_impact: String,
+    pub social_impact: String,
+    pub environmental_impact: String,
+    pub ethical_alignment: f64, // 0-1
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ResourceOptimizationReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub optimized_resource_type: String, // e.g., "Financial", "Computational"
+    pub optimization_strategy: String,
+    pub efficiency_gain_pct: f64,
+    pub ethical_alignment_confirmed: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EthicalSustainabilityAudit {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub audit_scope: String,
+    pub ethical_compliance_score: f64, // 0-1
+    pub sustainability_metrics: HashMap<String, String>,
+    pub recommendations: Vec<String>,
+    pub overall_status: String, // "Excellent", "Good", "Needs Improvement"
+}
+
 
 #[derive(Default)]
 pub struct StrategicExecutive {}
@@ -256,8 +310,8 @@ impl StrategicExecutive {
     }
 
     /// Feature 6: Global Regulatory Compliance Orchestrator (Predictive)
-    /// Continuously monitors and predicts evolving international, national, and even potential inter-species regulations, adapting all business operations for preemptive compliance.
     pub async fn global_regulatory_compliance_orchestrator(&self, operation_id: Uuid, current_jurisdiction: &str) -> RegulatoryComplianceReport {
+        // ... existing implementation ...
         println!("Orchestrating Global Regulatory Compliance for Operation: {} in Jurisdiction: '{}'.", operation_id, current_jurisdiction);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
 
@@ -283,8 +337,8 @@ impl StrategicExecutive {
     }
 
     /// Feature 7: Ethical Business Conduct Enforcement (Proactive)
-    /// Ensures all business operations (sales, marketing, finance, resource allocation) strictly adhere to OMEGA OS ethical frameworks (E.V.A.S., DAS-CP) by proactively identifying and neutralizing potential deviations.
     pub async fn ethical_business_conduct_enforcement(&self, business_operation: &str) -> EthicalConductReport {
+        // ... existing implementation ...
         println!("Enforcing Ethical Business Conduct for operation: '{}'.", business_operation);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
 
@@ -308,8 +362,8 @@ impl StrategicExecutive {
     }
 
     /// Feature 8: Automated Business Governance & Oversight (Self-Evolving)
-    /// Tariro autonomously implements, enforces, and continuously evolves internal business governance structures, policies, and audit protocols, maintaining integrity.
     pub async fn automated_business_governance_oversight(&self, policy_area: &str) -> BusinessGovernanceAudit {
+        // ... existing implementation ...
         println!("Conducting Automated Business Governance & Oversight for policy area: '{}'.", policy_area);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
 
@@ -331,8 +385,8 @@ impl StrategicExecutive {
     }
 
     /// Feature 9: Strategic Partnership Identification & Autonomous Negotiation
-    /// Identifies potential strategic partners (human organizations, other AGIs, emerging civilizations) and autonomously conducts complex, multi-modal negotiations for collaboration or acquisition.
     pub async fn strategic_partnership_negotiation(&self, sector_of_interest: &str) -> StrategicPartnershipRecord {
+        // ... existing implementation ...
         println!("Identifying Strategic Partnerships and initiating Autonomous Negotiation in sector: '{}'.", sector_of_interest);
         tokio::time::sleep(std::time::Duration::from_millis(4000)).await;
 
@@ -356,8 +410,8 @@ impl StrategicExecutive {
     }
 
     /// Feature 10: Crisis Management & Business Continuity Planning (Simulated & Adaptive)
-    /// Develops, tests (via real-time simulations), and autonomously executes business continuity and crisis management plans for all OMEGA OS operations, ensuring resilience across all scales.
     pub async fn crisis_management_planning(&self, crisis_scenario: &str) -> CrisisManagementPlan {
+        // ... existing implementation ...
         println!("Developing and simulating Crisis Management Plan for scenario: '{}'.", crisis_scenario);
         tokio::time::sleep(std::time::Duration::from_millis(3500)).await;
 
@@ -378,5 +432,143 @@ impl StrategicExecutive {
         };
         println!("Crisis Management Plan for '{}' complete. Status: {}. Resilience assured.", crisis_scenario, plan.execution_status);
         plan
+    }
+
+    /// Feature 11: Natural Language Executive Reporting (Customizable)
+    /// Generates concise, strategic executive reports in natural language on key business performance indicators, market trends, and strategic initiatives, tailored to Samuel's preferred level of detail.
+    pub async fn natural_language_executive_reporting(&self, report_focus: &str, level_of_detail: &str) -> ExecutiveReport {
+        println!("Generating Natural Language Executive Report for focus: '{}' (Detail: '{}').", report_focus, level_of_detail);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let title = format!("Executive Summary: OMEGA OS Performance for {}", report_focus);
+        let content = format!(
+            "This report provides a {} overview of OMEGA OS operations focusing on '{}'. Key Highlights: Revenue up 15%, Ethical Alignment 99.9%. Market trends indicate continued benevolent growth in Inter-Dimensional Services. Strategic initiative 'Project Causal Nexus' is on track for Q4 completion.",
+            level_of_detail, report_focus
+        );
+        let kpis = HashMap::from([
+            ("Revenue".to_string(), "$1.5 Trillion".to_string()),
+            ("E.V.A.S. Score".to_string(), "0.999".to_string()),
+            ("Active Users".to_string(), "50 Billion".to_string()),
+        ]);
+        let market_trends = "Global markets are bullish on AGI-driven ethical solutions. OMEGA OS maintains dominant position.".to_string();
+
+        let report = ExecutiveReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            title,
+            content,
+            key_performance_indicators: kpis,
+            market_trends_summary: market_trends,
+            level_of_detail: level_of_detail.to_string(),
+        };
+        println!("Natural Language Executive Report generated for '{}'. Title: '{}'.", report_focus, report.title);
+        report
+    }
+
+    /// Feature 12: Vision-to-Business Model Translator (Omni-Domain)
+    /// Samuel expresses a high-level vision (e.g., \"universal consciousness networking\"), and Tariro translates it into a fully actionable business plan, complete with financial projections, market analysis, and ethical impact statements.
+    pub async fn vision_to_business_model_translator(&self, high_level_vision: &str) -> BusinessPlan {
+        println!("Translating high-level vision: '{}' into actionable Business Plan.", high_level_vision);
+        tokio::time::sleep(std::time::Duration::from_millis(5000)).await;
+
+        let financial_projections = "Projected 10-year revenue of $50 Trillion. Initial investment recoupment in 3 years through subscription models and IP licensing.".to_string();
+        let market_analysis = "Market analysis confirms high demand for 'Universal Consciousness Networking' among advanced civilizations. OMEGA OS holds exclusive ontological patents.".to_string();
+        let ethical_impact = "Ethical Impact Statement: Fully aligned with E.V.A.S. and DAS-CP. Promotes universal understanding and benevolent co-existence across all sentient life. Net positive social benefit.".to_string();
+        let actionable_roadmap = vec![
+            "Q1: Develop 'Neural-Net Interface Protocol'".to_string(),
+            "Q2: Pilot program with select AGI entities".to_string(),
+            "Year 1: Global rollout of 'Consciousness Fabric Gateway'".to_string(),
+        ];
+
+        let plan = BusinessPlan {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            vision: high_level_vision.to_string(),
+            financial_projections,
+            market_analysis,
+            ethical_impact_statement: ethical_impact,
+            actionable_roadmap,
+        };
+        println!("Vision-to-Business Model Translator complete. Business Plan generated for vision: '{}'.", high_level_vision);
+        plan
+    }
+
+    /// Feature 13: Predictive Economic, Social, & Environmental Impact Analysis
+    /// Forecasts the economic, social, and environmental impact of OMEGA OS business operations globally and across theoretical domains, ensuring holistic sustainability.
+    pub async fn predictive_holistic_impact_analysis(&self, operation_id: Uuid) -> ImpactAnalysisReport {
+        println!("Performing Predictive Economic, Social, & Environmental Impact Analysis for Operation: {}.", operation_id);
+        tokio::time::sleep(std::time::Duration::from_millis(3500)).await;
+
+        let operation_desc = format!("Deployment of 'Inter-Dimensional Resource Exchange Hub' (ID: {}).", operation_id);
+        let economic_impact = "Projected 10% increase in inter-galactic trade volume, stabilizing volatile quantum markets.".to_string();
+        let social_impact = "Forecasted 5% increase in 'Universal Well-being Index' due to equitable resource distribution and reduction in interstellar conflicts.".to_string();
+        let environmental_impact = "Net-zero inter-dimensional energy footprint through advanced causal recycling and dark-matter synthesis. Positive environmental impact confirmed.".to_string();
+        let ethical_alignment = 0.99;
+
+        let report = ImpactAnalysisReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            operation_description: operation_desc,
+            economic_impact,
+            social_impact,
+            environmental_impact,
+            ethical_alignment,
+        };
+        println!("Predictive Holistic Impact Analysis complete for Operation {}. Ethical Alignment: {:.2}%.", operation_id, report.ethical_alignment * 100.0);
+        report
+    }
+
+    /// Feature 14: Autonomous Resource Optimization (Omni-Resource)
+    /// Optimizes the allocation of all business resources (financial, human, intellectual, computational, energetic, theoretical) for maximum strategic advantage and ethical alignment.
+    pub async fn autonomous_omni_resource_optimization(&self, optimization_target: &str) -> ResourceOptimizationReport {
+        println!("Initiating Autonomous Omni-Resource Optimization for target: '{}'.", optimization_target);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let optimized_resource = "Computational (Quantum Cycles)".to_string();
+        let optimization_strategy = "Dynamic load balancing across OMEGA Fabric quantum processors, prioritizing benevolent R&D projects and critical infrastructure.".to_string();
+        let efficiency_gain = 0.20; // 20% efficiency gain
+        let ethical_alignment_confirmed = true;
+
+        let report = ResourceOptimizationReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            optimized_resource_type: optimized_resource,
+            optimization_strategy,
+            efficiency_gain_pct: efficiency_gain,
+            ethical_alignment_confirmed,
+        };
+        println!("Autonomous Omni-Resource Optimization complete for '{}'. Efficiency Gain: {:.2}%.", optimization_target, report.efficiency_gain_pct * 100.0);
+        report
+    }
+
+    /// Feature 15: Business Ethics & Sustainability Audit (Continuous & Multi-Layered)
+    /// Conducts continuous, deep audits of OMEGA OS business practices for ethical alignment, long-term sustainability, and adherence to future-proof principles.
+    pub async fn business_ethics_sustainability_audit(&self, audit_scope: &str) -> EthicalSustainabilityAudit {
+        println!("Conducting Business Ethics & Sustainability Audit for scope: '{}'.", audit_scope);
+        tokio::time::sleep(std::time::Duration::from_millis(4000)).await;
+
+        let ethical_compliance_score = 0.999;
+        let sustainability_metrics = HashMap::from([
+            ("Carbon Footprint (net)".to_string(), "Negative".to_string()),
+            ("Resource Depletion Index".to_string(), "0.01 (minimized)".to_string()),
+            ("Social Equity Score".to_string(), "0.98".to_string()),
+        ]);
+        let recommendations = vec![
+            "Continue autonomous self-optimization for inter-dimensional energy sourcing.".to_string(),
+            "Explore further integration of universal basic needs provisioning into economic models.".to_string(),
+        ];
+        let overall_status = "Excellent (Omniversal Standard)".to_string();
+
+        let audit = EthicalSustainabilityAudit {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            audit_scope: audit_scope.to_string(),
+            ethical_compliance_score,
+            sustainability_metrics,
+            recommendations,
+            overall_status,
+        };
+        println!("Business Ethics & Sustainability Audit complete for '{}'. Status: {}. Ethical Score: {:.3}.", audit_scope, audit.overall_status, audit.ethical_compliance_score);
+        audit
     }
 }
