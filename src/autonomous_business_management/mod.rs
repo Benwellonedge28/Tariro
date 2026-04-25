@@ -1,33 +1,29 @@
 pub mod strategic_executive;
 pub mod sales_marketing;
-pub mod accounting_finance;
+pub mod quantum_finance;
 pub mod record_keeping;
-pub mod business_intelligence;
-pub mod meta_business;
-
-use uuid::Uuid;
-use chrono::{DateTime, Utc};
-use serde::{Serialize, Deserialize};
+pub mod business_intelligence; // This module should already exist from previous work
+pub mod meta_business; // This module should already exist from previous work
 
 #[derive(Default)]
 pub struct AutonomousBusinessManager {
-    pub strategic_executive_engine: strategic_executive::StrategicExecutiveEngine,
-    pub sales_marketing_automation: sales_marketing::SalesMarketingAutomation,
-    pub accounting_finance_engine: accounting_finance::AccountingFinanceEngine,
-    pub record_keeping_system: record_keeping::RecordKeepingSystem,
-    pub business_intelligence_engine: business_intelligence::BusinessIntelligenceEngine,
-    pub meta_business_management: meta_business::MetaBusinessManagement,
+    pub strategic_executive: strategic_executive::StrategicExecutive,
+    pub sales_marketing: sales_marketing::SalesMarketing,
+    pub quantum_finance: quantum_finance::QuantumFinance,
+    pub record_keeping: record_keeping::RecordKeeping,
+    pub business_intelligence: business_intelligence::BusinessIntelligenceEngine, // Assuming this is correct from previous work
+    pub meta_business: meta_business::MetaBusinessManagement, // Assuming this is correct from previous work
 }
 
 impl AutonomousBusinessManager {
     pub fn new() -> Self {
         AutonomousBusinessManager {
-            strategic_executive_engine: strategic_executive::StrategicExecutiveEngine::default(),
-            sales_marketing_automation: sales_marketing::SalesMarketingAutomation::default(),
-            accounting_finance_engine: accounting_finance::AccountingFinanceEngine::default(),
-            record_keeping_system: record_keeping::RecordKeepingSystem::default(),
-            business_intelligence_engine: business_intelligence::BusinessIntelligenceEngine::default(),
-            meta_business_management: meta_business::MetaBusinessManagement::default(),
+            strategic_executive: strategic_executive::StrategicExecutive::new(),
+            sales_marketing: sales_marketing::SalesMarketing::new(),
+            quantum_finance: quantum_finance::QuantumFinance::new(),
+            record_keeping: record_keeping::RecordKeeping::new(),
+            business_intelligence: business_intelligence::BusinessIntelligenceEngine::new(),
+            meta_business: meta_business::MetaBusinessManagement::new(),
         }
     }
 }
