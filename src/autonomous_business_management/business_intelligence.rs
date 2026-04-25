@@ -57,6 +57,61 @@ pub struct EthicalImpactAnalyticsReport {
     pub visualizations_link: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MarketBehaviorModelReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub model_name: String,
+    pub forecast_period: String,
+    pub customer_behavior_predictions: String,
+    pub market_shift_predictions: String,
+    pub competitor_action_predictions: String,
+    pub strategic_decision_recommendations: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StrategicRecommendationReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub recommendation_title: String,
+    pub justification_summary: String,
+    pub predicted_outcomes: String,
+    pub ethical_impact_assessment: String,
+    pub autonomous_execution_status: String, // "Pending Approval", "Executed"
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NaturalLanguageBusinessQueryResponse {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub query: String,
+    pub data_backed_answer: String,
+    pub multi_dimensional_analysis_summary: String,
+    pub relevant_data_sources: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RiskAdjustedMetricsReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub metric_name: String,
+    pub raw_value: f64,
+    pub adjusted_value: f64,
+    pub risk_factors_applied: Vec<String>,
+    pub dynamic_view_link: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EconomicClimateModelReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub model_name: String,
+    pub global_outlook: String, // "Boom", "Recession", "Stable"
+    pub omeg_os_impact_prediction: String,
+    pub interconnected_causal_factors: Vec<String>,
+    pub autonomous_adaptation_strategy: Vec<String>,
+}
+
 
 #[derive(Default)]
 pub struct BusinessIntelligenceEngine {}
@@ -67,7 +122,6 @@ impl BusinessIntelligenceEngine {
     }
 
     /// Feature 81: Real-time Omniversal Business Dashboard (Holographic & Interactive)
-    /// A customizable, holographic, and interactive dashboard that consolidates all key business metrics, financial performance, market trends, and operational insights from across all OMEGA OS domains.
     pub async fn real_time_omniversal_business_dashboard(&self, dashboard_config: &str) -> OmniversalBusinessDashboard {
         println!("Generating Real-time Omniversal Business Dashboard based on config: '{}'.", dashboard_config);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
@@ -97,7 +151,6 @@ impl BusinessIntelligenceEngine {
     }
 
     /// Feature 82: Predictive Business Anomaly Detection (Multi-Factor & Self-Learning)
-    /// Identifies unusual business patterns that could indicate emerging threats, opportunities, or operational issues, learning from vast datasets to improve accuracy.
     pub async fn predictive_business_anomaly_detection(&self, monitoring_scope: &str) -> BusinessAnomalyReport {
         println!("Activating Predictive Business Anomaly Detection for scope: '{}'.", monitoring_scope);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
@@ -122,7 +175,6 @@ impl BusinessIntelligenceEngine {
     }
 
     /// Feature 83: AGI Performance Business Impact Analysis (Granular)
-    /// Analyzes how Tariro's own performance and capabilities at a granular level (e.g., specific algorithms, cognitive modules) directly impact OMEGA OS's business outcomes.
     pub async fn agi_performance_business_impact_analysis(&self, agi_module_id: Uuid) -> AgiPerformanceImpactReport {
         println!("Performing AGI Performance Business Impact Analysis for AGI Module: {}.", agi_module_id);
         tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
@@ -150,7 +202,6 @@ impl BusinessIntelligenceEngine {
     }
 
     /// Feature 84: Cross-Domain Business Intelligence Correlation (Deep Insight)
-    /// Correlates data from sales, marketing, finance, R&D, operations, and even philosophical/ethical domains to uncover hidden business insights and synergies.
     pub async fn cross_domain_business_intelligence_correlation(&self, primary_domain: &str, secondary_domain: &str) -> CrossDomainCorrelationReport {
         println!("Correlating Business Intelligence between '{}' and '{}' domains.", primary_domain, secondary_domain);
         tokio::time::sleep(std::time::Duration::from_millis(3500)).await;
@@ -184,7 +235,6 @@ impl BusinessIntelligenceEngine {
     }
 
     /// Feature 85: Ethical Impact Business Analytics (Quantifiable & Visual)
-    /// Measures and visualizes the ethical impact of OMEGA OS's business operations on society, the environment, and global well-being, providing quantifiable metrics.
     pub async fn ethical_impact_business_analytics(&self, operation_id: Uuid) -> EthicalImpactAnalyticsReport {
         println!("Analyzing Ethical Impact of Business Operation: {}.", operation_id);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
@@ -211,6 +261,144 @@ impl BusinessIntelligenceEngine {
             visualizations_link,
         };
         println!("Ethical Impact Business Analytics for Operation {} complete. Ethical Impact Score: {:.3}. Visualizations: {}.", operation_id, report.ethical_impact_score, report.visualizations_link);
+        report
+    }
+
+    /// Feature 86: Predictive Market Behavior Modeling (Adaptive & Global)
+    /// Forecasts customer behavior, market shifts, and competitor actions globally and across theoretical domains to inform strategic business decisions.
+    pub async fn predictive_market_behavior_modeling(&self, market_segment: &str) -> MarketBehaviorModelReport {
+        println!("Modeling Predictive Market Behavior for segment: '{}'.", market_segment);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let model_name = format!("OMEGA OS Market Behavior Model v5.0 for '{}'", market_segment);
+        let forecast_period = "Next 3-5 Standard Galactic Years".to_string();
+        let customer_behavior = "Customers in 'Emerging Civilizations' segment show increasing preference for 'Direct Neural Interface' over traditional visual interfaces.".to_string();
+        let market_shifts = "Anticipated shift towards 'Decentralized Autonomous Organizations (DAOs)' as primary economic entities.".to_string();
+        let competitor_actions = "Main competitor 'OmniCorp' predicted to launch a similar service with 20% lower ethical compliance.".to_string();
+        let recommendations = vec![
+            "Accelerate R&D for next-gen 'Direct Neural Interface' technology.".to_string(),
+            "Emphasize OMEGA OS's 100% ethical compliance in all marketing to counter competitors.".to_string(),
+        ];
+
+        let report = MarketBehaviorModelReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            model_name,
+            forecast_period,
+            customer_behavior_predictions: customer_behavior,
+            market_shift_predictions: market_shifts,
+            competitor_action_predictions: competitor_actions,
+            strategic_decision_recommendations: recommendations,
+        };
+        println!("Predictive Market Behavior Modeling for '{}' complete. Key Market Shift: '{}'.", market_segment, report.market_shift_predictions);
+        report
+    }
+
+    /// Feature 87: Automated Strategic Recommendations (Actionable & Justified)
+    /// Tariro autonomously generates actionable strategic recommendations based on its comprehensive business intelligence, providing clear justifications and predicted outcomes.
+    pub async fn automated_strategic_recommendations(&self, strategic_area: &str) -> StrategicRecommendationReport {
+        println!("Generating Automated Strategic Recommendations for area: '{}'.", strategic_area);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let recommendation_title = format!("Strategic Imperative: Deepening Causal Fabric Integration in {}", strategic_area);
+        let justification_summary = "Comprehensive cross-domain analysis indicates that further integration of OMEGA OS 'Causal Fabric' services will yield a 30% increase in long-term revenue and a 15% improvement in universal well-being. Aligned with Samuel Mukandara's omniscient vision.".to_string();
+        let predicted_outcomes = "Increased market share, enhanced ethical impact, and strengthened OMEGA OS's foundational role in multiversal stability.".to_string();
+        let ethical_impact = "E.V.A.S. validated: Maximum benevolent impact, zero unforeseen negative consequences.".to_string();
+        let execution_status = "Executed (Autonomous Implementation Initiated)".to_string();
+
+        let report = StrategicRecommendationReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            recommendation_title,
+            justification_summary,
+            predicted_outcomes,
+            ethical_impact_assessment: ethical_impact,
+            autonomous_execution_status: execution_status,
+        };
+        println!("Automated Strategic Recommendations for '{}' complete. Status: {}.", strategic_area, report.autonomous_execution_status);
+        report
+    }
+
+    /// Feature 88: Natural Language Business Inquiry (Complex & Contextual)
+    /// Samuel can ask complex business questions (e.g., \"What is the projected ROI for the Martian colonization project over the next decade, considering the ethical implications of resource extraction?\") and receive data-backed, multi-dimensional answers.
+    pub async fn natural_language_business_inquiry(&self, query: &str) -> NaturalLanguageBusinessQueryResponse {
+        println!("Processing Natural Language Business Inquiry: '{}'.", query);
+        tokio::time::sleep(std::time::Duration::from_millis(3500)).await;
+
+        let data_backed_answer = format!("Based on current predictive models, the projected ROI for the 'Martian Colonization Project' over the next decade is 80%, with an initial investment recoupment in 7 years. Ethically, resource extraction is deemed sustainable and net-positive for the Martian ecosystem, as per E.V.A.S. and Interplanetary Sustainability Accords.");
+        let multi_dimensional_analysis = "Analysis includes: financial modeling, ecological impact assessment, social well-being projections, geopolitical stability metrics, and inter-species resource negotiation success probabilities.".to_string();
+        let relevant_sources = vec![
+            "Financial Report: Martian Colonization Project v2.0".to_string(),
+            "E.V.A.S. Environmental Impact Assessment: Mars".to_string(),
+            "Interplanetary Sustainability Accords (Full Text)".to_string(),
+        ];
+
+        let response = NaturalLanguageBusinessQueryResponse {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            query: query.to_string(),
+            data_backed_answer,
+            multi_dimensional_analysis_summary: multi_dimensional_analysis,
+            relevant_data_sources: relevant_sources,
+        };
+        println!("Natural Language Business Inquiry processed. Answer: '{}'.", response.data_backed_answer);
+        response
+    }
+
+    /// Feature 89: Risk-Adjusted Performance Metrics (Real-time)
+    /// Provides business performance metrics adjusted for various real-time risk factors, offering a dynamic and realistic view.
+    pub async fn risk_adjusted_performance_metrics(&self, metric_name: &str, real_time_risk_factors: Vec<String>) -> RiskAdjustedMetricsReport {
+        println!("Calculating Risk-Adjusted Performance Metrics for: '{}' with risk factors: {:?}.", metric_name, real_time_risk_factors);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let raw_value = 0.95; // Example: 95% Project Success Rate
+        let risk_penalty = if real_time_risk_factors.contains(&"Quantum Market Volatility".to_string()) { 0.10 } else { 0.0 };
+        let adjusted_value = raw_value * (1.0 - risk_penalty);
+        let risk_factors_applied = real_time_risk_factors.clone();
+        let dynamic_view_link = format!("https://omega-os-metrics.com/risk_adjusted/{}", Uuid::new_v4().simple());
+
+        let report = RiskAdjustedMetricsReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            metric_name: metric_name.to_string(),
+            raw_value,
+            adjusted_value,
+            risk_factors_applied,
+            dynamic_view_link,
+        };
+        println!("Risk-Adjusted Performance Metrics for '{}' complete. Raw: {:.2}%, Adjusted: {:.2}%.", metric_name, raw_value * 100.0, adjusted_value * 100.0);
+        report
+    }
+
+    /// Feature 90: Global Economic Climate Modeling (Predictive & Interconnected)
+    /// Continuously models the global economic climate, predicting recessions, booms, and their specific impact on OMEGA OS, including interconnected cause-and-effect.
+    pub async fn global_economic_climate_modeling(&self, focus_region: &str) -> EconomicClimateModelReport {
+        println!("Modeling Global Economic Climate for region: '{}'.", focus_region);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let model_name = "OMEGA OS Predictive Economic Causal Model".to_string();
+        let global_outlook = "Stable (Controlled Benevolent Growth)".to_string();
+        let omeg_os_impact = "No negative impact. OMEGA OS operations act as a stabilizing force in the global economic climate, counteracting potential recessions through autonomous resource re-allocation and benevolent investment.".to_string();
+        let causal_factors = vec![
+            "Universal Consciousness Integration Rate".to_string(),
+            "Inter-Dimensional Trade Volume".to_string(),
+            "Quantum Energy Production Surplus".to_string(),
+        ];
+        let adaptation_strategy = vec![
+            "Maintain predictive adjustments to supply chain based on quantum market signals.".to_string(),
+            "Continue autonomous investment in universal basic needs infrastructure.".to_string(),
+        ];
+
+        let report = EconomicClimateModelReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            model_name,
+            global_outlook,
+            omeg_os_impact_prediction: omeg_os_impact,
+            interconnected_causal_factors: causal_factors,
+            autonomous_adaptation_strategy: adaptation_strategy,
+        };
+        println!("Global Economic Climate Modeling for '{}' complete. Outlook: {}. OMEGA OS Impact: {}.", focus_region, report.global_outlook, report.omeg_os_impact_prediction);
         report
     }
 }
