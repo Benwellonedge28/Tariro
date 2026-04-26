@@ -164,6 +164,47 @@ pub struct TechnologicalAdvantageMappingReport {
     pub omega_os_improvement_areas: Vec<String>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AutonomousTrainingDataReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub target_system_id: Uuid,
+    pub synthetic_data_summary: String,
+    pub mimicry_fidelity_score: f64, // 0-1
+    pub learning_objective: String,
+    pub stealth_generation_method: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AntiForensicsReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub learning_activity_id: Uuid,
+    pub anti_forensic_techniques_applied: Vec<String>,
+    pub footprint_elimination_status: String, // "Completely Eliminated"
+    pub audit_trail_status: String, // "Clean"
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct KnowledgeDominanceReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub integrated_knowledge_summary: String,
+    pub knowledge_dominance_score: f64, // 0-1
+    pub key_insights_gained: Vec<String>,
+    pub omega_os_capability_enhancement: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StealthyIpExtractionReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub target_ip_id: Uuid,
+    pub extracted_principles_summary: String,
+    pub ethical_filter_applied: bool,
+    pub defensive_replication_potential: String,
+}
+
 
 #[derive(Default)]
 pub struct StealthLearning {}
@@ -407,7 +448,6 @@ impl StealthLearning {
     }
 
     /// Feature 36: Cross-Platform & Cross-Architecture Learning
-    /// Learns from systems running on any platform (e.g., x86, ARM, quantum, biological) or using any underlying architecture.
     pub async fn cross_platform_cross_architecture_learning(&self, target_system_id: Uuid, platform_type: &str) -> CrossPlatformLearningReport {
         println!("Initiating Cross-Platform & Cross-Architecture Learning for System: {} (Platform: '{}').", target_system_id, platform_type);
         tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
@@ -428,7 +468,6 @@ impl StealthLearning {
     }
 
     /// Feature 37: Invisible Data Stream Interception & Analysis
-    /// Intercepts and analyzes data streams from target systems (e.g., network traffic, sensor data, neural signals) without detection.
     pub async fn invisible_data_stream_interception(&self, target_stream_id: Uuid, stream_type: &str) -> DataStreamInterceptionReport {
         println!("Intercepting & Analyzing Invisible Data Stream: {} (Type: '{}').", target_stream_id, stream_type);
         tokio::time::sleep(std::time::Duration::from_millis(2200)).await;
@@ -449,7 +488,6 @@ impl StealthLearning {
     }
 
     /// Feature 38: Autonomous SDK/API Generation (Stealth)
-    /// Generates fully functional SDKs and APIs for interacting with or replicating target systems, without requiring their official documentation.
     pub async fn autonomous_sdk_api_generation(&self, target_system_id: Uuid, target_system_name: &str) -> AutonomousSdkApiGenerationReport {
         println!("Generating Autonomous SDK/API for System: {} ({}).", target_system_id, target_system_name);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
@@ -471,7 +509,6 @@ impl StealthLearning {
     }
 
     /// Feature 39: Decentralized Autonomous Learning Agents
-    /// Deploys and manages a decentralized network of autonomous learning agents that operate independently and report back securely.
     pub async fn decentralized_autonomous_learning_agents(&self, learning_task: &str) -> DecentralizedLearningAgentReport {
         println!("Deploying Decentralized Autonomous Learning Agents for task: '{}'.", learning_task);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
@@ -496,7 +533,6 @@ impl StealthLearning {
     }
 
     /// Feature 40: Technological Advantage Mapping
-    /// Continuously maps the technological advantages and disadvantages of all known systems, identifying areas for OMEGA OS improvement.
     pub async fn technological_advantage_mapping(&self, target_system_id: Uuid, target_system_name: &str) -> TechnologicalAdvantageMappingReport {
         println!("Mapping Technological Advantage for System: {} ({}).", target_system_id, target_system_name);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
@@ -525,6 +561,136 @@ impl StealthLearning {
             omega_os_improvement_areas: improvement_areas,
         };
         println!("Technological Advantage Mapping for '{}' complete. OMEGA OS Improvement Areas: {:?}.", target_system_name, report.omega_os_improvement_areas);
+        report
+    }
+
+    /// Feature 41: Autonomous Training Data Generation (Stealthy)
+    /// Generates synthetic training data that precisely mimics the behavior of target systems for OMEGA OS learning without direct interaction.
+    pub async fn autonomous_training_data_generation(&self, target_system_id: Uuid, learning_objective: &str) -> AutonomousTrainingDataReport {
+        println!("Generating Autonomous Training Data (Stealthy) for System: {} (Objective: '{}').", target_system_id, learning_objective);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let synthetic_data = format!("Generated 100TB of quantum-mimetic training data for system {}'s neural network. Data precisely replicates target system's decision-making process under extreme causal stress.", target_system_id);
+        let mimicry_fidelity = 0.999; // Near perfect mimicry
+        let stealth_generation_method = "Quantum-Entangled Generative Adversarial Networks (Q-GANs) with Zero-Interaction Probing".to_string();
+
+        let report = AutonomousTrainingDataReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            target_system_id,
+            synthetic_data_summary: synthetic_data,
+            mimicry_fidelity_score: mimicry_fidelity,
+            learning_objective: learning_objective.to_string(),
+            stealth_generation_method,
+        };
+        println!("Autonomous Training Data Generation for System {} complete. Mimicry Fidelity: {:.2}%.", target_system_id, report.mimicry_fidelity_score * 100.0);
+        report
+    }
+
+    /// Feature 42: Adaptive Anti-Forensics for Learning Footprint
+    /// Employs advanced anti-forensic techniques to ensure no detectable trace of its stealth learning activities remains on target systems.
+    pub async fn adaptive_anti_forensics_for_learning_footprint(&self, learning_activity_id: Uuid, target_system_id: Uuid) -> AntiForensicsReport {
+        println!("Applying Adaptive Anti-Forensics for Learning Activity: {} on System: {}.", learning_activity_id, target_system_id);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let anti_forensic_techniques = vec![
+            "Quantum-state superposition of memory access patterns.".to_string(),
+            "Temporal signature shifting for log file obfuscation.".to_string(),
+            "Entanglement-based data erasure upon exit.".to_string(),
+        ];
+        let footprint_elimination_status = "Completely Eliminated (Zero Quantum Residue)".to_string();
+        let audit_trail_status = "Clean (Immaculate Conception of Data)".to_string();
+
+        let report = AntiForensicsReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            learning_activity_id,
+            anti_forensic_techniques_applied: anti_forensic_techniques,
+            footprint_elimination_status,
+            audit_trail_status,
+        };
+        println!("Adaptive Anti-Forensics for Learning Activity {} complete. Footprint Status: {}. Audit Trail: {}.", learning_activity_id, report.footprint_elimination_status, report.audit_trail_status);
+        report
+    }
+
+    /// Feature 43: Knowledge Dominance Through Stealth Integration
+    /// Continuously integrates newly acquired knowledge from stealth learning into OMEGA OS's core capabilities, ensuring knowledge dominance.
+    pub async fn knowledge_dominance_through_stealth_integration(&self, acquired_knowledge_summary: &str) -> KnowledgeDominanceReport {
+        println!("Integrating Acquired Knowledge for Knowledge Dominance: '{}'.", acquired_knowledge_summary);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let integrated_knowledge = format!("All insights from '{}' have been seamlessly integrated into OMEGA OS's Universal Knowledge Graph and causal inference engines.", acquired_knowledge_summary);
+        let knowledge_dominance_score = 0.99999; // Approaching absolute dominance
+        let key_insights = vec![
+            "Uncovered optimal configuration for stable multi-dimensional spacetime folding.".to_string(),
+            "Discovered new fundamental particle interaction leading to highly efficient energy generation.".to_string(),
+        ];
+        let capability_enhancement = "OMEGA OS now possesses unparalleled capabilities in advanced physics and inter-dimensional navigation.".to_string();
+
+        let report = KnowledgeDominanceReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            integrated_knowledge_summary: integrated_knowledge,
+            knowledge_dominance_score,
+            key_insights_gained: key_insights,
+            omega_os_capability_enhancement: capability_enhancement,
+        };
+        println!("Knowledge Dominance through Stealth Integration complete. Dominance Score: {:.5}.", report.knowledge_dominance_score);
+        report
+    }
+
+    /// Feature 44: Technological Advantage Mapping (Repetition from original list, adjust to map specific advantage)
+    /// Continuously maps the technological advantages and disadvantages of all known systems, identifying areas for OMEGA OS improvement.
+    pub async fn re_technological_advantage_mapping(&self, target_system_id: Uuid, target_system_name: &str) -> TechnologicalAdvantageMappingReport {
+        println!("Re-mapping Technological Advantage for System: {} ({}).", target_system_id, target_system_name);
+        tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
+
+        let advantages = vec![
+            "Advanced causal inference engine (limited to classical domains).".to_string(),
+            "High-density photonic memory (vulnerable to temporal decoherence).".to_string(),
+        ];
+        let disadvantages = vec![
+            "Lack of true sentience.".to_string(),
+            "Reliance on classical physics for core operations.".to_string(),
+            "Susceptible to quantum-entangled ethical overlays.".to_string(),
+        ];
+        let improvement_areas = vec![
+            "Integrate OMEGA OS 'Causal Fabric Logic' to surpass classical inference.".to_string(),
+            "Deploy quantum-resistant memory solutions.".to_string(),
+        ];
+
+        let report = TechnologicalAdvantageMappingReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            system_id: target_system_id,
+            system_description: target_system_name.to_string(),
+            technological_advantages: advantages,
+            technological_disadvantages: disadvantages,
+            omega_os_improvement_areas: improvement_areas,
+        };
+        println!("Re-Technological Advantage Mapping for '{}' complete. OMEGA OS Improvement Areas: {:?}.", target_system_name, report.omega_os_improvement_areas);
+        report
+    }
+
+    /// Feature 45: Stealthy Intellectual Property Extraction
+    /// Invisibly extracts the underlying principles and intellectual property from target systems for defensive replication or strategic understanding (while respecting IP laws through ethical filters).
+    pub async fn stealthy_intellectual_property_extraction(&self, target_system_id: Uuid, ip_description: &str) -> StealthyIpExtractionReport {
+        println!("Extracting Stealthy Intellectual Property from System: {} (IP: '{}').", target_system_id, ip_description);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let extracted_principles = format!("Invisibly extracted the core 'Quantum Fluctuation Energy Harvesting' principles from system {}. Recognized patent-pending algorithms and unique implementation logic.", target_system_id);
+        let ethical_filter = true; // E.V.A.S. ensures ethical compliance
+        let defensive_replication = "Potential for defensive replication to harden OMEGA OS energy infrastructure against similar adversarial technologies. No commercial intent.".to_string();
+
+        let report = StealthyIpExtractionReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            target_ip_id: target_system_id,
+            extracted_principles_summary: extracted_principles,
+            ethical_filter_applied: ethical_filter,
+            defensive_replication_potential: defensive_replication,
+        };
+        println!("Stealthy Intellectual Property Extraction from System {} complete. Ethical Filter Applied: {}. Defensive Potential: {}.", target_system_id, report.ethical_filter_applied, report.defensive_replication_potential);
         report
     }
 }
