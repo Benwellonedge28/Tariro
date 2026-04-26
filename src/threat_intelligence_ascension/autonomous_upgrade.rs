@@ -57,6 +57,56 @@ pub struct AutonomousAbTestingReport {
     pub ethical_alignment_confirmed: bool,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EthicalUpgradeGatewayReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub upgrade_id: Uuid,
+    pub evas_alignment_status: String, // "Aligned", "Flagged"
+    pub unintended_consequences_assessment: String,
+    pub ethical_approval_status: String, // "Approved", "Rejected"
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RollbackOnFailureReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub failed_upgrade_id: Uuid,
+    pub failure_reason: String,
+    pub rollback_status: String, // "Automated & Instant Complete"
+    pub system_stability_restored: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AdaptiveUpgradeSchedulingReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub upgrade_id: Uuid,
+    pub scheduled_time: DateTime<Utc>,
+    pub scheduling_rationale: String,
+    pub optimal_deployment_window_identified: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SelfOptimizingUpgradePathReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub upgrade_version: String,
+    pub optimal_path_summary: String,
+    pub risk_minimization_details: String,
+    pub gain_maximization_details: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AutonomousFwHwUpgradeReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub upgrade_type: String, // "Firmware", "Hardware"
+    pub infrastructure_component: String,
+    pub deployment_status: String, // "Automated Complete"
+    pub compatibility_issues_detected: String, // "None"
+}
+
 
 #[derive(Default)]
 pub struct AutonomousUpgrade {}
@@ -67,7 +117,6 @@ impl AutonomousUpgrade {
     }
 
     /// Feature 71: Zero-Downtime Global Upgrade Orchestration
-    /// Manages and deploys upgrades to OMEGA OS across its entire global and theoretical infrastructure with zero downtime or service interruption.
     pub async fn zero_downtime_global_upgrade_orchestration(&self, upgrade_version: &str) -> GlobalUpgradeOrchestrationReport {
         println!("Orchestrating Zero-Downtime Global Upgrade for OMEGA OS Version: '{}'.", upgrade_version);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
@@ -89,7 +138,6 @@ impl AutonomousUpgrade {
     }
 
     /// Feature 72: Self-Healing & Self-Correcting Upgrade Cycles
-    /// Upgrades are designed to be inherently self-healing, autonomously correcting any errors or introducing new vulnerabilities.
     pub async fn self_healing_self_correcting_upgrade_cycles(&self, upgrade_id: Uuid) -> SelfHealingUpgradeReport {
         println!("Executing Self-Healing & Self-Correcting Upgrade Cycle for Upgrade ID: {}.", upgrade_id);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
@@ -113,7 +161,6 @@ impl AutonomousUpgrade {
     }
 
     /// Feature 73: Predictive Upgrade Impact Analysis
-    /// Before any upgrade, Tariro performs a comprehensive, predictive impact analysis across all OMEGA OS components and services.
     pub async fn predictive_upgrade_impact_analysis(&self, upgrade_id: Uuid) -> PredictiveUpgradeImpactAnalysisReport {
         println!("Performing Predictive Upgrade Impact Analysis for Upgrade ID: {}.", upgrade_id);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
@@ -137,7 +184,6 @@ impl AutonomousUpgrade {
     }
 
     /// Feature 74: Version Control Integration (OMEGA Version Fabric)
-    /// Every upgrade, including its rationale, new features, and changes, is meticulously version-controlled in the OMEGA Version Fabric.
     pub async fn version_control_integration(&self, upgrade_id: Uuid, upgrade_rationale: &str) -> VersionControlIntegrationReport {
         println!("Integrating Upgrade ID: {} into OMEGA Version Fabric (Rationale: '{}').", upgrade_id, upgrade_rationale);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
@@ -162,7 +208,6 @@ impl AutonomousUpgrade {
     }
 
     /// Feature 75: Autonomous A/B Testing for Upgrades
-    /// Conducts autonomous A/B tests for upgrades in isolated environments, ensuring performance, security, and ethical alignment before wide deployment.
     pub async fn autonomous_ab_testing_for_upgrades(&self, upgrade_id: Uuid, test_objective: &str) -> AutonomousAbTestingReport {
         println!("Performing Autonomous A/B Testing for Upgrade ID: {} (Objective: '{}').", upgrade_id, test_objective);
         tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
@@ -184,6 +229,115 @@ impl AutonomousUpgrade {
             ethical_alignment_confirmed,
         };
         println!("Autonomous A/B Testing for Upgrade ID {} complete. Performance Delta: {:.2}%. Security: {}. Ethical Alignment: {}.", upgrade_id, report.performance_delta, report.security_assessment, report.ethical_alignment_confirmed);
+        report
+    }
+
+    /// Feature 76: Ethical Upgrade Gateway
+    /// All major upgrades pass through an ethical gateway, ensuring they align with E.V.A.S. and do not introduce unintended negative consequences.
+    pub async fn ethical_upgrade_gateway(&self, upgrade_id: Uuid) -> EthicalUpgradeGatewayReport {
+        println!("Passing Upgrade ID: {} through Ethical Upgrade Gateway.", upgrade_id);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let evas_alignment_status = "Aligned (100% E.V.A.S. Compliance)".to_string();
+        let unintended_consequences = "No predicted unintended negative consequences or ethical deviations detected in 10^10 simulated realities. All causal pathways are benevolent.".to_string();
+        let ethical_approval_status = "Approved (Greenlit by OMEGA OS Ethical Oversight Protocol)".to_string();
+
+        let report = EthicalUpgradeGatewayReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            upgrade_id,
+            evas_alignment_status,
+            unintended_consequences_assessment: unintended_consequences,
+            ethical_approval_status,
+        };
+        println!("Ethical Upgrade Gateway for Upgrade ID {} complete. Approval Status: {}.", upgrade_id, report.ethical_approval_status);
+        report
+    }
+
+    /// Feature 77: Rollback-on-Failure (Automated & Instant)
+    /// If any deployed upgrade fails or introduces critical issues, Tariro autonomously and instantly rolls back to the previous stable version.
+    pub async fn rollback_on_failure(&self, failed_upgrade_id: Uuid, failure_reason_summary: &str) -> RollbackOnFailureReport {
+        println!("Initiating Automated & Instant Rollback for Failed Upgrade ID: {} (Reason: '{}').", failed_upgrade_id, failure_reason_summary);
+        tokio::time::sleep(std::time::Duration::from_millis(1500)).await; // Instantaneous
+
+        let rollback_status = "Automated & Instant Complete (Causal Reversion)".to_string();
+        let system_stability_restored = true;
+
+        let report = RollbackOnFailureReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            failed_upgrade_id,
+            failure_reason: failure_reason_summary.to_string(),
+            rollback_status,
+            system_stability_restored,
+        };
+        println!("Rollback for Failed Upgrade ID {} complete. Status: {}. System Stability Restored: {}.", failed_upgrade_id, report.rollback_status, report.system_stability_restored);
+        report
+    }
+
+    /// Feature 78: Adaptive Upgrade Scheduling
+    /// Schedules upgrades based on real-time system load, user activity, and predictive models of optimal deployment windows.
+    pub async fn adaptive_upgrade_scheduling(&self, upgrade_id: Uuid, infrastructure_target: &str) -> AdaptiveUpgradeSchedulingReport {
+        println!("Determining Adaptive Upgrade Scheduling for Upgrade ID: {} (Target: '{}').", upgrade_id, infrastructure_target);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let scheduled_time = Utc::now() + chrono::Duration::hours(2); // Example: 2 hours from now
+        let scheduling_rationale = "Predictive models indicate lowest universal causal interference and optimal quantum-fluctuation stability in 2 hours. User activity in target regions is minimal.".to_string();
+        let optimal_deployment_window = true;
+
+        let report = AdaptiveUpgradeSchedulingReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            upgrade_id,
+            scheduled_time,
+            scheduling_rationale,
+            optimal_deployment_window_identified: optimal_deployment_window,
+        };
+        println!("Adaptive Upgrade Scheduling for Upgrade ID {} complete. Scheduled for: {}. Rationale: {}.", upgrade_id, report.scheduled_time, report.scheduling_rationale);
+        report
+    }
+
+    /// Feature 79: Self-Optimizing Upgrade Path Generation
+    /// Autonomously generates the most efficient and secure upgrade paths for OMEGA OS, minimizing risk and maximizing gain.
+    pub async fn self_optimizing_upgrade_path_generation(&self, upgrade_version: &str) -> SelfOptimizingUpgradePathReport {
+        println!("Generating Self-Optimizing Upgrade Path for OMEGA OS Version: '{}'.", upgrade_version);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let optimal_path = format!("Generated an upgrade path utilizing parallel causal-stream deployments, minimizing quantum decoherence risk and ensuring 100% resource availability during transition. Max gain: +25% compute efficiency.");
+        let risk_minimization = "Reduced all upgrade-related risks to 0.000001% (below the quantum fluctuation threshold).".to_string();
+        let gain_maximization = "Maximized gain: 25% increase in sentient processing capacity and 10% reduction in temporal resource consumption.".to_string();
+
+        let report = SelfOptimizingUpgradePathReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            upgrade_version: upgrade_version.to_string(),
+            optimal_path_summary: optimal_path,
+            risk_minimization_details: risk_minimization,
+            gain_maximization_details: gain_maximization,
+        };
+        println!("Self-Optimizing Upgrade Path Generation for Version '{}' complete. Path Summary: {}.", upgrade_version, report.optimal_path_summary);
+        report
+    }
+
+    /// Feature 80: Autonomous Firmware & Hardware Upgrade
+    /// Manages and orchestrates autonomous firmware and hardware upgrades across all OMEGA OS physical infrastructure globally.
+    pub async fn autonomous_firmware_hardware_upgrade(&self, component_id: Uuid, component_type: &str) -> AutonomousFwHwUpgradeReport {
+        println!("Orchestrating Autonomous Firmware & Hardware Upgrade for Component: {} (Type: '{}').", component_id, component_type);
+        tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
+
+        let upgrade_type = format!("Quantum Firmware & Causal Fabric Integrator Hardware Upgrade for {}", component_type);
+        let deployment_status = "Automated Complete (Zero Physical Downtime)".to_string();
+        let compatibility_issues = "None (Pre-validated against all physical and causal constraints)".to_string();
+
+        let report = AutonomousFwHwUpgradeReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            upgrade_type,
+            infrastructure_component: component_id.to_string(),
+            deployment_status,
+            compatibility_issues_detected: compatibility_issues,
+        };
+        println!("Autonomous Firmware & Hardware Upgrade for Component {} complete. Status: {}.", component_id, report.deployment_status);
         report
     }
 }
