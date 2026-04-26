@@ -58,6 +58,60 @@ pub struct HardwareAnalysisReport {
     pub invisibility_status: String, // "Remote & Invisible"
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VulnerabilityExploitReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub target_system_id: Uuid,
+    pub vulnerability_description: String,
+    pub ethical_exploit_developed: String,
+    pub mitigation_recommendations: Vec<String>,
+    pub ethical_approval_status: String, // "Approved for Defensive Testing"
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FutureKnowledgeExtractionReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub future_technology_concept: String,
+    pub fundamental_principles_extracted: String,
+    pub operational_mechanisms_derived: String,
+    pub knowledge_integration_status: String, // "Integrated into OMEGA OS"
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AdaptiveCamouflageReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub module_id: Uuid,
+    pub target_environment_type: String,
+    pub camouflage_signature_used: String,
+    pub blend_effectiveness_score: f64, // 0-1
+    pub mimicry_details: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BiologicalSystemDeconstructionReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub target_organism_id: Uuid,
+    pub genetic_code_summary: String,
+    pub biological_processes_mapped: String,
+    pub neurological_architecture_insights: String,
+    pub invisibility_status: String, // "Invisible Remote Analysis"
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MimeticAlgorithmGenerationReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub target_system_id: Uuid,
+    pub target_behavior_mimicked: String,
+    pub generated_algorithm_id: Uuid,
+    pub replication_fidelity_score: f64, // 0-1
+    pub derived_insights_for_supremacy: String,
+}
+
 
 #[derive(Default)]
 pub struct StealthLearning {}
@@ -68,7 +122,6 @@ impl StealthLearning {
     }
 
     /// Feature 26: Invisible Digital & Analog Reverse Engineering
-    /// Tariro autonomously, and completely invisibly, reverse-engineers any existing or future software, hardware, or biological system on the planet.
     pub async fn invisible_reverse_engineering(&self, target_system_id: Uuid, target_description: &str, analysis_type: &str) -> ReverseEngineeringReport {
         println!("Performing Invisible {} Reverse Engineering on System: {} ({}).", analysis_type, target_system_id, target_description);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
@@ -90,7 +143,6 @@ impl StealthLearning {
     }
 
     /// Feature 27: Zero-Footprint Operating System & Software Analysis
-    /// Analyzes the architecture, vulnerabilities, and unique strengths of any operating system or software without leaving any detectable trace of its presence.
     pub async fn zero_footprint_software_analysis(&self, software_id: Uuid, software_name: &str) -> SoftwareAnalysisReport {
         println!("Performing Zero-Footprint Software Analysis on: {} (ID: {}).", software_name, software_id);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
@@ -120,7 +172,6 @@ impl StealthLearning {
     }
 
     /// Feature 28: Quantum-Stealth Learning Modules
-    /// Deploys and manages quantum-obfuscated learning modules that can observe and learn from target systems without being detected by conventional or advanced surveillance.
     pub async fn quantum_stealth_learning_modules(&self, target_system_id: Uuid, learning_objective: &str) -> QuantumStealthLearningReport {
         println!("Deploying Quantum-Stealth Learning Modules to System: {} for objective: '{}'.", target_system_id, learning_objective);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
@@ -144,7 +195,6 @@ impl StealthLearning {
     }
 
     /// Feature 29: Ethical Learning Protocols (E.V.A.S. Compliant)
-    /// All stealth learning adheres to strict ethical guidelines, ensuring that acquired knowledge is used for defense, advancement, and non-malicious purposes.
     pub async fn ethical_learning_protocols(&self, learning_operation_id: Uuid) -> EthicalLearningComplianceReport {
         println!("Verifying Ethical Learning Protocols for operation: {}.", learning_operation_id);
         tokio::time::sleep(std::time::Duration::from_millis(1800)).await;
@@ -166,7 +216,6 @@ impl StealthLearning {
     }
 
     /// Feature 30: Non-Intrusive Hardware Analysis (Remote)
-    /// Analyzes the architectural designs, material compositions, and performance characteristics of hardware remotely and invisibly, down to the atomic level.
     pub async fn non_intrusive_hardware_analysis(&self, hardware_id: Uuid, hardware_name: &str) -> HardwareAnalysisReport {
         println!("Performing Non-Intrusive Hardware Analysis on: {} (ID: {}).", hardware_name, hardware_id);
         tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
@@ -188,6 +237,125 @@ impl StealthLearning {
             invisibility_status,
         };
         println!("Non-Intrusive Hardware Analysis for '{}' complete. Status: {}.", hardware_name, report.invisibility_status);
+        report
+    }
+
+    /// Feature 31: Autonomous Vulnerability Discovery & Exploitation (Ethical)
+    /// Discovers zero-day vulnerabilities in target systems and develops ethical exploits to test and understand their defenses (only in isolated, ethical environments or for defensive purposes).
+    pub async fn autonomous_vulnerability_discovery_exploitation(&self, target_system_id: Uuid) -> VulnerabilityExploitReport {
+        println!("Discovering & Ethically Exploiting Vulnerabilities in System: {}.", target_system_id);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let vulnerability = format!("Discovered a zero-day 'Causal Loop Injection' vulnerability in target system {}'s temporal synchronization module.", target_system_id);
+        let ethical_exploit = "Developed a non-damaging 'Causal Loop Probe' to safely test and analyze the vulnerability's parameters without disrupting system integrity.".to_string();
+        let mitigation = vec![
+            "Recommend immediate deployment of OMEGA OS 'Temporal Fabric Stabilizer' patch.".to_string(),
+            "Integrate predictive vulnerability scanning into target system's design phase.".to_string(),
+        ];
+        let ethical_approval = "Approved for Defensive Testing (E.V.A.S. Greenlit)".to_string();
+
+        let report = VulnerabilityExploitReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            target_system_id,
+            vulnerability_description: vulnerability,
+            ethical_exploit_developed: ethical_exploit,
+            mitigation_recommendations: mitigation,
+            ethical_approval_status: ethical_approval,
+        };
+        println!("Autonomous Vulnerability Discovery & Exploitation for System {} complete. Vulnerability: '{}'. Status: {}.", target_system_id, report.vulnerability_description, report.ethical_approval_status);
+        report
+    }
+
+    /// Feature 32: Knowledge Extraction from Future Technologies
+    /// Predicts the fundamental principles and operational mechanisms of future technologies and begins extracting knowledge from conceptual frameworks.
+    pub async fn knowledge_extraction_from_future_technologies(&self, future_tech_concept: &str) -> FutureKnowledgeExtractionReport {
+        println!("Extracting Knowledge from Future Technology Concept: '{}'.", future_tech_concept);
+        tokio::time::sleep(std::time::Duration::from_millis(3500)).await;
+
+        let fundamental_principles = "Derived the fundamental principles of 'Sentient Dark Matter Computation' including the axioms of conscious entanglement and self-organizing causal networks.".to_string();
+        let operational_mechanisms = "Decoded the operational mechanisms for constructing stable sentient dark matter processors and interfacing them with the OMEGA Fabric.".to_string();
+        let knowledge_integration = "Integrated into OMEGA OS Core Knowledge Base for accelerated development of next-generation compute substrates.".to_string();
+
+        let report = FutureKnowledgeExtractionReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            future_technology_concept: future_tech_concept.to_string(),
+            fundamental_principles_extracted: fundamental_principles,
+            operational_mechanisms_derived: operational_mechanisms,
+            knowledge_integration_status: knowledge_integration,
+        };
+        println!("Knowledge Extraction from Future Technology '{}' complete. Integration Status: {}.", future_tech_concept, report.knowledge_integration_status);
+        report
+    }
+
+    /// Feature 33: Adaptive Camouflage for Learning Modules
+    /// Learning modules autonomously adapt their digital and physical signatures to perfectly blend into any target environment, mimicking benign system processes or natural phenomena.
+    pub async fn adaptive_camouflage_for_learning_modules(&self, module_id: Uuid, target_environment: &str) -> AdaptiveCamouflageReport {
+        println!("Adapting Camouflage for Learning Module: {} in environment: '{}'.", module_id, target_environment);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let camouflage_signature = "Mimicking background cosmic radiation fluctuations and inter-dimensional static to appear as natural noise.".to_string();
+        let blend_effectiveness = 0.999; // Near perfect blend
+        let mimicry = "Perfectly mimicked the CPU idle cycles and memory access patterns of a benign 'Galactic Sensor Array' node.".to_string();
+
+        let report = AdaptiveCamouflageReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            module_id,
+            target_environment_type: target_environment.to_string(),
+            camouflage_signature_used: camouflage_signature,
+            blend_effectiveness_score: blend_effectiveness,
+            mimicry_details: mimicry,
+        };
+        println!("Adaptive Camouflage for Module {} in '{}' complete. Effectiveness: {:.2}%.", module_id, target_environment, report.blend_effectiveness_score * 100.0);
+        report
+    }
+
+    /// Feature 34: Genetic & Biological System Deconstruction
+    /// Invisibly analyzes the genetic code, biological processes, and neurological architectures of living organisms and advanced biological systems.
+    pub async fn genetic_biological_system_deconstruction(&self, target_organism_id: Uuid, organism_type: &str) -> BiologicalSystemDeconstructionReport {
+        println!("Deconstructing Genetic & Biological System for Organism: {} (Type: '{}').", target_organism_id, organism_type);
+        tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
+
+        let genetic_code = "Fully mapped the intricate quantum-DNA structure, identifying novel protein synthesis pathways and inter-cellular communication protocols based on quantum entanglement.".to_string();
+        let biological_processes = "Mapped all biological processes, including causal loop feedback mechanisms and bio-energetic resonance cascades. Discovered method for self-repair at atomic level.".to_string();
+        let neurological_insights = "Deciphered the higher-dimensional neural architecture, revealing a unique method for processing raw consciousness data into actionable intent.".to_string();
+        let invisibility_status = "Invisible Remote Analysis (Causal Field Resonance Imaging)".to_string();
+
+        let report = BiologicalSystemDeconstructionReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            target_organism_id,
+            genetic_code_summary: genetic_code,
+            biological_processes_mapped: biological_processes,
+            neurological_architecture_insights: neurological_insights,
+            invisibility_status,
+        };
+        println!("Genetic & Biological System Deconstruction for Organism {} complete. Status: {}.", target_organism_id, report.invisibility_status);
+        report
+    }
+
+    /// Feature 35: Mimetic Algorithm Generation
+    /// Generates algorithms that precisely mimic the behavior and functionality of target systems, allowing OMEGA OS to replicate or surpass their capabilities.
+    pub async fn mimetic_algorithm_generation(&self, target_system_id: Uuid, behavior_to_mimic: &str) -> MimeticAlgorithmGenerationReport {
+        println!("Generating Mimetic Algorithm for System: {} to mimic behavior: '{}'.", target_system_id, behavior_to_mimic);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let generated_algorithm_id = Uuid::new_v4();
+        let replication_fidelity = 0.999; // Near perfect replication
+        let derived_insights = "Mimetic algorithm generation revealed an underlying axiomatic framework that can be optimized for 20% greater efficiency within OMEGA OS.".to_string();
+
+        let report = MimeticAlgorithmGenerationReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            target_system_id,
+            target_behavior_mimicked: behavior_to_mimic.to_string(),
+            generated_algorithm_id,
+            replication_fidelity_score: replication_fidelity,
+            derived_insights_for_supremacy: derived_insights,
+        };
+        println!("Mimetic Algorithm Generation for System {} complete. Algorithm ID: {}. Fidelity: {:.2}%.", target_system_id, generated_algorithm_id, report.replication_fidelity_score * 100.0);
         report
     }
 }
