@@ -1,14 +1,16 @@
 pub mod deep_threat_intelligence;
 pub mod stealth_learning;
 pub mod supremacy_optimization;
-pub mod autonomous_upgrade; // New module declaration
+pub mod autonomous_upgrade;
+pub mod admin_interface; // New module declaration
 
 #[derive(Default)]
 pub struct ThreatIntelligenceAscensionEngine {
     pub deep_threat_intelligence: deep_threat_intelligence::DeepThreatIntelligence,
     pub stealth_learning: stealth_learning::StealthLearning,
     pub supremacy_optimization: supremacy_optimization::SupremacyOptimization,
-    pub autonomous_upgrade: autonomous_upgrade::AutonomousUpgrade, // Initialize
+    pub autonomous_upgrade: autonomous_upgrade::AutonomousUpgrade,
+    pub admin_interface: admin_interface::AdminInterface, // Initialize
 }
 
 impl ThreatIntelligenceAscensionEngine {
@@ -18,6 +20,7 @@ impl ThreatIntelligenceAscensionEngine {
             stealth_learning: stealth_learning::StealthLearning::new(),
             supremacy_optimization: supremacy_optimization::SupremacyOptimization::new(),
             autonomous_upgrade: autonomous_upgrade::AutonomousUpgrade::new(),
+            admin_interface: admin_interface::AdminInterface::new(),
         }
     }
 }
