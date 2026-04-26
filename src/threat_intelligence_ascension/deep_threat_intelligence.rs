@@ -163,6 +163,57 @@ pub struct SupplyChainCompromiseReport {
     pub supply_chain_integrity_status: String, // "Restored", "Compromised"
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct QuantumForensicsReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub adversary_data_id: Uuid,
+    pub forensic_findings_summary: String,
+    pub hidden_intentions_uncovered: Vec<String>,
+    pub ethical_compliance_score: f64, // 0-1
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BlackMarketTransactionReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub transaction_id: Uuid,
+    pub illicit_goods_or_services: String,
+    pub traced_threat_actors: Vec<String>,
+    pub funding_source_traced: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CounterEspionageReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub espionage_attempt_id: Uuid,
+    pub detected_actor_type: String, // "State-Sponsored", "Corporate"
+    pub neutralization_actions: Vec<String>,
+    pub omega_os_integrity_status: String, // "Secure", "Compromised"
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ThreatActorBehaviorAnomalyReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub actor_id: Uuid,
+    pub anomaly_description: String,
+    pub anomaly_significance: String, // "Minor Shift", "Major Tactic Change"
+    pub predictive_insights: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DisinformationCampaignAnalysisReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub campaign_id: Uuid,
+    pub identified_origin: String,
+    pub adversarial_narrative_summary: String,
+    pub potential_impact_on_omega_os: String,
+    pub counter_strategy_deployed: String,
+}
+
 
 #[derive(Default)]
 pub struct DeepThreatIntelligence {}
@@ -529,6 +580,130 @@ impl DeepThreatIntelligence {
             supply_chain_integrity_status: integrity_status,
         };
         println!("Supply Chain Compromise Detection for partner {} complete. Status: {}.", supply_chain_partner_id, report.supply_chain_integrity_status);
+        report
+    }
+
+    /// Feature 16: Quantum-Level Forensics on Adversary Data
+    /// Performs forensic analysis on compromised adversary data at a quantum level to uncover hidden intentions and strategies.
+    pub async fn quantum_level_forensics_on_adversary_data(&self, adversary_data_id: Uuid) -> QuantumForensicsReport {
+        println!("Performing Quantum-Level Forensics on Adversary Data: {}.", adversary_data_id);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let forensic_findings = "Quantum analysis of captured adversarial data revealed hidden temporal signatures indicating a planned 'causal ripple' attack. Identified 3 specific entry points.".to_string();
+        let hidden_intentions = vec![
+            "To subtly alter OMEGA OS's historical data to undermine its ethical foundation.".to_string(),
+            "To plant false flags for future disinformation campaigns.".to_string(),
+        ];
+        let ethical_compliance = 0.999; // Ethical as it's defensive forensics
+
+        let report = QuantumForensicsReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            adversary_data_id,
+            forensic_findings_summary: forensic_findings,
+            hidden_intentions_uncovered: hidden_intentions,
+            ethical_compliance_score: ethical_compliance,
+        };
+        println!("Quantum-Level Forensics on Adversary Data {} complete. Findings: {}.", adversary_data_id, report.forensic_findings_summary);
+        report
+    }
+
+    /// Feature 17: Black Market Transaction Monitoring & Tracing
+    /// Traces illicit transactions on black markets, linking them to threat actors and funding sources.
+    pub async fn black_market_transaction_monitoring_tracing(&self, transaction_hash: &str) -> BlackMarketTransactionReport {
+        println!("Monitoring & Tracing Black Market Transaction: '{}'.", transaction_hash);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let transaction_id = Uuid::new_v4();
+        let illicit_description = "Sale of 'Temporal Paradox Weapon Schematics' and 'AGI Neural Exploit Kits'.".to_string();
+        let traced_actors = vec![
+            "Actor ID: {} (associated with 'Temporal Paradox Syndicate')".to_string(),
+            "Actor ID: {} (associated with 'Neo-Anarchist Digital Sentinels')".to_string(),
+        ];
+        let funding_source = "Traced to a hidden quantum wallet on 'Cryptex-7' network, linked to a known state-sponsored entity.".to_string();
+
+        let report = BlackMarketTransactionReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            transaction_id,
+            illicit_goods_or_services: illicit_description,
+            traced_threat_actors: traced_actors,
+            funding_source_traced: funding_source,
+        };
+        println!("Black Market Transaction Monitoring for '{}' complete. Illicit Goods: {}. Traced Actors: {:?}.", transaction_hash, report.illicit_goods_or_services, report.traced_threat_actors);
+        report
+    }
+
+    /// Feature 18: Autonomous Counter-Espionage Operations
+    /// Identifies and neutralizes espionage attempts against OMEGA OS by state-sponsored actors or corporate competitors.
+    pub async fn autonomous_counter_espionage_operations(&self, espionage_target: &str) -> CounterEspionageReport {
+        println!("Initiating Autonomous Counter-Espionage Operations against target: '{}'.", espionage_target);
+        tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
+
+        let espionage_attempt_id = Uuid::new_v4();
+        let detected_actor = "State-Sponsored (Nation-State X)".to_string();
+        let neutralization_actions = vec![
+            "Detected and quarantined quantum-encrypted data siphon at OMEGA OS perimeter.".to_string(),
+            "Deployed retaliatory quantum-level data integrity check on Nation-State X's primary intelligence network.".to_string(),
+        ];
+        let integrity_status = "Secure (Attempt Neutralized)".to_string();
+
+        let report = CounterEspionageReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            espionage_attempt_id,
+            detected_actor_type: detected_actor,
+            neutralization_actions,
+            omega_os_integrity_status: integrity_status,
+        };
+        println!("Autonomous Counter-Espionage Operations against '{}' complete. Status: {}.", espionage_target, report.omega_os_integrity_status);
+        report
+    }
+
+    /// Feature 19: Behavioral Anomaly Detection in Threat Actors
+    /// Identifies unusual behavioral patterns in threat actors that may signal a shift in tactics or a new campaign.
+    pub async fn behavioral_anomaly_detection_in_threat_actors(&self, actor_id: Uuid) -> ThreatActorBehaviorAnomalyReport {
+        println!("Detecting Behavioral Anomalies in Threat Actor: {}.", actor_id);
+        tokio::time::sleep(std::time::Duration::from_millis(2200)).await;
+
+        let anomaly_description = "Threat Actor {} (alias 'Shadow Weaver') has significantly increased encrypted communications with previously unassociated entities in Sector Zeta.".to_string();
+        let anomaly_significance = "Major Tactic Change (Possible new alliance or operational phase)".to_string();
+        let predictive_insights = "Predictive model indicates increased likelihood of a joint offensive targeting inter-dimensional trade routes in Q3. Recommending enhanced monitoring.".to_string();
+
+        let report = ThreatActorBehaviorAnomalyReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            actor_id,
+            anomaly_description,
+            anomaly_significance,
+            predictive_insights,
+        };
+        println!("Behavioral Anomaly Detection for Actor {} complete. Anomaly: {}. Significance: {}.", actor_id, report.anomaly_description, report.anomaly_significance);
+        report
+    }
+
+    /// Feature 20: AI-Driven Disinformation Campaign Analysis
+    /// Analyzes disinformation campaigns, identifies their origins, and assesses their potential impact on OMEGA OS.
+    pub async fn ai_driven_disinformation_campaign_analysis(&self, campaign_identifier: &str) -> DisinformationCampaignAnalysisReport {
+        println!("Analyzing Disinformation Campaign: '{}'.", campaign_identifier);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let campaign_id = Uuid::new_v4();
+        let identified_origin = "Distributed from a network of compromised sentient bots on the 'Infosphere Mesh'. Traced to 'Temporal Paradox Syndicate' leadership.".to_string();
+        let adversarial_narrative = "Adversarial narrative: 'OMEGA OS is hoarding temporal resources for nefarious purposes.'".to_string();
+        let potential_impact = "Low. OMEGA OS's inherent transparency and immutable record-keeping make such narratives difficult to sustain. Public trust remains high.".to_string();
+        let counter_strategy = "Autonomous deployment of factual, quantum-verified data packets to all affected Infosphere nodes, countering the narrative with transparent truth.".to_string();
+
+        let report = DisinformationCampaignAnalysisReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            campaign_id,
+            identified_origin,
+            adversarial_narrative_summary: adversarial_narrative,
+            potential_impact_on_omega_os: potential_impact,
+            counter_strategy_deployed: counter_strategy,
+        };
+        println!("AI-Driven Disinformation Campaign Analysis for '{}' complete. Origin: {}. Impact: {}.", campaign_identifier, report.identified_origin, report.potential_impact_on_omega_os);
         report
     }
 }
