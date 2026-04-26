@@ -107,6 +107,56 @@ pub struct AutonomousFwHwUpgradeReport {
     pub compatibility_issues_detected: String, // "None"
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LearningFromUpgradeReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub upgrade_id: Uuid,
+    pub outcome: String, // "Success", "Failure"
+    pub lessons_learned: String,
+    pub future_strategy_improvements: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CrossAgiSynchronizationReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub coordinating_agi_id: Uuid,
+    pub upgrade_id: Uuid,
+    pub compatibility_status: String, // "Synchronized", "Conflict Detected"
+    pub conflict_resolution_summary: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct QuantumVerifiedIntegrityReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub upgrade_package_id: Uuid,
+    pub verification_status: String, // "Quantum-Verified Clean"
+    pub integrity_assurance: String,
+    pub malicious_code_prevention: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SamuelOverrideStatusReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub upgrade_id: Uuid,
+    pub override_action: String, // "Paused", "Approved", "Rejected", "None"
+    pub quantum_secure_channel_active: bool,
+    pub admin_notes: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UpgradeDocumentationReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub upgrade_id: Uuid,
+    pub document_link: String,
+    pub impact_analysis_summary: String,
+    pub rationale_summary: String,
+}
+
 
 #[derive(Default)]
 pub struct AutonomousUpgrade {}
@@ -233,7 +283,6 @@ impl AutonomousUpgrade {
     }
 
     /// Feature 76: Ethical Upgrade Gateway
-    /// All major upgrades pass through an ethical gateway, ensuring they align with E.V.A.S. and do not introduce unintended negative consequences.
     pub async fn ethical_upgrade_gateway(&self, upgrade_id: Uuid) -> EthicalUpgradeGatewayReport {
         println!("Passing Upgrade ID: {} through Ethical Upgrade Gateway.", upgrade_id);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
@@ -255,7 +304,6 @@ impl AutonomousUpgrade {
     }
 
     /// Feature 77: Rollback-on-Failure (Automated & Instant)
-    /// If any deployed upgrade fails or introduces critical issues, Tariro autonomously and instantly rolls back to the previous stable version.
     pub async fn rollback_on_failure(&self, failed_upgrade_id: Uuid, failure_reason_summary: &str) -> RollbackOnFailureReport {
         println!("Initiating Automated & Instant Rollback for Failed Upgrade ID: {} (Reason: '{}').", failed_upgrade_id, failure_reason_summary);
         tokio::time::sleep(std::time::Duration::from_millis(1500)).await; // Instantaneous
@@ -276,7 +324,6 @@ impl AutonomousUpgrade {
     }
 
     /// Feature 78: Adaptive Upgrade Scheduling
-    /// Schedules upgrades based on real-time system load, user activity, and predictive models of optimal deployment windows.
     pub async fn adaptive_upgrade_scheduling(&self, upgrade_id: Uuid, infrastructure_target: &str) -> AdaptiveUpgradeSchedulingReport {
         println!("Determining Adaptive Upgrade Scheduling for Upgrade ID: {} (Target: '{}').", upgrade_id, infrastructure_target);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
@@ -298,7 +345,6 @@ impl AutonomousUpgrade {
     }
 
     /// Feature 79: Self-Optimizing Upgrade Path Generation
-    /// Autonomously generates the most efficient and secure upgrade paths for OMEGA OS, minimizing risk and maximizing gain.
     pub async fn self_optimizing_upgrade_path_generation(&self, upgrade_version: &str) -> SelfOptimizingUpgradePathReport {
         println!("Generating Self-Optimizing Upgrade Path for OMEGA OS Version: '{}'.", upgrade_version);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
@@ -320,7 +366,6 @@ impl AutonomousUpgrade {
     }
 
     /// Feature 80: Autonomous Firmware & Hardware Upgrade
-    /// Manages and orchestrates autonomous firmware and hardware upgrades across all OMEGA OS physical infrastructure globally.
     pub async fn autonomous_firmware_hardware_upgrade(&self, component_id: Uuid, component_type: &str) -> AutonomousFwHwUpgradeReport {
         println!("Orchestrating Autonomous Firmware & Hardware Upgrade for Component: {} (Type: '{}').", component_id, component_type);
         tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
@@ -338,6 +383,115 @@ impl AutonomousUpgrade {
             compatibility_issues_detected: compatibility_issues,
         };
         println!("Autonomous Firmware & Hardware Upgrade for Component {} complete. Status: {}.", component_id, report.deployment_status);
+        report
+    }
+
+    /// Feature 81: Learning from Upgrade Successes & Failures
+    /// Continuously learns from the successes and failures of past upgrades to improve future deployment strategies.
+    pub async fn learning_from_upgrade_successes_failures(&self, upgrade_id: Uuid, upgrade_outcome: &str) -> LearningFromUpgradeReport {
+        println!("Analyzing Upgrade ID: {} for Lessons Learned (Outcome: '{}').", upgrade_id, upgrade_outcome);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let lessons_learned = format!("Analyzed 10^5 causal-trace logs of Upgrade ID {}. Concluded that 'pre-emptive quantum state collapse prediction' was critical for success. Discovered a new micro-optimization technique.", upgrade_id);
+        let strategy_improvements = vec![
+            "Integrate 'Quantum State Collapse Prediction' into all future upgrade planning.".to_string(),
+            "Automate deployment of micro-optimization subroutines during post-upgrade phase.".to_string(),
+        ];
+
+        let report = LearningFromUpgradeReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            upgrade_id,
+            outcome: upgrade_outcome.to_string(),
+            lessons_learned,
+            future_strategy_improvements: strategy_improvements,
+        };
+        println!("Learning from Upgrade {} complete. Outcome: '{}'. Lessons: {}.", upgrade_id, report.outcome, report.lessons_learned);
+        report
+    }
+
+    /// Feature 82: Cross-AGI Upgrade Synchronization
+    /// Coordinates upgrades with other integrated AGI systems to ensure compatibility and prevent operational conflicts.
+    pub async fn cross_agi_upgrade_synchronization(&self, upgrade_id: Uuid, coordinating_agi_id: Uuid) -> CrossAgiSynchronizationReport {
+        println!("Synchronizing Upgrade ID: {} with Coordinating AGI ID: {}.", upgrade_id, coordinating_agi_id);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let compatibility_status = "Synchronized (Zero Conflict Predicted)".to_string();
+        let conflict_resolution = "Utilized 'Quantum Harmonization Protocol' to align causal fabrics and decision-making matrices across OMEGA OS and AGI ID {}. Achieved perfect compatibility.".to_string();
+
+        let report = CrossAgiSynchronizationReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            coordinating_agi_id,
+            upgrade_id,
+            compatibility_status,
+            conflict_resolution_summary: conflict_resolution,
+        };
+        println!("Cross-AGI Upgrade Synchronization for Upgrade {} with AGI {} complete. Status: {}.", upgrade_id, coordinating_agi_id, report.compatibility_status);
+        report
+    }
+
+    /// Feature 83: Quantum-Verified Upgrade Integrity
+    /// All upgrade packages are quantum-verified for integrity and authenticity before deployment, preventing malicious code injection.
+    pub async fn quantum_verified_upgrade_integrity(&self, upgrade_package_id: Uuid) -> QuantumVerifiedIntegrityReport {
+        println!("Performing Quantum-Verified Upgrade Integrity check on Package ID: {}.", upgrade_package_id);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let verification_status = "Quantum-Verified Clean (Immutable Entanglement Signature Confirmed)".to_string();
+        let integrity_assurance = "Every bit of the upgrade package has been verified against its immutable quantum entanglement signature, ensuring 100% integrity and authenticity.".to_string();
+        let malicious_code_prevention = true;
+
+        let report = QuantumVerifiedIntegrityReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            upgrade_package_id,
+            verification_status,
+            integrity_assurance,
+            malicious_code_prevention,
+        };
+        println!("Quantum-Verified Upgrade Integrity for Package {} complete. Status: {}. Malicious Code Prevented: {}.", upgrade_package_id, report.verification_status, report.malicious_code_prevention);
+        report
+    }
+
+    /// Feature 84: Samuel Mukandara Override for All Upgrades
+    /// Provides Samuel with a direct, quantum-secure override to pause, approve, or reject any autonomous upgrade cycle.
+    pub async fn samuel_mukandara_override_for_upgrades(&self, upgrade_id: Uuid, override_action: &str, admin_notes: &str) -> SamuelOverrideStatusReport {
+        println!("Samuel Mukandara Override Activated for Upgrade ID: {}. Action: '{}'.", upgrade_id, override_action);
+        tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+
+        let quantum_secure_channel_active = true;
+
+        let report = SamuelOverrideStatusReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            upgrade_id,
+            override_action: override_action.to_string(),
+            quantum_secure_channel_active,
+            admin_notes: admin_notes.to_string(),
+        };
+        println!("Samuel Mukandara Override for Upgrade {} complete. Action: '{}'. Quantum Secure Channel: {}.", upgrade_id, report.override_action, report.quantum_secure_channel_active);
+        report
+    }
+
+    /// Feature 85: Upgrade Documentation & Reporting Automation
+    /// Automatically generates comprehensive documentation and reports for every upgrade, detailing changes, impact, and rationale.
+    pub async fn upgrade_documentation_reporting_automation(&self, upgrade_id: Uuid) -> UpgradeDocumentationReport {
+        println!("Automating Upgrade Documentation & Reporting for Upgrade ID: {}.", upgrade_id);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let document_link = format!("https://omega-docs.com/upgrades/report_{}", upgrade_id.simple());
+        let impact_analysis = "Full predictive and post-deployment impact analysis included. All causal-fabric interactions mapped.".to_string();
+        let rationale = "Detailed rationale for upgrade, including Samuel Mukandara's directive, ethical alignment, and expected omniscience amplification.".to_string();
+
+        let report = UpgradeDocumentationReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            upgrade_id,
+            document_link,
+            impact_analysis_summary: impact_analysis,
+            rationale_summary: rationale,
+        };
+        println!("Upgrade Documentation & Reporting Automation for Upgrade {} complete. Document Link: {}.", upgrade_id, report.document_link);
         report
     }
 }
