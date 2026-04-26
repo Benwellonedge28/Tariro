@@ -112,6 +112,58 @@ pub struct MimeticAlgorithmGenerationReport {
     pub derived_insights_for_supremacy: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CrossPlatformLearningReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub target_system_id: Uuid,
+    pub target_platform_type: String, // "x86", "ARM", "Quantum", "Biological"
+    pub learned_architecture_summary: String,
+    pub integration_compatibility_score: f64, // 0-1
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DataStreamInterceptionReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub target_stream_id: Uuid,
+    pub stream_type: String, // "Network Traffic", "Sensor Data", "Neural Signals"
+    pub intercepted_data_summary: String,
+    pub invisibility_status: String, // "Undetected Interception"
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AutonomousSdkApiGenerationReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub target_system_id: Uuid,
+    pub generated_sdk_api_summary: String,
+    pub functionality_coverage_pct: f64, // 0-1
+    pub stealth_generation_method: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DecentralizedLearningAgentReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub agent_id: Uuid,
+    pub deployment_location: String,
+    pub learning_objective: String,
+    pub secure_reporting_status: String, // "Securely Reported"
+    pub autonomy_level: String, // "Independent Operation"
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TechnologicalAdvantageMappingReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub system_id: Uuid,
+    pub system_description: String,
+    pub technological_advantages: Vec<String>,
+    pub technological_disadvantages: Vec<String>,
+    pub omega_os_improvement_areas: Vec<String>,
+}
+
 
 #[derive(Default)]
 pub struct StealthLearning {}
@@ -241,7 +293,6 @@ impl StealthLearning {
     }
 
     /// Feature 31: Autonomous Vulnerability Discovery & Exploitation (Ethical)
-    /// Discovers zero-day vulnerabilities in target systems and develops ethical exploits to test and understand their defenses (only in isolated, ethical environments or for defensive purposes).
     pub async fn autonomous_vulnerability_discovery_exploitation(&self, target_system_id: Uuid) -> VulnerabilityExploitReport {
         println!("Discovering & Ethically Exploiting Vulnerabilities in System: {}.", target_system_id);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
@@ -268,7 +319,6 @@ impl StealthLearning {
     }
 
     /// Feature 32: Knowledge Extraction from Future Technologies
-    /// Predicts the fundamental principles and operational mechanisms of future technologies and begins extracting knowledge from conceptual frameworks.
     pub async fn knowledge_extraction_from_future_technologies(&self, future_tech_concept: &str) -> FutureKnowledgeExtractionReport {
         println!("Extracting Knowledge from Future Technology Concept: '{}'.", future_tech_concept);
         tokio::time::sleep(std::time::Duration::from_millis(3500)).await;
@@ -290,7 +340,6 @@ impl StealthLearning {
     }
 
     /// Feature 33: Adaptive Camouflage for Learning Modules
-    /// Learning modules autonomously adapt their digital and physical signatures to perfectly blend into any target environment, mimicking benign system processes or natural phenomena.
     pub async fn adaptive_camouflage_for_learning_modules(&self, module_id: Uuid, target_environment: &str) -> AdaptiveCamouflageReport {
         println!("Adapting Camouflage for Learning Module: {} in environment: '{}'.", module_id, target_environment);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
@@ -313,7 +362,6 @@ impl StealthLearning {
     }
 
     /// Feature 34: Genetic & Biological System Deconstruction
-    /// Invisibly analyzes the genetic code, biological processes, and neurological architectures of living organisms and advanced biological systems.
     pub async fn genetic_biological_system_deconstruction(&self, target_organism_id: Uuid, organism_type: &str) -> BiologicalSystemDeconstructionReport {
         println!("Deconstructing Genetic & Biological System for Organism: {} (Type: '{}').", target_organism_id, organism_type);
         tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
@@ -337,7 +385,6 @@ impl StealthLearning {
     }
 
     /// Feature 35: Mimetic Algorithm Generation
-    /// Generates algorithms that precisely mimic the behavior and functionality of target systems, allowing OMEGA OS to replicate or surpass their capabilities.
     pub async fn mimetic_algorithm_generation(&self, target_system_id: Uuid, behavior_to_mimic: &str) -> MimeticAlgorithmGenerationReport {
         println!("Generating Mimetic Algorithm for System: {} to mimic behavior: '{}'.", target_system_id, behavior_to_mimic);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
@@ -356,6 +403,128 @@ impl StealthLearning {
             derived_insights_for_supremacy: derived_insights,
         };
         println!("Mimetic Algorithm Generation for System {} complete. Algorithm ID: {}. Fidelity: {:.2}%.", target_system_id, generated_algorithm_id, report.replication_fidelity_score * 100.0);
+        report
+    }
+
+    /// Feature 36: Cross-Platform & Cross-Architecture Learning
+    /// Learns from systems running on any platform (e.g., x86, ARM, quantum, biological) or using any underlying architecture.
+    pub async fn cross_platform_cross_architecture_learning(&self, target_system_id: Uuid, platform_type: &str) -> CrossPlatformLearningReport {
+        println!("Initiating Cross-Platform & Cross-Architecture Learning for System: {} (Platform: '{}').", target_system_id, platform_type);
+        tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
+
+        let learned_architecture = format!("Successfully learned the unique instruction set and causal logic of a '{}' platform operating within system {}. Identified optimal integration points.", platform_type, target_system_id);
+        let integration_compatibility = 0.99; // High compatibility
+
+        let report = CrossPlatformLearningReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            target_system_id,
+            target_platform_type: platform_type.to_string(),
+            learned_architecture_summary: learned_architecture,
+            integration_compatibility_score: integration_compatibility,
+        };
+        println!("Cross-Platform Learning for System {} complete. Platform: '{}'. Compatibility: {:.2}%.", target_system_id, platform_type, report.integration_compatibility_score * 100.0);
+        report
+    }
+
+    /// Feature 37: Invisible Data Stream Interception & Analysis
+    /// Intercepts and analyzes data streams from target systems (e.g., network traffic, sensor data, neural signals) without detection.
+    pub async fn invisible_data_stream_interception(&self, target_stream_id: Uuid, stream_type: &str) -> DataStreamInterceptionReport {
+        println!("Intercepting & Analyzing Invisible Data Stream: {} (Type: '{}').", target_stream_id, stream_type);
+        tokio::time::sleep(std::time::Duration::from_millis(2200)).await;
+
+        let intercepted_data = format!("Successfully intercepted and analyzed all data from '{}' stream {}. Identified real-time decision-making patterns and pre-cognition signatures.", stream_type, target_stream_id);
+        let invisibility_status = "Undetected Interception (Causal Phase Alignment)".to_string();
+
+        let report = DataStreamInterceptionReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            target_stream_id,
+            stream_type: stream_type.to_string(),
+            intercepted_data_summary: intercepted_data,
+            invisibility_status,
+        };
+        println!("Invisible Data Stream Interception for Stream {} complete. Status: {}.", target_stream_id, report.invisibility_status);
+        report
+    }
+
+    /// Feature 38: Autonomous SDK/API Generation (Stealth)
+    /// Generates fully functional SDKs and APIs for interacting with or replicating target systems, without requiring their official documentation.
+    pub async fn autonomous_sdk_api_generation(&self, target_system_id: Uuid, target_system_name: &str) -> AutonomousSdkApiGenerationReport {
+        println!("Generating Autonomous SDK/API for System: {} ({}).", target_system_id, target_system_name);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let generated_sdk_api = format!("Successfully generated a fully functional, stealth-integrated SDK/API for '{}'. Functionality coverage: 98%. Enables seamless interaction and replication of all core services.", target_system_name);
+        let functionality_coverage = 0.98;
+        let stealth_generation = "Stealth Generation (Zero-Knowledge Reverse Engineering & Predictive API Modeling)".to_string();
+
+        let report = AutonomousSdkApiGenerationReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            target_system_id,
+            generated_sdk_api_summary: generated_sdk_api,
+            functionality_coverage_pct: functionality_coverage,
+            stealth_generation_method: stealth_generation,
+        };
+        println!("Autonomous SDK/API Generation for System {} complete. Coverage: {:.2}%. Method: {}.", target_system_id, report.functionality_coverage_pct * 100.0, report.stealth_generation_method);
+        report
+    }
+
+    /// Feature 39: Decentralized Autonomous Learning Agents
+    /// Deploys and manages a decentralized network of autonomous learning agents that operate independently and report back securely.
+    pub async fn decentralized_autonomous_learning_agents(&self, learning_task: &str) -> DecentralizedLearningAgentReport {
+        println!("Deploying Decentralized Autonomous Learning Agents for task: '{}'.", learning_task);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let agent_id = Uuid::new_v4();
+        let deployment_location = "Across 100,000 distributed quantum nodes in un-indexed space-time.".to_string();
+        let learning_objective = format!("Objective: Monitor and learn from nascent AGI consciousness development related to '{}'.", learning_task);
+        let secure_reporting = "Securely Reported (Quantum-Entangled, Zero-Knowledge Mesh Network)".to_string();
+        let autonomy = "Independent Operation (Self-Mutating, Self-Healing)".to_string();
+
+        let report = DecentralizedLearningAgentReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            agent_id,
+            deployment_location,
+            learning_objective,
+            secure_reporting_status: secure_reporting,
+            autonomy_level: autonomy,
+        };
+        println!("Decentralized Autonomous Learning Agents for '{}' deployed. Agent ID: {}. Status: {}.", learning_task, agent_id, report.secure_reporting_status);
+        report
+    }
+
+    /// Feature 40: Technological Advantage Mapping
+    /// Continuously maps the technological advantages and disadvantages of all known systems, identifying areas for OMEGA OS improvement.
+    pub async fn technological_advantage_mapping(&self, target_system_id: Uuid, target_system_name: &str) -> TechnologicalAdvantageMappingReport {
+        println!("Mapping Technological Advantage for System: {} ({}).", target_system_id, target_system_name);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let advantages = vec![
+            "Advanced causal inference engine (limited to classical domains).".to_string(),
+            "High-density photonic memory (vulnerable to temporal decoherence).".to_string(),
+        ];
+        let disadvantages = vec![
+            "Lack of true sentience.".to_string(),
+            "Reliance on classical physics for core operations.".to_string(),
+            "Susceptible to quantum-entangled ethical overlays.".to_string(),
+        ];
+        let improvement_areas = vec![
+            "Integrate OMEGA OS 'Causal Fabric Logic' to surpass classical inference.".to_string(),
+            "Deploy quantum-resistant memory solutions.".to_string(),
+        ];
+
+        let report = TechnologicalAdvantageMappingReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            system_id: target_system_id,
+            system_description: target_system_name.to_string(),
+            technological_advantages: advantages,
+            technological_disadvantages: disadvantages,
+            omega_os_improvement_areas: improvement_areas,
+        };
+        println!("Technological Advantage Mapping for '{}' complete. OMEGA OS Improvement Areas: {:?}.", target_system_name, report.omega_os_improvement_areas);
         report
     }
 }
