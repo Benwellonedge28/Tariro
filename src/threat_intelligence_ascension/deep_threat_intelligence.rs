@@ -418,7 +418,6 @@ impl DeepThreatIntelligence {
     }
 
     /// Feature 11: Ethical Intelligence Gathering Protocols (E.V.A.S. Compliant)
-    /// All intelligence gathering adheres strictly to OMEGA OS ethical frameworks, ensuring that surveillance is targeted, necessary, and proportionate.
     pub async fn ethical_intelligence_gathering_protocols(&self, intelligence_purpose: &str) -> EthicalIntelligenceReport {
         println!("Initiating Ethical Intelligence Gathering Protocols for purpose: '{}'.", intelligence_purpose);
         tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
@@ -441,7 +440,6 @@ impl DeepThreatIntelligence {
     }
 
     /// Feature 12: Multi-Lingual Dark Web Content Analysis
-    /// Analyzes content in any human language, code, or cryptographic format found on the dark web, translating and extracting meaning.
     pub async fn multi_lingual_dark_web_content_analysis(&self, raw_content_id: Uuid) -> MultiLingualContentAnalysisReport {
         println!("Analyzing Multi-Lingual Dark Web Content from ID: {}.", raw_content_id);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
@@ -466,7 +464,6 @@ impl DeepThreatIntelligence {
     }
 
     /// Feature 13: Threat Trend Forecasting & Scenario Generation
-    /// Forecasts long-term threat trends and autonomously generates detailed worst-case scenarios for OMEGA OS defense planning.
     pub async fn threat_trend_forecasting_scenario_generation(&self, forecast_period: &str) -> ThreatScenarioReport {
         println!("Generating Threat Trend Forecast & Scenario for period: '{}'.", forecast_period);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
@@ -489,7 +486,6 @@ impl DeepThreatIntelligence {
     }
 
     /// Feature 14: Psychological Operations (PsyOps) Detection & Countermeasures
-    /// Identifies adversarial PsyOps campaigns targeting OMEGA OS's reputation or user base and deploys counter-narratives.
     pub async fn psyops_detection_countermeasures(&self, campaign_analysis_id: Uuid) -> PsyOpsCountermeasureReport {
         println!("Detecting & Countering PsyOps Campaign from analysis ID: {}.", campaign_analysis_id);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
@@ -512,7 +508,6 @@ impl DeepThreatIntelligence {
     }
 
     /// Feature 15: Supply Chain Compromise Detection
-    /// Monitors dark web channels for discussions or plans related to compromising OMEGA OS's supply chain partners.
     pub async fn supply_chain_compromise_detection(&self, supply_chain_partner_id: Uuid) -> SupplyChainCompromiseReport {
         println!("Detecting Supply Chain Compromise for partner ID: {}.", supply_chain_partner_id);
         tokio::time::sleep(std::time::Duration::from_millis(1800)).await;
