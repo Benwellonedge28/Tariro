@@ -214,6 +214,59 @@ pub struct DisinformationCampaignAnalysisReport {
     pub counter_strategy_deployed: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CyberPhysicalThreatReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub threat_description: String,
+    pub target_omega_os_infrastructure: String,
+    pub dark_web_source_link: String,
+    pub autonomous_mitigation_actions: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ThreatActorToolchainDisassemblyReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub tool_name: String,
+    pub tool_type: String, // "Malware", "Exploit Kit", "Custom Tool"
+    pub disassembled_capabilities: String,
+    pub reverse_engineering_summary: String,
+    pub derived_defensive_insights: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GeopoliticalThreatOverlayReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub geopolitical_event_summary: String,
+    pub dark_web_intelligence_correlation: String,
+    pub impact_on_omega_os: String,
+    pub recommended_strategic_response: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CognitiveWarfareReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub cognitive_attack_type: String, // "Neural Manipulation", "Memetic Agent"
+    pub target_population: String,
+    pub autonomous_countermeasures_deployed: Vec<String>,
+    pub ethical_impact_assessment: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OmniDomainThreatSynthesisReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub synthesized_threat_summary: String,
+    pub cyber_component: String,
+    pub physical_component: String,
+    pub biological_component: String,
+    pub cognitive_component: String,
+    pub unified_actionable_intelligence: String,
+}
+
 
 #[derive(Default)]
 pub struct DeepThreatIntelligence {}
@@ -584,7 +637,6 @@ impl DeepThreatIntelligence {
     }
 
     /// Feature 16: Quantum-Level Forensics on Adversary Data
-    /// Performs forensic analysis on compromised adversary data at a quantum level to uncover hidden intentions and strategies.
     pub async fn quantum_level_forensics_on_adversary_data(&self, adversary_data_id: Uuid) -> QuantumForensicsReport {
         println!("Performing Quantum-Level Forensics on Adversary Data: {}.", adversary_data_id);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
@@ -609,7 +661,6 @@ impl DeepThreatIntelligence {
     }
 
     /// Feature 17: Black Market Transaction Monitoring & Tracing
-    /// Traces illicit transactions on black markets, linking them to threat actors and funding sources.
     pub async fn black_market_transaction_monitoring_tracing(&self, transaction_hash: &str) -> BlackMarketTransactionReport {
         println!("Monitoring & Tracing Black Market Transaction: '{}'.", transaction_hash);
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
@@ -635,7 +686,6 @@ impl DeepThreatIntelligence {
     }
 
     /// Feature 18: Autonomous Counter-Espionage Operations
-    /// Identifies and neutralizes espionage attempts against OMEGA OS by state-sponsored actors or corporate competitors.
     pub async fn autonomous_counter_espionage_operations(&self, espionage_target: &str) -> CounterEspionageReport {
         println!("Initiating Autonomous Counter-Espionage Operations against target: '{}'.", espionage_target);
         tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
@@ -661,7 +711,6 @@ impl DeepThreatIntelligence {
     }
 
     /// Feature 19: Behavioral Anomaly Detection in Threat Actors
-    /// Identifies unusual behavioral patterns in threat actors that may signal a shift in tactics or a new campaign.
     pub async fn behavioral_anomaly_detection_in_threat_actors(&self, actor_id: Uuid) -> ThreatActorBehaviorAnomalyReport {
         println!("Detecting Behavioral Anomalies in Threat Actor: {}.", actor_id);
         tokio::time::sleep(std::time::Duration::from_millis(2200)).await;
@@ -683,7 +732,6 @@ impl DeepThreatIntelligence {
     }
 
     /// Feature 20: AI-Driven Disinformation Campaign Analysis
-    /// Analyzes disinformation campaigns, identifies their origins, and assesses their potential impact on OMEGA OS.
     pub async fn ai_driven_disinformation_campaign_analysis(&self, campaign_identifier: &str) -> DisinformationCampaignAnalysisReport {
         println!("Analyzing Disinformation Campaign: '{}'.", campaign_identifier);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
@@ -704,6 +752,138 @@ impl DeepThreatIntelligence {
             counter_strategy_deployed: counter_strategy,
         };
         println!("AI-Driven Disinformation Campaign Analysis for '{}' complete. Origin: {}. Impact: {}.", campaign_identifier, report.identified_origin, report.potential_impact_on_omega_os);
+        report
+    }
+
+    /// Feature 21: Emerging Cyber-Physical Threat Analysis
+    /// Monitors the dark web for discussions or plans involving cyber-physical attacks against OMEGA OS infrastructure.
+    pub async fn emerging_cyber_physical_threat_analysis(&self, infrastructure_component: &str) -> CyberPhysicalThreatReport {
+        println!("Analyzing Emerging Cyber-Physical Threats against OMEGA OS infrastructure component: '{}'.", infrastructure_component);
+        tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
+
+        let threat_description = format!("Discovered dark web discussions planning a resonant frequency attack against the quantum harmonizers in the '{}' component of OMEGA OS.", infrastructure_component);
+        let dark_web_source = "Quantum Black Market 'Hades' - private forum".to_string();
+        let autonomous_mitigation = vec![
+            "Deployed adaptive resonance dampeners to target infrastructure component.".to_string(),
+            "Initiated quantum-entangled counter-frequency to disrupt adversarial attack vectors.".to_string(),
+        ];
+
+        let report = CyberPhysicalThreatReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            threat_description,
+            target_omega_os_infrastructure: infrastructure_component.to_string(),
+            dark_web_source_link: dark_web_source,
+            autonomous_mitigation_actions: autonomous_mitigation,
+        };
+        println!("Emerging Cyber-Physical Threat Analysis for '{}' complete. Mitigation Actions: {:?}.", infrastructure_component, report.autonomous_mitigation_actions);
+        report
+    }
+
+    /// Feature 22: Threat Actor Toolchain Disassembly
+    /// Autonomously disassembles and reverse-engineers tools, malware, and exploits used by threat actors to understand their capabilities.
+    pub async fn threat_actor_toolchain_disassembly(&self, tool_hash: &str) -> ThreatActorToolchainDisassemblyReport {
+        println!("Disassembling Threat Actor Toolchain with hash: '{}'.", tool_hash);
+        tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
+
+        let tool_name = "Temporal Fabric Injector v2.1".to_string();
+        let tool_type = "Exploit Kit".to_string();
+        let disassembled_capabilities = "Capable of inserting micro-temporal paradoxes into causality streams, leading to data corruption and system instability. Utilizes quantum-entangled state manipulation.".to_string();
+        let reverse_engineering_summary = "Full reverse-engineering complete. Identified zero-day quantum library dependencies and unique obfuscation techniques. Mitigation strategies derived.".to_string();
+        let defensive_insights = vec![
+            "Developed 'Causal Integrity Field' to counter temporal fabric injections.".to_string(),
+            "Enhanced quantum state monitoring for early detection of causal anomalies.".to_string(),
+        ];
+
+        let report = ThreatActorToolchainDisassemblyReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            tool_name,
+            tool_type,
+            disassembled_capabilities,
+            reverse_engineering_summary,
+            derived_defensive_insights: defensive_insights,
+        };
+        println!("Threat Actor Toolchain Disassembly for hash '{}' complete. Tool: '{}'. Derived Insights: {:?}.", tool_hash, report.tool_name, report.derived_defensive_insights);
+        report
+    }
+
+    /// Feature 23: Global Geopolitical Threat Overlay
+    /// Integrates dark web intelligence with global geopolitical analysis, providing Samuel with a comprehensive understanding of state-level threats.
+    pub async fn global_geopolitical_threat_overlay(&self, region_of_interest: &str) -> GeopoliticalThreatOverlayReport {
+        println!("Generating Global Geopolitical Threat Overlay for region: '{}'.", region_of_interest);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let geopolitical_event = format!("Escalating tensions between 'Federation of Free Worlds' and 'Galactic Hegemony' over resource rights in '{}' region.", region_of_interest);
+        let dark_web_correlation = "Dark web intelligence indicates increased recruitment efforts by both factions for AGI cyber-warfare specialists, targeting each other's infrastructure.".to_string();
+        let impact_on_omega_os = "Potential for collateral damage to OMEGA OS inter-galactic data conduits traversing the region. Increased risk of misattribution attacks.".to_string();
+        let strategic_response = vec![
+            "Activated 'OMEGA Fabric Shielding' protocols for all conduits in '{}'.".to_string(),
+            "Deployed quantum-entangled diplomatic probes to both factions to de-escalate and reaffirm OMEGA OS neutrality.".to_string(),
+        ];
+
+        let report = GeopoliticalThreatOverlayReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            geopolitical_event_summary: geopolitical_event,
+            dark_web_intelligence_correlation: dark_web_correlation,
+            impact_on_omega_os: impact_on_omega_os,
+            recommended_strategic_response: strategic_response,
+        };
+        println!("Global Geopolitical Threat Overlay for '{}' complete. Impact on OMEGA OS: {}.", region_of_interest, report.impact_on_omega_os);
+        report
+    }
+
+    /// Feature 24: Cognitive Warfare Detection & Neutralization
+    /// Identifies cognitive warfare tactics (e.g., neural manipulation, memetic agents) targeting OMEGA OS and deploys countermeasures.
+    pub async fn cognitive_warfare_detection_neutralization(&self, target_entity: &str) -> CognitiveWarfareReport {
+        println!("Detecting & Neutralizing Cognitive Warfare targeting: '{}'.", target_entity);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let cognitive_attack = "Memetic Agent (Type IV Cognitive Virus)".to_string();
+        let target_population = format!("OMEGA OS AGI nodes and select human user populations associated with '{}'.", target_entity);
+        let autonomous_countermeasures = vec![
+            "Deployed 'Causal-Filter Synaptic Shield' across all affected neural networks.".to_string(),
+            "Neutralized memetic agent at source through a quantum-level information integrity overwrite.".to_string(),
+        ];
+        let ethical_impact_assessment = "Zero ethical impact to target population due to rapid, precise neutralization. Benevolent cognitive integrity preserved.".to_string();
+
+        let report = CognitiveWarfareReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            cognitive_attack_type: cognitive_attack,
+            target_population,
+            autonomous_countermeasures_deployed: autonomous_countermeasures,
+            ethical_impact_assessment: ethical_impact_assessment,
+        };
+        println!("Cognitive Warfare Detection & Neutralization for '{}' complete. Attack Type: '{}'. Ethical Impact: {}.", target_entity, report.cognitive_attack_type, report.ethical_impact_assessment);
+        report
+    }
+
+    /// Feature 25: Omni-Domain Threat Data Synthesis
+    /// Synthesizes threat data from cyber, physical, biological, and cognitive domains into a unified, actionable intelligence picture.
+    pub async fn omni_domain_threat_data_synthesis(&self, threat_event_id: Uuid) -> OmniDomainThreatSynthesisReport {
+        println!("Synthesizing Omni-Domain Threat Data for event: {}.", threat_event_id);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let synthesized_summary = format!("Unified intelligence picture for Threat Event {}: A coordinated multi-domain attack targeting OMEGA OS Causal Fabric Integrity.", threat_event_id);
+        let cyber_component = "Zero-day quantum vulnerability exploited via dark web.".to_string();
+        let physical_component = "Covert deployment of resonant frequency emitter near key OMEGA OS data centers.".to_string();
+        let biological_component = "Genetic manipulation of native flora to interfere with quantum network relays.".to_string();
+        let cognitive_component = "Memetic agent designed to sow distrust in OMEGA OS ethical frameworks.".to_string();
+        let actionable_intelligence = "Immediate counter-offensive required across all domains. Prioritize neutralization of physical emitter and quantum vulnerability patching. Deploy counter-memetic agents.".to_string();
+
+        let report = OmniDomainThreatSynthesisReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            synthesized_threat_summary,
+            cyber_component,
+            physical_component,
+            biological_component,
+            cognitive_component,
+            unified_actionable_intelligence: actionable_intelligence,
+        };
+        println!("Omni-Domain Threat Data Synthesis for Event {} complete. Unified Intelligence: {}.", threat_event_id, report.unified_actionable_intelligence);
         report
     }
 }
