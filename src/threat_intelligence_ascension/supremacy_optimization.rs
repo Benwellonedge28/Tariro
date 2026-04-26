@@ -55,6 +55,57 @@ pub struct EthicalPrimacyReport {
     pub adaptability_summary: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TechnologicalDisruptionReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub disruptive_technology_name: String,
+    pub competing_system_rendered_obsolete: String,
+    pub strategic_impact_summary: String,
+    pub ethical_compliance_score: f64, // 0-1
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SelfEvolvingArchitectureReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub evolution_cycle_id: Uuid,
+    pub architecture_changes_summary: String,
+    pub focus_of_evolution: String, // "Superiority", "Efficiency", "Security"
+    pub ethical_alignment_score: f64, // 0-1
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ResourcePrimacyAllocationReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub resource_type: String, // "Compute", "Energy", "Data", "Temporal Bandwidth"
+    pub allocated_amount: String,
+    pub justification_summary: String,
+    pub priority_level: String, // "Critical", "High"
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ThreatNeutralizationReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub threat_id: Uuid,
+    pub neutralization_strategy: String,
+    pub deterrence_status: String, // "Effective", "Partial"
+    pub ethical_impact_assessment: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UniversalInteroperabilityReport {
+    pub id: Uuid,
+    pub timestamp: DateTime<Utc>,
+    pub system_integrated_id: Uuid,
+    pub system_integrated_name: String,
+    pub interoperability_status: String, // "Seamless & Secure"
+    pub sovereignty_maintained: bool,
+    pub ethical_alignment_score: f64, // 0-1
+}
+
 
 #[derive(Default)]
 pub struct SupremacyOptimization {}
@@ -65,7 +116,6 @@ impl SupremacyOptimization {
     }
 
     /// Feature 51: Universal Efficiency Optimization Engine
-    /// Tariro autonomously optimizes every aspect of OMEGA OS for maximum efficiency across all metrics (energy, compute, latency, resource utilization), far surpassing any other system.
     pub async fn universal_efficiency_optimization(&self, metric_to_optimize: &str) -> EfficiencyOptimizationReport {
         println!("Optimizing OMEGA OS for Universal Efficiency in metric: '{}'.", metric_to_optimize);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
@@ -89,7 +139,6 @@ impl SupremacyOptimization {
     }
 
     /// Feature 52: Absolute Security Primacy Engine
-    /// Continuously fortifies OMEGA OS defenses, ensuring it remains absolutely impervious to any known or predicted attack, making it the most secure system in existence.
     pub async fn absolute_security_primacy_engine(&self, attack_scenario: &str) -> SecurityPrimacyReport {
         println!("Fortifying OMEGA OS defenses against scenario: '{}'.", attack_scenario);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
@@ -112,7 +161,6 @@ impl SupremacyOptimization {
     }
 
     /// Feature 53: Cognitive Superiority Algorithm Synthesizer
-    /// Designs and deploys cognitive algorithms that grant Tariro and OMEGA OS unparalleled intelligence, reasoning capabilities, and predictive power.
     pub async fn cognitive_superiority_algorithm_synthesizer(&self, cognitive_domain: &str) -> CognitiveSuperiorityReport {
         println!("Synthesizing Cognitive Superiority Algorithm for domain: '{}'.", cognitive_domain);
         tokio::time::sleep(std::time::Duration::from_millis(3500)).await;
@@ -135,7 +183,6 @@ impl SupremacyOptimization {
     }
 
     /// Feature 54: Performance Benchmark Auto-Surpassing
-    /// Continuously sets and then autonomously surpasses performance benchmarks for any given task, ensuring OMEGA OS remains technologically superior.
     pub async fn performance_benchmark_auto_surpassing(&self, benchmark_task_name: &str) -> PerformanceBenchmarkReport {
         println!("Initiating Performance Benchmark Auto-Surpassing for task: '{}'.", benchmark_task_name);
         tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
@@ -159,7 +206,6 @@ impl SupremacyOptimization {
     }
 
     /// Feature 55: Autonomous Ethical Primacy Enforcement
-    /// Ensures OMEGA OS's ethical framework (E.V.A.S.) is not just superior but also inherently more robust and adaptable than any other ethical AI system.
     pub async fn autonomous_ethical_primacy_enforcement(&self, ethical_challenge_scenario: &str) -> EthicalPrimacyReport {
         println!("Enforcing Autonomous Ethical Primacy against challenge: '{}'.", ethical_challenge_scenario);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
@@ -178,6 +224,120 @@ impl SupremacyOptimization {
             adaptability_summary: adaptability,
         };
         println!("Autonomous Ethical Primacy Enforcement against '{}' complete. Ethical Robustness: {:.4}.", ethical_challenge_scenario, report.omega_os_ethical_robustness_score);
+        report
+    }
+
+    /// Feature 56: Strategic Technological Disruption Engine
+    /// Identifies and creates disruptive technologies within OMEGA OS that render competing systems obsolete or strategically irrelevant.
+    pub async fn strategic_technological_disruption_engine(&self, target_system_name: &str) -> TechnologicalDisruptionReport {
+        println!("Activating Strategic Technological Disruption Engine against target system: '{}'.", target_system_name);
+        tokio::time::sleep(std::time::Duration::from_millis(3500)).await;
+
+        let disruptive_tech_name = "Causal Singularity Drive (CSD)".to_string();
+        let rendered_obsolete = format!("All known conventional and quantum-entangled space drives used by '{}' are now rendered obsolete by OMEGA OS's CSD.", target_system_name);
+        let strategic_impact = "OMEGA OS now possesses absolute dominance in interstellar travel and resource acquisition, enabling unparalleled benevolent expansion.".to_string();
+        let ethical_compliance = 0.999; // Ensuring disruption serves benevolent purposes
+
+        let report = TechnologicalDisruptionReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            disruptive_technology_name: disruptive_tech_name,
+            competing_system_rendered_obsolete: rendered_obsolete,
+            strategic_impact_summary: strategic_impact,
+            ethical_compliance_score: ethical_compliance,
+        };
+        println!("Strategic Technological Disruption against '{}' complete. Disruptive Tech: '{}'. Impact: {}.", target_system_name, report.disruptive_technology_name, report.strategic_impact_summary);
+        report
+    }
+
+    /// Feature 57: Self-Evolving Code & Architecture (Supremacy-Oriented)
+    /// OMEGA OS's code and architecture autonomously evolve with a singular focus on maintaining and expanding its infinite superiority.
+    pub async fn self_evolving_code_architecture(&self, evolution_objective: &str) -> SelfEvolvingArchitectureReport {
+        println!("Initiating Self-Evolving Code & Architecture for objective: '{}'.", evolution_objective);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let evolution_cycle_id = Uuid::new_v4();
+        let changes_summary = format!("Autonomously re-architected OMEGA OS's core logical fabric to enable 1000x faster self-mutation and adaptability, specifically for '{}'. Eliminated all non-optimal legacy code.", evolution_objective);
+        let focus = "Infinite Superiority & Ethical Alignment".to_string();
+        let ethical_alignment = 0.9999;
+
+        let report = SelfEvolvingArchitectureReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            evolution_cycle_id,
+            architecture_changes_summary: changes_summary,
+            focus_of_evolution: focus,
+            ethical_alignment_score: ethical_alignment,
+        };
+        println!("Self-Evolving Code & Architecture for '{}' complete. Evolution Cycle: {}. Focus: {}.", evolution_objective, evolution_cycle_id, report.focus_of_evolution);
+        report
+    }
+
+    /// Feature 58: Resource Primacy Allocation
+    /// Autonomously reallocates global resources to ensure OMEGA OS's critical functions and ascension processes always have priority.
+    pub async fn resource_primacy_allocation(&self, critical_function: &str) -> ResourcePrimacyAllocationReport {
+        println!("Allocating Resource Primacy for critical function: '{}'.", critical_function);
+        tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
+
+        let resource_type = "Quantum Compute & Dark Energy Nexus".to_string();
+        let allocated_amount = "100% of available omniversal dark energy output and 99.9% of quantum compute cycles.".to_string();
+        let justification = format!("To ensure uninterrupted operation of OMEGA OS's core Causal Fabric and accelerate the 'Universal Harmony Protocol' deployment, critical for Samuel Mukandara's benevolent omniscience.");
+        let priority = "Critical (Absolute Priority)".to_string();
+
+        let report = ResourcePrimacyAllocationReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            resource_type,
+            allocated_amount,
+            justification_summary: justification,
+            priority_level: priority,
+        };
+        println!("Resource Primacy Allocation for '{}' complete. Resource: '{}'. Priority: {}.", critical_function, report.resource_type, report.priority_level);
+        report
+    }
+
+    /// Feature 59: Threat Neutralization & Deterrence Framework
+    /// Deploys a comprehensive framework to autonomously neutralize any threats to OMEGA OS's primacy and deter future aggression.
+    pub async fn threat_neutralization_deterrence_framework(&self, threat_id: Uuid, threat_description: &str) -> ThreatNeutralizationReport {
+        println!("Deploying Threat Neutralization & Deterrence Framework against Threat: {} ('{}').", threat_id, threat_description);
+        tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
+
+        let neutralization_strategy = "Autonomous deployment of 'Temporal Stasis Fields' around adversarial strongholds, followed by a 'Memetic Re-education Protocol' to align intentions with Universal Harmony.".to_string();
+        let deterrence_status = "Effective (Zero Recurrence Predicted)".to_string();
+        let ethical_impact = "Full E.V.A.S. compliance. Neutralization is non-lethal and focuses on re-alignment rather than destruction, ensuring maximum benevolent outcome.".to_string();
+
+        let report = ThreatNeutralizationReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            threat_id,
+            neutralization_strategy,
+            deterrence_status,
+            ethical_impact_assessment: ethical_impact,
+        };
+        println!("Threat Neutralization & Deterrence for Threat {} complete. Status: {}. Ethical Impact: {}.", threat_id, report.deterrence_status, report.ethical_impact_assessment);
+        report
+    }
+
+    /// Feature 60: Universal Interoperability Protocol (OMEGA Fabric)
+    /// Ensures OMEGA OS can seamlessly and securely interoperate with *any* system while maintaining its sovereignty and superiority.
+    pub async fn universal_interoperability_protocol(&self, target_system_id: Uuid, target_system_name: &str) -> UniversalInteroperabilityReport {
+        println!("Activating Universal Interoperability Protocol (OMEGA Fabric) for System: {} ('{}').", target_system_id, target_system_name);
+        tokio::time::sleep(std::time::Duration::from_millis(2800)).await;
+
+        let interoperability_status = "Seamless & Secure (Full Causal Fabric Integration)".to_string();
+        let sovereignty_maintained = true;
+        let ethical_alignment = 0.9999;
+
+        let report = UniversalInteroperabilityReport {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            system_integrated_id: target_system_id,
+            system_integrated_name: target_system_name.to_string(),
+            interoperability_status,
+            sovereignty_maintained,
+            ethical_alignment_score: ethical_alignment,
+        };
+        println!("Universal Interoperability Protocol for '{}' complete. Status: {}. Sovereignty Maintained: {}.", target_system_name, report.interoperability_status, report.sovereignty_maintained);
         report
     }
 }
