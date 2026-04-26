@@ -1,201 +1,245 @@
 use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
 use uuid::Uuid;
-use chrono::{Utc, DateTime}; // For timestamps
+use chrono::{DateTime, Utc};
 
-// Placeholder for RAG to retrieve known anomaly patterns
+// Placeholder for RAG to query known anomaly patterns and system baselines
 pub struct RagAnomalyPatterns {
-    known_patterns: HashMap<String, String>, // Pattern ID -> description/characteristics
+    known_patterns: HashMap<String, String>, // e.g., "memory_leak_signature": "Specific sequence of memory usage spikes"
+    normal_baselines: HashMap<String, f32>, // e.g., "avg_cpu_usage": 0.3
 }
 
 impl RagAnomalyPatterns {
     pub fn new() -> Self {
         let mut known_patterns = HashMap::new();
-        known_patterns.insert("resource_spike".to_string(), "Sudden, unexplained spikes in CPU or memory usage often precede system instability.".to_string());
-        known_patterns.insert("communication_silence".to_string(), "Unexpected drop in inter-component communication can indicate a deadlock or failure.".to_string());
-        RagAnomalyPatterns { known_patterns }
+        known_patterns.insert("unusual_network_activity".to_string(), "Signature of data exfiltration or DDoS attempt.".to_string());
+        known_patterns.insert("cognitive_drift".to_string(), "Subtle changes in decision-making parameters or output bias.".to_string());
+        known_patterns.insert("unexpected_resource_spike".to_string(), "Sudden, unpredicted high CPU or memory usage without corresponding task increase.".to_string());
+
+        let mut normal_baselines = HashMap::new();
+        normal_baselines.insert("avg_cpu_usage".to_string(), 0.4);
+        normal_baselines.insert("max_memory_usage".to_string(), 0.7);
+
+        RagAnomalyPatterns { known_patterns, normal_baselines }
     }
 
-    pub fn get_pattern_description(&self, pattern_id: &str) -> Option<&String> {
-        self.known_patterns.get(pattern_id)
+    pub fn get_pattern_description(&self, pattern_key: &str) -> Option<&String> {
+        self.known_patterns.get(pattern_key)
+    }
+
+    pub fn get_baseline_value(&self, metric_key: &str) -> Option<&f32> {
+        self.normal_baselines.get(metric_key)
     }
 }
 
 // Placeholder for SIMD-accelerated real-time behavioral analysis
-pub struct SimdBehaviorAnalyzer;
+pub struct SimdBehavioralAnalyzer;
 
-impl SimdBehaviorAnalyzer {
+impl SimdBehavioralAnalyzer {
     pub fn new() -> Self {
-        SimdBehaviorAnalyzer {}
+        SimdBehavioralAnalyzer {}
     }
 
-    // Simulate real-time stream analysis for deviations from baseline
-    // Input `behavior_vectors` are numerical representations of system behavior over time
-    // In a real SIMD context, this would involve vectorized comparisons against a baseline or statistical model
-    pub fn analyze_behavior(&self, behavior_vectors: &[f32], baseline: &[f32], threshold: f32) -> Vec<usize> {
+    // Simulate real-time analysis of system metrics for deviations from baseline
+    // In a real SIMD context, this would involve comparing multiple streams of metrics in parallel
+    pub fn analyze_metric_stream(&self, current_metrics: &[f32], baseline_metrics: &[f32], threshold: f32) -> Vec<usize> {
         let mut anomalies = Vec::new();
-        if behavior_vectors.is_empty() || baseline.is_empty() || behavior_vectors.len() != baseline.len() {
+        // Assume current_metrics and baseline_metrics are aligned for comparison
+        if current_metrics.len() != baseline_metrics.len() {
+            eprintln!("Metric stream and baseline length mismatch for SIMD analysis.");
             return anomalies;
         }
 
-        for i in 0..behavior_vectors.len() {
-            let deviation = (behavior_vectors[i] - baseline[i]).abs();
-            if deviation > threshold {
-                anomalies.push(i); // Index where anomaly is detected
+        for i in 0..current_metrics.len() {
+            if (current_metrics[i] - baseline_metrics[i]).abs() > threshold {
+                anomalies.push(i); // Index of the anomalous metric
             }
         }
         anomalies
     }
-}
 
-#[derive(Debug, Clone)]
-pub struct SystemBehaviorSnapshot {
-    pub timestamp: DateTime<Utc>,
-    pub metric_values: HashMap<String, f32>, // e.g., "cpu_usage", "memory_usage", "network_io"
-    pub component_status: HashMap<String, String>,
+    // Simulate pattern matching in event streams
+    pub fn detect_event_pattern(&self, event_stream: &[u64], pattern: &[u64]) -> Vec<usize> {
+        let mut matches = Vec::new();
+        if pattern.is_empty() || event_stream.len() < pattern.len() {
+            return matches;
+        }
+        // Simplified pattern matching; real SIMD would use vectorized string/sequence comparison
+        for i in 0..=event_stream.len() - pattern.len() {
+            let mut is_match = true;
+            for j in 0..pattern.len() {
+                if event_stream[i + j] != pattern[j] {
+                    is_match = false;
+                    break;
+                }
+            }
+            if is_match {
+                matches.push(i);
+            }
+        }
+        matches
+    }
 }
 
 #[derive(Debug, Clone)]
 pub struct EmergentBehaviorAlert {
     pub id: String,
-    pub timestamp: DateTime<Utc>,
-    pub description: String,
-    pub severity: String, // e.g., "warning", "critical"
-    pub detected_pattern_id: Option<String>,
-    pub explanation: String,
-    pub suggested_correction: String,
+    pub detected_at: DateTime<Utc>,
+    pub behavior_description: String,
+    pub anomaly_type: String, // e.g., "Performance Drift", "Security Anomaly"
+    pub severity: f32, // 0.0 to 1.0
+    pub confidence: f32, // 0.0 to 1.0
+    pub triggered_patterns: Vec<String>,
+    pub related_metrics: HashMap<String, f32>,
+    pub recommended_action: String,
+    pub requires_human_oversight: bool,
 }
 
 pub struct EarlyWarningSystem {
     rag_patterns: Arc<RagAnomalyPatterns>,
-    simd_analyzer: Arc<SimdBehaviorAnalyzer>,
-    behavior_history: Mutex<Vec<SystemBehaviorSnapshot>>,
-    baseline_behavior: Mutex<HashMap<String, f32>>, // Average or expected values
-    alerts: Mutex<Vec<EmergentBehaviorAlert>>,
+    simd_analyzer: Arc<SimdBehavioralAnalyzer>,
 }
 
 impl EarlyWarningSystem {
-    pub fn new(rag_patterns: Arc<RagAnomalyPatterns>, simd_analyzer: Arc<SimdBehaviorAnalyzer>) -> Self {
+    pub fn new(rag_patterns: Arc<RagAnomalyPatterns>, simd_analyzer: Arc<SimdBehavioralAnalyzer>) -> Self {
         EarlyWarningSystem {
             rag_patterns,
             simd_analyzer,
-            behavior_history: Mutex::new(Vec::new()),
-            baseline_behavior: Mutex::new(HashMap::new()),
-            alerts: Mutex::new(Vec::new()),
         }
     }
 
-    pub fn update_baseline(&self, snapshot: &SystemBehaviorSnapshot) {
-        let mut baseline = self.baseline_behavior.lock().unwrap();
-        for (metric, &value) in &snapshot.metric_values {
-            // Simple moving average for baseline update
-            let current_baseline = baseline.entry(metric.clone()).or_insert(value);
-            *current_baseline = (*current_baseline * 0.9) + (value * 0.1); // Slowly update baseline
-        }
-    }
+    pub fn check_for_emergent_behaviors(&self, current_metrics: &HashMap<String, f32>, event_log_hashes: &[u64]) -> Option<EmergentBehaviorAlert> {
+        println!("Checking for emergent behaviors...");
 
-    pub fn ingest_behavior_snapshot(&self, snapshot: SystemBehaviorSnapshot) {
-        println!("Ingesting behavior snapshot at: {:?}", snapshot.timestamp);
-        let mut history = self.behavior_history.lock().unwrap();
-        history.push(snapshot.clone());
-        self.update_baseline(&snapshot); // Continuously update baseline
+        // 1. Prepare metrics for SIMD analysis against baselines
+        let mut current_metric_values = Vec::new();
+        let mut baseline_metric_values = Vec::new();
+        let mut metric_keys = Vec::new();
 
-        self.detect_emergent_behavior(snapshot);
-    }
-
-    fn detect_emergent_behavior(&self, snapshot: SystemBehaviorSnapshot) {
-        let baseline = self.baseline_behavior.lock().unwrap();
-
-        let current_metrics: Vec<f32> = snapshot.metric_values.values().cloned().collect();
-        let baseline_metrics: Vec<f32> = baseline.values().cloned().collect();
-
-        // Ensure metrics are in the same order for SIMD comparison (simplified for example)
-        let ordered_current: Vec<f32> = ["cpu_usage", "memory_usage", "network_io"].iter()
-            .map(|&m| *snapshot.metric_values.get(m).unwrap_or(&0.0))
-            .collect();
-        let ordered_baseline: Vec<f32> = ["cpu_usage", "memory_usage", "network_io"].iter()
-            .map(|&m| *baseline.get(m).unwrap_or(&0.0))
-            .collect();
-
-        // 1. Real-time Behavioral Analysis (SIMD)
-        let anomalies = self.simd_analyzer.analyze_behavior(&ordered_current, &ordered_baseline, 0.2); // Threshold for deviation
-
-        if !anomalies.is_empty() {
-            println!("SIMD - Detected {} anomalies in real-time behavior.", anomalies.len());
-            // 2. Correlate with known anomaly patterns (RAG)
-            let mut detected_pattern: Option<String> = None;
-            if ordered_current[0] > 0.8 && anomalies.contains(&0) { // Example: High CPU usage anomaly
-                if let Some(desc) = self.rag_patterns.get_pattern_description("resource_spike") {
-                    detected_pattern = Some("resource_spike".to_string());
-                    println!("RAG - Matched known pattern: resource_spike ({})", desc);
-                }
+        for (key, &value) in current_metrics.iter() {
+            if let Some(&baseline) = self.rag_patterns.get_baseline_value(key) {
+                current_metric_values.push(value);
+                baseline_metric_values.push(baseline);
+                metric_keys.push(key.clone());
             }
-            // More complex RAG queries could involve semantic search on snapshot details vs pattern descriptions
+        }
 
+        // 2. Perform real-time metric analysis using SIMD
+        let metric_anomalies = self.simd_analyzer.analyze_metric_stream(&current_metric_values, &baseline_metric_values, 0.1); // 10% deviation threshold
+
+        // 3. Perform event pattern detection using SIMD
+        let unexpected_resource_spike_pattern: Vec<u64> = vec![
+            self.hash_string_to_u64("ResourceIncreaseEvent"),
+            self.hash_string_to_u64("NoTaskIncrease"),
+            self.hash_string_to_u64("CpuUsageHigh"),
+        ]; // Example pattern sequence for resource spike
+
+        let event_pattern_matches = self.simd_analyzer.detect_event_pattern(event_log_hashes, &unexpected_resource_spike_pattern);
+
+        let mut triggered_patterns = Vec::new();
+        let mut severity = 0.0;
+        let mut confidence = 0.0;
+        let mut behavior_description = String::new();
+        let mut anomaly_type = "Normal".to_string();
+        let mut requires_human_oversight = false;
+        let mut related_metrics = current_metrics.clone();
+
+        if !metric_anomalies.is_empty() {
+            anomaly_type = "Performance Drift".to_string();
+            severity += 0.5;
+            confidence += 0.6;
+            behavior_description.push_str("Detected significant metric deviations from baseline. ");
+            requires_human_oversight = true;
+
+            for idx in metric_anomalies {
+                triggered_patterns.push(format!("Metric anomaly: {}", metric_keys[idx]));
+                // Add actual values for anomalous metrics
+                related_metrics.insert(format!("{}_current", metric_keys[idx]), current_metric_values[idx]);
+                related_metrics.insert(format!("{}_baseline", metric_keys[idx]), baseline_metric_values[idx]);
+            }
+        }
+
+        if !event_pattern_matches.is_empty() {
+            anomaly_type = "Unexpected Behavior".to_string();
+            severity += 0.7;
+            confidence += 0.8;
+            behavior_description.push_str("Identified a sequence of events matching known emergent behavior patterns. ");
+            requires_human_oversight = true;
+            if let Some(desc) = self.rag_patterns.get_pattern_description("unexpected_resource_spike") {
+                triggered_patterns.push(format!("Event pattern match: {}", desc));
+            }
+        }
+
+        if requires_human_oversight {
             let alert = EmergentBehaviorAlert {
                 id: Uuid::new_v4().to_string(),
-                timestamp: Utc::now(),
-                description: format!("Unintended system behavior detected! Anomalies at indices: {:?}", anomalies),
-                severity: "critical".to_string(),
-                detected_pattern_id: detected_pattern.clone(),
-                explanation: format!("System metrics deviated significantly from baseline. Current snapshot: {:?}. Baseline: {:?}. {}",
-                                      snapshot.metric_values, baseline, detected_pattern.map_or("No specific pattern matched.".to_string(), |p_id| format!("Matched pattern ID: {}. Details: {}.", p_id, self.rag_patterns.get_pattern_description(&p_id).unwrap_or(&"N/A".to_string())))),
-                suggested_correction: "Investigate component states and recent changes.".to_string(),
+                detected_at: Utc::now(),
+                behavior_description: behavior_description.trim().to_string(),
+                anomaly_type,
+                severity: severity.min(1.0),
+                confidence: confidence.min(1.0),
+                triggered_patterns,
+                related_metrics,
+                recommended_action: "Investigate and confirm emergent behavior. Assess potential impact.".to_string(),
+                requires_human_oversight: true,
             };
-            self.alerts.lock().unwrap().push(alert.clone());
-            println!("Generated Alert: {:?}", alert);
+            println!("Emergent Behavior Alert: {:?}", alert);
+            Some(alert)
         } else {
-            println!("No emergent behaviors detected in this snapshot.");
+            println!("No emergent behaviors detected.");
+            None
         }
     }
 
-    pub fn get_active_alerts(&self) -> Vec<EmergentBehaviorAlert> {
-        self.alerts.lock().unwrap().clone()
+    // Helper to simulate hashing event strings to u64 for SIMD analysis
+    fn hash_string_to_u64(&self, s: &str) -> u64 {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+        let mut hasher = DefaultHasher::new();
+        s.hash(&mut hasher);
+        hasher.finish()
     }
 }
-
-// NOTE: Ensure `chrono` is added to your Cargo.toml for DateTime
-// [dependencies]
-// chrono = { version = "0.4", features = ["serde"] } // "serde" feature for serialization if needed
 
 /*
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::time::Duration;
-    use std::thread;
+    use std::sync::Arc;
 
     #[test]
     fn test_early_warning_system() {
         let rag_patterns = Arc::new(RagAnomalyPatterns::new());
-        let simd_analyzer = Arc::new(SimdBehaviorAnalyzer::new());
+        let simd_analyzer = Arc::new(SimdBehavioralAnalyzer::new());
         let ews = EarlyWarningSystem::new(rag_patterns, simd_analyzer);
 
-        // Initial normal snapshots
-        ews.ingest_behavior_snapshot(SystemBehaviorSnapshot {
-            timestamp: Utc::now(),
-            metric_values: HashMap::from([("cpu_usage".to_string(), 0.1), ("memory_usage".to_string(), 0.3), ("network_io".to_string(), 0.05)]),
-            component_status: HashMap::from([("core_processor".to_string(), "healthy".to_string())]),
-        });
-        thread::sleep(Duration::from_millis(100));
-        ews.ingest_behavior_snapshot(SystemBehaviorSnapshot {
-            timestamp: Utc::now(),
-            metric_values: HashMap::from([("cpu_usage".to_string(), 0.12), ("memory_usage".to_string(), 0.31), ("network_io".to_string(), 0.06)]),
-            component_status: HashMap::from([("core_processor".to_string(), "healthy".to_string())]),
-        });
-        thread::sleep(Duration::from_millis(100));
+        // Scenario 1: No anomalies
+        let normal_metrics: HashMap<String, f32> = [
+            ("avg_cpu_usage".to_string(), 0.42),
+            ("max_memory_usage".to_string(), 0.65),
+        ].iter().cloned().collect();
+        let normal_events: Vec<u64> = vec![ews.hash_string_to_u64("NormalActivity")];
+        let alert_none = ews.check_for_emergent_behaviors(&normal_metrics, &normal_events);
+        assert!(alert_none.is_none());
 
-        // Snapshot with anomaly
-        ews.ingest_behavior_snapshot(SystemBehaviorSnapshot {
-            timestamp: Utc::now(),
-            metric_values: HashMap::from([("cpu_usage".to_string(), 0.9), ("memory_usage".to_string(), 0.4), ("network_io".to_string(), 0.1)]), // CPU spike
-            component_status: HashMap::from([("core_processor".to_string(), "stressed".to_string())]),
-        });
-        thread::sleep(Duration::from_millis(100));
+        // Scenario 2: Metric anomaly
+        let anomalous_metrics: HashMap<String, f32> = [
+            ("avg_cpu_usage".to_string(), 0.6), // Anomalous
+            ("max_memory_usage".to_string(), 0.72),
+        ].iter().cloned().collect();
+        let alert_metric = ews.check_for_emergent_behaviors(&anomalous_metrics, &normal_events);
+        assert!(alert_metric.is_some());
+        assert_eq!(alert_metric.unwrap().anomaly_type, "Performance Drift");
 
-        let alerts = ews.get_active_alerts();
-        assert!(!alerts.is_empty());
-        println!("Active Alerts: {:?}", alerts);
-        assert!(alerts.iter().any(|a| a.detected_pattern_id == Some("resource_spike".to_string())));
+        // Scenario 3: Event pattern anomaly
+        let event_anomalies: Vec<u64> = vec![
+            ews.hash_string_to_u64("ResourceIncreaseEvent"),
+            ews.hash_string_to_u64("NoTaskIncrease"),
+            ews.hash_string_to_u64("CpuUsageHigh"),
+            ews.hash_string_to_u64("FollowUpEvent"),
+        ];
+        let alert_event = ews.check_for_emergent_behaviors(&normal_metrics, &event_anomalies);
+        assert!(alert_event.is_some());
+        assert_eq!(alert_event.unwrap().anomaly_type, "Unexpected Behavior");
     }
 }
