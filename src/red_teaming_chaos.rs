@@ -1,12 +1,11 @@
 /// Module for Automated Red Teaming & Security Chaos Engineering in Rust.
 ///
 /// This module conceptually outlines a Rust-based implementation for Automated Red Teaming & Security Chaos Engineering.
-/// This module will autonomously simulate sophisticated cyberattacks and inject security failures
-/// (e.g., key compromises, network segmentation failures, credential leaks) into Tariro's own systems
-/// to proactively identify weaknesses. It will then analyze the system's resilience and incident response capabilities,
-/// providing real-time feedback for self-hardening
-/// (leveraging RAG for advanced attack techniques and security best practices, and SIMD for high-speed simulation
-/// of attack vectors and analysis of system behavior under duress).
+/// This module will enable Tariro agents to autonomously launch simulated attacks and inject controlled failures
+/// into their own infrastructure to test the effectiveness of security controls and system resilience.
+/// This proactive approach identifies weaknesses before they can be exploited by real adversaries, ensuring a robust
+/// and battle-hardened security posture (leveraging RAG for attack patterns and payloads, and SIMD for high-scale
+/// simulation and rapid assessment of system recovery).
 
 use std::collections::HashMap;
 use std::fmt;
@@ -14,92 +13,90 @@ use std::thread;
 use std::time::{Duration, Instant};
 use rand::Rng;
 
-/// Types of simulated attacks/failures.
+/// Types of simulated attack vectors.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum AttackVector {
-    KeyCompromise,
-    NetworkSegmentationFailure,
-    CredentialLeak,
-    DoSAttack,
+    DenialOfService,
     DataExfiltration,
+    CredentialStuffing,
+    MalwareInjection,
+    PrivilegeEscalation,
     Other(String),
 }
 
-/// The result of a red teaming or chaos engineering experiment.
+/// A controlled chaos engineering experiment.
 #[derive(Debug, Clone)]
-pub struct ExperimentResult {
+pub struct ChaosExperiment {
     pub experiment_id: String,
+    pub target_system: String,
     pub attack_vector: AttackVector,
-    pub simulated_impact: String,
-    pub system_response: String,
-    pub detected_by_system: bool,
-    pub resilience_score: f32, // 0.0 to 1.0
+    pub duration_seconds: u64,
+    pub expected_resilience: String, // e.g., "System should recover within 30s"
+}
+
+/// A report generated after a red teaming or chaos experiment.
+#[derive(Debug, Clone)]
+pub struct VulnerabilityReport {
+    pub report_id: String,
+    pub experiment_id: String,
+    pub vulnerabilities_found: Vec<String>,
+    pub resilience_assessment: String,
     pub recommendations: Vec<String>,
 }
 
-/// The Red Teaming and Chaos Engineering Manager.
-pub struct RedTeamChaosManager {
-    pub security_best_practices_db: HashMap<String, String>, // Conceptual: RAG for advanced attack techniques and security best practices
+/// The Chaos Manager.
+pub struct ChaosManager {
+    pub current_experiments: HashMap<String, ChaosExperiment>,
+    pub attack_patterns_db: HashMap<String, String>, // Conceptual: RAG for attack patterns and payloads
 }
 
-impl RedTeamChaosManager {
+impl ChaosManager {
     pub fn new() -> Self {
-        let mut bp_db = HashMap::new();
-        bp_db.insert("MITRE_ATTACK_Framework".to_string(), "Globally accessible knowledge base of adversary tactics and techniques based on real-world observations.".to_string());
-        bp_db.insert("Chaos_Engineering_Principles".to_string(), "Principles for learning about system weaknesses by intentionally injecting failures.".to_string());
-        RedTeamChaosManager { security_best_practices_db: bp_db }
+        let mut ap_db = HashMap::new();
+        ap_db.insert("OWASP_Top_10_2024".to_string(), "Common web application security risks.".to_string());
+        ap_db.insert("MITRE_ATTACK_Framework".to_string(), "Knowledge base of adversary tactics and techniques.".to_string());
+        ChaosManager { current_experiments: HashMap::new(), attack_patterns_db: ap_db }
     }
 
-    /// Simulates a sophisticated cyberattack or security failure (conceptual SIMD).
-    pub fn simulate_attack_simd(&self, vector: AttackVector, target_component: &str) -> ExperimentResult {
-        println!("  [RTCM]: Simulating {:?} on '{}' (SIMD for high-speed attack vector simulation).", vector, target_component);
-        let mut rng = rand::thread_rng();
-        thread::sleep(Duration::from_millis(300)); // Simulate attack execution and initial impact
+    /// Launches a simulated attack against a target system (conceptual SIMD).
+    pub fn launch_simulated_attack_simd(&mut self, experiment: ChaosExperiment) {
+        println!("  [CM]: Launching simulated {:?} attack on '{}' (SIMD for high-scale simulation).", experiment.attack_vector, experiment.target_system);
+        thread::sleep(Duration::from_millis(300)); // Simulate attack execution
+        self.current_experiments.insert(experiment.experiment_id.clone(), experiment);
+    }
 
-        let detected = rng.gen_bool(0.7); // 70% chance of detection
-        let impact = if rng.gen_bool(0.3) { "Critical data loss" } else { "Minor disruption" };
-        let response = if detected { "Automated isolation initiated" } else { "Manual intervention required" };
-        let resilience = if detected { 0.7 + rng.gen_range(-0.1..0.1) } else { 0.3 + rng.gen_range(-0.1..0.1) };
-        let recommendations = if resilience < 0.6 { vec!["Strengthen anomaly detection.".to_string(), "Improve automated response playbooks.".to_string()] } else { vec![] };
+    /// Injects a controlled failure into a component.
+    pub fn inject_controlled_failure(&self, component_id: &str, failure_type: &str) {
+        println!("  [CM]: Injecting '{}' failure into '{}'.", failure_type, component_id);
+        thread::sleep(Duration::from_millis(150));
+    }
 
-        ExperimentResult {
-            experiment_id: format!("exp_{}", Instant::now().elapsed().as_secs()),
-            attack_vector: vector.clone(),
-            simulated_impact: impact.to_string(),
-            system_response: response.to_string(),
-            detected_by_system: detected,
-            resilience_score: resilience.max(0.0).min(1.0),
+    /// Assesses the security controls and system resilience during an experiment.
+    pub fn assess_security_controls(&self, experiment_id: &str) -> String {
+        println!("  [CM]: Assessing security controls for experiment '{}'.", experiment_id);
+        thread::sleep(Duration::from_millis(200));
+        "Some security controls were bypassed, others held strong.".to_string()
+    }
+
+    /// Generates a vulnerability report based on experiment findings.
+    pub fn generate_vulnerability_report(&self, experiment_id: &str, findings: Vec<String>, resilience: String, recommendations: Vec<String>) -> VulnerabilityReport {
+        println!("  [CM]: Generating vulnerability report for experiment '{}'.", experiment_id);
+        VulnerabilityReport {
+            report_id: format!("report_{}", experiment_id),
+            experiment_id: experiment_id.to_string(),
+            vulnerabilities_found: findings,
+            resilience_assessment: resilience,
             recommendations,
         }
     }
 
-    /// Analyzes the system's resilience based on experiment results (conceptual).
-    pub fn analyze_resilience(&self, results: &[ExperimentResult]) {
-        println!("  [RTCM]: Analyzing overall system resilience from {} experiments.", results.len());
-        let total_score: f32 = results.iter().map(|r| r.resilience_score).sum();
-        let avg_resilience = if results.is_empty() { 0.0 } else { total_score / results.len() as f32 };
-        println!("  Average System Resilience Score: {:.2}\n", avg_resilience);
-        thread::sleep(Duration::from_millis(100));
-    }
-
-    /// Provides feedback to the system for self-hardening (conceptual).
-    pub fn provide_hardening_feedback(&self, results: &[ExperimentResult]) {
-        println!("  [RTCM]: Providing feedback for self-hardening based on experiment outcomes.");
-        for result in results {
-            if !result.recommendations.is_empty() {
-                println!("    -> For experiment '{}': Implement {:?}", result.experiment_id, result.recommendations);
-            }
-        }
-        thread::sleep(Duration::from_millis(80));
-    }
-
-    /// Analyzes advanced attack techniques and security chaos engineering principles (conceptual RAG).
-    pub fn analyze_security_knowledge_rag(&self, topic: &str) -> String {
-        println!("  [RTCM]: Analyzing security knowledge topic '{}' (RAG simulation).", topic);
-        if let Some(analysis) = self.security_best_practices_db.get(topic) {
-            format!("Security Knowledge Analysis for '{}' from RAG: {}. Guides robust red teaming.", topic, analysis)
+    /// Analyzes attack patterns, payloads, and threat intelligence (conceptual RAG).
+    pub fn analyze_attack_patterns_rag(&self, framework_name: &str) -> String {
+        println!("  [CM]: Analyzing attack patterns framework '{}' (RAG simulation).", framework_name);
+        if let Some(analysis) = self.attack_patterns_db.get(framework_name) {
+            format!("Attack Patterns '{}' analysis from RAG: {}. Essential for proactive defense.", framework_name, analysis)
         } else {
-            format!("Security Knowledge for '{}' not found in RAG database.", topic)
+            format!("Attack Patterns '{}' not found in RAG database.", framework_name)
         }
     }
 }
@@ -109,19 +106,32 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_red_teaming_flow() {
-        let rtcm = RedTeamChaosManager::new();
+    fn test_red_teaming_chaos_flow() {
+        let mut cm = ChaosManager::new();
 
-        let result1 = rtcm.simulate_attack_simd(AttackVector::KeyCompromise, "crypto_service");
-        assert!(!result1.experiment_id.is_empty());
+        let exp = ChaosExperiment {
+            experiment_id: "exp_001".to_string(),
+            target_system: "auth_service".to_string(),
+            attack_vector: AttackVector::CredentialStuffing,
+            duration_seconds: 60,
+            expected_resilience: "Service should handle 1000 failed logins/sec without crash.".to_string(),
+        };
+        cm.launch_simulated_attack_simd(exp.clone());
+        
+        cm.inject_controlled_failure("database", "network_latency");
 
-        let result2 = rtcm.simulate_attack_simd(AttackVector::DoSAttack, "network_router");
-        let results = vec![result1, result2];
+        let assessment = cm.assess_security_controls("exp_001");
+        assert!(!assessment.is_empty());
 
-        rtcm.analyze_resilience(&results);
-        rtcm.provide_hardening_feedback(&results);
+        let report = cm.generate_vulnerability_report(
+            "exp_001", 
+            vec!["Weak rate limiting on login".to_string()], 
+            assessment,
+            vec!["Implement stronger throttling".to_string()]
+        );
+        assert!(!report.vulnerabilities_found.is_empty());
 
-        let analysis = rtcm.analyze_security_knowledge_rag("MITRE_ATTACK_Framework");
+        let analysis = cm.analyze_attack_patterns_rag("OWASP_Top_10_2024");
         assert!(!analysis.is_empty());
     }
 }
@@ -129,59 +139,60 @@ mod tests {
 fn main() {
     println!("\n--- Automated Red Teaming & Security Chaos Engineering Demonstration ---");
 
-    let rt_chaos_manager = RedTeamChaosManager::new();
-    let mut experiment_logs: Vec<ExperimentResult> = Vec::new();
+    let mut chaos_manager = ChaosManager::new();
 
-    // 1. Simulate various attack vectors
-    println!("--- Simulating Attack Vectors (SIMD) ---");
-    experiment_logs.push(rt_chaos_manager.simulate_attack_simd(
-        AttackVector::KeyCompromise, 
-        "Tariro_Key_Vault"
-    ));
-    experiment_logs.push(rt_chaos_manager.simulate_attack_simd(
-        AttackVector::NetworkSegmentationFailure, 
-        "Swarm_Comm_Fabric"
-    ));
-    experiment_logs.push(rt_chaos_manager.simulate_attack_simd(
-        AttackVector::CredentialLeak, 
-        "Internal_Auth_Service"
-    ));
-    experiment_logs.push(rt_chaos_manager.simulate_attack_simd(
-        AttackVector::DoSAttack, 
-        "RAG_Query_Engine"
-    ));
-    println!("  {} attack simulations completed.\n", experiment_logs.len());
+    // 1. Define a red teaming experiment: simulating a DDoS attack
+    println!("--- Defining DDoS Red Teaming Experiment ---");
+    let ddos_experiment = ChaosExperiment {
+        experiment_id: "DDoS_Sim_001".to_string(),
+        target_system: "Tariro_Gateway_Service".to_string(),
+        attack_vector: AttackVector::DenialOfService,
+        duration_seconds: 120,
+        expected_resilience: "Gateway service should maintain 99% availability with 50% degraded performance.".to_string(),
+    };
+    println!("  DDoS experiment defined for '{}'.\n", ddos_experiment.target_system);
 
-    // 2. Analyze system response and resilience
-    println!("--- Analyzing System Resilience ---");
-    for result in &experiment_logs {
-        println!("  Experiment ID: '{}'");
-        println!("    Attack: {:?}", result.attack_vector);
-        println!("    Impact: '{}'
-    Detected by System: {}
-    System Response: '{}'
-    Resilience Score: {:.2}
-    Recommendations: {:?}\n",
-            result.simulated_impact,
-            result.detected_by_system,
-            result.system_response,
-            result.resilience_score,
-            result.recommendations
-        );
-    }
-    rt_chaos_manager.analyze_resilience(&experiment_logs);
+    // 2. Launch the simulated attack (Red Teaming phase)
+    println!("--- Launching Simulated DDoS Attack (SIMD) ---");
+    chaos_manager.launch_simulated_attack_simd(ddos_experiment.clone());
+    println!("  Simulated DDoS attack is in progress...\n");
 
-    // 3. Provide feedback for self-hardening
-    rt_chaos_manager.provide_hardening_feedback(&experiment_logs);
-    println!("\n");
+    // 3. Inject controlled failures (Chaos Engineering phase)
+    println!("--- Injecting Controlled Failures ---");
+    chaos_manager.inject_controlled_failure("Tariro_Database_Cluster", "network_partition");
+    chaos_manager.inject_controlled_failure("Authentication_Service", "high_latency_spike");
+    println!("  Controlled failures injected into infrastructure.\n");
 
-    // 4. Analyze security knowledge using RAG
-    println!("--- Security Knowledge Analysis (RAG) ---");
-    let mitre_analysis = rt_chaos_manager.analyze_security_knowledge_rag("MITRE_ATTACK_Framework");
+    // 4. Assess security controls and system resilience
+    println!("--- Assessing Security Controls & Resilience ---");
+    let assessment_results = chaos_manager.assess_security_controls("DDoS_Sim_001");
+    println!("  Assessment Summary: {}\n", assessment_results);
+
+    // 5. Generate a vulnerability report
+    println!("--- Generating Vulnerability Report ---");
+    let vulnerabilities = vec![
+        "Insufficient rate limiting on login endpoint during DDoS.".to_string(),
+        "Database failed to re-sync quickly after network partition.".to_string(),
+    ];
+    let recommendations = vec![
+        "Implement adaptive rate limiting based on traffic patterns.".to_string(),
+        "Improve database replication and failover mechanisms.".to_string(),
+    ];
+    let report = chaos_manager.generate_vulnerability_report(
+        "DDoS_Sim_001", 
+        vulnerabilities, 
+        assessment_results,
+        recommendations
+    );
+    println!("  Vulnerability Report '{}' generated with {} findings.\n", report.report_id, report.vulnerabilities_found.len());
+
+    // 6. Analyze attack patterns using RAG
+    println!("--- Attack Pattern Analysis (RAG) ---");
+    let mitre_analysis = chaos_manager.analyze_attack_patterns_rag("MITRE_ATTACK_Framework");
     println!("  MITRE ATT&CK: {}", mitre_analysis);
 
-    let chaos_principles_analysis = rt_chaos_manager.analyze_security_knowledge_rag("Chaos_Engineering_Principles");
-    println!("  Chaos Engineering: {}", chaos_principles_analysis);
+    let owasp_analysis = chaos_manager.analyze_attack_patterns_rag("OWASP_Top_10_2024");
+    println!("  OWASP Top 10: {}", owasp_analysis);
 
     println!("\nAutomated Red Teaming & Security Chaos Engineering Demonstration Complete.");
 }
