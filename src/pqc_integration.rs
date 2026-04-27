@@ -1,117 +1,131 @@
-/// Module for Post-Quantum Cryptography (PQC) Integration in Rust.
+/// Module for Quantum-Resistant Cryptography (PQC) Integration in Rust.
 ///
-/// This module conceptually outlines the integration of post-quantum cryptography
-/// algorithms into the OMEGA OS. It aims to ensure secure communication and
-/// data storage against potential threats from future quantum computers, while
-/// providing a flexible framework for cryptographic agility and updates.
+/// This module conceptually outlines a Rust-based implementation for Quantum-Resistant Cryptography (PQC) Integration.
+/// This module will integrate standardized PQC algorithms (e.g., Kyber, Dilithium, SPHINCS+) into Tariro's security
+/// infrastructure, replacing or augmenting classical algorithms vulnerable to quantum attacks. It will support hybrid
+/// modes for graceful transition and ensure long-term data security against future quantum threats
+/// (leveraging RAG for NIST PQC standards and SIMD for accelerating PQC primitive execution).
 
+use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use rand::Rng;
 
-/// Represents different Post-Quantum Cryptography algorithms.
-#[derive(Debug, Clone, PartialEq)]
-pub enum PqcAlgorithm {
+/// Supported Quantum-Resistant Cryptography algorithms.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum PQCAlgorithm {
     Kyber,
     Dilithium,
+    SPHINCSPlus,
     Falcon,
-    SphincsPlus,
-    // More PQC algorithms can be added here as they mature
+    Other(String),
 }
 
-impl fmt::Display for PqcAlgorithm {
+impl fmt::Display for PQCAlgorithm {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{:?}", self)
     }
 }
 
-/// Represents a public key for a PQC algorithm.
-#[derive(Debug, Clone, PartialEq)]
-pub struct PublicKey {
-    pub algorithm: PqcAlgorithm,
-    pub key_data: Vec<u8>,
+/// Represents a PQC keypair.
+#[derive(Debug, Clone)]
+pub struct Keypair {
+    pub public_key: Vec<u8>,
+    pub secret_key: Vec<u8>,
 }
 
-/// Represents a private key for a PQC algorithm.
-#[derive(Debug, Clone, PartialEq)]
-pub struct PrivateKey {
-    pub algorithm: PqcAlgorithm,
-    pub key_data: Vec<u8>,
-}
-
-/// Represents encrypted data using a PQC algorithm.
-#[derive(Debug, Clone, PartialEq)]
+/// Represents PQC ciphertext.
+#[derive(Debug, Clone)]
 pub struct Ciphertext {
-    pub algorithm: PqcAlgorithm,
-    pub encrypted_data: Vec<u8>,
-    pub encapsulation: Option<Vec<u8>>, // For KEMs like Kyber
+    pub data: Vec<u8>,
 }
 
-/// The PQC Manager component.
-/// This struct provides conceptual methods for key generation, encryption, and decryption.
-pub struct PqcManager {
-    pub default_algorithm: PqcAlgorithm,
+/// Represents a PQC signature.
+#[derive(Debug, Clone)]
+pub struct Signature {
+    pub data: Vec<u8>,
 }
 
-impl PqcManager {
-    pub fn new(default_algorithm: PqcAlgorithm) -> Self {
-        PqcManager { default_algorithm }
+/// The PQC Manager.
+pub struct PQCManager {
+    pub nist_pqc_standards_db: HashMap<PQCAlgorithm, String>, // Conceptual: RAG for NIST PQC standards
+}
+
+impl PQCManager {
+    pub fn new() -> Self {
+        let mut nist_db = HashMap::new();
+        nist_db.insert(PQCAlgorithm::Kyber, "NIST PQC Round 3 finalist for Key Encapsulation Mechanism (KEM).".to_string());
+        nist_db.insert(PQCAlgorithm::Dilithium, "NIST PQC Round 3 finalist for Digital Signature Algorithm (DSA).".to_string());
+        nist_db.insert(PQCAlgorithm::SPHINCSPlus, "NIST PQC Round 3 finalist for stateless hash-based signatures.".to_string());
+        PQCManager { nist_pqc_standards_db: nist_db }
     }
 
-    /// Conceptually generates a PQC keypair for the specified algorithm.
-    /// In a real implementation, this would involve complex cryptographic operations.
-    pub fn generate_keypair(&self, algorithm: Option<PqcAlgorithm>) -> (PublicKey, PrivateKey) {
-        let algo = algorithm.unwrap_or_else(|| self.default_algorithm.clone());
-        println!("  [PQCManager]: Generating {:?} keypair...", algo);
-
+    /// Generates a PQC keypair for a given algorithm (conceptual).
+    pub fn generate_pqc_keypair(&self, algorithm: PQCAlgorithm) -> Keypair {
+        println!("  [PQC]: Generating {:?} keypair.", algorithm);
         let mut rng = rand::thread_rng();
-        let public_key_data: Vec<u8> = (0..32).map(|_| rng.gen::<u8>()).collect(); // Random bytes for demo
-        let private_key_data: Vec<u8> = (0..64).map(|_| rng.gen::<u8>()).collect(); // Random bytes for demo
-
-        PublicKey { algorithm: algo.clone(), key_data: public_key_data }
-        PrivateKey { algorithm: algo, key_data: private_key_data }
-    }
-
-    /// Conceptually encrypts data using a PQC public key.
-    /// For Key Encapsulation Mechanisms (KEMs) like Kyber, this would also return an encapsulated key.
-    pub fn encrypt(&self, public_key: &PublicKey, plaintext: &[u8]) -> Ciphertext {
-        println!("  [PQCManager]: Encrypting data with {:?} using public key...", public_key.algorithm);
-        let mut rng = rand::thread_rng();
-        let encrypted_data: Vec<u8> = plaintext.iter().map(|&b| b ^ rng.gen::<u8>()).collect(); // Simple XOR for demo
-        let encapsulation: Option<Vec<u8>> = match public_key.algorithm {
-            PqcAlgorithm::Kyber => Some((0..16).map(|_| rng.gen::<u8>()).collect()), // Simulated encapsulated key
-            _ => None,
+        thread::sleep(Duration::from_millis(150));
+        let pk_size = match algorithm {
+            PQCAlgorithm::Kyber => 800,
+            PQCAlgorithm::Dilithium => 2400,
+            PQCAlgorithm::SPHINCSPlus => 32000,
+            _ => 1024,
         };
-
-        Ciphertext {
-            algorithm: public_key.algorithm.clone(),
-            encrypted_data,
-            encapsulation,
+        let sk_size = pk_size * 2;
+        Keypair {
+            public_key: (0..pk_size).map(|_| rng.gen::<u8>()).collect(),
+            secret_key: (0..sk_size).map(|_| rng.gen::<u8>()).collect(),
         }
     }
 
-    /// Conceptually decrypts ciphertext using a PQC private key.
-    pub fn decrypt(&self, private_key: &PrivateKey, ciphertext: &Ciphertext) -> Result<Vec<u8>, String> {
-        if private_key.algorithm != ciphertext.algorithm {
-            return Err(format!("Algorithm mismatch: Private key is {:?}, ciphertext is {:?}", private_key.algorithm, ciphertext.algorithm));
-        }
-        println!("  [PQCManager]: Decrypting data with {:?} using private key...", private_key.algorithm);
-
-        // Simulate decryption. In a real KEM, the encapsulated key would be decapsulated here.
-        // For symmetric encryption based on that, a random operation for demo.
+    /// Encrypts data using a PQC algorithm (conceptual SIMD).
+    pub fn encrypt_pqc_simd(&self, algorithm: PQCAlgorithm, public_key: &[u8], plaintext: &[u8]) -> Ciphertext {
+        println!("  [PQC]: Encrypting with {:?} (SIMD for PQC encryption).", algorithm);
         let mut rng = rand::thread_rng();
-        let decrypted_data: Vec<u8> = ciphertext.encrypted_data.iter().map(|&b| b ^ rng.gen::<u8>()).collect(); // Simple XOR for demo
-
-        Ok(decrypted_data)
+        thread::sleep(Duration::from_millis(200)); // Simulate encryption
+        let ct_size = plaintext.len() + 100; // PQC ciphertexts are often larger
+        Ciphertext { data: (0..ct_size).map(|_| rng.gen::<u8>()).collect() }
     }
 
-    /// Demonstrates cryptographic agility by switching algorithms.
-    pub fn demonstrate_agility(&mut self, new_algo: PqcAlgorithm) {
-        println!("\n--- Demonstrating Cryptographic Agility: Switching from {:?} to {:?} ---", self.default_algorithm, new_algo);
-        self.default_algorithm = new_algo.clone();
-        println!("  [PQCManager]: Default algorithm updated to {:?}. New operations will use this.", self.default_algorithm);
-        // In a real system, this would involve key rotation and migration of data.
+    /// Decrypts data using a PQC algorithm (conceptual SIMD).
+    pub fn decrypt_pqc_simd(&self, algorithm: PQCAlgorithm, secret_key: &[u8], ciphertext: &Ciphertext) -> Vec<u8> {
+        println!("  [PQC]: Decrypting with {:?} (SIMD for PQC decryption).", algorithm);
+        let mut rng = rand::thread_rng();
+        thread::sleep(Duration::from_millis(200)); // Simulate decryption
+        let pt_size = ciphertext.data.len() - 100; // PQC plaintext is often smaller than ciphertext
+        (0..pt_size).map(|_| rng.gen::<u8>()).collect()
+    }
+
+    /// Signs data using a PQC digital signature algorithm (conceptual SIMD).
+    pub fn sign_pqc_simd(&self, algorithm: PQCAlgorithm, secret_key: &[u8], message: &[u8]) -> Signature {
+        println!("  [PQC]: Signing with {:?} (SIMD for PQC signing).", algorithm);
+        let mut rng = rand::thread_rng();
+        thread::sleep(Duration::from_millis(250)); // Simulate signing
+        let sig_size = match algorithm {
+            PQCAlgorithm::Dilithium => 3000,
+            PQCAlgorithm::SPHINCSPlus => 40000,
+            _ => 500,
+        };
+        Signature { data: (0..sig_size).map(|_| rng.gen::<u8>()).collect() }
+    }
+
+    /// Verifies a PQC digital signature (conceptual SIMD).
+    pub fn verify_pqc_simd(&self, algorithm: PQCAlgorithm, public_key: &[u8], message: &[u8], signature: &Signature) -> bool {
+        println!("  [PQC]: Verifying {:?} signature (SIMD for PQC verification).", algorithm);
+        let mut rng = rand::thread_rng();
+        thread::sleep(Duration::from_millis(180)); // Simulate verification
+        rng.gen_bool(0.95) // High chance of successful verification
+    }
+
+    /// Analyzes NIST PQC standards and algorithms (conceptual RAG).
+    pub fn analyze_nist_standards_rag(&self, algorithm: PQCAlgorithm) -> String {
+        println!("  [PQC]: Analyzing NIST PQC standards for {:?} (RAG simulation).", algorithm);
+        if let Some(analysis) = self.nist_pqc_standards_db.get(&algorithm) {
+            format!("NIST PQC Standard for {:?}: {}. Essential for quantum-safe security.", algorithm, analysis)
+        } else {
+            format!("NIST PQC Standard for {:?} not found in RAG database.", algorithm)
+        }
     }
 }
 
@@ -120,95 +134,80 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_keypair_generation() {
-        let pqc_manager = PqcManager::new(PqcAlgorithm::Kyber);
-        let (pub_key, priv_key) = pqc_manager.generate_keypair(None);
-        assert_eq!(pub_key.algorithm, PqcAlgorithm::Kyber);
-        assert_eq!(priv_key.algorithm, PqcAlgorithm::Kyber);
-        assert!(!pub_key.key_data.is_empty());
-        assert!(!priv_key.key_data.is_empty());
-    }
+    fn test_pqc_integration_flow() {
+        let pqc_manager = PQCManager::new();
 
-    #[test]
-    fn test_encrypt_decrypt() {
-        let pqc_manager = PqcManager::new(PqcAlgorithm::Dilithium);
-        let (pub_key, priv_key) = pqc_manager.generate_keypair(None);
-        let original_data = b"Hello, Quantum-Secure World!";
+        let kyber_keypair = pqc_manager.generate_pqc_keypair(PQCAlgorithm::Kyber);
+        let plaintext = b"secret_data";
+        let ciphertext = pqc_manager.encrypt_pqc_simd(PQCAlgorithm::Kyber, &kyber_keypair.public_key, plaintext);
+        let decrypted = pqc_manager.decrypt_pqc_simd(PQCAlgorithm::Kyber, &kyber_keypair.secret_key, &ciphertext);
+        assert!(!decrypted.is_empty());
 
-        let ciphertext = pqc_manager.encrypt(&pub_key, original_data);
-        let decrypted_data = pqc_manager.decrypt(&priv_key, &ciphertext).unwrap();
+        let dilithium_keypair = pqc_manager.generate_pqc_keypair(PQCAlgorithm::Dilithium);
+        let message = b"important_document";
+        let signature = pqc_manager.sign_pqc_simd(PQCAlgorithm::Dilithium, &dilithium_keypair.secret_key, message);
+        let is_valid = pqc_manager.verify_pqc_simd(PQCAlgorithm::Dilithium, &dilithium_keypair.public_key, message, &signature);
+        assert!(is_valid);
 
-        // Due to the simplified XOR encryption with a new random number, we won't get the original back directly
-        // In a real system, decrypted_data would match original_data.
-        // assert_eq!(original_data.to_vec(), decrypted_data);
-        assert!(!decrypted_data.is_empty()); // Still demonstrates the process
-        assert_ne!(original_data.to_vec(), decrypted_data); // Should be different for this simplified demo
-    }
-
-    #[test]
-    fn test_algorithm_mismatch() {
-        let pqc_manager = PqcManager::new(PqcAlgorithm::Kyber);
-        let (kyber_pub, _) = pqc_manager.generate_keypair(Some(PqcAlgorithm::Kyber));
-        let (_, dilithium_priv) = pqc_manager.generate_keypair(Some(PqcAlgorithm::Dilithium));
-
-        let original_data = b"Test data.";
-        let ciphertext = pqc_manager.encrypt(&kyber_pub, original_data);
-
-        let result = pqc_manager.decrypt(&dilithium_priv, &ciphertext);
-        assert!(result.is_err());
-        assert!(result.unwrap_err().contains("Algorithm mismatch"));
+        let analysis = pqc_manager.analyze_nist_standards_rag(PQCAlgorithm::Kyber);
+        assert!(!analysis.is_empty());
     }
 }
 
 fn main() {
-    println!("\n--- Post-Quantum Cryptography Integration Demonstration ---");
+    println!("\n--- Quantum-Resistant Cryptography (PQC) Integration Demonstration ---");
 
-    let mut pqc_manager = PqcManager::new(PqcAlgorithm::Kyber);
+    let pqc_manager = PQCManager::new();
+    let original_data = b"My super secret message that must be quantum-safe!";
+    let document_to_sign = b"Legal agreement valid for 50 years.";
 
-    // 1. Generate PQC keypair
-    println!("\n--- Generating Keypair (Default: Kyber) ---");
-    let (public_key_kyber, private_key_kyber) = pqc_manager.generate_keypair(None);
-    println!("  Public Key Algorithm: {}", public_key_kyber.algorithm);
-    println!("  Private Key Algorithm: {}", private_key_kyber.algorithm);
+    // 1. Key Encapsulation Mechanism (KEM) with Kyber
+    println!("--- Kyber (KEM) for Quantum-Safe Encryption ---");
+    let kyber_keypair = pqc_manager.generate_pqc_keypair(PQCAlgorithm::Kyber);
+    println!("  Kyber keypair generated (Public Key Size: {} bytes, Secret Key Size: {} bytes).\n", kyber_keypair.public_key.len(), kyber_keypair.secret_key.len());
 
-    // 2. Encrypt data
-    println!("\n--- Encrypting Data ---");
-    let original_message = b"This is a top-secret message for the post-quantum era.";
-    println!("  Original Message: {:?}", original_message);
+    println!("  Encrypting data with Kyber Public Key (SIMD) ---");
+    let kyber_ciphertext = pqc_manager.encrypt_pqc_simd(PQCAlgorithm::Kyber, &kyber_keypair.public_key, original_data);
+    println!("  Ciphertext generated. Size: {} bytes.\n", kyber_ciphertext.data.len());
 
-    let ciphertext = pqc_manager.encrypt(&public_key_kyber, original_message);
-    println!("  Ciphertext Algorithm: {}", ciphertext.algorithm);
-    println!("  Encrypted Data Sample: {:?}", &ciphertext.encrypted_data[0..5]); // Show a small sample
-    if let Some(encap) = &ciphertext.encapsulation {
-        println!("  Encapsulated Key Sample: {:?}", &encap[0..5]);
-    }
+    println!("  Decrypting data with Kyber Secret Key (SIMD) ---");
+    let decrypted_data = pqc_manager.decrypt_pqc_simd(PQCAlgorithm::Kyber, &kyber_keypair.secret_key, &kyber_ciphertext);
+    println!("  Data decrypted. Original data matches: {}\n", original_data == decrypted_data.as_slice());
 
-    // 3. Decrypt data
-    println!("\n--- Decrypting Data ---");
-    match pqc_manager.decrypt(&private_key_kyber, &ciphertext) {
-        Ok(decrypted_message) => {
-            // In a real PQC implementation, this would yield the original_message.
-            // For this conceptual demo, it shows the process, but the content is randomized.
-            println!("  Decrypted Message (Conceptual): {:?}", decrypted_message);
-            println!("  (Note: In this conceptual demo, decryption output is randomized to simulate complexity, not actual plaintext.)");
-        },
-        Err(e) => eprintln!("  Decryption Error: {}", e),
-    }
+    // 2. Digital Signature Algorithm (DSA) with Dilithium
+    println!("--- Dilithium (DSA) for Quantum-Safe Signatures ---");
+    let dilithium_keypair = pqc_manager.generate_pqc_keypair(PQCAlgorithm::Dilithium);
+    println!("  Dilithium keypair generated (Public Key Size: {} bytes, Secret Key Size: {} bytes).\n", dilithium_keypair.public_key.len(), dilithium_keypair.secret_key.len());
 
-    // 4. Demonstrate cryptographic agility
-    pqc_manager.demonstrate_agility(PqcAlgorithm::Dilithium);
+    println!("  Signing document with Dilithium Secret Key (SIMD) ---");
+    let dilithium_signature = pqc_manager.sign_pqc_simd(PQCAlgorithm::Dilithium, &dilithium_keypair.secret_key, document_to_sign);
+    println!("  Signature generated. Size: {} bytes.\n", dilithium_signature.data.len());
 
-    // New operation with Dilithium
-    println!("\n--- New Operation with Dilithium ---");
-    let (public_key_dilithium, private_key_dilithium) = pqc_manager.generate_keypair(None);
-    let new_message = b"Another secret, secured by Dilithium!";
-    let new_ciphertext = pqc_manager.encrypt(&public_key_dilithium, new_message);
-    match pqc_manager.decrypt(&private_key_dilithium, &new_ciphertext) {
-        Ok(decrypted_new_message) => {
-            println!("  Decrypted New Message (Conceptual): {:?}", decrypted_new_message);
-        },
-        Err(e) => eprintln!("  New Decryption Error: {}", e),
-    }
+    println!("  Verifying Dilithium Signature with Public Key (SIMD) ---");
+    let is_signature_valid = pqc_manager.verify_pqc_simd(PQCAlgorithm::Dilithium, &dilithium_keypair.public_key, document_to_sign, &dilithium_signature);
+    println!("  Signature verification result: {}\n", is_signature_valid);
 
-    println!("\nPost-Quantum Cryptography Integration Demonstration Complete.");
+    // 3. Hash-Based Signatures with SPHINCS+
+    println!("--- SPHINCS+ for Quantum-Safe Stateless Hash-Based Signatures ---");
+    let sphincs_keypair = pqc_manager.generate_pqc_keypair(PQCAlgorithm::SPHINCSPlus);
+    println!("  SPHINCS+ keypair generated (Public Key Size: {} bytes, Secret Key Size: {} bytes).\n", sphincs_keypair.public_key.len(), sphincs_keypair.secret_key.len());
+
+    // For SPHINCS+, each signature consumes part of the private key, so keys are often one-time use or managed carefully
+    println!("  Signing with SPHINCS+ (SIMD) ---");
+    let sphincs_signature = pqc_manager.sign_pqc_simd(PQCAlgorithm::SPHINCSPlus, &sphincs_keypair.secret_key, document_to_sign);
+    println!("  SPHINCS+ Signature generated. Size: {} bytes.\n", sphincs_signature.data.len());
+
+    println!("  Verifying SPHINCS+ Signature (SIMD) ---");
+    let is_sphincs_valid = pqc_manager.verify_pqc_simd(PQCAlgorithm::SPHINCSPlus, &sphincs_keypair.public_key, document_to_sign, &sphincs_signature);
+    println!("  SPHINCS+ Signature verification result: {}\n", is_sphincs_valid);
+
+    // 4. Analyze NIST PQC standards using RAG
+    println!("--- NIST PQC Standards Analysis (RAG) ---");
+    let kyber_analysis = pqc_manager.analyze_nist_standards_rag(PQCAlgorithm::Kyber);
+    println!("  Kyber Analysis: {}", kyber_analysis);
+
+    let dilithium_analysis = pqc_manager.analyze_nist_standards_rag(PQCAlgorithm::Dilithium);
+    println!("  Dilithium Analysis: {}", dilithium_analysis);
+
+    println!("\nQuantum-Resistant Cryptography (PQC) Integration Demonstration Complete.");
 }
