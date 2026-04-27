@@ -1,9 +1,9 @@
 /// Module for Quantum Key Distribution (QKD) Network Orchestration in Rust.
 ///
-/// This module conceptually outlines a Rust-based implementation for a Quantum Key Distribution (QKD) Network Orchestrator.
-/// This module will manage the establishment, monitoring, and utilization of quantum-secured communication channels,
-/// ensuring unconditional security for key exchange (leveraging RAG for QKD protocol analysis
-/// and SIMD for real-time quantum state measurement processing).
+/// This module conceptually outlines a Rust-based implementation for a Quantum Key Distribution (QKD) Network Orchestration.
+/// This module will integrate with QKD hardware to establish unconditionally secure cryptographic keys between Tariro agents,
+/// providing future-proof communication security against even quantum computer attacks
+/// (leveraging RAG for QKD protocol standards and SIMD for high-speed key sifting and error correction).
 
 use std::collections::HashMap;
 use std::fmt;
@@ -11,194 +11,125 @@ use std::thread;
 use std::time::{Duration, Instant};
 use rand::Rng;
 
-/// Represents the possible polarization states of a photon (a qubit).
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum QuantumState {
-    Horizontal,       // 0 in rectilinear basis
-    Vertical,         // 1 in rectilinear basis
-    DiagonalPlus,     // 0 in diagonal basis
-    DiagonalMinus,    // 1 in diagonal basis
-}
-
-/// Represents a single quantum bit (photon).
-#[derive(Debug, Clone, Copy)]
-pub struct Qubit {
-    pub state: QuantumState,
-}
-
-/// Represents a basis for measurement.
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum MeasurementBasis {
-    Rectilinear, // Measures Horizontal/Vertical
-    Diagonal,    // Measures DiagonalPlus/DiagonalMinus
-}
-
-/// A QKD node (Alice or Bob).
-pub struct QKDNode {
+/// Represents an endpoint participating in a QKD session.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct QKDEndpoint {
     pub id: String,
-    pub prepared_qubits: Vec<Qubit>,
-    pub measurement_bases: Vec<MeasurementBasis>,
-    pub raw_key: Vec<bool>, // The raw key bits generated
+    pub network_address: String,
+    pub qkd_hardware_id: String,
 }
 
-impl QKDNode {
-    pub fn new(id: String) -> Self {
-        QKDNode { id, prepared_qubits: Vec::new(), measurement_bases: Vec::new(), raw_key: Vec::new() }
-    }
-
-    /// Alice prepares a sequence of qubits in random states and records the states.
-    pub fn prepare_qubits(&mut self, count: usize) {
-        let mut rng = rand::thread_rng();
-        self.prepared_qubits.clear();
-        self.measurement_bases.clear(); // This will store Alice's preparation bases
-
-        for _ in 0..count {
-            let state = match rng.gen_range(0..4) {
-                0 => QuantumState::Horizontal,
-                1 => QuantumState::Vertical,
-                2 => QuantumState::DiagonalPlus,
-                _ => QuantumState::DiagonalMinus,
-            };
-            let basis = match state {
-                QuantumState::Horizontal | QuantumState::Vertical => MeasurementBasis::Rectilinear,
-                _ => MeasurementBasis::Diagonal,
-            };
-            self.prepared_qubits.push(Qubit { state });
-            self.measurement_bases.push(basis);
-        }
-    }
-
-    /// Bob randomly chooses a measurement basis for each incoming qubit.
-    pub fn choose_random_bases(&mut self, count: usize) {
-        let mut rng = rand::thread_rng();
-        self.measurement_bases.clear();
-        for _ in 0..count {
-            let basis = if rng.gen_bool(0.5) { MeasurementBasis::Rectilinear } else { MeasurementBasis::Diagonal };
-            self.measurement_bases.push(basis);
-        }
-    }
-
-    /// Measures an incoming qubit based on the chosen basis (conceptual SIMD for processing).
-    pub fn measure_qubits_simd(&mut self, incoming_qubits: &[Qubit]) -> Vec<bool> {
-        println!("  [QKDNode {}]: Measuring {} qubits (SIMD simulation).", self.id, incoming_qubits.len());
-        let mut measured_bits = Vec::new();
-        let mut rng = rand::thread_rng();
-
-        for (i, qubit) in incoming_qubits.iter().enumerate() {
-            let chosen_basis = self.measurement_bases[i];
-            let measured_bit = match chosen_basis {
-                MeasurementBasis::Rectilinear => match qubit.state {
-                    QuantumState::Horizontal => 0,
-                    QuantumState::Vertical => 1,
-                    // If measured in wrong basis, the state collapses randomly
-                    _ => rng.gen_range(0..2),
-                },
-                MeasurementBasis::Diagonal => match qubit.state {
-                    QuantumState::DiagonalPlus => 0,
-                    QuantumState::DiagonalMinus => 1,
-                    // If measured in wrong basis, the state collapses randomly
-                    _ => rng.gen_range(0..2),
-                },
-            };
-            measured_bits.push(measured_bit == 1);
-        }
-        self.raw_key = measured_bits.clone();
-        thread::sleep(Duration::from_millis(100));
-        measured_bits
+impl fmt::Display for QKDEndpoint {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self)
     }
 }
 
-/// The QKD Network Orchestrator.
-pub struct QKDNetworkOrchestrator {
-    pub nodes: HashMap<String, QKDNode>,
-    pub quantum_channels: HashMap<String, bool>, // Channel ID -> Is secure?
-    pub shared_secrets: HashMap<String, Vec<bool>>, // Session ID -> shared key
+/// Supported QKD protocols.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum QKDProtocol {
+    BB84,
+    E91,
+    DecoyState,
+    Other(String),
 }
 
-impl QKDNetworkOrchestrator {
+impl fmt::Display for QKDProtocol {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+/// Raw key bits generated by the quantum channel, before sifting and error correction.
+#[derive(Debug, Clone)]
+pub struct RawKeyBits {
+    pub bits: Vec<bool>,
+    pub timestamp: u64,
+}
+
+/// The final shared secret key after QKD process.
+#[derive(Debug, Clone)]
+pub struct SharedSecretKey {
+    pub key_id: String,
+    pub key_material: Vec<u8>,
+    pub generated_at: u64,
+    pub protocol_used: QKDProtocol,
+    pub security_level: f32, // e.g., error rate after EC
+}
+
+/// The QKD Session Manager.
+pub struct QKDSessionManager {
+    pub active_sessions: HashMap<String, QKDProtocol>,
+    pub qkd_standards_db: HashMap<QKDProtocol, String>, // Conceptual: RAG for QKD protocol standards
+}
+
+impl QKDSessionManager {
     pub fn new() -> Self {
-        QKDNetworkOrchestrator { nodes: HashMap::new(), quantum_channels: HashMap::new(), shared_secrets: HashMap::new() }
-    }
-
-    /// Establishes a conceptual quantum channel between two nodes.
-    pub fn establish_quantum_channel(&mut self, channel_id: String, node1_id: String, node2_id: String) {
-        println!("  [QKDOrchestrator]: Establishing quantum channel '{}' between {} and {}.", channel_id, node1_id, node2_id);
-        self.quantum_channels.insert(channel_id, false); // Initially not secure
-        thread::sleep(Duration::from_millis(50));
-    }
-
-    /// Performs a QKD key exchange using the BB84 protocol.
-    pub fn perform_key_exchange_bb84(&mut self, alice_id: String, bob_id: String, key_length: usize) -> Option<Vec<bool>> {
-        println!("  [QKDOrchestrator]: Initiating BB84 key exchange between {} and {}.", alice_id, bob_id);
-
-        let alice_node = self.nodes.get_mut(&alice_id)?;
-        alice_node.prepare_qubits(key_length);
-        let alice_prepared_qubits = alice_node.prepared_qubits.clone();
-        let alice_preparation_bases = alice_node.measurement_bases.clone(); // Store Alice's bases
-
-        let bob_node = self.nodes.get_mut(&bob_id)?;
-        bob_node.choose_random_bases(key_length);
-        let bob_measurement_bases = bob_node.measurement_bases.clone();
-
-        // Simulate quantum transmission and measurement
-        let bob_measured_bits = bob_node.measure_qubits_simd(&alice_prepared_qubits);
-
-        // Publicly compare bases to distill the shared key
-        let mut shared_key_bits = Vec::new();
-        for i in 0..key_length {
-            // If bases match, they ideally get the same bit
-            if alice_preparation_bases[i] == bob_measurement_bases[i] {
-                let alice_bit = match alice_prepared_qubits[i].state {
-                    QuantumState::Horizontal | QuantumState::DiagonalPlus => 0,
-                    QuantumState::Vertical | QuantumState::DiagonalMinus => 1,
-                };
-                // In real life, Bob's measured bit will match Alice's prepared bit if bases align
-                // For simulation, we'll just use Alice's bit if bases match.
-                shared_key_bits.push(alice_bit == 1);
-            }
+        let mut qkd_db = HashMap::new();
+        qkd_db.insert(QKDProtocol::BB84, "Standard prepare-and-measure QKD protocol. Relies on quantum properties for security.".to_string());
+        qkd_db.insert(QKDProtocol::E91, "Entanglement-based QKD protocol. Security analysis based on Bell inequalities.".to_string());
+        QKDSessionManager {
+            active_sessions: HashMap::new(),
+            qkd_standards_db: qkd_db,
         }
+    }
 
-        self.shared_secrets.insert(format!("{}_{}", alice_id, bob_id), shared_key_bits.clone());
-        println!("  [QKDOrchestrator]: BB84 key exchange complete. Shared key length: {}.\n", shared_key_bits.len());
+    /// Initiates a QKD session between two endpoints.
+    pub fn initiate_qkd_session(&mut self, endpoint1: &QKDEndpoint, endpoint2: &QKDEndpoint, protocol: QKDProtocol) -> String {
+        println!("  [QKDSM]: Initiating QKD session between '{}' and '{}' using {:?}.", endpoint1.id, endpoint2.id, protocol);
+        let session_id = format!("QKD_Session_{}_{}_{}", endpoint1.id, endpoint2.id, Instant::now().elapsed().as_micros());
+        self.active_sessions.insert(session_id.clone(), protocol);
         thread::sleep(Duration::from_millis(200));
-        Some(shared_key_bits)
+        session_id
     }
 
-    /// Monitors the quantum channel for eavesdropping attempts.
-    /// (Conceptual: SIMD for real-time quantum state measurement processing for anomalies).
-    pub fn monitor_eavesdropping_simd(&self, channel_id: String) -> bool {
-        println!("  [QKDOrchestrator]: Monitoring channel '{}' for eavesdropping (SIMD simulation).", channel_id);
+    /// Simulates key sifting to remove measurement basis mismatches (conceptual SIMD).
+    pub fn perform_key_sifting_simd(&self, session_id: &str, raw_bits_alice: &RawKeyBits, raw_bits_bob: &RawKeyBits) -> (Vec<bool>, Vec<bool>) {
+        println!("  [QKDSM]: Performing key sifting for session '{}' (SIMD for high-speed comparison).", session_id);
         let mut rng = rand::thread_rng();
-        // Simulate detecting a disturbance in qubit transmission or measurement error rate
+        let sifting_ratio = rng.gen_range(0.7..0.9); // Simulate some loss due to mismatches
+        let common_length = (raw_bits_alice.bits.len().min(raw_bits_bob.bits.len()) as f32 * sifting_ratio) as usize;
+
+        let alice_sifted: Vec<bool> = (0..common_length).map(|_| rng.gen::<bool>()).collect();
+        let bob_sifted: Vec<bool> = (0..common_length).map(|_| rng.gen::<bool>()).collect();
         thread::sleep(Duration::from_millis(150));
-        rng.gen_bool(0.1) // 10% chance of detecting an eavesdropper for demo
+        (alice_sifted, bob_sifted)
     }
 
-    /// Utilizes the shared secret key for secure communication.
-    pub fn utilize_shared_secret(&self, session_id: String, message: &str) -> String {
-        if let Some(key) = self.shared_secrets.get(&session_id) {
-            println!("  [QKDOrchestrator]: Utilizing shared secret for session '{}'. Encrypting message.", session_id);
-            // Simple XOR encryption for demonstration
-            let encrypted_msg: String = message.chars().zip(key.iter().cycle())
-                .map(|(c, &b)| ((c as u8) ^ (b as u8)) as char)
-                .collect();
-            thread::sleep(Duration::from_millis(80));
-            encrypted_msg
-        } else {
-            println!("  [QKDOrchestrator]: No shared secret for session '{}'. Cannot utilize.", session_id);
-            String::from("ERROR: No shared secret.")
+    /// Simulates error correction to eliminate discrepancies (conceptual SIMD).
+    pub fn perform_error_correction_simd(&self, session_id: &str, sifted_alice: &[bool], sifted_bob: &[bool]) -> (Vec<u8>, f32) {
+        println!("  [QKDSM]: Performing error correction for session '{}' (SIMD for BCH/LDPC decoding).", session_id);
+        let mut rng = rand::thread_rng();
+        let error_rate = rng.gen_range(0.001..0.01); // Simulate a small quantum bit error rate
+        let final_key_length = (sifted_alice.len() as f32 * (1.0 - error_rate)) as usize / 8; // Convert to bytes
+        let final_key: Vec<u8> = (0..final_key_length.max(0)).map(|_| rng.gen::<u8>()).collect();
+        thread::sleep(Duration::from_millis(180));
+        (final_key, error_rate as f32)
+    }
+
+    /// Simulates privacy amplification to reduce information leakage to an eavesdropper.
+    pub fn perform_privacy_amplification(&self, session_id: &str, key_material: Vec<u8>, security_level: f32) -> SharedSecretKey {
+        println!("  [QKDSM]: Performing privacy amplification for session '{}'.", session_id);
+        let mut rng = rand::thread_rng();
+        let final_key_material_len = (key_material.len() as f32 * (1.0 - security_level)) as usize;
+        let final_key: Vec<u8> = (0..final_key_material_len.max(16)).map(|_| rng.gen::<u8>()).collect(); // Ensure minimum key length
+        thread::sleep(Duration::from_millis(100));
+        SharedSecretKey {
+            key_id: format!("SharedKey_{}", session_id),
+            key_material: final_key,
+            generated_at: Instant::now().elapsed().as_secs(),
+            protocol_used: self.active_sessions.get(session_id).unwrap().clone(),
+            security_level: 1.0 - security_level, // Higher is better
         }
     }
 
-    /// Analyzes QKD protocol for vulnerabilities (conceptual RAG).
-    pub fn analyze_protocol_rag(&self, protocol_name: &str) -> String {
-        println!("  [QKDOrchestrator]: Analyzing QKD protocol '{}' for vulnerabilities (RAG simulation).", protocol_name);
-        let mut rng = rand::thread_rng();
-        thread::sleep(Duration::from_millis(120));
-        if rng.gen_bool(0.8) {
-            format!("Protocol {} robust against known attacks. RAG database confirms.", protocol_name)
+    /// Analyzes QKD protocol standards, implementation details, and security proofs (conceptual RAG).
+    pub fn analyze_qkd_standards_rag(&self, protocol: QKDProtocol) -> String {
+        println!("  [QKDSM]: Analyzing QKD protocol standards for {:?} (RAG simulation).", protocol);
+        if let Some(analysis) = self.qkd_standards_db.get(&protocol) {
+            format!("QKD Protocol {:?} analysis from RAG: {}. Provides unconditional security.", protocol, analysis)
         } else {
-            format!("Protocol {} has theoretical vulnerabilities. RAG suggests countermeasures.", protocol_name)
+            format!("QKD Protocol {:?} not found in RAG database.", protocol)
         }
     }
 }
@@ -208,77 +139,77 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_qkd_flow() {
-        let mut orchestrator = QKDNetworkOrchestrator::new();
-        let alice = QKDNode::new("Alice".to_string());
-        let bob = QKDNode::new("Bob".to_string());
+    fn test_qkd_orchestration_flow() {
+        let mut manager = QKDSessionManager::new();
 
-        orchestrator.nodes.insert(alice.id.clone(), alice);
-        orchestrator.nodes.insert(bob.id.clone(), bob);
+        let alice = QKDEndpoint { id: "Alice".to_string(), network_address: "1.1.1.1".to_string(), qkd_hardware_id: "HW_ALICE_01".to_string() };
+        let bob = QKDEndpoint { id: "Bob".to_string(), network_address: "2.2.2.2".to_string(), qkd_hardware_id: "HW_BOB_01".to_string() };
 
-        orchestrator.establish_quantum_channel("Channel1".to_string(), "Alice".to_string(), "Bob".to_string());
-        let key = orchestrator.perform_key_exchange_bb84("Alice".to_string(), "Bob".to_string(), 128);
-        assert!(key.is_some());
-        assert!(!key.unwrap().is_empty());
+        let session_id = manager.initiate_qkd_session(&alice, &bob, QKDProtocol::BB84);
 
-        let eavesdropping_detected = orchestrator.monitor_eavesdropping_simd("Channel1".to_string());
-        // println!("Eavesdropping detected: {}", eavesdropping_detected);
+        let raw_bits_alice = RawKeyBits { bits: vec![true, false, true, true], timestamp: 1 };
+        let raw_bits_bob = RawKeyBits { bits: vec![true, true, true, false], timestamp: 1 };
 
-        let session_id = "Alice_Bob".to_string();
-        let encrypted_msg = orchestrator.utilize_shared_secret(session_id.clone(), "Hello, Quantum!");
-        assert!(!encrypted_msg.is_empty());
+        let (sifted_alice, sifted_bob) = manager.perform_key_sifting_simd(&session_id, &raw_bits_alice, &raw_bits_bob);
+        assert!(!sifted_alice.is_empty());
+        assert!(!sifted_bob.is_empty());
 
-        let protocol_analysis = orchestrator.analyze_protocol_rag("BB84");
-        assert!(!protocol_analysis.is_empty());
+        let (final_key_material, error_rate) = manager.perform_error_correction_simd(&session_id, &sifted_alice, &sifted_bob);
+        assert!(!final_key_material.is_empty());
+
+        let shared_key = manager.perform_privacy_amplification(&session_id, final_key_material, error_rate);
+        assert!(!shared_key.key_material.is_empty());
+
+        let analysis = manager.analyze_qkd_standards_rag(QKDProtocol::BB84);
+        assert!(!analysis.is_empty());
     }
 }
 
 fn main() {
     println!("\n--- Quantum Key Distribution (QKD) Network Orchestration Demonstration ---");
 
-    let mut qkd_orchestrator = QKDNetworkOrchestrator::new();
+    let mut qkd_manager = QKDSessionManager::new();
 
-    // 1. Setup QKD nodes (Alice and Bob)
-    let alice_node = QKDNode::new("Alice".to_string());
-    let bob_node = QKDNode::new("Bob".to_string());
-    qkd_orchestrator.nodes.insert(alice_node.id.clone(), alice_node);
-    qkd_orchestrator.nodes.insert(bob_node.id.clone(), bob_node);
+    // 1. Define QKD endpoints (Tariro agents with QKD hardware)
+    let alice = QKDEndpoint { id: "Tariro_Agent_Alice".to_string(), network_address: "10.0.0.101".to_string(), qkd_hardware_id: "QKD_HW_A_001".to_string() };
+    let bob = QKDEndpoint { id: "Tariro_Agent_Bob".to_string(), network_address: "10.0.0.102".to_string(), qkd_hardware_id: "QKD_HW_B_001".to_string() };
 
-    // 2. Establish a quantum channel
-    let channel_id = "SecureLink001".to_string();
-    qkd_orchestrator.establish_quantum_channel(channel_id.clone(), "Alice".to_string(), "Bob".to_string());
+    println!("--- QKD Endpoints ---");
+    println!("  Endpoint 1: {}", alice.id);
+    println!("  Endpoint 2: {}", bob.id);
 
-    // 3. Perform QKD key exchange (e.g., BB84 protocol)
-    let key_length = 256; // Length of the desired secret key in bits
-    let shared_key = qkd_orchestrator.perform_key_exchange_bb84("Alice".to_string(), "Bob".to_string(), key_length);
+    // 2. Initiate a QKD session using the BB84 protocol
+    let session_id = qkd_manager.initiate_qkd_session(&alice, &bob, QKDProtocol::BB84);
+    println!("  QKD Session '{}' initiated using BB84 protocol.\n", session_id);
 
-    if let Some(key) = shared_key {
-        println!("  Successfully generated a shared quantum key of {} bits.\n", key.len());
+    // 3. Simulate raw key bit generation (e.g., from quantum measurements)
+    let mut rng = rand::thread_rng();
+    let raw_key_length = 10000; // Number of raw quantum bits
+    let raw_bits_alice = RawKeyBits { bits: (0..raw_key_length).map(|_| rng.gen::<bool>()).collect(), timestamp: Instant::now().elapsed().as_secs() };
+    let raw_bits_bob = RawKeyBits { bits: (0..raw_key_length).map(|_| rng.gen::<bool>()).collect(), timestamp: Instant::now().elapsed().as_secs() };
 
-        // 4. Monitor the channel for eavesdropping during key exchange
-        let eavesdropping_detected = qkd_orchestrator.monitor_eavesdropping_simd(channel_id.clone());
-        if eavesdropping_detected {
-            println!("  !!! EAVESDROPPING DETECTED on channel '{}' !!! Re-establishing key.", channel_id);
-            // In a real system, they would abort and restart key exchange.
-        } else {
-            println!("  No eavesdropping detected on channel '{}'. Key is secure.\n", channel_id);
+    // 4. Perform key sifting (classical communication to agree on measurement bases)
+    println!("--- Performing Key Sifting (SIMD) ---");
+    let (sifted_alice, sifted_bob) = qkd_manager.perform_key_sifting_simd(&session_id, &raw_bits_alice, &raw_bits_bob);
+    println!("  After sifting: Alice has {} bits, Bob has {} bits.\n", sifted_alice.len(), sifted_bob.len());
 
-            // 5. Utilize the shared secret for secure communication
-            let session_id = "Alice_Bob".to_string();
-            let original_message = "This is a top-secret quantum message!";
-            let encrypted_message = qkd_orchestrator.utilize_shared_secret(session_id, original_message);
-            println!("  Original Message: '{}'", original_message);
-            println!("  Encrypted Message: '{}' (conceptual)", encrypted_message);
-            // Decryption would involve XORing again with the same key
-        }
-    } else {
-        println!("  Failed to establish a quantum key.\n");
-    }
+    // 5. Perform error correction (classical communication to fix discrepancies)
+    println!("--- Performing Error Correction (SIMD) ---");
+    let (final_key_material, error_rate) = qkd_manager.perform_error_correction_simd(&session_id, &sifted_alice, &sifted_bob);
+    println!("  After error correction: {} bytes of key material with error rate {}.\n", final_key_material.len(), error_rate);
 
-    // 6. Analyze QKD protocols using RAG for vulnerabilities
-    let protocol_analysis = qkd_orchestrator.analyze_protocol_rag("BB84");
-    println!("--- QKD Protocol Analysis ---");
-    println!("  BB84 Protocol: {}", protocol_analysis);
+    // 6. Perform privacy amplification (reduce information leakage to Eve)
+    println!("--- Performing Privacy Amplification ---");
+    let shared_key = qkd_manager.perform_privacy_amplification(&session_id, final_key_material, error_rate);
+    println!("  Shared Secret Key '{}' generated successfully: {} bytes.\n", shared_key.key_id, shared_key.key_material.len());
+
+    // 7. Analyze QKD protocol standards using RAG
+    println!("--- QKD Protocol Analysis (RAG) ---");
+    let bb84_analysis = qkd_manager.analyze_qkd_standards_rag(QKDProtocol::BB84);
+    println!("  BB84 Protocol: {}", bb84_analysis);
+
+    let e91_analysis = qkd_manager.analyze_qkd_standards_rag(QKDProtocol::E91);
+    println!("  E91 Protocol: {}", e91_analysis);
 
     println!("\nQuantum Key Distribution (QKD) Network Orchestration Demonstration Complete.");
 }
