@@ -1,9 +1,9 @@
-/// Module for Quantum Key Distribution (QKD) Network Integration in Rust.
+/// Module for Quantum Key Distribution (QKD) Network Simulation in Rust.
 ///
-/// This module conceptually outlines a Rust-based implementation for Quantum Key Distribution (QKD) Network Integration.
-/// This module will facilitate secure key exchange using quantum mechanics principles, ensuring eavesdropping detection
-/// and unconditional security for communications (SIMD: parallel processing of quantum states, key generation; RAG:
-/// QKD protocols, network security architectures).
+/// This module conceptually outlines a Rust-based implementation for a Quantum Key Distribution (QKD) Network Simulation.
+/// This RAG-driven feature simulates the secure key exchange process over quantum channels, demonstrating unconditional
+/// security based on the laws of quantum mechanics. It leverages RAG for QKD protocols (e.g., BB84, E91) and quantum
+/// cryptography research.
 
 use std::collections::HashMap;
 use std::fmt;
@@ -13,186 +13,198 @@ use rand::Rng;
 
 // --- Conceptual Structures --- //
 
-/// Represents a quantum state of a photon (e.g., polarization).
-#[derive(Debug, Clone, PartialEq)]
-pub enum QuantumState {
-    Horizontal, Vertical, DiagonalUp, DiagonalDown
+/// Represents a quantum bit (qubit) state (e.g., polarization).
+#[derive(Debug, Clone, Copy)]
+pub enum QubitState {
+    H, // Horizontal polarization
+    V, // Vertical polarization
+    D, // Diagonal polarization
+    A, // Anti-diagonal polarization
 }
 
-/// Represents a single photon carrying a quantum state.
-#[derive(Debug, Clone)]
-pub struct Photon {
-    pub id: String,
-    pub state: QuantumState,
-    pub basis: QuantumState, // Basis used for encoding (e.g., Horizontal/Vertical or Diagonal)
+impl QubitState {
+    pub fn to_char(&self) -> char {
+        match self {
+            QubitState::H => '─',
+            QubitState::V => '│',
+            QubitState::D => '╱',
+            QubitState::A => '╲',
+        }
+    }
 }
 
-/// Represents a segment of the cryptographic key.
-#[derive(Debug, Clone)]
-pub struct KeySegment {
-    pub bit_value: u8,
-    pub original_state: QuantumState,
-    pub measured_basis: QuantumState,
-    pub measured_value: u8, // 0 or 1 based on measurement
+/// Represents a measurement basis (e.g., rectilinear, diagonal).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MeasurementBasis {
+    Rectilinear, // Horizontal/Vertical
+    Diagonal,    // Diagonal/Anti-diagonal
 }
 
-/// Report for QKD operations.
+impl MeasurementBasis {
+    pub fn to_char(&self) -> char {
+        match self {
+            MeasurementBasis::Rectilinear => '+',
+            MeasurementBasis::Diagonal => 'x',
+        }
+    }
+}
+
+/// Represents a QKD participant (Alice or Bob).
 #[derive(Debug, Clone)]
-pub struct QKD_Report {
-    pub session_id: String,
-    pub total_photons_transmitted: u32,
-    pub raw_key_length: u32,
-    pub sifted_key_length: u32,
-    pub final_key_length: u32,
+pub struct QKDParticipant {
+    pub participant_id: String,
+    pub role: String, // "Alice" (sender) or "Bob" (receiver)
+    pub raw_key: Vec<bool>,
+    pub sifted_key: Vec<bool>,
+}
+
+/// Represents a QKD channel event.
+#[derive(Debug, Clone)]
+pub struct QKDChannelEvent {
+    pub event_id: String,
+    pub sender: String,
+    pub receiver: String,
+    pub timestamp: Instant,
+    pub qubits_sent: u32,
     pub error_rate: f32,
     pub eavesdropping_detected: bool,
 }
 
-// --- QKD Engine --- //
-
-pub struct QKD_Engine {
-    pub qkd_protocols_rag_db: HashMap<String, String>, // Conceptual: RAG for QKD protocols
-    pub network_security_architectures_rag_db: HashMap<String, String>, // Conceptual: RAG for network security architectures
+/// Overall QKDNS system report.
+#[derive(Debug, Clone)]
+pub struct QKDNS_Report {
+    pub qkd_run_id: String,
+    pub total_qubits_sent: u64,
+    pub final_shared_key_length: u32,
+    pub quantum_bit_error_rate: f32,
+    pub eavesdropping_attempts_detected: u32,
+    pub security_assurance_level: String,
+    pub throughput_kbps: f32,
 }
 
-impl QKD_Engine {
+// --- QKDNS Engine --- //
+
+pub struct QKDNS_Engine {
+    pub qkd_protocols_quantum_cryptography_research_rag_db: HashMap<String, String>, // Conceptual: RAG for QKD protocols and quantum cryptography research
+}
+
+impl QKDNS_Engine {
     pub fn new() -> Self {
-        let mut qp_db = HashMap::new();
-        qp_db.insert("BB84_Protocol_Details".to_string(), "Detailed explanation of the Bennett-Brassard 1984 QKD protocol.".to_string());
-        qp_db.insert("E91_Protocol_Entanglement_Based".to_string(), "Insights into Ekert 1991 entanglement-based QKD protocol.".to_string());
+        let mut qpqc_db = HashMap::new();
+        qpqc_db.insert("BB84_Protocol_Details".to_string(), "Detailed explanation of the BB84 Quantum Key Distribution protocol, including its four polarization states, random basis choices by Alice and Bob, sifting process, and privacy amplification steps. Discusses the fundamental principles of quantum mechanics that ensure its security against eavesdropping.".to_string());
+        qpqc_db.insert("E91_Protocol_Entanglement_Based_QKD".to_string(), "Overview of the E91 Quantum Key Distribution protocol, which is based on quantum entanglement and Bell's theorem. Describes how entangled photon pairs are used to establish a shared secret key and detect eavesdropping by violating Bell's inequality.".to_string());
 
-        let mut nsa_db = HashMap::new();
-        nsa_db.insert("Quantum_Safe_Network_Design".to_string(), "Architectural considerations for integrating QKD into existing networks.".to_string());
-        nsa_db.insert("Hybrid_Security_Solutions".to_string(), "Combining classical and quantum cryptographic methods for layered security.".to_string());
-
-        QKD_Engine { qkd_protocols_rag_db: qp_db, network_security_architectures_rag_db: nsa_db }
+        QKDNS_Engine {
+            qkd_protocols_quantum_cryptography_research_rag_db: qpqc_db,
+        }
     }
 
-    /// Prepares quantum states (polarization of photons) for key encoding in parallel (conceptual SIMD).
-    pub fn prepare_quantum_states_simd(&self, count: u32) -> Vec<Photon> {
-        println!("  [QKD]: Preparing {} quantum states (photons) for encoding (SIMD for parallel state preparation).", count);
-        thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::thread_rng();
-        (0..count).map(|_| {
-            let basis_choice = rng.gen_range(0..2);
-            let state_choice = rng.gen_range(0..2);
-            let (state, basis) = match basis_choice {
-                0 => { // Rectilinear basis
-                    if state_choice == 0 { (QuantumState::Horizontal, QuantumState::Horizontal) } else { (QuantumState::Vertical, QuantumState::Vertical) }
-                },
-                _ => { // Diagonal basis
-                    if state_choice == 0 { (QuantumState::DiagonalUp, QuantumState::DiagonalUp) } else { (QuantumState::DiagonalDown, QuantumState::DiagonalDown) }
-                }
-            };
-            Photon { id: format!("ph_{}", rng.gen::<u32>()), state, basis }
-        }).collect()
-    }
-
-    /// Simulates transmission of photons from Alice to Bob (conceptual).
-    pub fn transmit_photons(&self, photons: Vec<Photon>, eavesdrop_prob: f32) -> Vec<Photon> {
-        println!("  [QKD]: Transmitting {} photons with eavesdrop probability {:.2}...", photons.len(), eavesdrop_prob);
+    /// Simulates Alice sending a stream of randomly polarized qubits (conceptual RAG).
+    pub fn alice_send_qubits_rag(&self, num_qubits: u32) -> Vec<QubitState> {
+        println!("  [QKDNS]: Alice is sending {} qubits with random polarizations (RAG for BB84 protocol logic).", num_qubits);
+        if let Some(bb84_info) = self.qkd_protocols_quantum_cryptography_research_rag_db.get("BB84_Protocol_Details") {
+            format!("QKD RAG insight for Alice's sending: {}. Qubits: '{}'", bb84_info, num_qubits);
+        }
         thread::sleep(Duration::from_millis(100));
         let mut rng = rand::thread_rng();
-        photons.into_iter().map(|mut p| {
-            // Simulate eavesdropping attempt by Eve
-            if rng.gen::<f32>() < eavesdrop_prob {
-                // Eve measures and re-transmits, potentially changing the state
-                let eve_measurement_basis = rng.gen_range(0..2);
-                let eve_measured_state = match eve_measurement_basis {
-                    0 => QuantumState::Horizontal, // Eve measures in rectilinear basis
-                    _ => QuantumState::DiagonalUp,  // Eve measures in diagonal basis
-                };
-                // Re-encode in Eve's measured state
-                p.state = eve_measured_state;
-            }
-            p
+
+        (0..num_qubits).map(|_| match rng.gen_range(0..4) {
+            0 => QubitState::H,
+            1 => QubitState::V,
+            2 => QubitState::D,
+            _ => QubitState::A,
         }).collect()
     }
 
-    /// Bob measures incoming quantum states based on randomly chosen bases in parallel (conceptual SIMD).
-    pub fn measure_quantum_states_simd(&self, received_photons: Vec<Photon>) -> Vec<KeySegment> {
-        println!("  [QKD]: Bob measuring {} received photons (SIMD for parallel measurement).", received_photons.len());
+    /// Simulates Bob measuring qubits with random bases (conceptual RAG).
+    pub fn bob_measure_qubits_rag(&self, qubits: &[QubitState]) -> (Vec<QubitState>, Vec<MeasurementBasis>) {
+        println!("  [QKDNS]: Bob is measuring {} qubits with random bases (RAG for BB84 measurement strategy).", qubits.len());
+        thread::sleep(Duration::from_millis(100));
+        let mut rng = rand::thread_rng();
+
+        let mut measured_states = Vec::new();
+        let mut chosen_bases = Vec::new();
+
+        for &qubit in qubits {
+            let basis = if rng.gen_bool(0.5) { MeasurementBasis::Rectilinear } else { MeasurementBasis::Diagonal };
+            chosen_bases.push(basis);
+            // Simulate measurement outcome based on qubit state and chosen basis
+            let measured_state = match (qubit, basis) {
+                (QubitState::H, MeasurementBasis::Rectilinear) => QubitState::H,
+                (QubitState::V, MeasurementBasis::Rectilinear) => QubitState::V,
+                (QubitState::D, MeasurementBasis::Rectilinear) => if rng.gen_bool(0.5) { QubitState::H } else { QubitState::V },
+                (QubitState::A, MeasurementBasis::Rectilinear) => if rng.gen_bool(0.5) { QubitState::H } else { QubitState::V },
+                (QubitState::H, MeasurementBasis::Diagonal) => if rng.gen_bool(0.5) { QubitState::D } else { QubitState::A },
+                (QubitState::V, MeasurementBasis::Diagonal) => if rng.gen_bool(0.5) { QubitState::D } else { QubitState::A },
+                (QubitState::D, MeasurementBasis::Diagonal) => QubitState::D,
+                (QubitState::A, MeasurementBasis::Diagonal) => QubitState::A,
+            };
+            measured_states.push(measured_state);
+        }
+        (measured_states, chosen_bases)
+    }
+
+    /// Simulates public discussion and sifting to establish a shared key (conceptual RAG).
+    pub fn sifting_and_reconciliation_rag(&self, alice_bases: &[MeasurementBasis], bob_bases: &[MeasurementBasis], alice_qubits: &[QubitState], bob_measured_qubits: &[QubitState]) -> (QKDChannelEvent, Vec<bool>, Vec<bool>) {
+        println!("  [QKDNS]: Performing sifting and reconciliation (RAG for QKD security aspects).", );
+        if let Some(e91_info) = self.qkd_protocols_quantum_cryptography_research_rag_db.get("E91_Protocol_Entanglement_Based_QKD") {
+            format!("QKD RAG insight for sifting: {}. Bases count: {}", e91_info, alice_bases.len());
+        }
         thread::sleep(Duration::from_millis(150));
         let mut rng = rand::thread_rng();
-        received_photons.into_iter().map(|p| {
-            let bob_measurement_basis_choice = rng.gen_range(0..2);
-            let bob_measured_basis = match bob_measurement_basis_choice {
-                0 => QuantumState::Horizontal, // Rectilinear basis
-                _ => QuantumState::DiagonalUp,  // Diagonal basis
-            };
 
-            // Conceptual: if bases match, measurement is accurate, otherwise random
-            let measured_bit_value = if bob_measured_basis == p.basis {
-                match p.state {
-                    QuantumState::Horizontal | QuantumState::DiagonalUp => 0,
-                    QuantumState::Vertical | QuantumState::DiagonalDown => 1,
-                }
-            } else {
-                rng.gen_range(0..2)
-            };
-
-            KeySegment {
-                bit_value: measured_bit_value,
-                original_state: p.state,
-                measured_basis: bob_measured_basis,
-                measured_value: measured_bit_value,
-            }
-        }).collect()
-    }
-
-    /// Alice and Bob publicly compare bases and sift their keys (conceptual).
-    pub fn sift_keys(&self, alice_photons: &[Photon], bob_measurements: &[KeySegment]) -> (Vec<u8>, Vec<u8>, f32) {
-        println!("  [QKD]: Sifting keys (public discussion of bases)...");
         let mut alice_raw_key = Vec::new();
         let mut bob_raw_key = Vec::new();
-        let mut mismatches = 0;
+        let mut errors = 0;
+        let mut eavesdropping_detected = false;
 
-        for i in 0..alice_photons.len().min(bob_measurements.len()) {
-            if (alice_photons[i].basis == QuantumState::Horizontal && bob_measurements[i].measured_basis == QuantumState::Horizontal) ||
-               (alice_photons[i].basis == QuantumState::Vertical && bob_measurements[i].measured_basis == QuantumState::Vertical) ||
-               (alice_photons[i].basis == QuantumState::DiagonalUp && bob_measurements[i].measured_basis == QuantumState::DiagonalUp) ||
-               (alice_photons[i].basis == QuantumState::DiagonalDown && bob_measurements[i].measured_basis == QuantumState::DiagonalDown) {
-                // Bases match, add to raw key
-                let alice_bit = match alice_photons[i].state {
-                    QuantumState::Horizontal | QuantumState::DiagonalUp => 0,
-                    QuantumState::Vertical | QuantumState::DiagonalDown => 1,
+        for i in 0..alice_bases.len().min(bob_bases.len()) {
+            if alice_bases[i] == bob_bases[i] {
+                let alice_bit = match alice_qubits[i] {
+                    QubitState::H | QubitState::D => false,
+                    QubitState::V | QubitState::A => true,
+                };
+                let bob_bit = match bob_measured_qubits[i] {
+                    QubitState::H | QubitState::D => false,
+                    QubitState::V | QubitState::A => true,
                 };
                 alice_raw_key.push(alice_bit);
-                bob_raw_key.push(bob_measurements[i].measured_value);
+                bob_raw_key.push(bob_bit);
 
-                if alice_bit != bob_measurements[i].measured_value {
-                    mismatches += 1;
+                if alice_bit != bob_bit {
+                    errors += 1;
+                    if rng.gen_bool(0.1) { eavesdropping_detected = true; } // Conceptual: error rate might indicate eavesdropping
                 }
             }
         }
-        let error_rate = if alice_raw_key.is_empty() { 0.0 } else { mismatches as f32 / alice_raw_key.len() as f32 };
-        println!("  Raw key length: {}. Mismatches: {}. Error rate: {:.2}%.", alice_raw_key.len(), mismatches, error_rate * 100.0);
-        (alice_raw_key, bob_raw_key, error_rate)
+
+        let error_rate = errors as f32 / alice_raw_key.len() as f32;
+        if error_rate > 0.05 { eavesdropping_detected = true; } // Higher error rate -> more likely eavesdropping
+
+        let event = QKDChannelEvent {
+            event_id: format!("sift_event_{}", rng.gen::<u32>()),
+            sender: "Alice".to_string(),
+            receiver: "Bob".to_string(),
+            timestamp: Instant::now(),
+            qubits_sent: alice_qubits.len() as u32,
+            error_rate,
+            eavesdropping_detected,
+        };
+        (event, alice_raw_key, bob_raw_key)
     }
 
-    /// Performs error correction and privacy amplification on the raw key (conceptual RAG).
-    pub fn perform_error_correction_privacy_amplification_rag(&self, alice_key: &[u8], bob_key: &[u8], error_rate: f32) -> (Vec<u8>, bool) {
-        println!("  [QKD]: Performing error correction and privacy amplification (RAG for QKD protocols)...");
-        if let Some(qkd_info) = self.qkd_protocols_rag_db.get("BB84_Protocol_Details") {
-            format!("QKD RAG insight for error correction: {}. Error rate: {:.2}", qkd_info, error_rate);
-        }
-        thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::thread_rng();
+    /// Generates a comprehensive report for QKD network simulation.
+    pub fn generate_qkd_report_rag(&self, channel_event: &QKDChannelEvent, shared_key_length: u32) -> String {
+        println!("  [QKDNS]: Generating QKDNS report for event '{}' (RAG for report generation).", channel_event.event_id);
+        thread::sleep(Duration::from_millis(80));
 
-        // Conceptual error correction: if error rate is high, assume eavesdropping
-        let eavesdropping_detected = error_rate > 0.05; // Threshold for demonstration
-
-        let mut final_key = Vec::new();
-        if !eavesdropping_detected {
-            // Simulate privacy amplification (e.g., hashing to reduce information to Eve)
-            let min_len = alice_key.len().min(bob_key.len());
-            for i in 0..min_len {
-                final_key.push(alice_key[i] ^ bob_key[i] ^ rng.gen_range(0..2)); // Simplified hash/XOR
-            }
-            final_key.truncate(min_len / 2); // Reduce key length for privacy amplification
-        }
-        println!("  Eavesdropping detected: {}. Final key length: {}.", eavesdropping_detected, final_key.len());
-        (final_key, eavesdropping_detected)
+        format!("Quantum Key Distribution Network Simulation Report for Event '{}':\n  Total Qubits Sent: {}\n  Final Shared Key Length: {}\n  Quantum Bit Error Rate (QBER): {:.2}%\n  Eavesdropping Detected: {}\n  (Conceptual summary based on RAG for security analysis and protocol efficiency).",
+            channel_event.event_id,
+            channel_event.qubits_sent,
+            shared_key_length,
+            channel_event.error_rate * 100.0,
+            channel_event.eavesdropping_detected
+        )
     }
 }
 
@@ -202,61 +214,69 @@ mod tests {
 
     #[test]
     fn test_qkd_engine_flow() {
-        let engine = QKD_Engine::new();
+        let engine = QKDNS_Engine::new();
+        let num_qubits = 100;
 
-        let alice_states = engine.prepare_quantum_states_simd(100);
-        let bob_received = engine.transmit_photons(alice_states.clone(), 0.02);
-        let bob_measurements = engine.measure_quantum_states_simd(bob_received);
-        let (alice_raw, bob_raw, error_rate) = engine.sift_keys(&alice_states, &bob_measurements);
-        let (final_key, eavesdropping) = engine.perform_error_correction_privacy_amplification_rag(&alice_raw, &bob_raw, error_rate);
+        let alice_qubits = engine.alice_send_qubits_rag(num_qubits);
+        assert_eq!(alice_qubits.len() as u32, num_qubits);
 
-        assert!(!alice_states.is_empty());
-        assert!(!bob_measurements.is_empty());
-        assert!(!alice_raw.is_empty());
-        assert!(!bob_raw.is_empty());
-        assert!(!final_key.is_empty());
-        assert!(!eavesdropping);
+        let alice_bases: Vec<MeasurementBasis> = (0..num_qubits).map(|_| if rand::thread_rng().gen_bool(0.5) { MeasurementBasis::Rectilinear } else { MeasurementBasis::Diagonal }).collect();
+        let (bob_measured_qubits, bob_bases) = engine.bob_measure_qubits_rag(&alice_qubits);
+        assert_eq!(bob_measured_qubits.len() as u32, num_qubits);
+
+        let (event, alice_raw_key, bob_raw_key) = engine.sifting_and_reconciliation_rag(&alice_bases, &bob_bases, &alice_qubits, &bob_measured_qubits);
+        assert!(!alice_raw_key.is_empty());
+        assert_eq!(alice_raw_key, bob_raw_key); // Should be equal after sifting for matching bases
+
+        let report = engine.generate_qkd_report_rag(&event, alice_raw_key.len() as u32);
+        assert!(!report.is_empty());
     }
 }
 
 fn main() {
-    println!("\n--- Quantum Key Distribution (QKD) Network Integration Demonstration ---");
+    println!("\n--- Quantum Key Distribution (QKD) Network Simulation Demonstration ---");
 
-    let qkd_engine = QKD_Engine::new();
-    let session_id = "qkd_session_001_secure_comm";
-    let key_length_desired = 256; // Number of bits to aim for in the final key
+    let qkd_engine = QKDNS_Engine::new();
+    let num_qubits_in_flight = 1000;
 
-    // Phase 1: Quantum Transmission (Alice prepares and sends photons)
-    println!("--- Phase 1: Quantum Transmission (Alice) ---");
-    let alice_original_photons = qkd_engine.prepare_quantum_states_simd(key_length_desired * 2); // Send more to account for sifting losses
-    println!("  Alice prepared {} photons.\n", alice_original_photons.len());
+    // Scenario 1: Alice generates random bits and encodes them into qubits
+    println!("--- Scenario 1: Alice Sends Qubits ---");
+    let alice_original_bits: Vec<bool> = (0..num_qubits_in_flight).map(|_| rand::thread_rng().gen_bool(0.5)).collect();
+    let alice_encoding_bases: Vec<MeasurementBasis> = (0..num_qubits_in_flight).map(|_| if rand::thread_rng().gen_bool(0.5) { MeasurementBasis::Rectilinear } else { MeasurementBasis::Diagonal }).collect();
+    
+    let alice_sent_qubits = alice_original_bits.iter().zip(alice_encoding_bases.iter()).map(|(&bit, &basis)| {
+        match (bit, basis) {
+            (false, MeasurementBasis::Rectilinear) => QubitState::H,
+            (true, MeasurementBasis::Rectilinear) => QubitState::V,
+            (false, MeasurementBasis::Diagonal) => QubitState::D,
+            (true, MeasurementBasis::Diagonal) => QubitState::A,
+        }
+    }).collect::<Vec<QubitState>>();
+    println!("  Alice sent {} qubits through quantum channel.\n", alice_sent_qubits.len());
 
-    // Simulate channel with some eavesdropping probability
-    let eavesdrop_probability = 0.03; // 3% chance Eve interferes
-    let bob_received_photons = qkd_engine.transmit_photons(alice_original_photons.clone(), eavesdrop_probability);
-    println!("  Bob received {} photons.\n", bob_received_photons.len());
+    // Simulate Bob receiving and measuring qubits
+    println!("--- Scenario 2: Bob Measures Qubits ---");
+    let (bob_measured_qubits, bob_chosen_bases) = qkd_engine.bob_measure_qubits_rag(&alice_sent_qubits);
+    println!("  Bob measured {} qubits using random bases.\n", bob_measured_qubits.len());
 
-    // Phase 2: Quantum Measurement (Bob measures photons)
-    println!("--- Phase 2: Quantum Measurement (Bob) ---");
-    let bob_measurements = qkd_engine.measure_quantum_states_simd(bob_received_photons);
-    println!("  Bob performed {} measurements.\n", bob_measurements.len());
+    // Scenario 3: Public discussion, sifting, and error rate check
+    println!("--- Scenario 3: Sifting and Error Rate Check ---");
+    let (channel_event, alice_final_key, bob_final_key) = qkd_engine.sifting_and_reconciliation_rag(
+        &alice_encoding_bases,
+        &bob_chosen_bases,
+        &alice_sent_qubits,
+        &bob_measured_qubits,
+    );
+    println!("  Sifting complete. Shared raw key length: {}. QBER: {:.2}%. Eavesdropping Detected: {}.\n",
+        alice_final_key.len(),
+        channel_event.error_rate * 100.0,
+        channel_event.eavesdropping_detected
+    );
 
-    // Phase 3: Sifting (Alice & Bob publicly compare bases)
-    println!("--- Phase 3: Sifting ---");
-    let (alice_raw_key, bob_raw_key, error_rate) = qkd_engine.sift_keys(&alice_original_photons, &bob_measurements);
-    println!("  Sifted raw key length: {}. Error rate: {:.2}%\n", alice_raw_key.len(), error_rate * 100.0);
+    // Scenario 4: Generate QKD Network Simulation Report
+    println!("--- Scenario 4: Generate QKDNS Report ---");
+    let qkd_report_summary = qkd_engine.generate_qkd_report_rag(&channel_event, alice_final_key.len() as u32);
+    println!("  {}\n", qkd_report_summary);
 
-    // Phase 4: Error Correction & Privacy Amplification (RAG)
-    println!("--- Phase 4: Error Correction & Privacy Amplification ---");
-    let (final_shared_key, eavesdropping_detected) = qkd_engine.perform_error_correction_privacy_amplification_rag(&alice_raw_key, &bob_raw_key, error_rate);
-
-    if eavesdropping_detected {
-        println!("  WARNING: Eavesdropping detected! Key exchange compromised. Aborting session.");
-    } else {
-        println!("  SUCCESS: Secure QKD key exchange complete.");
-        println!("  Final Shared Secret Key (first 10 bits): {:?}", &final_shared_key[0..final_shared_key.len().min(10)]);
-        println!("  Final Key Length: {} bits.", final_shared_key.len());
-    }
-
-    println!("\nQuantum Key Distribution (QKD) Network Integration Demonstration Complete.");
+    println!("\nQuantum Key Distribution (QKD) Network Simulation Demonstration Complete.");
 }
