@@ -1,153 +1,150 @@
-/// Module for Omniversal Codebase Static Analysis (OCSA) in Rust.
+/// Module for Omniversal Codebase Static Analysis (SIMD-Driven) in Rust.
 ///
-/// This module conceptually outlines a Rust-based implementation for Omniversal Codebase Static Analysis.
-/// This SIMD-driven feature performs instantaneous, deep static analysis across all connected code repositories,
-/// identifying vulnerabilities, bugs, and inefficiencies. It leverages RAG for code standards and security
-/// best practices, and SIMD for parallel AST parsing and pattern matching across vast codebases.
+/// This module conceptually outlines a Rust-based implementation for Omniversal Codebase
+/// Static Analysis. This SIMD-driven feature performs instantaneous, deep static analysis
+/// across all connected code repositories, identifying vulnerabilities, bugs, and inefficiencies.
+/// It leverages RAG for code standards and security best practices, and SIMD for parallel
+/// AST parsing and pattern matching.
 
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
 use std::time::{Duration, Instant};
 use rand::Rng;
+use serde::{Serialize, Deserialize};
 
 // --- Conceptual Structures --- //
 
-/// Represents a single file within a codebase.
-#[derive(Debug, Clone)]
-pub struct CodebaseFile {
+/// Represents a single code file to be analyzed.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CodeFile {
     pub file_path: String,
     pub content: String,
-    pub language: String,
-    pub last_modified: Instant,
+    pub language: String, // e.g., "Rust", "Python", "C++"
+    pub commit_hash: String,
 }
 
-/// Represents a finding from the static analysis.
-#[derive(Debug, Clone)]
-pub struct StaticAnalysisFinding {
-    pub finding_id: String,
+/// Represents a detected issue in the codebase.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CodeIssue {
+    pub issue_id: String,
     pub file_path: String,
     pub line_number: u32,
-    pub severity: String, // e.g., "high", "medium", "low"
-    pub finding_type: String, // e.g., "security_vulnerability", "performance_bottleneck", "bug"
+    pub column_number: u32,
+    pub issue_type: String, // e.g., "Vulnerability", "Bug", "Inefficiency", "StyleViolation"
     pub description: String,
-    pub suggested_fix: String,
+    pub severity: String, // e.g., "Low", "Medium", "High", "Critical"
+    pub suggested_fix: Option<String>,
+    pub detected_at: Instant,
+    pub relevant_cwe: Option<String>, // Common Weakness Enumeration
 }
 
-/// Represents a summary of findings for a codebase.
-#[derive(Debug, Clone)]
-pub struct AnalysisReport {
-    pub report_id: String,
-    pub codebase_name: String,
-    pub total_files_analyzed: u32,
-    pub total_findings: u32,
-    pub critical_findings: u32,
-    pub generated_at: Instant,
-    pub executive_summary: String,
-    pub findings: Vec<StaticAnalysisFinding>,
-}
-
-/// Overall OCSA system report.
+/// Overall Omniversal Codebase Static Analysis system report.
 #[derive(Debug, Clone)]
 pub struct OCSA_Report {
-    pub ocsa_run_id: String,
-    pub codebases_analyzed: u66,
-    pub files_processed: u66,
-    pub vulnerabilities_identified: u33,
-    pub avg_analysis_latency_ms: u32,
-    pub false_positive_rate: f32,
-    pub codebase_health_score: f32,
+    pub report_id: String,
+    pub total_files_analyzed: u64,
+    pub total_issues_detected: u64,
+    pub vulnerabilities_found: u64,
+    pub bugs_found: u64,
+    pub avg_analysis_time_ms: u32,
+    pub security_score_impact: f32, // Overall impact on project security score
 }
 
 // --- OCSA Engine --- //
 
-pub struct OCSA_Engine {
-    pub code_standards_security_best_practices_rag_db: HashMap<String, String>, // Conceptual: RAG for code standards, security best practices
-    pub parallel_ast_parsing_pattern_matching_simd_accelerator: String, // Conceptual: SIMD accelerator for AST parsing and pattern matching
+pub struct OCSAEngine {
+    pub code_standards_rag_db: HashMap<String, String>, // Conceptual: RAG for code standards & best practices
+    pub security_patterns_rag_db: HashMap<String, String>, // Conceptual: RAG for security patterns & vulnerabilities
 }
 
-impl OCSA_Engine {
-    pub fn new() -> Self {
-        let mut cssbp_db = HashMap::new();
-        cssbp_db.insert("OWASP_Top_10_Security_Guidelines".to_string(), "Integrating knowledge of OWASP Top 10 vulnerabilities (e.g., Injection, Broken Authentication, Sensitive Data Exposure) into analysis rules to detect and suggest fixes for common security flaws.".to_string());
-        cssbp_db.insert("Rust_Clippy_Lints_and_Best_Practices".to_string(), "Applying Rust Clippy's extensive set of lints and best practices to identify common coding mistakes, performance inefficiencies, and stylistic issues in Rust codebases.".to_string());
+impl OCSAEngine {
+    pub pub fn new() -> Self {
+        let mut cs_db = HashMap::new();
+        cs_db.insert("rust_best_practices".to_string(), "RAG-driven knowledge base of Rust best practices, including ownership, borrowing, error handling with Result/Option, and async/await patterns. Used for identifying inefficiencies and style violations.".to_string());
+        cs_db.insert("python_pep8".to_string(), "RAG-driven knowledge base for Python PEP8 style guidelines.".to_string());
 
-        OCSA_Engine {
-            code_standards_security_best_practices_rag_db: cssbp_db,
-            parallel_ast_parsing_pattern_matching_simd_accelerator: "SIMD_Accelerator_Module_v1.0".to_string(),
+        let mut sp_db = HashMap::new();
+        sp_db.insert("owasp_top_10".to_string(), "RAG-driven knowledge base of OWASP Top 10 vulnerabilities, including examples in various languages and mitigation strategies. Used for identifying security vulnerabilities.".to_string());
+        sp_db.insert("rust_memory_safety_exploits".to_string(), "RAG-driven knowledge of Rust-specific memory safety exploits and common pitfalls, helping to detect subtle bugs.".to_string());
+
+        OCSAEngine {
+            code_standards_rag_db: cs_db,
+            security_patterns_rag_db: sp_db,
         }
     }
 
-    /// Ingests all files from a codebase for analysis (conceptual SIMD).
-    pub fn ingest_codebase_simd(&self, files: &[CodebaseFile]) -> Vec<CodebaseFile> {
-        println!("  [OCSA]: Ingesting {} codebase files (SIMD for parallel data ingestion).", files.len());
-        thread::sleep(Duration::from_millis(100));
-        files.to_vec() // Conceptually returning processed files
-    }
+    /// Performs parallel AST parsing and pattern matching (SIMD conceptualization).
+    fn parallel_ast_parsing_and_pattern_matching_simd(&self, file_content: &str, language: &str) -> Vec<CodeIssue> {
+        println!("    [OCSA-SIMD]: Performing parallel AST parsing and pattern matching for {} code.", language);
+        thread::sleep(Duration::from_millis(70));
+        let mut rng = rand::Rng::thread_rng();
+        let mut issues = Vec::new();
 
-    /// Performs AST parsing and pattern matching across the codebase (conceptual SIMD).
-    pub fn perform_ast_parsing_and_pattern_matching_simd(&self, files: &[CodebaseFile]) -> Vec<String> {
-        println!("  [OCSA]: Performing AST parsing and pattern matching on {} files using {} (SIMD acceleration).", files.len(), self.parallel_ast_parsing_pattern_matching_simd_accelerator);
-        thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::thread_rng();
-
-        files.iter().map(|f| format!("AST_for_{}", f.file_path)).collect() // Conceptual ASTs/patterns
-    }
-
-    /// Identifies vulnerabilities, bugs, and inefficiencies using RAG and processed ASTs.
-    pub fn identify_vulnerabilities_and_inefficiencies_rag(&self, codebase_name: &str, processed_asts: &[String]) -> Vec<StaticAnalysisFinding> {
-        println!("  [OCSA]: Identifying vulnerabilities/inefficiencies for '{}' using {} ASTs (RAG for code standards/best practices).", codebase_name, processed_asts.len());
-        if let Some(cssbp_info) = self.code_standards_security_best_practices_rag_db.get("OWASP_Top_10_Security_Guidelines") {
-            format!("CSSBP RAG insight for vulnerability detection: {}. Codebase: '{}'", cssbp_info, codebase_name);
-        }
-        thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::thread_rng();
-
-        let mut findings = Vec::new();
-        if rng.gen_bool(0.7) { // Simulate finding a bug
-            findings.push(StaticAnalysisFinding {
-                finding_id: format!("bug_{}", rng.gen::<u32>()),
-                file_path: "src/main.rs".to_string(),
-                line_number: 25,
-                severity: "high".to_string(),
-                finding_type: "security_vulnerability".to_string(),
-                description: "Potential SQL injection vulnerability in user input handling.".to_string(),
-                suggested_fix: "Use parameterized queries instead of string concatenation.".to_string(),
+        // Simulate issue detection based on content and language
+        if language == "Rust" && file_content.contains("unsafe") && rng.gen_bool(0.6) {
+            issues.push(CodeIssue {
+                issue_id: format!("issue_{}", rng.gen::<u32>()),
+                file_path: "simulated_file.rs".to_string(),
+                line_number: rng.gen_range(10..100),
+                column_number: rng.gen_range(1..80),
+                issue_type: "Vulnerability".to_string(),
+                description: "Potential unsafe code block identified. Review for memory safety.".to_string(),
+                severity: "High".to_string(),
+                suggested_fix: Some("Encapsulate unsafe operations or prove memory safety.".to_string()),
+                detected_at: Instant::now(),
+                relevant_cwe: Some("CWE-681".to_string()),
             });
         }
-        if rng.gen_bool(0.5) {
-            findings.push(StaticAnalysisFinding {
-                finding_id: format!("perf_{}", rng.gen::<u32>()),
-                file_path: "src/utils.rs".to_string(),
-                line_number: 100,
-                severity: "medium".to_string(),
-                finding_type: "performance_bottleneck".to_string(),
-                description: "Inefficient loop found, O(n^2) complexity where O(n log n) is possible.".to_string(),
-                suggested_fix: "Replace with hash map or sorted array approach.".to_string(),
+        if file_content.contains("unwrap()") && rng.gen_bool(0.4) {
+            issues.push(CodeIssue {
+                issue_id: format!("issue_{}", rng.gen::<u32>()),
+                file_path: "simulated_file.rs".to_string(),
+                line_number: rng.gen_range(10..100),
+                column_number: rng.gen_range(1..80),
+                issue_type: "Bug".to_string(),
+                description: "Unwrap() call found, may panic. Consider using match or ? operator.".to_string(),
+                severity: "Medium".to_string(),
+                suggested_fix: Some("Replace unwrap() with proper error handling.".to_string()),
+                detected_at: Instant::now(),
+                relevant_cwe: None,
             });
         }
-        findings
+
+        issues
     }
 
-    /// Generates a comprehensive analysis report.
-    pub fn generate_analysis_report_rag(&self, codebase_name: &str, files_analyzed: u32, findings: &[StaticAnalysisFinding]) -> AnalysisReport {
-        println!("  [OCSA]: Generating analysis report for '{}' with {} findings (RAG for report generation).", codebase_name, findings.len());
-        if let Some(cssbp_info) = self.code_standards_security_best_practices_rag_db.get("Rust_Clippy_Lints_and_Best_Practices") {
-            format!("CSSBP RAG insight for report quality: {}. Codebase: '{}'", cssbp_info, codebase_name);
+    /// Performs deep static analysis for vulnerabilities, bugs, and inefficiencies (RAG-amplified).
+    pub fn analyze_codebase_rag(&self, code_file: &CodeFile) -> Vec<CodeIssue> {
+        println!("  [OCSA]: Analyzing code file '{}' (Language: '{}').", code_file.file_path, code_file.language);
+        if let Some(rust_bp) = self.code_standards_rag_db.get("rust_best_practices") {
+            format!("RAG knowledge for Rust analysis: '{}'", rust_bp.chars().take(100).collect::<String>());
         }
-        thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::thread_rng();
+        if let Some(owasp) = self.security_patterns_rag_db.get("owasp_top_10") {
+            format!("RAG knowledge for security analysis: '{}'", owasp.chars().take(100).collect::<String>());
+        }
+        thread::sleep(Duration::from_millis(250));
 
-        AnalysisReport {
-            report_id: format!("report_{}", rng.gen::<u32>()),
-            codebase_name: codebase_name.to_string(),
-            total_files_analyzed: files_analyzed,
-            total_findings: findings.len() as u32,
-            critical_findings: findings.iter().filter(|f| f.severity == "high").count() as u32,
-            generated_at: Instant::now(),
-            executive_summary: format!("Comprehensive static analysis of {} revealed {} high-severity issues and {} medium-severity issues.", codebase_name, findings.iter().filter(|f| f.severity == "high").count(), findings.iter().filter(|f| f.severity == "medium").count()),
-            findings: findings.to_vec(),
-        }
+        let mut issues = self.parallel_ast_parsing_and_pattern_matching_simd(&code_file.content, &code_file.language);
+
+        // Conceptual: More RAG-driven analysis would happen here, using contextual knowledge
+        // from `code_standards_rag_db` and `security_patterns_rag_db` to refine issue detection
+        // and suggest more specific fixes.
+
+        println!("  Detected {} issues in '{}'.\n", issues.len(), code_file.file_path);
+        issues
+    }
+
+    /// Generates a comprehensive report for OCSA.
+    pub fn generate_ocsa_report_rag(&self, total_files: u64, total_issues: u64, vulnerabilities: u64) -> String {
+        println!("  [OCSA]: Generating OCSA report (RAG for report generation).", );
+        thread::sleep(Duration::from_millis(80));
+
+        format!("Omniversal Codebase Static Analysis Report:\n  Total Files Analyzed: {}\n  Total Issues Detected: {}\n  Vulnerabilities Found: {}\n  (Conceptual summary based on RAG for code standards and SIMD for parallel analysis).",
+            total_files,
+            total_issues,
+            vulnerabilities
+        )
     }
 }
 
@@ -157,96 +154,75 @@ mod tests {
 
     #[test]
     fn test_ocsa_engine_flow() {
-        let engine = OCSA_Engine::new();
+        let engine = OCSAEngine::new();
+        let now = Instant::now();
 
-        let file1 = CodebaseFile {
+        let rust_code = CodeFile {
             file_path: "src/main.rs".to_string(),
-            content: "fn main() { let x = format!(\"SELECT * FROM users WHERE name='{} ';\", user_input); } ".to_string(),
+            content: "fn main() { let x = unsafe { *(&0 as *const i32) }; println!(\"Hello, {}\", x); let _ = some_func().unwrap(); }".to_string(),
             language: "Rust".to_string(),
-            last_modified: Instant::now(),
+            commit_hash: "abc123def456".to_string(),
         };
-        let file2 = CodebaseFile {
-            file_path: "src/lib.rs".to_string(),
-            content: "fn calculate_sum(arr: &[u32]) -> u32 { let mut sum = 0; for i in 0..arr.len() { for j in 0..arr.len() { sum += arr[i] + arr[j]; } } sum } ".to_string(),
-            language: "Rust".to_string(),
-            last_modified: Instant::now(),
-        };
+        let issues = engine.analyze_codebase_rag(&rust_code);
+        assert!(!issues.is_empty());
 
-        let codebase_files = vec![file1, file2];
-        let ingested = engine.ingest_codebase_simd(&codebase_files);
-        assert_eq!(ingested.len(), 2);
-
-        let ast_representations = engine.perform_ast_parsing_and_pattern_matching_simd(&ingested);
-        assert_eq!(ast_representations.len(), 2);
-
-        let findings = engine.identify_vulnerabilities_and_inefficiencies_rag("TestCodebase", &ast_representations);
-        // Findings are probabilistic in mock, might be empty
-        // assert!(!findings.is_empty());
-
-        let report = engine.generate_analysis_report_rag("TestCodebase", ingested.len() as u32, &findings);
-        assert!(!report.report_id.is_empty());
+        let report = engine.generate_ocsa_report_rag(1, issues.len() as u64, issues.iter().filter(|i| i.issue_type == "Vulnerability").count() as u64);
+        assert!(!report.is_empty());
     }
 }
 
 fn main() {
-    println!("\n--- Omniversal Codebase Static Analysis (OCSA) Demonstration ---");
+    println!("\n--- Omniversal Codebase Static Analysis (SIMD-Driven) Demonstration ---");
 
-    let ocsa_engine = OCSA_Engine::new();
-    let codebase_name = "SamuelOS_Core";
+    let ocsa_engine = OCSAEngine::new();
+    let now = Instant::now();
 
-    // Scenario 1: Ingesting a conceptual codebase
-    println!("--- Scenario 1: Ingest Codebase ---");
-    let conceptual_files = vec![
-        CodebaseFile {
-            file_path: "src/main.rs".to_string(),
-            content: "// main logic\nfn process_user_input(input: &str) { /* ... */ }\n".to_string(),
-            language: "Rust".to_string(),
-            last_modified: Instant::now() - Duration::from_secs(86400 * 5),
-        },
-        CodebaseFile {
-            file_path: "src/api.rs".to_string(),
-            content: "// API endpoints\nasync fn get_data(user_id: u32) -> Result<String, Error> { /* ... */ }\n".to_string(),
-            language: "Rust".to_string(),
-            last_modified: Instant::now() - Duration::from_secs(86400 * 2),
-        },
-        CodebaseFile {
-            file_path: "src/db.rs".to_string(),
-            content: "// Database access\nfn fetch_record(query: &str) { /* ... */ }\n".to_string(),
-            language: "Rust".to_string(),
-            last_modified: Instant::now() - Duration::from_secs(86400 * 1),
-        },
-    ];
-    let ingested_files = ocsa_engine.ingest_codebase_simd(&conceptual_files);
-    println!("  Ingested {} files for codebase '{}'.\n", ingested_files.len(), codebase_name);
-
-    // Scenario 2: Perform AST parsing and pattern matching
-    println!("--- Scenario 2: Perform AST Parsing & Pattern Matching ---");
-    let ast_data = ocsa_engine.perform_ast_parsing_and_pattern_matching_simd(&ingested_files);
-    println!("  Generated conceptual AST/pattern representations for {} files.\n", ast_data.len());
-
-    // Scenario 3: Identify vulnerabilities, bugs, and inefficiencies
-    println!("--- Scenario 3: Identify Findings ---");
-    let detected_findings = ocsa_engine.identify_vulnerabilities_and_inefficiencies_rag(codebase_name, &ast_data);
-    if !detected_findings.is_empty() {
-        println!("  Detected {} findings. Example: Type '{}', Severity '{}', Description: '{}'.\n",
-            detected_findings.len(),
-            detected_findings[0].finding_type,
-            detected_findings[0].severity,
-            &detected_findings[0].description[0..usize::min(detected_findings[0].description.len(), 50)]
-        );
+    // Scenario 1: Analyze a Rust file with potential issues
+    println!("--- Scenario 1: Analyze Rust Code ---");
+    let rust_file_1 = CodeFile {
+        file_path: "tariro_core/src/security_module.rs".to_string(),
+        content: "fn process_data(input: &str) -> Result<String, String> { let sensitive_data = unsafe { input.as_bytes().to_vec() }; Ok(String::from_utf8(sensitive_data).unwrap()) }".to_string(),
+        language: "Rust".to_string(),
+        commit_hash: "commit_hash_1".to_string(),
+    };
+    let issues_rust_1 = ocsa_engine.analyze_codebase_rag(&rust_file_1);
+    if !issues_rust_1.is_empty() {
+        println!("  Detected {} issues in '{}':\n", issues_rust_1.len(), rust_file_1.file_path);
+        for issue in issues_rust_1 {
+            println!("    - [{} {}] Line {}:{}: '{}'. Fix: '{}'.\n",
+                issue.severity,
+                issue.issue_type,
+                issue.line_number,
+                issue.column_number,
+                issue.description,
+                issue.suggested_fix.unwrap_or_else(|| "None".to_string())
+            );
+        }
     } else {
-        println!("  No significant findings detected (simulated). Codebase appears clean.\n");
+        println!("  No issues detected in '{}'.\n", rust_file_1.file_path);
     }
 
-    // Scenario 4: Generate a comprehensive analysis report
-    println!("--- Scenario 4: Generate Analysis Report ---");
-    let report = ocsa_engine.generate_analysis_report_rag(codebase_name, ingested_files.len() as u32, &detected_findings);
-    println!("  Analysis Report ID: '{}'. Total Findings: {}, Critical: {}.\n",
-        report.report_id,
-        report.total_findings,
-        report.critical_findings
-    );
-    println!("  Executive Summary: '{}'.\n", report.executive_summary);
+    // Scenario 2: Analyze a Python file (conceptual, not implemented in detail here)
+    println!("--- Scenario 2: Analyze Python Code (Conceptual) ---");
+    let python_file_1 = CodeFile {
+        file_path: "tariro_utils/data_processor.py".to_string(),
+        content: "import os\ndef process_config(config_path):\n    if not os.path.exists(config_path): # Inefficient check\n        pass\n    # potentially vulnerable code here".to_string(),
+        language: "Python".to_string(),
+        commit_hash: "commit_hash_2".to_string(),
+    };
+    let issues_python_1 = ocsa_engine.analyze_codebase_rag(&python_file_1);
+    if !issues_python_1.is_empty() {
+        println!("  Detected {} issues in '{}'.\n", issues_python_1.len(), python_file_1.file_path);
+    } else {
+        println!("  No issues detected in '{}'.\n", python_file_1.file_path);
+    }
 
-    println!("\nOmniversal Codebase Static Analysis (OCSA) Demonstration Complete.");
+    // Scenario 3: Generate a comprehensive OCSA Report
+    println!("--- Scenario 3: Generate OCSA Report ---");
+    let total_issues = issues_rust_1.len() as u64 + issues_python_1.len() as u64; // Example total
+    let total_vulnerabilities = issues_rust_1.iter().filter(|i| i.issue_type == "Vulnerability").count() as u64;
+    let ocsa_report_summary = ocsa_engine.generate_ocsa_report_rag(2, total_issues, total_vulnerabilities);
+    println!("  {}\n", ocsa_report_summary);
+
+    println!("\nOmniversal Codebase Static Analysis (SIMD-Driven) Demonstration Complete.");
 }
