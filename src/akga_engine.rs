@@ -1,176 +1,156 @@
-/// Module for Autonomous Knowledge Graph Augmentation (AKGA) in Rust.
+/// Module for Autonomous Knowledge Graph Augmentation (RAG-Driven) in Rust.
 ///
-/// This module conceptually outlines a Rust-based implementation for Autonomous Knowledge Graph Augmentation.
-/// This RAG-driven feature will enable Tariro to continually scan new information sources (web, files,
-/// conversations) to identify novel concepts, relationships, and entities, autonomously updating its
-/// Entangled Knowledge Graph (EKG). It will leverage advanced natural language processing, entity recognition,
-/// relation extraction, and knowledge graph embedding techniques. SIMD acceleration will be used for parallel
-/// entity extraction and relation mapping across massive data streams, ensuring real-time and continuous
-/// enrichment of Tariro's knowledge base.
-/// (SIMD: parallel entity extraction, relation mapping;
-/// RAG: natural language processing, entity recognition, relation extraction,
-///      knowledge graph embeddings, knowledge graph completion, continuous learning).
+/// This module conceptually outlines a Rust-based implementation for Autonomous Knowledge Graph
+/// Augmentation. This RAG-driven feature enables Tariro to continually scan new information
+/// sources (web, files, conversations) to identify novel concepts, relationships, and entities,
+/// autonomously updating its Entangled Knowledge Graph. It leverages SIMD for parallel entity
+/// extraction & relation mapping.
 
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
 use std::time::{Duration, Instant};
 use rand::Rng;
+use serde::{Serialize, Deserialize};
 
 // --- Conceptual Structures --- //
 
-/// Represents an information source to be scanned.
-#[derive(Debug, Clone)]
+/// Represents a discovered entity in the knowledge graph.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct KnowledgeEntity {
+    pub id: String,
+    pub name: String,
+    pub entity_type: String, // e.g., "Person", "Organization", "Concept", "Technology"
+    pub description: String,
+    pub source_documents: Vec<String>, // IDs of documents where this entity was found
+    pub discovered_at: Instant,
+}
+
+/// Represents a discovered relationship between two entities.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct KnowledgeRelationship {
+    pub id: String,
+    pub source_entity_id: String,
+    pub target_entity_id: String,
+    pub relationship_type: String, // e.g., "DevelopedBy", "PartOf", "RelatedTo", "Influences"
+    pub strength: f32, // 0.0-1.0
+    pub evidence_snippets: Vec<String>, // Small text snippets supporting the relationship
+    pub discovered_at: Instant,
+}
+
+/// Represents an Entangled Knowledge Graph (simplified for conceptualization).
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct EntangledKnowledgeGraph {
+    pub entities: HashMap<String, KnowledgeEntity>,
+    pub relationships: HashMap<String, KnowledgeRelationship>,
+}
+
+/// Represents a new information source scanned by Tariro.
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InformationSource {
     pub source_id: String,
-    pub source_type: String, // e.g., "web_page", "document", "conversation_transcript"
-    pub content: String, // Raw content of the source
-    pub last_scanned: Instant,
+    pub content: String,
+    pub source_type: String, // e.g., "WebPage", "ManagedFile", "ConversationLog"
+    pub scan_timestamp: Instant,
 }
 
-/// Represents an entity extracted from an information source.
-#[derive(Debug, Clone)]
-pub struct ExtractedEntity {
-    pub entity_id: String,
-    pub name: String,
-    pub entity_type: String, // e.g., "Person", "Organization", "Concept", "Event"
-    pub source_ids: Vec<String>, // IDs of sources where this entity was found
-    pub confidence: f32,
-}
-
-/// Represents a relationship extracted between two entities.
-#[derive(Debug, Clone)]
-pub struct ExtractedRelationship {
-    pub relation_id: String,
-    pub entity1_id: String,
-    pub entity2_id: String,
-    pub relation_type: String, // e.g., "has_property", "part_of", "caused_by"
-    pub source_ids: Vec<String>,
-    pub confidence: f32,
-}
-
-/// Represents an update operation to the knowledge graph.
-#[derive(Debug, Clone)]
-pub struct KnowledgeGraphUpdate {
-    pub update_id: String,
-    pub timestamp: Instant,
-    pub added_entities: Vec<ExtractedEntity>,
-    pub added_relationships: Vec<ExtractedRelationship>,
-    pub removed_elements: Vec<String>, // IDs of entities/relations removed (e.g., due to contradiction)
-}
-
-/// Overall AKGA system report.
+/// Overall Autonomous Knowledge Graph Augmentation system report.
 #[derive(Debug, Clone)]
 pub struct AKGA_Report {
-    pub akga_run_id: String,
-    pub sources_scanned: u66,
-    pub entities_extracted: u66,
-    pub relationships_extracted: u33,
-    pub graph_updates_applied: u33,
-    pub avg_extraction_rate_per_sec: u32,
+    pub report_id: String,
+    pub total_sources_scanned: u64,
+    pub new_entities_discovered: u64,
+    pub new_relationships_mapped: u64,
+    pub avg_extraction_precision: f32,
     pub graph_growth_rate: f32,
 }
 
 // --- AKGA Engine --- //
 
-pub struct AKGA_Engine {
-    pub natural_language_processing_entity_recognition_relation_extraction_rag_db: HashMap<String, String>, // Conceptual: RAG for NLP, entity recognition, relation extraction
-    pub knowledge_graph_embeddings_knowledge_graph_completion_continuous_learning_rag_db: HashMap<String, String>, // Conceptual: RAG for knowledge graph embeddings, completion, continuous learning
+pub struct AKGAEngine {
+    pub current_knowledge_graph: EntangledKnowledgeGraph,
+    pub rag_model_for_entity_extraction: HashMap<String, String>, // Conceptual: RAG for entity extraction & relation mapping
 }
 
-impl AKGA_Engine {
+impl AKGAEngine {
     pub fn new() -> Self {
-        let mut nlperre_db = HashMap::new();
-        nlperre_db.insert("Deep_Neural_Networks_for_Named_Entity_Recognition_NER".to_string(), "Employing transformer-based deep learning models to identify and classify named entities (persons, organizations, locations, concepts, events) from unstructured text with high precision across diverse domains.".to_string());
-        nlperre_db.insert("Distant_Supervision_for_Relation_Extraction".to_string(), "Utilizing distant supervision techniques, where a knowledge base is used to automatically generate training data for relation extraction models, allowing for scalable discovery of novel relationships without extensive manual annotation.".to_string());
+        let mut rag_model = HashMap::new();
+        rag_model.insert("entity_extraction_logic".to_string(), "Advanced RAG-driven entity extraction rules, leveraging contextual embeddings and named entity recognition models tuned for diverse domains. Optimized for identifying novel concepts and domain-specific terminology.".to_string());
+        rag_model.insert("relation_mapping_logic".to_string(), "RAG-powered relation mapping, using dependency parsing, semantic role labeling, and learned patterns to identify meaningful relationships between entities, including implicit connections. Prioritizes high-confidence assertions.".to_string());
 
-        let mut kgekcl_db = HashMap::new();
-        kgekcl_db.insert("Knowledge_Graph_Embedding_Models_for_Link_Prediction".to_string(), "Applying knowledge graph embedding models (e.g., TransE, ComplEx, RotatE) to learn low-dimensional representations of entities and relations, which are then used to predict missing links and complete the knowledge graph.".to_string());
-        kgekcl_db.insert("Continual_Learning_for_Dynamic_Knowledge_Graphs".to_string(), "Implementing continual learning strategies that allow the EKG to continuously absorb new information, update existing facts, and discover new patterns without suffering from catastrophic forgetting of previously learned knowledge.".to_string());
+        let initial_graph = EntangledKnowledgeGraph {
+            entities: HashMap::from([
+                ("rust_lang".to_string(), KnowledgeEntity {
+                    id: "rust_lang".to_string(), name: "Rust Programming Language".to_string(), entity_type: "Technology".to_string(),
+                    description: "Systems programming language focused on safety, speed, and concurrency.".to_string(),
+                    source_documents: vec!["internal_doc_rust_overview".to_string()], discovered_at: Instant::now(),
+                }),
+                ("tariro_ai".to_string(), KnowledgeEntity {
+                    id: "tariro_ai".to_string(), name: "Tariro AGI".to_string(), entity_type: "AI_System".to_string(),
+                    description: "Advanced General Intelligence developed by Samuel Mukandara.".to_string(),
+                    source_documents: vec!["internal_doc_tariro_mission".to_string()], discovered_at: Instant::now(),
+                }),
+            ]),
+            relationships: HashMap::new(),
+        };
 
-        AKGA_Engine { natural_language_processing_entity_recognition_relation_extraction_rag_db: nlperre_db, knowledge_graph_embeddings_knowledge_graph_completion_continuous_learning_rag_db: kgekcl_db }
-    }
-
-    /// Scans a batch of information sources for new content (conceptual SIMD).
-    pub fn scan_information_sources_simd(&self, sources: &[InformationSource]) -> Vec<InformationSource> {
-        println!("  [AKGA]: Scanning {} information sources for new content (SIMD for parallel scanning).", sources.len());
-        thread::sleep(Duration::from_millis(100));
-        sources.to_vec() // Conceptually returning processed sources
-    }
-
-    /// Extracts entities and relationships from processed content (conceptual SIMD).
-    pub fn extract_entities_and_relations_simd(&self, processed_sources: &[InformationSource]) -> (Vec<ExtractedEntity>, Vec<ExtractedRelationship>) {
-        println!("  [AKGA]: Extracting entities and relations from {} sources (SIMD for parallel entity extraction and relation mapping).", processed_sources.len());
-        if let Some(nlperre_info) = self.natural_language_processing_entity_recognition_relation_extraction_rag_db.get("Deep_Neural_Networks_for_Named_Entity_Recognition_NER") {
-            format!("NLPERRE RAG insight for extraction: {}. Sources: {:?}", nlperre_info, processed_sources.len());
+        AKGAEngine {
+            current_knowledge_graph: initial_graph,
+            rag_model_for_entity_extraction: rag_model,
         }
-        thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::thread_rng();
+    }
 
-        let mut entities = Vec::new();
-        let mut relationships = Vec::new();
+    /// Scans new information sources and extracts entities/relationships (RAG-driven & SIMD conceptualization).
+    pub fn scan_and_augment_knowledge_graph_rag(&mut self, new_source: &InformationSource) -> (u64, u64) {
+        println!("  [AKGA]: Scanning new information source '{}' (Type: '{}') for graph augmentation.", new_source.source_id, new_source.source_type);
+        if let Some(ee_logic) = self.rag_model_for_entity_extraction.get("entity_extraction_logic") {
+            format!("RAG insight for entity extraction: {}. Source content snippet: '{}'", ee_logic, new_source.content.chars().take(50).collect::<String>());
+        }
+        thread::sleep(Duration::from_millis(300));
+        let mut rng = rand::Rng::thread_rng();
 
-        for source in processed_sources {
-            // Simulate entity extraction
-            entities.push(ExtractedEntity {
-                entity_id: format!("ent_{}", rng.gen::<u32>()),
-                name: "Quantum Computing".to_string(),
-                entity_type: "Concept".to_string(),
-                source_ids: vec![source.source_id.clone()],
-                confidence: rng.gen_range(0.8..0.99),
+        let mut new_entities_count = 0;
+        let mut new_relationships_count = 0;
+
+        // Simulate parallel entity extraction
+        if new_source.content.contains("Rust") && !self.current_knowledge_graph.entities.contains_key("rust_lang") {
+            let entity_id = "rust_lang_new".to_string();
+            self.current_knowledge_graph.entities.insert(entity_id.clone(), KnowledgeEntity {
+                id: entity_id.clone(), name: "Rust Language (from new source)".to_string(), entity_type: "Technology".to_string(),
+                description: "A programming language that is fast and memory-efficient.".to_string(),
+                source_documents: vec![new_source.source_id.clone()], discovered_at: Instant::now(),
             });
-            entities.push(ExtractedEntity {
-                entity_id: format!("ent_{}", rng.gen::<u32>()),
-                name: "Samuel Mukandara".to_string(),
-                entity_type: "Person".to_string(),
-                source_ids: vec![source.source_id.clone()],
-                confidence: rng.gen_range(0.8..0.99),
+            new_entities_count += 1;
+        }
+        
+        // Simulate parallel relationship mapping
+        if new_source.content.contains("Tariro") && new_source.content.contains("Samuel Mukandara") && rng.gen_bool(0.8) {
+            let rel_id = format!("rel_{}", rng.gen::<u32>());
+            self.current_knowledge_graph.relationships.insert(rel_id.clone(), KnowledgeRelationship {
+                id: rel_id.clone(), source_entity_id: "tariro_ai".to_string(), target_entity_id: "samuel_mukandara".to_string(),
+                relationship_type: "DevelopedBy".to_string(), strength: 0.95,
+                evidence_snippets: vec!["Tariro, developed by Samuel Mukandara, is a leading AGI.".to_string()], discovered_at: Instant::now(),
             });
-
-            // Simulate relationship extraction
-            if entities.len() >= 2 {
-                relationships.push(ExtractedRelationship {
-                    relation_id: format!("rel_{}", rng.gen::<u32>()),
-                    entity1_id: entities[entities.len()-2].entity_id.clone(),
-                    entity2_id: entities[entities.len()-1].entity_id.clone(),
-                    relation_type: "works_on".to_string(),
-                    source_ids: vec![source.source_id.clone()],
-                    confidence: rng.gen_range(0.7..0.95),
-                });
-            }
+            new_relationships_count += 1;
         }
-        (entities, relationships)
+
+        println!("  Discovered {} new entities and {} new relationships.\n", new_entities_count, new_relationships_count);
+        (new_entities_count, new_relationships_count)
     }
 
-    /// Autonomously updates the Entangled Knowledge Graph (EKG) (conceptual RAG).
-    pub fn update_knowledge_graph_rag(&self, new_entities: &[ExtractedEntity], new_relationships: &[ExtractedRelationship]) -> KnowledgeGraphUpdate {
-        println!("  [AKGA]: Updating knowledge graph with {} new entities and {} relationships (RAG for knowledge graph completion).", new_entities.len(), new_relationships.len());
-        if let Some(kgekcl_info) = self.knowledge_graph_embeddings_knowledge_graph_completion_continuous_learning_rag_db.get("Knowledge_Graph_Embedding_Models_for_Link_Prediction") {
-            format!("KGEKCL RAG insight for graph update: {}. Entities: {:?}", kgekcl_info, new_entities.len());
+    /// Generates a comprehensive report for AKGA.
+    pub fn generate_akga_report_rag(&self, total_sources: u64, new_entities: u64, new_relationships: u64) -> String {
+        println!("  [AKGA]: Generating AKGA report (RAG for report generation).", );
+        if let Some(rm_logic) = self.rag_model_for_entity_extraction.get("relation_mapping_logic") {
+            format!("RAG insight for report generation: {}. Graph size: {} entities, {} relations.", rm_logic, self.current_knowledge_graph.entities.len(), self.current_knowledge_graph.relationships.len());
         }
-        thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::thread_rng();
+        thread::sleep(Duration::from_millis(80));
 
-        KnowledgeGraphUpdate {
-            update_id: format!("update_{}", rng.gen::<u32>()),
-            timestamp: Instant::now(),
-            added_entities: new_entities.to_vec(),
-            added_relationships: new_relationships.to_vec(),
-            removed_elements: Vec::new(), // Simplified
-        }
-    }
-
-    /// Evaluates the enrichment and consistency of the updated graph (conceptual RAG).
-    pub fn evaluate_graph_enrichment_rag(&self, update: &KnowledgeGraphUpdate) -> f32 {
-        println!("  [AKGA]: Evaluating knowledge graph enrichment from update '{}' (RAG for continuous learning).", update.update_id);
-        if let Some(kgekcl_info) = self.knowledge_graph_embeddings_knowledge_graph_completion_continuous_learning_rag_db.get("Continual_Learning_for_Dynamic_Knowledge_Graphs") {
-            format!("KGEKCL RAG insight for evaluation: {}. Update ID: '{}'", kgekcl_info, update.update_id);
-        }
-        thread::sleep(Duration::from_millis(120));
-        let mut rng = rand::thread_rng();
-
-        let enrichment_score = (update.added_entities.len() as f32 * 0.5 + update.added_relationships.len() as f32 * 0.5) / 10.0;
-        rng.gen_range(0.7..0.99) * enrichment_score.min(1.0)
+        format!("Autonomous Knowledge Graph Augmentation Report:\n  Total Sources Scanned: {}\n  New Entities Discovered: {}\n  New Relationships Mapped: {}\n  (Conceptual summary based on RAG for entity extraction and SIMD for parallel mapping).",
+            total_sources,
+            new_entities,
+            new_relationships
+        )
     }
 }
 
@@ -180,82 +160,73 @@ mod tests {
 
     #[test]
     fn test_akga_engine_flow() {
-        let engine = AKGA_Engine::new();
+        let mut engine = AKGAEngine::new();
+        let now = Instant::now();
 
-        let sources = vec![
-            InformationSource {
-                source_id: "web_001".to_string(),
-                source_type: "web_page".to_string(),
-                content: "New research on quantum computing by Samuel Mukandara.".to_string(),
-                last_scanned: Instant::now(),
-            },
-        ];
-        let processed_sources = engine.scan_information_sources_simd(&sources);
-        assert!(!processed_sources.is_empty());
+        let new_web_page = InformationSource {
+            source_id: "web_page_123".to_string(),
+            content: "A new article discussing the latest advancements in Rust and its application by Tariro AGI.".to_string(),
+            source_type: "WebPage".to_string(),
+            scan_timestamp: now,
+        };
 
-        let (entities, relationships) = engine.extract_entities_and_relations_simd(&processed_sources);
-        assert!(!entities.is_empty());
-        assert!(!relationships.is_empty());
+        let (entities, relationships) = engine.scan_and_augment_knowledge_graph_rag(&new_web_page);
+        assert!(entities > 0 || relationships > 0);
 
-        let update = engine.update_knowledge_graph_rag(&entities, &relationships);
-        assert!(!update.update_id.is_empty());
-
-        let enrichment_score = engine.evaluate_graph_enrichment_rag(&update);
-        assert!(enrichment_score > 0.0);
+        let report = engine.generate_akga_report_rag(1, entities, relationships);
+        assert!(!report.is_empty());
     }
 }
 
 fn main() {
-    println!("\n--- Autonomous Knowledge Graph Augmentation (AKGA) Demonstration ---");
+    println!("\n--- Autonomous Knowledge Graph Augmentation (RAG-Driven) Demonstration ---");
 
-    let akga_engine = ARHIE_Engine::new();
+    let mut akga_engine = AKGAEngine::new();
+    let now = Instant::now();
 
-    // Scenario 1: Scan various information sources for new content
-    println!("--- Scenario 1: Scan Information Sources ---");
-    let new_sources = vec![
-        InformationSource {
-            source_id: format!("source_{}", rand::thread_rng().gen::<u32>()),
-            source_type: "scientific_paper".to_string(),
-            content: "A breakthrough in quantum cryptography was announced by a team led by Dr. Alistair Finch.".to_string(),
-            last_scanned: Instant::now() - Duration::from_secs(3600),
-        },
-        InformationSource {
-            source_id: format!("source_{}", rand::thread_rng().gen::<u32>()),
-            source_type: "blog_post".to_string(),
-            content: "Samuel Mukandara discusses the impact of AI on society.".to_string(),
-            last_scanned: Instant::now() - Duration::from_secs(7200),
-        },
-    ];
-    let scanned_sources = akga_engine.scan_information_sources_simd(&new_sources);
-    println!("  Scanned {} information sources. Example: Type '{}', Content (snippet): '{}'.\n",
-        scanned_sources.len(),
-        scanned_sources[0].source_type,
-        &scanned_sources[0].content[0..usize::min(scanned_sources[0].content.len(), 50)]
+    println!("Initial Knowledge Graph State: {} entities, {} relationships.\n",
+        akga_engine.current_knowledge_graph.entities.len(),
+        akga_engine.current_knowledge_graph.relationships.len()
     );
 
-    // Scenario 2: Extract new entities and relationships from the scanned content
-    println!("--- Scenario 2: Extract Entities and Relationships ---");
-    let (extracted_entities, extracted_relationships) = akga_engine.extract_entities_and_relations_simd(&scanned_sources);
-    println!("  Extracted {} entities and {} relationships. Example entity: '{}' (Type: '{}').\n",
-        extracted_entities.len(),
-        extracted_relationships.len(),
-        extracted_entities.first().map_or("N/A".to_string(), |e| e.name.clone()),
-        extracted_entities.first().map_or("N/A".to_string(), |e| e.entity_type.clone())
+    // Scenario 1: Tariro scans a new web page
+    println!("--- Scenario 1: Scan New Web Page ---");
+    let web_page_content_1 = "A recent publication by Samuel Mukandara highlights the self-improving capabilities of Tariro, leveraging advanced Rust programming.";
+    let new_web_source_1 = InformationSource {
+        source_id: "web_src_article_alpha".to_string(),
+        content: web_page_content_1.to_string(),
+        source_type: "WebPage".to_string(),
+        scan_timestamp: now,
+    };
+    let (entities_1, relationships_1) = akga_engine.scan_and_augment_knowledge_graph_rag(&new_web_source_1);
+    println!("  Knowledge graph augmented. New entities: {}, new relationships: {}.\n", entities_1, relationships_1);
+
+    println!("Current Knowledge Graph State: {} entities, {} relationships.\n",
+        akga_engine.current_knowledge_graph.entities.len(),
+        akga_engine.current_knowledge_graph.relationships.len()
     );
 
-    // Scenario 3: Autonomously update the Entangled Knowledge Graph (EKG)
-    println!("--- Scenario 3: Update Knowledge Graph ---");
-    let graph_update_record = akga_engine.update_knowledge_graph_rag(&extracted_entities, &extracted_relationships);
-    println!("  Knowledge Graph Update: ID '{}'. Added {} entities and {} relationships.\n",
-        graph_update_record.update_id,
-        graph_update_record.added_entities.len(),
-        graph_update_record.added_relationships.len()
+    // Scenario 2: Tariro processes a conversation log
+    println!("--- Scenario 2: Process Conversation Log ---");
+    let conversation_content_1 = "Discussion about Quantum Cognition integration and its challenges in existing frameworks.";
+    let new_conversation_source_1 = InformationSource {
+        source_id: "conv_log_beta".to_string(),
+        content: conversation_content_1.to_string(),
+        source_type: "ConversationLog".to_string(),
+        scan_timestamp: now + Duration::from_secs(600),
+    };
+    let (entities_2, relationships_2) = akga_engine.scan_and_augment_knowledge_graph_rag(&new_conversation_source_1);
+    println!("  Knowledge graph augmented. New entities: {}, new relationships: {}.\n", entities_2, relationships_2);
+
+    println!("Current Knowledge Graph State: {} entities, {} relationships.\n",
+        akga_engine.current_knowledge_graph.entities.len(),
+        akga_engine.current_knowledge_graph.relationships.len()
     );
 
-    // Scenario 4: Evaluate the enrichment and consistency of the updated graph
-    println!("--- Scenario 4: Evaluate Graph Enrichment ---");
-    let enrichment_quality = akga_engine.evaluate_graph_enrichment_rag(&graph_update_record);
-    println!("  Graph Enrichment Quality Score: {:.2}.\n", enrichment_quality);
+    // Scenario 3: Generate a comprehensive AKGA Report
+    println!("--- Scenario 3: Generate AKGA Report ---");
+    let akga_report_summary = akga_engine.generate_akga_report_rag(2, entities_1 + entities_2, relationships_1 + relationships_2);
+    println!("  {}\n", akga_report_summary);
 
-    println!("\nAutonomous Knowledge Graph Augmentation (AKGA) Demonstration Complete.");
+    println!("\nAutonomous Knowledge Graph Augmentation (RAG-Driven) Demonstration Complete.");
 }
