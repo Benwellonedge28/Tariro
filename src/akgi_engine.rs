@@ -1,162 +1,149 @@
-/// Module for Autonomous Knowledge Gap Identification (AKGI) in Rust.
+/// Module for Automated Knowledge Gap Identification (RAG-Driven) in Rust.
 ///
-/// This module conceptually outlines a Rust-based implementation for Autonomous Knowledge Gap Identification.
-/// This RAG-driven feature will enable Tariro to pinpoint areas where its knowledge is incomplete or uncertain
-/// relative to a given task or query, then initiate targeted information gathering. It will leverage advanced
-/// logical inference completeness checks, semantic similarity comparisons against an ideal knowledge state,
-/// and meta-learning over past successful retrievals. SIMD acceleration will be used for parallel logical
-/// inference completeness checks across the knowledge graph, ensuring rapid detection of informational
-/// deficiencies and guiding efficient, targeted knowledge acquisition strategies.
-/// (SIMD: parallel logical inference completeness checks;
-/// RAG: knowledge incompleteness detection, semantic similarity, meta-learning,
-///      targeted information gathering, knowledge acquisition strategy, uncertainty quantification).
+/// This module conceptually outlines a Rust-based implementation for Automated Knowledge
+/// Gap Identification. This RAG-driven feature enables Tariro to pinpoint areas where its
+/// knowledge is incomplete or uncertain relative to a given task or query, then initiate
+/// targeted information gathering. It leverages SIMD for logical inference completeness checks.
 
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
 use std::time::{Duration, Instant};
 use rand::Rng;
+use serde::{Serialize, Deserialize};
 
 // --- Conceptual Structures --- //
 
-/// Represents a knowledge query or task for which gaps are to be identified.
-#[derive(Debug, Clone)]
-pub struct KnowledgeQuery {
-    pub query_id: String,
-    pub text: String,
-    pub context: String,
-    pub target_knowledge_domain: String,
+/// Represents a specific task or query for which knowledge is required.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TaskContext {
+    pub task_id: String,
+    pub description: String,
+    pub current_knowledge_assumptions: Vec<String>,
+    pub target_output_format: String,
+    pub required_confidence: f32, // 0.0-1.0
 }
 
-/// Represents an identified deficiency in Tariro's knowledge base.
-#[derive(Debug, Clone)]
-pub struct KnowledgeDeficiency {
-    pub deficiency_id: String,
-    pub query_id: String,
-    pub missing_concept: String,
-    pub uncertainty_level: f32, // 0.0 (certain) to 1.0 (highly uncertain)
-    pub potential_impact: String,
+/// Represents a detected knowledge gap.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct KnowledgeGap {
+    pub gap_id: String,
+    pub task_id: String,
+    pub missing_knowledge_area: String,
+    pub reason_for_gap: String, // e.g., "InsufficientData", "ConflictingInformation", "NovelConcept"
+    pub severity: String, // e.g., "Low", "Medium", "High", "Critical"
+    pub detected_at: Instant,
+    pub suggested_acquisition_strategy: String, // e.g., "WebSearch", "ExpertConsultation", "DataGeneration"
 }
 
-/// Represents a proposed strategy to acquire the missing knowledge.
-#[derive(Debug, Clone)]
-pub struct AcquisitionStrategy {
-    pub strategy_id: String,
-    pub deficiency_id: String,
-    pub proposed_action: String, // e.g., "web_search", "expert_consultation", "internal_data_mining"
-    pub resources_needed: Vec<String>,
-    pub expected_gain: f32,
-    pub confidence: f32,
+/// Represents a targeted information gathering request initiated to fill a gap.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InformationGatheringRequest {
+    pub request_id: String,
+    pub gap_id: String,
+    pub query_string: String,
+    pub target_sources: Vec<String>, // e.g., "Internet", "InternalDocs", "Samuel"
+    pub status: String, // e.g., "Pending", "InProgress", "Completed", "Failed"
+    pub initiated_at: Instant,
 }
 
-/// Overall AKGI system report.
+/// Overall Automated Knowledge Gap Identification system report.
 #[derive(Debug, Clone)]
 pub struct AKGI_Report {
-    pub akgi_run_id: String,
-    pub queries_analyzed: u66,
-    pub gaps_identified: u66,
-    pub strategies_proposed: u33,
-    pub avg_gap_identification_latency_ms: u32,
-    pub knowledge_coverage_increase: f32,
-    pub false_positive_gap_rate: f32,
+    pub report_id: String,
+    pub total_tasks_evaluated: u64,
+    pub knowledge_gaps_identified: u64,
+    pub info_gathering_requests_initiated: u64,
+    pub avg_gap_resolution_time_s: u32,
+    pub knowledge_completeness_score: f32,
 }
 
 // --- AKGI Engine --- //
 
-pub struct AKGI_Engine {
-    pub knowledge_incompleteness_detection_semantic_similarity_meta_learning_rag_db: HashMap<String, String>, // Conceptual: RAG for KID, semantic similarity, meta-learning
-    pub targeted_information_gathering_knowledge_acquisition_strategy_uncertainty_quantification_rag_db: HashMap<String, String>, // Conceptual: RAG for TIG, KAS, UQ
+pub struct AKGIEngine {
+    pub knowledge_completeness_rag_db: HashMap<String, String>, // Conceptual: RAG for logical inference completeness checks
 }
 
-impl AKGI_Engine {
+impl AKGIEngine {
     pub fn new() -> Self {
-        let mut kidsmml_db = HashMap::new();
-        kidsmml_db.insert("Logical_Inference_Completeness_Checks_on_Knowledge_Graphs".to_string(), "Performing automated logical inference to identify missing facts or relations required to answer a query or achieve a task, ensuring that Tariro's knowledge is not only consistent but also complete enough for its objectives.".to_string());
-        kidsmml_db.insert("Semantic_Similarity_Metrics_for_Knowledge_Representation".to_string(), "Employing advanced semantic similarity metrics (e.g., using Word2Vec, BERT embeddings, or graph-based similarity) to compare the current knowledge state against an ideal or desired knowledge state, pinpointing specific areas of deficiency.".to_string());
+        let mut kc_db = HashMap::new();
+        kc_db.insert("logical_inference_rules".to_string(), "RAG-driven logical inference rules, constantly updated with formal logic systems, domain-specific ontologies, and patterns of successful problem-solving. Enables rigorous completeness checks on existing knowledge relative to a given task.".to_string());
+        kc_db.insert("knowledge_taxonomy".to_string(), "A comprehensive, RAG-maintained taxonomy of all knowledge domains, concepts, and relationships, used to categorize and identify missing pieces of information.".to_string());
 
-        let mut tigk_as_uq_db = HashMap::new();
-        tigk_as_uq_db.insert("Automated_Knowledge_Source_Selection_and_Prioritization".to_string(), "Developing algorithms that automatically select and prioritize the most promising information sources (e.g., specific scientific databases, trusted experts, web search queries) based on the identified knowledge gap, minimizing acquisition cost and maximizing information gain.".to_string());
-        tigk_as_uq_db.insert("Dynamic_Uncertainty_Quantification_for_Knowledge_Gaps".to_string(), "Implementing real-time uncertainty quantification methods that not only detect missing knowledge but also estimate the confidence of Tariro's existing knowledge relevant to a query, guiding targeted information acquisition to reduce high-impact uncertainties.".to_string());
-
-        AKGI_Engine { knowledge_incompleteness_detection_semantic_similarity_meta_learning_rag_db: kidsmml_db, targeted_information_gathering_knowledge_acquisition_strategy_uncertainty_quantification_rag_db: tigk_as_uq_db }
+        AKGIEngine {
+            knowledge_completeness_rag_db: kc_db,
+        }
     }
 
-    /// Analyzes the completeness of knowledge relevant to a query (conceptual SIMD).
-    pub fn analyze_query_completeness_simd(&self, query: &KnowledgeQuery) -> f32 {
-        println!("  [AKGI]: Analyzing completeness for query '{}' (SIMD for parallel logical inference completeness checks).", query.text);
-        if let Some(kidsmml_info) = self.knowledge_incompleteness_detection_semantic_similarity_meta_learning_rag_db.get("Logical_Inference_Completeness_Checks_on_Knowledge_Graphs") {
-            format!("KIDSMM_L RAG insight for completeness analysis: {}. Query: '{}'", kidsmml_info, query.text);
-        }
-        thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::thread_rng();
+    /// Performs logical inference completeness checks (SIMD conceptualization).
+    fn parallel_completeness_check_simd(&self, assumed_knowledge: &[String], required_knowledge: &[String]) -> Vec<String> {
+        println!("    [AKGI-SIMD]: Performing parallel logical inference completeness check.");
+        thread::sleep(Duration::from_millis(40));
+        let mut missing_elements = Vec::new();
 
-        rng.gen_range(0.3..0.9) // Simulated completeness score
-    }
-
-    /// Identifies specific knowledge gaps based on completeness analysis (conceptual SIMD).
-    pub fn identify_knowledge_gaps_simd(&self, query: &KnowledgeQuery, completeness_score: f32) -> Vec<KnowledgeDeficiency> {
-        println!("  [AKGI]: Identifying knowledge gaps for query '{}' (SIMD for semantic similarity comparisons).", query.text);
-        if let Some(kidsmml_info) = self.knowledge_incompleteness_detection_semantic_similarity_meta_learning_rag_db.get("Semantic_Similarity_Metrics_for_Knowledge_Representation") {
-            format!("KIDSMM_L RAG insight for gap identification: {}. Query: '{}'", kidsmml_info, query.text);
-        }
-        thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::thread_rng();
-
-        let mut deficiencies = Vec::new();
-        if completeness_score < 0.8 {
-            deficiencies.push(KnowledgeDeficiency {
-                deficiency_id: format!("def_{}", rng.gen::<u32>()),
-                query_id: query.query_id.clone(),
-                missing_concept: "quantum_entanglement_decay_rates".to_string(),
-                uncertainty_level: rng.gen_range(0.6..0.9),
-                potential_impact: "High impact on accuracy of quantum predictions.".to_string(),
-            });
-            if completeness_score < 0.5 {
-                deficiencies.push(KnowledgeDeficiency {
-                    deficiency_id: format!("def_{}", rng.gen::<u32>()),
-                    query_id: query.query_id.clone(),
-                    missing_concept: "post_quantum_cryptography_standards".to_string(),
-                    uncertainty_level: rng.gen_range(0.7..0.95),
-                    potential_impact: "Critical for secure communication protocols.".to_string(),
-                });
+        for req in required_knowledge {
+            if !assumed_knowledge.contains(req) {
+                missing_elements.push(req.clone());
             }
         }
-        deficiencies
+        missing_elements
     }
 
-    /// Proposes optimal strategies for knowledge acquisition (conceptual RAG).
-    pub fn propose_acquisition_strategy_rag(&self, deficiency: &KnowledgeDeficiency) -> AcquisitionStrategy {
-        println!("  [AKGI]: Proposing acquisition strategy for deficiency '{}' (RAG for knowledge acquisition strategy).", deficiency.missing_concept);
-        if let Some(tigkasuq_info) = self.targeted_information_gathering_knowledge_acquisition_strategy_uncertainty_quantification_rag_db.get("Automated_Knowledge_Source_Selection_and_Prioritization") {
-            format!("TIGKASUQ RAG insight for strategy proposal: {}. Deficiency ID: '{}'", tigkasuq_info, deficiency.deficiency_id);
+    /// Pinpoints knowledge gaps and suggests acquisition strategies (RAG-driven).
+    pub fn identify_knowledge_gaps_rag(&self, task: &TaskContext) -> Vec<KnowledgeGap> {
+        println!("  [AKGI]: Identifying knowledge gaps for task '{}'.", task.task_id);
+        if let Some(logic_rules) = self.knowledge_completeness_rag_db.get("logical_inference_rules") {
+            format!("RAG insight for gap identification: {}. Task description: '{}'", logic_rules, task.description.chars().take(50).collect::<String>());
         }
-        thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::thread_rng();
+        thread::sleep(Duration::from_millis(150));
+        let mut rng = rand::Rng::thread_rng();
 
-        AcquisitionStrategy {
-            strategy_id: format!("strat_{}", rng.gen::<u32>()),
-            deficiency_id: deficiency.deficiency_id.clone(),
-            proposed_action: "conduct_targeted_web_search_and_read_papers".to_string(),
-            resources_needed: vec!["Google Scholar".to_string(), "arXiv".to_string(), "internal_research_db".to_string()],
-            expected_gain: rng.gen_range(0.7..0.99),
-            confidence: rng.gen_range(0.8..0.97),
+        let required_task_knowledge = vec!["RustCompilerOptimizations".to_string(), "AGIContainmentProtocols".to_string(), "QuantumComputingSecurity".to_string()];
+        let missing_knowledge = self.parallel_completeness_check_simd(&task.current_knowledge_assumptions, &required_task_knowledge);
+
+        let mut gaps = Vec::new();
+        for missing_item in missing_knowledge {
+            gaps.push(KnowledgeGap {
+                gap_id: format!("gap_{}", rng.gen::<u32>()),
+                task_id: task.task_id.clone(),
+                missing_knowledge_area: missing_item.clone(),
+                reason_for_gap: "InsufficientData".to_string(),
+                severity: if rng.gen_bool(0.3) { "High".to_string() } else { "Medium".to_string() },
+                detected_at: Instant::now(),
+                suggested_acquisition_strategy: "WebSearch".to_string(),
+            });
+        }
+
+        println!("  Identified {} knowledge gaps.\n", gaps.len());
+        gaps
+    }
+
+    /// Initiates targeted information gathering based on identified gaps (conceptual).
+    pub fn initiate_information_gathering(&self, gap: &KnowledgeGap) -> InformationGatheringRequest {
+        println!("  [AKGI]: Initiating information gathering for gap '{}' ('{}').", gap.gap_id, gap.missing_knowledge_area);
+        thread::sleep(Duration::from_millis(80));
+        let mut rng = rand::Rng::thread_rng();
+
+        InformationGatheringRequest {
+            request_id: format!("req_{}", rng.gen::<u32>()),
+            gap_id: gap.gap_id.clone(),
+            query_string: format!("Search for: '{}'", gap.missing_knowledge_area),
+            target_sources: vec!["Internet".to_string(), "TariroInternalDB".to_string()],
+            status: "InProgress".to_string(),
+            initiated_at: Instant::now(),
         }
     }
 
-    /// Evaluates the efficiency of a gap-filling strategy (conceptual RAG).
-    pub fn evaluate_gap_filling_efficiency_rag(&self, strategy: &AcquisitionStrategy, actual_gain: f32) -> String {
-        println!("  [AKGI]: Evaluating gap filling efficiency for strategy '{}' (RAG for uncertainty quantification).", strategy.strategy_id);
-        if let Some(tigkasuq_info) = self.targeted_information_gathering_knowledge_acquisition_strategy_uncertainty_quantification_rag_db.get("Dynamic_Uncertainty_Quantification_for_Knowledge_Gaps") {
-            format!("TIGKASUQ RAG insight for efficiency evaluation: {}. Strategy ID: '{}'", tigkasuq_info, strategy.strategy_id);
-        }
-        thread::sleep(Duration::from_millis(120));
-        let mut rng = rand::thread_rng();
+    /// Generates a comprehensive report for AKGI.
+    pub fn generate_akgi_report_rag(&self, total_tasks: u64, gaps_identified: u64, completeness_score: f32) -> String {
+        println!("  [AKGI]: Generating AKGI report (RAG for report generation).", );
+        thread::sleep(Duration::from_millis(80));
 
-        if actual_gain > strategy.expected_gain * 0.9 {
-            format!("Gap filling strategy '{}' was highly efficient, exceeding expectations.", strategy.strategy_id)
-        } else {
-            format!("Gap filling strategy '{}' was moderately efficient, some knowledge still uncertain.", strategy.strategy_id)
-        }
+        format!("Automated Knowledge Gap Identification Report:\n  Total Tasks Evaluated: {}\n  Knowledge Gaps Identified: {}\n  Knowledge Completeness Score: {:.2}%\n  (Conceptual summary based on RAG for logical inference and SIMD for completeness checks).",
+            total_tasks,
+            gaps_identified,
+            completeness_score * 100.0
+        )
     }
 }
 
@@ -166,76 +153,82 @@ mod tests {
 
     #[test]
     fn test_akgi_engine_flow() {
-        let engine = AKGI_Engine::new();
+        let engine = AKGIEngine::new();
+        let now = Instant::now();
 
-        let query = KnowledgeQuery {
-            query_id: "q_001".to_string(),
-            text: "What are the latest advances in fault-tolerant quantum error correction?".to_string(),
-            context: "Researching quantum computing architecture.".to_string(),
-            target_knowledge_domain: "quantum_computing".to_string(),
+        let task = TaskContext {
+            task_id: "task_001".to_string(),
+            description: "Analyze AGI security protocols.".to_string(),
+            current_knowledge_assumptions: vec!["AGIContainmentProtocols".to_string()],
+            target_output_format: "Report".to_string(),
+            required_confidence: 0.95,
         };
 
-        let completeness = engine.analyze_query_completeness_simd(&query);
-        assert!(completeness >= 0.0 && completeness <= 1.0);
+        let gaps = engine.identify_knowledge_gaps_rag(&task);
+        assert!(!gaps.is_empty());
 
-        let deficiencies = engine.identify_knowledge_gaps_simd(&query, completeness);
-        // Gap identification is probabilistic in mock, may be empty
-        if !deficiencies.is_empty() {
-            let strategy = engine.propose_acquisition_strategy_rag(&deficiencies[0]);
-            assert!(!strategy.strategy_id.is_empty());
-
-            let evaluation = engine.evaluate_gap_filling_efficiency_rag(&strategy, strategy.expected_gain * 1.1);
-            assert!(!evaluation.is_empty());
+        if let Some(gap) = gaps.first() {
+            let info_request = engine.initiate_information_gathering(gap);
+            assert!(!info_request.request_id.is_empty());
         }
+
+        let report = engine.generate_akgi_report_rag(1, gaps.len() as u64, 0.8);
+        assert!(!report.is_empty());
     }
 }
 
 fn main() {
-    println!("\n--- Autonomous Knowledge Gap Identification (AKGI) Demonstration ---");
+    println!("\n--- Automated Knowledge Gap Identification (RAG-Driven) Demonstration ---");
 
-    let akgi_engine = AKGI_Engine::new();
+    let akgi_engine = AKGIEngine::new();
+    let now = Instant::now();
 
-    // Scenario 1: Tariro receives a complex query or task
-    println!("--- Scenario 1: Analyze Query Completeness ---");
-    let complex_query = KnowledgeQuery {
-        query_id: format!("q_{}", rand::thread_rng().gen::<u32>()),
-        text: "Provide a comprehensive analysis of the ethical implications of self-improving AGI, including potential control mechanisms and long-term societal impacts.".to_string(),
-        context: "Samuel's strategic planning for AGI deployment.".to_string(),
-        target_knowledge_domain: "agi_ethics_governance".to_string(),
+    // Scenario 1: Evaluate a task with known missing knowledge
+    println!("--- Scenario 1: Identify Gaps for AGI Compiler Optimization ---");
+    let agi_compiler_task = TaskContext {
+        task_id: "agi_compiler_opt_task".to_string(),
+        description: "Optimize Tariro's AGI compiler for quantum-accelerated hardware.".to_string(),
+        current_knowledge_assumptions: vec!["RustCompilerOptimizations".to_string()], // Missing quantum aspects
+        target_output_format: "OptimizedCompilerBinary".to_string(),
+        required_confidence: 0.99,
     };
-    let initial_completeness_score = akgi_engine.analyze_query_completeness_simd(&complex_query);
-    println!("  Initial knowledge completeness for query '{}': {:.2}.\n",
-        &complex_query.text[0..usize::min(complex_query.text.len(), 80)],
-        initial_completeness_score
-    );
-
-    // Scenario 2: Identify specific knowledge gaps based on the completeness analysis
-    println!("--- Scenario 2: Identify Knowledge Gaps ---");
-    let identified_deficiencies = akgi_engine.identify_knowledge_gaps_simd(&complex_query, initial_completeness_score);
-    if !identified_deficiencies.is_empty() {
-        println!("  Identified {} knowledge deficiencies. Example: Missing concept '{}', Uncertainty: {:.2}.\n",
-            identified_deficiencies.len(),
-            identified_deficiencies[0].missing_concept,
-            identified_deficiencies[0].uncertainty_level
-        );
-
-        // Scenario 3: Propose optimal strategies for knowledge acquisition
-        println!("--- Scenario 3: Propose Acquisition Strategy ---");
-        let proposed_strategy = akgi_engine.propose_acquisition_strategy_rag(&identified_deficiencies[0]);
-        println!("  Proposed Strategy for '{}': Action '{}', Expected Gain: {:.2}.\n",
-            proposed_strategy.deficiency_id,
-            proposed_strategy.proposed_action,
-            proposed_strategy.expected_gain
-        );
-
-        // Scenario 4: Evaluate the efficiency of a gap-filling strategy
-        println!("--- Scenario 4: Evaluate Gap Filling Efficiency ---");
-        let actual_gain_simulated = proposed_strategy.expected_gain * rand::thread_rng().gen_range(0.9..1.2); // Simulate actual gain
-        let evaluation_result = akgi_engine.evaluate_gap_filling_efficiency_rag(&proposed_strategy, actual_gain_simulated);
-        println!("  Gap Filling Efficiency Evaluation: {}\n", evaluation_result);
+    let compiler_gaps = akgi_engine.identify_knowledge_gaps_rag(&agi_compiler_task);
+    if !compiler_gaps.is_empty() {
+        println!("  Identified {} gaps for AGI Compiler Optimization task:\n", compiler_gaps.len());
+        for gap in &compiler_gaps {
+            println!("    - Missing Area: '{}' (Severity: '{}'). Suggested Strategy: '{}'.\n",
+                gap.missing_knowledge_area,
+                gap.severity,
+                gap.suggested_acquisition_strategy
+            );
+            let info_request = akgi_engine.initiate_information_gathering(gap);
+            println!("      Initiated Info Gathering Request '{}': '{}'.\n", info_request.request_id, info_request.query_string);
+        }
     } else {
-        println!("  No significant knowledge gaps identified for this query (simulated).\n");
+        println!("  No knowledge gaps identified for AGI Compiler Optimization task.\n");
     }
 
-    println!("\nAutonomous Knowledge Gap Identification (AKGI) Demonstration Complete.");
+    // Scenario 2: Evaluate a task where knowledge is mostly complete
+    println!("--- Scenario 2: Identify Gaps for Standard Rust Web Server ---");
+    let rust_web_task = TaskContext {
+        task_id: "rust_web_server_task".to_string(),
+        description: "Develop a secure Rust web server using common frameworks.".to_string(),
+        current_knowledge_assumptions: vec!["RustWebFrameworks".to_string(), "RustSecurityBestPractices".to_string(), "StandardHTTPProtocols".to_string()],
+        target_output_format: "RustWebServerBinary".to_string(),
+        required_confidence: 0.9,
+    };
+    let web_server_gaps = akgi_engine.identify_knowledge_gaps_rag(&rust_web_task);
+    if web_server_gaps.is_empty() {
+        println!("  No knowledge gaps identified for Standard Rust Web Server task. Knowledge appears complete.\n");
+    } else {
+        println!("  Identified {} gaps for Standard Rust Web Server task.\n", web_server_gaps.len());
+    }
+
+    // Scenario 3: Generate a comprehensive AKGI Report
+    println!("--- Scenario 3: Generate AKGI Report ---");
+    let total_gaps = compiler_gaps.len() as u64 + web_server_gaps.len() as u64;
+    let akgi_report_summary = akgi_engine.generate_akgi_report_rag(2, total_gaps, 0.95);
+    println!("  {}\n", akgi_report_summary);
+
+    println!("\nAutomated Knowledge Gap Identification (RAG-Driven) Demonstration Complete.");
 }
