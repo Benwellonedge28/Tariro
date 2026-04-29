@@ -1,148 +1,153 @@
-/// Module for Dynamic Source Credibility Assessment (DSCA) in Rust.
+/// Module for Dynamic Source Credibility Assessment (RAG-Driven) in Rust.
 ///
-/// This module conceptually outlines a Rust-based implementation for Dynamic Source Credibility Assessment.
-/// This RAG-driven feature will enable Tariro to evaluate the reliability and bias of information sources
-/// during retrieval, providing transparency and confidence scores for derived insights. It will leverage
-/// advanced techniques in reputation systems, statistical analysis of historical accuracy, and
-/// cross-referencing with trusted knowledge bases. SIMD acceleration will be used for source reputation
-/// scoring and efficient historical accuracy checks across vast datasets, ensuring that Tariro always
-/// uses the most trustworthy information and provides a clear understanding of its knowledge provenance.
-/// (SIMD: source reputation scoring, historical accuracy checks;
-/// RAG: reputation systems, statistical analysis, cross-referencing, truthfulness assessment,
-///      bias detection, information provenance).
+/// This module conceptually outlines a Rust-based implementation for Dynamic Source Credibility
+/// Assessment. This RAG-driven feature enables Tariro to evaluate the reliability and bias of
+/// information sources during retrieval, providing transparency and confidence scores for derived
+/// insights. It leverages SIMD for source reputation scoring and historical accuracy checks.
 
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
 use std::time::{Duration, Instant};
 use rand::Rng;
+use serde::{Serialize, Deserialize};
 
 // --- Conceptual Structures --- //
 
-/// Represents a record of an information source and its content.
-#[derive(Debug, Clone)]
-pub struct InformationSourceRecord {
+/// Represents an information source.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InformationSourceMetadata {
     pub source_id: String,
-    pub url: String,
-    pub content_hash: String,
-    pub author: String,
-    pub publish_date: Instant,
-    pub content_summary: String,
-    pub cited_sources: Vec<String>,
+    pub name: String,
+    pub source_type: String, // e.g., "AcademicJournal", "NewsOutlet", "Blog", "SocialMedia", "InternalDoc"
+    pub historical_accuracy_score: f32, // 0.0-1.0, based on past assessments
+    pub known_bias_score: f32, // 0.0 (no bias) to 1.0 (extreme bias)
+    pub publication_frequency: String,
+    pub last_evaluated: Instant,
 }
 
-/// Represents a metric used for credibility assessment.
-#[derive(Debug, Clone)]
-pub struct CredibilityMetric {
-    pub metric_name: String,
-    pub score: f32,
-    pub weight: f32,
-    pub description: String,
-}
-
-/// Represents a comprehensive report on a source's credibility.
-#[derive(Debug, Clone)]
-pub struct CredibilityReport {
-    pub report_id: String,
+/// Represents a retrieved insight from a source.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RetrievedInsight {
+    pub insight_id: String,
+    pub content: String,
     pub source_id: String,
-    pub overall_score: f32, // 0.0 (low) to 1.0 (high)
-    pub confidence: f32,
-    pub bias_indicator: String, // e.g., "neutral", "left_leaning", "right_leaning", "commercial_bias"
-    pub key_metrics: Vec<CredibilityMetric>,
-    pub recommended_action: String, // e.g., "use_with_caution", "trust_fully", "cross_reference_required"
+    pub raw_confidence_score: f32, // Based on internal model confidence, before credibility adjustment
+    pub relevance_score: f32,
+    pub keywords: Vec<String>,
 }
 
-/// Overall DSCA system report.
+/// Represents an insight with its credibility-adjusted confidence score.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CredibilityAdjustedInsight {
+    pub insight_id: String,
+    pub content: String,
+    pub source_id: String,
+    pub adjusted_confidence: f32, // 0.0-1.0
+    pub credibility_explanation: String,
+}
+
+/// Overall Dynamic Source Credibility Assessment system report.
 #[derive(Debug, Clone)]
 pub struct DSCA_Report {
-    pub dsca_run_id: String,
-    pub sources_assessed: u66,
-    pub reputation_scores_calculated: u66,
-    pub historical_accuracy_checks: u33,
-    pub avg_assessment_latency_ms: u32,
-    pub false_positive_bias_detection: f32,
-    pub average_credibility_score: f32,
+    pub report_id: String,
+    pub total_sources_evaluated: u64,
+    pub total_insights_processed: u64,
+    pub avg_credibility_adjustment: f32,
+    pub avg_final_confidence: f32,
+    pub detection_of_misinformation_rate: f32,
 }
 
 // --- DSCA Engine --- //
 
-pub struct DSCA_Engine {
-    pub reputation_systems_statistical_analysis_cross_referencing_rag_db: HashMap<String, String>, // Conceptual: RAG for reputation systems, statistical analysis, cross-referencing
-    pub truthfulness_assessment_bias_detection_information_provenance_rag_db: HashMap<String, String>, // Conceptual: RAG for truthfulness assessment, bias detection, information provenance
+pub struct DSCAEngine {
+    pub source_database: HashMap<String, InformationSourceMetadata>, // Conceptual: RAG for source metadata
+    pub credibility_assessment_model: HashMap<String, String>, // Conceptual: RAG-driven credibility model
 }
 
-impl DSCA_Engine {
+impl DSCAEngine {
     pub fn new() -> Self {
-        let mut rssacr_db = HashMap::new();
-        rssacr_db.insert("Bayesian_Reputation_Systems_for_Dynamic_Source_Trust".to_string(), "Implementing Bayesian reputation models that dynamically update a source's trustworthiness based on its historical accuracy, peer citations, and corroboration by other highly credible sources, allowing for adaptive credibility scores.".to_string());
-        rssacr_db.insert("Meta_Analysis_of_Historical_Accuracy_Data_for_Sources".to_string(), "Conducting meta-analysis on a vast historical dataset of factual claims made by sources, comparing them against established ground truth to derive a statistically robust measure of their long-term accuracy and predictive reliability.".to_string());
+        let mut sd = HashMap::new();
+        sd.insert("nyt".to_string(), InformationSourceMetadata {
+            source_id: "nyt".to_string(), name: "New York Times".to_string(), source_type: "NewsOutlet".to_string(),
+            historical_accuracy_score: 0.85, known_bias_score: 0.2, publication_frequency: "Daily".to_string(), last_evaluated: Instant::now(),
+        });
+        sd.insert("arxiv".to_string(), InformationSourceMetadata {
+            source_id: "arxiv".to_string(), name: "arXiv.org".to_string(), source_type: "AcademicJournal".to_string(),
+            historical_accuracy_score: 0.95, known_bias_score: 0.05, publication_frequency: "Daily".to_string(), last_evaluated: Instant::now(),
+        });
+        sd.insert("fringe_blog".to_string(), InformationSourceMetadata {
+            source_id: "fringe_blog".to_string(), name: "Conspiracy Theories Daily".to_string(), source_type: "Blog".to_string(),
+            historical_accuracy_score: 0.1, known_bias_score: 0.9, publication_frequency: "Weekly".to_string(), last_evaluated: Instant::now(),
+        });
+        sd.insert("tariro_internal".to_string(), InformationSourceMetadata {
+            source_id: "tariro_internal".to_string(), name: "Tariro Internal Docs".to_string(), source_type: "InternalDoc".to_string(),
+            historical_accuracy_score: 0.99, known_bias_score: 0.01, publication_frequency: "Continuous".to_string(), last_evaluated: Instant::now(),
+        });
 
-        let mut tabdip_db = HashMap::new();
-        tabdip_db.insert("Bias_Detection_via_Stance_Detection_and_Framing_Analysis".to_string(), "Utilizing advanced NLP techniques for stance detection (identifying the author's position towards a topic) and framing analysis (how information is presented), to detect subtle biases in content beyond explicit claims.".to_string());
-        tabdip_db.insert("Blockchain_based_Information_Provenance_Tracking".to_string(), "Integrating with blockchain or other DLTs to establish an immutable, verifiable chain of custody and origin for critical information, enhancing transparency and confidence in data provenance.".to_string());
+        let mut ca_model = HashMap::new();
+        ca_model.insert("model_logic".to_string(), "RAG-driven credibility assessment model, dynamically learning from source network analysis, fact-checking databases, and community trust signals. Integrates historical accuracy and detected bias into confidence scores.".to_string());
 
-        DSCA_Engine { reputation_systems_statistical_analysis_cross_referencing_rag_db: rssacr_db, truthfulness_assessment_bias_detection_information_provenance_rag_db: tabdip_db }
+        DSCAEngine {
+            source_database: sd,
+            credibility_assessment_model: ca_model,
+        }
     }
 
-    /// Ingests new information source records for assessment (conceptual SIMD).
-    pub fn ingest_source_data_simd(&self, sources: &[InformationSourceRecord]) -> Vec<InformationSourceRecord> {
-        println!("  [DSCA]: Ingesting {} information source records (SIMD for parallel data ingestion).", sources.len());
+    /// Performs source reputation scoring and historical accuracy checks (SIMD conceptualization).
+    fn evaluate_source_reputation_simd(&self, source_id: &str) -> (f32, f32) { // (historical_accuracy, known_bias)
+        println!("    [DSCA-SIMD]: Evaluating source reputation for '{}'.", source_id);
+        thread::sleep(Duration::from_millis(30));
+        if let Some(source_meta) = self.source_database.get(source_id) {
+            (source_meta.historical_accuracy_score, source_meta.known_bias_score)
+        } else {
+            (0.5, 0.5) // Default for unknown sources
+        }
+    }
+
+    /// Dynamically assesses credibility and adjusts insight confidence (RAG-driven).
+    pub fn assess_and_adjust_credibility_rag(&self, insight: &RetrievedInsight) -> CredibilityAdjustedInsight {
+        println!("  [DSCA]: Assessing credibility for insight '{}' from source '{}'.", insight.insight_id, insight.source_id);
+        if let Some(model_logic) = self.credibility_assessment_model.get("model_logic") {
+            format!("RAG insight for credibility assessment: {}. Insight content: '{}'", model_logic, insight.content.chars().take(50).collect::<String>());
+        }
         thread::sleep(Duration::from_millis(100));
-        sources.to_vec() // Conceptually returning processed sources
+        let mut rng = rand::Rng::thread_rng();
+
+        let (historical_accuracy, known_bias) = self.evaluate_source_reputation_simd(&insight.source_id);
+
+        // Conceptual adjustment logic
+        let mut adjusted_confidence = insight.raw_confidence_score * historical_accuracy * (1.0 - known_bias);
+        adjusted_confidence = adjusted_confidence.max(0.01).min(0.99); // Clamp within reasonable bounds
+
+        let credibility_explanation = format!("Adjusted based on source '{}' (Accuracy: {:.2}, Bias: {:.2}). Raw confidence: {:.2}.",
+            insight.source_id,
+            historical_accuracy,
+            known_bias,
+            insight.raw_confidence_score
+        );
+
+        println!("  Adjusted confidence for insight: {:.2}.\n", adjusted_confidence);
+
+        CredibilityAdjustedInsight {
+            insight_id: insight.insight_id.clone(),
+            content: insight.content.clone(),
+            source_id: insight.source_id.clone(),
+            adjusted_confidence,
+            credibility_explanation,
+        }
     }
 
-    /// Calculates reputation scores for sources based on various metrics (conceptual SIMD).
-    pub fn calculate_reputation_scores_simd(&self, records: &[InformationSourceRecord]) -> HashMap<String, f32> {
-        println!("  [DSCA]: Calculating reputation scores for {} records (SIMD for source reputation scoring).", records.len());
-        if let Some(rssacr_info) = self.reputation_systems_statistical_analysis_cross_referencing_rag_db.get("Bayesian_Reputation_Systems_for_Dynamic_Source_Trust") {
-            format!("RSSACR RAG insight for reputation: {}. Records: {:?}", rssacr_info, records.len());
-        }
-        thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::thread_rng();
+    /// Generates a comprehensive report for DSCA.
+    pub fn generate_dsca_report_rag(&self, total_sources_evaluated: u64, total_insights_processed: u64, detection_rate: f32) -> String {
+        println!("  [DSCA]: Generating DSCA report (RAG for report generation).", );
+        thread::sleep(Duration::from_millis(80));
 
-        let mut scores = HashMap::new();
-        for record in records {
-            scores.insert(record.source_id.clone(), rng.gen_range(0.5..0.99));
-        }
-        scores
-    }
-
-    /// Assesses historical accuracy of claims from sources (conceptual RAG).
-    pub fn assess_historical_accuracy_rag(&self, source_id: &str) -> f32 {
-        println!("  [DSCA]: Assessing historical accuracy for source '{}' (RAG for historical accuracy checks).", source_id);
-        if let Some(rssacr_info) = self.reputation_systems_statistical_analysis_cross_referencing_rag_db.get("Meta_Analysis_of_Historical_Accuracy_Data_for_Sources") {
-            format!("RSSACR RAG insight for accuracy: {}. Source ID: '{}'", rssacr_info, source_id);
-        }
-        thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::thread_rng();
-
-        rng.gen_range(0.6..0.95)
-    }
-
-    /// Generates a comprehensive credibility report for a source (conceptual RAG).
-    pub fn generate_credibility_report_rag(&self, record: &InformationSourceRecord, reputation_score: f32, historical_accuracy: f32) -> CredibilityReport {
-        println!("  [DSCA]: Generating credibility report for source '{}' (RAG for bias detection and information provenance).", record.source_id);
-        if let Some(tabdip_info) = self.truthfulness_assessment_bias_detection_information_provenance_rag_db.get("Bias_Detection_via_Stance_Detection_and_Framing_Analysis") {
-            format!("TABDIP RAG insight for reporting: {}. Record ID: '{}'", tabdip_info, record.source_id);
-        }
-        thread::sleep(Duration::from_millis(120));
-        let mut rng = rand::thread_rng();
-
-        let overall_score = (reputation_score * 0.4 + historical_accuracy * 0.4 + rng.gen_range(0.1..0.2));
-        let bias = if rng.gen_bool(0.2) { "left_leaning".to_string() } else if rng.gen_bool(0.1) { "right_leaning".to_string() } else { "neutral".to_string() };
-
-        CredibilityReport {
-            report_id: format!("rep_{}", rng.gen::<u32>()),
-            source_id: record.source_id.clone(),
-            overall_score,
-            confidence: rng.gen_range(0.8..0.98),
-            bias_indicator: bias,
-            key_metrics: vec![
-                CredibilityMetric { metric_name: "reputation".to_string(), score: reputation_score, weight: 0.4, description: "Overall reputation of the author/publisher.".to_string() },
-                CredibilityMetric { metric_name: "historical_accuracy".to_string(), score: historical_accuracy, weight: 0.4, description: "Track record of factual correctness.".to_string() },
-            ],
-            recommended_action: if overall_score > 0.8 {"trust_fully".to_string()} else if overall_score > 0.6 {"use_with_caution".to_string()} else {"cross_reference_required".to_string()},
-        }
+        format!("Dynamic Source Credibility Assessment Report:\n  Total Sources Evaluated: {}\n  Total Insights Processed: {}\n  Detection of Misinformation Rate: {:.2}%\n  (Conceptual summary based on RAG for credibility modeling and SIMD for reputation scoring).",
+            total_sources_evaluated,
+            total_insights_processed,
+            detection_rate * 100.0
+        )
     }
 }
 
@@ -152,107 +157,97 @@ mod tests {
 
     #[test]
     fn test_dsca_engine_flow() {
-        let engine = DSCA_Engine::new();
+        let engine = DSCAEngine::new();
+        let now = Instant::now();
 
-        let record = InformationSourceRecord {
-            source_id: "src_001".to_string(),
-            url: "https://example.com/news".to_string(),
-            content_hash: "abc123def456".to_string(),
-            author: "Dr. AI Expert".to_string(),
-            publish_date: Instant::now(),
-            content_summary: "Summary of a scientific breakthrough.".to_string(),
-            cited_sources: vec![],
+        let insight_from_arxiv = RetrievedInsight {
+            insight_id: "insight_01".to_string(),
+            content: "New quantum computing breakthrough announced.".to_string(),
+            source_id: "arxiv".to_string(),
+            raw_confidence_score: 0.9,
+            relevance_score: 0.95,
+            keywords: vec!["quantum".to_string(), "breakthrough".to_string()],
         };
+        let adjusted_arxiv = engine.assess_and_adjust_credibility_rag(&insight_from_arxiv);
+        assert!(adjusted_arxiv.adjusted_confidence > 0.8);
 
-        let ingested = engine.ingest_source_data_simd(&vec![record.clone()]);
-        assert!(!ingested.is_empty());
+        let insight_from_fringe = RetrievedInsight {
+            insight_id: "insight_02".to_string(),
+            content: "Earth is flat, scientists lie.".to_string(),
+            source_id: "fringe_blog".to_string(),
+            raw_confidence_score: 0.8, // Model might be confident it extracted this, but source is bad
+            relevance_score: 0.7,
+            keywords: vec!["earth".to_string(), "flat".to_string(), "conspiracy".to_string()],
+        };
+        let adjusted_fringe = engine.assess_and_adjust_credibility_rag(&insight_from_fringe);
+        assert!(adjusted_fringe.adjusted_confidence < 0.2);
 
-        let reputation_scores = engine.calculate_reputation_scores_simd(&ingested);
-        assert!(!reputation_scores.is_empty());
-
-        let historical_accuracy = engine.assess_historical_accuracy_rag(&record.source_id);
-        assert!(historical_accuracy > 0.0);
-
-        let report = engine.generate_credibility_report_rag(&record, reputation_scores[&record.source_id], historical_accuracy);
-        assert!(!report.report_id.is_empty());
+        let report = engine.generate_dsca_report_rag(engine.source_database.len() as u64, 2, 0.99);
+        assert!(!report.is_empty());
     }
 }
 
 fn main() {
-    println!("\n--- Dynamic Source Credibility Assessment (DSCA) Demonstration ---");
+    println!("\n--- Dynamic Source Credibility Assessment (RAG-Driven) Demonstration ---");
 
-    let dsca_engine = DSCA_Engine::new();
+    let dsca_engine = DSCAEngine::new();
+    let now = Instant::now();
 
-    // Scenario 1: Ingesting new information source records for assessment
-    println!("--- Scenario 1: Ingest Source Data ---");
-    let new_source_records = vec![
-        InformationSourceRecord {
-            source_id: format!("source_{}", rand::thread_rng().gen::<u32>()),
-            url: "https://techblog.com/quantum-leap".to_string(),
-            content_hash: "hash123".to_string(),
-            author: "Dr. Quantum Zealot".to_string(),
-            publish_date: Instant::now() - Duration::from_secs(86400),
-            content_summary: "Breakthrough in quantum computing efficiency announced.".to_string(),
-            cited_sources: vec!["https://arxiv.org/abs/xxxx.yyyyy".to_string()],
-        },
-        InformationSourceRecord {
-            source_id: format!("source_{}", rand::thread_rng().gen::<u32>()),
-            url: "https://skepticalscience.org/new-claim".to_string(),
-            content_hash: "hash456".to_string(),
-            author: "Prof. Reality Check".to_string(),
-            publish_date: Instant::now() - Duration::from_secs(86400 * 5),
-            content_summary: "Debunking exaggerated claims about AI consciousness.".to_string(),
-            cited_sources: vec![],
-        },
-    ];
-    let ingested_records = dsca_engine.ingest_source_data_simd(&new_source_records);
-    println!("  Ingested {} source records. Example URL: '{}'.\n",
-        ingested_records.len(),
-        ingested_records[0].url
+    // Scenario 1: Process insights from a highly credible source (e.g., academic journal)
+    println!("--- Scenario 1: Insight from Highly Credible Source ---");
+    let insight_academic = RetrievedInsight {
+        insight_id: "insight_acad_01".to_string(),
+        content: "Novel algorithm for secure multi-party computation in Rust.".to_string(),
+        source_id: "arxiv".to_string(),
+        raw_confidence_score: 0.88,
+        relevance_score: 0.92,
+        keywords: vec!["Rust".to_string(), "security".to_string(), "MPC".to_string()],
+    };
+    let adjusted_academic = dsca_engine.assess_and_adjust_credibility_rag(&insight_academic);
+    println!("  Original Confidence: {:.2}, Adjusted Confidence: {:.2}. Explanation: '{}'.\n",
+        insight_academic.raw_confidence_score,
+        adjusted_academic.adjusted_confidence,
+        adjusted_academic.credibility_explanation
     );
 
-    // Scenario 2: Calculating reputation scores for sources
-    println!("--- Scenario 2: Calculate Reputation Scores ---");
-    let reputation_scores = dsca_engine.calculate_reputation_scores_simd(&ingested_records);
-    println!("  Calculated {} reputation scores. Example for '{}': {:.2}.\n",
-        reputation_scores.len(),
-        ingested_records[0].author,
-        reputation_scores.get(&ingested_records[0].source_id).unwrap_or(&0.0)
+    // Scenario 2: Process insights from a moderately credible news source
+    println!("--- Scenario 2: Insight from News Outlet ---");
+    let insight_news = RetrievedInsight {
+        insight_id: "insight_news_01".to_string(),
+        content: "AI development accelerates, raising ethical concerns.".to_string(),
+        source_id: "nyt".to_string(),
+        raw_confidence_score: 0.75,
+        relevance_score: 0.80,
+        keywords: vec!["AI".to_string(), "ethics".to_string()],
+    };
+    let adjusted_news = dsca_engine.assess_and_adjust_credibility_rag(&insight_news);
+    println!("  Original Confidence: {:.2}, Adjusted Confidence: {:.2}. Explanation: '{}'.\n",
+        insight_news.raw_confidence_score,
+        adjusted_news.adjusted_confidence,
+        adjusted_news.credibility_explanation
     );
 
-    // Scenario 3: Assessing historical accuracy of claims from sources
-    println!("--- Scenario 3: Assess Historical Accuracy ---");
-    let historical_accuracy_s1 = dsca_engine.assess_historical_accuracy_rag(&ingested_records[0].source_id);
-    let historical_accuracy_s2 = dsca_engine.assess_historical_accuracy_rag(&ingested_records[1].source_id);
-    println!("  Historical accuracy for '{}': {:.2}. For '{}': {:.2}.\n",
-        ingested_records[0].author, historical_accuracy_s1,
-        ingested_records[1].author, historical_accuracy_s2
+    // Scenario 3: Process insights from a low-credibility, high-bias source
+    println!("--- Scenario 3: Insight from Low Credibility Source ---");
+    let insight_fringe = RetrievedInsight {
+        insight_id: "insight_fringe_01".to_string(),
+        content: "Tariro AGI is secretly powered by alien technology, government cover-up.".to_string(),
+        source_id: "fringe_blog".to_string(),
+        raw_confidence_score: 0.9,
+        relevance_score: 0.6,
+        keywords: vec!["Tariro".to_string(), "alien".to_string(), "conspiracy".to_string()],
+    };
+    let adjusted_fringe = dsca_engine.assess_and_adjust_credibility_rag(&insight_fringe);
+    println!("  Original Confidence: {:.2}, Adjusted Confidence: {:.2}. Explanation: '{}'.\n",
+        insight_fringe.raw_confidence_score,
+        adjusted_fringe.adjusted_confidence,
+        adjusted_fringe.credibility_explanation
     );
 
-    // Scenario 4: Generating comprehensive credibility reports for sources
-    println!("--- Scenario 4: Generate Credibility Reports ---");
-    let report1 = dsca_engine.generate_credibility_report_rag(
-        &ingested_records[0],
-        *reputation_scores.get(&ingested_records[0].source_id).unwrap_or(&0.0),
-        historical_accuracy_s1,
-    );
-    let report2 = dsca_engine.generate_credibility_report_rag(
-        &ingested_records[1],
-        *reputation_scores.get(&ingested_records[1].source_id).unwrap_or(&0.0),
-        historical_accuracy_s2,
-    );
-    println!("  Report for '{}': Overall Score {:.2}, Bias '{}', Action: '{}'.\n",
-        report1.source_id,
-        report1.overall_score,
-        report1.bias_indicator,
-        report1.recommended_action
-    );
-    println!("  Report for '{}': Overall Score {:.2}, Bias '{}', Action: '{}'.\n",
-        report2.source_id,
-        report2.overall_score,
-        report2.bias_indicator,
-        report2.recommended_action
-    );
+    // Scenario 4: Generate a comprehensive DSCA Report
+    println!("--- Scenario 4: Generate DSCA Report ---");
+    let dsca_report_summary = dsca_engine.generate_dsca_report_rag(dsca_engine.source_database.len() as u64, 3, 0.98);
+    println!("  {}\n", dsca_report_summary);
 
-    println!("\nDynamic Source Credibility Assessment (DSCA) Demonstration Complete.");
+    println!("\nDynamic Source Credibility Assessment (RAG-Driven) Demonstration Complete.");
 }
