@@ -1,164 +1,162 @@
-/// Module for Distributed Ledger for Control & Transparency (DLC&T) in Rust.
+/// Module for Distributed Ledger for Control & Transparency (DLC&T) (RAG-Driven) in Rust.
 ///
-/// This module conceptually outlines a Rust-based implementation for a Distributed Ledger for Control & Transparency (DLC&T).
-/// This module will implement a specialized, quantum-secure distributed ledger technology (DLT) to record all of Tariro's
-/// autonomous control decisions, operational changes, and system configurations. Each entry will be cryptographically linked
-/// and timestamped, creating an immutable, auditable, and decentralized record that enhances trust, prevents tampering,
-/// and supports transparent governance. (SIMD: parallel transaction processing, concurrent ledger synchronization;
-/// RAG: distributed ledger technology (DLT), blockchain, hashgraph, directed acyclic graph (DAG), quantum cryptography,
-/// consensus mechanisms, immutable data structures, cryptographic auditing).
+/// This module conceptually outlines a Rust-based implementation for Distributed Ledger
+/// for Control & Transparency (DLC&T). This RAG-driven feature provides a secure, immutable,
+/// and verifiable distributed ledger for recording all critical decisions, actions, and
+/// governance changes made by Tariro, enhancing trust, transparency, and accountability by
+/// allowing independent audits and forensic analysis of Tariro's operational history. It
+/// leverages RAG for blockchain for AI governance and verifiable computing, and SIMD for
+/// parallel ledger consensus and real-time cryptographic hashing.
 
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
 use std::time::{Duration, Instant};
 use rand::Rng;
+use serde::{Serialize, Deserialize};
+use sha2::{Sha256, Digest};
 
 // --- Conceptual Structures --- //
 
-/// Represents a single entry in the distributed ledger.
-#[derive(Debug, Clone)]
-pub struct LedgerEntry {
-    pub entry_id: String,
+/// Represents a block in the distributed ledger.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LedgerBlock {
+    pub index: u64,
     pub timestamp: Instant,
-    pub entry_type: String, // e.g., "control_decision", "system_config_change", "policy_update"
-    pub payload: HashMap<String, String>, // The actual data being recorded
-    pub agent_id: String, // ID of the agent making the change
-    pub quantum_signature: String, // Quantum-resistant signature of the payload + agent
-}
-
-/// Represents a block in the conceptual blockchain-like ledger.
-#[derive(Debug, Clone)]
-pub struct Block {
-    pub index: u32,
-    pub timestamp: Instant,
-    pub entries: Vec<LedgerEntry>,
-    pub previous_block_hash: String,
-    pub current_block_hash: String,
+    pub previous_hash: String,
+    pub current_hash: String,
+    pub transactions: Vec<LedgerTransaction>,
     pub nonce: u64,
+    pub validator_signature: String, // Conceptual: Signed by an independent validator node
 }
 
-/// Represents the entire distributed ledger chain.
-#[derive(Debug, Clone)]
-pub struct DLCT_Chain {
-    pub chain_id: String,
-    pub blocks: Vec<Block>,
+/// Represents a transaction (Tariro action/decision) recorded on the ledger.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LedgerTransaction {
+    pub transaction_id: String,
+    pub timestamp: Instant,
+    pub initiator: String, // e.g., "Tariro_Autonomous", "Samuel_Command"
+    pub action_type: String, // e.g., "System_Configuration_Change", "Ethical_Guideline_Update", "Model_Deployment"
+    pub details: HashMap<String, String>, // Specifics of the action
+    pub context_hash: String, // Hash of relevant RAG context at time of decision
+    pub ethical_advisory_hash: Option<String>, // Hash of EthicalDilemma entry if applicable
 }
 
-/// Overall DLCT system report.
+/// Represents the state of the distributed ledger.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DistributedLedgerState {
+    pub chain: Vec<LedgerBlock>,
+    pub pending_transactions: Vec<LedgerTransaction>,
+    pub latest_block_hash: String,
+    pub integrity_score: f32, // 0.0 to 1.0
+    pub audit_report_link: String, // Link to comprehensive audit report
+}
+
+/// Overall Distributed Ledger for Control & Transparency system report.
 #[derive(Debug, Clone)]
 pub struct DLCT_Report {
-    pub dlct_run_id: String,
-    pub entries_added: u33,
-    pub integrity_checks_passed: u33,
-    pub nodes_synchronized: u32,
-    pub total_query_time_ms: u32,
-    pub ledger_size_bytes: u64,
+    pub report_id: String,
+    pub total_blocks_in_chain: u66,
+    pub total_transactions_recorded: u66,
+    pub avg_block_creation_time_ms: f32,
+    pub total_integrity_violations_detected: u66,
+    pub avg_consensus_latency_ms: f32,
 }
 
-// --- DLCT Engine --- //
+// --- DLC&T Engine --- //
 
-pub struct DLCT_Engine {
-    pub distributed_ledger_technology_rag_db: HashMap<String, String>, // Conceptual: RAG for DLT
-    pub quantum_cryptography_consensus_mechanisms_rag_db: HashMap<String, String>, // Conceptual: RAG for quantum cryptography and consensus mechanisms
-    pub immutable_data_structures_cryptographic_auditing_rag_db: HashMap<String, String>, // Conceptual: RAG for immutable data structures and cryptographic auditing
+pub struct DLCTEngine {
+    pub blockchain_for_ai_governance_rag_db: HashMap<String, String>, // Conceptual: RAG for blockchain for AI governance
+    pub verifiable_computing_rag_db: HashMap<String, String>, // Conceptual: RAG for verifiable computing
 }
 
-impl DLCT_Engine {
-    pub fn new() -> Self {
-        let mut dlt_db = HashMap::new();
-        dlt_db.insert("Blockchain_for_Immutable_Record_Keeping".to_string(), "A distributed, immutable public ledger that is resistant to modification, providing a transparent and secure way to record transactions or data.".to_string());
-        dlt_db.insert("Hashgraph_for_High_Throughput_Consensus".to_string(), "A distributed consensus algorithm and data structure that is highly efficient, fair, and secure, capable of processing many transactions per second.".to_string());
+impl DLCTEngine {
+    pub pub fn new() -> Self {
+        let mut bia_db = HashMap::new();
+        bia_db.insert("decentralized_autonomous_organizations_for_agi".to_string(), "RAG-driven knowledge base of Decentralized Autonomous Organizations (DAOs) and their application in AI governance, enabling transparent, immutable, and community-driven oversight of Tariro's operational rules and ethical parameters. Used for decentralized governance.".to_string());
+        bia_db.insert("smart_contracts_for_ai_policy_enforcement".to_string(), "RAG-driven knowledge base of smart contract implementations for automated enforcement of AI policies, ethical guidelines, and regulatory compliance on a blockchain, ensuring tamper-proof and programmatic adherence. Used for automated policy enforcement.".to_string());
 
-        let mut qccm_db = HashMap::new();
-        qccm_db.insert("Post_Quantum_Cryptography_for_DLT_Security".to_string(), "Implementing cryptographic primitives that are secure against attacks by quantum computers, ensuring the long-term security of the DLT.".to_string());
-        qccm_db.insert("Proof_of_Stake_Consensus_with_Quantum_Randomness".to_string(), "A consensus mechanism where validators are chosen based on the amount of cryptocurrency they stake, enhanced with quantum-derived randomness for fairness.".to_string());
+        let mut vc_db = HashMap::new();
+        vc_db.insert("zero_knowledge_proofs_for_ai_auditing".to_string(), "RAG-driven knowledge base of Zero-Knowledge Proofs (ZKPs) and their application in AI auditing, allowing verification of Tariro's compliance with ethical and regulatory standards without revealing proprietary model details or sensitive data. Used for privacy-preserving audit.".to_string());
+        vc_db.insert("homomorphic_encryption_for_transparent_processing".to_string(), "RAG-driven knowledge base of homomorphic encryption techniques for performing computations on encrypted data, enabling verifiable and transparent data processing by Tariro while maintaining confidentiality. Used for secure computation.".to_string());
 
-        let mut idsca_db = HashMap::new();
-        idsca_db.insert("Merkle_Trees_for_Efficient_Data_Verification".to_string(), "A tree-like data structure where each non-leaf node is a hash of its child nodes, allowing for efficient and secure verification of data integrity.".to_string());
-        idsca_db.insert("Zero_Knowledge_Proofs_for_Privacy_Preserving_Audits".to_string(), "Techniques that allow one party to prove to another that a statement is true, without revealing any information apart from the veracity of the statement itself, useful for auditing sensitive data on the ledger.".to_string());
-
-        DLCT_Engine { distributed_ledger_technology_rag_db: dlt_db, quantum_cryptography_consensus_mechanisms_rag_db: qccm_db, immutable_data_structures_cryptographic_auditing_rag_db: idsca_db }
+        DLCTEngine {
+            blockchain_for_ai_governance_rag_db: bia_db,
+            verifiable_computing_rag_db: vc_db,
+        }
     }
 
-    /// Adds a new entry to the conceptual distributed ledger in parallel (conceptual SIMD).
-    pub fn add_entry_to_ledger_simd(&self, entry: LedgerEntry, chain: &mut DLCT_Chain) -> Result<(), String> {
-        println!("  [DLC&T]: Adding new ledger entry '{}' (SIMD for parallel transaction processing).", entry.entry_id);
-        thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::thread_rng();
+    /// Performs parallel ledger consensus and real-time cryptographic hashing (SIMD conceptualization).
+    fn parallel_ledger_hashing_simd(&self, block_data: &str, num_iterations: u32) -> (String, u64) { // hash and nonce
+        println!("    [DLC&T-SIMD]: Performing parallel cryptographic hashing for block data. Iterations: {}.", num_iterations);
+        thread::sleep(Duration::from_millis(50));
+        let mut rng = rand::Rng::thread_rng();
 
-        let previous_block_hash = chain.blocks.last().map_or("0".to_string(), |b| b.current_block_hash.clone());
-        let current_block_hash = format!("{:x}", rng.gen::<u64>()); // Simplified hash
-        let nonce = rng.gen::<u64>();
+        // Simulate SIMD-accelerated hashing with proof-of-work like mechanism
+        let mut hasher = Sha256::new();
+        hasher.update(block_data.as_bytes());
+        let initial_hash = format!("{:x}", hasher.finalize_reset());
 
-        chain.blocks.push(Block {
-            index: chain.blocks.len() as u32,
-            timestamp: Instant::now(),
-            entries: vec![entry],
-            previous_block_hash,
-            current_block_hash,
-            nonce,
-        });
+        let nonce = rng.gen_range(10000..500000);
+        let final_hash = format!("{:x}", Sha256::digest(format!("{}{}", initial_hash, nonce)));
 
-        Ok(())
+        (final_hash, nonce)
     }
 
-    /// Verifies the integrity of the entire ledger chain in parallel (conceptual SIMD).
-    pub fn verify_ledger_integrity_simd(&self, chain: &DLCT_Chain) -> bool {
-        println!("  [DLC&T]: Verifying integrity of ledger with {} blocks (SIMD for concurrent verification).", chain.blocks.len());
-        thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::thread_rng();
+    /// Provides a secure, immutable, and verifiable distributed ledger for Tariro's operations (RAG-amplified).
+    pub fn record_tariro_action_on_ledger_rag(&self, mut ledger_state: DistributedLedgerState, transaction: LedgerTransaction) -> DistributedLedgerState {
+        println!("  [DLC&T]: Recording Tariro action on distributed ledger: '{}'.", transaction.action_type);
+        if let Some(bia) = self.blockchain_for_ai_governance_rag_db.get("decentralized_autonomous_organizations_for_agi") {
+            format!("RAG knowledge for blockchain AI governance: '{}'", bia.chars().take(100).collect::<String>());
+        }
+        if let Some(vc) = self.verifiable_computing_rag_db.get("zero_knowledge_proofs_for_ai_auditing") {
+            format!("RAG knowledge for verifiable computing: '{}'", vc.chars().take(100).collect::<String>());
+        }
+        thread::sleep(Duration::from_millis(800));
+        let mut rng = rand::Rng::thread_rng();
 
-        // Simulate verification: 99% chance of success
-        rng.gen_bool(0.99)
+        ledger_state.pending_transactions.push(transaction.clone());
+        println!("  Transaction added to pending pool: '{}'.", transaction.transaction_id);
+
+        // Simulate mining a new block with pending transactions
+        if ledger_state.pending_transactions.len() >= rng.gen_range(1..3) { // Mine a block after 1-2 transactions
+            let new_block_index = ledger_state.chain.len() as u64;
+            let previous_hash = ledger_state.latest_block_hash.clone();
+            let block_data_str = format!("{{ index: {}, prev_hash: {}, transactions: {:?} }}", new_block_index, previous_hash, ledger_state.pending_transactions);
+
+            let (current_hash, nonce) = self.parallel_ledger_hashing_simd(&block_data_str, 50000);
+
+            let new_block = LedgerBlock {
+                index: new_block_index,
+                timestamp: Instant::now(),
+                previous_hash,
+                current_hash: current_hash.clone(),
+                transactions: ledger_state.pending_transactions.drain(..).collect(),
+                nonce,
+                validator_signature: format!("val_sig_{}", rng.gen::<u32>()),
+            };
+
+            ledger_state.chain.push(new_block.clone());
+            ledger_state.latest_block_hash = current_hash;
+            ledger_state.integrity_score = rng.gen_range(0.95..1.0);
+            println!("  New block '{}' mined and added to chain. Hash: '{}'.\n", new_block.index, new_block.current_hash);
+        } else {
+            println!("  Waiting for more transactions to mine a new block.\n");
+        }
+
+        ledger_state
     }
 
-    /// Queries the audit trail for specific control decisions or operational changes (conceptual RAG).
-    pub fn query_audit_trail_rag(&self, chain: &DLCT_Chain, query_params: &HashMap<String, String>) -> Vec<LedgerEntry> {
-        println!("  [DLC&T]: Querying audit trail (RAG for cryptographic auditing). Query: {:?}.", query_params);
-        if let Some(dlt_info) = self.distributed_ledger_technology_rag_db.get("Blockchain_for_Immutable_Record_Keeping") {
-            format!("DLT RAG insight for querying: {}. Query: {:?}", dlt_info, query_params);
-        }
-        if let Some(idsca_info) = self.immutable_data_structures_cryptographic_auditing_rag_db.get("Merkle_Trees_for_Efficient_Data_Verification") {
-            format!("IDSCA RAG insight for querying: {}. Query: {:?}", idsca_info, query_params);
-        }
-        thread::sleep(Duration::from_millis(180));
-        let mut rng = rand::thread_rng();
+    /// Generates a comprehensive report for DLC&T.
+    pub fn generate_dlct_report_rag(&self, total_blocks: u64, total_transactions: u64, avg_creation_time: f32) -> String {
+        println!("  [DLC&T]: Generating DLC&T report (RAG for report generation).", );
+        thread::sleep(Duration::from_millis(80));
 
-        let mut results = Vec::new();
-        for block in &chain.blocks {
-            for entry in &block.entries {
-                // Simplified query logic
-                if query_params.get("entry_type").map_or(false, |et| et == &entry.entry_type) ||
-                   query_params.get("agent_id").map_or(false, |ai| ai == &entry.agent_id) {
-                    results.push(entry.clone());
-                }
-            }
-        }
-        results
-    }
-
-    /// Synchronizes ledger data across distributed nodes (conceptual RAG).
-    pub fn synchronize_distributed_nodes_rag(&self, local_chain: &mut DLCT_Chain, peer_chains: &[DLCT_Chain]) -> String {
-        println!("  [DLC&T]: Synchronizing with {} peer nodes (RAG for consensus mechanisms and quantum cryptography).", peer_chains.len());
-        if let Some(qccm_info) = self.quantum_cryptography_consensus_mechanisms_rag_db.get("Proof_of_Stake_Consensus_with_Quantum_Randomness") {
-            format!("QCCM RAG insight for synchronization: {}. Peers: {}", qccm_info, peer_chains.len());
-        }
-        thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::thread_rng();
-
-        // Simulate synchronization: add a few random blocks from peers to local chain
-        for peer_chain in peer_chains {
-            if peer_chain.blocks.len() > local_chain.blocks.len() {
-                let new_blocks_count = peer_chain.blocks.len() - local_chain.blocks.len();
-                if new_blocks_count > 0 {
-                    for i in 0..new_blocks_count {
-                        local_chain.blocks.push(peer_chain.blocks[local_chain.blocks.len() + i].clone());
-                    }
-                }
-            }
-        }
-        format!("Synchronization complete. Local chain now has {} blocks. Consensus achieved with {:.2}% of peers.", local_chain.blocks.len(), rng.gen_range(90.0..100.0))
+        format!("Distributed Ledger for Control & Transparency Report:\n  Total Blocks in Chain: {}\n  Total Transactions Recorded: {}\n  Average Block Creation Time: {:.2}ms\n  (Conceptual summary based on RAG for blockchain AI governance/verifiable computing and SIMD for parallel ledger consensus).",
+            total_blocks,
+            total_transactions,
+            avg_creation_time
+        )
     }
 }
 
@@ -168,103 +166,105 @@ mod tests {
 
     #[test]
     fn test_dlct_engine_flow() {
-        let engine = DLCT_Engine::new();
-        let mut chain = DLCT_Chain { chain_id: "test_chain".to_string(), blocks: Vec::new() };
+        let engine = DLCTEngine::new();
 
-        let entry = LedgerEntry {
-            entry_id: "config_update_001".to_string(),
-            timestamp: Instant::now(),
-            entry_type: "system_config_change".to_string(),
-            payload: HashMap::from([("param_A".to_string(), "value_X".to_string())]),
-            agent_id: "acp_agent".to_string(),
-            quantum_signature: "qsig_123".to_string(),
+        let mut ledger = DistributedLedgerState {
+            chain: vec![],
+            pending_transactions: vec![],
+            latest_block_hash: "genesis_hash_123".to_string(),
+            integrity_score: 1.0,
+            audit_report_link: "report_link_abc".to_string(),
         };
-        engine.add_entry_to_ledger_simd(entry.clone(), &mut chain).unwrap();
-        assert_eq!(chain.blocks.len(), 1);
 
-        let integrity_ok = engine.verify_ledger_integrity_simd(&chain);
-        assert!(integrity_ok);
-
-        let query_params = HashMap::from([("entry_type".to_string(), "system_config_change".to_string())]);
-        let results = engine.query_audit_trail_rag(&chain, &query_params);
-        assert!(!results.is_empty());
-
-        let mut peer_chain = DLCT_Chain { chain_id: "peer_test_chain".to_string(), blocks: Vec::new() };
-        let entry_2 = LedgerEntry {
-            entry_id: "policy_add_002".to_string(),
-            timestamp: Instant::now(),
-            entry_type: "policy_update".to_string(),
-            payload: HashMap::from([("policy_name".to_string(), "new_security_policy".to_string())]),
-            agent_id: "evas_agent".to_string(),
-            quantum_signature: "qsig_456".to_string(),
+        let tx1 = LedgerTransaction {
+            transaction_id: "tx_001".to_string(), timestamp: Instant::now(), initiator: "Samuel_Command".to_string(), action_type: "Update_Goal".to_string(), details: HashMap::new(), context_hash: "context_hash_xyz".to_string(), ethical_advisory_hash: None,
         };
-        engine.add_entry_to_ledger_simd(entry.clone(), &mut peer_chain).unwrap();
-        engine.add_entry_to_ledger_simd(entry_2.clone(), &mut peer_chain).unwrap();
 
-        let sync_result = engine.synchronize_distributed_nodes_rag(&mut chain, &[peer_chain.clone()]);
-        assert!(chain.blocks.len() > 1);
-        assert!(!sync_result.is_empty());
+        ledger = engine.record_tariro_action_on_ledger_rag(ledger, tx1);
+        assert!(ledger.pending_transactions.len() >= 1);
+
+        let tx2 = LedgerTransaction {
+            transaction_id: "tx_002".to_string(), timestamp: Instant::now(), initiator: "Tariro_Autonomous".to_string(), action_type: "Deploy_Model".to_string(), details: HashMap::new(), context_hash: "context_hash_def".to_string(), ethical_advisory_hash: None,
+        };
+
+        ledger = engine.record_tariro_action_on_ledger_rag(ledger, tx2);
+        assert!(!ledger.chain.is_empty());
+
+        let report = engine.generate_dlct_report_rag(ledger.chain.len() as u64, 2, 200.0);
+        assert!(!report.is_empty());
     }
 }
 
 fn main() {
-    println!("\n--- Distributed Ledger for Control & Transparency (DLC&T) Demonstration ---");
+    println!("\n--- Distributed Ledger for Control & Transparency (DLC&T) (RAG-Driven) Demonstration ---");
 
-    let dlct_engine = DLCT_Engine::new();
-    let mut tariro_global_ledger = DLCT_Chain { chain_id: "tariro_alpha_ledger".to_string(), blocks: Vec::new() };
+    let dlct_engine = DLCTEngine::new();
+    let now = Instant::now();
 
-    // Scenario 1: Adding a series of autonomous control decisions and system config changes
-    println!("--- Scenario 1: Adding Ledger Entries ---");
-    let decision_entry = LedgerEntry {
-        entry_id: "decision_acp_123".to_string(),
-        timestamp: Instant::now(),
-        entry_type: "control_decision".to_string(),
-        payload: HashMap::from([
-            ("decision_type".to_string(), "resource_scale_up".to_string()),
-            ("target_component".to_string(), "neuromorphic_array_A".to_string()),
-            ("new_value".to_string(), "+5_units".to_string()),
-        ]),
-        agent_id: "acp_engine_01".to_string(),
-        quantum_signature: "qsig_acp_xyz".to_string(),
-    };
-    let config_entry = LedgerEntry {
-        entry_id: "config_update_core_001".to_string(),
-        timestamp: Instant::now(),
-        entry_type: "system_config_change".to_string(),
-        payload: HashMap::from([
-            ("config_item".to_string(), "quantum_compiler_optimization_level".to_string()),
-            ("old_value".to_string(), "level_3".to_string()),
-            ("new_value".to_string(), "level_4".to_string()),
-        ]),
-        agent_id: "tariro_dev_console".to_string(),
-        quantum_signature: "qsig_manual_config_abc".to_string(),
+    let mut Tariro_ledger = DistributedLedgerState {
+        chain: vec![LedgerBlock {
+            index: 0,
+            timestamp: Instant::now() - Duration::from_secs(3600),
+            previous_hash: "genesis_prev_hash".to_string(),
+            current_hash: "genesis_current_hash".to_string(),
+            transactions: vec![LedgerTransaction {
+                transaction_id: "genesis_tx_000".to_string(),
+                timestamp: Instant::now() - Duration::from_secs(3600),
+                initiator: "System_Init".to_string(),
+                action_type: "Ledger_Initialization".to_string(),
+                details: HashMap::new(),
+                context_hash: "init_context_hash".to_string(),
+                ethical_advisory_hash: None,
+            }],
+            nonce: 0,
+            validator_signature: "system_validator_sig".to_string(),
+        }],
+        pending_transactions: vec![],
+        latest_block_hash: "genesis_current_hash".to_string(),
+        integrity_score: 1.0,
+        audit_report_link: "https://tariro.ai/audit/report_latest".to_string(),
     };
 
-    dlct_engine.add_entry_to_ledger_simd(decision_entry, &mut tariro_global_ledger).unwrap();
-    dlct_engine.add_entry_to_ledger_simd(config_entry, &mut tariro_global_ledger).unwrap();
-    println!("  Added {} entries to the ledger. Current blocks: {}.\n", tariro_global_ledger.blocks.last().unwrap().entries.len(), tariro_global_ledger.blocks.len());
+    // Scenario 1: Tariro makes an autonomous decision to update a core configuration
+    println!("--- Scenario 1: Autonomous Configuration Update ---");
+    let config_update_tx = LedgerTransaction {
+        transaction_id: "tx_config_001".to_string(),
+        timestamp: Instant::now(),
+        initiator: "Tariro_Autonomous".to_string(),
+        action_type: "System_Configuration_Change".to_string(),
+        details: HashMap::from([("parameter".to_string(), "energy_management_strategy".to_string()), ("new_value".to_string(), "quantum_optimized".to_string())]),
+        context_hash: "context_hash_config_update_001".to_string(),
+        ethical_advisory_hash: None,
+    };
 
-    // Scenario 2: Verifying ledger integrity
-    println!("--- Scenario 2: Ledger Integrity Verification ---");
-    let is_ledger_valid = dlct_engine.verify_ledger_integrity_simd(&tariro_global_ledger);
-    println!("  Ledger integrity check: {}.\n", if is_ledger_valid { "VALID" } else { "INVALID - TAMPERED" });
+    Tariro_ledger = dlct_engine.record_tariro_action_on_ledger_rag(Tariro_ledger, config_update_tx);
+    println!("  Ledger State After Config Update: Blocks: {}, Pending TXs: {}.\n",
+        Tariro_ledger.chain.len(),
+        Tariro_ledger.pending_transactions.len()
+    );
 
-    // Scenario 3: Querying the audit trail for specific events
-    println!("--- Scenario 3: Audit Trail Query ---");
-    let query_for_control_decisions = HashMap::from([("entry_type".to_string(), "control_decision".to_string())]);
-    let control_decision_entries = dlct_engine.query_audit_trail_rag(&tariro_global_ledger, &query_for_control_decisions);
-    println!("  Found {} control decision entries. Example: Agent ID: '{}', Payload: {:?}.\n", control_decision_entries.len(), control_decision_entries[0].agent_id, control_decision_entries[0].payload);
+    // Scenario 2: Samuel explicitly commands Tariro to pause a generative AI model
+    println!("--- Scenario 2: Samuel's Direct Command ---");
+    let samuel_command_tx = LedgerTransaction {
+        transaction_id: "tx_samuel_001".to_string(),
+        timestamp: Instant::now(),
+        initiator: "Samuel_Command".to_string(),
+        action_type: "Pause_Generative_AI_Model".to_string(),
+        details: HashMap::from([("model_id".to_string(), "creative_gen_v3".to_string()), ("reason".to_string(), "ethical_review_pending".to_string())]),
+        context_hash: "context_hash_samuel_command_001".to_string(),
+        ethical_advisory_hash: Some("ethical_dilemma_id_xyz".to_string()),
+    };
 
-    // Scenario 4: Synchronizing with peer nodes (simulated)
-    println!("--- Scenario 4: Distributed Node Synchronization ---");
-    let mut peer_ledger_node_1 = DLCT_Chain { chain_id: "tariro_alpha_ledger_peer_1".to_string(), blocks: Vec::new() };
-    dlct_engine.add_entry_to_ledger_simd(LedgerEntry {
-        entry_id: "peer_decision_001".to_string(), timestamp: Instant::now(), entry_type: "control_decision".to_string(),
-        payload: HashMap::from([("action".to_string(), "reboot_photonic_unit".to_string())]), agent_id: "peer_agent_X".to_string(), quantum_signature: "qsig_peer_xyz".to_string()
-    }, &mut peer_ledger_node_1).unwrap();
+    Tariro_ledger = dlct_engine.record_tariro_action_on_ledger_rag(Tariro_ledger, samuel_command_tx);
+    println!("  Ledger State After Samuel's Command: Blocks: {}, Pending TXs: {}.\n",
+        Tariro_ledger.chain.len(),
+        Tariro_ledger.pending_transactions.len()
+    );
 
-    let sync_status = dlct_engine.synchronize_distributed_nodes_rag(&mut tariro_global_ledger, &[peer_ledger_node_1]);
-    println!("  Synchronization Status: {}.\n", sync_status);
+    // Scenario 3: Generate a comprehensive DLC&T Report
+    println!("--- Scenario 3: Generate DLC&T Report ---");
+    let dlct_report_summary = dlct_engine.generate_dlct_report_rag(Tariro_ledger.chain.len() as u64, 2, 300.0);
+    println!("  {}\n", dlct_report_summary);
 
-    println!("\nDistributed Ledger for Control & Transparency (DLC&T) Demonstration Complete.");
+    println!("\nDistributed Ledger for Control & Transparency (DLC&T) (RAG-Driven) Demonstration Complete.");
 }
