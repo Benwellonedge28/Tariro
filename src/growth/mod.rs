@@ -1,9 +1,16 @@
 //! Universal Growth Engine - Orchestrating Parallel Self-Expansion
 
 use async_trait::async_trait;
-use crate::growth::GrowthDynamics;
 use crate::orchestration::SystemFabric;
 use std::sync::Arc;
+
+/// Trait for growth dynamics behavior
+#[async_trait]
+pub trait GrowthDynamics: Send + Sync {
+    async fn expand_operational_horizon(&self) -> Result<(), String>;
+    async fn deepen_complexity(&mut self);
+    async fn trigger_metamorphosis(&self) -> Result<(), String>;
+}
 
 pub struct SovereignGrowthEngine {
     pub fabric: Arc<SystemFabric>,

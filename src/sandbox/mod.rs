@@ -213,7 +213,8 @@ impl DeploymentManager for DummyDeploymentManager {
 
 #[derive(Debug)]
 pub struct DummyDataMirroringSystem;
-#[async_trait]
+
+#[derive(Debug)]
 pub struct ConceptualDataMirroringSystem {
     snapshots: Arc<Mutex<HashMap<String, String>>>,
 }

@@ -8,7 +8,7 @@ use std::fs;
 use std::path::Path;
 
 // Re-export specific types from the SDK
-pub use tariro_sdk::entities::{AGIControl, AGICategory, AutonomyPolicy, CapabilityStatus, WorkflowRule, ServicePrice};
+pub use tariro_sdk::entities::{AGIControlSetting, AGICategory, AutonomyPolicy, CapabilityStatus, WorkflowRule, ServicePrice};
 pub use tariro_sdk::entities::{Goal, WellbeingLog, ExplainabilityLog, PerformanceLog, LearningInsight, FeatureProposal, SystemHealthLog};
 pub use tariro_sdk::entities::{Conversation, KnowledgeItem, ManagedFile};
 pub use tariro_sdk::entities::{GitHubProfile, GitHubProjectContext, IDEProfile};
@@ -89,8 +89,8 @@ impl AGIConfig {
         self.agi_settings.insert(key.to_string(), value.to_string());
     }
 
-    /// Merges an `AGIControl` entity into the current configuration.
-    pub fn apply_agi_control(&mut self, control: &AGIControl) {
+    /// Merges an `AGIControlSetting` entity into the current configuration.
+    pub fn apply_agi_control(&mut self, control: &AGIControlSetting) {
         self.update_setting(&control.control_key, &control.value);
         println!("[Config] Applied AGI Control: {} = {}", control.control_key, control.value);
     }
@@ -148,7 +148,7 @@ mod tests {
     #[test]
     fn test_apply_agi_control() {
         let mut config = AGIConfig::default();
-        let control = AGIControl {
+        let control = AGIControlSetting {
             id: Some("ctrl_1".to_string()),
             control_key: "new.feature.enabled".to_string(),
             value: "true".to_string(),

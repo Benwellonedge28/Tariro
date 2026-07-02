@@ -1,0 +1,41 @@
+//! Core entities for Tariro AGI System
+
+pub mod feature_proposal;
+pub mod goal;
+pub mod compiler;
+pub mod deployment;
+pub mod explainability;
+pub mod agi_control;
+pub mod nano_agent;
+pub mod meta_project;
+pub mod learning;
+pub mod performance;
+pub mod wellbeing;
+pub mod system_health;
+pub mod conversation;
+pub mod knowledge;
+pub mod files;
+pub mod github;
+pub mod ide;
+pub mod tasks;
+pub mod notifications;
+
+pub use feature_proposal::*;
+pub use goal::*;
+pub use compiler::*;
+pub use deployment::*;
+pub use explainability::*;
+pub use agi_control::*;
+pub use nano_agent::*;
+pub use meta_project::*;
+pub use learning::*;
+pub use performance::*;
+pub use wellbeing::*;
+pub use system_health::*;
+pub use conversation::*;
+pub use knowledge::*;
+pub use files::*;
+pub use github::*;
+pub use ide::*;
+pub use tasks::*;
+pub use notifications::*;

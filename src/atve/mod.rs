@@ -2,8 +2,9 @@
 
 use async_trait::async_trait;
 use std::collections::HashMap;
-use std::process::{Command, Output};
+use std::process::Output;
 use std::time::Duration;
+use tokio::process::Command;
 use tokio::time::timeout;
 use chrono::Utc;
 

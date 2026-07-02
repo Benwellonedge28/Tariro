@@ -8,7 +8,7 @@ use std::fmt::Debug;
 use async_trait::async_trait;
 
 // Re-export entity types from the SDK
-pub use tariro_sdk::entities::{AGICategory, AGIControl, AdminUser, AutonomyPolicy, CapabilityStatus, CompilerProject, CompilerSnapshot, Conversation, DeploymentRecord, ExplainabilityLog, FeatureProposal, GitHubProfile, GitHubProjectContext, Goal, IDEProfile, KnowledgeItem, LearningInsight, ManagedFile, MetaProject, NanoAgent, NotificationRecord, PerformanceLog, ProjectTask, ServicePrice, SystemHealthLog, WellbeingLog, WorkflowLog, WorkflowRule};
+pub use tariro_sdk::entities::{AGICategory, AGIControlSetting, AdminUser, AutonomyPolicy, CapabilityStatus, CompilerProject, CompilerSnapshot, Conversation, DeploymentRecord, ExplainabilityLog, FeatureProposal, GitHubProfile, GitHubProjectContext, Goal, IDEProfile, KnowledgeItem, LearningInsight, ManagedFile, MetaProject, NanoAgent, NotificationRecord, PerformanceLog, ProjectTask, ServicePrice, SystemHealthLog, WellbeingLog, WorkflowLog, WorkflowRule};
 
 /// A trait for any entity that can be stored in the database.
 pub trait DbEntity: Serialize + for<'de> Deserialize<'de> + Debug + Unpin + Send + Sync {
@@ -29,9 +29,9 @@ macro_rules! impl_db_entity {
 }
 
 impl_db_entity!(
-    AGICategory, AGIControl, AdminUser, AutonomyPolicy, CapabilityStatus, CompilerProject, CompilerSnapshot, 
-    Conversation, DeploymentRecord, ExplainabilityLog, FeatureProposal, GitHubProfile, GitHubProjectContext, 
-    Goal, IDEProfile, KnowledgeItem, LearningInsight, ManagedFile, MetaProject, NanoAgent, NotificationRecord, 
+    AGICategory, AGIControlSetting, AdminUser, AutonomyPolicy, CapabilityStatus, CompilerProject, CompilerSnapshot,
+    Conversation, DeploymentRecord, ExplainabilityLog, FeatureProposal, GitHubProfile, GitHubProjectContext,
+    Goal, IDEProfile, KnowledgeItem, LearningInsight, ManagedFile, MetaProject, NanoAgent, NotificationRecord,
     PerformanceLog, ProjectTask, ServicePrice, SystemHealthLog, WellbeingLog, WorkflowLog, WorkflowRule
 );
 
@@ -172,9 +172,9 @@ impl DatabaseService {
 // Temporary fix: Manually implement get_id_field_mut for each entity that needs auto-ID generation
 // This is usually handled by a custom derive macro in a real project.
 
-impl_get_id_field_mut!(AGICategory, AGIControl, AdminUser, AutonomyPolicy, CapabilityStatus, CompilerProject, CompilerSnapshot, 
-    Conversation, DeploymentRecord, ExplainabilityLog, FeatureProposal, GitHubProfile, GitHubProjectContext, 
-    Goal, IDEProfile, KnowledgeItem, LearningInsight, ManagedFile, MetaProject, NanoAgent, NotificationRecord, 
+impl_get_id_field_mut!(AGICategory, AGIControlSetting, AdminUser, AutonomyPolicy, CapabilityStatus, CompilerProject, CompilerSnapshot,
+    Conversation, DeploymentRecord, ExplainabilityLog, FeatureProposal, GitHubProfile, GitHubProjectContext,
+    Goal, IDEProfile, KnowledgeItem, LearningInsight, ManagedFile, MetaProject, NanoAgent, NotificationRecord,
     PerformanceLog, ProjectTask, ServicePrice, SystemHealthLog, WellbeingLog, WorkflowLog, WorkflowRule
 );
 

@@ -21,7 +21,7 @@ pub struct QMukandaraState {
 
 impl QMukandaraState {
     pub fn new_infinite_superposition() -> Self {
-        Self { states: vec![Complex664::new(1.0, 0.0); 1024] } // High-density initialization
+        Self { states: vec![Complex64::new(1.0, 0.0); 1024] } // High-density initialization
     }
 
     /// Perfect Coherence Management & Controlled Decoherence
