@@ -59,9 +59,9 @@ pub struct ConceptualModel {
 #[derive(Debug, Clone)]
 pub struct AKSCMG_Report {
     pub report_id: String,
-    pub total_fragments_processed: u66,
-    pub total_insights_synthesized: u66,
-    pub total_conceptual_models_generated: u66,
+    pub total_fragments_processed: u64,
+    pub total_insights_synthesized: u64,
+    pub total_conceptual_models_generated: u64,
     pub avg_novelty_score: f32,
     pub avg_relevance_score: f32,
 }

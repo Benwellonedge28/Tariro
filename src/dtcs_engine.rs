@@ -56,7 +56,7 @@ pub struct DTCS_Report {
     pub dtcs_run_id: String,
     pub agents_monitored: u32,
     pub messages_exchanged: u64,
-    pub sync_events_orchestrated: u33,
+    pub sync_events_orchestrated: u64,
     pub conflicts_resolved: u32,
     pub avg_sync_latency_ms: u32,
 }

@@ -49,7 +49,7 @@ pub struct RefactoringAction {
 pub struct ACRE_Report {
     pub analysis_id: String,
     pub code_files_analyzed: u32,
-    pub suggestions_generated: u33,
+    pub suggestions_generated: u64,
     pub actions_applied: u32,
     pub code_quality_score_delta: f32, // Change in quality score
 }

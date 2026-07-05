@@ -60,10 +60,10 @@ pub struct SelfAssessmentReport {
 #[derive(Debug, Clone)]
 pub struct ACSA_Report {
     pub report_id: String,
-    pub total_audits_performed: u66,
+    pub total_audits_performed: u64,
     pub avg_audit_cycle_time_ms: f32,
-    pub total_deviations_identified: u66,
-    pub total_auto_corrections_made: u66,
+    pub total_deviations_identified: u64,
+    pub total_auto_corrections_made: u64,
     pub avg_risk_reduction_pct: f32,
 }
 

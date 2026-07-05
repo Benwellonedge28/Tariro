@@ -56,10 +56,10 @@ pub struct ContextualInference {
 #[derive(Debug, Clone)]
 pub struct DCMCI_Report {
     pub report_id: String,
-    pub total_nodes_in_graph: u66,
-    pub total_edges_in_graph: u66,
+    pub total_nodes_in_graph: u64,
+    pub total_edges_in_graph: u64,
     pub avg_inference_latency_ms: f32,
-    pub total_proactive_assistances_given: u66,
+    pub total_proactive_assistances_given: u64,
     pub avg_contextual_accuracy_pct: f32,
 }
 

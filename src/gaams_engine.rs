@@ -63,8 +63,8 @@ pub struct OptimalModel {
 #[derive(Debug, Clone)]
 pub struct GAAMS_Report {
     pub gaams_run_id: String,
-    pub generations_run: u33,
-    pub models_evaluated: u66,
+    pub generations_run: u64,
+    pub models_evaluated: u64,
     pub optimal_model_found: bool,
     pub avg_evaluation_time_ms: u32,
     pub best_fitness: f32,

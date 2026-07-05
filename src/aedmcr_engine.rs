@@ -57,9 +57,9 @@ pub struct ConflictResolution {
 #[derive(Debug, Clone)]
 pub struct AEDMCR_Report {
     pub report_id: String,
-    pub total_dilemmas_faced: u66,
-    pub total_conflicts_resolved: u66,
-    pub total_human_interventions: u66,
+    pub total_dilemmas_faced: u64,
+    pub total_conflicts_resolved: u64,
+    pub total_human_interventions: u64,
     pub avg_moral_coherence_score: f32,
     pub avg_time_to_resolve_dilemma_min: f32,
 }

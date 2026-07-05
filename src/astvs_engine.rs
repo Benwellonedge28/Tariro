@@ -59,9 +59,9 @@ pub struct SandboxSession {
 pub struct ASTVS_Report {
     pub report_id: String,
     pub total_training_hours: f32,
-    pub total_validation_scenarios: u66,
+    pub total_validation_scenarios: u64,
     pub avg_policy_improvement_pct: f32,
-    pub total_safety_violations_prevented: u66,
+    pub total_safety_violations_prevented: u64,
     pub avg_simulation_fidelity_score: f32,
 }
 

@@ -57,9 +57,9 @@ pub struct PredictedPreference {
 #[derive(Debug, Clone)]
 pub struct PUMPL_Report {
     pub pumpl_run_id: String,
-    pub interaction_events_ingested: u66,
-    pub user_models_updated: u66,
-    pub predictions_made: u33,
+    pub interaction_events_ingested: u64,
+    pub user_models_updated: u64,
+    pub predictions_made: u64,
     pub avg_prediction_latency_ms: u32,
     pub prediction_accuracy: f32,
     pub personalization_effectiveness_score: f32,

@@ -57,9 +57,9 @@ pub struct OptimizedInterfaceRecommendation {
 #[derive(Debug, Clone)]
 pub struct HAGIIO_Report {
     pub report_id: String,
-    pub total_optimizations_applied: u66,
+    pub total_optimizations_applied: u64,
     pub avg_cognitive_friction_reduction_pct: f32,
-    pub total_ui_adaptations: u66,
+    pub total_ui_adaptations: u64,
     pub avg_human_AGI_collaboration_efficiency_boost: f32,
     pub avg_physiological_load_reduction_pct: f32,
 }

@@ -58,10 +58,10 @@ pub struct RealitySimulationSession {
 #[derive(Debug, Clone)]
 pub struct QAPRS_Report {
     pub report_id: String,
-    pub total_simulations_run: u66,
+    pub total_simulations_run: u64,
     pub avg_reality_fidelity_score: f32,
-    pub total_predicted_events: u66,
-    pub total_unexpected_outcomes: u66,
+    pub total_predicted_events: u64,
+    pub total_unexpected_outcomes: u64,
     pub avg_causal_analysis_depth: u32,
 }
 

@@ -36,7 +36,7 @@ pub struct QuantumJobRequest {
     pub job_id: String,
     pub user_id: String,
     pub requested_resource_type: String,
-    pub required_qubits: u33,
+    pub required_qubits: u64,
     pub quantum_circuit_code: String, // e.g., OpenQASM, Qiskit, Cirq code
     pub priority: String, // e.g., "High", "Normal", "Low"
     pub max_execution_time_minutes: u32,
@@ -60,7 +60,7 @@ pub struct QuantumJobStatus {
 #[derive(Debug, Clone)]
 pub struct QCRO_Report {
     pub report_id: String,
-    pub total_jobs_processed: u66,
+    pub total_jobs_processed: u64,
     pub avg_queue_time_minutes: f32,
     pub avg_execution_time_minutes: f32,
     pub total_qpu_hours_utilized: f32,

@@ -51,7 +51,7 @@ pub struct OptimizationStrategy {
 pub struct SECDS_Report {
     pub evolution_run_id: String,
     pub optimizations_identified: u32,
-    pub mutations_generated: u33,
+    pub mutations_generated: u64,
     pub optimizations_deployed: u32,
     pub total_performance_gain_pct: f32,
 }

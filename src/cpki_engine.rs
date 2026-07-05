@@ -53,8 +53,8 @@ pub struct KnowledgeUpdate {
 #[derive(Debug, Clone)]
 pub struct CPKI_Report {
     pub report_id: String,
-    pub total_knowledge_sources_processed: u66,
-    pub total_tokens_injected: u66,
+    pub total_knowledge_sources_processed: u64,
+    pub total_tokens_injected: u64,
     pub avg_llm_factual_accuracy: f32,
     pub avg_domain_coverage_increase: f32,
     pub pre_training_frequency_h: f32,

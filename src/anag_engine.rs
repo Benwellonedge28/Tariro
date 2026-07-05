@@ -60,9 +60,9 @@ pub struct ProofCheckResult {
 #[derive(Debug, Clone)]
 pub struct ANAG_Report {
     pub report_id: String,
-    pub total_problems_solved: u66,
-    pub total_designs_generated: u66,
-    pub total_proofs_checked: u66,
+    pub total_problems_solved: u64,
+    pub total_designs_generated: u64,
+    pub total_proofs_checked: u64,
     pub avg_performance_gain_pct: f32,
     pub avg_design_novelty_score: f32,
 }

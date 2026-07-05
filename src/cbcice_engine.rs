@@ -55,11 +55,11 @@ pub struct NeurophysiologicalChange {
 #[derive(Debug, Clone)]
 pub struct CBCICE_Report {
     pub report_id: String,
-    pub total_calibration_cycles: u66,
+    pub total_calibration_cycles: u64,
     pub avg_latency_reduction_ms: f32,
     pub avg_bandwidth_increase_mbps: f32,
-    pub total_neurophysiological_adaptations: u66,
-    pub total_signal_integrity_improvements: u66,
+    pub total_neurophysiological_adaptations: u64,
+    pub total_signal_integrity_improvements: u64,
 }
 
 // --- CBCICE Engine --- //

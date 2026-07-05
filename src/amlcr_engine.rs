@@ -60,11 +60,11 @@ pub struct CognitiveRefactoringRecord {
 #[derive(Debug, Clone)]
 pub struct AMLCR_Report {
     pub report_id: String,
-    pub total_refactoring_cycles: u66,
-    pub total_algorithms_optimized: u66,
+    pub total_refactoring_cycles: u64,
+    pub total_algorithms_optimized: u64,
     pub avg_learning_speed_gain_pct: f32,
     pub avg_generalization_gain_pct: f32,
-    pub total_bias_mitigations: u66,
+    pub total_bias_mitigations: u64,
 }
 
 // --- AMLCR Engine --- //

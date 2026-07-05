@@ -56,10 +56,10 @@ pub struct GovernanceDecision {
 #[derive(Debug, Clone)]
 pub struct AGRA_Report {
     pub report_id: String,
-    pub total_governance_adaptations: u66,
+    pub total_governance_adaptations: u64,
     pub avg_adaptation_response_time_ms: f32,
-    pub total_regulatory_compliance_checks: u66,
-    pub total_ethical_conflicts_avoided: u66,
+    pub total_regulatory_compliance_checks: u64,
+    pub total_ethical_conflicts_avoided: u64,
     pub avg_autonomy_level_changes: f32,
 }
 

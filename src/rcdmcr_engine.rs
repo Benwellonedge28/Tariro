@@ -57,10 +57,10 @@ pub struct ResolvedCode {
 #[derive(Debug, Clone)]
 pub struct RCDMCR_Report {
     pub rcdmcr_run_id: String,
-    pub files_compared: u33,
-    pub diff_operations_performed: u66,
-    pub conflicts_detected: u33,
-    pub conflicts_auto_resolved: u33,
+    pub files_compared: u64,
+    pub diff_operations_performed: u64,
+    pub conflicts_detected: u64,
+    pub conflicts_auto_resolved: u64,
     pub avg_resolution_time_ms: u32,
     pub accuracy_score: f32,
 }

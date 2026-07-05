@@ -50,7 +50,7 @@ pub struct GeneratedCode {
 pub struct ATAG_Report {
     pub generation_run_id: String,
     pub requests_processed: u32,
-    pub tools_generated: u33,
+    pub tools_generated: u64,
     pub apis_generated: u32,
     pub integration_success_rate: f32, // 0.0-1.0
 }

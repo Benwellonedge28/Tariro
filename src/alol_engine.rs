@@ -26,7 +26,7 @@ pub struct WorkflowPerformanceLog {
     pub workflow_instance_id: String,
     pub start_time: Instant,
     pub end_time: Instant,
-    pub duration_seconds: u66,
+    pub duration_seconds: u64,
     pub success: bool,
     pub efficiency_score: f32,
     pub resource_utilization_data: HashMap<String, f32>, // resource_type -> avg_utilization
@@ -40,7 +40,7 @@ pub struct LearningIterationSummary {
     pub iteration_id: String,
     pub start_time: Instant,
     pub end_time: Instant,
-    pub analyzed_logs_count: u33,
+    pub analyzed_logs_count: u64,
     pub identified_gaps: Vec<String>,
     pub proposed_optimizations: Vec<String>,
     pub models_trained: u32,
@@ -63,7 +63,7 @@ pub struct OptimizationStrategy {
 pub struct ALOL_Report {
     pub alol_run_id: String,
     pub total_iterations: u32,
-    pub total_workflows_optimized: u33,
+    pub total_workflows_optimized: u64,
     pub avg_performance_gain: f32,
     pub avg_time_to_optimize_ms: u32,
     pub cumulative_efficiency_improvement: f32,

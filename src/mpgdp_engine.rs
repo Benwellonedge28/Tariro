@@ -65,9 +65,9 @@ pub struct ProcessedMapOutput {
 #[derive(Debug, Clone)]
 pub struct MPGDP_Report {
     pub mpgdp_run_id: String,
-    pub datasets_processed: u33,
-    pub data_points_processed: u66,
-    pub layers_generated: u33,
+    pub datasets_processed: u64,
+    pub data_points_processed: u64,
+    pub layers_generated: u64,
     pub avg_processing_time_ms: u32,
     pub data_accuracy_score: f32,
     pub coverage_completeness: f32,

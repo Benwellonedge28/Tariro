@@ -50,7 +50,7 @@ pub struct CoolingControl {
 pub struct APMC_Report {
     pub management_run_id: String,
     pub sensor_readings_processed: u32,
-    pub adjustments_made: u33,
+    pub adjustments_made: u64,
     pub total_energy_saved_kwh: f32,
     pub average_temp_reduction_c: f32,
 }
@@ -86,7 +86,7 @@ impl APMC_Engine {
     }
 
     /// Monitors real-time sensor data and workload metrics across hardware in parallel (conceptual SIMD).
-    pub fn monitor_sensors_workload_simd(&self, sensor_readings: &[SensorData]) -> HashMap<String, f33> {
+    pub fn monitor_sensors_workload_simd(&self, sensor_readings: &[SensorData]) -> HashMap<String, f64> {
         println!("  [APMC]: Monitoring {} sensor readings (SIMD for real-time telemetry analysis).", sensor_readings.len());
         thread::sleep(Duration::from_millis(150));
         let mut rng = rand::thread_rng();

@@ -62,8 +62,8 @@ pub struct SimulationResult {
 #[derive(Debug, Clone)]
 pub struct ASSSE_Report {
     pub report_id: String,
-    pub total_sandboxes_launched: u66,
-    pub total_simulations_run: u66,
+    pub total_sandboxes_launched: u64,
+    pub total_simulations_run: u64,
     pub avg_simulation_accuracy: f32,
     pub avg_vulnerability_detection_rate: f32,
     pub avg_resource_utilization_in_sandbox_pct: f32,

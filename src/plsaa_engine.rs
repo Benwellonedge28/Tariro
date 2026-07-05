@@ -59,11 +59,11 @@ pub struct LearningInteraction {
 #[derive(Debug, Clone)]
 pub struct PLSAA_Report {
     pub report_id: String,
-    pub total_learning_sessions: u66,
+    pub total_learning_sessions: u64,
     pub avg_skill_acquisition_rate_pct: f32,
-    pub total_cognitive_gaps_addressed: u66,
+    pub total_cognitive_gaps_addressed: u64,
     pub avg_engagement_score: f32,
-    pub total_new_skills_mastered: u66,
+    pub total_new_skills_mastered: u64,
 }
 
 // --- PLSAA Engine --- //

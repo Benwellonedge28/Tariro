@@ -60,9 +60,9 @@ pub struct PolicyEvaluation {
 #[derive(Debug, Clone)]
 pub struct AERC_Report {
     pub report_id: String,
-    pub total_audits_performed: u66,
-    pub total_violations_identified: u66,
-    pub total_autonomous_remediations: u66,
+    pub total_audits_performed: u64,
+    pub total_violations_identified: u64,
+    pub total_autonomous_remediations: u64,
     pub avg_compliance_score: f32,
     pub avg_time_to_resolve_violation_min: f32,
 }

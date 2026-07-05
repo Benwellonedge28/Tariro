@@ -52,7 +52,7 @@ pub struct RetrainFineTuneResult {
     pub new_version: String,
     pub strategy_used: String,
     pub new_performance_metric: f32,
-    pub training_duration_sec: u664,
+    pub training_duration_sec: u644,
     pub status: String, // e.g., "Success", "Failure"
 }
 

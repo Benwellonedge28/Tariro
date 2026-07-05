@@ -62,9 +62,9 @@ pub struct OptimizedOutput {
 #[derive(Debug, Clone)]
 pub struct HTCOP_Report {
     pub htcop_run_id: String,
-    pub code_variants_processed: u66,
-    pub optimizations_applied: u66,
-    pub benchmarks_executed: u33,
+    pub code_variants_processed: u64,
+    pub optimizations_applied: u64,
+    pub benchmarks_executed: u64,
     pub avg_optimization_latency_ms: u32,
     pub performance_gain_percent: f32,
     pub resource_efficiency_score: f32,

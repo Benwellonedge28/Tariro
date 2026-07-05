@@ -25,7 +25,7 @@ pub struct TrainingState {
     pub validation_accuracy: f32,
     pub learning_rate: f32,
     pub gradient_magnitude: f32,
-    pub model_complexity: u66,
+    pub model_complexity: u64,
 }
 
 /// Represents an optimization strategy decision.
@@ -44,7 +44,7 @@ pub struct OptimizationDecision {
 #[derive(Debug, Clone)]
 pub struct ALRO_Report {
     pub report_id: String,
-    pub total_optimizations_applied: u66,
+    pub total_optimizations_applied: u64,
     pub avg_convergence_speedup: f32,
     pub avg_model_performance_gain: f32,
     pub resource_efficiency_factor: f32,

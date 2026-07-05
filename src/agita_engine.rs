@@ -61,8 +61,8 @@ pub struct GlobalTrend {
 pub struct AGITA_Report {
     pub report_id: String,
     pub total_data_ingested_gb: f32,
-    pub total_intelligence_items_generated: u66,
-    pub total_trends_identified: u66,
+    pub total_intelligence_items_generated: u64,
+    pub total_trends_identified: u64,
     pub avg_intelligence_freshness_min: f32,
     pub avg_actionability_score: f32,
 }

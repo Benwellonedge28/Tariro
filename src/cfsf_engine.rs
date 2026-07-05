@@ -59,9 +59,9 @@ pub struct FilteredEvent {
 #[derive(Debug, Clone)]
 pub struct CFSF_Report {
     pub cfsf_run_id: String,
-    pub data_streams_processed: u66,
-    pub semantic_policies_applied: u66,
-    pub anomalies_identified: u33,
+    pub data_streams_processed: u64,
+    pub semantic_policies_applied: u64,
+    pub anomalies_identified: u64,
     pub malicious_streams_blocked: u32,
     pub avg_filtering_latency_us: u32,
     pub cognitive_integrity_score: f32,

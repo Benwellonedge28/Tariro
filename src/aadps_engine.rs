@@ -56,11 +56,11 @@ pub struct DataSovereigntyControl {
 #[derive(Debug, Clone)]
 pub struct AADPS_Report {
     pub report_id: String,
-    pub total_privacy_events_handled: u66,
-    pub total_sovereignty_violations_prevented: u66,
+    pub total_privacy_events_handled: u64,
+    pub total_sovereignty_violations_prevented: u64,
     pub avg_compliance_score: f32,
     pub avg_data_access_latency_ms: f32,
-    pub total_autonomous_remediations: u66,
+    pub total_autonomous_remediations: u64,
 }
 
 // --- AADPS Engine --- //

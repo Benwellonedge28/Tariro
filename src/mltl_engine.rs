@@ -49,7 +49,7 @@ pub struct LearnedModel {
 pub struct MLTL_Report {
     pub meta_learning_run_id: String,
     pub tasks_analyzed: u32,
-    pub strategies_adapted: u33,
+    pub strategies_adapted: u64,
     pub knowledge_transferred_count: u32,
     pub average_learning_acceleration: f32, // Factor of speed-up
 }

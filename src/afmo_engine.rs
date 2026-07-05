@@ -23,7 +23,7 @@ pub struct FinancialTransaction {
     pub tx_id: String,
     pub timestamp: Instant,
     pub tx_type: String, // e.g., "Expense", "Income", "Transfer"
-    pub amount: f33,
+    pub amount: f64,
     pub currency: String, // e.g., "USD", "EUR", "BTC"
     pub category: String, // e.g., "Software_License", "Cloud_Compute", "Consulting_Fee"
     pub description: String,
@@ -38,9 +38,9 @@ pub struct FinancialReport {
     pub timestamp: Instant,
     pub report_type: String, // e.g., "Budget_Vs_Actual", "Cash_Flow", "Profit_Loss"
     pub period: String, // e.g., "Monthly", "Quarterly", "YTD"
-    pub data: HashMap<String, f33>, // Key financial metrics
+    pub data: HashMap<String, f64>, // Key financial metrics
     pub insights_summary: String, // RAG-derived financial insights and recommendations
-    pub projected_future_state: HashMap<String, f33>,
+    pub projected_future_state: HashMap<String, f64>,
     pub compliance_status: String, // e.g., "Compliant", "Non-Compliant"
 }
 
@@ -49,10 +49,10 @@ pub struct FinancialReport {
 pub struct ProjectBudget {
     pub budget_id: String,
     pub project_id: String,
-    pub total_budget: f33,
-    pub allocated_funds: HashMap<String, f33>, // Category -> Amount
-    pub actual_expenditure: HashMap<String, f33>,
-    pub remaining_budget: f33,
+    pub total_budget: f64,
+    pub allocated_funds: HashMap<String, f64>, // Category -> Amount
+    pub actual_expenditure: HashMap<String, f64>,
+    pub remaining_budget: f64,
     pub status: String, // e.g., "On_Track", "Over_Budget", "Under_Budget"
     pub last_updated: Instant,
 }
@@ -61,10 +61,10 @@ pub struct ProjectBudget {
 #[derive(Debug, Clone)]
 pub struct AFMO_Report {
     pub report_id: String,
-    pub total_transactions_processed: u66,
+    pub total_transactions_processed: u64,
     pub avg_processing_latency_ms: f32,
-    pub total_anomalies_detected: u66,
-    pub total_cost_optimizations_applied: u66,
+    pub total_anomalies_detected: u64,
+    pub total_cost_optimizations_applied: u64,
     pub avg_budget_adherence_pct: f32,
 }
 

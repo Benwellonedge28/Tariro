@@ -60,7 +60,7 @@ pub struct QuantumTrainingResult {
 #[derive(Debug, Clone)]
 pub struct QML_Report {
     pub report_id: String,
-    pub total_models_trained: u66,
+    pub total_models_trained: u64,
     pub avg_training_speedup_factor: f32,
     pub avg_accuracy_gain_pct: f32,
     pub total_quantum_computing_hours: f32,

@@ -64,9 +64,9 @@ pub struct CrossLingualQueryResult {
 #[derive(Debug, Clone)]
 pub struct CLCD_RAG_Report {
     pub clcd_rag_run_id: String,
-    pub translations_performed: u66,
-    pub embeddings_generated: u66,
-    pub cross_lingual_queries: u33,
+    pub translations_performed: u64,
+    pub embeddings_generated: u64,
+    pub cross_lingual_queries: u64,
     pub avg_translation_latency_ms: u32,
     pub avg_search_latency_ms: u32,
     pub avg_fusion_quality: f32,

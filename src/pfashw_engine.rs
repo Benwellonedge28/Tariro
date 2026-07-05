@@ -58,7 +58,7 @@ pub struct HealingAction {
 pub struct PFASHW_Report {
     pub pfashw_run_id: String,
     pub metrics_analyzed: u32,
-    pub failures_predicted: u33,
+    pub failures_predicted: u64,
     pub healing_actions_taken: u32,
     pub averted_failures: u32,
     pub self_healing_success_rate: f32,

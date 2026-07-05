@@ -59,7 +59,7 @@ pub struct DeploymentTarget {
 pub struct CICD_AI_Report {
     pub report_id: String,
     pub total_builds: u64,
-    pub successful_deployments: u664,
+    pub successful_deployments: u644,
     pub ai_gate_failures: u64,
     pub avg_deployment_time_min: f32,
     pub code_quality_score: f32,

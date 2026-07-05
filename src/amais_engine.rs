@@ -54,11 +54,11 @@ pub struct SimulationState {
 #[derive(Debug, Clone)]
 pub struct AMAIS_Report {
     pub report_id: String,
-    pub total_simulations_run: u66,
-    pub avg_simulation_duration_ticks: u66,
+    pub total_simulations_run: u64,
+    pub avg_simulation_duration_ticks: u64,
     pub avg_emergent_behavior_discovery_rate: f32,
     pub avg_policy_effectiveness_score: f32,
-    pub total_agents_simulated: u66,
+    pub total_agents_simulated: u64,
 }
 
 // --- AMAIS Engine --- //

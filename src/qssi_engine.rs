@@ -59,7 +59,7 @@ pub struct SecurityAuditReport {
 pub struct QSSI_Report {
     pub qssi_run_id: String,
     pub secure_runtimes_provisioned: u32,
-    pub access_violations_prevented: u33,
+    pub access_violations_prevented: u64,
     pub breaches_detected: u32,
     pub successful_containments: u32,
     pub avg_containment_latency_ms: u32,

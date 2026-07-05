@@ -55,9 +55,9 @@ pub struct ResolutionStrategy {
 #[derive(Debug, Clone)]
 pub struct RFCD_Report {
     pub rfcd_run_id: String,
-    pub claims_ingested: u66,
-    pub contradictions_detected: u66,
-    pub resolutions_proposed: u33,
+    pub claims_ingested: u64,
+    pub contradictions_detected: u64,
+    pub resolutions_proposed: u64,
     pub avg_detection_latency_ms: u32,
     pub false_positive_rate: f32,
     pub knowledge_coherence_score: f32,

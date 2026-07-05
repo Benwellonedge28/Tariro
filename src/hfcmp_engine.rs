@@ -72,11 +72,11 @@ pub struct ClimateSimulationResult {
 pub struct HFCMP_Report {
     pub hfcmp_run_id: String,
     pub simulation_years_covered: u32,
-    pub total_grid_points: u66,
-    pub equations_integrated: u66,
+    pub total_grid_points: u64,
+    pub equations_integrated: u64,
     pub predictive_accuracy_score: f32,
     pub model_fidelity_rating: f32,
-    pub resource_consumption_gflops: u66,
+    pub resource_consumption_gflops: u64,
 }
 
 // --- HFCMP Engine --- //

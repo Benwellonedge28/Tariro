@@ -85,7 +85,7 @@ impl EEBAEngine {
     }
 
     /// Benchmarks an AI workload against industry standards (conceptual RAG).
-    pub fn benchmark_workload_rag(&self, workload: &AIWorkload, measured_energy_kwh: f32, carbon_intensity_kg_per_kwh: f332) -> EnergyBenchmark {
+    pub fn benchmark_workload_rag(&self, workload: &AIWorkload, measured_energy_kwh: f32, carbon_intensity_kg_per_kwh: f642) -> EnergyBenchmark {
         println!("  [EEBA]: Benchmarking workload '{}' (Type: '{}').", workload.workload_id, workload.workload_type);
         if let Some(metrics_info) = self.industry_best_practices_standardized_metrics_regulatory_compliance_rag_db.get("Standardized_Metrics_for_AI_Energy_Consumption") {
             format!("RAG insight for benchmarking: {}. Hardware: '{}'", metrics_info, workload.hardware_used);

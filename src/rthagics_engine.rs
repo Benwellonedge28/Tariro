@@ -55,11 +55,11 @@ pub struct MergedCognitionArtifact {
 #[derive(Debug, Clone)]
 pub struct RTHAGICS_Report {
     pub report_id: String,
-    pub total_symbiotic_sessions: u66,
+    pub total_symbiotic_sessions: u64,
     pub avg_thought_transfer_latency_ms: f32,
-    pub total_merged_insights: u66,
+    pub total_merged_insights: u64,
     pub avg_cognitive_load_reduction_pct: f32,
-    pub total_creative_breakthroughs: u66,
+    pub total_creative_breakthroughs: u64,
 }
 
 // --- RTHAGICS Engine --- //

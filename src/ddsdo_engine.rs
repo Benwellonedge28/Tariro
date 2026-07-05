@@ -58,9 +58,9 @@ pub struct ShardingPlan {
 #[derive(Debug, Clone)]
 pub struct DDSDO_Report {
     pub ddsdo_run_id: String,
-    pub data_shards_managed: u66,
-    pub nodes_optimized: u33,
-    pub re_sharding_operations_executed: u33,
+    pub data_shards_managed: u64,
+    pub nodes_optimized: u64,
+    pub re_sharding_operations_executed: u64,
     pub avg_redistribution_time_ms: u32,
     pub performance_improvement_percent: f32,
     pub resource_balance_score: f32,

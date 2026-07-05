@@ -75,7 +75,7 @@ impl DLTAdapter for EthereumAdapter {
     }
     fn get_latest_block(&self) -> Option<Block> {
         let mut rng = rand::thread_rng();
-        Some(Block { hash: format!("0x{}", rng.gen::<u66>().to_string()), dlt_type: DLTType::Ethereum, transactions: Vec::new(), timestamp: Instant::now().elapsed().as_secs(), previous_hash: format!("0x{}", rng.gen::<u66>().to_string())})
+        Some(Block { hash: format!("0x{}", rng.gen::<u64>().to_string()), dlt_type: DLTType::Ethereum, transactions: Vec::new(), timestamp: Instant::now().elapsed().as_secs(), previous_hash: format!("0x{}", rng.gen::<u64>().to_string())})
     }
 }
 

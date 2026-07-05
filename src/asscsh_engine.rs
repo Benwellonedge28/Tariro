@@ -58,9 +58,9 @@ pub struct OptimizationTarget {
 #[derive(Debug, Clone)]
 pub struct ASSCSH_Report {
     pub report_id: String,
-    pub total_anomalies_detected: u66,
-    pub total_corrections_applied: u66,
-    pub total_optimizations_implemented: u66,
+    pub total_anomalies_detected: u64,
+    pub total_corrections_applied: u64,
+    pub total_optimizations_implemented: u64,
     pub avg_mttr_min: f32, // Mean Time To Resolution
     pub avg_system_efficiency_gain_pct: f32,
 }

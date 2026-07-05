@@ -58,10 +58,10 @@ pub struct ValueAlignmentState {
 #[derive(Debug, Clone)]
 pub struct DERVA_Report {
     pub report_id: String,
-    pub total_ethical_checks_performed: u66,
+    pub total_ethical_checks_performed: u64,
     pub avg_ethical_violation_detection_time_ms: f32,
-    pub total_dilemmas_resolved: u66,
-    pub total_prevented_violations: u66,
+    pub total_dilemmas_resolved: u64,
+    pub total_prevented_violations: u64,
     pub avg_alignment_score: f32,
 }
 

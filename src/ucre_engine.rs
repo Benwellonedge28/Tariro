@@ -55,8 +55,8 @@ pub struct ComplianceViolation {
 #[derive(Debug, Clone)]
 pub struct UCRE_Report {
     pub compliance_run_id: String,
-    pub events_monitored: u33,
-    pub rules_evaluated: u33,
+    pub events_monitored: u64,
+    pub rules_evaluated: u64,
     pub violations_detected: u32,
     pub automated_actions_taken: u32,
     pub human_escalations: u32,

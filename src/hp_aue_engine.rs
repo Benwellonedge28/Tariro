@@ -56,7 +56,7 @@ pub struct InterfaceAdaptation {
 pub struct HPAUE_Report {
     pub hp_aue_run_id: String,
     pub preferences_tracked: u32,
-    pub adaptations_made: u33,
+    pub adaptations_made: u64,
     pub user_satisfaction_score: f32,
     pub avg_cognitive_load_reduction: f32,
     pub total_interactions_analyzed: u64,

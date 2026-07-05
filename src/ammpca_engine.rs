@@ -56,11 +56,11 @@ pub struct EnvironmentalModel {
 #[derive(Debug, Clone)]
 pub struct AMMPCA_Report {
     pub report_id: String,
-    pub total_sensor_data_processed: u66,
-    pub total_fused_perceptions: u66,
+    pub total_sensor_data_processed: u64,
+    pub total_fused_perceptions: u64,
     pub avg_fusion_latency_ms: f32,
     pub avg_contextual_accuracy: f32,
-    pub total_novel_events_detected: u66,
+    pub total_novel_events_detected: u64,
 }
 
 // --- AMMPCA Engine --- //

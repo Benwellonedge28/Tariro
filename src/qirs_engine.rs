@@ -53,7 +53,7 @@ pub struct Schedule {
 pub struct QIRS_Report {
     pub scheduling_run_id: String,
     pub tasks_processed: u32,
-    pub schedules_generated: u33,
+    pub schedules_generated: u64,
     pub average_optimization_time_ms: u32,
     pub average_efficiency_gain_pct: f32,
 }

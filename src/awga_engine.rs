@@ -54,8 +54,8 @@ pub struct WorkflowInstance {
 #[derive(Debug, Clone)]
 pub struct AWGA_Report {
     pub awga_run_id: String,
-    pub workflows_generated: u33,
-    pub adaptations_applied: u33,
+    pub workflows_generated: u64,
+    pub adaptations_applied: u64,
     pub successful_completions: u32,
     pub avg_adaptation_latency_ms: u32,
     pub workflow_efficiency_score: f32,

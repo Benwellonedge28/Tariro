@@ -57,9 +57,9 @@ pub struct InterfaceAdaptationCommand {
 #[derive(Debug, Clone)]
 pub struct EAIAC_Report {
     pub eaiac_run_id: String,
-    pub sensor_data_processed: u66,
-    pub emotional_states_inferred: u66,
-    pub interface_adaptations_made: u33,
+    pub sensor_data_processed: u64,
+    pub emotional_states_inferred: u64,
+    pub interface_adaptations_made: u64,
     pub avg_adaptation_latency_ms: u32,
     pub user_engagement_improvement: f32,
     pub user_satisfaction_score: f32,

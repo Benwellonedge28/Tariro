@@ -55,11 +55,11 @@ pub struct SamuelFeedback {
 #[derive(Debug, Clone)]
 pub struct OMHAIIA_Report {
     pub report_id: String,
-    pub total_interaction_cycles: u66,
+    pub total_interaction_cycles: u64,
     pub avg_interaction_efficiency_pct: f32,
-    pub total_interface_adaptations: u66,
+    pub total_interface_adaptations: u64,
     pub avg_samuel_satisfaction_rating: f32,
-    pub total_multimodal_synchronization_events: u66,
+    pub total_multimodal_synchronization_events: u64,
 }
 
 // --- OMHAIIA Engine --- //

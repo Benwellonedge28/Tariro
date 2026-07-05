@@ -56,9 +56,9 @@ pub struct ConsensusReport {
 #[derive(Debug, Clone)]
 pub struct WOTC_RAG_Report {
     pub wotc_rag_run_id: String,
-    pub data_streams_ingested: u66,
-    pub sentiments_analyzed: u66,
-    pub consensuses_detected: u33,
+    pub data_streams_ingested: u64,
+    pub sentiments_analyzed: u64,
+    pub consensuses_detected: u64,
     pub avg_processing_latency_ms: u32,
     pub noise_filtered_percentage: f32,
     pub actionable_knowledge_generated_count: u32,

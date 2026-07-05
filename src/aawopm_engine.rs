@@ -66,9 +66,9 @@ pub struct MonitoringUpdate {
 #[derive(Debug, Clone)]
 pub struct AAWOPM_Report {
     pub report_id: String,
-    pub total_workflows_managed: u66,
-    pub total_tasks_executed: u66,
-    pub total_blockages_resolved: u66,
+    pub total_workflows_managed: u64,
+    pub total_tasks_executed: u64,
+    pub total_blockages_resolved: u64,
     pub avg_workflow_completion_rate: f32,
     pub avg_project_adherence_to_deadline: f32,
 }

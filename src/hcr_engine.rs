@@ -52,9 +52,9 @@ pub struct CausalFactor {
 #[derive(Debug, Clone)]
 pub struct HCR_Report {
     pub hcr_run_id: String,
-    pub scenarios_defined: u66,
-    pub timelines_generated: u66,
-    pub causal_impacts_evaluated: u33,
+    pub scenarios_defined: u64,
+    pub timelines_generated: u64,
+    pub causal_impacts_evaluated: u64,
     pub avg_scenario_evaluation_latency_ms: u32,
     pub avg_outcome_prediction_accuracy: f32,
     pub total_risk_assessments_made: u32,

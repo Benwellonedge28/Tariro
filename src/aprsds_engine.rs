@@ -64,9 +64,9 @@ pub struct SchedulingEvent {
 #[derive(Debug, Clone)]
 pub struct APRSDS_Report {
     pub report_id: String,
-    pub total_roadmaps_generated: u66,
+    pub total_roadmaps_generated: u64,
     pub avg_scheduling_optimization_time_ms: f32,
-    pub total_rescheduling_events: u66,
+    pub total_rescheduling_events: u64,
     pub avg_project_completion_speedup_pct: f32,
     pub avg_resource_utilization_pct: f32,
 }

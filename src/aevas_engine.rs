@@ -53,7 +53,7 @@ pub struct ValueDriftReport {
 pub struct AEVAS_Report {
     pub alignment_run_id: String,
     pub decisions_monitored: u32,
-    pub value_drifts_detected: u33,
+    pub value_drifts_detected: u64,
     pub corrective_actions_proposed: u32,
     pub ethical_alignment_score: f32, // Overall score, 0.0-1.0
 }

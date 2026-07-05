@@ -70,8 +70,8 @@ pub struct SimulationOutput {
 pub struct HIEFD_Report {
     pub hiefd_run_id: String,
     pub simulation_area_km2: f32,
-    pub total_grid_cells: u66,
-    pub pollutants_modeled: u33,
+    pub total_grid_cells: u64,
+    pub pollutants_modeled: u64,
     pub avg_simulation_speed_x_realtime: f32,
     pub prediction_accuracy: f32,
     pub environmental_impact_score: f32,

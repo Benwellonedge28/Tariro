@@ -60,11 +60,11 @@ pub struct ReputationEvent {
 #[derive(Debug, Clone)]
 pub struct ARPPM_Report {
     pub report_id: String,
-    pub total_sentiment_analyses: u66,
-    pub total_pr_actions_taken: u66,
-    pub total_reputation_events: u66,
+    pub total_sentiment_analyses: u64,
+    pub total_pr_actions_taken: u64,
+    pub total_reputation_events: u64,
     pub avg_reputation_score: f32,
-    pub total_negative_sentiment_mitigated: u66,
+    pub total_negative_sentiment_mitigated: u64,
 }
 
 // --- ARPPM Engine --- //

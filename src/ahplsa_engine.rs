@@ -60,9 +60,9 @@ pub struct EducationalContent {
 #[derive(Debug, Clone)]
 pub struct AHPLSA_Report {
     pub report_id: String,
-    pub total_learning_gaps_identified: u66,
-    pub total_pathways_curated: u66,
-    pub total_adaptive_content_generated: u66,
+    pub total_learning_gaps_identified: u64,
+    pub total_pathways_curated: u64,
+    pub total_adaptive_content_generated: u64,
     pub avg_skill_acquisition_rate_factor: f32,
     pub avg_knowledge_retention_score: f32,
 }

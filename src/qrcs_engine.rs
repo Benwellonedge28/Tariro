@@ -45,7 +45,7 @@ pub struct EncryptedCloudData {
 pub struct QRCS_Report {
     pub audit_id: String,
     pub resources_scanned: u32,
-    pub policies_enforced: u33,
+    pub policies_enforced: u64,
     pub data_encrypted_count: u32,
     pub security_posture_score: f32, // 0.0-1.0, higher is better
     pub quantum_attack_surface_reduced: bool,

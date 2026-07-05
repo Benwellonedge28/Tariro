@@ -58,9 +58,9 @@ pub struct UserResponseToProactiveAction {
 #[derive(Debug, Clone)]
 pub struct PPCA_Report {
     pub ppca_run_id: String,
-    pub contextual_triggers_monitored: u66,
-    pub proactive_suggestions_generated: u66,
-    pub user_engagements_evaluated: u33,
+    pub contextual_triggers_monitored: u64,
+    pub proactive_suggestions_generated: u64,
+    pub user_engagements_evaluated: u64,
     pub proactive_accuracy: f32,
     pub avg_proactive_latency_ms: u32,
     pub user_interruption_rate: f32,

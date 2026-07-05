@@ -66,7 +66,7 @@ pub struct MPGTA_Report {
     pub total_edges_processed: u64,
     pub avg_traversal_speed_nodes_s: f32,
     pub critical_paths_identified: u64,
-    pub clusters_found: u66,
+    pub clusters_found: u64,
 }
 
 // --- MPGTA Engine --- //

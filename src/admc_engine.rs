@@ -59,7 +59,7 @@ pub struct DeceptionStrategy {
 pub struct ADMC_Report {
     pub admc_run_id: String,
     pub decoys_deployed: u32,
-    pub adversary_interactions_logged: u33,
+    pub adversary_interactions_logged: u64,
     pub new_ttps_identified: u32,
     pub threats_diverted: u32,
     pub avg_detection_to_deception_latency_ms: u32,

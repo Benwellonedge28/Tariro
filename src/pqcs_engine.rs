@@ -51,9 +51,9 @@ pub struct SimulationResult {
 #[derive(Debug, Clone)]
 pub struct PQCS_Report {
     pub pqcs_run_id: String,
-    pub circuits_simulated: u33,
+    pub circuits_simulated: u64,
     pub num_qubits_max: u32,
-    pub gates_applied: u66,
+    pub gates_applied: u64,
     pub avg_simulation_time_ms: u32,
     pub simulation_accuracy: f32,
     pub resource_utilization: f32,

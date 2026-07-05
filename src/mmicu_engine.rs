@@ -58,9 +58,9 @@ pub struct InterpretedIntent {
 #[derive(Debug, Clone)]
 pub struct MMICU_Report {
     pub mmicu_run_id: String,
-    pub inputs_processed: u66,
-    pub contexts_fused: u66,
-    pub intents_inferred: u33,
+    pub inputs_processed: u64,
+    pub contexts_fused: u64,
+    pub intents_inferred: u64,
     pub avg_fusion_latency_ms: u32,
     pub avg_inference_latency_ms: u32,
     pub contextual_understanding_score: f32,

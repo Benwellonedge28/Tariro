@@ -57,7 +57,7 @@ pub struct SchedulingDecision {
 pub struct IWPS_Report {
     pub iwps_run_id: String,
     pub workflows_prioritized: u32,
-    pub scheduling_decisions_made: u33,
+    pub scheduling_decisions_made: u64,
     pub avg_priority_calc_latency_ms: u32,
     pub re_prioritizations_count: u32,
     pub scheduling_efficiency_gain: f32,

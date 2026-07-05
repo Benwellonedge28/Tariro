@@ -55,7 +55,7 @@ pub struct MGSC_Report {
     pub avg_generation_latency_s: f32,
     pub avg_coherence_score: f32,
     pub avg_creativity_score: f32,
-    pub new_content_assets_generated: u66,
+    pub new_content_assets_generated: u64,
 }
 
 // --- MGSC Engine --- //

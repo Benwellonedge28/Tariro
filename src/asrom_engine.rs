@@ -60,11 +60,11 @@ pub struct StrategicScenario {
 #[derive(Debug, Clone)]
 pub struct ASROM_Report {
     pub report_id: String,
-    pub total_risks_monitored: u66,
-    pub total_opportunities_identified: u66,
-    pub total_scenarios_simulated: u66,
+    pub total_risks_monitored: u64,
+    pub total_opportunities_identified: u64,
+    pub total_scenarios_simulated: u64,
     pub avg_predictive_precision: f32,
-    pub total_mitigations_deployed: u66,
+    pub total_mitigations_deployed: u64,
 }
 
 // --- ASROM Engine --- //

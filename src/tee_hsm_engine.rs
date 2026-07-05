@@ -59,7 +59,7 @@ pub struct TEE_HSM_Report {
     pub tee_hsm_run_id: String,
     pub enclaves_provisioned: u32,
     pub crypto_ops_performed: u64,
-    pub attestations_successful: u33,
+    pub attestations_successful: u64,
     pub keys_managed_securely: u32,
     pub avg_secure_op_latency_us: u32,
     pub overall_trust_score: f32,

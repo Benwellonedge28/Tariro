@@ -57,7 +57,7 @@ pub struct WorkflowVisualization {
 pub struct RTWMV_Report {
     pub rtwmv_run_id: String,
     pub telemetry_events_processed: u64,
-    pub workflow_graphs_updated: u33,
+    pub workflow_graphs_updated: u64,
     pub avg_render_latency_ms: u32,
     pub avg_anomaly_detection_time_ms: u32,
     pub human_situation_awareness_score: f32,

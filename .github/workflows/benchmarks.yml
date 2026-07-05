@@ -1,0 +1,74 @@
+name: Benchmarks
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  benchmark:
+    name: Run Benchmarks
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, llvm-tools-preview
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+      - name: Cache cargo index
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+      - name: Cache cargo build
+        uses: actions/cache@v3
+        with:
+          path: target
+          key: ${{ runner.os }}-benchmark-target
+      - name: Install cargo-criterion
+        run: cargo install cargo-criterion
+      - name: Run benchmarks
+        run: cargo criterion --message-format=json 2>&1 | tee output.json
+      - name: Parse results
+        run: |
+          if [ -f output.json ]; then
+            echo "Benchmark results generated."
+          else
+            echo "No benchmark results found."
+          fi
+      - name: Check benchmark compilation
+        run: |
+          if cargo bench --no-run 2>&1 | grep -q "Compiling"; then
+            echo "Benchmarks compiled successfully."
+          fi
+
+  performance-tracker:
+    name: Performance Tracking
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run test suite with timing
+        run: |
+          echo "Running performance tests..."
+          cargo test --release -- --nocapture 2>&1 | tee test_output.txt
+      - name: Check binary size
+        run: |
+          cargo build --release
+          ls -lh target/release/tariro
+          du -sh target/release/tariro
+      - name: Check compile time
+        run: |
+          cargo clean
+          time cargo build --release 2>&1 | tail -20

@@ -57,7 +57,7 @@ pub struct ShreddingReport {
 pub struct SDDS_Report {
     pub sdds_run_id: String,
     pub sensitive_data_units_shredded: u64,
-    pub successful_verifications: u33,
+    pub successful_verifications: u64,
     pub failed_shredding_attempts: u32,
     pub self_destructs_initiated: u32,
     pub avg_shredding_time_ms: u32,

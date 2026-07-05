@@ -58,10 +58,10 @@ pub struct SelfImprovementApplication {
 #[derive(Debug, Clone)]
 pub struct ARSIL_Report {
     pub report_id: String,
-    pub total_improvement_cycles: u66,
-    pub total_limitations_identified: u66,
-    pub total_experiments_run: u66,
-    pub total_enhancements_applied: u66,
+    pub total_improvement_cycles: u64,
+    pub total_limitations_identified: u64,
+    pub total_experiments_run: u64,
+    pub total_enhancements_applied: u64,
     pub avg_performance_increase_across_system: f32,
     pub cognitive_growth_rate: f32, // Conceptual metric
 }

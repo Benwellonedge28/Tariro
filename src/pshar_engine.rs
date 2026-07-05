@@ -52,7 +52,7 @@ pub struct SelfHealingAction {
 pub struct PSHAR_Report {
     pub monitoring_run_id: String,
     pub events_processed_count: u32,
-    pub anomalies_predicted: u33,
+    pub anomalies_predicted: u64,
     pub self_healing_actions_taken: u32,
     pub incidents_prevented: u32,
 }

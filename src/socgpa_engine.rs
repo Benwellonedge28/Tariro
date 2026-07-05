@@ -32,7 +32,7 @@ pub struct TargetArchitecture {
     pub name: String, // e.g., "NVIDIA_GPU_A100", "Intel_Xeon_PHI", "Custom_FPGA"
     pub instruction_sets: Vec<String>, // e.g., "AVX512", "CUDA", "SYCL"
     pub memory_hierarchy_spec: String,
-    pub core_count: u33,
+    pub core_count: u64,
 }
 
 /// Represents the generated and optimized code for a specific task and architecture.

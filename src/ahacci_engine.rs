@@ -56,9 +56,9 @@ pub struct HumanIntervention {
 #[derive(Debug, Clone)]
 pub struct AHACCI_Report {
     pub report_id: String,
-    pub total_commands_issued: u66,
-    pub total_decisions_reviewed: u66,
-    pub total_interventions_made: u66,
+    pub total_commands_issued: u64,
+    pub total_decisions_reviewed: u64,
+    pub total_interventions_made: u64,
     pub avg_cognitive_transparency_score: f32,
     pub avg_intervention_success_rate: f32,
 }

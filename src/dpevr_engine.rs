@@ -60,7 +60,7 @@ pub struct DPEVR_Report {
     pub dpevr_run_id: String,
     pub behaviors_monitored: u64,
     pub policies_evaluated: u64,
-    pub violations_detected: u33,
+    pub violations_detected: u64,
     pub responses_triggered: u32,
     pub avg_response_latency_ms: u32,
     pub policy_effectiveness_score: f32,

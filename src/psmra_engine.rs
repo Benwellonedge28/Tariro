@@ -58,10 +58,10 @@ pub struct DynamicEvent {
 #[derive(Debug, Clone)]
 pub struct PSMRA_Report {
     pub report_id: String,
-    pub total_scenarios_modeled: u66,
+    pub total_scenarios_modeled: u64,
     pub avg_prediction_accuracy_pct: f32,
-    pub total_risks_identified: u66,
-    pub total_mitigations_recommended: u66,
+    pub total_risks_identified: u64,
+    pub total_mitigations_recommended: u64,
     pub avg_time_to_risk_detection_hours: f32,
 }
 

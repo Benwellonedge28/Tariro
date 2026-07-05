@@ -57,8 +57,8 @@ pub struct RemediationReport {
 #[derive(Debug, Clone)]
 pub struct DTRR_Report {
     pub dtrr_run_id: String,
-    pub events_processed: u33,
-    pub threats_neutralized: u33,
+    pub events_processed: u64,
+    pub threats_neutralized: u64,
     pub total_remediation_cost: f32,
     pub average_response_time_ms: u32,
     pub security_posture_score: f32,

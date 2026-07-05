@@ -53,7 +53,7 @@ pub struct DQSN_Node {
 pub struct DQSN_Report {
     pub network_run_id: String,
     pub total_nodes: u32,
-    pub readings_processed: u33,
+    pub readings_processed: u64,
     pub quantum_measurements_processed: u32,
     pub anomalies_detected: u32,
     pub predicted_trends: String,

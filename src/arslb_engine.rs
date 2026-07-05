@@ -55,7 +55,7 @@ pub struct ScalingDecision {
 #[derive(Debug, Clone)]
 pub struct ARSLB_Report {
     pub report_id: String,
-    pub total_scaling_actions: u66,
+    pub total_scaling_actions: u64,
     pub avg_resource_utilization_target: f32,
     pub avg_cost_savings_pct: f32,
     pub avg_response_time_ms: f32,

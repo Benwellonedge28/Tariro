@@ -57,7 +57,7 @@ pub struct GoalImpactEvaluation {
 pub struct AGSP_Report {
     pub agsp_run_id: String,
     pub directives_processed: u32,
-    pub goals_generated: u33,
+    pub goals_generated: u64,
     pub top_priority_goals_count: u32,
     pub avg_evaluation_latency_ms: u32,
     pub strategic_alignment_score: f32,

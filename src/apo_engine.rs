@@ -49,7 +49,7 @@ pub struct OptimizationRecommendation {
 pub struct APO_Report {
     pub optimization_run_id: String,
     pub metrics_monitored_count: u32,
-    pub bottlenecks_identified: u33,
+    pub bottlenecks_identified: u64,
     pub optimizations_applied: u32,
     pub overall_performance_gain: f32, // Cumulative percentage gain
 }

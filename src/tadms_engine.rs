@@ -63,10 +63,10 @@ pub struct TariroDecisionTrace {
 #[derive(Debug, Clone)]
 pub struct TADMS_Report {
     pub report_id: String,
-    pub total_log_entries: u66,
+    pub total_log_entries: u64,
     pub avg_log_processing_latency_ms: f32,
-    pub total_anomalies_detected: u66,
-    pub total_successful_interventions: u66,
+    pub total_anomalies_detected: u64,
+    pub total_successful_interventions: u64,
     pub avg_explainability_score: f32,
 }
 

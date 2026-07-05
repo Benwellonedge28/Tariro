@@ -59,7 +59,7 @@ pub struct HumanFeedback {
 pub struct HITLWI_Report {
     pub hitlwi_run_id: String,
     pub interventions_requested: u32,
-    pub human_decisions_processed: u33,
+    pub human_decisions_processed: u64,
     pub avg_intervention_latency_ms: u32,
     pub workflow_recovery_rate: f32,
     pub human_satisfaction_score: f32,

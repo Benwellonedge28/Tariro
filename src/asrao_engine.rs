@@ -61,9 +61,9 @@ pub struct AllocationPlan {
 #[derive(Debug, Clone)]
 pub struct ASRAO_Report {
     pub report_id: String,
-    pub total_resources_managed: u66,
-    pub total_allocations_made: u66,
-    pub total_optimizations_performed: u66,
+    pub total_resources_managed: u64,
+    pub total_allocations_made: u64,
+    pub total_optimizations_performed: u64,
     pub avg_cost_reduction_pct: f32,
     pub avg_efficiency_gain_pct: f32,
 }

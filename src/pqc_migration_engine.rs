@@ -58,7 +58,7 @@ pub struct MigrationPlan {
 pub struct PQC_Migration_Report {
     pub report_id: String,
     pub total_modules_scanned: u32,
-    pub vulnerable_modules: u332,
+    pub vulnerable_modules: u642,
     pub migration_plans_generated: u32,
     pub avg_migration_readiness: f32,
     pub overall_pqc_readiness_score: f32,

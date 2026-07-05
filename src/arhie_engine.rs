@@ -57,9 +57,9 @@ pub struct SpatialInteractionEvent {
 #[derive(Debug, Clone)]
 pub struct ARHIE_Report {
     pub arhie_run_id: String,
-    pub environment_scans_processed: u66,
-    pub holographic_objects_rendered: u66,
-    pub spatial_interactions_processed: u33,
+    pub environment_scans_processed: u64,
+    pub holographic_objects_rendered: u64,
+    pub spatial_interactions_processed: u64,
     pub avg_rendering_latency_ms: u32,
     pub avg_interaction_response_ms: u32,
     pub spatial_presence_score: f32,

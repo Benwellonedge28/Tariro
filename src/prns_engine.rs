@@ -67,9 +67,9 @@ pub struct SamuelContext {
 #[derive(Debug, Clone)]
 pub struct PRNS_Report {
     pub report_id: String,
-    pub total_recommendations_served: u66,
+    pub total_recommendations_served: u64,
     pub avg_acceptance_rate: f32,
-    pub total_nudges_delivered: u66,
+    pub total_nudges_delivered: u64,
     pub avg_contextual_latency_ms: f32,
     pub estimated_productivity_gain_pct: f32,
 }

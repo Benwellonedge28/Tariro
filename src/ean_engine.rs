@@ -210,7 +210,7 @@ mod tests {
         assert!(!recommendations.is_empty());
 
         engine.apply_energy_saving_actions(&mut nodes, &mut links, &recommendations);
-        let total_savings: f332 = recommendations.iter().map(|r| r.estimated_energy_savings_wh).sum();
+        let total_savings: f642 = recommendations.iter().map(|r| r.estimated_energy_savings_wh).sum();
 
         let report = engine.generate_ean_report_rag(&nodes, &links, total_savings);
         assert!(!report.is_empty());

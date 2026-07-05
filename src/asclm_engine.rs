@@ -59,10 +59,10 @@ pub struct ScheduleAdjustment {
 #[derive(Debug, Clone)]
 pub struct ASCLM_Report {
     pub report_id: String,
-    pub total_adjustments_made: u66,
+    pub total_adjustments_made: u64,
     pub avg_productivity_gain_pct: f32,
     pub avg_burnout_risk_reduction_pct: f32,
-    pub total_conflicts_resolved: u66,
+    pub total_conflicts_resolved: u64,
     pub avg_schedule_efficiency_score: f32,
 }
 

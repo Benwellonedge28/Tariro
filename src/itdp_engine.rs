@@ -59,7 +59,7 @@ pub struct ExecutionPlan {
 pub struct ITDP_Report {
     pub itdp_run_id: String,
     pub objectives_processed: u32,
-    pub tasks_decomposed: u33,
+    pub tasks_decomposed: u64,
     pub plans_generated: u32,
     pub avg_plan_efficiency: f32,
     pub total_planning_time_ms: u32,

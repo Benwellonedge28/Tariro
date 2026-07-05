@@ -58,11 +58,11 @@ pub struct AIModuleIntegrationReport {
 #[derive(Debug, Clone)]
 pub struct AAMGI_Report {
     pub report_id: String,
-    pub total_modules_generated: u66,
-    pub total_successful_integrations: u66,
+    pub total_modules_generated: u64,
+    pub total_successful_integrations: u64,
     pub avg_performance_improvement_pct: f32,
     pub avg_time_to_solution_hours: f32,
-    pub total_failed_integrations: u66,
+    pub total_failed_integrations: u64,
 }
 
 // --- AAMGI Engine --- //

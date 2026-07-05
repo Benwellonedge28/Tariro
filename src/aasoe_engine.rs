@@ -63,9 +63,9 @@ pub struct SelfOptimizationAction {
 #[derive(Debug, Clone)]
 pub struct AASOE_Report {
     pub report_id: String,
-    pub total_components_optimized: u66,
-    pub total_architectural_proposals: u66,
-    pub total_autonomous_optimizations: u66,
+    pub total_components_optimized: u64,
+    pub total_architectural_proposals: u64,
+    pub total_autonomous_optimizations: u64,
     pub avg_performance_improvement_pct: f32,
     pub avg_resilience_increase_pct: f32,
 }

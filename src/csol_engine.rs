@@ -54,8 +54,8 @@ pub struct AdaptiveModel {
 #[derive(Debug, Clone)]
 pub struct CSOL_Report {
     pub csol_run_id: String,
-    pub metrics_monitored: u33,
-    pub optimizations_applied: u33,
+    pub metrics_monitored: u64,
+    pub optimizations_applied: u64,
     pub models_retrained: u32,
     pub avg_performance_gain: f32,
     pub overall_adaptive_score: f32,

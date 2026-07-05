@@ -53,8 +53,8 @@ pub struct RobustnessEvaluation {
 #[derive(Debug, Clone)]
 pub struct CATD_Report {
     pub report_id: String,
-    pub total_attacks_generated: u66,
-    pub total_defenses_deployed: u66,
+    pub total_attacks_generated: u64,
+    pub total_defenses_deployed: u64,
     pub avg_model_robustness_gain: f32,
     pub avg_false_positive_rate: f32,
     pub cross_modal_transfer_effectiveness: f32,

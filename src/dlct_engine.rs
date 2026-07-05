@@ -56,10 +56,10 @@ pub struct DistributedLedgerState {
 #[derive(Debug, Clone)]
 pub struct DLCT_Report {
     pub report_id: String,
-    pub total_blocks_in_chain: u66,
-    pub total_transactions_recorded: u66,
+    pub total_blocks_in_chain: u64,
+    pub total_transactions_recorded: u64,
     pub avg_block_creation_time_ms: f32,
-    pub total_integrity_violations_detected: u66,
+    pub total_integrity_violations_detected: u64,
     pub avg_consensus_latency_ms: f32,
 }
 

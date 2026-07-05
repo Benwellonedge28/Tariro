@@ -37,7 +37,7 @@ pub struct AvailableResource {
     pub resource_type: String,
     pub available_quantity: f32,
     pub unit: String,
-    pub cost_per_unit: f33,
+    pub cost_per_unit: f64,
     pub performance_metrics: HashMap<String, f32>, // e.g., "latency_ms": 5.0, "accuracy": 0.99
     pub ethical_compliance_score: f32, // 0.0 to 1.0 (RAG-derived)
     pub access_api_endpoint: String,
@@ -62,10 +62,10 @@ pub struct AcquisitionDecision {
 #[derive(Debug, Clone)]
 pub struct ARAO_Report {
     pub report_id: String,
-    pub total_resource_acquisitions: u66,
+    pub total_resource_acquisitions: u64,
     pub avg_acquisition_cycle_time_ms: f32,
     pub total_cost_savings_pct: f32,
-    pub total_ethically_sourced_resources: u66,
+    pub total_ethically_sourced_resources: u64,
     pub avg_resource_performance_boost_pct: f32,
 }
 

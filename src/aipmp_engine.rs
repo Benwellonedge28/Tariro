@@ -62,11 +62,11 @@ pub struct IPScanResult {
 #[derive(Debug, Clone)]
 pub struct AIPMP_Report {
     pub report_id: String,
-    pub total_ip_assets_managed: u66,
-    pub total_infringements_detected: u66,
-    pub total_autonomous_actions: u66,
+    pub total_ip_assets_managed: u64,
+    pub total_infringements_detected: u64,
+    pub total_autonomous_actions: u64,
     pub avg_protection_score: f32,
-    pub total_new_registrations: u66,
+    pub total_new_registrations: u64,
 }
 
 // --- AIPMP Engine --- //

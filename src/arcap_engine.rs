@@ -55,7 +55,7 @@ pub struct PredictedFault {
 #[derive(Debug, Clone)]
 pub struct ARCAP_Report {
     pub report_id: String,
-    pub total_incidents_analyzed: u66,
+    pub total_incidents_analyzed: u64,
     pub avg_rca_time_s: f32,
     pub total_faults_predicted: u32,
     pub avg_fault_prevention_rate: f32,

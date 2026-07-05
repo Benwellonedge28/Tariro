@@ -54,7 +54,7 @@ pub struct Threat {
 #[derive(Debug, Clone)]
 pub struct PADH_Report {
     pub report_id: String,
-    pub total_anomalies_detected: u66,
+    pub total_anomalies_detected: u64,
     pub total_threats_identified: u32,
     pub avg_detection_latency_s: f32,
     pub avg_false_positive_rate: f32,

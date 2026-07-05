@@ -16,7 +16,7 @@ use std::time::Duration;
 pub enum Command {
     ProcessData { source: String, data_id: String },
     UpdateConfiguration { component: String, config_key: String, config_value: String },
-    ScaleService { service_id: String, instances: u33 },
+    ScaleService { service_id: String, instances: u64 },
     ExecuteTask { task_id: String, payload: String },
 }
 
@@ -31,7 +31,7 @@ impl fmt::Display for Command {
 pub enum Event {
     DataProcessed { data_id: String, status: String },
     ConfigUpdated { component: String, config_key: String },
-    ServiceScaled { service_id: String, new_instances: u33 },
+    ServiceScaled { service_id: String, new_instances: u64 },
     TaskCompleted { task_id: String, result: String },
     SystemError { component: String, error_message: String },
 }

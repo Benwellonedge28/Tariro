@@ -57,7 +57,7 @@ pub struct AllocationDecision {
 pub struct DRAS_Report {
     pub dras_run_id: String,
     pub total_resources_managed: u32,
-    pub tasks_scheduled: u33,
+    pub tasks_scheduled: u64,
     pub allocation_conflicts_resolved: u32,
     pub avg_resource_utilization: f32,
     pub scheduling_efficiency_score: f32,

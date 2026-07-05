@@ -58,7 +58,7 @@ pub struct SecureDataPacket {
 pub struct QSCP_Report {
     pub report_id: String,
     pub total_qkd_sessions: u64,
-    pub total_quantum_entropy_bits_generated: u66,
+    pub total_quantum_entropy_bits_generated: u64,
     pub avg_secure_throughput_mbps: f32,
     pub total_tamper_detections: u32,
     pub quantum_network_health_score: f32,

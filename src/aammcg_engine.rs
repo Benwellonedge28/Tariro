@@ -61,9 +61,9 @@ pub struct QualityAssessment {
 #[derive(Debug, Clone)]
 pub struct AAMMCG_Report {
     pub report_id: String,
-    pub total_requests_processed: u66,
-    pub total_content_generated: u66,
-    pub total_refinements: u66,
+    pub total_requests_processed: u64,
+    pub total_content_generated: u64,
+    pub total_refinements: u64,
     pub avg_content_quality: f32,
     pub avg_generation_latency_ms: f32,
 }

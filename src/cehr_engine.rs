@@ -51,7 +51,7 @@ pub struct HarvestedUnit {
 pub struct CEHR_Report {
     pub harvesting_run_id: String,
     pub waste_streams_identified: u32,
-    pub byproducts_processed: u33,
+    pub byproducts_processed: u64,
     pub energy_harvested_kwh: f32,
     pub information_reutilized_gb: f32,
     pub overall_efficiency_gain_pct: f32,

@@ -57,7 +57,7 @@ pub struct DecisionResult {
 pub struct IDO_Report {
     pub ido_run_id: String,
     pub decisions_orchestrated: u32,
-    pub conflicts_resolved: u33,
+    pub conflicts_resolved: u64,
     pub avg_decision_latency_ms: u32,
     pub ethical_compliance_rate: f32,
     pub overall_decision_quality: f32,

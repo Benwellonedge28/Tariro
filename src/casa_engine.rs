@@ -59,7 +59,7 @@ pub struct AdaptationStrategy {
 pub struct CASA_Report {
     pub adaptation_run_id: String,
     pub evaluations_performed: u32,
-    pub adaptations_proposed: u33,
+    pub adaptations_proposed: u64,
     pub architectures_reconfigured: u32,
     pub average_performance_gain: f32,
 }

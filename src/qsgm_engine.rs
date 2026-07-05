@@ -58,8 +58,8 @@ pub struct GovernanceDecision {
 pub struct QSGM_Report {
     pub qsgm_run_id: String,
     pub proposals_processed: u32,
-    pub decisions_executed: u33,
-    pub total_votes_cast: u33,
+    pub decisions_executed: u64,
+    pub total_votes_cast: u64,
     pub average_decision_time_ms: u32,
     pub governance_health_score: f32,
 }

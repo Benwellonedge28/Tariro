@@ -55,7 +55,7 @@ pub struct RemediationAction {
 #[derive(Debug, Clone)]
 pub struct SHAR_Report {
     pub report_id: String,
-    pub total_incidents_handled: u66,
+    pub total_incidents_handled: u64,
     pub total_downtime_prevented_min: f32,
     pub avg_mttr_s: f32, // Mean Time To Resolution
     pub avg_op_cost_savings_pct: f32,

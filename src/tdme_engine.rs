@@ -55,8 +55,8 @@ pub struct ExplanationOutput {
 #[derive(Debug, Clone)]
 pub struct TDME_Report {
     pub transparency_run_id: String,
-    pub decisions_logged: u33,
-    pub explanations_generated: u33,
+    pub decisions_logged: u64,
+    pub explanations_generated: u64,
     pub audit_queries_processed: u32,
     pub average_explanation_gen_time_ms: u32,
     pub ethical_compliance_score: f32,
@@ -176,8 +176,8 @@ impl TDME_Engine {
 
         TDME_Report {
             transparency_run_id: format!("audit_{}", rng.gen::<u32>()),
-            decisions_logged: log_entries.len() as u33,
-            explanations_generated: explanations.len() as u33,
+            decisions_logged: log_entries.len() as u64,
+            explanations_generated: explanations.len() as u64,
             audit_queries_processed: rng.gen_range(10..100),
             average_explanation_gen_time_ms: rng.gen_range(150..300),
             ethical_compliance_score: rng.gen_range(0.85..0.99),

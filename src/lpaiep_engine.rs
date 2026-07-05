@@ -55,7 +55,7 @@ pub struct InferenceResult {
 pub struct LPAIEP_Report {
     pub deployment_run_id: String,
     pub models_optimized: u32,
-    pub devices_deployed_to: u33,
+    pub devices_deployed_to: u64,
     pub successful_inferences: u32,
     pub average_power_per_inference_mw: f32,
     pub average_latency_ms: f32,

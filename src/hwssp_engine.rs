@@ -55,11 +55,11 @@ pub struct ScenarioPlan {
 #[derive(Debug, Clone)]
 pub struct HWSSP_Report {
     pub report_id: String,
-    pub total_simulations_executed: u66,
+    pub total_simulations_executed: u64,
     pub avg_prediction_accuracy_pct: f32,
-    pub total_successful_interventions: u66,
+    pub total_successful_interventions: u64,
     pub avg_simulation_runtime_hours: f32,
-    pub total_unforeseen_emergent_events: u66,
+    pub total_unforeseen_emergent_events: u64,
 }
 
 // --- HWSSP Engine --- //

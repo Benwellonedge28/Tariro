@@ -28,7 +28,7 @@ pub struct SelfRepairReport {
     pub failure_id: String,
     pub repair_action: String,
     pub repair_outcome: String, // e.g., "Success", "Partial Repair", "Failed"
-    pub time_to_repair_seconds: u332,
+    pub time_to_repair_seconds: u642,
     pub root_cause_identified: String,
 }
 

@@ -50,7 +50,7 @@ pub struct Plan {
 pub struct AGOP_Report {
     pub planning_run_id: String,
     pub goals_formulated: u32,
-    pub plans_generated: u33,
+    pub plans_generated: u64,
     pub plans_executed: u32,
     pub plan_success_rate: f32,
 }

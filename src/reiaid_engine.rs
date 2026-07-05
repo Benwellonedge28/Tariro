@@ -50,7 +50,7 @@ pub struct Explanation {
 pub struct REIAID_Report {
     pub report_id: String,
     pub total_decisions_explained: u64,
-    pub avg_explanation_confidence: f332,
+    pub avg_explanation_confidence: f642,
     pub user_feedback_score: f32,
     pub critical_decisions_reviewed: u64,
     pub transparency_score: f32,

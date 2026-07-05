@@ -56,10 +56,10 @@ pub struct AugmentedCognitiveState {
 #[derive(Debug, Clone)]
 pub struct ECSCC_Report {
     pub report_id: String,
-    pub total_cognitive_augmentation_sessions: u66,
+    pub total_cognitive_augmentation_sessions: u64,
     pub avg_knowledge_injection_latency_ms: f32,
     pub avg_problem_solving_speedup_factor: f32,
-    pub total_complex_problems_solved: u66,
+    pub total_complex_problems_solved: u64,
     pub avg_memory_capacity_extension_gb: f32,
 }
 

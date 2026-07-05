@@ -51,8 +51,8 @@ pub struct QuantumSignature {
 #[derive(Debug, Clone)]
 pub struct QSRA_Report {
     pub audit_run_id: String,
-    pub events_processed: u33,
-    pub records_generated: u33,
+    pub events_processed: u64,
+    pub records_generated: u64,
     pub chains_verified: u32,
     pub total_anomalies_detected: u32,
     pub quantum_resistance_status: String,
@@ -146,8 +146,8 @@ impl QSRA_Engine {
 
         QSRA_Report {
             audit_run_id: format!("audit_{:x}", rng.gen::<u64>()),
-            events_processed: rng.gen_range(1000..100000) as u33,
-            records_generated: rng.gen_range(1000..100000) as u33,
+            events_processed: rng.gen_range(1000..100000) as u64,
+            records_generated: rng.gen_range(1000..100000) as u64,
             chains_verified: rng.gen_range(100..1000) as u32,
             total_anomalies_detected: rng.gen_range(0..5) as u32,
             quantum_resistance_status: "Fully_Quantum_Resistant".to_string(),

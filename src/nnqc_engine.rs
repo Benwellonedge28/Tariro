@@ -55,7 +55,7 @@ pub struct AccuracyMetric {
 #[derive(Debug, Clone)]
 pub struct NNQC_Report {
     pub nnqc_run_id: String,
-    pub models_processed: u33,
+    pub models_processed: u64,
     pub compression_ratio_avg: f32,
     pub accuracy_drop_percent_avg: f32,
     pub inference_speedup_x: f32,

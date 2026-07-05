@@ -50,10 +50,10 @@ pub struct PersonalizedContent {
 #[derive(Debug, Clone)]
 pub struct PECG_Report {
     pub report_id: String,
-    pub total_personalizations_generated: u66,
+    pub total_personalizations_generated: u64,
     pub avg_relevance_score: f32,
     pub avg_engagement_rate: f32,
-    pub total_unique_experiences_created: u66,
+    pub total_unique_experiences_created: u64,
     pub avg_feedback_processing_latency_ms: f32,
 }
 

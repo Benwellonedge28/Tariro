@@ -57,11 +57,11 @@ pub struct DigitalTwinSimulation {
 #[derive(Debug, Clone)]
 pub struct ODT_Report {
     pub report_id: String,
-    pub total_simulations_run: u66,
+    pub total_simulations_run: u64,
     pub avg_predictive_accuracy_pct: f32,
-    pub total_optimizations_recommended: u66,
+    pub total_optimizations_recommended: u64,
     pub avg_resource_savings_pct: f32,
-    pub total_security_vulnerabilities_identified: u66,
+    pub total_security_vulnerabilities_identified: u64,
 }
 
 // --- ODT Engine --- //

@@ -60,9 +60,9 @@ pub struct SelfEvolutionEvent {
 #[derive(Debug, Clone)]
 pub struct SEDSA_Report {
     pub report_id: String,
-    pub total_evolution_cycles: u66,
-    pub total_ds_adaptations: u66,
-    pub total_algo_adaptations: u66,
+    pub total_evolution_cycles: u64,
+    pub total_ds_adaptations: u64,
+    pub total_algo_adaptations: u64,
     pub avg_performance_gain_pct: f32,
     pub avg_resource_efficiency_gain_pct: f32,
     pub total_manual_interventions: u32,

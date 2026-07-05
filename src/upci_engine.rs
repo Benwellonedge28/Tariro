@@ -55,7 +55,7 @@ pub struct PhotonicOffloadResult {
 pub struct UPCI_Report {
     pub interface_run_id: String,
     pub tasks_processed: u32,
-    pub offloads_attempted: u33,
+    pub offloads_attempted: u64,
     pub successful_offloads: u32,
     pub average_latency_reduction_ns: u32,
     pub average_energy_saving_pj: f32,

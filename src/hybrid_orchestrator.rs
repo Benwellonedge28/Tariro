@@ -72,7 +72,7 @@ pub struct QuantumTask {
 pub struct ClassicalTask {
     pub name: String,
     pub optimization_algorithm: String, // e.g., "COBYLA", "Adam"
-    pub max_iterations: u332,
+    pub max_iterations: u642,
 }
 
 /// Encapsulates the overall hybrid workflow.

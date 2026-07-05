@@ -53,7 +53,7 @@ pub struct OrchestrationAction {
 pub struct RTRPO_Report {
     pub orchestration_run_id: String,
     pub forecasts_processed: u32,
-    pub plans_generated: u33,
+    pub plans_generated: u64,
     pub actions_executed: u32,
     pub actual_efficiency_gain_pct: f32,
     pub total_resource_cost_reduction: f32,

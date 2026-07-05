@@ -52,9 +52,9 @@ pub struct FilteredOutput {
 #[derive(Debug, Clone)]
 pub struct AIPF_Report {
     pub aipf_run_id: String,
-    pub items_ingested: u66,
-    pub items_prioritized: u66,
-    pub items_filtered: u33,
+    pub items_ingested: u64,
+    pub items_prioritized: u64,
+    pub items_filtered: u64,
     pub avg_processing_latency_us: u32,
     pub prioritization_accuracy: f32,
     pub user_satisfaction_increase: f32,

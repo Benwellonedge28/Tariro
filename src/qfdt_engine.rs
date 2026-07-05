@@ -58,9 +58,9 @@ pub struct DigitalTwinScenario {
 #[derive(Debug, Clone)]
 pub struct QFDT_Report {
     pub report_id: String,
-    pub total_elements_tracked: u66,
+    pub total_elements_tracked: u64,
     pub avg_predictive_accuracy: f32,
-    pub total_scenarios_simulated: u66,
+    pub total_scenarios_simulated: u64,
     pub avg_anomaly_detection_rate: f32,
     pub avg_reality_synchronization_latency_ms: f32,
 }

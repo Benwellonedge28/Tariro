@@ -54,7 +54,7 @@ pub struct SPAP_Report {
     pub report_id: String,
     pub total_pipelines_managed: u64,
     pub avg_foresight_score: f32, // 0.0-1.0 (ability of pipelines to anticipate data shifts)
-    pub total_adaptations_performed: u66,
+    pub total_adaptations_performed: u64,
     pub avg_resource_efficiency_gain: f32,
     pub pipeline_uptime_pct: f32,
 }

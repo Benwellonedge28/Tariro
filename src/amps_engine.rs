@@ -67,9 +67,9 @@ pub struct SimulationResult {
 #[derive(Debug, Clone)]
 pub struct AMPS_Report {
     pub amps_run_id: String,
-    pub simulations_executed: u33,
-    pub physics_models_used: u33,
-    pub grid_points_processed: u66,
+    pub simulations_executed: u64,
+    pub physics_models_used: u64,
+    pub grid_points_processed: u64,
     pub avg_simulation_time_s: f32,
     pub accuracy_rating: f32,
     pub resource_efficiency_score: f32,

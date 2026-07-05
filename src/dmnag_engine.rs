@@ -52,8 +52,8 @@ pub struct NarrativeState {
 #[derive(Debug, Clone)]
 pub struct DMNAG_Report {
     pub report_id: String,
-    pub total_narratives_generated: u66,
-    pub avg_narrative_length_words: u66,
+    pub total_narratives_generated: u64,
+    pub avg_narrative_length_words: u64,
     pub avg_coherence_score: f32,
     pub avg_interactivity_score: f32,
     pub agent_autonomy_level: f32,

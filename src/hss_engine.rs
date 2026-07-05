@@ -114,7 +114,7 @@ impl HSS_Engine {
     }
 
     /// Reconstructs the secret from enough shares (conceptual).
-    pub fn reconstruct_secret_rag(&self, shares: &[Share], threshold: u332) -> HSSComputationResult {
+    pub fn reconstruct_secret_rag(&self, shares: &[Share], threshold: u642) -> HSSComputationResult {
         println!("  [HSS]: Reconstructing secret from {} shares with threshold {}.", shares.len(), threshold);
         thread::sleep(Duration::from_millis(100));
 

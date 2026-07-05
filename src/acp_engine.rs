@@ -63,8 +63,8 @@ pub struct OrchestrationAction {
 #[derive(Debug, Clone)]
 pub struct ACP_Report {
     pub control_run_id: String,
-    pub states_monitored: u33,
-    pub policies_evaluated: u33,
+    pub states_monitored: u64,
+    pub policies_evaluated: u64,
     pub actions_executed: u32,
     pub average_adaptation_latency_ms: u32,
     pub total_self_healing_events: u32,

@@ -66,11 +66,11 @@ pub struct DrugTargetInteractionResult {
 #[derive(Debug, Clone)]
 pub struct ADDMM_Report {
     pub addmm_run_id: String,
-    pub molecules_screened: u66,
-    pub proteins_modeled: u33,
-    pub simulations_run: u33,
+    pub molecules_screened: u64,
+    pub proteins_modeled: u64,
+    pub simulations_run: u64,
     pub avg_simulation_time_min: f32,
-    pub hits_identified: u33,
+    pub hits_identified: u64,
     pub overall_efficiency_score: f32,
 }
 

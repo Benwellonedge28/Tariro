@@ -34,7 +34,7 @@ pub struct NeuromorphicAccelerator {
     pub model_name: String, // e.g., "Intel_Loihi_2", "IBM_NorthPole", "Custom_SNN_Array"
     pub supported_tasks: Vec<String>,
     pub energy_efficiency_factor: f32, // Relative to classical hardware
-    pub max_neurons: u66,
+    pub max_neurons: u64,
     pub interface_type: String, // e.g., "PCIe", "Ethernet", "Custom_Interconnect"
 }
 
@@ -55,7 +55,7 @@ pub struct OffloadResult {
 pub struct NCI_Report {
     pub integration_run_id: String,
     pub tasks_analyzed: u32,
-    pub offloads_attempted: u33,
+    pub offloads_attempted: u64,
     pub successful_offloads: u32,
     pub average_energy_saving_pct: f32,
     pub average_latency_reduction_pct: f32,

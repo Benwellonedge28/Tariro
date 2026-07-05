@@ -54,9 +54,9 @@ pub struct QuantumAIResult {
 #[derive(Debug, Clone)]
 pub struct QAR_Report {
     pub report_id: String,
-    pub total_quantum_ops_run: u66,
+    pub total_quantum_ops_run: u64,
     pub avg_quantum_speedup_factor: f32,
-    pub total_qresistant_keys_generated: u66,
+    pub total_qresistant_keys_generated: u64,
     pub quantum_vulnerability_score: f32, // 0.0-1.0 (lower is better)
     pub avg_energy_efficiency_gain_pct: f32,
 }

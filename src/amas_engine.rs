@@ -52,7 +52,7 @@ pub struct OptimalArchitecture {
 #[derive(Debug, Clone)]
 pub struct AMAS_Report {
     pub report_id: String,
-    pub total_architectures_evaluated: u66,
+    pub total_architectures_evaluated: u64,
     pub optimal_architectures_found: u32,
     pub avg_performance_improvement: f32,
     pub avg_search_time_h: f32,

@@ -60,11 +60,11 @@ pub struct SelfModificationRecord {
 #[derive(Debug, Clone)]
 pub struct ACSMO_Report {
     pub report_id: String,
-    pub total_optimization_cycles: u66,
-    pub total_code_changes_applied: u66,
+    pub total_optimization_cycles: u64,
+    pub total_code_changes_applied: u64,
     pub avg_performance_gain_pct: f32,
     pub avg_resource_efficiency_gain_pct: f32,
-    pub total_self_healing_events: u66,
+    pub total_self_healing_events: u64,
 }
 
 // --- ACSMO Engine --- //

@@ -60,9 +60,9 @@ pub struct Countermeasure {
 #[derive(Debug, Clone)]
 pub struct ARTCS_Report {
     pub report_id: String,
-    pub total_vulnerabilities_identified: u66,
-    pub total_exploits_generated: u66,
-    pub total_countermeasures_deployed: u66,
+    pub total_vulnerabilities_identified: u64,
+    pub total_exploits_generated: u64,
+    pub total_countermeasures_deployed: u64,
     pub avg_time_to_detect_exploit_min: f32,
     pub avg_time_to_remediate_vul_min: f32,
 }

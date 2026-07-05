@@ -59,9 +59,9 @@ pub struct MisalignmentEvent {
 #[derive(Debug, Clone)]
 pub struct AHCAAC_Report {
     pub report_id: String,
-    pub total_alignment_audits: u66,
-    pub total_misalignment_events: u66,
-    pub total_autonomous_interventions: u66,
+    pub total_alignment_audits: u64,
+    pub total_misalignment_events: u64,
+    pub total_autonomous_interventions: u64,
     pub avg_alignment_score: f32,
     pub avg_time_to_detect_misalignment_min: f32,
 }

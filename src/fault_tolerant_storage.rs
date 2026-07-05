@@ -12,7 +12,7 @@ use rand::Rng;
 pub struct DataRecord {
     pub id: String,
     pub content: String,
-    pub version: u664,
+    pub version: u644,
 }
 
 /// Represents a storage node with its current status.
