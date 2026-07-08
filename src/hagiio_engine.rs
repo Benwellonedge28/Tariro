@@ -72,7 +72,7 @@ pub struct HAGIIOEngine {
 }
 
 impl HAGIIOEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut hci_db = HashMap::new();
         hci_db.insert("adaptive_ui_principles_for_cognitive_states".to_string(), "RAG-driven knowledge base of adaptive user interface principles that dynamically adjust layout, information density, and interaction patterns based on the user's cognitive state (e.g., high load, low load, fatigue). Used for dynamic UI adaptation.".to_string());
         hci_db.insert("multimodal_interaction_design_patterns".to_string(), "RAG-driven knowledge base of multimodal interaction design patterns (e.g., voice, gesture, haptic feedback integration) for seamless and intuitive human-AGI communication, optimizing for Samuel's preferences and context. Used for multimodal UI.".to_string());

@@ -69,7 +69,7 @@ pub struct PADHEngine {
 }
 
 impl PADHEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut tif_db = HashMap::new();
         tif_db.insert("cve_database_integration".to_string(), "RAG-driven integration with CVE databases and exploit repositories, providing real-time information on known vulnerabilities and exploit kits. Used for vulnerability assessment and threat prioritization.".to_string());
         tif_db.insert("ioc_sharing_platforms".to_string(), "RAG-driven integration with industry-wide Indicator of Compromise (IOC) sharing platforms, enabling rapid identification of new and emerging threats based on shared intelligence.".to_string());

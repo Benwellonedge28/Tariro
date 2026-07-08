@@ -57,7 +57,7 @@ pub struct RLSADEngine {
 }
 
 impl RLSADEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut sb_db = HashMap::new();
         sb_db.insert("normal_cpu_usage".to_string(), "RAG-driven knowledge of normal CPU usage patterns for various services, accounting for diurnal and weekly cycles. Used to identify unusual CPU spikes or prolonged high usage.".to_string());
         sb_db.insert("expected_error_rates".to_string(), "RAG-driven knowledge of expected error rates per service, allowing detection of significant deviations from normal operational behavior.".to_string());

@@ -67,7 +67,7 @@ pub struct ALFAEngine {
 }
 
 impl ALFAEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut cf_db = HashMap::new();
         cf_db.insert("user_correction_logs".to_string(), "RAG-driven knowledge base of user corrections, preference adjustments, and explicit feedback on LLM outputs. Used to guide targeted fine-tuning and adaptation.".to_string());
         cf_db.insert("realtime_interaction_metrics".to_string(), "RAG-driven knowledge base of real-time LLM interaction metrics, including user engagement, task success rates, and sentiment analysis of responses. Used to detect performance drift and areas for improvement.".to_string());

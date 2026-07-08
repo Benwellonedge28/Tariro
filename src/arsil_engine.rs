@@ -74,7 +74,7 @@ pub struct ARSILEngine {
 }
 
 impl ARSILEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut sih_db = HashMap::new();
         sih_db.insert("bias_detection_mitigation_heuristics".to_string(), "RAG-driven knowledge base of heuristics for detecting and mitigating various AI biases (e.g., algorithmic, data, cognitive), ensuring ethical and fair decision-making. Used for identifying limitations.".to_string());
         sih_db.insert("performance_bottleneck_identification_strategies".to_string(), "RAG-driven knowledge base of strategies for identifying performance bottlenecks in complex AI systems, including profiling techniques, distributed tracing, and critical path analysis. Used for diagnosing performance issues.".to_string());

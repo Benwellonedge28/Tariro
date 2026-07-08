@@ -79,7 +79,7 @@ pub struct HFNSEEngine {
 }
 
 impl HFNSEEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut ns_db = HashMap::new();
         ns_db.insert("human_brain_atlas".to_string(), "RAG-driven knowledge base of human brain anatomy, connectivity maps, and electrophysiology data. Used for constructing realistic neural architectures and validating simulation results.".to_string());
         ns_db.insert("neuron_firing_models".to_string(), "RAG-driven knowledge base of various neuron firing models (e.g., Hodgkin-Huxley, integrate-and-fire) for accurate simulation of neuronal dynamics.".to_string());

@@ -70,7 +70,7 @@ pub struct SHAREngine {
 }
 
 impl SHAREngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut irp_db = HashMap::new();
         irp_db.insert("database_failure_playbook".to_string(), "RAG-driven knowledge base of runbooks and playbooks for common database failures (e.g., connection pool exhaustion, slow queries, disk full), detailing diagnostic steps and automated recovery procedures.".to_string());
         irp_db.insert("microservice_degradation_playbook".to_string(), "RAG-driven knowledge base for microservice degradation, including rollout rollback, circuit breaking patterns, and horizontal scaling strategies. Used for autonomous service recovery.".to_string());

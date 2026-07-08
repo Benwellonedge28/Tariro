@@ -67,7 +67,7 @@ pub struct AMASEngine {
 }
 
 impl AMASEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut nas_db = HashMap::new();
         nas_db.insert("nas_algorithms_overview".to_string(), "RAG-driven knowledge base of Neural Architecture Search algorithms (e.g., 강화 학습 기반, 진화 전략, 그래디언트 기반)와 그들의 탐색 공간, 탐색 전략, 그리고 비용 함수에 대한 정보. 최적의 신경망 구조를 찾는 데 활용됩니다.".to_string());
         nas_db.insert("search_space_design".to_string(), "RAG-driven knowledge base of various neural network search space designs (e.g., cell-based, layer-wise) and their impact on search efficiency and model diversity.".to_string());

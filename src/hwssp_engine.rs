@@ -70,7 +70,7 @@ pub struct HWSSPEngine {
 }
 
 impl HWSSPEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut rwpm_db = HashMap::new();
         rwpm_db.insert("climate_models_cmip6".to_string(), "RAG-driven knowledge base of CMIP6 climate models, including atmospheric circulation, ocean dynamics, and biogeochemical cycles, used for simulating global climate change scenarios. Used for environmental simulations.".to_string());
         rwpm_db.insert("fluid_dynamics_simulations".to_string(), "RAG-driven knowledge base of computational fluid dynamics (CFD) models for simulating complex fluid behaviors (e.g., weather patterns, ocean currents, turbulent flow), used for high-fidelity physical simulations. Used for physical simulations.".to_string());

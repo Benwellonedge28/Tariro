@@ -70,7 +70,7 @@ pub struct OMHAIIAEngine {
 }
 
 impl OMHAIIAEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut mid_db = HashMap::new();
         mid_db.insert("multimodal_fusion_strategies".to_string(), "RAG-driven knowledge base of multimodal fusion strategies (e.g., early, late, hybrid fusion) for combining data from diverse interaction channels (e.g., neural, speech, gesture) into a unified understanding of user intent. Used for interaction processing.".to_string());
         mid_db.insert("haptic_feedback_design_patterns".to_string(), "RAG-driven knowledge base of design patterns for haptic feedback, including tactile, kinesthetic, and thermal feedback, to enhance the sense of presence and realism in H-AGI interactions. Used for interface adaptation.".to_string());

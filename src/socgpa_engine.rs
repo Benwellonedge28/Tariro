@@ -67,7 +67,7 @@ pub struct SOCGPAEngine {
 }
 
 impl SOCGPAEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut am_db = HashMap::new();
         am_db.insert("nvidia_cuda_spec".to_string(), "RAG-driven knowledge base of NVIDIA CUDA programming model, including memory types, warp scheduling, and kernel launch configurations. Used for GPU code generation.".to_string());
         am_db.insert("fpga_hls_guides".to_string(), "RAG-driven knowledge base of FPGA High-Level Synthesis (HLS) best practices for converting C/C++/OpenCL into efficient RTL. Used for FPGA code generation.".to_string());

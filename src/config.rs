@@ -9,11 +9,14 @@ use std::path::Path;
 
 // Re-export specific types from the SDK
 pub use tariro_sdk::entities::{AGIControlSetting, AGICategory, AutonomyPolicy, CapabilityStatus, WorkflowRule, ServicePrice};
+// Type alias for backward compatibility
+pub type AGIControl = AGIControlSetting;
 pub use tariro_sdk::entities::{Goal, WellbeingLog, ExplainabilityLog, PerformanceLog, LearningInsight, FeatureProposal, SystemHealthLog};
 pub use tariro_sdk::entities::{Conversation, KnowledgeItem, ManagedFile};
 pub use tariro_sdk::entities::{GitHubProfile, GitHubProjectContext, IDEProfile};
 pub use tariro_sdk::entities::{ProjectTask, NotificationRecord};
-pub use tariro_sdk::entities::{NanoAgent, MetaProject, CompilerProject, CompilerSnapshot, DeploymentRecord};
+pub use tariro_sdk::entities::{NanoAgent, MetaProject, DeploymentRecord};
+pub use crate::compiler::{CompilerSnapshot, MetaProjectStatus, CompilationMetrics};
 
 /// Represents the overall configuration for the Tariro AGI.
 #[derive(Debug, Serialize, Deserialize, Clone)]

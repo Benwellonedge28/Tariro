@@ -69,7 +69,7 @@ pub struct QAREngine {
 }
 
 impl QAREngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut qa_ai_db = HashMap::new();
         qa_ai_db.insert("quantum_neural_networks".to_string(), "RAG-driven knowledge base of Quantum Neural Network (QNN) architectures, including variational quantum eigensolvers (VQE) and quantum approximate optimization algorithms (QAOA) for machine learning tasks. Used for quantum-enhanced AI.".to_string());
         qa_ai_db.insert("grover_algorithm_for_search".to_string(), "RAG-driven knowledge base of Grover's search algorithm and its applications in accelerating unstructured search problems, including potential use cases in database querying for AI inference.".to_string());

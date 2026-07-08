@@ -57,7 +57,7 @@ pub struct MMDCEEngine {
 }
 
 impl MMDCEEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut mme_db = HashMap::new();
         mme_db.insert("unified_embedding_space".to_string(), "RAG-driven unified multi-modal embedding space, where text, image, audio, and sensor data are represented in a common vector space. Enables direct semantic comparison across modalities.".to_string());
 

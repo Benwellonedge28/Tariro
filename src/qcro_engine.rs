@@ -76,7 +76,7 @@ pub struct QCROEngine {
 }
 
 impl QCROEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut qrmp_db = HashMap::new();
         qrmp_db.insert("fair_usage_policies_for_qpu".to_string(), "RAG-driven knowledge base of fair usage policies and scheduling algorithms for multi-tenant quantum processing units (QPUs), ensuring equitable access and optimal throughput. Used for resource allocation.".to_string());
         qrmp_db.insert("qos_guarantees_for_quantum_jobs".to_string(), "RAG-driven knowledge base of Quality of Service (QoS) guarantees for quantum jobs, including latency, fidelity, and uptime Service Level Agreements (SLAs). Used for job prioritization and service assurance.".to_string());

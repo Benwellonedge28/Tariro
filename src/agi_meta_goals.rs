@@ -7,6 +7,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use std::collections::HashMap;
 
 /// Represents a single meta-goal for the Tariro AGI.
 /// Meta-goals are persistent, high-level objectives that inform all other operations.

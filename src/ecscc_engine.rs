@@ -71,7 +71,7 @@ pub struct ECSCCEngine {
 }
 
 impl ECSCCEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut ema_db = HashMap::new();
         ema_db.insert("semantic_memory_networks_for_human_cognition".to_string(), "RAG-driven knowledge base of semantic memory networks and hierarchical knowledge structures designed to mirror human long-term memory organization, enabling rapid and contextually relevant knowledge retrieval and injection. Used for enhanced memory.".to_string());
         ema_db.insert("episodic_memory_indexing_and_retrieval".to_string(), "RAG-driven knowledge base of episodic memory indexing and retrieval techniques, allowing Tariro to present Samuel with relevant past experiences, conversations, and learning contexts to aid problem-solving and decision-making. Used for experiential learning.".to_string());

@@ -65,7 +65,7 @@ pub struct SSFEngine {
 }
 
 impl SSFEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut kb_db = HashMap::new();
         kb_db.insert("snippet1".to_string(), KnowledgeSnippet {
             id: "snippet1".to_string(),

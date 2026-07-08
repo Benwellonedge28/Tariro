@@ -55,7 +55,7 @@ pub struct QADSPEngine {
 }
 
 impl QADSPEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut qds_db = HashMap::new();
         qds_db.insert("quantum_datastructures_info".to_string(), "RAG-driven knowledge base of quantum data structures like quantum registers, qubits, and quantum-resistant cryptographic primitives. Used for optimizing data representation and manipulation at quantum scales.".to_string());
 

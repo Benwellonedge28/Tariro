@@ -19,6 +19,15 @@ pub mod ontology;
 pub mod sandbox;
 
 // ============================================================================
+// System Support Modules
+// ============================================================================
+pub mod config;
+pub mod telemetry;
+pub mod event_bus;
+pub mod deployment;
+pub mod quantum_security;
+
+// ============================================================================
 // TUMC Core Modules
 // ============================================================================
 pub mod tumc_core;
@@ -103,12 +112,10 @@ impl Ord for Infinitism {
 // Main AGI System Integrator
 // ============================================================================
 
-use crate::tumc_core::TariroUniversalMetaCompiler;
-
 /// The main entry point for the Tariro AGI system
 pub struct TariroAGI {
     /// The Universal Meta-Compiler core
-    pub tumc: TariroUniversalMetaCompiler,
+    pub tumc: crate::tumc_core::TariroUniversalMetaCompiler,
     /// System metadata
     pub metadata: AGISystemMetadata,
 }
@@ -125,7 +132,7 @@ impl TariroAGI {
     /// Create a new instance of the Tariro AGI system
     pub fn new() -> Self {
         TariroAGI {
-            tumc: TariroUniversalMetaCompiler::new(),
+            tumc: crate::tumc_core::TariroUniversalMetaCompiler::new(),
             metadata: AGISystemMetadata {
                 version: VERSION.to_string(),
                 uptime_mts: 0,

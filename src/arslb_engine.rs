@@ -70,7 +70,7 @@ pub struct ARSLBEngine {
 }
 
 impl ARSLBEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut pmod_db = HashMap::new();
         pmod_db.insert("time_series_forecasting_models".to_string(), "RAG-driven knowledge base of advanced time-series forecasting models (e.g., Prophet, LSTM, Transformer-based models) for predicting future service demand based on historical patterns, seasonality, and external factors.".to_string());
         pmod_db.insert("workload_profiling_techniques".to_string(), "RAG-driven knowledge base of workload profiling techniques, identifying peak usage patterns, bursty demands, and resource consumption fingerprints for different service types.".to_string());

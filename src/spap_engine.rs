@@ -67,7 +67,7 @@ pub struct SPAPEngine {
 }
 
 impl SPAPEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut poa_db = HashMap::new();
         poa_db.insert("auto_ml_strategies".to_string(), "RAG-driven knowledge base of Automated Machine Learning (AutoML) strategies, including algorithm selection, hyperparameter optimization, and neural architecture search. Used for self-configuring predictive models.".to_string());
         poa_db.insert("dynamic_workflow_orchestration".to_string(), "RAG-driven knowledge base of dynamic workflow orchestration techniques (e.g., DAG optimization, resource-aware scheduling). Used for efficient pipeline deployment and scaling.".to_string());

@@ -70,7 +70,7 @@ pub struct ARCAPEngine {
 }
 
 impl ARCAPEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut dkb_db = HashMap::new();
         dkb_db.insert("system_error_codes".to_string(), "RAG-driven knowledge base of system error codes, their common causes, and known resolutions across various operating systems and application platforms. Used for rapid problem identification.".to_string());
         dkb_db.insert("performance_bottleneck_patterns".to_string(), "RAG-driven knowledge base of common performance bottleneck patterns (e.g., N+1 queries, excessive locking, inefficient algorithms) and their characteristic telemetry signatures. Used for performance diagnosis.".to_string());

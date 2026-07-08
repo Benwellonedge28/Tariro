@@ -74,7 +74,7 @@ pub struct PLSAAEngine {
 }
 
 impl PLSAAEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut cpm_db = HashMap::new();
         cpm_db.insert("bloom_taxonomy_for_learning_objectives".to_string(), "RAG-driven knowledge base of Bloom's Taxonomy and its application in designing learning objectives that span cognitive levels, from basic recall to complex evaluation and creation. Used for structuring learning goals.".to_string());
         cpm_db.insert("working_memory_models_and_limits".to_string(), "RAG-driven knowledge base of working memory models (e.g., Baddeley & Hitch) and their implications for information presentation, chunking, and cognitive load management in educational contexts. Used for optimizing content delivery.".to_string());

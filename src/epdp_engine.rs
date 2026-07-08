@@ -69,7 +69,7 @@ pub struct EPDPENGINE {
 }
 
 impl EPDPENGINE {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut prh_db = HashMap::new();
         prh_db.insert("time_series_anomaly_detection_methods".to_string(), "RAG-driven knowledge base of time-series anomaly detection algorithms (e.g., ARIMA, Isolation Forest, Prophet), tailored for identifying emergent deviations in sequential data.".to_string());
         prh_db.insert("clustering_algorithms".to_string(), "RAG-driven knowledge base of clustering algorithms (e.g., K-means, DBSCAN, hierarchical clustering), for grouping similar data points and discovering hidden structures.".to_string());

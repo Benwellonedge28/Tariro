@@ -72,7 +72,7 @@ pub struct ODTEngine {
 }
 
 impl ODTEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut dtm_db = HashMap::new();
         dtm_db.insert("cyber_physical_system_modeling".to_string(), "RAG-driven knowledge base of cyber-physical system (CPS) modeling techniques, including multi-fidelity models, state-space representations, and hierarchical decomposition for complex interconnected systems like Tariro. Used for building the digital twin.".to_string());
         dtm_db.insert("semantic_interoperability_standards".to_string(), "RAG-driven knowledge base of semantic interoperability standards (e.g., ontologies, knowledge graphs) for integrating heterogeneous data sources and component models within a digital twin, ensuring a unified understanding of Tariro's environment. Used for data integration.".to_string());

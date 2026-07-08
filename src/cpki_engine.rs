@@ -68,7 +68,7 @@ pub struct CPKIEngine {
 }
 
 impl CPKIEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut wcr_db = HashMap::new();
         wcr_db.insert("adaptive_crawling_policies".to_string(), "RAG-driven knowledge base of adaptive web crawling policies, including site mapping, change detection algorithms, and anti-bot evasion techniques. Used to efficiently collect up-to-date web content.".to_string());
         wcr_db.insert("content_relevance_filters".to_string(), "RAG-driven knowledge base of content relevance filtering algorithms, based on LLM embeddings and user query patterns. Used to prioritize valuable information.".to_string());

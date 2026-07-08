@@ -14,7 +14,7 @@ mod tests {
     use crate::multi_agent::NanoAgent;
     use crate::news_engine::{Article, Sentiment};
     use crate::database::DatabaseService; 
-    use crate::quantum_security::mod::prelude as qsm_prelude; 
+    use crate::quantum_security::prelude as qsm_prelude; 
     use crate::event_bus::{EventBus, AGIEvent}; 
 
 
@@ -149,7 +149,7 @@ mod tests {
                 session_key: Arc::new(Mutex::new(vec![0])),
                 kex_algo: Box::new(MockQuantumResistantKeyExchange),
                 cipher_algo: Box::new(MockQuantumResistantCipher),
-                evas_policy: crate::quantum_security::mod::EvasCompliancePolicy {
+                evas_policy: crate::quantum_security::EvasCompliancePolicy {
                     enabled: false,
                     data_minimization_active: false,
                     consent_audited: false,

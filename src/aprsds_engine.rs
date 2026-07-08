@@ -79,7 +79,7 @@ pub struct APRSDSEngine {
 }
 
 impl APRSDSEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut pmm_db = HashMap::new();
         pmm_db.insert("agile_scrum_framework".to_string(), "RAG-driven knowledge base of Agile Scrum methodologies, including sprint planning, daily stand-ups, backlog refinement, and iteration reviews, used for iterative and adaptive project execution. Used for Agile roadmapping.".to_string());
         pmm_db.insert("critical_path_method_analysis".to_string(), "RAG-driven knowledge base of Critical Path Method (CPM) for project scheduling, identifying the longest sequence of dependent tasks that determines the minimum project duration, used for bottleneck detection. Used for critical path analysis.".to_string());

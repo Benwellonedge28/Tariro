@@ -71,7 +71,7 @@ pub struct DCMCIEngine {
 }
 
 impl DCMCIEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut kgc_db = HashMap::new();
         kgc_db.insert("ontological_schema_design".to_string(), "RAG-driven knowledge base of ontological schema design principles (e.g., OWL, RDF, property graphs) for structuring heterogeneous data from Samuel's cognitive states and Tariro's internal knowledge into a unified graph model. Used for graph representation.".to_string());
         kgc_db.insert("entity_linking_and_resolution_algorithms".to_string(), "RAG-driven knowledge base of entity linking and resolution algorithms for disambiguating and connecting concepts across diverse data sources, ensuring coherent representation within the cognitive map. Used for knowledge integration.".to_string());

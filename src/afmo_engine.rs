@@ -76,7 +76,7 @@ pub struct AFMOEngine {
 }
 
 impl AFMOEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut fm_db = HashMap::new();
         fm_db.insert("monte_carlo_simulation_for_financial_forecasting".to_string(), "RAG-driven knowledge base of Monte Carlo simulation techniques for robust financial forecasting, generating probabilistic outcomes for budgets, investments, and expenditures to quantify risk and uncertainty. Used for risk-aware forecasting.".to_string());
         fm_db.insert("time_series_forecasting_models_for_expenditure".to_string(), "RAG-driven knowledge base of time series forecasting models (e.g., ARIMA, Prophet) for predicting future expenditures and income streams based on historical data, enabling proactive budget adjustments. Used for predictive budgeting.".to_string());

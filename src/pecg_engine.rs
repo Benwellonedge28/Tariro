@@ -65,7 +65,7 @@ pub struct PECGEngine {
 }
 
 impl PECGEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut upm_db = HashMap::new();
         upm_db.insert("implicit_feedback_analysis".to_string(), "RAG-driven knowledge base of algorithms for analyzing implicit user feedback (e.g., gaze tracking, interaction patterns, emotional responses) to infer deeper preferences and cognitive states. Used for highly nuanced personalization.".to_string());
         upm_db.insert("long_term_preference_evolution".to_string(), "RAG-driven knowledge base of models for tracking the evolution of user preferences over time, adapting content generation strategies to reflect changing tastes and skills. Used for sustained engagement.".to_string());

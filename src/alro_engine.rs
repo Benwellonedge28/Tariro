@@ -59,7 +59,7 @@ pub struct ALROEngine {
 }
 
 impl ALROEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut ot_db = HashMap::new();
         ot_db.insert("gradient_descent_variants".to_string(), "RAG-driven knowledge base of various gradient descent optimizers (SGD, Adam, RMSprop, Adagrad), including their convergence properties, robustness to noisy gradients, and suitability for different model architectures and data types.".to_string());
         ot_db.insert("second_order_optimization_methods".to_string(), "RAG-driven knowledge base of second-order optimization methods (Newton's, L-BFGS, natural gradient descent), including their computational complexity and benefits for faster convergence in certain scenarios.".to_string());

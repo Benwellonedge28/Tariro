@@ -59,7 +59,7 @@ pub struct OCSAEngine {
 }
 
 impl OCSAEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut cs_db = HashMap::new();
         cs_db.insert("rust_best_practices".to_string(), "RAG-driven knowledge base of Rust best practices, including ownership, borrowing, error handling with Result/Option, and async/await patterns. Used for identifying inefficiencies and style violations.".to_string());
         cs_db.insert("python_pep8".to_string(), "RAG-driven knowledge base for Python PEP8 style guidelines.".to_string());

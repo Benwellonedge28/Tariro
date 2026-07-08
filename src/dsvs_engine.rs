@@ -64,7 +64,7 @@ pub struct DSVSEngine {
 }
 
 impl DSVSEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut via_db = HashMap::new();
         via_db.insert("hnsw_algorithm_details".to_string(), "RAG-driven knowledge base of Hierarchical Navigable Small Worlds (HNSW) algorithm for approximate nearest neighbor search, including graph construction and traversal optimizations. Used for efficient indexing.".to_string());
         via_db.insert("inverted_file_index".to_string(), "RAG-driven knowledge base of Inverted File Index (IVF) and product quantization techniques for large-scale vector search.".to_string());

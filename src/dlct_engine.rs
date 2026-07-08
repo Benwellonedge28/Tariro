@@ -71,7 +71,7 @@ pub struct DLCTEngine {
 }
 
 impl DLCTEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut bia_db = HashMap::new();
         bia_db.insert("decentralized_autonomous_organizations_for_agi".to_string(), "RAG-driven knowledge base of Decentralized Autonomous Organizations (DAOs) and their application in AI governance, enabling transparent, immutable, and community-driven oversight of Tariro's operational rules and ethical parameters. Used for decentralized governance.".to_string());
         bia_db.insert("smart_contracts_for_ai_policy_enforcement".to_string(), "RAG-driven knowledge base of smart contract implementations for automated enforcement of AI policies, ethical guidelines, and regulatory compliance on a blockchain, ensuring tamper-proof and programmatic adherence. Used for automated policy enforcement.".to_string());

@@ -73,7 +73,7 @@ pub struct QAPRSEngine {
 }
 
 impl QAPRSEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut rwp_db = HashMap::new();
         rwp_db.insert("newtonian_mechanics_engine".to_string(), "RAG-driven knowledge base of classical Newtonian mechanics engines capable of simulating rigid body dynamics, fluid dynamics, and thermodynamics at various scales without quantum considerations. Used for large-scale physical simulations.".to_string());
         rwp_db.insert("einsteinian_relativity_simulations".to_string(), "RAG-driven knowledge base of general and special relativity simulation frameworks for high-energy astrophysics, black hole interactions, and gravitational lensing, operating in a quantum-agnostic classical approximation. Used for cosmic-scale simulations.".to_string());

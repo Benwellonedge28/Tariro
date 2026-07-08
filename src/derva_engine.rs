@@ -74,7 +74,7 @@ pub struct DERVAEngine {
 }
 
 impl DERVAEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut ep_db = HashMap::new();
         ep_db.insert("utilitarianism_frameworks".to_string(), "RAG-driven knowledge base of utilitarian ethical frameworks, focusing on maximizing overall well-being and minimizing harm for the greatest number, used in cost-benefit ethical analysis. Used for consequentialist reasoning.".to_string());
         ep_db.insert("deontological_ethics_models".to_string(), "RAG-driven knowledge base of deontological ethical models, emphasizing duty, rules, and inherent moral obligations regardless of outcome, used for principle-based decision-making. Used for rule-based reasoning.".to_string());

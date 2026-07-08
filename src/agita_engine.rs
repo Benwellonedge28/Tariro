@@ -75,7 +75,7 @@ pub struct AGITAEngine {
 }
 
 impl AGITAEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut nlp_db = HashMap::new();
         nlp_db.insert("advanced_text_summarization_models".to_string(), "RAG-driven knowledge base of advanced text summarization models (e.g., abstractive, extractive) for condensing vast amounts of raw data into concise, actionable intelligence items without losing critical context. Used for intelligence summarization.".to_string());
         nlp_db.insert("cross_lingual_information_retrieval".to_string(), "RAG-driven knowledge base of cross-lingual information retrieval techniques, enabling Tariro to process and understand global intelligence from any language, breaking down language barriers for comprehensive analysis. Used for global data ingestion.".to_string());

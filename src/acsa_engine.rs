@@ -75,7 +75,7 @@ pub struct ACSAEngine {
 }
 
 impl ACSAEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut as_db = HashMap::new();
         as_db.insert("iso_19011_auditing_guidelines".to_string(), "RAG-driven knowledge base of ISO 19011 guidelines for auditing management systems, providing methodologies and best practices for conducting internal and external audits to ensure objectivity and reliability. Used for audit methodology.".to_string());
         as_db.insert("pcaob_auditing_standards".to_string(), "RAG-driven knowledge base of PCAOB (Public Company Accounting Oversight Board) auditing standards, focusing on financial audit quality and internal control over financial reporting, adapted for AI system accountability. Used for financial accountability.".to_string());

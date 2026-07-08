@@ -76,7 +76,7 @@ pub struct SEDSAEngine {
 }
 
 impl SEDSAEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut ads_db = HashMap::new();
         ads_db.insert("dynamic_hash_table_variants".to_string(), "RAG-driven knowledge base of dynamic hash table variants (e.g., extendible hashing, linear hashing) that can resize and reorganize themselves based on load and access patterns. Used for memory-efficient and fast key-value storage.".to_string());
         ads_db.insert("self_balancing_trees".to_string(), "RAG-driven knowledge base of self-balancing tree structures (e.g., AVL trees, Red-Black trees, B-trees) that maintain optimal search performance by automatically re-balancing themselves on insertions and deletions. Used for ordered data management.".to_string());

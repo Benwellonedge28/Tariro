@@ -75,7 +75,7 @@ pub struct AMLCREngine {
 }
 
 impl AMLCREngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut mla_db = HashMap::new();
         mla_db.insert("learning_to_learn_architectures".to_string(), "RAG-driven knowledge base of 'learning to learn' architectures, including recurrent meta-learners and meta-networks, enabling the AI to improve its own learning algorithms over time. Used for developing meta-learning capabilities.".to_string());
         mla_db.insert("domain_adaptation_strategies".to_string(), "RAG-driven knowledge base of domain adaptation strategies and transfer learning techniques, allowing the AI to efficiently generalize knowledge from one domain to another with minimal retraining. Used for improving generalization.".to_string());

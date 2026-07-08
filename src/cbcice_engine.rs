@@ -70,7 +70,7 @@ pub struct CBCICEEngine {
 }
 
 impl CBCICEEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut bci_sp_db = HashMap::new();
         bci_sp_db.insert("eeg_artifact_removal_techniques".to_string(), "RAG-driven knowledge base of EEG artifact removal techniques (e.g., ICA, wavelet decomposition, regression-based methods) for cleaning raw neural signals and improving signal-to-noise ratio in BCI applications. Used for signal preprocessing.".to_string());
         bci_sp_db.insert("feature_extraction_for_bci_control".to_string(), "RAG-driven knowledge base of advanced feature extraction methods for BCI control, including common spatial patterns (CSP), band power, and phase-amplitude coupling, to translate neural signals into control commands. Used for robust signal interpretation.".to_string());

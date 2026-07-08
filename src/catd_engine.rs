@@ -68,7 +68,7 @@ pub struct CATDEngine {
 }
 
 impl CATDEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut aat_db = HashMap::new();
         aat_db.insert("image_adversarial_attacks".to_string(), "RAG-driven knowledge base of image adversarial attacks (e.g., FGSM, PGD, Carlini & Wagner), including their mathematical formulations, target metrics (e.g., imperceptibility, transferability), and effectiveness against different vision models.".to_string());
         aat_db.insert("text_adversarial_attacks".to_string(), "RAG-driven knowledge base of text adversarial attacks (e.g., synonym replacement, paraphrasing, character-level manipulation), focusing on attacks that preserve semantic meaning while altering model predictions.".to_string());

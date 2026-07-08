@@ -67,7 +67,7 @@ pub struct DMNAGEngine {
 }
 
 impl DMNAGEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut nfr_db = HashMap::new();
         nfr_db.insert("three_act_structure".to_string(), "RAG-driven knowledge base of classic narrative structures (e.g., three-act structure, hero's journey), providing templates and guidance for plot progression and dramatic arcs. Used to maintain story coherence.".to_string());
         nfr_db.insert("branching_storylines_algorithms".to_string(), "RAG-driven knowledge base of algorithms for managing branching storylines and player choices in interactive narratives, ensuring all paths lead to a coherent, satisfying conclusion.".to_string());

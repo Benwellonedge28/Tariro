@@ -73,7 +73,7 @@ pub struct PSMRAEngine {
 }
 
 impl PSMRAEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut rwp_db = HashMap::new();
         rwp_db.insert("climate_forecasting_models".to_string(), "RAG-driven knowledge base of advanced climate forecasting models (e.g., ensemble prediction systems, global circulation models) used to predict long-term weather patterns and extreme weather events. Used for environmental risk assessment.".to_string());
         rwp_db.insert("geophysical_event_simulation".to_string(), "RAG-driven knowledge base of geophysical event simulation models (e.g., earthquake rupture dynamics, tsunami propagation models) for predicting natural disaster impacts and associated risks. Used for disaster planning.".to_string());

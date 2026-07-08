@@ -69,7 +69,7 @@ pub struct RMMSGEngine {
 }
 
 impl RMMSGEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut _3dal_db = HashMap::new();
         _3dal_db.insert("photogrammetry_data_sets".to_string(), "RAG-driven knowledge base of photogrammetry data sets of real-world objects and environments, providing high-fidelity textures and mesh data for realistic rendering. Used to populate scenes.".to_string());
         _3dal_db.insert("procedural_asset_generators".to_string(), "RAG-driven knowledge base of procedural asset generation algorithms (e.g., for trees, rocks, buildings), allowing for infinite variation and context-aware instantiation of scene elements.".to_string());

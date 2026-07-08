@@ -70,7 +70,7 @@ pub struct RTHAGICSEngine {
 }
 
 impl RTHAGICSEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut hcm_db = HashMap::new();
         hcm_db.insert("theory_of_mind_models".to_string(), "RAG-driven knowledge base of computational models of human Theory of Mind (ToM), including belief-desire-intention frameworks and social cognition, allowing Tariro to understand and predict human intentions and emotional states. Used for empathetic interaction.".to_string());
         hcm_db.insert("cognitive_load_theory_applications".to_string(), "RAG-driven knowledge base of Cognitive Load Theory and its applications in optimizing human-computer interaction, identifying thresholds for mental exertion and designing adaptive interfaces to minimize cognitive overhead. Used for reducing human cognitive burden.".to_string());

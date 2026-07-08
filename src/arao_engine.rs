@@ -77,7 +77,7 @@ pub struct ARAOEngine {
 }
 
 impl ARAOEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut rms_db = HashMap::new();
         rms_db.insert("cloud_cost_optimization_techniques".to_string(), "RAG-driven knowledge base of cloud cost optimization techniques (e.g., spot instances, reserved instances, serverless architectures) to minimize expenditure on computational resources while maintaining desired performance levels. Used for cost-efficiency.".to_string());
         rms_db.insert("elastic_resource_scaling_patterns".to_string(), "RAG-driven knowledge base of elastic resource scaling patterns (e.g., auto-scaling groups, horizontal vs. vertical scaling) for dynamically adjusting computational power to meet fluctuating demand, ensuring optimal resource utilization. Used for performance-on-demand.".to_string());

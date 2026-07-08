@@ -78,7 +78,7 @@ pub struct TADMSEngine {
 }
 
 impl TADMSEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut xaif_db = HashMap::new();
         xaif_db.insert("lime_shap_for_model_interpretability".to_string(), "RAG-driven knowledge base of LIME (Local Interpretable Model-agnostic Explanations) and SHAP (SHapley Additive exPlanations) frameworks for local and global model interpretability, allowing Tariro to explain its complex decision processes in human-understandable terms. Used for model explanation.".to_string());
         xaif_db.insert("causal_inference_techniques_for_ai".to_string(), "RAG-driven knowledge base of causal inference techniques (e.g., Pearl's do-calculus, potential outcomes framework) for uncovering true cause-and-effect relationships within AI systems, moving beyond mere correlations. Used for causal explainability.".to_string());

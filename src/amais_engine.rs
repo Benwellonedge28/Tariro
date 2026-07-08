@@ -69,7 +69,7 @@ pub struct AMAISEngine {
 }
 
 impl AMAISEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut masa_db = HashMap::new();
         masa_db.insert("bdi_agent_architectures".to_string(), "RAG-driven knowledge base of Belief-Desire-Intention (BDI) agent architectures, including their planning algorithms, knowledge representation, and communication protocols. Used for building intelligent, goal-oriented agents.".to_string());
         masa_db.insert("swarm_intelligence_models".to_string(), "RAG-driven knowledge base of swarm intelligence models (e.g., ant colony optimization, particle swarm optimization) for simulating collective agent behavior and decentralized decision-making in large-scale systems.".to_string());

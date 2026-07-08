@@ -66,7 +66,7 @@ pub struct MGSCEngine {
 }
 
 impl MGSCEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut mcl_db = HashMap::new();
         mcl_db.insert("corporate_branding_assets".to_string(), "RAG-driven knowledge base of corporate branding guidelines, approved imagery, video clips, and audio jingles. Used to ensure brand consistency in generated content.".to_string());
         mcl_db.insert("licensed_media_stock".to_string(), "RAG-driven knowledge base of licensed stock media (images, videos, audio) for various themes and industries. Used to enrich and diversify generated content.".to_string());

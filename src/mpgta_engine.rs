@@ -77,7 +77,7 @@ pub struct MPGTAEngine {
 }
 
 impl MPGTAEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut gt_db = HashMap::new();
         gt_db.insert("pathfinding_algorithms".to_string(), "RAG-driven knowledge base of shortest path algorithms (Dijkstra, A*), all-pairs shortest path, and dynamic pathfinding for evolving graphs. Used for identifying critical paths.".to_string());
         gt_db.insert("community_detection".to_string(), "RAG-driven knowledge base of community detection algorithms (Louvain, Girvan-Newman, spectral clustering) for identifying natural clusters.".to_string());

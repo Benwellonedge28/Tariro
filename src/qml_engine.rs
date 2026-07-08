@@ -75,7 +75,7 @@ pub struct QMLEngine {
 }
 
 impl QMLEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut qmla_db = HashMap::new();
         qmla_db.insert("variational_quantum_classifiers".to_string(), "RAG-driven knowledge base of Variational Quantum Classifier (VQC) architectures, including their parameterization, data encoding strategies, and suitability for different classification tasks. Used for developing quantum ML models.".to_string());
         qmla_db.insert("quantum_generative_adversarial_networks".to_string(), "RAG-driven knowledge base of Quantum Generative Adversarial Networks (QGANs) and their applications in quantum data generation and distribution learning. Used for advanced generative tasks.".to_string());

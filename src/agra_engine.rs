@@ -72,7 +72,7 @@ pub struct AGRAEngine {
 }
 
 impl AGRAEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut act_db = HashMap::new();
         act_db.insert("dynamic_system_optimization_algorithms".to_string(), "RAG-driven knowledge base of dynamic system optimization algorithms (e.g., model predictive control, reinforcement learning for control) used to continuously adjust Tariro's operational parameters in response to changing internal and external conditions. Used for adaptive control.".to_string());
         act_db.insert("fault_tolerant_control_strategies".to_string(), "RAG-driven knowledge base of fault-tolerant control strategies for maintaining system stability and performance even in the presence of component failures, unexpected inputs, or adversarial attacks. Used for robust autonomy.".to_string());

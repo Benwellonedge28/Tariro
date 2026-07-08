@@ -73,7 +73,7 @@ pub struct AAMGIEngine {
 }
 
 impl AAMGIEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut aap_db = HashMap::new();
         aap_db.insert("transformer_architectures_for_nlp".to_string(), "RAG-driven knowledge base of various Transformer-based architectures (e.g., BERT, GPT, T5) and their applications in Natural Language Processing, including best practices for scaling and fine-tuning. Used for generating language-focused AI modules.".to_string());
         aap_db.insert("cnn_architectures_for_cv".to_string(), "RAG-driven knowledge base of Convolutional Neural Network (CNN) architectures (e.g., ResNet, EfficientNet, YOLO) and their applications in Computer Vision, including techniques for real-time object detection and image segmentation. Used for generating vision-focused AI modules.".to_string());

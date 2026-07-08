@@ -75,7 +75,7 @@ pub struct ACSMOEngine {
 }
 
 impl ACSMOEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut smg_db = HashMap::new();
         smg_db.insert("safe_refactoring_patterns".to_string(), "RAG-driven knowledge base of safe refactoring patterns, coding standards, and architectural best practices for self-modifying systems, ensuring changes do not introduce regressions or vulnerabilities. Used for guiding autonomous modifications.".to_string());
         smg_db.insert("ai_architecture_evolution_principles".to_string(), "RAG-driven knowledge base of principles for the evolutionary design of AI architectures, including modularity, robustness, and adaptability, enabling the system to evolve its own structure. Used for higher-level architectural changes.".to_string());

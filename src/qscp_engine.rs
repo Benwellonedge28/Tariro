@@ -72,7 +72,7 @@ pub struct QSCPEngine {
 }
 
 impl QSCPEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut qkd_db = HashMap::new();
         qkd_db.insert("bb84_protocol_implementation".to_string(), "RAG-driven knowledge base of BB84 Quantum Key Distribution (QKD) protocol implementation details, including photon polarization states, error correction techniques, and privacy amplification. Used for establishing secure keys.".to_string());
         qkd_db.insert("e91_protocol_entanglement_based".to_string(), "RAG-driven knowledge base of E91 entanglement-based QKD protocol, focusing on Bell states, entanglement swapping, and loophole-free Bell tests for enhanced security. Used for advanced QKD.".to_string());

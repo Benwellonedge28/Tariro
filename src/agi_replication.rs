@@ -9,8 +9,9 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
-use crate::quantum_security::mod::QuantumSecurityManager;
-use crate::quantum_security::mod::prelude::*; 
+use std::time::Duration;
+use tracing::{info, error};
+use crate::quantum_security::QuantumSecurityManager;
 use crate::event_bus::AGIEvent;
 
 use crate::config::AGIConfig;
@@ -158,7 +159,7 @@ impl ReplicationService {
     ) {
         
         info!("[ReplicationWorkflow] Starting workflow for request: {}", request_id);
-        time::sleep(Duration::from_secs(1)).await;
+        tokio::time::sleep(Duration::from_secs(1)).await;
 
         let qsm_locked = qsm.lock().await; 
 
@@ -176,7 +177,7 @@ impl ReplicationService {
                 return;
             }
         };
-        time::sleep(Duration::from_secs(2)).await;
+        tokio::time::sleep(Duration::from_secs(2)).await;
         Self::update_request_status_and_log(&request_id, ReplicationStatus::GeneratingCode, "Code generation completed (PQC-secured).", &telemetry_logger, &event_bus).await;
 
         // Simulate Compilation (PQC-secured communication with compiler service)
@@ -195,7 +196,7 @@ impl ReplicationService {
                 return;
             }
         };
-        time::sleep(Duration::from_secs(3)).await;
+        tokio::time::sleep(Duration::from_secs(3)).await;
         Self::update_request_status_and_log(&request_id, ReplicationStatus::Compiling, "Compilation completed.", &telemetry_logger, &event_bus).await;
 
         // Simulate Deployment (PQC-secured communication with deployment manager)
@@ -214,7 +215,7 @@ impl ReplicationService {
                 return;
             }
         };
-        time::sleep(Duration::from_secs(4)).await;
+        tokio::time::sleep(Duration::from_secs(4)).await;
         
         // Simulate result: success or failure
         let success = rand::random::<f32>() > 0.1; 
@@ -257,7 +258,7 @@ impl ReplicationService {
         info!("Code generation parameters PQC-protected.");
         
         // Simulate actual code generation
-        time::sleep(Duration::from_secs(1)).await;
+        tokio::time::sleep(Duration::from_secs(1)).await;
         Ok(format!("// PQC-secured code for {} on {}", project_id, target_platform))
     }
 }

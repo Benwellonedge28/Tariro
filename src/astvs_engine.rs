@@ -73,7 +73,7 @@ pub struct ASTVSEngine {
 }
 
 impl ASTVSEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut rwp_db = HashMap::new();
         rwp_db.insert("nvidia_physx_models_for_robotics".to_string(), "RAG-driven knowledge base of NVIDIA PhysX physics engine models optimized for robotics and complex rigid-body dynamics, including collision detection and realistic force interactions. Used for high-fidelity physical simulations.".to_string());
         rwp_db.insert("unity_hd_render_pipeline_for_vision".to_string(), "RAG-driven knowledge base of Unity's High-Definition Render Pipeline (HDRP) capabilities for photorealistic rendering, enabling the generation of synthetic sensor data (e.g., camera feeds) that closely mimics real-world conditions. Used for visual sensor data.".to_string());

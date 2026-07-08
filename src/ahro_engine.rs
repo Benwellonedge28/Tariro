@@ -71,7 +71,7 @@ pub struct AHROEngine {
 }
 
 impl AHROEngine {
-    pub pub fn new() -> Self {
+    pub fn new() -> Self {
         let mut hs_db = HashMap::new();
         hs_db.insert("cpu_arch_details".to_string(), "RAG-driven knowledge base of various CPU architectures (x86, ARM, RISC-V), including core counts, clock speeds, cache sizes, and specific instruction sets (e.g., AVX512, NEON). Used for fine-grained resource matching.".to_string());
         hs_db.insert("gpu_computing_cap".to_string(), "RAG-driven knowledge base of GPU computing capabilities, including stream processor counts, memory bandwidths, and tensor core availability. Used for accelerated AI/ML task scheduling.".to_string());
