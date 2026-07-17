@@ -7,10 +7,11 @@
 /// for deviations, and autonomously trigger remediation actions, thereby maintaining a verifiable state of compliance
 /// (leveraging RAG for regulatory standards and legal texts, and SIMD for high-speed policy evaluation and enforcement).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Supported compliance standards.
@@ -101,11 +102,11 @@ impl ComplianceManager {
                 // Conceptual rule evaluation
                 if rng.gen_bool(0.3) { // 30% chance of violation
                     violations.push(PolicyViolation {
-                        violation_id: format!("viol_{}_{}", rule.rule_id, Instant::now().elapsed().as_secs()),
+                        violation_id: format!("viol_{}_{}", rule.rule_id, Utc::now().timestamp()),
                         rule_id: rule.rule_id.clone(),
                         detected_value: "false".to_string(),
                         expected_value: "true".to_string(),
-                        timestamp: Instant::now().elapsed().as_secs(),
+                        timestamp: Utc::now().timestamp(),
                     });
                 }
             }
@@ -114,11 +115,11 @@ impl ComplianceManager {
         let compliance_status = if violations.is_empty() { "Compliant".to_string() } else { "Non-Compliant".to_string() };
 
         ComplianceReport {
-            report_id: format!("report_{}_{}", standard, Instant::now().elapsed().as_secs()),
+            report_id: format!("report_{}_{}", standard, Utc::now().timestamp()),
             standard,
             compliance_status,
             violations,
-            generated_at: Instant::now().elapsed().as_secs(),
+            generated_at: Utc::now().timestamp(),
         }
     }
 
@@ -160,7 +161,7 @@ mod tests {
             config_id: "config_storage_001".to_string(),
             component: "data_storage".to_string(),
             settings: HashMap::from([("encryption_enabled".to_string(), "false".to_string())]),
-            timestamp: Instant::now().elapsed().as_secs(),
+            timestamp: Utc::now().timestamp(),
         };
         cm.monitor_system_config(&system_config);
 
@@ -208,7 +209,7 @@ fn main() {
             ("encryption_at_rest".to_string(), "true".to_string()),
             ("encryption_in_transit".to_string(), "false".to_string()), // Violation!
         ]),
-        timestamp: Instant::now().elapsed().as_secs(),
+        timestamp: Utc::now().timestamp(),
     };
     compliance_manager.monitor_system_config(&data_service_config);
 
@@ -216,7 +217,7 @@ fn main() {
         config_id: "conf_phi_001".to_string(),
         component: "PHI_Database".to_string(),
         settings: HashMap::from([("access_logging_enabled".to_string(), "true".to_string())]),
-        timestamp: Instant::now().elapsed().as_secs(),
+        timestamp: Utc::now().timestamp(),
     };
     compliance_manager.monitor_system_config(&phi_db_config);
     println!("  System configurations monitored.\n");

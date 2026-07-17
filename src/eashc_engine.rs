@@ -7,10 +7,11 @@
 /// deadlines. It leverages RAG for device-specific power-performance characteristics, task
 /// profiling, and scheduling heuristics to achieve optimal energy efficiency.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -33,7 +34,8 @@ pub struct ComputeTask {
     pub task_type: String, // e.g., "AI_Inference", "DataProcessing", "Simulation"
     pub required_compute_units: u32,
     pub required_performance_score: f32,
-    pub deadline: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub deadline: DateTime<Utc>,
     pub is_real_time: bool,
     pub power_sensitivity: f32, // 0.0 (performance-critical) to 1.0 (energy-critical)
 }
@@ -44,8 +46,11 @@ pub struct ScheduledAssignment {
     pub assignment_id: String,
     pub task_id: String,
     pub device_id: String,
-    pub start_time: Instant,
-    pub end_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub start_time: DateTime<Utc>,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub end_time: DateTime<Utc>,
     pub estimated_energy_cost_joules: f64,
 }
 
@@ -103,7 +108,7 @@ impl EASTSHCEngine {
         });
 
         if let Some(device) = best_device {
-            let start_time = Instant::now();
+            let start_time = Utc::now();
             let end_time = start_time + Duration::from_secs(rng.gen_range(1..10)); // Simulated duration
             Some(ScheduledAssignment {
                 assignment_id: format!("assign_{}_{}", task.task_id, rng.gen::<u32>()),
@@ -177,7 +182,7 @@ mod tests {
             task_type: "AI_Inference".to_string(),
             required_compute_units: 100,
             required_performance_score: 0.8,
-            deadline: Instant::now() + Duration::from_secs(30),
+            deadline: Utc::now() + Duration::from_secs(30),
             is_real_time: true,
             power_sensitivity: 0.3,
         };
@@ -234,7 +239,7 @@ fn main() {
         task_type: "AI_Inference".to_string(),
         required_compute_units: 150,
         required_performance_score: 0.95,
-        deadline: Instant::now() + Duration::from_secs(5),
+        deadline: Utc::now() + Duration::from_secs(5),
         is_real_time: true,
         power_sensitivity: 0.7, // High power sensitivity
     };

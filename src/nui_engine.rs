@@ -7,10 +7,11 @@
 /// neuroscience, human-computer interaction research, and adaptive learning algorithms to
 /// optimize user experience based on real-time neural and behavioral feedback.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -43,7 +44,8 @@ pub struct AdaptiveUIElement {
 pub struct UserFeedback {
     pub feedback_id: String,
     pub user_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub perceived_usability_score: f32, // 0.0-1.0
     pub emotional_response: String,
     pub cognitive_effort_rating: f32, // 0.0-1.0
@@ -162,7 +164,7 @@ mod tests {
     #[test]
     fn test_nui_engine_flow() {
         let engine = NUIEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let user_profile = engine.monitor_user_cognitive_profile("user_alpha");
         assert!(!user_profile.user_id.is_empty());
@@ -189,7 +191,7 @@ mod tests {
         let feedback = UserFeedback {
             feedback_id: "fb_001".to_string(),
             user_id: user_profile.user_id.clone(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             perceived_usability_score: 0.85,
             emotional_response: "Positive".to_string(),
             cognitive_effort_rating: 0.3,
@@ -207,7 +209,7 @@ fn main() {
     println!("\n--- Neuromorphic User Interface for Intuitive AGI Interaction Demonstration ---");
 
     let nui_engine = NUIEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Monitor a human user's cognitive and emotional state during AGI interaction
     println!("--- Scenario 1: Monitor User Cognitive Profile ---");

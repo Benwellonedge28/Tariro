@@ -7,10 +7,11 @@
 /// for software verification, and secure supply chain management to establish an unbroken
 /// chain of trust for critical AGI operations.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -44,7 +45,7 @@ pub struct SoftwareLayer {
 pub struct EnvironmentCertification {
     pub certification_id: String,
     pub environment_name: String,
-    pub certified_at: Instant,
+    pub certified_at: DateTime<Utc>,
     pub hardware_components: Vec<String>, // IDs of certified hardware
     pub software_layers: Vec<String>, // IDs of certified software
     pub overall_trust_score: f32, // 0.0-1.0
@@ -126,7 +127,7 @@ impl CEEAEngine {
         EnvironmentCertification {
             certification_id: format!("cert_{}", rng.gen::<u32>()),
             environment_name: env_name.to_string(),
-            certified_at: Instant::now(),
+            certified_at: Utc::now(),
             hardware_components: hardware_ids.to_vec(),
             software_layers: software_ids.to_vec(),
             overall_trust_score,
@@ -157,7 +158,7 @@ mod tests {
     #[test]
     fn test_ceea_engine_flow() {
         let engine = CEEAEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let agi_cpu = HardwareComponent {
             component_id: "cpu_agi_alpha_1".to_string(),
@@ -199,7 +200,7 @@ fn main() {
     println!("\n--- Certified Execution Environments for AGI Demonstration ---");
 
     let ceea_engine = CEEAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Register and attest hardware components
     println!("--- Scenario 1: Register Hardware Components ---");

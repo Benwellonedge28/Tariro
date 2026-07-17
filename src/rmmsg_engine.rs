@@ -7,10 +7,11 @@
 /// It leverages RAG for 3D asset libraries and environment generation algorithms, and SIMD
 /// for parallel mesh processing and real-time rendering pipelines.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -41,7 +42,8 @@ pub struct GeneratedObject {
 pub struct GeneratedScene {
     pub scene_id: String,
     pub generation_input_id: String,
-    pub generated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub generated_at: DateTime<Utc>,
     pub environment_description: String, // RAG-synthesized natural language description
     pub terrain_data: Vec<f32>, // Conceptual: heightmap, ground textures
     pub placed_objects: HashMap<String, GeneratedObject>, // object_id -> object
@@ -144,7 +146,7 @@ impl RMMSGEngine {
         GeneratedScene {
             scene_id: format!("scene_{}", rng.gen::<u32>()),
             generation_input_id: input.input_id.clone(),
-            generated_at: Instant::now(),
+            generated_at: Utc::now(),
             environment_description,
             terrain_data,
             placed_objects,
@@ -174,7 +176,7 @@ mod tests {
     #[test]
     fn test_rmmsg_engine_flow() {
         let engine = RMMSGEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let input = SceneGenerationInput {
             input_id: "forest_scene_001".to_string(),
@@ -197,7 +199,7 @@ fn main() {
     println!("\n--- Real-Time Multi-Modal Scene Generation (RAG-Driven) Demonstration ---");
 
     let rmmsg_engine = RMMSGEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Generate a photorealistic urban environment for a simulation
     println!("--- Scenario 1: Photorealistic Urban Environment ---");

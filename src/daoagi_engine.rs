@@ -7,10 +7,11 @@
 /// contract best practices, and secure voting mechanisms to ensure transparent and tamper-proof
 /// governance.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use sha2::{Sha256, Digest};
 
@@ -24,8 +25,10 @@ pub struct DaoProposal {
     pub title: String,
     pub description: String,
     pub proposed_changes: HashMap<String, String>, // e.g., "AGI_Parameter:temperature", "Value:0.7"
-    pub voting_start_time: Instant,
-    pub voting_end_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub voting_start_time: DateTime<Utc>,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub voting_end_time: DateTime<Utc>,
     pub status: String, // e.g., "Pending", "Active", "Passed", "Failed", "Executed"
 }
 
@@ -37,7 +40,10 @@ pub struct DaoVote {
     pub proposal_id: String,
     pub vote_choice: String, // e.g., "Yes", "No", "Abstain"
     pub vote_weight: u64, // Based on token holdings or reputation
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub transaction_hash: Option<String>, // Conceptual: Blockchain transaction hash
 }
 
@@ -46,7 +52,8 @@ pub struct DaoVote {
 pub struct AgiParameters {
     pub parameter_name: String,
     pub current_value: String,
-    pub last_updated: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub last_updated: DateTime<Utc>,
     pub updated_by_proposal_id: Option<String>,
 }
 
@@ -107,7 +114,7 @@ impl DAOAGIEngine {
             for (param_name, new_value) in &proposal.proposed_changes {
                 if let Some(param) = agi_params.get_mut(param_name) {
                     param.current_value = new_value.clone();
-                    param.last_updated = Instant::now();
+                    param.last_updated = Utc::now();
                     param.updated_by_proposal_id = Some(proposal.proposal_id.clone());
                     println!("  AGI Parameter '{}' updated to '{}'.", param_name, new_value);
                 } else {
@@ -146,7 +153,7 @@ mod tests {
     #[test]
     fn test_daoagi_engine_flow() {
         let engine = DAOAGIEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let mut agi_params = HashMap::from([
             ("AI_Safety_Level".to_string(), AgiParameters {
@@ -201,7 +208,7 @@ fn main() {
     println!("\n--- Decentralized Autonomous Organizations (DAO) for AGI Governance Demonstration ---");
 
     let daoagi_engine = DAOAGIEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Initial AGI Parameters
     let mut agi_system_parameters = HashMap::from([

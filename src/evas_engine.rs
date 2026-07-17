@@ -10,10 +10,11 @@
 /// concurrent evaluation of multiple moral principles; RAG: ethical philosophy, moral psychology, formal ethics,
 /// preference learning, value alignment, contextual ethics, conflict resolution).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -38,7 +39,8 @@ pub struct ActionProposal {
     pub context: HashMap<String, String>, // e.g., "target": "user_data_X", "operation": "delete"
     pub expected_outcome: String,
     pub rationale_summary: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Represents the ethical evaluation of an action proposal.
@@ -46,7 +48,8 @@ pub struct ActionProposal {
 pub struct EthicalEvaluation {
     pub evaluation_id: String,
     pub proposal_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub score: f32, // 0.0 (unethical) to 1.0 (highly ethical)
     pub conflicts_detected: Vec<String>, // List of principles potentially violated
     pub ethically_compliant_alternatives: Vec<String>,
@@ -115,7 +118,7 @@ impl EVAS_Engine {
         EthicalEvaluation {
             evaluation_id: format!("eval_{}", rng.gen::<u32>()),
             proposal_id: proposal.proposal_id.clone(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             score: score.max(0.0), // Ensure score doesn't go below 0
             conflicts_detected,
             ethically_compliant_alternatives: vec!["anonymize_data_then_share".to_string(), "request_explicit_consent".to_string()],
@@ -212,7 +215,7 @@ mod tests {
             context: HashMap::from([("data_sensitivity".to_string(), "PII_Level_5".to_string())]),
             expected_outcome: "increased_revenue".to_string(),
             rationale_summary: "monetize user data".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
         };
 
         let evaluation = engine.evaluate_action_ethically_simd(&proposal, &principles);
@@ -274,7 +277,7 @@ fn main() {
         ]),
         expected_outcome: "Increased profits for insurance provider.".to_string(),
         rationale_summary: "Monetize aggregated health data.".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
     };
 
     let evaluation_problematic = evas_engine.evaluate_action_ethically_simd(&problematic_proposal, &tariro_ethical_principles);
@@ -300,7 +303,7 @@ fn main() {
         ]),
         expected_outcome: "New insights for disease prevention.".to_string(),
         rationale_summary: "Contribute to public health knowledge.".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
     };
 
     let evaluation_compliant = evas_engine.evaluate_action_ethically_simd(&compliant_proposal, &tariro_ethical_principles);

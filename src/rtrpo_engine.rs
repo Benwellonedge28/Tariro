@@ -9,10 +9,11 @@
 /// allocation decisions; RAG: time-series forecasting, reinforcement learning for resource management,
 /// distributed optimization, self-organizing systems).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -31,7 +32,8 @@ pub struct ResourceDemandForecast {
 #[derive(Debug, Clone)]
 pub struct ResourceAllocationPlan {
     pub plan_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub allocations: HashMap<String, HashMap<String, f64>>, // { "resource_type": { "consumer_id": quantity } }
     pub expected_efficiency_gain: f32,
     pub resilience_score: f32,
@@ -45,7 +47,8 @@ pub struct OrchestrationAction {
     pub target_component_id: String,
     pub parameter: String, // e.g., "core_count", "fan_speed_pct", "task_id"
     pub value: String, // e.g., "8", "75", "quantum_simulation_task_XYZ"
-    pub initiated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub initiated_at: DateTime<Utc>,
 }
 
 /// Report for RTRPO operations.
@@ -129,7 +132,7 @@ impl RTRPO_Engine {
 
         ResourceAllocationPlan {
             plan_id: format!("plan_{}", rng.gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             allocations,
             expected_efficiency_gain: rng.gen_range(0.05..0.2),
             resilience_score: rng.gen_range(0.8..0.99),
@@ -152,7 +155,7 @@ impl RTRPO_Engine {
                         target_component_id: consumer.clone(),
                         parameter: "quantity".to_string(),
                         value: format!("{:.2}", quantity),
-                        initiated_at: Instant::now(),
+                        initiated_at: Utc::now(),
                     });
                 }
             }

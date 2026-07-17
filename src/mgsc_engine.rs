@@ -7,10 +7,11 @@
 /// requirements. It leverages RAG for multimodal content libraries and generative models,
 /// and SIMD for parallel content rendering and real-time asset generation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -41,7 +42,8 @@ pub enum GeneratedContent {
 pub struct ContentPackage {
     pub package_id: String,
     pub request_id: String,
-    pub generated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub generated_at: DateTime<Utc>,
     pub contents: HashMap<String, GeneratedContent>, // modality -> content
     pub coherence_score: f32, // 0.0-1.0 (internal RAG assessment of contextual fit)
     pub creativity_score: f32,
@@ -134,7 +136,7 @@ impl MGSCEngine {
         ContentPackage {
             package_id: format!("pkg_{}", rng.gen::<u32>()),
             request_id: request.request_id.clone(),
-            generated_at: Instant::now(),
+            generated_at: Utc::now(),
             contents: generated_contents,
             coherence_score,
             creativity_score,
@@ -161,7 +163,7 @@ mod tests {
     #[test]
     fn test_mgsc_engine_flow() {
         let engine = MGSCEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let request = GenerationRequest {
             request_id: "promo_campaign_q3".to_string(),
@@ -184,7 +186,7 @@ fn main() {
     println!("\n--- Multi-Modal Generative Synthesis & Content Creation (RAG-Driven) Demonstration ---");
 
     let mgsc_engine = MGSCEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Generate a marketing campaign for a new product
     println!("--- Scenario 1: Marketing Campaign Generation ---");

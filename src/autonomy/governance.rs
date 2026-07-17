@@ -1,4 +1,5 @@
 // src/autonomy/governance.rs
+use crate::prelude::*;
 
 //! Implements the governance mechanisms for Tariro AGI's autonomy, ensuring ethical alignment
 //! and controlled self-modification within defined policy boundaries.

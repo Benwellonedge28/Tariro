@@ -5,6 +5,7 @@
 //! including code generation, version control integration, and continuous deployment.
 //! It aims to achieve "Advanced Self-Modification Module Integration" and "Full Operational Sovereignty."
 
+use crate::prelude::*;
 use std::sync::{Arc, Mutex};
 use tokio::time::{self, Duration};
 use tokio::task;

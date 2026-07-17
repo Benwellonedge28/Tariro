@@ -6,10 +6,11 @@
 /// demand. It leverages RAG for time-series analysis techniques, predictive modeling algorithms, and
 /// domain-specific system knowledge.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -17,7 +18,10 @@ use rand::Rng;
 /// Represents a single system metric data point.
 #[derive(Debug, Clone)]
 pub struct SystemMetric {
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub metric_name: String,
     pub value: f64,
     pub unit: String, // e.g., "CPU_Utilization_Pct", "Memory_Usage_GB", "Network_Throughput_Mbps"
@@ -42,7 +46,8 @@ pub struct MetricForecast {
     pub predicted_values: Vec<f64>, // Values over the prediction horizon
     pub confidence_interval_lower: Vec<f64>,
     pub confidence_interval_upper: Vec<f64>,
-    pub prediction_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub prediction_time: DateTime<Utc>,
 }
 
 /// Represents a detected anomaly.
@@ -50,7 +55,10 @@ pub struct MetricForecast {
 pub struct AnomalyDetection {
     pub anomaly_id: String,
     pub metric_name: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub actual_value: f64,
     pub predicted_value: f64,
     pub deviation_score: f64,
@@ -121,7 +129,7 @@ impl PAFEngine {
             predicted_values,
             confidence_interval_lower: lower_bound,
             confidence_interval_upper: upper_bound,
-            prediction_time: Instant::now(),
+            prediction_time: Utc::now(),
         }
     }
 
@@ -172,11 +180,11 @@ mod tests {
         let engine = PAFEngine::new();
 
         let historical_cpu = vec![
-            SystemMetric { timestamp: Instant::now() - Duration::from_secs(3600*5), metric_name: "CPU_Utilization_Pct".to_string(), value: 30.5, unit: "%".to_string() },
-            SystemMetric { timestamp: Instant::now() - Duration::from_secs(3600*4), metric_name: "CPU_Utilization_Pct".to_string(), value: 32.1, unit: "%".to_string() },
-            SystemMetric { timestamp: Instant::now() - Duration::from_secs(3600*3), metric_name: "CPU_Utilization_Pct".to_string(), value: 31.8, unit: "%".to_string() },
-            SystemMetric { timestamp: Instant::now() - Duration::from_secs(3600*2), metric_name: "CPU_Utilization_Pct".to_string(), value: 35.2, unit: "%".to_string() },
-            SystemMetric { timestamp: Instant::now() - Duration::from_secs(3600*1), metric_name: "CPU_Utilization_Pct".to_string(), value: 34.0, unit: "%".to_string() },
+            SystemMetric { timestamp: Utc::now() - Duration::from_secs(3600*5), metric_name: "CPU_Utilization_Pct".to_string(), value: 30.5, unit: "%".to_string() },
+            SystemMetric { timestamp: Utc::now() - Duration::from_secs(3600*4), metric_name: "CPU_Utilization_Pct".to_string(), value: 32.1, unit: "%".to_string() },
+            SystemMetric { timestamp: Utc::now() - Duration::from_secs(3600*3), metric_name: "CPU_Utilization_Pct".to_string(), value: 31.8, unit: "%".to_string() },
+            SystemMetric { timestamp: Utc::now() - Duration::from_secs(3600*2), metric_name: "CPU_Utilization_Pct".to_string(), value: 35.2, unit: "%".to_string() },
+            SystemMetric { timestamp: Utc::now() - Duration::from_secs(3600*1), metric_name: "CPU_Utilization_Pct".to_string(), value: 34.0, unit: "%".to_string() },
         ];
 
         let cpu_model = PredictiveBehaviorModel {
@@ -191,7 +199,7 @@ mod tests {
         let cpu_forecast = engine.generate_forecast_rag(&historical_cpu, &cpu_model);
         assert!(!cpu_forecast.predicted_values.is_empty());
 
-        let current_cpu_value = SystemMetric { timestamp: Instant::now(), metric_name: "CPU_Utilization_Pct".to_string(), value: 45.0, unit: "%".to_string() }; // Anomaly
+        let current_cpu_value = SystemMetric { timestamp: Utc::now(), metric_name: "CPU_Utilization_Pct".to_string(), value: 45.0, unit: "%".to_string() }; // Anomaly
         let anomaly = engine.detect_anomalies_rag(&current_cpu_value, &cpu_forecast);
         assert!(anomaly.is_some());
 
@@ -208,16 +216,16 @@ fn main() {
     // Scenario 1: Ingest historical system metrics (e.g., CPU utilization, memory usage)
     println!("--- Scenario 1: Ingest Historical System Metrics ---");
     let mut historical_metrics = vec![
-        SystemMetric { timestamp: Instant::now() - Duration::from_secs(3600 * 10), metric_name: "CPU_Utilization_Pct".to_string(), value: 45.2, unit: "%".to_string() },
-        SystemMetric { timestamp: Instant::now() - Duration::from_secs(3600 * 9), metric_name: "CPU_Utilization_Pct".to_string(), value: 47.1, unit: "%".to_string() },
-        SystemMetric { timestamp: Instant::now() - Duration::from_secs(3600 * 8), metric_name: "CPU_Utilization_Pct".to_string(), value: 46.5, unit: "%".to_string() },
-        SystemMetric { timestamp: Instant::now() - Duration::from_secs(3600 * 7), metric_name: "CPU_Utilization_Pct".to_string(), value: 48.9, unit: "%".to_string() },
-        SystemMetric { timestamp: Instant::now() - Duration::from_secs(3600 * 6), metric_name: "CPU_Utilization_Pct".to_string(), value: 50.3, unit: "%".to_string() },
-        SystemMetric { timestamp: Instant::now() - Duration::from_secs(3600 * 5), metric_name: "CPU_Utilization_Pct".to_string(), value: 49.8, unit: "%".to_string() },
-        SystemMetric { timestamp: Instant::now() - Duration::from_secs(3600 * 4), metric_name: "CPU_Utilization_Pct".to_string(), value: 51.2, unit: "%".to_string() },
-        SystemMetric { timestamp: Instant::now() - Duration::from_secs(3600 * 3), metric_name: "CPU_Utilization_Pct".to_string(), value: 53.0, unit: "%".to_string() },
-        SystemMetric { timestamp: Instant::now() - Duration::from_secs(3600 * 2), metric_name: "CPU_Utilization_Pct".to_string(), value: 52.5, unit: "%".to_string() },
-        SystemMetric { timestamp: Instant::now() - Duration::from_secs(3600 * 1), metric_name: "CPU_Utilization_Pct".to_string(), value: 54.1, unit: "%".to_string() },
+        SystemMetric { timestamp: Utc::now() - Duration::from_secs(3600 * 10), metric_name: "CPU_Utilization_Pct".to_string(), value: 45.2, unit: "%".to_string() },
+        SystemMetric { timestamp: Utc::now() - Duration::from_secs(3600 * 9), metric_name: "CPU_Utilization_Pct".to_string(), value: 47.1, unit: "%".to_string() },
+        SystemMetric { timestamp: Utc::now() - Duration::from_secs(3600 * 8), metric_name: "CPU_Utilization_Pct".to_string(), value: 46.5, unit: "%".to_string() },
+        SystemMetric { timestamp: Utc::now() - Duration::from_secs(3600 * 7), metric_name: "CPU_Utilization_Pct".to_string(), value: 48.9, unit: "%".to_string() },
+        SystemMetric { timestamp: Utc::now() - Duration::from_secs(3600 * 6), metric_name: "CPU_Utilization_Pct".to_string(), value: 50.3, unit: "%".to_string() },
+        SystemMetric { timestamp: Utc::now() - Duration::from_secs(3600 * 5), metric_name: "CPU_Utilization_Pct".to_string(), value: 49.8, unit: "%".to_string() },
+        SystemMetric { timestamp: Utc::now() - Duration::from_secs(3600 * 4), metric_name: "CPU_Utilization_Pct".to_string(), value: 51.2, unit: "%".to_string() },
+        SystemMetric { timestamp: Utc::now() - Duration::from_secs(3600 * 3), metric_name: "CPU_Utilization_Pct".to_string(), value: 53.0, unit: "%".to_string() },
+        SystemMetric { timestamp: Utc::now() - Duration::from_secs(3600 * 2), metric_name: "CPU_Utilization_Pct".to_string(), value: 52.5, unit: "%".to_string() },
+        SystemMetric { timestamp: Utc::now() - Duration::from_secs(3600 * 1), metric_name: "CPU_Utilization_Pct".to_string(), value: 54.1, unit: "%".to_string() },
     ];
     let processed_metrics = paf_engine.ingest_metrics(&historical_metrics);
     println!("  Ingested {} data points for CPU_Utilization_Pct.\n", processed_metrics.len());
@@ -249,7 +257,7 @@ fn main() {
 
     // Scenario 4: Simulate a current metric reading and detect anomalies
     println!("--- Scenario 4: Detect Anomalies ---");
-    let current_cpu_reading = SystemMetric { timestamp: Instant::now(), metric_name: "CPU_Utilization_Pct".to_string(), value: 65.0, unit: "%".to_string() }; // Simulate a sudden spike
+    let current_cpu_reading = SystemMetric { timestamp: Utc::now(), metric_name: "CPU_Utilization_Pct".to_string(), value: 65.0, unit: "%".to_string() }; // Simulate a sudden spike
     let anomaly_option = paf_engine.detect_anomalies_rag(&current_cpu_reading, &cpu_forecast);
 
     let mut detected_anomalies = Vec::new();

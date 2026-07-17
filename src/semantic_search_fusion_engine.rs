@@ -5,10 +5,11 @@
 /// knowledge base (internal/external), intelligently fusing disparate data points for
 /// comprehensive answers. It leverages SIMD for parallel vector similarity search and data merging.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -22,7 +23,7 @@ pub struct KnowledgeSnippet {
     pub source: String,
     pub vector_embedding: Vec<f32>, // Simulated vector embedding for semantic search
     pub keywords: Vec<String>,
-    pub creation_date: Instant,
+    pub creation_date: DateTime<Utc>,
 }
 
 /// Represents a semantic query from the user.
@@ -43,7 +44,8 @@ pub struct FusedAnswer {
     pub fused_content: String,
     pub source_snippets: Vec<String>, // IDs of snippets used
     pub confidence_score: f32, // 0.0-1.0
-    pub generated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub generated_at: DateTime<Utc>,
 }
 
 /// Overall Semantic Search & Fusion system report.
@@ -73,7 +75,7 @@ impl SSFEngine {
             source: "TariroInternalDocs".to_string(),
             vector_embedding: vec![0.1, 0.2, 0.3, 0.4],
             keywords: vec!["Rust".to_string(), "programming language".to_string(), "safety".to_string()],
-            creation_date: Instant::now() - Duration::from_secs(3600),
+            creation_date: Utc::now() - Duration::from_secs(3600),
         });
         kb_db.insert("snippet2".to_string(), KnowledgeSnippet {
             id: "snippet2".to_string(),
@@ -81,7 +83,7 @@ impl SSFEngine {
             source: "TariroInternalDocs".to_string(),
             vector_embedding: vec![0.4, 0.3, 0.2, 0.1],
             keywords: vec!["SIMD".to_string(), "parallel computing".to_string()],
-            creation_date: Instant::now() - Duration::from_secs(7200),
+            creation_date: Utc::now() - Duration::from_secs(7200),
         });
         kb_db.insert("snippet3".to_string(), KnowledgeSnippet {
             id: "snippet3".to_string(),
@@ -89,7 +91,7 @@ impl SSFEngine {
             source: "TariroInternalDocs".to_string(),
             vector_embedding: vec![0.2, 0.1, 0.4, 0.3],
             keywords: vec!["RAG".to_string(), "AI models".to_string(), "LLM".to_string()],
-            creation_date: Instant::now() - Duration::from_secs(1800),
+            creation_date: Utc::now() - Duration::from_secs(1800),
         });
 
         let mut external_db = HashMap::new();
@@ -99,7 +101,7 @@ impl SSFEngine {
             source: "ExternalResearchPaper".to_string(),
             vector_embedding: vec![0.15, 0.25, 0.35, 0.45],
             keywords: vec!["Rust".to_string(), "memory safety".to_string()],
-            creation_date: Instant::now() - Duration::from_secs(1200),
+            creation_date: Utc::now() - Duration::from_secs(1200),
         });
 
         SSFEngine {
@@ -179,7 +181,7 @@ impl SSFEngine {
             fused_content,
             source_snippets: source_ids,
             confidence_score: confidence,
-            generated_at: Instant::now(),
+            generated_at: Utc::now(),
         }
     }
 
@@ -203,7 +205,7 @@ mod tests {
     #[test]
     fn test_ssf_engine_flow() {
         let engine = SSFEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let query_rust_simd = SemanticQuery {
             query_id: "q_rust_simd_perf".to_string(),
@@ -228,7 +230,7 @@ fn main() {
     println!("\n--- Semantic Search & Fusion (RAG-Driven) Demonstration ---");
 
     let ssf_engine = SSFEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: User asks a semantic question about AGI capabilities
     println!("--- Scenario 1: Execute Semantic Query ---");

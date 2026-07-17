@@ -8,10 +8,11 @@
 /// leverages RAG for blockchain for AI governance and verifiable computing, and SIMD for
 /// parallel ledger consensus and real-time cryptographic hashing.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 use sha2::{Sha256, Digest};
@@ -22,7 +23,8 @@ use sha2::{Sha256, Digest};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LedgerBlock {
     pub index: u64,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub previous_hash: String,
     pub current_hash: String,
     pub transactions: Vec<LedgerTransaction>,
@@ -34,7 +36,8 @@ pub struct LedgerBlock {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LedgerTransaction {
     pub transaction_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub initiator: String, // e.g., "Tariro_Autonomous", "Samuel_Command"
     pub action_type: String, // e.g., "System_Configuration_Change", "Ethical_Guideline_Update", "Model_Deployment"
     pub details: HashMap<String, String>, // Specifics of the action
@@ -128,7 +131,7 @@ impl DLCTEngine {
 
             let new_block = LedgerBlock {
                 index: new_block_index,
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 previous_hash,
                 current_hash: current_hash.clone(),
                 transactions: ledger_state.pending_transactions.drain(..).collect(),
@@ -177,14 +180,14 @@ mod tests {
         };
 
         let tx1 = LedgerTransaction {
-            transaction_id: "tx_001".to_string(), timestamp: Instant::now(), initiator: "Samuel_Command".to_string(), action_type: "Update_Goal".to_string(), details: HashMap::new(), context_hash: "context_hash_xyz".to_string(), ethical_advisory_hash: None,
+            transaction_id: "tx_001".to_string(), timestamp: Utc::now(), initiator: "Samuel_Command".to_string(), action_type: "Update_Goal".to_string(), details: HashMap::new(), context_hash: "context_hash_xyz".to_string(), ethical_advisory_hash: None,
         };
 
         ledger = engine.record_tariro_action_on_ledger_rag(ledger, tx1);
         assert!(ledger.pending_transactions.len() >= 1);
 
         let tx2 = LedgerTransaction {
-            transaction_id: "tx_002".to_string(), timestamp: Instant::now(), initiator: "Tariro_Autonomous".to_string(), action_type: "Deploy_Model".to_string(), details: HashMap::new(), context_hash: "context_hash_def".to_string(), ethical_advisory_hash: None,
+            transaction_id: "tx_002".to_string(), timestamp: Utc::now(), initiator: "Tariro_Autonomous".to_string(), action_type: "Deploy_Model".to_string(), details: HashMap::new(), context_hash: "context_hash_def".to_string(), ethical_advisory_hash: None,
         };
 
         ledger = engine.record_tariro_action_on_ledger_rag(ledger, tx2);
@@ -199,17 +202,17 @@ fn main() {
     println!("\n--- Distributed Ledger for Control & Transparency (DLC&T) (RAG-Driven) Demonstration ---");
 
     let dlct_engine = DLCTEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     let mut Tariro_ledger = DistributedLedgerState {
         chain: vec![LedgerBlock {
             index: 0,
-            timestamp: Instant::now() - Duration::from_secs(3600),
+            timestamp: Utc::now() - Duration::from_secs(3600),
             previous_hash: "genesis_prev_hash".to_string(),
             current_hash: "genesis_current_hash".to_string(),
             transactions: vec![LedgerTransaction {
                 transaction_id: "genesis_tx_000".to_string(),
-                timestamp: Instant::now() - Duration::from_secs(3600),
+                timestamp: Utc::now() - Duration::from_secs(3600),
                 initiator: "System_Init".to_string(),
                 action_type: "Ledger_Initialization".to_string(),
                 details: HashMap::new(),
@@ -229,7 +232,7 @@ fn main() {
     println!("--- Scenario 1: Autonomous Configuration Update ---");
     let config_update_tx = LedgerTransaction {
         transaction_id: "tx_config_001".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         initiator: "Tariro_Autonomous".to_string(),
         action_type: "System_Configuration_Change".to_string(),
         details: HashMap::from([("parameter".to_string(), "energy_management_strategy".to_string()), ("new_value".to_string(), "quantum_optimized".to_string())]),
@@ -247,7 +250,7 @@ fn main() {
     println!("--- Scenario 2: Samuel's Direct Command ---");
     let samuel_command_tx = LedgerTransaction {
         transaction_id: "tx_samuel_001".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         initiator: "Samuel_Command".to_string(),
         action_type: "Pause_Generative_AI_Model".to_string(),
         details: HashMap::from([("model_id".to_string(), "creative_gen_v3".to_string()), ("reason".to_string(), "ethical_review_pending".to_string())]),

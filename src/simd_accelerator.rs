@@ -6,8 +6,9 @@
 /// crucial for high-performance RAG operations (e.g., embedding comparisons,
 /// numerical computations in QML) and general data manipulation.
 
+use crate::prelude::*;
 use std::arch::x86_64::{_mm256_add_ps, _mm256_mul_ps, _mm256_set1_ps, _mm255_loadu_ps, _mm255_storeu_ps, _mm256_fmadd_ps, _mm256_hadd_ps, _mm256_extract_f32x8};
-use std::time::Instant;
+use std::time::Duration;
 use rand::Rng;
 
 // NOTE: For actual SIMD, you would typically use `packed_simd` crate or directly
@@ -183,14 +184,14 @@ fn main() {
     // --- Vector Addition Performance Comparison ---
     println!("\n--- Vector Addition ---");
 
-    let start_scalar = Instant::now();
+    let start_scalar = Utc::now();
     add_vectors_scalar(&vec_a, &vec_b, &mut output_scalar);
     let duration_scalar = start_scalar.elapsed();
     println!("  Scalar Addition: {:?}", duration_scalar);
 
     #[cfg(target_feature = "avx2")]
     {
-        let start_simd = Instant::now();
+        let start_simd = Utc::now();
         add_vectors_simd(&vec_a, &vec_b, &mut output_simd);
         let duration_simd = start_simd.elapsed();
         println!("  SIMD (AVX2) Addition: {:?}", duration_simd);
@@ -200,14 +201,14 @@ fn main() {
     // --- Dot Product Performance Comparison ---
     println!("\n--- Dot Product ---");
 
-    let start_scalar = Instant::now();
+    let start_scalar = Utc::now();
     let dot_scalar = dot_product_scalar(&vec_a, &vec_b);
     let duration_scalar = start_scalar.elapsed();
     println!("  Scalar Dot Product: {:?} (Result: {:.4})", duration_scalar, dot_scalar);
 
     #[cfg(target_feature = "avx2")]
     {
-        let start_simd = Instant::now();
+        let start_simd = Utc::now();
         let dot_simd = dot_product_simd(&vec_a, &vec_b);
         let duration_simd = start_simd.elapsed();
         println!("  SIMD (AVX2) Dot Product: {:?} (Result: {:.4})", duration_simd, dot_simd);
@@ -217,14 +218,14 @@ fn main() {
     // --- Cosine Similarity (Embedding Comparison) Performance Comparison ---
     println!("\n--- Cosine Similarity (Embedding Comparison) ---");
 
-    let start_scalar = Instant::now();
+    let start_scalar = Utc::now();
     let cos_sim_scalar = cosine_similarity_scalar(&vec_a, &vec_b);
     let duration_scalar = start_scalar.elapsed();
     println!("  Scalar Cosine Similarity: {:?} (Result: {:.4})", duration_scalar, cos_sim_scalar);
 
     #[cfg(target_feature = "avx2")]
     {
-        let start_simd = Instant::now();
+        let start_simd = Utc::now();
         let cos_sim_simd = cosine_similarity_simd(&vec_a, &vec_b);
         let duration_simd = start_simd.elapsed();
         println!("  SIMD (AVX2) Cosine Similarity: {:?} (Result: {:.4})", duration_simd, cos_sim_simd);

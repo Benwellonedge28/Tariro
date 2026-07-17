@@ -2,6 +2,7 @@
 
 //! Defines entities and functionalities related to the deployment of Tariro AGI components.
 
+use crate::prelude::*;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 

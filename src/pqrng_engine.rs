@@ -5,10 +5,11 @@
 /// essential for future-proofing cryptographic systems. It leverages RAG for PQRNG standards (e.g., NIST SP 800-90A/B/C)
 /// and quantum chaos theory research.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -29,7 +30,8 @@ pub struct PQRNGOutput {
     pub output_id: String,
     pub rng_id: String,
     pub generated_bytes: Vec<u8>,
-    pub generation_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub generation_timestamp: DateTime<Utc>,
     pub entropy_quality_score: f32,
 }
 
@@ -84,7 +86,7 @@ impl PQRNG_Engine {
             output_id: format!("output_{}_{}", rng.rng_id, rng_source.gen::<u32>()),
             rng_id: rng.rng_id.clone(),
             generated_bytes: (0..length).map(|_| rng_source.gen::<u8>()).collect(),
-            generation_timestamp: Instant::now(),
+            generation_timestamp: Utc::now(),
             entropy_quality_score: rng_source.gen_range(0.95..0.999),
         }
     }

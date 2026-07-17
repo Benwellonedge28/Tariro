@@ -6,10 +6,11 @@
 /// (SIMD: parallel processing of network packets and QML inference; RAG: QML for cybersecurity, adversarial QML,
 /// quantum-safe forensics).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -22,7 +23,8 @@ pub struct NetworkPacket {
     pub destination_ip: String,
     pub protocol: String,
     pub payload_size: u32,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub features: Vec<f32>, // Numerical features extracted for QML
 }
 
@@ -33,7 +35,8 @@ pub struct IntrusionEvent {
     pub event_type: String, // e.g., "malware_attempt", "data_exfiltration", "privilege_escalation"
     pub severity: u8, // 1-10
     pub affected_assets: Vec<String>,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub source_packet_id: String,
 }
 
@@ -137,7 +140,7 @@ impl QEIDS_Engine {
                 event_type: "Quantum_Malware_Detected".to_string(),
                 severity: 10,
                 affected_assets: vec!["critical_server_01".to_string()],
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 source_packet_id: packet_id.to_string(),
             })
         } else {
@@ -155,7 +158,7 @@ mod tests {
         let engine = QEIDS_Engine::new();
 
         let packets = vec![
-            NetworkPacket { id: "pkt1".to_string(), source_ip: "192.168.1.1".to_string(), destination_ip: "10.0.0.1".to_string(), protocol: "TCP".to_string(), payload_size: 100, timestamp: Instant::now(), features: vec![0.1, 0.2] },
+            NetworkPacket { id: "pkt1".to_string(), source_ip: "192.168.1.1".to_string(), destination_ip: "10.0.0.1".to_string(), protocol: "TCP".to_string(), payload_size: 100, timestamp: Utc::now(), features: vec![0.1, 0.2] },
         ];
         let analyzed = engine.analyze_network_traffic_simd(&packets);
         assert!(!analyzed.is_empty());
@@ -182,8 +185,8 @@ fn main() {
     // Scenario 1: Analyzing normal network traffic
     println!("--- Scenario 1: Analyzing Normal Traffic ---");
     let normal_packets = vec![
-        NetworkPacket { id: "npkt_001".to_string(), source_ip: "192.168.1.100".to_string(), destination_ip: "8.8.8.8".to_string(), protocol: "DNS".to_string(), payload_size: 64, timestamp: Instant::now(), features: vec![0.05, 0.1, 0.0] },
-        NetworkPacket { id: "npkt_002".to_string(), source_ip: "192.168.1.101".to_string(), destination_ip: "10.0.0.5".to_string(), protocol: "HTTPS".to_string(), payload_size: 1200, timestamp: Instant::now(), features: vec![0.1, 0.15, 0.05] },
+        NetworkPacket { id: "npkt_001".to_string(), source_ip: "192.168.1.100".to_string(), destination_ip: "8.8.8.8".to_string(), protocol: "DNS".to_string(), payload_size: 64, timestamp: Utc::now(), features: vec![0.05, 0.1, 0.0] },
+        NetworkPacket { id: "npkt_002".to_string(), source_ip: "192.168.1.101".to_string(), destination_ip: "10.0.0.5".to_string(), protocol: "HTTPS".to_string(), payload_size: 1200, timestamp: Utc::now(), features: vec![0.1, 0.15, 0.05] },
     ];
     let analyzed_normal = qeids_engine.analyze_network_traffic_simd(&normal_packets);
     let qml_normal_outputs = qeids_engine.run_qml_inference_simd(&analyzed_normal);
@@ -192,8 +195,8 @@ fn main() {
     // Scenario 2: Simulating quantum malware traffic and generating alerts
     println!("--- Scenario 2: Simulating Quantum Malware ---");
     let malicious_packets = vec![
-        NetworkPacket { id: "mpkt_001".to_string(), source_ip: "203.0.113.1".to_string(), destination_ip: "10.0.0.1".to_string(), protocol: "UNKNOWN_Q".to_string(), payload_size: 4096, timestamp: Instant::now(), features: vec![0.9, 0.8, 0.7] },
-        NetworkPacket { id: "mpkt_002".to_string(), source_ip: "203.0.113.2".to_string(), destination_ip: "10.0.0.2".to_string(), protocol: "ANOMALY_Q".to_string(), payload_size: 8192, timestamp: Instant::now(), features: vec![0.95, 0.85, 0.75] },
+        NetworkPacket { id: "mpkt_001".to_string(), source_ip: "203.0.113.1".to_string(), destination_ip: "10.0.0.1".to_string(), protocol: "UNKNOWN_Q".to_string(), payload_size: 4096, timestamp: Utc::now(), features: vec![0.9, 0.8, 0.7] },
+        NetworkPacket { id: "mpkt_002".to_string(), source_ip: "203.0.113.2".to_string(), destination_ip: "10.0.0.2".to_string(), protocol: "ANOMALY_Q".to_string(), payload_size: 8192, timestamp: Utc::now(), features: vec![0.95, 0.85, 0.75] },
     ];
     let analyzed_malicious = qeids_engine.analyze_network_traffic_simd(&malicious_packets);
     let qml_malicious_outputs = qeids_engine.run_qml_inference_simd(&analyzed_malicious);

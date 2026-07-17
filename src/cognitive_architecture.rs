@@ -9,10 +9,11 @@
 /// for architectural patterns and cognitive science models, and SIMD for high-speed simulation and
 /// optimization of cognitive pathways).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Represents a single cognitive module (e.g., perception, memory, reasoning).
@@ -91,7 +92,7 @@ impl CognitiveArchitect {
             component_map.insert(component.id.clone(), component);
         }
         CognitiveArchitecture {
-            id: format!("arch_{}", Instant::now().elapsed().as_secs()),
+            id: format!("arch_{}", Utc::now().timestamp()),
             name,
             modules: module_map,
             components: component_map,

@@ -8,10 +8,11 @@
 /// extended memory architectures and cognitive augmentation frameworks, and SIMD for parallel
 /// knowledge retrieval and real-time computational offload.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -21,7 +22,8 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CognitiveQuery {
     pub query_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub original_thought: String,
     pub augmented_keywords: Vec<String>, // RAG-derived semantic expansions
     pub context_vector: Vec<f32>, // High-dimensional representation of cognitive context
@@ -43,7 +45,8 @@ pub struct InjectedKnowledgeItem {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AugmentedCognitiveState {
     pub state_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub active_cognitive_load: f32,
     pub available_computational_bandwidth: f32,
     pub real_time_memory_capacity_gb: f32,
@@ -136,7 +139,7 @@ impl ECSCCEngine {
         current_cognitive_state.active_cognitive_load = (current_cognitive_state.active_cognitive_load * 0.7 + rng.gen_range(0.1..0.3)).min(1.0);
         current_cognitive_state.overall_efficiency_boost_pct = (current_cognitive_state.overall_efficiency_boost_pct * 0.9 + rng.gen_range(5.0..15.0)).min(100.0);
         current_cognitive_state.current_problem_solving_threads += rng.gen_range(0..3);
-        current_cognitive_state.timestamp = Instant::now();
+        current_cognitive_state.timestamp = Utc::now();
 
         println!("  Cognition augmented. Efficiency Boost: {:.2}%. Current Load: {:.2}. Threads: {}.\n",
             current_cognitive_state.overall_efficiency_boost_pct,
@@ -170,7 +173,7 @@ mod tests {
 
         let initial_state = AugmentedCognitiveState {
             state_id: "samuel_aug_cog_v1".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             active_cognitive_load: 0.3,
             available_computational_bandwidth: 0.9,
             real_time_memory_capacity_gb: 100.0,
@@ -181,7 +184,7 @@ mod tests {
 
         let query = CognitiveQuery {
             query_id: "query_001".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             original_thought: "Need to understand the implications of quantum tunneling on classical processors.".to_string(),
             augmented_keywords: vec!["quantum_tunneling", "classical_processors", "nanoscale_effects"].iter().map(|s| s.to_string()).collect(),
             context_vector: vec![0.1, 0.2, 0.3],
@@ -202,13 +205,13 @@ fn main() {
     println!("\n--- Extended Cognition & Super-Cognitor Capabilities for Samuel (RAG-Driven) Demonstration ---");
 
     let ecscc_engine = ECSCCEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Samuel needs rapid synthesis of information for a critical decision
     println!("--- Scenario 1: Critical Decision-Making Augmentation ---");
     let initial_samuel_cog_state = AugmentedCognitiveState {
         state_id: "samuel_cog_state_001".to_string(),
-        timestamp: Instant::now() - Duration::from_secs(30),
+        timestamp: Utc::now() - Duration::from_secs(30),
         active_cognitive_load: 0.6,
         available_computational_bandwidth: 0.8,
         real_time_memory_capacity_gb: 500.0,
@@ -219,7 +222,7 @@ fn main() {
 
     let decision_query = CognitiveQuery {
         query_id: "crit_decision_001".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         original_thought: "What are the geopolitical implications of a rapid global shift to AI-driven economies?".to_string(),
         augmented_keywords: vec!["geopolitics", "AI_economy", "global_shift", "economic_impact"].iter().map(|s| s.to_string()).collect(),
         context_vector: vec![0.5, 0.4, 0.6],
@@ -236,7 +239,7 @@ fn main() {
     println!("--- Scenario 2: Accelerated Learning Augmentation ---");
     let initial_samuel_cog_state_learning = AugmentedCognitiveState {
         state_id: "samuel_cog_state_002".to_string(),
-        timestamp: Instant::now() - Duration::from_secs(60),
+        timestamp: Utc::now() - Duration::from_secs(60),
         active_cognitive_load: 0.4,
         available_computational_bandwidth: 0.9,
         real_time_memory_capacity_gb: 200.0,
@@ -247,7 +250,7 @@ fn main() {
 
     let learning_query = CognitiveQuery {
         query_id: "learning_qiskit_001".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         original_thought: "How do I efficiently implement multi-qubit gates in Qiskit, and what are the common pitfalls?".to_string(),
         augmented_keywords: vec!["Qiskit", "multi-qubit_gates", "quantum_programming", "common_pitfalls"].iter().map(|s| s.to_string()).collect(),
         context_vector: vec![0.7, 0.6, 0.8],

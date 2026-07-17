@@ -8,10 +8,11 @@
 /// RAG for social media analytics and public relations theory, and SIMD for parallel
 /// sentiment analysis and real-time media monitoring.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -21,7 +22,8 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SentimentAnalysis {
     pub analysis_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub source_content_id: String,
     pub sentiment_score: f32, // -1.0 (negative) to 1.0 (positive)
     pub emotion_detection: HashMap<String, f32>, // e.g., "joy": 0.8, "anger": 0.1
@@ -34,7 +36,8 @@ pub struct SentimentAnalysis {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PRAction {
     pub action_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub action_type: String, // e.g., "Press_Release", "Social_Media_Post", "Direct_Response", "Narrative_Shaping"
     pub target_audience: String,
     pub content_generated: String, // RAG-generated communication content
@@ -47,7 +50,8 @@ pub struct PRAction {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReputationEvent {
     pub event_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub description: String,
     pub severity: String, // e.g., "Crisis", "Negative", "Neutral", "Positive"
     pub affected_entities: Vec<String>, // e.g., "Samuel", "Tariro_AI"
@@ -101,7 +105,7 @@ impl ARPPMEngine {
         if rng.gen_bool(0.3) { // Simulate detection of positive sentiment about Samuel
             analyses.push(SentimentAnalysis {
                 analysis_id: format!("sa_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 source_content_id: format!("news_article_{}", rng.gen::<u32>()),
                 sentiment_score: rng.gen_range(0.7..0.99),
                 emotion_detection: HashMap::from([("admiration".to_string(), 0.8), ("trust".to_string(), 0.7)]),
@@ -113,7 +117,7 @@ impl ARPPMEngine {
          if rng.gen_bool(0.05) { // Simulate detection of slightly negative sentiment
             analyses.push(SentimentAnalysis {
                 analysis_id: format!("sa_neg_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 source_content_id: format!("blog_post_{}", rng.gen::<u32>()),
                 sentiment_score: rng.gen_range(-0.4..-0.1),
                 emotion_detection: HashMap::from([("concern".to_string(), 0.6), ("uncertainty".to_string(), 0.3)]),
@@ -149,7 +153,7 @@ impl ARPPMEngine {
                 let recommended_action_id = format!("pr_action_{}", rng.gen::<u32>());
                 reputation_events.push(ReputationEvent {
                     event_id: format!("rep_event_{}", rng.gen::<u32>()),
-                    timestamp: Instant::now(),
+                    timestamp: Utc::now(),
                     description: format!("Negative sentiment detected regarding {}. Key phrase: '{}'.", analysis.subject, analysis.key_phrases.get(0).cloned().unwrap_or("N/A".to_string())),
                     severity: "Negative".to_string(),
                     affected_entities: vec![analysis.subject.clone()],
@@ -160,7 +164,7 @@ impl ARPPMEngine {
 
                 pr_actions.push(PRAction {
                     action_id: recommended_action_id,
-                    timestamp: Instant::now(),
+                    timestamp: Utc::now(),
                     action_type: "Direct_Response".to_string(),
                     target_audience: "Public".to_string(),
                     content_generated: format!("RAG-generated: Addressing concerns about {} with transparent explanation.", analysis.subject),
@@ -173,7 +177,7 @@ impl ARPPMEngine {
                 let recommended_action_id = format!("pr_action_amp_{}", rng.gen::<u32>());
                 reputation_events.push(ReputationEvent {
                     event_id: format!("rep_event_{}", rng.gen::<u32>()),
-                    timestamp: Instant::now(),
+                    timestamp: Utc::now(),
                     description: format!("Positive sentiment detected regarding {}. Amplifying reach.", analysis.subject),
                     severity: "Positive".to_string(),
                     affected_entities: vec![analysis.subject.clone()],
@@ -184,7 +188,7 @@ impl ARPPMEngine {
 
                 pr_actions.push(PRAction {
                     action_id: recommended_action_id,
-                    timestamp: Instant::now(),
+                    timestamp: Utc::now(),
                     action_type: "Social_Media_Post".to_string(),
                     target_audience: "Followers".to_string(),
                     content_generated: format!("RAG-generated: Sharing positive news about {} and its impact.", analysis.subject),
@@ -237,7 +241,7 @@ fn main() {
     println!("\n--- Autonomous Reputation & Public Perception Management (RAG-Driven) Demonstration ---");
 
     let arppm_engine = ARPPMEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Tariro detects negative sentiment about Samuel from social media and autonomously responds
     println!("--- Scenario 1: Negative Sentiment Mitigation ---");

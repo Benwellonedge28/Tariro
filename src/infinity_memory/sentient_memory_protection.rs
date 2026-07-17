@@ -1,4 +1,5 @@
 // src/infinity_memory/sentient_memory_protection.rs
+use crate::prelude::*;
 
 use std::collections::HashMap;
 use chrono::{DateTime, Utc};

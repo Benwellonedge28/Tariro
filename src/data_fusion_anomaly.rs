@@ -6,10 +6,11 @@
 /// combining data from diverse sources (e.g., sensor streams, text, visual inputs)
 /// to identify complex patterns and anomalies instantaneously.
 
+use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Multi-Modal Data Types ---
@@ -226,7 +227,7 @@ fn main() {
     // Simulate real-time data streams
     println!("\n--- Simulating Real-time Data Streams and Fusion ---");
     let mut rng = rand::thread_rng();
-    let start_time = Instant::now();
+    let start_time = Utc::now();
 
     for i in 0..15 {
         let current_timestamp = start_time.elapsed().as_secs();

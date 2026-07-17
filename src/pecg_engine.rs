@@ -7,10 +7,11 @@
 /// engagement and impact. It leverages RAG for user preference models and experiential
 /// knowledge bases, and SIMD for parallel content customization and real-time feedback processing.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -39,7 +40,8 @@ pub struct ContentTemplate {
 pub struct PersonalizedContent {
     pub content_id: String,
     pub user_id: String,
-    pub generated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub generated_at: DateTime<Utc>,
     pub personalized_output: String, // The actual content (e.g., custom story, learning module HTML)
     pub relevance_score: f32, // 0.0-1.0 (RAG-assessment of how well it matches user)
     pub engagement_prediction: f32,
@@ -128,7 +130,7 @@ impl PECGEngine {
         PersonalizedContent {
             content_id: format!("pc_{}", rng.gen::<u32>()),
             user_id: user_profile.user_id.clone(),
-            generated_at: Instant::now(),
+            generated_at: Utc::now(),
             personalized_output,
             relevance_score,
             engagement_prediction,
@@ -156,7 +158,7 @@ mod tests {
     #[test]
     fn test_pecg_engine_flow() {
         let engine = PECGEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let user = UserProfile {
             user_id: "user_alice".to_string(),
@@ -185,7 +187,7 @@ fn main() {
     println!("\n--- Personalized Experiential Content Generation (RAG-Driven) Demonstration ---");
 
     let pecg_engine = PECGEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Generate a personalized learning module for a new user
     println!("--- Scenario 1: Adaptive Learning Module ---");

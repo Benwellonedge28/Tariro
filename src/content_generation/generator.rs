@@ -1,4 +1,5 @@
 // src/content_generation/generator.rs
+use crate::prelude::*;
 
 //! Provides core functionalities for Tariro AGI to generate text-based content
 //! such as articles, summaries, reports, and creative narratives.

@@ -6,10 +6,11 @@
 /// or autonomous resolution. It leverages SIMD for parallel truth-value assessment across
 /// data points.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -22,7 +23,7 @@ pub struct FactualStatement {
     pub content: String,
     pub source_id: String,
     pub source_type: String, // e.g., "Document", "Conversation", "WebPage"
-    pub extracted_at: Instant,
+    pub extracted_at: DateTime<Utc>,
     pub truth_value_score: f32, // Conceptual: 0.0 (false) to 1.0 (true)
     pub vector_embedding: Vec<f32>, // For semantic comparison
 }
@@ -34,7 +35,8 @@ pub struct Contradiction {
     pub statement_ids: Vec<String>,
     pub description: String,
     pub severity: String, // e.g., "Minor", "Significant", "Critical"
-    pub detected_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detected_at: DateTime<Utc>,
     pub resolution_status: String, // e.g., "PendingReview", "Resolved", "FlaggedIrresolvable"
     pub resolution_action: Option<String>,
 }
@@ -65,7 +67,7 @@ impl RCFCDEngine {
             content: "Rust is a programming language known for memory safety.".to_string(),
             source_id: "rust_doc".to_string(),
             source_type: "Document".to_string(),
-            extracted_at: Instant::now() - Duration::from_secs(3600),
+            extracted_at: Utc::now() - Duration::from_secs(3600),
             truth_value_score: 0.98,
             vector_embedding: vec![0.1, 0.2, 0.3, 0.4],
         });
@@ -74,7 +76,7 @@ impl RCFCDEngine {
             content: "Rust uses a garbage collector for memory management.".to_string(),
             source_id: "forum_post_misinfo".to_string(),
             source_type: "WebPage".to_string(),
-            extracted_at: Instant::now() - Duration::from_secs(1800),
+            extracted_at: Utc::now() - Duration::from_secs(1800),
             truth_value_score: 0.10, // Low truth value
             vector_embedding: vec![0.15, 0.25, 0.35, 0.45], // Semantically similar but factually incorrect
         });
@@ -83,7 +85,7 @@ impl RCFCDEngine {
             content: "SIMD instructions improve parallel processing performance.".to_string(),
             source_id: "simd_wiki".to_string(),
             source_type: "WebPage".to_string(),
-            extracted_at: Instant::now() - Duration::from_secs(2400),
+            extracted_at: Utc::now() - Duration::from_secs(2400),
             truth_value_score: 0.95,
             vector_embedding: vec![0.5, 0.6, 0.7, 0.8],
         });
@@ -130,7 +132,7 @@ impl RCFCDEngine {
                     statement_ids: vec![new_statement.statement_id.clone(), existing_statement.statement_id.clone()],
                     description: format!("Statements '{}' and '{}' contradict on similar topics.", new_statement.content, existing_statement.content),
                     severity: "Significant".to_string(),
-                    detected_at: Instant::now(),
+                    detected_at: Utc::now(),
                     resolution_status: "PendingReview".to_string(),
                     resolution_action: None,
                 });
@@ -175,7 +177,7 @@ mod tests {
     #[test]
     fn test_rcfcd_engine_flow() {
         let mut engine = RCFCDEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let new_fact_positive = FactualStatement {
             statement_id: "new_fact_pos_01".to_string(),
@@ -210,7 +212,7 @@ fn main() {
     println!("\n--- Real-time Factual Contradiction Detection (RAG-Driven) Demonstration ---");
 
     let mut rcfcd_engine = RCFCDEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     println!("Initial Knowledge Base Size: {} factual statements.\n", rcfcd_engine.current_knowledge_base.len());
 

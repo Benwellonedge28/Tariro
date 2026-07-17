@@ -7,10 +7,11 @@
 /// cryptographic protocols, secure multi-party computation, and lattice-based cryptography
 /// to provide robust data protection without compromising AGI functionality.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -41,7 +42,7 @@ pub struct HomomorphicResult {
     pub request_id: String,
     pub encrypted_output: Vec<u8>,
     pub proof_of_computation: Option<Vec<u8>>, // e.g., zero-knowledge proof
-    pub computed_at: Instant,
+    pub computed_at: DateTime<Utc>,
     pub success: bool,
 }
 
@@ -114,7 +115,7 @@ impl HECAPEngine {
             request_id: request.request_id.clone(),
             encrypted_output,
             proof_of_computation: proof,
-            computed_at: Instant::now(),
+            computed_at: Utc::now(),
             success: true,
         }
     }
@@ -142,7 +143,7 @@ mod tests {
     #[test]
     fn test_hecap_engine_flow() {
         let engine = HECAPEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let sensitive_data = vec![0x01, 0x02, 0x03, 0x04, 0x05];
         let encrypted_data = engine.encrypt_agi_data(&sensitive_data, "BFV");
@@ -171,7 +172,7 @@ fn main() {
     println!("\n--- Homomorphic Encryption for Confidential AGI Processing Demonstration ---");
 
     let hecap_engine = HECAPEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Encrypt sensitive AGI training data
     println!("--- Scenario 1: Encrypt Sensitive AGI Data ---");

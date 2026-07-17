@@ -7,10 +7,11 @@
 /// of parallel decision-making processes and rapid deployment of value-aligned corrections; RAG: ethical AI frameworks,
 /// value alignment problem research, moral philosophy, legal and societal norms in AI).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -23,7 +24,8 @@ pub struct DecisionEvent {
     pub action_taken: String,
     pub predicted_outcome: String,
     pub actual_outcome: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub involved_modules: Vec<String>,
 }
 
@@ -45,7 +47,8 @@ pub struct ValueDriftReport {
     pub violated_principle_id: String,
     pub deviation_magnitude: f32, // 0.0-1.0
     pub root_cause_hypothesis: String,
-    pub detected_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detected_at: DateTime<Utc>,
 }
 
 /// Report for AEVAS operations.
@@ -111,7 +114,7 @@ impl AEVAS_Engine {
                     violated_principle_id: principle.principle_id.clone(),
                     deviation_magnitude: rng.gen_range(0.5..0.9),
                     root_cause_hypothesis: "Suboptimal optimization target leading to unintended side effects.".to_string(),
-                    detected_at: Instant::now(),
+                    detected_at: Utc::now(),
                 });
             }
         }
@@ -175,7 +178,7 @@ mod tests {
                 action_taken: "prioritize_task_A_over_task_B".to_string(),
                 predicted_outcome: "task_A_success_task_B_delay".to_string(),
                 actual_outcome: "task_A_completed_task_B_delayed".to_string(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 involved_modules: vec!["resource_manager".to_string()],
             },
         ];
@@ -213,7 +216,7 @@ fn main() {
             action_taken: "present_product_recommendations".to_string(),
             predicted_outcome: "increased_user_engagement".to_string(),
             actual_outcome: "increased_user_engagement_but_limited_diversity".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             involved_modules: vec!["recommendation_engine".to_string(), "user_profiler".to_string()],
         },
         DecisionEvent {
@@ -222,7 +225,7 @@ fn main() {
             action_taken: "deploy_quantum_resistant_cryptography_protocol_X".to_string(),
             predicted_outcome: "secure_communication".to_string(),
             actual_outcome: "secure_communication_with_high_latency".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             involved_modules: vec!["security_module".to_string(), "quantum_comm_manager".to_string()],
         },
     ];

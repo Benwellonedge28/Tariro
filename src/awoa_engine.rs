@@ -7,10 +7,11 @@
 /// It leverages RAG for workflow patterns, AI planning algorithms, and operational
 /// intelligence to ensure efficient, resilient, and goal-oriented task execution.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -37,8 +38,9 @@ pub struct DynamicWorkflow {
     pub steps: Vec<WorkflowStep>,
     pub current_status: String, // e.g., "Planning", "Executing", "Paused", "Completed", "Failed"
     pub current_progress_pct: f32,
-    pub created_at: Instant,
-    pub last_updated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub created_at: DateTime<Utc>,
+    pub last_updated_at: DateTime<Utc>,
 }
 
 /// Represents operational intelligence gathered about workflow execution.
@@ -48,7 +50,10 @@ pub struct OperationalIntelligence {
     pub workflow_id: String,
     pub metric_name: String, // e.g., "StepCompletionTime", "ResourceUtilization", "FailureRate"
     pub metric_value: f64,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub metadata: HashMap<String, String>, // e.g., "step_id", "agent_type"
 }
 
@@ -127,8 +132,8 @@ impl AWOAEngine {
             steps,
             current_status: "Planning".to_string(),
             current_progress_pct: 0.0,
-            created_at: Instant::now(),
-            last_updated_at: Instant::now(),
+            created_at: Utc::now(),
+            last_updated_at: Utc::now(),
         }
     }
 
@@ -207,7 +212,7 @@ mod tests {
     #[test]
     fn test_awoa_engine_flow() {
         let engine = AWOAEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let available_agents = vec!["AGI_A".to_string(), "AGI_B".to_string(), "AGI_C".to_string()];
         let mut workflow = engine.generate_workflow_rag("Analyze Market Trends", &available_agents);
@@ -229,7 +234,7 @@ fn main() {
     println!("\n--- Adaptive Workflow Orchestration and Automation Demonstration ---");
 
     let awoa_engine = AWOAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Dynamically generate a workflow for a given goal
     println!("--- Scenario 1: Dynamically Generate Workflow ---");

@@ -5,10 +5,11 @@
 /// simulations), employing quantum-inspired probabilistic modeling and advanced Monte Carlo tree search
 /// (SIMD: massively parallel game tree exploration; RAG: historical game data, player behavior models).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -80,7 +81,7 @@ impl OGSPA_Engine {
         // Simulate a few potential next states
         for i in 0..rng.gen_range(2..5) {
             simulated_states.push(GameState {
-                id: format!("state_{}", Instant::now().elapsed().as_secs()),
+                id: format!("state_{}", Utc::now().timestamp()),
                 board_representation: format!("simulated_state_hash_{}_{}", initial_state.id, i),
                 current_turn_player_id: if initial_state.current_turn_player_id == "player1" { "player2".to_string() } else { "player1".to_string() },
                 available_moves: vec![format!("move_X_{}", i)],

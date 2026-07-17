@@ -5,10 +5,11 @@
 /// performance bottlenecks before they impact operations, reducing downtime and enhancing reliability.
 /// It leverages RAG for fault prediction models, automated debugging techniques, and resilient software architecture patterns.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -30,7 +31,8 @@ pub struct DetectedIssue {
     pub component_id: String,
     pub issue_type: String, // e.g., "MemoryLeak", "CPU_Spike", "UnhandledException"
     pub severity: String, // e.g., "Low", "Medium", "High", "Critical"
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub prediction_score: f32, // Likelihood of becoming critical
 }
 
@@ -100,7 +102,7 @@ impl SelfHealingEngine {
                 component_id: component.component_id.clone(),
                 issue_type: "MemoryLeak_Warning".to_string(),
                 severity: "Medium".to_string(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 prediction_score: rng.gen_range(0.7..0.95),
             })
         } else { None }

@@ -4,10 +4,11 @@
 /// It will generate real-time, evolving threat models based on global cyber activity and geopolitical shifts
 /// (leveraging RAG for global threat intel and news, and SIMD for predictive attack path analysis).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Represents a potential threat actor.
@@ -150,13 +151,13 @@ impl ThreatLandscapeModeler {
         let current_threat_level = (identified_vulns.iter().map(|v| v.severity).sum::<f32>() + actor_candidates.iter().map(|a| a.sophistication).sum::<f32>()) / 2.0 / 10.0; // Simplified average
 
         let new_threat_model = ThreatModel {
-            model_id: format!("TM_{}_{}", target_asset, Instant::now().elapsed().as_secs()),
+            model_id: format!("TM_{}_{}", target_asset, Utc::now().timestamp()),
             target_asset: target_asset.to_string(),
             current_threat_level,
             identified_actors: actor_candidates,
             relevant_vulnerabilities: identified_vulns,
             predicted_attack_paths: attack_paths,
-            last_updated: Instant::now().elapsed().as_secs(),
+            last_updated: Utc::now().timestamp(),
         };
         self.active_threat_models.insert(new_threat_model.model_id.clone(), new_threat_model.clone());
         thread::sleep(Duration::from_millis(30));
@@ -194,7 +195,7 @@ fn main() {
     println!("\n--- Predictive Threat Landscape Modeler Demonstration ---");
 
     let mut modeler = ThreatLandscapeModeler::new();
-    let start_time = Instant::now().elapsed().as_secs();
+    let start_time = Utc::now().timestamp();
 
     // 1. Ingest initial global threat intelligence
     modeler.ingest_threat_intel_rag(vec![

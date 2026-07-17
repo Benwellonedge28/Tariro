@@ -7,10 +7,11 @@
 /// demand and resource availability. It uses RAG for predictive modeling of demand and capacity
 /// planning, and SIMD for parallel job scheduling and resource allocation algorithms.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -42,7 +43,8 @@ pub struct ComputeResource {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ScalingDecision {
     pub decision_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub service_id: String,
     pub action: String, // e.g., "ScaleUp", "ScaleDown", "Rebalance"
     pub target_resources: Vec<String>, // resource_ids affected
@@ -149,7 +151,7 @@ impl ARSLBEngine {
             println!("  Scaling Decision for '{}': '{}'. Justification: '{}'.\n", workload.service_id, action, justification);
             Some(ScalingDecision {
                 decision_id: format!("scale_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 service_id: workload.service_id.clone(),
                 action,
                 target_resources: required_resources_for_forecast, // Simplified: assume new resources are for forecast
@@ -183,7 +185,7 @@ mod tests {
     #[test]
     fn test_arslb_engine_flow() {
         let engine = ARSLBEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let workload = ServiceWorkload {
             service_id: "web_app_frontend".to_string(),
@@ -214,7 +216,7 @@ fn main() {
     println!("\n--- Anticipatory Resource Scaling & Load Balancing (RAG-Driven) Demonstration ---");
 
     let arslb_engine = ARSLBEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: High predicted demand, triggering scale-up
     println!("--- Scenario 1: High Demand Scale-Up ---");

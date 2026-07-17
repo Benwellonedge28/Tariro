@@ -5,10 +5,11 @@
 /// and cheat detection in online games, ensuring integrity and fairness (SIMD: parallel encryption/decryption;
 /// RAG: quantum key distribution, distributed ledger technologies).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -36,7 +37,8 @@ pub struct EncryptedPacket {
 pub struct GameStateHash {
     pub round_number: u32,
     pub state_hash: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub signed_by_nodes: Vec<String>,
 }
 

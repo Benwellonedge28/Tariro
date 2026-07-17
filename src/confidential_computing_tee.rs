@@ -5,10 +5,11 @@
 /// (e.g., Intel SGX, AMD SEV, ARM TrustZone), protecting data and code integrity even from privileged software on the same system
 /// (leveraging RAG for TEE attestation protocols and SIMD for accelerating cryptographic operations within enclaves).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Supported Trusted Execution Environment (TEE) types.
@@ -87,7 +88,7 @@ impl ConfidentialComputingManager {
                 mr_enclave,
                 mr_signer,
                 is_valid: rng.gen_bool(0.99), // Assume high success rate
-                generated_at: Instant::now().elapsed().as_secs(),
+                generated_at: Utc::now().timestamp(),
             })
         } else {
             println!("    -> Error: Enclave '{}' not found.", enclave_id);

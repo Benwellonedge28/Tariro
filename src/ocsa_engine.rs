@@ -6,10 +6,11 @@
 /// It leverages RAG for code standards and security best practices, and SIMD for parallel
 /// AST parsing and pattern matching.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -35,7 +36,8 @@ pub struct CodeIssue {
     pub description: String,
     pub severity: String, // e.g., "Low", "Medium", "High", "Critical"
     pub suggested_fix: Option<String>,
-    pub detected_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detected_at: DateTime<Utc>,
     pub relevant_cwe: Option<String>, // Common Weakness Enumeration
 }
 
@@ -92,7 +94,7 @@ impl OCSAEngine {
                 description: "Potential unsafe code block identified. Review for memory safety.".to_string(),
                 severity: "High".to_string(),
                 suggested_fix: Some("Encapsulate unsafe operations or prove memory safety.".to_string()),
-                detected_at: Instant::now(),
+                detected_at: Utc::now(),
                 relevant_cwe: Some("CWE-681".to_string()),
             });
         }
@@ -106,7 +108,7 @@ impl OCSAEngine {
                 description: "Unwrap() call found, may panic. Consider using match or ? operator.".to_string(),
                 severity: "Medium".to_string(),
                 suggested_fix: Some("Replace unwrap() with proper error handling.".to_string()),
-                detected_at: Instant::now(),
+                detected_at: Utc::now(),
                 relevant_cwe: None,
             });
         }
@@ -155,7 +157,7 @@ mod tests {
     #[test]
     fn test_ocsa_engine_flow() {
         let engine = OCSAEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let rust_code = CodeFile {
             file_path: "src/main.rs".to_string(),
@@ -175,7 +177,7 @@ fn main() {
     println!("\n--- Omniversal Codebase Static Analysis (SIMD-Driven) Demonstration ---");
 
     let ocsa_engine = OCSAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Analyze a Rust file with potential issues
     println!("--- Scenario 1: Analyze Rust Code ---");

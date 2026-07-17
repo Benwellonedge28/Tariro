@@ -8,10 +8,11 @@
 /// resolution strategies, and SIMD for parallel ethical scenario modeling and real-time
 /// value weight optimization.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -32,7 +33,8 @@ pub struct EthicalPrinciple {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EthicalDilemma {
     pub dilemma_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub description: String,
     pub conflicting_principles: Vec<String>, // IDs of principles in conflict
     pub proposed_actions: HashMap<String, String>, // e.g., "ActionA": "description", "ActionB": "description"
@@ -45,7 +47,8 @@ pub struct EthicalDilemma {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConflictResolution {
     pub resolution_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub dilemma_id: String,
     pub chosen_action: String,
     pub rationale: String, // RAG-derived explanation for the decision
@@ -134,7 +137,7 @@ impl AEDMCRAEngine {
         println!("  Ethical dilemma '{}' resolved. Chosen action: '{}'.\n", dilemma.dilemma_id, chosen_action);
         ConflictResolution {
             resolution_id: format!("res_{}", rng.gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             dilemma_id: dilemma.dilemma_id,
             chosen_action,
             rationale,
@@ -165,7 +168,7 @@ mod tests {
         let engine = AEDMCRAEngine::new();
 
         let dilemma = EthicalDilemma {
-            dilemma_id: "dilemma_001".to_string(), timestamp: Instant::now(), description: "Should AI prioritize privacy or security?".to_string(), conflicting_principles: vec!["principle_privacy".to_string(), "principle_security".to_string()], proposed_actions: HashMap::from([("ActionA_privacy".to_string(), "Maximize privacy, accept lower security.".to_string()), ("ActionB_security".to_string(), "Maximize security, accept lower privacy.".to_string())]), predicted_outcomes: HashMap::new(), autonomous_resolution_strategy: "".to_string(), human_oversight_required: false,
+            dilemma_id: "dilemma_001".to_string(), timestamp: Utc::now(), description: "Should AI prioritize privacy or security?".to_string(), conflicting_principles: vec!["principle_privacy".to_string(), "principle_security".to_string()], proposed_actions: HashMap::from([("ActionA_privacy".to_string(), "Maximize privacy, accept lower security.".to_string()), ("ActionB_security".to_string(), "Maximize security, accept lower privacy.".to_string())]), predicted_outcomes: HashMap::new(), autonomous_resolution_strategy: "".to_string(), human_oversight_required: false,
         };
         let principles = vec![
             EthicalPrinciple {
@@ -189,13 +192,13 @@ fn main() {
     println!("\n--- Autonomous Ethical Decision-Making & Conflict Resolution (RAG-Driven) Demonstration ---");
 
     let aedmcr_engine = AEDMCRAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Tariro faces an ethical dilemma between maximizing productivity and ensuring fairness
     println!("--- Scenario 1: Productivity vs. Fairness Dilemma ---");
     let productivity_fairness_dilemma = EthicalDilemma {
         dilemma_id: "dilemma_prod_fair_001".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         description: "Should the AI system prioritize optimizing a workflow for maximum productivity, even if it might lead to a perceived unfair distribution of work or benefits among human collaborators?".to_string(),
         conflicting_principles: vec!["principle_maximize_productivity".to_string(), "principle_ensure_fairness".to_string()],
         proposed_actions: HashMap::from([
@@ -229,7 +232,7 @@ fn main() {
     println!("--- Scenario 2: Privacy vs. Security Dilemma (Human Oversight) ---");
     let privacy_security_dilemma = EthicalDilemma {
         dilemma_id: "dilemma_priv_sec_002".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         description: "To prevent a critical system intrusion (high security risk), highly sensitive user data would need to be temporarily exposed (high privacy risk) for rapid analysis. Which action to take?".to_string(),
         conflicting_principles: vec!["principle_data_privacy".to_string(), "principle_system_security".to_string()],
         proposed_actions: HashMap::from([
@@ -252,7 +255,7 @@ fn main() {
         },
     ];
 
-    let resolution_2 = aedmcr_engine.resolve_ethical_dilemma_rag(privacy_security_dilemma, samuel_values_2);
+    let resolution_2 = aedmcr_engine.resolve_ethical_dilemma_rag(privacy_security_dilemma.clone(), samuel_values_2);
     println!("  Dilemma 2 Resolution: '{}'. Rationale: '{}'. Human Oversight Required: {}.\n",
         resolution_2.chosen_action,
         resolution_2.rationale,

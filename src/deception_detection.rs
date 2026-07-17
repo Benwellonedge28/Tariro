@@ -4,10 +4,11 @@
 /// It will analyze communication, data, and behavioral patterns to identify sophisticated deception attempts
 /// (leveraging RAG for psychological profiles and deception tactics, and SIMD for real-time anomaly pattern matching).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Represents different communication channels.
@@ -135,8 +136,8 @@ impl DeceptionDetector {
             all_signals.extend(physiological_signals);
 
             events.push(DeceptionEvent {
-                event_id: format!("Deception_{}", Instant::now().elapsed().as_micros()),
-                timestamp: Instant::now().elapsed().as_secs(),
+                event_id: format!("Deception_{}", Utc::now().timestamp_micros()),
+                timestamp: Utc::now().timestamp(),
                 channel: CommunicationChannel::Text, // Simplification
                 signals: all_signals,
                 confidence,
@@ -199,7 +200,7 @@ fn main() {
     // Simulate a scenario where deception might be present
     for i in 0..3 {
         println!("\n========================== Deception Detection Cycle {} ==========================", i + 1);
-        let current_time = Instant::now().elapsed().as_secs();
+        let current_time = Utc::now().timestamp();
         let mut rng = rand::thread_rng();
 
         let text_sample = if i == 1 { "I swear to you, I have no idea how that happened. Honestly." } else { "Everything is proceeding as planned." };

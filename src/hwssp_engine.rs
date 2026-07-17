@@ -8,10 +8,11 @@
 /// RAG for real-world physics models and socio-economic theories, and SIMD for massively
 /// parallel simulation execution and real-time data integration.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -32,7 +33,8 @@ pub struct SimulatedEntity {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WorldStateSnapshot {
     pub snapshot_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub simulated_entities: HashMap<String, SimulatedEntity>,
     pub global_environmental_factors: HashMap<String, String>, // e.g., "global_temp": "15.2C", "stock_market_index": "35000"
     pub emergent_phenomena: Vec<String>, // RAG-derived emergent patterns
@@ -151,7 +153,7 @@ impl HWSSPEngine {
 
         WorldStateSnapshot {
             snapshot_id: format!("wss_{}", rng.gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             simulated_entities: current_entities,
             global_environmental_factors: current_global_factors,
             emergent_phenomena,
@@ -187,7 +189,7 @@ mod tests {
 
         let initial_state = WorldStateSnapshot {
             snapshot_id: "initial_state_test".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             simulated_entities: entities,
             global_environmental_factors: HashMap::new(),
             emergent_phenomena: vec![],
@@ -210,7 +212,7 @@ fn main() {
     println!("\n--- Hyper-Realistic World Simulation & Scenario Planning (RAG-Driven) Demonstration ---");
 
     let hwssp_engine = HWSSPEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Simulate a global climate change scenario with policy interventions
     println!("--- Scenario 1: Global Climate Policy Simulation ---");
@@ -226,7 +228,7 @@ fn main() {
 
     let initial_climate_state = WorldStateSnapshot {
         snapshot_id: "climate_baseline_2026".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         simulated_entities: initial_climate_entities,
         global_environmental_factors: HashMap::from([("energy_demand_growth".to_string(), "2%".to_string())]),
         emergent_phenomena: vec![],
@@ -261,7 +263,7 @@ fn main() {
 
     let initial_city_state = WorldStateSnapshot {
         snapshot_id: "fictional_city_baseline".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         simulated_entities: initial_city_entities,
         global_environmental_factors: HashMap::from([("unemployment_rate".to_string(), "15%".to_string())]),
         emergent_phenomena: vec![],

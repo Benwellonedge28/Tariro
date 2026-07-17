@@ -5,10 +5,11 @@
 /// (text, audio, video, haptic, neural interface) for all Tariro agents and users
 /// (leveraging RAG for communication protocol standards and SIMD for real-time media encryption/decryption).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Supported communication modalities.
@@ -87,7 +88,7 @@ impl SecureCommLayer {
             endpoint2,
             encryption_key,
             algorithm,
-            established_at: Instant::now().elapsed().as_secs(),
+            established_at: Utc::now().timestamp(),
         };
         self.active_channels.insert(channel.id.clone(), channel.clone());
         thread::sleep(Duration::from_millis(150));
@@ -132,7 +133,7 @@ impl SecureCommLayer {
         if let Some(encrypted_payload) = self.encrypt_message_simd(channel_id, plaintext, modality.clone()) {
             let message = Message {
                 sender, recipient, modality, encrypted_payload,
-                timestamp: Instant::now().elapsed().as_secs(),
+                timestamp: Utc::now().timestamp(),
                 session_id: channel_id.to_string(),
             };
             println!("    -> Message sent successfully. Payload size: {}.\n", message.encrypted_payload.len());

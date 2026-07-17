@@ -10,10 +10,11 @@
 /// analysis, resource leveling, scheduling algorithms, hierarchical task networks, generative planning,
 /// historical performance data).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -26,7 +27,8 @@ pub struct HighLevelObjective {
     pub description: String,
     pub strategic_priority: u8, // 1 (highest) to 10 (lowest)
     pub desired_outcome: String,
-    pub creation_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub creation_timestamp: DateTime<Utc>,
 }
 
 /// Represents a granular, actionable sub-task derived from an objective.
@@ -50,7 +52,8 @@ pub struct ExecutionPlan {
     pub critical_path: Vec<String>,
     pub total_estimated_time_hours: f32,
     pub resource_allocation_schedule: HashMap<String, HashMap<String, u32>>, // task_id -> resource -> quantity
-    pub creation_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub creation_timestamp: DateTime<Utc>,
     pub plan_score: f32, // Overall efficiency/robustness score
 }
 
@@ -130,7 +133,7 @@ impl ITDP_Engine {
             critical_path: tasks.iter().filter(|t| t.estimated_duration_hours > 5.0).map(|t| t.task_id.clone()).collect(),
             total_estimated_time_hours: total_time,
             resource_allocation_schedule: HashMap::new(), // Simplified
-            creation_timestamp: Instant::now(),
+            creation_timestamp: Utc::now(),
             plan_score: rng.gen_range(0.7..0.99),
         }
     }
@@ -177,7 +180,7 @@ mod tests {
             description: "Integrate and deploy the latest quantum AI model into production environment.".to_string(),
             strategic_priority: 1,
             desired_outcome: "Enhanced predictive accuracy".to_string(),
-            creation_timestamp: Instant::now(),
+            creation_timestamp: Utc::now(),
         };
 
         let tasks = engine.decompose_objective_rag(&objective);
@@ -209,7 +212,7 @@ fn main() {
         description: "Implement and validate the next generation of global AI alignment protocols across all Tariro instances.".to_string(),
         strategic_priority: 1,
         desired_outcome: "Universal ethical and safety compliance".to_string(),
-        creation_timestamp: Instant::now(),
+        creation_timestamp: Utc::now(),
     };
     let decomposed_sub_tasks = itdp_engine.decompose_objective_rag(&complex_objective);
     println!("  Decomposed objective into {} sub-tasks. First task: '{}'. Dependencies: {:?}.\n",

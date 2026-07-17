@@ -1,4 +1,5 @@
 // src/infinity_memory/self_evolving_memory_schemas.rs
+use crate::prelude::*;
 
 use std::collections::HashMap;
 use chrono::{DateTime, Utc};

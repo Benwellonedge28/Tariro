@@ -7,10 +7,11 @@
 /// high-performance operation by dynamically managing Tariro's state,
 /// autonomy levels, and operational strategies based on integrated insights.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Reusing conceptual structures from other modules ---
@@ -248,7 +249,7 @@ impl GovernanceOrchestrator {
     /// Runs a single cycle of the autonomous governance loop.
     pub fn run_governance_cycle(&mut self) {
         println!("\n--- Governance Cycle Initiated ---");
-        let current_timestamp = Instant::now().elapsed().as_secs();
+        let current_timestamp = Utc::now().timestamp();
 
         // 1. Environmental Modeling & Prediction
         let simulated_fusion_output = FusionOutput {

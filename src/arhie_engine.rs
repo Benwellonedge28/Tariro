@@ -12,10 +12,11 @@
 /// virtual reality (VR), mixed reality (MR), spatial computing, human factors in AR, 3D graphics, computer vision,
 /// haptic feedback, immersive analytics, perceptual psychology, UI/UX for spatial interfaces).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -24,7 +25,10 @@ use rand::Rng;
 #[derive(Debug, Clone)]
 pub struct EnvironmentScanData {
     pub scan_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub point_cloud_size: u64,
     pub detected_surfaces: Vec<String>, // e.g., "floor", "wall", "table"
     pub lighting_conditions: String, // e.g., "bright", "dim", "fluorescent"
@@ -39,14 +43,17 @@ pub struct HolographicObject {
     pub spatial_position: (f32, f32, f32), // X, Y, Z coordinates in world space
     pub orientation_quat: (f32, f32, f32, f32), // W, X, Y, Z quaternion
     pub interactivity_level: String, // e.g., "read_only", "button_press", "full_manipulation"
-    pub rendered_at: Instant,
+    pub rendered_at: DateTime<Utc>,
 }
 
 /// Represents a user interaction event with the holographic interface.
 #[derive(Debug, Clone)]
 pub struct SpatialInteractionEvent {
     pub event_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub user_gesture: String, // e.g., "pinch_zoom", "swipe_left", "point_and_select"
     pub target_object_id: String,
     pub interaction_force_newton: f32,
@@ -157,7 +164,7 @@ mod tests {
         let scan_data = vec![
             EnvironmentScanData {
                 scan_id: "scan_001".to_string(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 point_cloud_size: 100000,
                 detected_surfaces: vec!["floor".to_string(), "desk".to_string()],
                 lighting_conditions: "bright".to_string(),
@@ -174,7 +181,7 @@ mod tests {
                 spatial_position: (0.0, 1.5, -2.0),
                 orientation_quat: (1.0, 0.0, 0.0, 0.0),
                 interactivity_level: "full_manipulation".to_string(),
-                rendered_at: Instant::now(),
+                rendered_at: Utc::now(),
             },
         ];
         let rendering_result = engine.render_holographic_content_simd(&objects);
@@ -183,7 +190,7 @@ mod tests {
         let interactions = vec![
             SpatialInteractionEvent {
                 event_id: "inter_001".to_string(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 user_gesture: "point_and_select".to_string(),
                 target_object_id: objects[0].object_id.clone(),
                 interaction_force_newton: 0.0,
@@ -195,7 +202,7 @@ mod tests {
 
         let fused_context = FusedContext {
             context_id: "test_ctx_001".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             user_location: "lab".to_string(),
             ambient_conditions: HashMap::from([("lighting".to_string(), "bright".to_string())]),
             user_emotional_state: "neutral".to_string(),
@@ -217,7 +224,7 @@ fn main() {
     let current_scan = vec![
         EnvironmentScanData {
             scan_id: format!("env_scan_{}", rand::thread_rng().gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             point_cloud_size: 500000,
             detected_surfaces: vec!["desk".to_string(), "floor".to_string(), "monitor".to_string()],
             lighting_conditions: "normal".to_string(),
@@ -237,7 +244,7 @@ fn main() {
         spatial_position: (0.5, 1.2, -1.0), // Floating 1.2m high, 1m in front, 0.5m right
         orientation_quat: (1.0, 0.0, 0.0, 0.0), // Facing forward
         interactivity_level: "full_manipulation".to_string(),
-        rendered_at: Instant::now(),
+        rendered_at: Utc::now(),
     };
     let quantum_chart = HolographicObject {
         object_id: "quantum_data_chart".to_string(),
@@ -245,7 +252,7 @@ fn main() {
         spatial_position: (1.0, 0.8, -0.5), // On the desk, slightly to the right
         orientation_quat: (1.0, 0.0, 0.0, 0.0),
         interactivity_level: "button_press".to_string(),
-        rendered_at: Instant::now(),
+        rendered_at: Utc::now(),
     };
     let rendering_report = arhie_engine.render_holographic_content_simd(&vec![tariro_avatar.clone(), quantum_chart.clone()]);
     println!("  Holographic rendering report: {}.\n", rendering_report);
@@ -255,7 +262,7 @@ fn main() {
     let user_interactions = vec![
         SpatialInteractionEvent {
             event_id: format!("inter_{}", rand::thread_rng().gen::<u32>()),
-            timestamp: Instant::now() + Duration::from_secs(1),
+            timestamp: Utc::now() + Duration::from_secs(1),
             user_gesture: "air_tap".to_string(),
             target_object_id: tariro_avatar.object_id.clone(),
             interaction_force_newton: 0.1,
@@ -263,7 +270,7 @@ fn main() {
         },
         SpatialInteractionEvent {
             event_id: format!("inter_{}", rand::thread_rng().gen::<u32>()),
-            timestamp: Instant::now() + Duration::from_secs(2),
+            timestamp: Utc::now() + Duration::from_secs(2),
             user_gesture: "swipe_left".to_string(),
             target_object_id: quantum_chart.object_id.clone(),
             interaction_force_newton: 0.2,
@@ -277,7 +284,7 @@ fn main() {
     println!("--- Scenario 4: Adapt Holographic Display ---");
     let current_context_snapshot = FusedContext {
         context_id: "live_user_context".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         user_location: "office_chair".to_string(),
         ambient_conditions: HashMap::from([("lighting".to_string(), "normal".to_string())]),
         user_emotional_state: "curious".to_string(),

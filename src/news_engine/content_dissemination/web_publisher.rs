@@ -1,4 +1,5 @@
 // src/news_engine/content_dissemination/web_publisher.rs
+use crate::prelude::*;
 
 //! Provides functionality for publishing curated news content to web platforms,
 //! such as a dedicated OMEGA News website, API endpoints, or content management systems.

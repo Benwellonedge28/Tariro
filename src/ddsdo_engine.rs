@@ -5,10 +5,11 @@
 /// and redistribute data across storage and compute nodes for optimal performance. It leverages RAG for
 /// workload patterns and SIMD for parallel data movement.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -27,7 +28,8 @@ pub struct DataShard {
 #[derive(Debug, Clone)]
 pub struct NodeMetrics {
     pub node_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub cpu_utilization_percent: f32,
     pub memory_utilization_percent: f32,
     pub disk_iops: u32,
@@ -48,7 +50,8 @@ pub struct WorkloadPattern {
 #[derive(Debug, Clone)]
 pub struct ShardingPlan {
     pub plan_id: String,
-    pub generated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub generated_at: DateTime<Utc>,
     pub proposed_migrations: HashMap<String, String>, // Shard ID -> New Node ID
     pub expected_performance_gain: f32,
     pub rationale: String,
@@ -99,7 +102,7 @@ impl DDSDO_Engine {
             let hosted_shards: Vec<String> = all_shards.iter().filter(|s| &s.current_node_id == node_id).map(|s| s.shard_id.clone()).collect();
             NodeMetrics {
                 node_id: node_id.clone(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 cpu_utilization_percent: cpu_util,
                 memory_utilization_percent: mem_util,
                 disk_iops: disk_iops,
@@ -152,7 +155,7 @@ impl DDSDO_Engine {
 
         ShardingPlan {
             plan_id: format!("plan_{}", rng.gen::<u32>()),
-            generated_at: Instant::now(),
+            generated_at: Utc::now(),
             proposed_migrations,
             expected_performance_gain: rng.gen_range(5.0..25.0),
             rationale: "Re-sharding to balance load and improve data locality based on detected workload patterns.".to_string(),

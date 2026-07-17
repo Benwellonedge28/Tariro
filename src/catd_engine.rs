@@ -7,10 +7,11 @@
 /// for adversarial attack taxonomy and defense strategies, and SIMD for parallel perturbation
 /// generation and model robustness evaluation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -32,7 +33,8 @@ pub struct AdversarialPerturbation {
     pub attack_type: String, // e.g., "FGSM", "PGD", "SemanticAttack"
     pub epsilon: f32, // Magnitude of perturbation
     pub modality: String, // e.g., "Text", "Image", "Audio"
-    pub generated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub generated_at: DateTime<Utc>,
     pub perturbation_data: InputData, // The actual perturbation data (e.g., noise overlay, character swap)
 }
 
@@ -46,7 +48,8 @@ pub struct RobustnessEvaluation {
     pub adversarial_prediction: String,
     pub attack_successful: bool,
     pub confidence_drop: f32, // Drop in model's confidence due to attack
-    pub evaluation_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub evaluation_time: DateTime<Utc>,
 }
 
 /// Overall Cross-Modal Adversarial Training & Defense system report.
@@ -127,7 +130,7 @@ impl CATDEngine {
             attack_type: attack_type.to_string(),
             epsilon,
             modality: match original_data { InputData::Text(_) => "Text", InputData::Image(_) => "Image", InputData::Audio(_) => "Audio" }.to_string(),
-            generated_at: Instant::now(),
+            generated_at: Utc::now(),
             perturbation_data,
         }
     }
@@ -167,7 +170,7 @@ impl CATDEngine {
             adversarial_prediction: adversarial_prediction.clone(),
             attack_successful: original_prediction != adversarial_prediction,
             confidence_drop: rng.gen_range(0.1..0.5),
-            evaluation_time: Instant::now(),
+            evaluation_time: Utc::now(),
         };
 
         println!("  Attack '{}' on model '{}' -> Original: '{}', Adversarial: '{}'. Successful: {}.\n",
@@ -202,7 +205,7 @@ mod tests {
     #[test]
     fn test_catd_engine_flow() {
         let engine = CATDEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let model_id = "vision_model_v2".to_string();
         let original_image_data = InputData::Image(vec![0; 100]); // Dummy image data
@@ -242,7 +245,7 @@ fn main() {
     println!("\n--- Cross-Modal Adversarial Training & Defense (RAG-Driven) Demonstration ---");
 
     let catd_engine = CATDEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     let target_model_id = "tariro_perception_engine_v4".to_string();
 

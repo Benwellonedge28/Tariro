@@ -6,10 +6,11 @@
 /// into its knowledge base, continuously expanding its understanding and improving its capabilities.
 /// It leverages RAG for information extraction, knowledge graph construction, and semantic reasoning.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -20,7 +21,8 @@ pub struct RawInformation {
     pub info_id: String,
     pub source_type: String, // e.g., "WebPage", "Document", "Codebase", "Conversation"
     pub content: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub metadata: HashMap<String, String>, // e.g., URL, filename, author
 }
 
@@ -51,7 +53,8 @@ pub struct KnowledgeGraph {
     pub graph_id: String,
     pub entities: HashMap<String, KnowledgeEntity>,
     pub relationships: HashMap<String, KnowledgeRelationship>,
-    pub last_updated: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub last_updated: DateTime<Utc>,
     pub total_facts: u64,
 }
 
@@ -154,7 +157,7 @@ impl CLKAEngine {
             graph.relationships.insert(rel.rel_id.clone(), rel.clone());
         }
         graph.total_facts = graph.entities.len() as u64 + graph.relationships.len() as u64;
-        graph.last_updated = Instant::now();
+        graph.last_updated = Utc::now();
     }
 
     /// Generates a comprehensive report for continuous learning and knowledge assimilation.
@@ -187,7 +190,7 @@ mod tests {
             graph_id: "global_knowledge_v0".to_string(),
             entities: HashMap::new(),
             relationships: HashMap::new(),
-            last_updated: Instant::now(),
+            last_updated: Utc::now(),
             total_facts: 0,
         };
 
@@ -195,7 +198,7 @@ mod tests {
             info_id: "web_001".to_string(),
             source_type: "WebPage".to_string(),
             content: "Artificial intelligence (AI) is intelligence—perceiving, synthesizing, and inferring information—demonstrated by machines. Samuel Mukandara founded Base44.".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             metadata: HashMap::from([("url".to_string(), "https://example.com/ai-intro".to_string())]),
         };
 
@@ -225,7 +228,7 @@ fn main() {
         info_id: "doc_ai_ml_trends_2026".to_string(),
         source_type: "Document".to_string(),
         content: "Recent trends in AI include the rise of large language models (LLMs) and diffusion models. These models are revolutionizing natural language processing and image generation. Tariro is an advanced AGI system leveraging these concepts.".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         metadata: HashMap::from([("title".to_string(), "AI & ML Trends 2026 Report".to_string())]),
     };
     let ingested_info = clka_engine.ingest_information(technical_doc_info);
@@ -260,7 +263,7 @@ fn main() {
         graph_id: "tariro_global_kg".to_string(),
         entities: HashMap::new(),
         relationships: HashMap::new(),
-        last_updated: Instant::now(),
+        last_updated: Utc::now(),
         total_facts: 0,
     };
     clka_engine.integrate_into_knowledge_graph(&mut global_knowledge_graph, &extracted_entities, &discovered_relationships);

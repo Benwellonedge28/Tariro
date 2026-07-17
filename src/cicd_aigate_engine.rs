@@ -6,10 +6,11 @@
 /// software reliability and faster release cycles. It leverages RAG for code analysis tools, AI security
 /// policies, and deployment automation strategies.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -21,7 +22,8 @@ pub struct CodeCommit {
     pub author: String,
     pub message: String,
     pub files_changed: Vec<String>,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Represents the output of a CI/CD pipeline stage (e.g., build, test, scan).
@@ -199,7 +201,7 @@ mod tests {
             author: "dev_test".to_string(),
             message: "feat: add new feature".to_string(),
             files_changed: vec!["src/main.rs".to_string()],
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
         };
 
         let ci_results = engine.run_ci_pipeline(&commit);
@@ -235,7 +237,7 @@ fn main() {
         author: "Samuel Mukandara".to_string(),
         message: "feat(login): implement secure multi-factor authentication".to_string(),
         files_changed: vec!["src/auth.rs".to_string(), "src/api.rs".to_string(), "tests/auth_test.rs".to_string()],
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
     };
     println!("  New commit '{}' by '{}': '{}'.\n", feature_commit.commit_id, feature_commit.author, feature_commit.message);
 

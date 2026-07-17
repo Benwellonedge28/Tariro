@@ -8,10 +8,11 @@
 /// to identify emerging threats. It uses RAG for IP law databases and patent analytics, and
 /// SIMD for parallel IP portfolio scanning and real-time infringement detection.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -27,7 +28,7 @@ pub struct IntellectualProperty {
     pub owner: String, // e.g., "Samuel", "Tariro_AI"
     pub registration_status: String, // e.g., "Registered", "Pending", "Unregistered"
     pub jurisdiction: String, // e.g., "Global", "USA", "EU"
-    pub expiration_date: Option<Instant>,
+    pub expiration_date: Option<DateTime<Utc>>,
     pub licenses_issued: Vec<String>, // IDs of associated licenses
     pub detected_infringements: Vec<String>, // IDs of detected infringements
 }
@@ -36,7 +37,8 @@ pub struct IntellectualProperty {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InfringementEvent {
     pub event_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub ip_id: String,
     pub infringement_type: String, // e.g., "Unauthorized_Use", "Counterfeit", "Patent_Violation"
     pub infringing_party: String,
@@ -50,7 +52,8 @@ pub struct InfringementEvent {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IPScanResult {
     pub scan_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub ip_id: String,
     pub scan_target: String, // e.g., "Global_Web_Search", "Patent_Database", "Code_Repository"
     pub potential_matches: Vec<String>, // URLs or references to potential matches
@@ -103,7 +106,7 @@ impl AIPMPEngine {
         if rng.gen_bool(0.1) { // Simulate a detected potential infringement
             scan_results.push(IPScanResult {
                 scan_id: format!("scan_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 ip_id: ip_assets.get(0).map_or("unknown_ip".to_string(), |ip| ip.ip_id.clone()),
                 scan_target: "Global_Web_Search".to_string(),
                 potential_matches: vec![format!("http://infringing.site/image_{}", rng.gen::<u32>())],
@@ -137,7 +140,7 @@ impl AIPMPEngine {
                     owner: "Samuel".to_string(),
                     registration_status: "Registered".to_string(),
                     jurisdiction: "Global".to_string(),
-                    expiration_date: Some(Instant::now() + Duration::from_secs(3600 * 24 * 365 * 70)), // 70 years
+                    expiration_date: Some(Utc::now() + Duration::from_secs(3600 * 24 * 365 * 70)), // 70 years
                     licenses_issued: Vec::new(),
                     detected_infringements: Vec::new(),
                 });
@@ -163,7 +166,7 @@ impl AIPMPEngine {
 
                 infringements.push(InfringementEvent {
                     event_id: format!("infringement_{}", rng.gen::<u32>()),
-                    timestamp: Instant::now(),
+                    timestamp: Utc::now(),
                     ip_id: result.ip_id.clone(),
                     infringement_type: "Copyright_Violation".to_string(),
                     infringing_party: result.potential_matches.get(0).cloned().unwrap_or("unknown_party".to_string()),
@@ -219,7 +222,7 @@ fn main() {
     println!("\n--- Autonomous Intellectual Property Management & Protection (RAG-Driven) Demonstration ---");
 
     let aipmp_engine = AIPMPEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Tariro detects a potential infringement of Samuel's copyrighted creative work online
     println!("--- Scenario 1: Creative Work Infringement Detection ---");

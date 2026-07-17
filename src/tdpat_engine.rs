@@ -6,10 +6,11 @@
 /// It leverages RAG for blockchain/DLT protocols, data lineage standards, and cryptographic
 /// hashing techniques to ensure data integrity and transparency.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use sha2::{Sha256, Digest};
 
@@ -29,7 +30,8 @@ pub struct DataAsset {
 pub struct DataEvent {
     pub event_id: String,
     pub event_type: String, // e.g., "Creation", "Modification", "Access", "Deletion", "Transformation"
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub actor_id: String, // DID of user or AI agent
     pub asset_id: String,
     pub previous_hash: Option<String>,
@@ -97,7 +99,7 @@ impl TDPATEngine {
         DataEvent {
             event_id: format!("evt_{}", rng.gen::<u32>()),
             event_type: event_type.to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             actor_id: actor_id.to_string(),
             asset_id: asset.asset_id.clone(),
             previous_hash,
@@ -156,7 +158,7 @@ mod tests {
     #[test]
     fn test_tdpat_engine_flow() {
         let engine = TDPATEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let mut ai_model_asset = DataAsset {
             asset_id: "asset_ai_model_v1".to_string(),
@@ -192,7 +194,7 @@ fn main() {
     println!("\n--- Transparent Data Provenance and Audit Trails Demonstration ---");
 
     let tdpat_engine = TDPATEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Define a data asset and its initial state
     println!("--- Scenario 1: Define Data Asset ---");

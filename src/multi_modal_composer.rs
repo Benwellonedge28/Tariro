@@ -4,10 +4,11 @@
 /// This module will provide a single interface to orchestrate the generation of deeply integrated voice, video,
 /// images, music, and text outputs (SIMD: parallel media rendering).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Media Output Structures --- //
@@ -77,7 +78,7 @@ impl MediaComposer {
         println!("  [MMCC]: Generating text for prompt: '{}'.", prompt);
         thread::sleep(Duration::from_millis(50));
         TextOutput {
-            id: format!("txt_{}", Instant::now().elapsed().as_secs()),
+            id: format!("txt_{}", Utc::now().timestamp()),
             content: format!("This is a generated text responding to: '{}'.", prompt),
             length_words: (prompt.len() + 50) / 5, // Estimate
         }
@@ -89,7 +90,7 @@ impl MediaComposer {
         thread::sleep(Duration::from_millis(100));
         let mut rng = rand::thread_rng();
         VoiceOutput {
-            id: format!("vc_{}", Instant::now().elapsed().as_secs()),
+            id: format!("vc_{}", Utc::now().timestamp()),
             audio_waveform: vec![0.0; rng.gen_range(1000..5000)], // Simulate audio data
             emotional_tone: tone.to_string(),
             duration_seconds: text.len() as f32 * 0.1,
@@ -102,7 +103,7 @@ impl MediaComposer {
         thread::sleep(Duration::from_millis(250));
         let mut rng = rand::thread_rng();
         VideoOutput {
-            id: format!("vid_{}", Instant::now().elapsed().as_secs()),
+            id: format!("vid_{}", Utc::now().timestamp()),
             frame_data: vec![vec![0; 100]; rng.gen_range(100..500)], // Simulate frames
             resolution: (1920, 1080),
             duration_seconds: script.len() as f32 * 0.2,
@@ -116,7 +117,7 @@ impl MediaComposer {
         thread::sleep(Duration::from_millis(120));
         let mut rng = rand::thread_rng();
         MusicOutput {
-            id: format!("mus_{}", Instant::now().elapsed().as_secs()),
+            id: format!("mus_{}", Utc::now().timestamp()),
             midi_sequence: vec![0; rng.gen_range(500..2000)], // Simulate MIDI data
             genre: genre.to_string(),
             mood: mood.to_string(),
@@ -129,7 +130,7 @@ impl MediaComposer {
         thread::sleep(Duration::from_millis(180));
         let mut rng = rand::Rng::thread_rng();
         ImageOutput {
-            id: format!("img_{}", Instant::now().elapsed().as_secs()),
+            id: format!("img_{}", Utc::now().timestamp()),
             pixel_data: vec![0; (resolution.0 * resolution.1 * 3) as usize], // Simulate RGB pixel data
             resolution,
             photorealism_score: rng.gen_range(0.7..0.99),

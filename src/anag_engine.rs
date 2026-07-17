@@ -8,10 +8,11 @@
 /// It uses RAG for mathematical proofs and theoretical computer science, and SIMD for
 /// parallel search in design space and real-time proof checking.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -34,7 +35,8 @@ pub struct DesignProblem {
 pub struct GeneratedDesign {
     pub design_id: String,
     pub problem_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub design_type: String, // e.g., "Algorithm", "Data_Structure", "Architectural_Pattern"
     pub specification: String, // Formal or pseudocode specification
     pub proof_of_correctness_url: String,
@@ -48,7 +50,8 @@ pub struct GeneratedDesign {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProofCheckResult {
     pub check_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub design_id: String,
     pub aspect: String, // e.g., "Correctness", "Termination", "Liveness", "Security"
     pub result: String, // e.g., "Proven_Correct", "Counterexample_Found", "Proof_Pending"
@@ -100,7 +103,7 @@ impl ANAGEngine {
         GeneratedDesign {
             design_id: format!("design_{}", rng.gen::<u32>()),
             problem_id: problem.problem_id.clone(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             design_type: if rng.gen_bool(0.6) { "Algorithm".to_string() } else { "Architectural_Pattern".to_string() },
             specification: format!("Conceptual specification for novel solution to '{}'.", problem.name),
             proof_of_correctness_url: format!("https://tariro.ai/proofs/design_{}.pdf", rng.gen::<u32>()),
@@ -137,7 +140,7 @@ impl ANAGEngine {
         if rng.gen_bool(0.95) {
             proof_checks.push(ProofCheckResult {
                 check_id: format!("pc_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 design_id: generated_design.design_id.clone(),
                 aspect: "Correctness".to_string(),
                 result: "Proven_Correct".to_string(),
@@ -147,7 +150,7 @@ impl ANAGEngine {
         } else {
              proof_checks.push(ProofCheckResult {
                 check_id: format!("pc_fail_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 design_id: generated_design.design_id.clone(),
                 aspect: "Correctness".to_string(),
                 result: "Counterexample_Found".to_string(),
@@ -202,7 +205,7 @@ fn main() {
     println!("\n--- Autonomous Novel Algorithm & Architecture Generation (RAG-Driven) Demonstration ---");
 
     let anag_engine = ANAGEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Tariro identifies a critical performance bottleneck in its core inference engine
     println!("--- Scenario 1: Core Inference Engine Optimization ---");

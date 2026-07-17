@@ -8,10 +8,11 @@
 /// recognition, and reliability engineering principles to ensure maximum uptime
 /// and operational stability.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -24,7 +25,10 @@ pub struct ComponentSensorData {
     pub component_id: String,
     pub sensor_type: String, // e.g., "Temperature", "CPU_Load", "Memory_Usage", "Model_Drift"
     pub value: f64,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub unit: String, // e.g., "Celsius", "Percent", "RMSE"
 }
 
@@ -33,7 +37,8 @@ pub struct ComponentSensorData {
 pub struct AnomalyRecord {
     pub anomaly_id: String,
     pub component_id: String,
-    pub detected_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detected_at: DateTime<Utc>,
     pub anomaly_type: String, // e.g., "PerformanceDrop", "ResourceSpike", "UnusualBehavior"
     pub severity: String, // e.g., "Low", "Medium", "High", "Critical"
     pub description: String,
@@ -46,9 +51,10 @@ pub struct AnomalyRecord {
 pub struct PredictiveMaintenanceAction {
     pub action_id: String,
     pub component_id: String,
-    pub initiated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub initiated_at: DateTime<Utc>,
     pub action_type: String, // e.g., "SoftwareUpdate", "HardwareRestart", "ModelRetrain", "ResourceScaling"
-    pub target_date: Instant,
+    pub target_date: DateTime<Utc>,
     pub status: String, // e.g., "Scheduled", "Executing", "Completed", "Failed"
     pub justification: String,
 }
@@ -93,7 +99,7 @@ impl PADPMEngine {
             component_id: component_id.to_string(),
             sensor_type: "Temperature".to_string(), // Example
             value: val,
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             unit: "Celsius".to_string(),
         }).collect()
     }
@@ -113,7 +119,7 @@ impl PADPMEngine {
             anomalies.push(AnomalyRecord {
                 anomaly_id: format!("anom_{}", rng.gen::<u32>()),
                 component_id: component_id.to_string(),
-                detected_at: Instant::now(),
+                detected_at: Utc::now(),
                 anomaly_type: "Overheating".to_string(),
                 severity: "High".to_string(),
                 description: format!("Component '{}' temperature exceeding safe limits.", component_id),
@@ -134,12 +140,12 @@ impl PADPMEngine {
         let mut rng = rand::Rng::thread_rng();
 
         let action_type = anomaly.recommended_action.clone().unwrap_or("GenericMaintenance".to_string());
-        let target_date = Instant::now() + Duration::from_secs(rng.gen_range(3600..86400)); // 1 hour to 1 day from now
+        let target_date = Utc::now() + Duration::from_secs(rng.gen_range(3600..86400)); // 1 hour to 1 day from now
 
         PredictiveMaintenanceAction {
             action_id: format!("pm_act_{}", rng.gen::<u32>()),
             component_id: anomaly.component_id.clone(),
-            initiated_at: Instant::now(),
+            initiated_at: Utc::now(),
             action_type,
             target_date,
             status: "Scheduled".to_string(),
@@ -170,7 +176,7 @@ mod tests {
     #[test]
     fn test_padpm_engine_flow() {
         let engine = PADPMEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let component_id = "AGI_Processor_Unit_Alpha";
         let raw_data = vec![75.2, 78.5, 81.3, 85.0, 79.1]; // Some high temperatures
@@ -192,7 +198,7 @@ fn main() {
     println!("\n--- Proactive Anomaly Detection and Predictive Maintenance for AGI Components Demonstration ---");
 
     let padpm_engine = PADPMEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Ingest sensor data from various AGI components
     println!("--- Scenario 1: Ingest Sensor Data ---");

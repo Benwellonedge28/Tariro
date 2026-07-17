@@ -8,10 +8,11 @@
 /// quantum-safe networking standards, and SIMD for parallel processing of raw quantum data
 /// and real-time key generation/verification.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -27,7 +28,7 @@ pub struct SecureChannel {
     pub qkd_protocol: String, // e.g., "BB84", "E91", "DecoyState"
     pub shared_secret_key_size_bits: u32,
     pub quantum_entropy_source: String, // e.g., "VacuumFluctuations", "PhotonPolarization"
-    pub last_key_renewal: Instant,
+    pub last_key_renewal: DateTime<Utc>,
 }
 
 /// Represents a quantum-resistant digital signature.
@@ -47,7 +48,10 @@ pub struct QRDigitalSignature {
 pub struct SecureDataPacket {
     pub packet_id: String,
     pub channel_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub encrypted_payload_hash: String,
     pub integrity_check_status: String, // e.g., "Verified", "Failed"
     pub decryption_status: String, // e.g., "Success", "Failed_KeyMismatch"
@@ -132,7 +136,7 @@ impl QSCPEngine {
             qkd_protocol: "BB84".to_string(),
             shared_secret_key_size_bits: shared_key_size,
             quantum_entropy_source: "PhotonPolarization".to_string(),
-            last_key_renewal: Instant::now(),
+            last_key_renewal: Utc::now(),
         }
     }
 
@@ -151,7 +155,7 @@ impl QSCPEngine {
         SecureDataPacket {
             packet_id: format!("qdp_{}", rng.gen::<u32>()),
             channel_id: channel.channel_id.clone(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             encrypted_payload_hash,
             integrity_check_status: integrity_status,
             decryption_status: decryption_status,
@@ -200,7 +204,7 @@ fn main() {
     println!("\n--- Quantum-Safe Communication Protocols (RAG-Driven) Demonstration ---");
 
     let qscp_engine = QSCPEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Establish a secure channel and send sensitive data
     println!("--- Scenario 1: Secure Data Transmission ---");
@@ -229,7 +233,7 @@ fn main() {
         qkd_protocol: "E91".to_string(), // Conceptual E91
         shared_secret_key_size_bits: 512,
         quantum_entropy_source: "EntangledPhotons".to_string(),
-        last_key_renewal: Instant::now(),
+        last_key_renewal: Utc::now(),
     };
     println!("  Conceptual E91 Channel '{}' established. Protocol: '{}'.\n",
         secure_channel_2.channel_id,

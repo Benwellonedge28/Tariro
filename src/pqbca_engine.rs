@@ -4,10 +4,11 @@
 /// This RAG-driven feature designs and implements a blockchain consensus mechanism resilient to quantum computing attacks.
 /// It leverages RAG for PQC integration into distributed ledger technologies and Byzantine Fault Tolerance (BFT) research.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -19,7 +20,8 @@ pub struct Block {
     pub height: u64,
     pub previous_hash: Vec<u8>,
     pub transactions: Vec<String>,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub miner_id: String,
     pub post_quantum_signature: Vec<u8>, // Signed by a PQC algorithm
 }
@@ -163,7 +165,7 @@ mod tests {
             height: 7,
             previous_hash: vec![0; 32],
             transactions: vec!["tx1".to_string(), "tx2".to_string()],
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             miner_id: "node_1".to_string(),
             post_quantum_signature: vec![0; 64],
         };
@@ -225,7 +227,7 @@ fn main() {
         height: current_block_height + 1,
         previous_hash: (0..32).map(|_| rng.gen::<u8>()).collect(),
         transactions: vec!["tx_user_alice_bob_100".to_string(), "tx_user_charlie_diana_50".to_string()],
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         miner_id: network_nodes[0].node_id.clone(),
         post_quantum_signature: (0..64).map(|_| rng.gen::<u8>()).collect(), // Conceptual PQC signature
     };

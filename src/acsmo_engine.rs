@@ -8,10 +8,11 @@
 /// leverages RAG for self-modification guidelines and genetic programming algorithms,
 /// and SIMD for parallel code analysis and real-time code generation/compilation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -35,7 +36,8 @@ pub struct AIModule {
 pub struct OptimizationOpportunity {
     pub opportunity_id: String,
     pub module_id: String,
-    pub identified_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub identified_at: DateTime<Utc>,
     pub problem_description: String, // e.g., "High CPU usage in loop at line X"
     pub suggested_fix: String, // RAG-derived code snippet or architectural change
     pub expected_gain: HashMap<String, f32>, // e.g., "performance_boost_pct": 15.0
@@ -48,7 +50,8 @@ pub struct SelfModificationRecord {
     pub record_id: String,
     pub opportunity_id: String,
     pub module_id: String,
-    pub initiated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub initiated_at: DateTime<Utc>,
     pub applied_code_diff: String, // Conceptual: git-style diff
     pub new_source_code_hash: String,
     pub post_modification_performance: HashMap<String, f32>,
@@ -134,7 +137,7 @@ impl ACSMOEngine {
                 let opportunity = OptimizationOpportunity {
                     opportunity_id: opportunity_id.clone(),
                     module_id: module.module_id.clone(),
-                    identified_at: Instant::now(),
+                    identified_at: Utc::now(),
                     problem_description: problem_desc,
                     suggested_fix: suggested_fix.clone(),
                     expected_gain,
@@ -153,7 +156,7 @@ impl ACSMOEngine {
                     record_id: format!("smr_{}", rng.gen::<u32>()),
                     opportunity_id: opportunity.opportunity_id,
                     module_id: module.module_id,
-                    initiated_at: Instant::now(),
+                    initiated_at: Utc::now(),
                     applied_code_diff: applied_diff,
                     new_source_code_hash: new_hash,
                     post_modification_performance: new_performance,
@@ -214,7 +217,7 @@ fn main() {
     println!("\n--- Autonomous Code Self-Modification & Optimization (RAG-Driven) Demonstration ---");
 
     let acsmo_engine = ACSMOEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: AI analyzes its own data processing module and optimizes it
     println!("--- Scenario 1: Data Processing Module Optimization ---");

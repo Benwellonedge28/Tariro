@@ -3,7 +3,8 @@
 /// This module provides a conceptual framework for benchmarking the performance
 /// and effectiveness of RAG and SIMD components within a Rust application.
 
-use std::time::{Instant, Duration};
+use crate::prelude::*;
+use std::time::Duration;
 use std::collections::HashMap;
 
 /// Represents a single benchmark result.
@@ -47,7 +48,7 @@ impl BenchmarkRunner {
     where
         F: Fn() -> (Vec<String>, f64), // Returns (retrieved_items, accuracy_score)
     {
-        let start = Instant::now();
+        let start = Utc::now();
         let mut total_accuracy = 0.0;
 
         for _ in 0..self.config.num_iterations {
@@ -76,7 +77,7 @@ impl BenchmarkRunner {
     where
         F: Fn() -> usize, // Returns processed_elements_count
     {
-        let start = Instant::now();
+        let start = Utc::now();
         let mut total_elements_processed = 0;
 
         for _ in 0..self.config.num_iterations {

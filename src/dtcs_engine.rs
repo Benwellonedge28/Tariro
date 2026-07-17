@@ -10,10 +10,11 @@
 /// control, distributed transactions, consistency models (CAP theorem), Byzantine fault tolerance, message queuing,
 /// atomic broadcast, distributed shared memory).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -25,7 +26,7 @@ pub struct AgentState {
     pub current_task: String,
     pub resource_utilization: HashMap<String, f32>, // resource_type -> percentage
     pub status: String, // e.g., "active", "idle", "waiting_for_sync"
-    pub last_heartbeat: Instant,
+    pub last_heartbeat: DateTime<Utc>,
     pub state_hash: String, // Hash of agent's local critical state
 }
 
@@ -37,7 +38,10 @@ pub struct CoordinationMessage {
     pub receiver_id: String,
     pub message_type: String, // e.g., "request_resource", "offer_task", "state_update"
     pub payload: HashMap<String, String>,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Represents an event that requires system-wide synchronization.
@@ -46,7 +50,8 @@ pub struct SynchronizationEvent {
     pub event_id: String,
     pub event_type: String, // e.g., "global_state_snapshot", "consensus_round_start", "barrier_reached"
     pub participating_agents: Vec<String>,
-    pub initiated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub initiated_at: DateTime<Utc>,
     pub status: String, // e.g., "pending", "in_progress", "completed"
 }
 
@@ -97,7 +102,7 @@ impl DTCS_Engine {
             current_task: "processing_data".to_string(),
             resource_utilization: HashMap::from([("cpu".to_string(), rng.gen_range(0.2..0.8))]),
             status: "active".to_string(),
-            last_heartbeat: Instant::now(),
+            last_heartbeat: Utc::now(),
             state_hash: format!("hash_{}", rng.gen::<u32>()),
         }).collect()
     }
@@ -117,7 +122,7 @@ impl DTCS_Engine {
             receiver_id: receiver_id.to_string(),
             message_type: "state_update".to_string(),
             payload: HashMap::from([("status".to_string(), message_content.to_string())]),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
         }
     }
 
@@ -134,7 +139,7 @@ impl DTCS_Engine {
             event_id: format!("sync_{}", rng.gen::<u32>()),
             event_type: event_type.to_string(),
             participating_agents: participating_agents.to_vec(),
-            initiated_at: Instant::now(),
+            initiated_at: Utc::now(),
             status: "completed".to_string(), // Simulate successful consensus
         }
     }

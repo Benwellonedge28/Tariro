@@ -7,10 +7,11 @@
 /// data and cognitive models, and SIMD for parallel neural network simulation and
 /// brain-scale emulation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -57,7 +58,8 @@ pub struct SimulationResult {
     pub observed_behaviors: Vec<String>,
     pub performance_metrics: HashMap<String, f32>, // e.g., "inference_accuracy": 0.98, "energy_consumption_joules": 10.5
     pub simulated_duration_s: f32,
-    pub generated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub generated_at: DateTime<Utc>,
 }
 
 /// Overall High-Fidelity Neural Simulation & Emulation system report.
@@ -140,7 +142,7 @@ impl HFNSEEngine {
         thread::sleep(Duration::from_millis(500));
         let mut rng = rand::Rng::thread_rng();
 
-        let start_time = Instant::now();
+        let start_time = Utc::now();
         let activation_history = self.parallel_neural_simulation_simd(arch, timesteps);
         let simulated_duration = start_time.elapsed().as_secs_f32();
 
@@ -160,7 +162,7 @@ impl HFNSEEngine {
             observed_behaviors,
             performance_metrics,
             simulated_duration_s: simulated_duration,
-            generated_at: Instant::now(),
+            generated_at: Utc::now(),
         }
     }
 
@@ -186,7 +188,7 @@ mod tests {
     #[test]
     fn test_hfnse_engine_flow() {
         let engine = HFNSEEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let mut neurons = HashMap::new();
         neurons.insert("n1".to_string(), Neuron { neuron_id: "n1".to_string(), neuron_type: "Input".to_string(), activation: 0.0, thresholds: HashMap::new(), incoming_synapses: Vec::new(), outgoing_synapses: vec!["s12".to_string()] });
@@ -222,7 +224,7 @@ fn main() {
     println!("\n--- High-Fidelity Neural Simulation & Emulation (SIMD-Driven) Demonstration ---");
 
     let hfnse_engine = HFNSEEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Simulate a small cognitive module (e.g., for decision making)
     println!("--- Scenario 1: Simulate Cognitive Decision Module ---");

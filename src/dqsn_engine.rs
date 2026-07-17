@@ -7,10 +7,11 @@
 /// (SIMD: parallel processing of massive sensor data streams, real-time anomaly detection; RAG: quantum sensing
 /// techniques, distributed systems for sensor networks, data fusion, low-power sensor design, edge analytics).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -22,7 +23,8 @@ pub struct SensorReading {
     pub sensor_type: String, // e.g., "temperature", "humidity", "power_consumption", "cpu_load"
     pub value: f64,
     pub unit: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub node_id: String,
 }
 
@@ -34,7 +36,8 @@ pub struct QuantumStateMeasurement {
     pub state_vector: Vec<f64>, // Complex amplitude probabilities
     pub entanglement_score: f32,
     pub decoherence_time_ns: u64,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub node_id: String,
 }
 
@@ -170,7 +173,7 @@ mod tests {
         let engine = DQSN_Engine::new();
 
         let readings = vec![
-            SensorReading { sensor_id: "s_temp_01".to_string(), sensor_type: "temperature".to_string(), value: 65.0, unit: "C".to_string(), timestamp: Instant::now(), node_id: "node_dc_01".to_string() },
+            SensorReading { sensor_id: "s_temp_01".to_string(), sensor_type: "temperature".to_string(), value: 65.0, unit: "C".to_string(), timestamp: Utc::now(), node_id: "node_dc_01".to_string() },
         ];
         let aggregated = engine.collect_sensor_data_simd(&readings);
         assert!(!aggregated.is_empty());
@@ -182,7 +185,7 @@ mod tests {
                 state_vector: vec![0.707, 0.707],
                 entanglement_score: 0.9,
                 decoherence_time_ns: 5000,
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 node_id: "node_ql_01".to_string(),
             },
         ];
@@ -213,9 +216,9 @@ fn main() {
     // Scenario 1: Collecting massive streams of sensor data from various nodes
     println!("--- Scenario 1: Sensor Data Collection ---");
     let raw_classical_readings = vec![
-        SensorReading { sensor_id: "temp_r1c1".to_string(), sensor_type: "temperature".to_string(), value: 72.3, unit: "C".to_string(), timestamp: Instant::now(), node_id: "dc_node_001".to_string() },
-        SensorReading { sensor_id: "power_r1c1".to_string(), sensor_type: "power_consumption".to_string(), value: 1200.0, unit: "W".to_string(), timestamp: Instant::now(), node_id: "dc_node_001".to_string() },
-        SensorReading { sensor_id: "cpu_load_e1".to_string(), sensor_type: "cpu_load".to_string(), value: 0.85, unit: "%".to_string(), timestamp: Instant::now(), node_id: "edge_node_003".to_string() },
+        SensorReading { sensor_id: "temp_r1c1".to_string(), sensor_type: "temperature".to_string(), value: 72.3, unit: "C".to_string(), timestamp: Utc::now(), node_id: "dc_node_001".to_string() },
+        SensorReading { sensor_id: "power_r1c1".to_string(), sensor_type: "power_consumption".to_string(), value: 1200.0, unit: "W".to_string(), timestamp: Utc::now(), node_id: "dc_node_001".to_string() },
+        SensorReading { sensor_id: "cpu_load_e1".to_string(), sensor_type: "cpu_load".to_string(), value: 0.85, unit: "%".to_string(), timestamp: Utc::now(), node_id: "edge_node_003".to_string() },
     ];
     let aggregated_classical_data = dqsn_engine.collect_sensor_data_simd(&raw_classical_readings);
     println!("  Aggregated Classical Data: {:?}\n", aggregated_classical_data);
@@ -229,7 +232,7 @@ fn main() {
             state_vector: vec![0.707, 0.707], // Superposition
             entanglement_score: 0.95,
             decoherence_time_ns: 7000,
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             node_id: "ql_node_002".to_string(),
         },
         QuantumStateMeasurement {
@@ -238,7 +241,7 @@ fn main() {
             state_vector: vec![1.0, 0.0], // Pauli-Z state
             entanglement_score: 0.1,
             decoherence_time_ns: 10000,
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             node_id: "ql_node_002".to_string(),
         },
     ];

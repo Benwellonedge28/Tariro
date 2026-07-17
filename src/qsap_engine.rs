@@ -6,10 +6,11 @@
 /// (SIMD: parallel processing of authentication challenges; RAG: quantum-safe authentication standards,
 /// identity management in quantum era).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -19,7 +20,8 @@ use rand::Rng;
 pub struct AuthenticationRequest {
     pub user_id: String,
     pub challenge: Vec<u8>,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Represents an authentication response from a user/system.
@@ -123,7 +125,7 @@ mod tests {
     fn test_qsap_engine_flow() {
         let engine = QSAP_Engine::new();
 
-        let challenge_request = AuthenticationRequest { user_id: "alice_q".to_string(), challenge: vec![1, 2, 3, 4], timestamp: Instant::now() };
+        let challenge_request = AuthenticationRequest { user_id: "alice_q".to_string(), challenge: vec![1, 2, 3, 4], timestamp: Utc::now() };
         let challenge_response_data = engine.process_authentication_challenge_simd(&challenge_request);
         assert!(!challenge_response_data.is_empty());
 
@@ -151,7 +153,7 @@ fn main() {
     let challenge_req_alice = AuthenticationRequest {
         user_id: user_alice.to_string(),
         challenge: vec![0x1a, 0x2b, 0x3c, 0x4d, 0x5e, 0x6f, 0x70, 0x81],
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
     };
     let alice_challenge_response_data = qsap_engine.process_authentication_challenge_simd(&challenge_req_alice);
 

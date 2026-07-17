@@ -8,10 +8,11 @@
 /// for natural language processing and market analysis techniques, and SIMD for parallel
 /// data ingestion and real-time sentiment analysis.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -21,7 +22,8 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RawGlobalDatum {
     pub data_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub source: String, // e.g., "Reuters", "arXiv", "Twitter", "FinancialTimes"
     pub raw_content: String,
     pub data_type: String, // e.g., "NewsArticle", "ResearchPaper", "SocialMediaPost", "MarketReport"
@@ -32,7 +34,8 @@ pub struct RawGlobalDatum {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IntelligenceItem {
     pub item_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub original_data_ids: Vec<String>,
     pub title: String,
     pub summary: String, // RAG-derived condensed summary
@@ -49,7 +52,8 @@ pub struct GlobalTrend {
     pub trend_id: String,
     pub name: String,
     pub description: String,
-    pub detected_start_date: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detected_start_date: DateTime<Utc>,
     pub current_momentum: f32, // Rate of change
     pub associated_intelligence_items: Vec<String>, // List of item_ids
     pub long_term_impact_projection: String, // RAG-derived projection
@@ -128,7 +132,7 @@ impl AGITAEngine {
 
             intelligence_items.push(IntelligenceItem {
                 item_id: format!("intel_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 original_data_ids: vec![datum.data_id],
                 title: format!("Intel: {} from {}", datum.data_type, datum.source),
                 summary,
@@ -167,10 +171,10 @@ mod tests {
 
         let raw_data = vec![
             RawGlobalDatum {
-                data_id: "data_001".to_string(), timestamp: Instant::now(), source: "NYT".to_string(), raw_content: "Article about AI's impact on job markets.".to_string(), data_type: "NewsArticle".to_string(), geopolitical_context: None,
+                data_id: "data_001".to_string(), timestamp: Utc::now(), source: "NYT".to_string(), raw_content: "Article about AI's impact on job markets.".to_string(), data_type: "NewsArticle".to_string(), geopolitical_context: None,
             },
             RawGlobalDatum {
-                data_id: "data_002".to_string(), timestamp: Instant::now(), source: "Twitter".to_string(), raw_content: "Public sentiment on new energy policies.".to_string(), data_type: "SocialMediaPost".to_string(), geopolitical_context: None,
+                data_id: "data_002".to_string(), timestamp: Utc::now(), source: "Twitter".to_string(), raw_content: "Public sentiment on new energy policies.".to_string(), data_type: "SocialMediaPost".to_string(), geopolitical_context: None,
             },
         ];
 
@@ -188,14 +192,14 @@ fn main() {
     println!("\n--- Autonomous Global Intelligence & Trend Analysis (RAG-Driven) Demonstration ---");
 
     let agita_engine = AGITAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Ingesting a batch of diverse global data sources
     println!("--- Scenario 1: Ingesting Diverse Global Data ---");
     let incoming_data_batch = vec![
         RawGlobalDatum {
             data_id: "news_001".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             source: "Reuters".to_string(),
             raw_content: "New breakthrough in quantum computing achieved by European researchers, promising exponential speedup for AI algorithms.".to_string(),
             data_type: "NewsArticle".to_string(),
@@ -203,7 +207,7 @@ fn main() {
         },
         RawGlobalDatum {
             data_id: "paper_002".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             source: "arXiv".to_string(),
             raw_content: "Paper exploring the ethical implications of sentient AGI in governance.".to_string(),
             data_type: "ResearchPaper".to_string(),
@@ -211,7 +215,7 @@ fn main() {
         },
         RawGlobalDatum {
             data_id: "tweet_003".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             source: "Twitter".to_string(),
             raw_content: "Public debate heats up over the responsible deployment of autonomous AI systems. #AIethics #AGI.".to_string(),
             data_type: "SocialMediaPost".to_string(),
@@ -232,7 +236,7 @@ fn main() {
     let market_data_batch = vec![
         RawGlobalDatum {
             data_id: "market_004".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             source: "FinancialTimes".to_string(),
             raw_content: "Report: Global demand for sustainable energy solutions surges, impacting technology investments.".to_string(),
             data_type: "MarketReport".to_string(),
@@ -240,7 +244,7 @@ fn main() {
         },
         RawGlobalDatum {
             data_id: "tech_news_005".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             source: "TechCrunch".to_string(),
             raw_content: "Leading VCs pour billions into next-gen battery technologies and fusion energy startups.".to_string(),
             data_type: "NewsArticle".to_string(),

@@ -9,10 +9,11 @@
 /// concurrent counter-measure deployment; RAG: cyber threat intelligence, intrusion detection/prevention,
 /// secure computing, incident response, honeypots, quantum-safe security primitives).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -25,7 +26,10 @@ pub struct ThreatEvent {
     pub source_ip: String,
     pub target_component: String,
     pub severity: String, // e.g., "low", "medium", "high", "critical"
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub raw_logs_hash: String,
 }
 
@@ -37,7 +41,8 @@ pub struct CounterMeasure {
     pub measure_type: String, // e.g., "block_ip", "quarantine_process", "rotate_keys", "deploy_decoy"
     pub target: String,
     pub status: String, // e.g., "proposed", "executed", "failed"
-    pub execution_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub execution_timestamp: DateTime<Utc>,
     pub expected_impact: String,
 }
 
@@ -108,7 +113,7 @@ impl DTRR_Engine {
                 source_ip: format!("192.168.1.{}", rng.gen_range(1..254)),
                 target_component: "quantum_data_processor_A".to_string(),
                 severity: "critical".to_string(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 raw_logs_hash: format!("loghash_{:x}", rng.gen::<u64>()),
             });
         }
@@ -150,7 +155,7 @@ impl DTRR_Engine {
                 measure_type: "network_isolation".to_string(),
                 target: event.target_component.clone(),
                 status: "executed".to_string(),
-                execution_timestamp: Instant::now(),
+                execution_timestamp: Utc::now(),
                 expected_impact: "Containment of malicious traffic.".to_string(),
             });
             if rng.gen_bool(0.7) { // Also rotate quantum keys
@@ -160,7 +165,7 @@ impl DTRR_Engine {
                     measure_type: "quantum_key_rotation".to_string(),
                     target: "all_quantum_systems".to_string(),
                     status: "executed".to_string(),
-                    execution_timestamp: Instant::now(),
+                    execution_timestamp: Utc::now(),
                     expected_impact: "Invalidate compromised quantum keys.".to_string(),
                 });
             }
@@ -171,7 +176,7 @@ impl DTRR_Engine {
                 measure_type: "process_termination".to_string(),
                 target: "malicious_process_XYZ".to_string(),
                 status: "executed".to_string(),
-                execution_timestamp: Instant::now(),
+                execution_timestamp: Utc::now(),
                 expected_impact: "Stop malicious execution.".to_string(),
             });
         }

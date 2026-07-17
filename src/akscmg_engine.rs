@@ -8,10 +8,11 @@
 /// construction and conceptual blending theory, and SIMD for parallel pattern recognition
 /// and real-time semantic inference.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -21,7 +22,8 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RawKnowledgeFragment {
     pub fragment_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub source_id: String,
     pub content: String,
     pub metadata: HashMap<String, String>, // e.g., "author", "publication_date", "confidence"
@@ -32,7 +34,8 @@ pub struct RawKnowledgeFragment {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SynthesizedKnowledgeItem {
     pub item_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub generated_from_fragments: Vec<String>, // IDs of RawKnowledgeFragments
     pub title: String,
     pub content: String, // The new insight or synthesized knowledge
@@ -123,7 +126,7 @@ impl AKSCMG_Engine {
 
             let item = SynthesizedKnowledgeItem {
                 item_id: format!("s_item_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 generated_from_fragments: vec![fragment.fragment_id.clone()],
                 title: format!("New Insight: {}", fragment.topics.join(", ")),
                 content: new_insight_content.clone(),
@@ -175,13 +178,13 @@ mod tests {
 
         let fragments = vec![
             RawKnowledgeFragment {
-                fragment_id: "frag_001".to_string(), timestamp: Instant::now(), source_id: "source_a".to_string(), content: "Quantum entanglement can be used for secure communication.".to_string(), metadata: HashMap::new(), topics: vec!["Quantum Physics".to_string(), "Cybersecurity".to_string()],
+                fragment_id: "frag_001".to_string(), timestamp: Utc::now(), source_id: "source_a".to_string(), content: "Quantum entanglement can be used for secure communication.".to_string(), metadata: HashMap::new(), topics: vec!["Quantum Physics".to_string(), "Cybersecurity".to_string()],
             },
             RawKnowledgeFragment {
-                fragment_id: "frag_002".to_string(), timestamp: Instant::now(), source_id: "source_b".to_string(), content: "Neural networks excel at pattern recognition in large datasets.".to_string(), metadata: HashMap::new(), topics: vec!["Artificial Intelligence".to_string(), "Machine Learning".to_string()],
+                fragment_id: "frag_002".to_string(), timestamp: Utc::now(), source_id: "source_b".to_string(), content: "Neural networks excel at pattern recognition in large datasets.".to_string(), metadata: HashMap::new(), topics: vec!["Artificial Intelligence".to_string(), "Machine Learning".to_string()],
             },
             RawKnowledgeFragment {
-                fragment_id: "frag_003".to_string(), timestamp: Instant::now(), source_id: "source_c".to_string(), content: "The human brain forms new concepts by blending existing ones.".to_string(), metadata: HashMap::new(), topics: vec!["Cognitive Science".to_string(), "Neuroscience".to_string()],
+                fragment_id: "frag_003".to_string(), timestamp: Utc::now(), source_id: "source_c".to_string(), content: "The human brain forms new concepts by blending existing ones.".to_string(), metadata: HashMap::new(), topics: vec!["Cognitive Science".to_string(), "Neuroscience".to_string()],
             },
         ];
 
@@ -198,14 +201,14 @@ fn main() {
     println!("\n--- Autonomous Knowledge Synthesis & Conceptual Model Generation (RAG-Driven) Demonstration ---");
 
     let akscmg_engine = AKSCMG_Engine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Tariro processes a batch of diverse knowledge fragments
     println!("--- Scenario 1: Processing Diverse Knowledge Fragments ---");
     let incoming_fragments = vec![
         RawKnowledgeFragment {
             fragment_id: "frag_qa_001".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             source_id: "quantum_journal_2026".to_string(),
             content: "Recent advances show quantum annealing can solve NP-hard problems significantly faster than classical computers.".to_string(),
             metadata: HashMap::from([("journal".to_string(), "Nature Physics".to_string())]),
@@ -213,7 +216,7 @@ fn main() {
         },
         RawKnowledgeFragment {
             fragment_id: "frag_nn_002".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             source_id: "agi_summit_2026".to_string(),
             content: "Neuromorphic architectures demonstrate energy efficiency comparable to the human brain for certain AI workloads.".to_string(),
             metadata: HashMap::from([("conference".to_string(), "AGI Research Symposium".to_string())]),
@@ -221,7 +224,7 @@ fn main() {
         },
         RawKnowledgeFragment {
             fragment_id: "frag_phil_003".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             source_id: "ethics_paper_2025".to_string(),
             content: "Philosophers debate the legal personhood of advanced AI, raising questions about rights and responsibilities.".to_string(),
             metadata: HashMap::from([("author".to_string(), "Dr. A. Turing-X".to_string())]),
@@ -243,14 +246,14 @@ fn main() {
     let blendable_fragments = vec![
         RawKnowledgeFragment {
             fragment_id: "frag_mod_004".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             source_id: "modular_ai_design".to_string(),
             content: "Modular AI architectures allow for flexible integration of specialized sub-agents.".to_string(),
             metadata: HashMap::new(), topics: vec!["Modular AI".to_string(), "Software Architecture".to_string()],
         },
         RawKnowledgeFragment {
             fragment_id: "frag_swarm_005".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             source_id: "swarm_intelligence_research".to_string(),
             content: "Swarm intelligence demonstrates robust, decentralized problem-solving in complex environments.".to_string(),
             metadata: HashMap::new(), topics: vec!["Swarm Intelligence".to_string(), "Distributed Systems".to_string()],

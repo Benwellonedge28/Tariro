@@ -7,10 +7,11 @@
 /// frameworks, distributed coordination algorithms, and semantic interoperability standards
 /// to enable complex, collaborative AGI behaviors.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -24,7 +25,10 @@ pub struct AgiMessage {
     pub recipient_agi_id: String,
     pub message_type: String, // e.g., "TaskAssignment", "DataRequest", "StatusUpdate", "ConsensusVote"
     pub payload: HashMap<String, String>, // Arbitrary key-value payload
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub signature: String, // Cryptographic signature for authenticity
 }
 
@@ -47,7 +51,7 @@ pub struct AgiInstance {
     pub ip_address: String,
     pub capabilities: Vec<String>,
     pub status: String, // e.g., "Online", "Busy", "Offline"
-    pub last_seen: Instant,
+    pub last_seen: DateTime<Utc>,
 }
 
 /// Overall Inter-AGI Communication and Orchestration Protocols system report.
@@ -103,7 +107,7 @@ impl IACORPEngine {
                 recipient_agi_id: agi_id.clone(),
                 message_type: "TaskAssignment".to_string(),
                 payload: HashMap::from([("task_id".to_string(), task.task_id.clone()), ("subtask".to_string(), format!("process_part_{}", agi_id))]),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 signature: "mock_signature".to_string(),
             };
             self.send_agi_message(&assignment_message);
@@ -158,7 +162,7 @@ mod tests {
     #[test]
     fn test_iacorp_engine_flow() {
         let engine = IACORPEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let agi_a = AgiInstance {
             agi_id: "AGI_Alpha".to_string(),
@@ -227,7 +231,7 @@ fn main() {
     println!("\n--- Inter-AGI Communication and Orchestration Protocols Demonstration ---");
 
     let iacorp_engine = IACORPEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Define multiple AGI instances in a distributed network
     println!("--- Scenario 1: Define AGI Instances ---");

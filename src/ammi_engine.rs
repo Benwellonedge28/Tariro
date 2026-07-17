@@ -7,10 +7,11 @@
 /// fusion algorithms, user modeling, and contextual awareness to provide a highly flexible
 /// and natural communication channel between human and AGI.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -50,7 +51,8 @@ pub struct InteractionContext {
     pub user_attention_level: f32, // 0.0-1.0
     pub task_complexity: f32, // 0.0-1.0
     pub available_modalities: Vec<InteractionModality>,
-    pub current_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub current_time: DateTime<Utc>,
     pub user_location: String, // e.g., "NoisyOffice", "QuietHome", "MovingVehicle"
 }
 
@@ -169,7 +171,7 @@ mod tests {
     #[test]
     fn test_ammi_engine_flow() {
         let engine = AMMIEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let context = InteractionContext {
             user_id: "user_dr_jane".to_string(),
@@ -197,7 +199,7 @@ fn main() {
     println!("\n--- Adaptive Multi-Modal Interaction for AGI Demonstration ---");
 
     let ammi_engine = AMMIEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Define initial interaction context for a human operator
     println!("--- Scenario 1: Define Interaction Context ---");

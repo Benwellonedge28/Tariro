@@ -7,10 +7,11 @@
 /// This multi-layered approach creates a dynamic and adaptive trust score for each agent and user
 /// (leveraging RAG for biometric security standards and SIMD for high-speed pattern matching and anomaly detection).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Types of biometric modalities.
@@ -78,10 +79,10 @@ impl AuthManager {
         let mut rng = rand::thread_rng();
         thread::sleep(Duration::from_millis(150));
         let sample = BiometricSample {
-            sample_id: format!("sample_{}_{}", user_id, Instant::now().elapsed().as_secs()),
+            sample_id: format!("sample_{}_{}", user_id, Utc::now().timestamp()),
             biometric_type: biometric_type.clone(),
             data: raw_data.to_vec().iter().map(|&x| x + rng.gen_range(-0.01..0.01)).collect(), // Slight variation
-            timestamp: Instant::now().elapsed().as_secs(),
+            timestamp: Utc::now().timestamp(),
         };
         self.enrolled_biometrics.entry(user_id.to_string()).or_default().insert(biometric_type, sample);
     }
@@ -110,7 +111,7 @@ impl AuthManager {
             last_updated: 0,
         });
         profile.patterns.insert(activity.to_string(), data_points.to_vec());
-        profile.last_updated = Instant::now().elapsed().as_secs();
+        profile.last_updated = Utc::now().timestamp();
     }
 
     /// Analyzes behavioral patterns to detect anomalies (conceptual SIMD for anomaly detection).
@@ -141,7 +142,7 @@ impl AuthManager {
 
         let new_score = trust.factors.values().sum::<f32>() + 0.5; // Base score
         trust.score = (new_score).max(0.0).min(1.0); // Clamp between 0 and 1
-        trust.last_evaluated = Instant::now().elapsed().as_secs();
+        trust.last_evaluated = Utc::now().timestamp();
 
         println!("  New trust score for '{}': {:.2}.\n", user_id, trust.score);
     }

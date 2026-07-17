@@ -4,10 +4,11 @@
 /// It will continuously refine Tariro's own learning parameters and models for maximum efficiency and accuracy
 /// (leveraging SIMD for hyperparameter optimization and parallel model training).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Represents common parameters of a learning model.
@@ -118,7 +119,7 @@ impl MetaLearner {
         let mut rng = rand::thread_rng();
 
         for params in candidate_params {
-            let start_time = Instant::now();
+            let start_time = Utc::now();
             let mut simulated_model = self.managed_models.get(model_id).unwrap().clone();
             simulated_model.parameters = params.clone();
             simulated_model.train(); // Simulate training with new params

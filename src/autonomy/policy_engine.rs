@@ -1,4 +1,5 @@
 // src/autonomy/policy_engine.rs
+use crate::prelude::*;
 
 //! Implements the core Autonomy Policy Engine for Tariro AGI, responsible for evaluating
 //! and enforcing rules that govern Tariro's operational independence and decision-making.

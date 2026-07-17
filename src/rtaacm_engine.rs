@@ -8,10 +8,11 @@
 /// RAG for regulatory knowledge bases, explainable AI techniques for decision tracing,
 /// and formal logic for policy checking.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -22,7 +23,8 @@ use serde::{Serialize, Deserialize};
 pub struct AgiAuditEvent {
     pub event_id: String,
     pub agi_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub event_type: String, // e.g., "Decision", "Action", "InternalStateChange", "Communication"
     pub details: HashMap<String, String>, // Contextual details about the event
     pub decision_path: Option<Vec<String>>, // Trace of internal steps leading to a decision
@@ -44,7 +46,8 @@ pub struct ComplianceViolation {
     pub violation_id: String,
     pub event_id: String,
     pub standard_id: String,
-    pub detected_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detected_at: DateTime<Utc>,
     pub description: String,
     pub recommended_action: Option<String>,
     pub severity: String,
@@ -104,7 +107,7 @@ impl RTAACMEngine {
                     violation_id: format!("viol_{}", rng.gen::<u32>()),
                     event_id: event.event_id.clone(),
                     standard_id: standard.standard_id.clone(),
-                    detected_at: Instant::now(),
+                    detected_at: Utc::now(),
                     description: format!("Potential bias detected in decision '{}'.", event.event_id),
                     recommended_action: Some("Review decision context and re-evaluate AGI model.".to_string()),
                     severity: standard.severity_on_violation.clone(),
@@ -116,7 +119,7 @@ impl RTAACMEngine {
                     violation_id: format!("viol_{}", rng.gen::<u32>()),
                     event_id: event.event_id.clone(),
                     standard_id: standard.standard_id.clone(),
-                    detected_at: Instant::now(),
+                    detected_at: Utc::now(),
                     description: format!("AGI '{}' accessed sensitive data without explicit justification.", event.agi_id),
                     recommended_action: Some("Initiate data access audit.".to_string()),
                     severity: standard.severity_on_violation.clone(),
@@ -169,7 +172,7 @@ mod tests {
     #[test]
     fn test_rtaacm_engine_flow() {
         let engine = RTAACMEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let internal_ethics_standard = ComplianceStandard {
             standard_id: "std_ethics_01".to_string(),
@@ -215,7 +218,7 @@ fn main() {
     println!("\n--- Real-time AI Auditor and Compliance Monitor Demonstration ---");
 
     let rtaacm_engine = RTAACMEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Define compliance standards for AGI operations
     println!("--- Scenario 1: Define Compliance Standards ---");

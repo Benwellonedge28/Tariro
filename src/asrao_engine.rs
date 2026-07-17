@@ -9,10 +9,11 @@
 /// scheduling algorithms, and SIMD for parallel resource allocation simulations and
 /// real-time demand forecasting.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -36,12 +37,13 @@ pub struct Resource {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AllocationRequest {
     pub request_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub requesting_module: String, // e.g., "AGI_Core", "Samuel_Project_A", "Energy_Manager"
     pub resource_type: String,
     pub required_quantity: f32,
     pub priority: String, // e.g., "Critical", "High", "Normal"
-    pub deadline: Option<Instant>,
+    pub deadline: Option<DateTime<Utc>>,
     pub current_allocation: Option<f32>,
 }
 
@@ -49,7 +51,8 @@ pub struct AllocationRequest {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AllocationPlan {
     pub plan_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub allocated_resources: HashMap<String, f32>, // Resource ID -> Allocated Quantity
     pub total_cost: f32,
     pub overall_efficiency_score: f32, // 0.0 to 1.0
@@ -102,7 +105,7 @@ impl ASRAOEngine {
         if requests.iter().any(|r| r.priority == "Critical") && rng.gen_bool(0.7) {
             plans.push(AllocationPlan {
                 plan_id: format!("plan_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 allocated_resources: HashMap::from([("compute_cluster_alpha".to_string(), requests.get(0).map_or(0.0, |r| r.required_quantity))]),
                 total_cost: rng.gen_range(100.0..1000.0),
                 overall_efficiency_score: rng.gen_range(0.8..0.99),
@@ -177,7 +180,7 @@ mod tests {
         ];
         let requests = vec![
             AllocationRequest {
-                request_id: "req_agi_training".to_string(), timestamp: Instant::now(), requesting_module: "AGI_Core".to_string(), resource_type: "Compute".to_string(), required_quantity: 500.0, priority: "Critical".to_string(), deadline: None, current_allocation: None,
+                request_id: "req_agi_training".to_string(), timestamp: Utc::now(), requesting_module: "AGI_Core".to_string(), resource_type: "Compute".to_string(), required_quantity: 500.0, priority: "Critical".to_string(), deadline: None, current_allocation: None,
             },
         ];
         let priorities = vec!["AGI_Development".to_string()];
@@ -195,7 +198,7 @@ fn main() {
     println!("\n--- Autonomous Strategic Resource Allocation & Optimization (RAG-Driven) Demonstration ---");
 
     let asrao_engine = ASRAOEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: AGI Core module requests critical compute resources for a time-sensitive task
     println!("--- Scenario 1: Critical Compute Allocation ---");

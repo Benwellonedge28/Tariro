@@ -5,10 +5,11 @@
 /// or optimization opportunities (leveraging RAG for API documentation and code examples, and SIMD for code
 /// compilation & testing).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Describes a recurring task or optimization opportunity that can be automated.
@@ -147,7 +148,7 @@ fn main() {
     println!("\n--- Autonomous Self-Programming Task Automation Demonstration ---");
 
     let mut automation_engine = TaskAutomationEngine::new();
-    let start_time = Instant::now();
+    let start_time = Utc::now();
 
     // Simulation loop for identifying needs and automating them
     for cycle in 0..3 {

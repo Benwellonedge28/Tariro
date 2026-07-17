@@ -7,10 +7,11 @@
 /// RAG for user interface design principles, real-time data streaming, and advanced data
 /// visualization techniques to enhance human understanding and control over AGI operations.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -21,7 +22,8 @@ use serde::{Serialize, Deserialize};
 pub struct WorkflowSnapshot {
     pub snapshot_id: String,
     pub workflow_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub node_states: HashMap<String, String>, // step_id -> status (e.g., "Running", "Completed")
     pub edge_states: HashMap<String, String>, // (source_step_id-target_step_id) -> data_flow_status
     pub metrics: HashMap<String, f32>, // e.g., "OverallProgress", "BottleneckSeverity"
@@ -36,7 +38,8 @@ pub struct DebugCommand {
     pub target_step_id: String,
     pub command_type: String, // e.g., "Pause", "Resume", "InjectData", "Rollback", "QueryState"
     pub payload: HashMap<String, String>,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Represents feedback or insights generated during debugging.
@@ -45,7 +48,8 @@ pub struct DebugInsight {
     pub insight_id: String,
     pub debug_session_id: String,
     pub workflow_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub description: String,
     pub suggested_fix: Option<String>,
     pub generated_by: String, // "Human", "AGI"
@@ -89,7 +93,7 @@ impl WVIDEngine {
         WorkflowSnapshot {
             snapshot_id: format!("snap_{}", rng.gen::<u32>()),
             workflow_id: workflow_id.to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             node_states: current_states.clone(),
             edge_states: HashMap::from([
                 ("stepA-stepB".to_string(), "DataFlow_OK".to_string()),
@@ -136,7 +140,7 @@ impl WVIDEngine {
             insight_id: format!("dbg_ins_{}", rng.gen::<u32>()),
             debug_session_id: format!("sess_{}", rng.gen::<u32>()),
             workflow_id: command.workflow_id.clone(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             description,
             suggested_fix,
             generated_by: "Human".to_string(),
@@ -166,7 +170,7 @@ mod tests {
     #[test]
     fn test_wvid_engine_flow() {
         let engine = WVIDEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let workflow_id = "wf_complex_agi_decision";
         let mut current_states = HashMap::from([
@@ -201,7 +205,7 @@ fn main() {
     println!("\n--- Workflow Visualization and Interactive Debugging for AGI Demonstration ---");
 
     let wvid_engine = WVIDEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Generate a real-time snapshot of an AGI's complex decision-making workflow
     println!("--- Scenario 1: Generate Workflow Snapshot ---");

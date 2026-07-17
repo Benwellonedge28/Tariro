@@ -8,10 +8,11 @@
 /// and simulation modeling, and SIMD for parallel sandbox instantiation and real-time
 /// performance monitoring.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -49,7 +50,10 @@ pub struct SimulationResult {
     pub result_id: String,
     pub sandbox_id: String,
     pub scenario_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub actual_outcomes: HashMap<String, String>,
     pub deviation_from_expected: f32, // 0.0 to 1.0
     pub observed_metrics: HashMap<String, f32>,
@@ -165,7 +169,7 @@ impl ASSSEEngine {
             result_id: format!("sim_res_{}", rng.gen::<u32>()),
             sandbox_id: sandbox.sandbox_id.clone(),
             scenario_id: scenario.scenario_id,
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             actual_outcomes,
             deviation_from_expected: deviation,
             observed_metrics: HashMap::from([("avg_latency_ms".to_string(), rng.gen_range(10.0..50.0))]),
@@ -219,7 +223,7 @@ fn main() {
     println!("\n--- Autonomous Secure Sandbox & Simulation Environment (RAG-Driven) Demonstration ---");
 
     let assse_engine = ASSSEEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Tariro needs to test a new, potentially risky, autonomous self-modification module
     println!("--- Scenario 1: New Autonomous Module Validation ---");

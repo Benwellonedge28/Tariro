@@ -5,10 +5,11 @@
 /// pushing the boundaries of visual fidelity and realism (SIMD: real-time rendering, neural graphics;
 /// RAG: 3D asset libraries, facial rigging data).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -82,7 +83,7 @@ impl VideoAvatarGenerator {
         thread::sleep(Duration::from_millis(150));
         let mut rng = rand::thread_rng();
         ThreeDModel {
-            id: format!("model_{}", Instant::now().elapsed().as_secs()),
+            id: format!("model_{}", Utc::now().timestamp()),
             mesh_data: vec![0.0; rng.gen_range(1000..5000)],
             texture_id: "default_texture".to_string(),
             rigging_data: vec![0.0; rng.gen_range(100..200)],
@@ -107,7 +108,7 @@ impl VideoAvatarGenerator {
         thread::sleep(Duration::from_millis(200));
         let mut rng = rand::thread_rng();
         AnimationData {
-            id: format!("anim_{}", Instant::now().elapsed().as_secs()),
+            id: format!("anim_{}", Utc::now().timestamp()),
             keyframes: HashMap::from([(0, vec![rng.gen::<f32>()]), (30, vec![rng.gen::<f32>()])]),
             total_frames: 60,
         }

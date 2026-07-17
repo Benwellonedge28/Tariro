@@ -5,10 +5,11 @@
 /// without being tied to a single blockchain (leveraging RAG for DLT protocol analysis
 /// and SIMD for high-throughput transaction processing).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Supported Distributed Ledger Technologies.
@@ -75,7 +76,7 @@ impl DLTAdapter for EthereumAdapter {
     }
     fn get_latest_block(&self) -> Option<Block> {
         let mut rng = rand::thread_rng();
-        Some(Block { hash: format!("0x{}", rng.gen::<u64>().to_string()), dlt_type: DLTType::Ethereum, transactions: Vec::new(), timestamp: Instant::now().elapsed().as_secs(), previous_hash: format!("0x{}", rng.gen::<u64>().to_string())})
+        Some(Block { hash: format!("0x{}", rng.gen::<u64>().to_string()), dlt_type: DLTType::Ethereum, transactions: Vec::new(), timestamp: Utc::now().timestamp(), previous_hash: format!("0x{}", rng.gen::<u64>().to_string())})
     }
 }
 

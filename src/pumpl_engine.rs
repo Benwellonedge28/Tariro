@@ -12,10 +12,11 @@
 /// behavioral psychology, machine learning for prediction, Bayesian networks, adaptive systems, privacy-preserving
 /// analytics).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -25,7 +26,8 @@ use rand::Rng;
 pub struct UserInteractionEvent {
     pub event_id: String,
     pub user_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub event_type: String, // e.g., "query", "click", "dwell_time", "task_completion"
     pub context: HashMap<String, String>, // e.g., "query_text", "article_id", "task_category"
     pub sentiment: f32, // User sentiment during interaction (-1.0 to 1.0)
@@ -35,7 +37,8 @@ pub struct UserInteractionEvent {
 #[derive(Debug, Clone)]
 pub struct UserProfile {
     pub user_id: String,
-    pub last_updated: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub last_updated: DateTime<Utc>,
     pub preferences: HashMap<String, f32>, // e.g., "topic_quantum_physics": 0.9, "interaction_style_formal": 0.7
     pub cognitive_style: String, // e.g., "analytical", "holistic", "verbal", "visual"
     pub learning_patterns: Vec<String>, // e.g., "prefers_examples", "prefers_theory"
@@ -50,7 +53,8 @@ pub struct PredictedPreference {
     pub predicted_item: String, // e.g., "topic_quantum_entanglement", "tool_code_generation"
     pub prediction_score: f32, // Probability or confidence score
     pub prediction_type: String, // e.g., "content_recommendation", "tool_suggestion", "next_action"
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Overall PUMPL system report.
@@ -108,7 +112,7 @@ impl PUMPL_Engine {
 
         UserProfile {
             user_id: user_id.to_string(),
-            last_updated: Instant::now(),
+            last_updated: Utc::now(),
             preferences: HashMap::from([("topic_rust_programming".to_string(), rng.gen_range(0.5..0.99)), ("interaction_style_concise".to_string(), rng.gen_range(0.5..0.99))]),
             cognitive_style: "analytical".to_string(),
             learning_patterns: vec!["prefers_code_examples".to_string()],
@@ -132,7 +136,7 @@ impl PUMPL_Engine {
                 predicted_item: "recommendation_advanced_rust_book".to_string(),
                 prediction_score: rng.gen_range(0.7..0.95),
                 prediction_type: "content_recommendation".to_string(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
             },
             PredictedPreference {
                 prediction_id: format!("pred_{}", rng.gen::<u32>()),
@@ -140,7 +144,7 @@ impl PUMPL_Engine {
                 predicted_item: "action_propose_new_rust_project".to_string(),
                 prediction_score: rng.gen_range(0.6..0.9),
                 prediction_type: "next_action_suggestion".to_string(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
             },
         ]
     }
@@ -176,7 +180,7 @@ mod tests {
             UserInteractionEvent {
                 event_id: "evt_001".to_string(),
                 user_id: user_id.clone(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 event_type: "query".to_string(),
                 context: HashMap::from([("query_text".to_string(), "Rust concurrency".to_string())]),
                 sentiment: 0.8,
@@ -211,7 +215,7 @@ fn main() {
         UserInteractionEvent {
             event_id: format!("ui_evt_{}", rand::thread_rng().gen::<u32>()),
             user_id: current_user_id.clone(),
-            timestamp: Instant::now() - Duration::from_secs(120),
+            timestamp: Utc::now() - Duration::from_secs(120),
             event_type: "document_view".to_string(),
             context: HashMap::from([("document_id".to_string(), "rust_traits_deep_dive.pdf".to_string()), ("duration_min".to_string(), "15".to_string())]),
             sentiment: 0.9,
@@ -219,7 +223,7 @@ fn main() {
         UserInteractionEvent {
             event_id: format!("ui_evt_{}", rand::thread_rng().gen::<u32>()),
             user_id: current_user_id.clone(),
-            timestamp: Instant::now() - Duration::from_secs(30),
+            timestamp: Utc::now() - Duration::from_secs(30),
             event_type: "search_query".to_string(),
             context: HashMap::from([("query".to_string(), "async await rust performance".to_string())]),
             sentiment: 0.7,

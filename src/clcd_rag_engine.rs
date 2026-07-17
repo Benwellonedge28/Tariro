@@ -10,10 +10,11 @@
 /// RAG: machine translation, domain adaptation, universal semantic embedding,
 ///      cross-lingual information retrieval, multi-domain knowledge fusion).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -25,7 +26,8 @@ pub struct RawTextData {
     pub language: String, // e.g., "en", "fr", "zh"
     pub domain: String, // e.g., "quantum_physics", "biotech", "finance"
     pub text: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Represents text data after translation to a target language.
@@ -44,7 +46,8 @@ pub struct SemanticEmbedding {
     pub embedding_id: String,
     pub vector: Vec<f32>,
     pub dimension: usize,
-    pub generated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub generated_at: DateTime<Utc>,
     pub original_data_id: String,
 }
 
@@ -119,7 +122,7 @@ impl CLCD_RAG_Engine {
             embedding_id: format!("emb_{}", rng.gen::<u32>()),
             vector: (0..dimensions).map(|_| rng.gen_range(-1.0..1.0)).collect(),
             dimension: dimensions,
-            generated_at: Instant::now(),
+            generated_at: Utc::now(),
             original_data_id: raw_data.data_id.clone(),
         };
         (translated, embedding)
@@ -200,7 +203,7 @@ mod tests {
             language: "fr".to_string(),
             domain: "quantum_physics".to_string(),
             text: "La physique quantique est fascinante.".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
         };
         let (translated, embedding) = engine.translate_and_embed_simd(&raw_data, "en");
         assert!(!translated.translated_text.is_empty());
@@ -211,7 +214,7 @@ mod tests {
                 embedding_id: "emb_kb_001".to_string(),
                 vector: (0..768).map(|i| (i as f32).sin()).collect(),
                 dimension: 768,
-                generated_at: Instant::now(),
+                generated_at: Utc::now(),
                 original_data_id: "kb_001".to_string(),
             },
             embedding.clone(), // Include the translated data's embedding for potential match
@@ -239,7 +242,7 @@ fn main() {
         language: "fr".to_string(),
         domain: "quantum_physics".to_string(),
         text: "Les particules intriquées peuvent communiquer instantanément, peu importe la distance, ce qui est essentiel pour la cryptographie quantique.".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
     };
     let (translated_fr_to_en, fr_embedding) = clcd_rag_engine.translate_and_embed_simd(&french_quantum_text, "en");
     println!("  Original (fr): '{}'. Translated (en): '{}'. Confidence: {:.2}.\n",
@@ -256,7 +259,7 @@ fn main() {
             embedding_id: format!("kb_emb_{}", i),
             vector: (0..fr_embedding.dimension).map(|_| rng.gen_range(-1.0..1.0)).collect(),
             dimension: fr_embedding.dimension,
-            generated_at: Instant::now(),
+            generated_at: Utc::now(),
             original_data_id: format!("kb_item_{}", i),
         });
     }

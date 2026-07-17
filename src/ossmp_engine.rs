@@ -8,10 +8,11 @@
 /// It leverages RAG for system architecture diagrams, component specifications, and historical
 /// performance data.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -24,7 +25,7 @@ pub struct SystemComponent {
     pub status: String, // e.g., "Operational", "Degraded", "FailurePredicted"
     pub current_metric_values: HashMap<String, f32>, // e.g., "CPU_Usage_Pct", "Memory_Free_GB", "Latency_ms"
     pub health_score: f32, // 0-100
-    pub last_update: Instant,
+    pub last_update: DateTime<Utc>,
 }
 
 /// Represents a predicted system event (e.g., anomaly, bottleneck, failure).
@@ -33,7 +34,8 @@ pub struct SystemEventPrediction {
     pub prediction_id: String,
     pub component_id: String,
     pub event_type: String, // e.g., "Anomaly", "Bottleneck", "Failure"
-    pub predicted_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub predicted_time: DateTime<Utc>,
     pub probability_pct: f32,
     pub severity: String, // e.g., "Low", "Medium", "High", "Critical"
     pub predicted_impact: String,
@@ -91,7 +93,7 @@ impl OSSMPEngine {
                 prediction_id: format!("pred_{}_{}", component.component_id, rng.gen::<u32>()),
                 component_id: component.component_id.clone(),
                 event_type: "Degradation".to_string(),
-                predicted_time: Instant::now() + Duration::from_secs(rng.gen_range(300..3600)), // 5 min to 1 hour
+                predicted_time: Utc::now() + Duration::from_secs(rng.gen_range(300..3600)), // 5 min to 1 hour
                 probability_pct: rng.gen_range(60.0..95.0),
                 severity: "Medium".to_string(),
                 predicted_impact: "Potential performance bottleneck or service interruption.".to_string(),
@@ -145,7 +147,7 @@ mod tests {
     #[test]
     fn test_ossmp_engine_flow() {
         let engine = OSSMPEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let hardware_comp = SystemComponent {
             component_id: "cpu_cluster_01".to_string(),
@@ -193,7 +195,7 @@ fn main() {
     println!("\n--- Omniscient System State Monitoring and Prediction Demonstration ---");
 
     let ossmp_engine = OSSMPEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Define various AGI system components
     println!("--- Scenario 1: Define AGI System Components ---");

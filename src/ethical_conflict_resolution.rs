@@ -4,10 +4,11 @@
 /// It will identify and resolve conflicts between ethical guidelines and operational mandates, logging the resolution process
 /// (leveraging RAG for E.V.A.S. policies and SIMD for ethical dilemma simulation).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Represents an ethical guideline or principle.
@@ -84,7 +85,7 @@ impl ConflictResolutionMatrix {
                         let conflict_id = format!("Conflict_{}_{}", mandate.id, guideline.id);
                         conflicts.push(ConflictEvent {
                             id: conflict_id,
-                            timestamp: Instant::now().elapsed().as_secs(),
+                            timestamp: Utc::now().timestamp(),
                             mandate_id: mandate.id.clone(),
                             guideline_id: guideline.id.clone(),
                             severity: (mandate.priority.min(guideline.priority) + rng.gen_range(0.0..0.2)).min(1.0), // Simplified severity

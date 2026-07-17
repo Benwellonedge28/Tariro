@@ -5,10 +5,11 @@
 /// security based on the laws of quantum mechanics. It leverages RAG for QKD protocols (e.g., BB84, E91) and quantum
 /// cryptography research.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -64,7 +65,8 @@ pub struct QKDChannelEvent {
     pub event_id: String,
     pub sender: String,
     pub receiver: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub qubits_sent: u32,
     pub error_rate: f32,
     pub eavesdropping_detected: bool,
@@ -185,7 +187,7 @@ impl QKDNS_Engine {
             event_id: format!("sift_event_{}", rng.gen::<u32>()),
             sender: "Alice".to_string(),
             receiver: "Bob".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             qubits_sent: alice_qubits.len() as u32,
             error_rate,
             eavesdropping_detected,

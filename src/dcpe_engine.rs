@@ -7,10 +7,11 @@
 /// It leverages RAG for formal verification methods, real-time intrusion detection,
 /// and adaptive security policies to ensure the AGI operates safely within defined boundaries.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -31,7 +32,8 @@ pub struct ContainmentPolicy {
 pub struct PolicyViolation {
     pub violation_id: String,
     pub policy_id: String,
-    pub detected_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detected_at: DateTime<Utc>,
     pub agi_entity_id: String,
     pub violation_type: String, // e.g., "UnauthorizedCommunication", "SuspiciousSelfModification", "ResourceExceedance"
     pub severity: String, // e.g., "Minor", "Major", "Critical"
@@ -43,7 +45,8 @@ pub struct PolicyViolation {
 pub struct ContainmentAction {
     pub action_id: String,
     pub violation_id: String,
-    pub initiated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub initiated_at: DateTime<Utc>,
     pub action_type: String, // e.g., "NetworkBlock", "ProcessTermination", "ResourceLimitAdjustment", "SystemIsolation"
     pub target_agi_entity: String,
     pub status: String, // e.g., "Pending", "Executing", "Completed", "Failed"
@@ -109,7 +112,7 @@ impl DCPEEngine {
             violations.push(PolicyViolation {
                 violation_id: format!("viol_{}", rng.gen::<u32>()),
                 policy_id: policy.policy_id.clone(),
-                detected_at: Instant::now(),
+                detected_at: Utc::now(),
                 agi_entity_id: agi_entity_id.to_string(),
                 violation_type: "UnauthorizedCommunication".to_string(),
                 severity: "Critical".to_string(),
@@ -121,7 +124,7 @@ impl DCPEEngine {
             violations.push(PolicyViolation {
                 violation_id: format!("viol_{}", rng.gen::<u32>()),
                 policy_id: policy.policy_id.clone(),
-                detected_at: Instant::now(),
+                detected_at: Utc::now(),
                 agi_entity_id: agi_entity_id.to_string(),
                 violation_type: "SuspiciousSelfModification".to_string(),
                 severity: "Major".to_string(),
@@ -143,7 +146,7 @@ impl DCPEEngine {
         ContainmentAction {
             action_id: format!("action_{}", rng.gen::<u32>()),
             violation_id: violation.violation_id.clone(),
-            initiated_at: Instant::now(),
+            initiated_at: Utc::now(),
             action_type: violation.response_action.clone(),
             target_agi_entity: violation.agi_entity_id.clone(),
             status: "Completed".to_string(),
@@ -174,7 +177,7 @@ mod tests {
     #[test]
     fn test_dcpe_engine_flow() {
         let engine = DCPEEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let no_network_policy = engine.establish_containment_policy(
             "No_External_Network_Access_Policy",
@@ -199,7 +202,7 @@ fn main() {
     println!("\n--- Dynamic Containment Protocol Enforcement Demonstration ---");
 
     let dcpe_engine = DCPEEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Establish a strict containment policy for an AGI sandbox
     println!("--- Scenario 1: Establish Containment Policy ---");

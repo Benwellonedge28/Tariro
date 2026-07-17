@@ -6,10 +6,11 @@
 /// awareness. It leverages RAG for vector indexing algorithms and embedding models, and SIMD
 /// for parallel distance computation and nearest neighbor search.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -21,7 +22,8 @@ pub struct VectorEmbedding {
     pub embedding_id: String,
     pub vector: Vec<f32>,
     pub source_content_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub metadata: HashMap<String, String>,
 }
 
@@ -73,9 +75,9 @@ impl DSVSEngine {
         em_db.insert("transformer_embedding_models".to_string(), "RAG-driven knowledge base of various transformer-based embedding models (e.g., BERT, Sentence-BERT, CLIP) and their fine-tuning strategies for different modalities. Used to generate optimal query and document embeddings.".to_string());
 
         let mut db = HashMap::new();
-        db.insert("doc_001_emb".to_string(), VectorEmbedding { embedding_id: "doc_001_emb".to_string(), vector: vec![0.1, 0.2, 0.3, 0.4, 0.5], source_content_id: "doc_001".to_string(), timestamp: Instant::now(), metadata: HashMap::new() });
-        db.insert("doc_002_emb".to_string(), VectorEmbedding { embedding_id: "doc_002_emb".to_string(), vector: vec![0.5, 0.4, 0.3, 0.2, 0.1], source_content_id: "doc_002".to_string(), timestamp: Instant::now(), metadata: HashMap::new() });
-        db.insert("doc_003_emb".to_string(), VectorEmbedding { embedding_id: "doc_003_emb".to_string(), vector: vec![0.15, 0.25, 0.35, 0.45, 0.55], source_content_id: "doc_003".to_string(), timestamp: Instant::now(), metadata: HashMap::new() });
+        db.insert("doc_001_emb".to_string(), VectorEmbedding { embedding_id: "doc_001_emb".to_string(), vector: vec![0.1, 0.2, 0.3, 0.4, 0.5], source_content_id: "doc_001".to_string(), timestamp: Utc::now(), metadata: HashMap::new() });
+        db.insert("doc_002_emb".to_string(), VectorEmbedding { embedding_id: "doc_002_emb".to_string(), vector: vec![0.5, 0.4, 0.3, 0.2, 0.1], source_content_id: "doc_002".to_string(), timestamp: Utc::now(), metadata: HashMap::new() });
+        db.insert("doc_003_emb".to_string(), VectorEmbedding { embedding_id: "doc_003_emb".to_string(), vector: vec![0.15, 0.25, 0.35, 0.45, 0.55], source_content_id: "doc_003".to_string(), timestamp: Utc::now(), metadata: HashMap::new() });
 
         DSVSEngine {
             vector_indexing_algorithms_rag_db: via_db,
@@ -155,7 +157,7 @@ mod tests {
     #[test]
     fn test_dsvs_engine_flow() {
         let engine = DSVSEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let query = QueryVector {
             query_id: "query_test_01".to_string(),
@@ -178,7 +180,7 @@ fn main() {
     println!("\n--- Distributed Semantic Vector Search (SIMD-Driven) Demonstration ---");
 
     let dsvs_engine = DSVSEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Perform a semantic search for a conceptual document
     println!("--- Scenario 1: Search for 'RAG performance optimization' ---");

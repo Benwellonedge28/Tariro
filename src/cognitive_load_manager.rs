@@ -5,10 +5,11 @@
 /// and prioritize tasks to prevent overload or degradation (SIMD: workload balancing, neural network
 /// pruning; RAG: AGI self-regulation studies).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -28,14 +29,15 @@ pub struct Task {
     pub id: String,
     pub priority: u32, // Higher number means higher priority
     pub estimated_load: f32,
-    pub deadline: Option<Instant>,
+    pub deadline: Option<DateTime<Utc>>,
     pub is_critical: bool,
 }
 
 /// Represents a snapshot of cognitive load metrics.
 #[derive(Debug, Clone)]
 pub struct LoadMetric {
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub resource_loads: HashMap<String, f32>, // Resource name -> utilization
     pub total_load: f32,
 }
@@ -88,7 +90,7 @@ impl CognitiveLoadManager {
         }
 
         LoadMetric {
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             resource_loads,
             total_load,
         }
@@ -194,9 +196,9 @@ fn main() {
     // 2. Define Pending Tasks
     println!("--- Defining Pending Tasks ---");
     let pending_tasks = vec![
-        Task { id: "critical_analysis".to_string(), priority: 10, estimated_load: 60.0, deadline: Some(Instant::now() + Duration::from_secs(60)), is_critical: true },
+        Task { id: "critical_analysis".to_string(), priority: 10, estimated_load: 60.0, deadline: Some(Utc::now() + Duration::from_secs(60)), is_critical: true },
         Task { id: "background_optimization".to_string(), priority: 2, estimated_load: 20.0, deadline: None, is_critical: false },
-        Task { id: "urgent_security_scan".to_string(), priority: 9, estimated_load: 45.0, deadline: Some(Instant::now() + Duration::from_secs(30)), is_critical: true },
+        Task { id: "urgent_security_scan".to_string(), priority: 9, estimated_load: 45.0, deadline: Some(Utc::now() + Duration::from_secs(30)), is_critical: true },
         Task { id: "data_ingestion_pipeline".to_string(), priority: 5, estimated_load: 35.0, deadline: None, is_critical: false },
         Task { id: "low_prio_report_gen".to_string(), priority: 1, estimated_load: 15.0, deadline: None, is_critical: false },
     ];

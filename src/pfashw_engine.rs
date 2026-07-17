@@ -9,10 +9,11 @@
 /// failure prediction; RAG: fault tolerance, self-healing systems, predictive maintenance, reliability engineering, distributed
 /// consensus, failure mode and effects analysis (FMEA), dynamic rerouting algorithms).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -23,7 +24,10 @@ pub struct WorkflowHealthMetric {
     pub metric_id: String,
     pub workflow_instance_id: String,
     pub task_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub metric_type: String, // e.g., "latency_ms", "error_rate", "resource_pressure"
     pub value: f32,
     pub anomaly_score: f32, // 0.0 (normal) to 1.0 (severe anomaly)
@@ -38,7 +42,8 @@ pub struct FailurePrediction {
     pub probability: f32, // Probability of failure (0.0 to 1.0)
     pub predicted_time_to_failure: Option<Duration>,
     pub failure_mode: String, // e.g., "resource_starvation", "dependency_timeout", "software_bug"
-    pub prediction_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub prediction_timestamp: DateTime<Utc>,
 }
 
 /// Represents an automatic self-healing action taken.
@@ -50,7 +55,8 @@ pub struct HealingAction {
     pub action_type: String, // e.g., "reroute_task", "reallocate_resource", "restart_component", "rollback_transaction"
     pub parameters: HashMap<String, String>,
     pub outcome: String, // e.g., "success", "failure", "partial"
-    pub action_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub action_timestamp: DateTime<Utc>,
 }
 
 /// Overall PFAS-HW system report.
@@ -99,7 +105,7 @@ impl PFASHW_Engine {
             metric_id: format!("whm_{}", rng.gen::<u32>()),
             workflow_instance_id: workflow_instance_id.to_string(),
             task_id: id.clone(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             metric_type: "error_rate".to_string(),
             value: rng.gen_range(0.0..0.1),
             anomaly_score: if rng.gen_bool(0.15) { rng.gen_range(0.7..0.99) } else { rng.gen_range(0.0..0.3) },
@@ -125,7 +131,7 @@ impl PFASHW_Engine {
                     probability: rng.gen_range(0.7..0.99),
                     predicted_time_to_failure: Some(Duration::from_secs(rng.gen_range(60..3600))),
                     failure_mode: "component_overload".to_string(),
-                    prediction_timestamp: Instant::now(),
+                    prediction_timestamp: Utc::now(),
                 });
             }
         }
@@ -148,7 +154,7 @@ impl PFASHW_Engine {
                     action_type: "reroute_task".to_string(),
                     parameters: HashMap::from([("old_task".to_string(), pred.predicted_failure_point.clone()), ("new_agent".to_string(), "backup_agent_pool".to_string())]),
                     outcome: "success".to_string(),
-                    action_timestamp: Instant::now(),
+                    action_timestamp: Utc::now(),
                 });
             }
         }

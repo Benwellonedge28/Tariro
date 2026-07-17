@@ -7,10 +7,11 @@
 /// leverages RAG for web crawling and structured data extraction, and SIMD for parallel
 /// tokenization and embedding updates.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -23,7 +24,8 @@ pub struct KnowledgeSource {
     pub url: Option<String>,
     pub content: String,
     pub source_type: String, // e.g., "WebPage", "PDF", "DatabaseRecord", "APIStream"
-    pub discovery_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub discovery_timestamp: DateTime<Utc>,
     pub quality_score: f32, // 0.0-1.0 (RAG-driven assessment of source credibility)
 }
 
@@ -35,7 +37,8 @@ pub struct PreTrainingBatch {
     pub processed_data: Vec<String>, // List of tokenized and encoded text snippets
     pub embeddings_update: HashMap<String, Vec<f32>>, // Conceptual embedding changes
     pub num_tokens: u64,
-    pub created_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub created_at: DateTime<Utc>,
 }
 
 /// Represents an update to the LLM's knowledge base.
@@ -45,7 +48,8 @@ pub struct KnowledgeUpdate {
     pub llm_model_id: String,
     pub description: String,
     pub injected_knowledge_concepts: Vec<String>,
-    pub update_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub update_timestamp: DateTime<Utc>,
     pub impact_assessment: HashMap<String, f32>, // e.g., "factual_accuracy_gain": 0.02, "domain_coverage_increase": 0.05
 }
 
@@ -125,7 +129,7 @@ impl CPKIEngine {
                     processed_data: tokens.clone(),
                     embeddings_update: embeddings,
                     num_tokens: tokens.len() as u64,
-                    created_at: Instant::now(),
+                    created_at: Utc::now(),
                 });
 
                 // Simulate concept extraction
@@ -144,7 +148,7 @@ impl CPKIEngine {
             llm_model_id: llm_id.to_string(),
             description: format!("Integrated knowledge from {} new sources.", processed_content_batches.len()),
             injected_knowledge_concepts: injected_concepts,
-            update_timestamp: Instant::now(),
+            update_timestamp: Utc::now(),
             impact_assessment: HashMap::from([
                 ("factual_accuracy_gain".to_string(), factual_accuracy_gain),
                 ("domain_coverage_increase".to_string(), domain_coverage_increase),
@@ -172,7 +176,7 @@ mod tests {
     #[test]
     fn test_cpki_engine_flow() {
         let engine = CPKIEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let sources = vec![
             KnowledgeSource { source_id: "web_article_001".to_string(), url: Some("http://example.com/new_ai_tech".to_string()), content: "A groundbreaking new AI technology was announced today...".to_string(), source_type: "WebPage".to_string(), discovery_timestamp: now, quality_score: 0.9 },
@@ -192,7 +196,7 @@ fn main() {
     println!("\n--- Continual Pre-training & Knowledge Injection (RAG-Driven) Demonstration ---");
 
     let cpki_engine = CPKIEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     let llm_model_id = "tariro_nexus_core_llm".to_string();
 

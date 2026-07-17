@@ -2,8 +2,8 @@
 
 //! Integrates OMEGA News capabilities, enabling Tariro to process, analyze, and generate news.
 
+use crate::prelude::*;
 use async_trait::async_trait;
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;

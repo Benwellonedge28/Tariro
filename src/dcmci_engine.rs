@@ -8,10 +8,11 @@
 /// leverages RAG for knowledge graph construction and semantic reasoning, and SIMD for parallel
 /// graph traversal and real-time context inference.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -25,7 +26,7 @@ pub struct CognitiveNode {
     pub label: String,
     pub description: String,
     pub properties: HashMap<String, String>, // e.g., "valence": "positive", "urgency": "high"
-    pub last_activated: Instant,
+    pub last_activated: DateTime<Utc>,
     pub activation_level: f32, // 0.0 to 1.0
 }
 
@@ -37,7 +38,7 @@ pub struct CognitiveEdge {
     pub target_node_id: String,
     pub relationship_type: String, // e.g., "IsA", "Causes", "RelatedTo", "Influences"
     pub weight: f32, // Strength of the relationship (0.0 to 1.0)
-    pub last_reinforced: Instant,
+    pub last_reinforced: DateTime<Utc>,
     pub contextual_tags: Vec<String>,
 }
 
@@ -45,7 +46,10 @@ pub struct CognitiveEdge {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ContextualInference {
     pub inference_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub inferred_context: String, // e.g., "Samuel is in a creative problem-solving state, focused on project Alpha."
     pub supporting_nodes: Vec<String>, // List of node IDs that contributed to the inference
     pub predictive_action_recommendation: String, // RAG-derived proactive assistance
@@ -119,10 +123,10 @@ impl DCMCIEngine {
             if activity.contains("new idea") {
                 let new_node_id = format!("thought_{}", rng.gen::<u32>());
                 current_nodes.insert(new_node_id.clone(), CognitiveNode {
-                    node_id: new_node_id.clone(), node_type: "Thought".to_string(), label: "New Idea".to_string(), description: activity.clone(), properties: HashMap::new(), last_activated: Instant::now(), activation_level: 0.8,
+                    node_id: new_node_id.clone(), node_type: "Thought".to_string(), label: "New Idea".to_string(), description: activity.clone(), properties: HashMap::new(), last_activated: Utc::now(), activation_level: 0.8,
                 });
                 current_edges.insert(format!("edge_{}", rng.gen::<u32>()), CognitiveEdge {
-                    edge_id: format!("edge_{}", rng.gen::<u32>()), source_node_id: "samuel_focus".to_string(), target_node_id: new_node_id, relationship_type: "Generates".to_string(), weight: 0.7, last_reinforced: Instant::now(), contextual_tags: vec![],
+                    edge_id: format!("edge_{}", rng.gen::<u32>()), source_node_id: "samuel_focus".to_string(), target_node_id: new_node_id, relationship_type: "Generates".to_string(), weight: 0.7, last_reinforced: Utc::now(), contextual_tags: vec![],
                 });
             }
         }
@@ -144,7 +148,7 @@ impl DCMCIEngine {
 
         let inference = ContextualInference {
             inference_id: format!("ci_{}", rng.gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             inferred_context,
             supporting_nodes,
             predictive_action_recommendation: predictive_action,
@@ -178,12 +182,12 @@ mod tests {
 
         let mut nodes = HashMap::new();
         nodes.insert("samuel_focus".to_string(), CognitiveNode {
-            node_id: "samuel_focus".to_string(), node_type: "Goal".to_string(), label: "Current Focus".to_string(), description: "Working on project Alpha.".to_string(), properties: HashMap::new(), last_activated: Instant::now(), activation_level: 0.9,
+            node_id: "samuel_focus".to_string(), node_type: "Goal".to_string(), label: "Current Focus".to_string(), description: "Working on project Alpha.".to_string(), properties: HashMap::new(), last_activated: Utc::now(), activation_level: 0.9,
         });
 
         let mut edges = HashMap::new();
         edges.insert("rel_1".to_string(), CognitiveEdge {
-            edge_id: "rel_1".to_string(), source_node_id: "samuel_focus".to_string(), target_node_id: "project_alpha".to_string(), relationship_type: "FocusesOn".to_string(), weight: 0.9, last_reinforced: Instant::now(), contextual_tags: vec![],
+            edge_id: "rel_1".to_string(), source_node_id: "samuel_focus".to_string(), target_node_id: "project_alpha".to_string(), relationship_type: "FocusesOn".to_string(), weight: 0.9, last_reinforced: Utc::now(), contextual_tags: vec![],
         });
 
         let (updated_nodes, updated_edges, inference) = engine.manage_cognitive_map_rag(nodes, edges, vec!["Samuel just mentioned a new feature idea for Project Alpha.".to_string()]);
@@ -199,21 +203,21 @@ fn main() {
     println!("\n--- Dynamic Cognitive Mapping & Contextual Inference (RAG-Driven) Demonstration ---");
 
     let dcmci_engine = DCMCIEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Samuel is brainstorming for a new feature, and Tariro infers the context
     println!("--- Scenario 1: Feature Brainstorming & Proactive Assistance ---");
     let mut initial_samuel_nodes = HashMap::new();
     initial_samuel_nodes.insert("samuel_goal_innovation".to_string(), CognitiveNode {
-        node_id: "samuel_goal_innovation".to_string(), node_type: "Goal".to_string(), label: "Innovation Drive".to_string(), description: "Aiming to develop groundbreaking features.".to_string(), properties: HashMap::new(), last_activated: Instant::now(), activation_level: 0.95,
+        node_id: "samuel_goal_innovation".to_string(), node_type: "Goal".to_string(), label: "Innovation Drive".to_string(), description: "Aiming to develop groundbreaking features.".to_string(), properties: HashMap::new(), last_activated: Utc::now(), activation_level: 0.95,
     });
     initial_samuel_nodes.insert("samuel_thought_scalability".to_string(), CognitiveNode {
-        node_id: "samuel_thought_scalability".to_string(), node_type: "Thought".to_string(), label: "Scalability Concerns".to_string(), description: "Thinking about how new features will scale globally.".to_string(), properties: HashMap::new(), last_activated: Instant::now() - Duration::from_secs(60), activation_level: 0.7,
+        node_id: "samuel_thought_scalability".to_string(), node_type: "Thought".to_string(), label: "Scalability Concerns".to_string(), description: "Thinking about how new features will scale globally.".to_string(), properties: HashMap::new(), last_activated: Utc::now() - Duration::from_secs(60), activation_level: 0.7,
     });
 
     let mut initial_samuel_edges = HashMap::new();
     initial_samuel_edges.insert("goal_thought_relation".to_string(), CognitiveEdge {
-        edge_id: "goal_thought_relation".to_string(), source_node_id: "samuel_goal_innovation".to_string(), target_node_id: "samuel_thought_scalability".to_string(), relationship_type: "Influences".to_string(), weight: 0.8, last_reinforced: Instant::now(), contextual_tags: vec!["brainstorming".to_string()],
+        edge_id: "goal_thought_relation".to_string(), source_node_id: "samuel_goal_innovation".to_string(), target_node_id: "samuel_thought_scalability".to_string(), relationship_type: "Influences".to_string(), weight: 0.8, last_reinforced: Utc::now(), contextual_tags: vec!["brainstorming".to_string()],
     });
 
     let recent_brainstorm_activities = vec![
@@ -231,15 +235,15 @@ fn main() {
     println!("--- Scenario 2: Frustration Detection & Bottleneck Identification ---");
     let mut initial_samuel_nodes_2 = HashMap::new();
     initial_samuel_nodes_2.insert("samuel_task_coding".to_string(), CognitiveNode {
-        node_id: "samuel_task_coding".to_string(), node_type: "Task".to_string(), label: "Current Coding Task".to_string(), description: "Debugging a complex Rust async issue.".to_string(), properties: HashMap::new(), last_activated: Instant::now(), activation_level: 0.9,
+        node_id: "samuel_task_coding".to_string(), node_type: "Task".to_string(), label: "Current Coding Task".to_string(), description: "Debugging a complex Rust async issue.".to_string(), properties: HashMap::new(), last_activated: Utc::now(), activation_level: 0.9,
     });
     initial_samuel_nodes_2.insert("samuel_emotion_frustration".to_string(), CognitiveNode {
-        node_id: "samuel_emotion_frustration".to_string(), node_type: "Emotion".to_string(), label: "Frustration".to_string(), description: "Subtle signs of exasperation detected.".to_string(), properties: HashMap::from([("valence".to_string(), "negative".to_string())]), last_activated: Instant::now(), activation_level: 0.6,
+        node_id: "samuel_emotion_frustration".to_string(), node_type: "Emotion".to_string(), label: "Frustration".to_string(), description: "Subtle signs of exasperation detected.".to_string(), properties: HashMap::from([("valence".to_string(), "negative".to_string())]), last_activated: Utc::now(), activation_level: 0.6,
     });
 
     let mut initial_samuel_edges_2 = HashMap::new();
     initial_samuel_edges_2.insert("task_emotion_relation".to_string(), CognitiveEdge {
-        edge_id: "task_emotion_relation".to_string(), source_node_id: "samuel_task_coding".to_string(), target_node_id: "samuel_emotion_frustration".to_string(), relationship_type: "Causes".to_string(), weight: 0.7, last_reinforced: Instant::now(), contextual_tags: vec!["debugging".to_string()],
+        edge_id: "task_emotion_relation".to_string(), source_node_id: "samuel_task_coding".to_string(), target_node_id: "samuel_emotion_frustration".to_string(), relationship_type: "Causes".to_string(), weight: 0.7, last_reinforced: Utc::now(), contextual_tags: vec!["debugging".to_string()],
     });
 
     let recent_frustration_activities = vec![

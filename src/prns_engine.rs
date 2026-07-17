@@ -8,10 +8,11 @@
 /// It utilizes RAG for recommendation system architectures and cognitive psychology frameworks,
 /// and SIMD for parallel preference matching and real-time context integration.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -31,7 +32,8 @@ pub enum RecommendationCategory {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Recommendation {
     pub rec_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub category: RecommendationCategory,
     pub title: String,
     pub content: String,
@@ -45,7 +47,8 @@ pub struct Recommendation {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PersonalizedNudge {
     pub nudge_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub content: String,
     pub delivery_channel: String, // e.g., "UI_Overlay", "Haptic", "Audio_Whisper"
     pub cognitive_trigger: String, // What triggered the nudge (e.g., "Detected_Focus_Drop")
@@ -125,7 +128,7 @@ impl PRNSEngine {
         for (id, score) in top_matches.iter().take(2) {
              recommendations.push(Recommendation {
                 rec_id: format!("rec_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 category: RecommendationCategory::Workflow,
                 title: format!("Optimize Current Workflow ({})", id),
                 content: "Consider switching to a POMODORO cycle to maintain focus given current energy levels.".to_string(),
@@ -150,7 +153,7 @@ impl PRNSEngine {
             println!("  [PRNS]: Focus drop detected while energy is sufficient. Preparing nudge.");
             return Some(PersonalizedNudge {
                 nudge_id: format!("nudge_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 content: "You've been on this sub-task for 45 minutes. A 5-minute break is recommended to reset cognitive load.".to_string(),
                 delivery_channel: "UI_Overlay".to_string(),
                 cognitive_trigger: "Focus_Degradation_Detected".to_string(),

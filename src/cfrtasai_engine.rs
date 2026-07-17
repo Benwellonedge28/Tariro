@@ -6,10 +6,11 @@
 /// RAG for carbon intensity data of various energy grids, hardware efficiency metrics, and green
 /// computing best practices to recommend strategies for reducing the environmental impact of AI systems.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -19,8 +20,11 @@ use rand::Rng;
 pub struct AIWorkloadActivity {
     pub activity_id: String,
     pub activity_type: String, // e.g., "Training", "Inference", "DataStorage", "DataTransfer"
-    pub start_time: Instant,
-    pub end_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub start_time: DateTime<Utc>,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub end_time: DateTime<Utc>,
     pub energy_consumed_kwh: f32,
     pub associated_hardware: String, // e.g., "GPU_Cluster_A", "CPU_Server_B"
     pub location: String, // e.g., "US-East-1", "EU-West-2", "OnPremise_NYC"
@@ -30,7 +34,10 @@ pub struct AIWorkloadActivity {
 #[derive(Debug, Clone)]
 pub struct CarbonIntensity {
     pub location: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub carbon_kg_per_kwh: f32,
     pub data_source: String, // e.g., "GridCarbonAPI", "RegionalAverage"
 }
@@ -83,7 +90,7 @@ impl CFTRASAIEngine {
     }
 
     /// Retrieves carbon intensity data for a given location and time (conceptual RAG).
-    pub fn get_carbon_intensity_rag(&self, location: &str, time: Instant) -> CarbonIntensity {
+    pub fn get_carbon_intensity_rag(&self, location: &str, time: DateTime<Utc>) -> CarbonIntensity {
         println!("  [CFTRASAI]: Retrieving carbon intensity for '{}' at {:?}.", location, time);
         if let Some(ci_info) = self.carbon_intensity_hardware_efficiency_green_computing_rag_db.get("Carbon_Intensity_Data_and_Forecasting") {
             format!("RAG insight for carbon intensity: {}. Location: '{}'", ci_info, location);
@@ -163,7 +170,7 @@ mod tests {
     #[test]
     fn test_cfrtasai_engine_flow() {
         let engine = CFTRASAIEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let ai_training_activity = AIWorkloadActivity {
             activity_id: "gpt3_fine_tune_001".to_string(),
@@ -193,7 +200,7 @@ fn main() {
     println!("\n--- Carbon Footprint Tracking and Reduction Strategies for AI Demonstration ---");
 
     let cfrtasai_engine = CFTRASAIEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Monitor an AI training workload
     println!("--- Scenario 1: Monitor AI Workload ---");

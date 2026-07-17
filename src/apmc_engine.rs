@@ -8,10 +8,11 @@
 /// control signal adjustments; RAG: thermal dynamics modeling, advanced control theory, predictive maintenance,
 /// edge computing power optimization).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -23,7 +24,8 @@ pub struct SensorData {
     pub sensor_type: String, // e.g., "temperature", "power_draw", "cpu_utilization"
     pub value: f32,
     pub unit: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Represents a power consumption profile for a hardware component.
@@ -179,8 +181,8 @@ mod tests {
         let engine = APMC_Engine::new();
 
         let sensor_data = vec![
-            SensorData { sensor_id: "temp_cpu".to_string(), sensor_type: "temperature".to_string(), value: 75.0, unit: "C".to_string(), timestamp: Instant::now() },
-            SensorData { sensor_id: "power_gpu".to_string(), sensor_type: "power_draw".to_string(), value: 300.0, unit: "W".to_string(), timestamp: Instant::now() },
+            SensorData { sensor_id: "temp_cpu".to_string(), sensor_type: "temperature".to_string(), value: 75.0, unit: "C".to_string(), timestamp: Utc::now() },
+            SensorData { sensor_id: "power_gpu".to_string(), sensor_type: "power_draw".to_string(), value: 300.0, unit: "W".to_string(), timestamp: Utc::now() },
         ];
         let metrics = engine.monitor_sensors_workload_simd(&sensor_data);
         assert!(!metrics.is_empty());
@@ -205,10 +207,10 @@ fn main() {
     // Scenario 1: Real-time monitoring of various sensor data and workload
     println!("--- Scenario 1: Sensor & Workload Monitoring ---");
     let current_sensor_readings = vec![
-        SensorData { sensor_id: "cpu_temp_1".to_string(), sensor_type: "temperature".to_string(), value: 78.5, unit: "C".to_string(), timestamp: Instant::now() },
-        SensorData { sensor_id: "gpu_power_1".to_string(), sensor_type: "power_draw".to_string(), value: 350.0, unit: "W".to_string(), timestamp: Instant::now() },
-        SensorData { sensor_id: "ambient_temp".to_string(), sensor_type: "temperature".to_string(), value: 25.0, unit: "C".to_string(), timestamp: Instant::now() },
-        SensorData { sensor_id: "mem_util_1".to_string(), sensor_type: "utilization".to_string(), value: 0.85, unit: "%".to_string(), timestamp: Instant::now() },
+        SensorData { sensor_id: "cpu_temp_1".to_string(), sensor_type: "temperature".to_string(), value: 78.5, unit: "C".to_string(), timestamp: Utc::now() },
+        SensorData { sensor_id: "gpu_power_1".to_string(), sensor_type: "power_draw".to_string(), value: 350.0, unit: "W".to_string(), timestamp: Utc::now() },
+        SensorData { sensor_id: "ambient_temp".to_string(), sensor_type: "temperature".to_string(), value: 25.0, unit: "C".to_string(), timestamp: Utc::now() },
+        SensorData { sensor_id: "mem_util_1".to_string(), sensor_type: "utilization".to_string(), value: 0.85, unit: "%".to_string(), timestamp: Utc::now() },
     ];
     let aggregated_metrics = apmc_engine.monitor_sensors_workload_simd(&current_sensor_readings);
     println!("  Aggregated Metrics: {:?}\n", aggregated_metrics);

@@ -5,10 +5,11 @@
 /// to grant only the minimum necessary access at any given time (leveraging RAG for policy enforcement rules
 /// and SIMD for real-time access matrix evaluation).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Types of entities that require access control.
@@ -80,7 +81,7 @@ impl LeastPrivilegeOrchestrator {
             entity_id: entity_id.clone(),
             entity_type,
             current_permissions: initial_permissions,
-            last_evaluated: Instant::now().elapsed().as_secs(),
+            last_evaluated: Utc::now().timestamp(),
         };
         self.entity_profiles.insert(entity_id, profile);
         thread::sleep(Duration::from_millis(30));
@@ -150,7 +151,7 @@ impl LeastPrivilegeOrchestrator {
         for (entity_id, new_permissions) in adjustments {
             if let Some(profile) = self.entity_profiles.get_mut(&entity_id) {
                 profile.current_permissions = new_permissions;
-                profile.last_evaluated = Instant::now().elapsed().as_secs();
+                profile.last_evaluated = Utc::now().timestamp();
                 self.audit_log.push(format!("Permissions updated for {}. New count: {}.", entity_id, profile.current_permissions.len()));
             }
         }
@@ -218,7 +219,7 @@ fn main() {
     for i in 0..3 {
         println!("\n========================== LPO Cycle {} ==========================", i + 1);
 
-        let current_time = Instant::now().elapsed().as_secs();
+        let current_time = Utc::now().timestamp();
         let mut rng = rand::thread_rng();
 
         // 2. Simulate access requests

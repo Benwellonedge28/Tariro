@@ -8,10 +8,11 @@
 /// cognitive psychology, and ethical AI guidelines to design intuitive and trustworthy
 /// shared control paradigms.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -25,7 +26,8 @@ pub struct HumanCommand {
     pub target_agi_id: String,
     pub command_type: String, // e.g., "Override", "Suggest", "Query", "Approve"
     pub payload: HashMap<String, String>, // e.g., target parameter, desired value
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Represents an AGI's proposed action or decision.
@@ -37,7 +39,8 @@ pub struct AgiProposal {
     pub rationale: String, // RAG-generated explanation for the proposal
     pub expected_outcome: String,
     pub confidence: f32,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Represents a joint decision made by AGI and human.
@@ -49,7 +52,8 @@ pub struct JointDecision {
     pub chosen_action: String,
     pub decision_rationale: String, // Combined RAG-generated and human input
     pub allocation_of_control: String, // e.g., "HumanLed", "AGILed", "Shared", "Autonomous"
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Overall AGI-Human Shared Control and Decision Making system report.
@@ -104,7 +108,7 @@ impl AHSCDEngine {
             rationale: format!("Based on real-time sensor data and historical performance (RAG-driven analysis)."),
             expected_outcome: "20% efficiency gain".to_string(),
             confidence: rng.gen_range(0.85..0.99),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
         }
     }
 
@@ -137,7 +141,7 @@ impl AHSCDEngine {
             chosen_action,
             decision_rationale,
             allocation_of_control,
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
         }
     }
 
@@ -164,7 +168,7 @@ mod tests {
     #[test]
     fn test_ahscd_engine_flow() {
         let engine = AHSCDEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let human_op_id = "User:Sophia";
         let agi_id = "AGI_TacticalPlanner";
@@ -208,7 +212,7 @@ fn main() {
     println!("\n--- AGI-Human Shared Control and Decision Making Demonstration ---");
 
     let ahscd_engine = AHSCDEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: AGI proposes an action with RAG-generated rationale
     println!("--- Scenario 1: AGI Proposes Action ---");

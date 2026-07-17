@@ -8,10 +8,11 @@
 /// digital twin modeling and system dynamics simulation, and SIMD for parallel state updates
 /// and real-time sensor data processing.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -34,7 +35,10 @@ pub struct DigitalTwinComponent {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DigitalTwinState {
     pub snapshot_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub components: HashMap<String, DigitalTwinComponent>,
     pub overall_system_health_score: f32,
     pub predictive_alerts: Vec<String>,
@@ -46,8 +50,11 @@ pub struct DigitalTwinState {
 pub struct DigitalTwinSimulation {
     pub simulation_id: String,
     pub scenario_description: String, // e.g., "Stress test under high user load"
-    pub start_time: Instant,
-    pub end_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub start_time: DateTime<Utc>,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub end_time: DateTime<Utc>,
     pub simulated_events: Vec<String>,
     pub observed_behaviors: Vec<String>,
     pub recommendations: Vec<String>, // RAG-derived optimization recommendations
@@ -135,7 +142,7 @@ impl ODTEngine {
 
         DigitalTwinState {
             snapshot_id: format!("dts_{}", rng.gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             components: current_components,
             overall_system_health_score: overall_health,
             predictive_alerts,
@@ -167,8 +174,8 @@ impl ODTEngine {
         DigitalTwinSimulation {
             simulation_id: format!("dtsim_{}", rng.gen::<u32>()),
             scenario_description: scenario,
-            start_time: Instant::now() - Duration::from_secs(rng.gen_range(60..300)),
-            end_time: Instant::now(),
+            start_time: Utc::now() - Duration::from_secs(rng.gen_range(60..300)),
+            end_time: Utc::now(),
             simulated_events,
             observed_behaviors,
             recommendations,
@@ -228,7 +235,7 @@ fn main() {
     println!("\n--- Omniversal Digital Twin of Tariro (RAG-Driven) Demonstration ---");
 
     let odt_engine = ODTEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Create and monitor the digital twin of Tariro's core components
     println!("--- Scenario 1: Digital Twin Creation and Monitoring ---");

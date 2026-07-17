@@ -5,10 +5,11 @@
 /// for a holistic understanding of context (leveraging RAG for schema mappings and SIMD for multi-modal
 /// feature extraction).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Represents different sensor modalities.
@@ -138,8 +139,8 @@ impl DataFusionEngine {
         let detected_events = if rng.gen_bool(0.2) { vec!["UnusualActivity".to_string()] } else { Vec::new() };
 
         FusedDataOutput {
-            fusion_id: format!("Fusion_{}", Instant::now().elapsed().as_micros()),
-            timestamp: Instant::now().elapsed().as_secs(),
+            fusion_id: format!("Fusion_{}", Utc::now().timestamp_micros()),
+            timestamp: Utc::now().timestamp(),
             fused_vector,
             contextual_summary: "Holistic understanding synthesized from multi-modal inputs.".to_string(),
             detected_events,

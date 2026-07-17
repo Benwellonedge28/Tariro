@@ -7,10 +7,11 @@
 /// It leverages RAG for cognitive tutoring systems, adaptive learning algorithms, and
 /// human-computer interaction research to continuously upskill human teams.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -45,7 +46,8 @@ pub struct SkillTransferEvent {
     pub event_id: String,
     pub operator_id: String,
     pub agi_agent_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub skill_transferred: String, // e.g., "ComplexPatternRecognition", "PredictiveReasoning"
     pub effectiveness_score: f32, // 0.0-1.0
     pub method: String, // e.g., "Demonstration", "GuidedPractice", "Explanations"
@@ -129,7 +131,7 @@ impl AITSHOEngine {
             event_id: format!("xfer_{}", rng.gen::<u32>()),
             operator_id: operator_id.to_string(),
             agi_agent_id: agi_agent_id.to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             skill_transferred: skill.to_string(),
             effectiveness_score: rng.gen_range(0.7..0.99), // High effectiveness for AGI-driven transfer
             method: "InteractiveGuidance".to_string(),
@@ -159,7 +161,7 @@ mod tests {
     #[test]
     fn test_aitsho_engine_flow() {
         let engine = AITSHOEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let mut operator = HumanOperatorProfile {
             operator_id: "op_engineer_alpha".to_string(),
@@ -190,7 +192,7 @@ fn main() {
     println!("\n--- AI-Powered Training and Skill Transfer for Human Operators Demonstration ---");
 
     let aitsho_engine = AITSHOEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Define a human operator profile
     println!("--- Scenario 1: Define Human Operator Profile ---");

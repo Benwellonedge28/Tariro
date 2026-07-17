@@ -8,10 +8,11 @@
 /// self-improvement heuristics and recursive self-optimization principles, and SIMD for
 /// parallel experiment management and real-time cognitive growth monitoring.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -21,7 +22,8 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AISelfLimitation {
     pub limitation_id: String,
-    pub identified_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub identified_at: DateTime<Utc>,
     pub description: String, // e.g., "Low accuracy in adversarial conditions", "Inefficient resource usage for NLP tasks"
     pub affected_component: String, // e.g., "PerceptionModule", "DecisionEngine"
     pub severity: String, // e.g., "High", "Medium", "Low"
@@ -33,7 +35,7 @@ pub struct AISelfLimitation {
 pub struct ImprovementExperiment {
     pub experiment_id: String,
     pub limitation_id: String,
-    pub design_date: Instant,
+    pub design_date: DateTime<Utc>,
     pub hypothesis: String, // e.g., "Applying X technique will improve Y metric by Z%"
     pub experimental_setup: String, // e.g., "Train on augmented dataset with new loss function"
     pub expected_outcome: String,
@@ -46,7 +48,7 @@ pub struct ImprovementExperiment {
 pub struct SelfImprovementApplication {
     pub application_id: String,
     pub experiment_id: String,
-    pub applied_date: Instant,
+    pub applied_date: DateTime<Utc>,
     pub enhancement_description: String, // e.g., "Integrated new QNN architecture for perception"
     pub observed_performance_gain: HashMap<String, f32>, // e.g., "accuracy_increase_pct": 5.0
     pub cognitive_architecture_modified: String, // RAG-derived change description
@@ -106,7 +108,7 @@ impl ARSILEngine {
             applications.push(SelfImprovementApplication {
                 application_id: format!("sia_{}", rng.gen::<u32>()),
                 experiment_id: exp.experiment_id.clone(),
-                applied_date: Instant::now(),
+                applied_date: Utc::now(),
                 enhancement_description: format!("Applied enhancement from experiment '{}'.", exp.hypothesis),
                 observed_performance_gain: observed_gain,
                 cognitive_architecture_modified: "Improved neural network layer configuration.".to_string(),
@@ -136,7 +138,7 @@ impl ARSILEngine {
             experiments_to_run.push(ImprovementExperiment {
                 experiment_id: format!("exp_{}", rng.gen::<u32>()),
                 limitation_id: lim.limitation_id,
-                design_date: Instant::now(),
+                design_date: Utc::now(),
                 hypothesis: format!("Hypothesis: improving '{}' will fix '{}'.", lim.proposed_improvement_direction, lim.description),
                 experimental_setup: "Modify core algorithm parameters and retrain on diverse dataset.".to_string(),
                 expected_outcome: "Reduced error rate, increased robustness.".to_string(),
@@ -172,7 +174,7 @@ mod tests {
         let limitations = vec![
             AISelfLimitation {
                 limitation_id: "perception_bias_001".to_string(),
-                identified_at: Instant::now(),
+                identified_at: Utc::now(),
                 description: "AI exhibits racial bias in facial recognition tasks.".to_string(),
                 affected_component: "PerceptionModule".to_string(),
                 severity: "High".to_string(),
@@ -193,13 +195,13 @@ fn main() {
     println!("\n--- Autonomous Recursive Self-Improvement Loop (RAG-Driven) Demonstration ---");
 
     let arsil_engine = ARSILEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: AI identifies a limitation in its decision-making due to outdated information
     println!("--- Scenario 1: Decision-Making Improvement ---");
     let decision_limitation = AISelfLimitation {
         limitation_id: "decision_outdated_info_001".to_string(),
-        identified_at: Instant::now() - Duration::from_days(5),
+        identified_at: Utc::now() - chrono::Duration::days(5),
         description: "Decision-making logic occasionally leads to suboptimal choices due to reliance on stale external data sources.".to_string(),
         affected_component: "DecisionEngine".to_string(),
         severity: "Medium".to_string(),
@@ -218,7 +220,7 @@ fn main() {
     println!("--- Scenario 2: NLP Performance Enhancement ---");
     let nlp_limitation = AISelfLimitation {
         limitation_id: "nlp_performance_bottleneck_001".to_string(),
-        identified_at: Instant::now() - Duration::from_days(2),
+        identified_at: Utc::now() - chrono::Duration::days(2),
         description: "Natural Language Processing module experiences high latency for complex queries, impacting response times.".to_string(),
         affected_component: "NLP_Processor".to_string(),
         severity: "High".to_string(),

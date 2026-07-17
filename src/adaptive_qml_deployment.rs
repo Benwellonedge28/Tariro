@@ -5,10 +5,12 @@
 /// tasks, adapting to data characteristics and available quantum resources (RAG: QML model architectures,
 /// quantum resource management; SIMD: parallel QML model training/inference).
 
+use crate::prelude::*;
+use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use num_complex::Complex;
 
@@ -83,7 +85,7 @@ impl QMLDeploymentManager {
         };
 
         QMLModel {
-            id: format!("qml_model_{}", Instant::now().elapsed().as_secs()),
+            id: format!("qml_model_{}", Utc::now().timestamp()),
             model_type: selected_arch.to_string(),
             architecture: QuantumCircuit { num_qubits: rng.gen_range(4..16), gates: vec!["H".to_string(), "CNOT".to_string()] },
             parameters: HashMap::from([("learning_rate".to_string(), "0.01".to_string())]),

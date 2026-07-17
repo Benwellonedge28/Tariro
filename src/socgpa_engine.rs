@@ -6,10 +6,11 @@
 /// leveraging dynamic profiling and performance feedback. It uses RAG for architecture manuals
 /// and optimization patterns, and SIMD for parallel code generation and auto-tuning.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -45,7 +46,8 @@ pub struct OptimizedCodeArtifact {
     pub compilation_flags: String,
     pub observed_performance: HashMap<String, f32>, // e.g., "latency_ms": 9.8, "throughput_ops_s": 1020.0
     pub optimization_level: String, // e.g., "L3_SIMD_Vectorized", "Quantum_Optimized"
-    pub generated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub generated_at: DateTime<Utc>,
 }
 
 /// Overall Self-Optimizing Code Generation system report.
@@ -136,7 +138,7 @@ impl SOCGPAEngine {
             compilation_flags: "-O3 -march=native".to_string(),
             observed_performance: observed_perf,
             optimization_level,
-            generated_at: Instant::now(),
+            generated_at: Utc::now(),
         }
     }
 
@@ -160,7 +162,7 @@ mod tests {
     #[test]
     fn test_socgpa_engine_flow() {
         let engine = SOCGPAEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let task = ComputationTask {
             task_id: "matrix_mult".to_string(),
@@ -190,7 +192,7 @@ fn main() {
     println!("\n--- Self-Optimizing Code Generation for Parallel Architectures (SIMD-Driven) Demonstration ---");
 
     let socgpa_engine = SOCGPAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Optimize a deep learning inference task for a GPU
     println!("--- Scenario 1: Optimize Deep Learning Inference for GPU ---");

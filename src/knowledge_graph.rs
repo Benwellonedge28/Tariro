@@ -11,7 +11,7 @@
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 /// Represents an entity in the knowledge graph.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

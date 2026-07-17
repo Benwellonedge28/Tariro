@@ -8,10 +8,11 @@
 /// and reinforcement learning for adaptive resource management to maintain high
 /// availability and resilience.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -25,7 +26,7 @@ pub struct AgiResourceNode {
     pub total_capacity: HashMap<String, u32>, // e.g., "cores": 128, "memory_gb": 1024
     pub current_utilization: HashMap<String, u32>, // e.g., "cores": 60, "memory_gb": 500
     pub health_status: String, // e.g., "Healthy", "Degraded", "Failed"
-    pub last_heartbeat: Instant,
+    pub last_heartbeat: DateTime<Utc>,
     pub tasks_assigned: Vec<String>,
 }
 
@@ -45,7 +46,10 @@ pub struct ReAllocationEvent {
     pub task_id: String,
     pub from_node_id: String,
     pub to_node_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub reason: String, // e.g., "NodeFailure", "LoadBalancing", "PriorityChange"
 }
 
@@ -85,7 +89,7 @@ impl IRRFTEngine {
         let mut rng = rand::Rng::thread_rng();
 
         for (_id, node) in nodes.iter_mut() {
-            node.last_heartbeat = Instant::now();
+            node.last_heartbeat = Utc::now();
             // Simulate some nodes degrading or failing
             if rng.gen_bool(0.05) { // 5% chance of degradation
                 node.health_status = "Degraded".to_string();
@@ -153,7 +157,7 @@ impl IRRFTEngine {
                             task_id: task_id.clone(),
                             from_node_id: old_node,
                             to_node_id: new_node_id.clone(),
-                            timestamp: Instant::now(),
+                            timestamp: Utc::now(),
                             reason: "NodeFailure".to_string(),
                         });
                         println!("    Task '{}' re-allocated from '{}' to '{}'.", task_id, old_node, new_node_id);
@@ -188,7 +192,7 @@ mod tests {
     #[test]
     fn test_irrft_engine_flow() {
         let engine = IRRFTEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let node_a_capacity = HashMap::from([("cores".to_string(), 100), ("memory_gb".to_string(), 512)]);
         let node_b_capacity = HashMap::from([("cores".to_string(), 50), ("memory_gb".to_string(), 256)]);
@@ -256,7 +260,7 @@ fn main() {
     println!("\n--- Intelligent Resource Re-Allocation and Fault Tolerance Demonstration ---");
 
     let irrft_engine = IRRFTEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Define AGI resource nodes with initial states
     println!("--- Scenario 1: Define AGI Resource Nodes ---");

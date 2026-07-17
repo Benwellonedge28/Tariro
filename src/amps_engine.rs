@@ -5,10 +5,11 @@
 /// for engineering or design tasks at extreme speeds. It leverages RAG for material properties and physics laws,
 /// and SIMD for parallel numerical solvers.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -142,7 +143,7 @@ impl AMPS_Engine {
     }
 
     /// Analyzes simulation results and extracts key metrics (conceptual RAG).
-    pub fn analyze_simulation_results_rag(&self, config: &SimulationConfig, final_grid: &[SimulationGridPoint], start_time: Instant) -> SimulationResult {
+    pub fn analyze_simulation_results_rag(&self, config: &SimulationConfig, final_grid: &[SimulationGridPoint], start_time: DateTime<Utc>) -> SimulationResult {
         println!("  [AMPS]: Analyzing simulation results for config '{}' (RAG for result interpretation).", config.config_id);
         if let Some(mppl_info) = self.material_properties_physics_laws_rag_db.get("Steel_AISI_1018_Properties") {
             format!("MPPL RAG insight for result analysis: {}. Config: '{}'", mppl_info, config.config_id);
@@ -211,7 +212,7 @@ mod tests {
         let solver_status = engine.run_numerical_solvers_simd(&mut grid, &config);
         assert!(!solver_status.is_empty());
 
-        let sim_result = engine.analyze_simulation_results_rag(&config, &grid, Instant::now());
+        let sim_result = engine.analyze_simulation_results_rag(&config, &grid, Utc::now());
         assert!(!sim_result.result_id.is_empty());
 
         let report = engine.generate_amps_report_rag(&sim_result);
@@ -223,7 +224,7 @@ fn main() {
     println!("\n--- Accelerated Multi-Physics Simulation (AMPS) Demonstration ---");
 
     let amps_engine = AMPS_Engine::new();
-    let simulation_start_time = Instant::now();
+    let simulation_start_time = Utc::now();
 
     // Scenario 1: Configure and setup simulation grid
     println!("--- Scenario 1: Setup Simulation Grid ---");

@@ -4,10 +4,11 @@
 /// This firewall will dynamically adapt its rules and policies based on observed traffic patterns
 /// and DASA feedback (leveraging RAG for protocol analysis and SIMD for real-time packet inspection).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Defines actions for a firewall rule.
@@ -242,7 +243,7 @@ fn main() {
     for i in 0..3 {
         println!("\n========================== Firewall Evolution Cycle {} ==========================", i + 1);
 
-        let current_time = Instant::now().elapsed().as_secs();
+        let current_time = Utc::now().timestamp();
         let mut rng = rand::thread_rng();
 
         // Simulate various traffic patterns (normal and anomalous)

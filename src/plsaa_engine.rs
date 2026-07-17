@@ -9,10 +9,11 @@
 /// and personalized learning theories, and SIMD for parallel content generation and
 /// real-time learning analytics.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -22,7 +23,8 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SamuelLearningProfile {
     pub profile_id: String,
-    pub last_updated: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub last_updated: DateTime<Utc>,
     pub preferred_learning_style: String, // e.g., "Visual", "Auditory", "Kinesthetic"
     pub cognitive_strengths: Vec<String>, // e.g., "Abstract_Reasoning", "Pattern_Recognition"
     pub areas_for_improvement: Vec<String>, // e.g., "Speed_Reading", "Quantum_Physics_Fundamentals"
@@ -48,7 +50,8 @@ pub struct LearningInteraction {
     pub interaction_id: String,
     pub profile_id: String,
     pub content_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub engagement_score: f32, // e.g., eye-tracking, interaction frequency
     pub comprehension_score: f32, // e.g., quiz results, concept application
     pub emotional_response: String, // e.g., "Frustrated", "Engaged", "Bored"
@@ -136,7 +139,7 @@ impl PLSAAEngine {
             interaction_id: format!("li_{}", rng.gen::<u32>()),
             profile_id: samuel_profile.profile_id.clone(),
             content_id: new_content.content_id.clone(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             engagement_score: engagement,
             comprehension_score: comprehension,
             emotional_response,
@@ -149,7 +152,7 @@ impl PLSAAEngine {
             samuel_profile.areas_for_improvement.retain(|x| x != &target_topic);
             samuel_profile.cognitive_strengths.push(target_topic.clone());
         }
-        samuel_profile.last_updated = Instant::now();
+        samuel_profile.last_updated = Utc::now();
 
         println!("  Personalized learning session complete for '{}'. Comprehension: {:.2}.\n", target_topic, interaction.comprehension_score);
         (samuel_profile, interaction)
@@ -178,7 +181,7 @@ mod tests {
 
         let samuel_profile = SamuelLearningProfile {
             profile_id: "samuel_m_001".to_string(),
-            last_updated: Instant::now(),
+            last_updated: Utc::now(),
             preferred_learning_style: "Visual".to_string(),
             cognitive_strengths: vec!["Problem_Solving".to_string()],
             areas_for_improvement: vec!["VHDL_Fundamentals".to_string()],
@@ -199,13 +202,13 @@ fn main() {
     println!("\n--- Personalized Learning & Skill Augmentation for Samuel (RAG-Driven) Demonstration ---");
 
     let plsaa_engine = PLSAAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Tariro identifies a gap in Samuel's knowledge and provides tailored content
     println!("--- Scenario 1: Targeted Skill Development (Rust Advanced Concurrency) ---");
     let mut samuel_profile_initial = SamuelLearningProfile {
         profile_id: "samuel_m_001".to_string(),
-        last_updated: Instant::now() - Duration::from_days(7),
+        last_updated: Utc::now() - chrono::Duration::days(7),
         preferred_learning_style: "Hands_On_Coding".to_string(),
         cognitive_strengths: vec!["System_Design".to_string(), "Low_Level_Optimization".to_string()],
         areas_for_improvement: vec!["Rust_Advanced_Concurrency".to_string(), "FPGA_VHDL_Timing_Closure".to_string()],

@@ -8,10 +8,11 @@
 /// verification of attribution chains; RAG: post-quantum cryptography, distributed ledger technologies,
 /// zero-knowledge proofs, secure multi-party computation, verifiable delay functions).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -22,7 +23,10 @@ pub struct ResourceEvent {
     pub event_id: String,
     pub resource_type: String, // e.g., "cpu_cycles", "energy_joules", "memory_bytes", "bandwidth_gb"
     pub quantity: f64,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub producer_id: String, // ID of the entity that used the resource
     pub consumer_id: String, // ID of the entity for whom resource was used
     pub context_hash: String, // Hash of the computation context
@@ -36,7 +40,8 @@ pub struct AttributionRecord {
     pub cryptographic_hash: String, // Hash of the resource event + previous record hash
     pub quantum_signature: String, // Quantum-resistant signature
     pub attributed_to: String, // Final entity responsible for cost/usage
-    pub verification_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub verification_timestamp: DateTime<Utc>,
 }
 
 /// Represents a conceptual quantum-resistant signature.
@@ -103,7 +108,7 @@ impl QSRA_Engine {
             cryptographic_hash: current_hash,
             quantum_signature: quantum_sig.signature_value,
             attributed_to: event.consumer_id.clone(),
-            verification_timestamp: Instant::now(),
+            verification_timestamp: Utc::now(),
         }
     }
 
@@ -133,7 +138,7 @@ impl QSRA_Engine {
     }
 
     /// Audits resource usage across the entire infrastructure using DLTs and ZKPs (conceptual RAG).
-    pub fn audit_resource_usage_rag(&self, start_time: Instant, end_time: Instant) -> QSRA_Report {
+    pub fn audit_resource_usage_rag(&self, start_time: DateTime<Utc>, end_time: DateTime<Utc>) -> QSRA_Report {
         println!("  [QSRA]: Auditing resource usage from {:?} to {:?} (RAG for DLTs and ZKPs).", start_time, end_time);
         if let Some(dlt_info) = self.distributed_ledger_technologies_rag_db.get("Blockchain_for_Immutable_Resource_Logs") {
             format!("DLT RAG insight for auditing: {}. Time range: {:?} to {:?}", dlt_info, start_time, end_time);
@@ -167,7 +172,7 @@ mod tests {
             event_id: "cpu_usage_001".to_string(),
             resource_type: "cpu_cycles".to_string(),
             quantity: 1_000_000_000.0,
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             producer_id: "process_A".to_string(),
             consumer_id: "user_X".to_string(),
             context_hash: "ctx_hash_123".to_string(),
@@ -181,7 +186,7 @@ mod tests {
         let is_verified = engine.verify_attribution_chain_simd(&[record.clone()]);
         assert!(is_verified);
 
-        let report = engine.audit_resource_usage_rag(Instant::now(), Instant::now());
+        let report = engine.audit_resource_usage_rag(Utc::now(), Utc::now());
         assert!(!report.audit_run_id.is_empty());
     }
 }
@@ -197,7 +202,7 @@ fn main() {
         event_id: "compute_task_alpha_cpu".to_string(),
         resource_type: "cpu_cycles".to_string(),
         quantity: 5_000_000_000.0,
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         producer_id: "comp_unit_01".to_string(),
         consumer_id: "project_genesis".to_string(),
         context_hash: "hsh_gns_789".to_string(),
@@ -206,7 +211,7 @@ fn main() {
         event_id: "data_transfer_beta_net".to_string(),
         resource_type: "bandwidth_gb".to_string(),
         quantity: 10.5,
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         producer_id: "network_interface_03".to_string(),
         consumer_id: "research_dataset_proc".to_string(),
         context_hash: "hsh_dsp_456".to_string(),
@@ -230,8 +235,8 @@ fn main() {
 
     // Scenario 4: Auditing resource usage
     println!("--- Scenario 4: Resource Usage Audit ---");
-    let audit_start_time = Instant::now() - Duration::from_secs(3600); // Audit for the last hour
-    let audit_report = qsra_engine.audit_resource_usage_rag(audit_start_time, Instant::now());
+    let audit_start_time = Utc::now() - Duration::from_secs(3600); // Audit for the last hour
+    let audit_report = qsra_engine.audit_resource_usage_rag(audit_start_time, Utc::now());
     println!("  Audit Report ID: '{}'. Processed {} events, generated {} records, verified {} chains. Anomalies: {}. Quantum Resistance: '{}'.\n",
         audit_report.audit_run_id, audit_report.events_processed, audit_report.records_generated, audit_report.chains_verified, audit_report.total_anomalies_detected, audit_report.quantum_resistance_status);
 

@@ -5,10 +5,11 @@
 /// scenarios or alternative timelines, supporting sophisticated planning and risk assessment.
 /// It leverages SIMD for parallel scenario evaluation against a knowledge base.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -43,7 +44,8 @@ pub struct ScenarioEvaluation {
     pub identified_risks: Vec<String>,
     pub opportunities: Vec<String>,
     pub overall_feasibility_score: f32, // 0.0-1.0
-    pub generated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub generated_at: DateTime<Utc>,
     pub explanation: String,
 }
 
@@ -159,7 +161,7 @@ impl HCRAGEngine {
             identified_risks: risks,
             opportunities: ops,
             overall_feasibility_score: feasibility,
-            generated_at: Instant::now(),
+            generated_at: Utc::now(),
             explanation,
         }
     }
@@ -184,7 +186,7 @@ mod tests {
     #[test]
     fn test_hcrag_engine_flow() {
         let engine = HCRAGEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let scenario = Scenario {
             scenario_id: "s_001".to_string(),
@@ -209,7 +211,7 @@ fn main() {
     println!("\n--- Hypothetical & Counterfactual RAG (RAG-Driven) Demonstration ---");
 
     let hcrag_engine = HCRAGEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Evaluate a hypothetical project change
     println!("--- Scenario 1: Evaluate Project Deadline Shift ---");

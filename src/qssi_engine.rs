@@ -11,10 +11,11 @@
 /// hardware security modules (HSMs), trusted execution environments (TEEs), formal methods, security proofs, intrusion
 /// detection systems (IDS), capability-based security).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -39,7 +40,8 @@ pub struct SecurityPolicy {
     pub network_egress_rules: Vec<String>, // Allowed IP/domains
     pub process_execution_limits: HashMap<String, u32>, // CPU, memory limits
     pub integrity_check_frequency_sec: u32,
-    pub created_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub created_at: DateTime<Utc>,
 }
 
 /// Report detailing a security audit or a breach detection.
@@ -51,7 +53,8 @@ pub struct SecurityAuditReport {
     pub findings: Vec<String>,
     pub severity: String, // e.g., "low", "medium", "high", "critical"
     pub recommended_actions: Vec<String>,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Overall QSSI system report.
@@ -137,7 +140,7 @@ impl QSSI_Engine {
                 findings: vec!["Unauthorized memory modification detected.".to_string()],
                 severity: "high".to_string(),
                 recommended_actions: vec!["Quarantine_Runtime".to_string(), "Generate_Forensic_Report".to_string()],
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
             }
         } else {
             SecurityAuditReport {
@@ -147,7 +150,7 @@ impl QSSI_Engine {
                 findings: vec!["No integrity violations detected.".to_string()],
                 severity: "low".to_string(),
                 recommended_actions: Vec::new(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
             }
         }
     }
@@ -183,7 +186,7 @@ mod tests {
             network_egress_rules: vec!["*.tariro.com".to_string()],
             process_execution_limits: HashMap::from([("cpu_limit".to_string(), 8000), ("mem_limit_mb".to_string(), 4096)]),
             integrity_check_frequency_sec: 60,
-            created_at: Instant::now(),
+            created_at: Utc::now(),
         };
         let runtime = engine.provision_secure_runtime_simd("critical_ai_core", &policy);
         assert!(!runtime.context_id.is_empty());
@@ -214,7 +217,7 @@ fn main() {
         network_egress_rules: vec!["tariro.quantum.net".to_string()],
         process_execution_limits: HashMap::from([("cpu_limit".to_string(), 9000), ("mem_limit_mb".to_string(), 8192), ("q_qubit_limit".to_string(), 1024)]),
         integrity_check_frequency_sec: 10,
-        created_at: Instant::now(),
+        created_at: Utc::now(),
     };
     let secure_runtime = qssi_engine.provision_secure_runtime_simd(&critical_component, &base_security_policy);
     println!("  Provisioned secure runtime '{}' for component '{}'. Memory Encrypted: {}.\n",

@@ -4,6 +4,7 @@
 //! These are the highest-level objectives that guide Tariro's self-evolution,
 //! learning, and operational decisions.
 
+use crate::prelude::*;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;

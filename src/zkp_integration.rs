@@ -7,7 +7,7 @@
 
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Represents the public statement that the prover wants to prove.

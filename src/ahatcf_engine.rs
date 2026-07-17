@@ -7,10 +7,11 @@
 /// objectives. It leverages RAG for human-factors engineering, cognitive systems design, and
 /// ethical AI principles to optimize team performance and mutual trust.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -44,8 +45,10 @@ pub struct CollaborativeTaskAssignment {
     pub task_description: String,
     pub assigned_to: HashMap<String, String>, // agent_id -> "Human" or "AGI"
     pub collaboration_type: String, // e.g., "AGI_Assisted", "Human_Supervised", "Shared_Control", "Autonomous_Execution"
-    pub start_time: Instant,
-    pub estimated_end_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub start_time: DateTime<Utc>,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub estimated_end_time: DateTime<Utc>,
     pub status: String, // e.g., "InProgress", "AwaitingReview", "Completed"
 }
 
@@ -153,8 +156,8 @@ impl AHATCFEngine {
             task_description: task_desc.to_string(),
             assigned_to,
             collaboration_type,
-            start_time: Instant::now(),
-            estimated_end_time: Instant::now() + Duration::from_secs(rng.gen_range(300..3600)),
+            start_time: Utc::now(),
+            estimated_end_time: Utc::now() + Duration::from_secs(rng.gen_range(300..3600)),
             status: "InProgress".to_string(),
         }
     }
@@ -182,7 +185,7 @@ mod tests {
     #[test]
     fn test_ahatcf_engine_flow() {
         let engine = AHATCFEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let mut human_engineer = HumanTeamMember {
             member_id: "human_eng_1".to_string(),
@@ -223,7 +226,7 @@ fn main() {
     println!("\n--- Adaptive Human-AGI Teaming and Collaboration Frameworks Demonstration ---");
 
     let ahatcf_engine = AHATCFEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Define human team members and AGI agents
     println!("--- Scenario 1: Define Human Team Members and AGI Agents ---");

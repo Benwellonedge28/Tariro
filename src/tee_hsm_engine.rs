@@ -11,10 +11,11 @@
 /// RAG: trusted computing, secure enclaves, side-channel analysis, attestation, secure boot, firmware integrity, key
 /// management, post-quantum cryptography in hardware).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -50,7 +51,8 @@ pub struct AttestationReport {
     pub measurement_hash: String, // Hash of the enclave's code and data state
     pub platform_signature: String,
     pub result: String, // e.g., "verified", "failed_integrity_check"
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Overall TEE & HSM system report.
@@ -135,7 +137,7 @@ impl TEE_HSM_Engine {
             measurement_hash: format!("hash_{}", rng.gen::<u64>()),
             platform_signature: format!("sig_{}", rng.gen::<u64>()),
             result: "verified".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
         }
     }
 

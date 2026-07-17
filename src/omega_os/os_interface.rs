@@ -1,4 +1,5 @@
 // src/omega_os/os_interface.rs
+use crate::prelude::*;
 
 //! Defines interfaces and communication protocols for Tariro AGI to interact with
 //! and manage OMEGA OS instances, whether simulated or deployed on hardware.

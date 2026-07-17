@@ -7,10 +7,11 @@
 /// and data exchange (leveraging RAG for ephemeral key exchange protocols like Signal and SIMD for high-speed key
 /// derivation and secure erasure).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Represents a short-lived ephemeral key.
@@ -65,7 +66,7 @@ impl EphemeralKeyManager {
         println!("  [EKM]: Generating ephemeral key '{}'.", key_id);
         let mut rng = rand::thread_rng();
         let key_bytes: Vec<u8> = (0..32).map(|_| rng.gen::<u8>()).collect();
-        let now = Instant::now().elapsed().as_secs();
+        let now = Utc::now().timestamp();
         let key = EphemeralKey {
             key_id: key_id.to_string(),
             key_bytes,

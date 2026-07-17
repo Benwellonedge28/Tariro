@@ -8,10 +8,11 @@
 /// leverages RAG for adaptive control theory and regulatory compliance models, and SIMD for
 /// parallel policy evaluation and real-time control parameter adjustment.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -21,7 +22,8 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OperationalParameters {
     pub param_id: String,
-    pub last_updated: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub last_updated: DateTime<Utc>,
     pub resource_allocation_strategy: String, // e.g., "Optimal_Efficiency", "Ethical_Priority"
     pub permission_level_matrix: HashMap<String, String>, // e.g., "data_access": "restricted", "action_execution": "confirm_human"
     pub autonomy_level: String, // e.g., "full_auto", "suggest_only", "human_required"
@@ -33,7 +35,8 @@ pub struct OperationalParameters {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RegulatoryEthicalChange {
     pub change_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub change_type: String, // e.g., "NewRegulation", "SamuelValueShift", "EthicalDilemmaResolution"
     pub description: String,
     pub impact_assessment: String, // RAG-derived impact analysis
@@ -44,7 +47,8 @@ pub struct RegulatoryEthicalChange {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GovernanceDecision {
     pub decision_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub triggered_by: String, // e.g., "Ethical Advisory", "Samuel Input", "Regulatory Update"
     pub previous_params: OperationalParameters,
     pub new_params: OperationalParameters,
@@ -153,7 +157,7 @@ impl AGRAEngine {
 
         GovernanceDecision {
             decision_id: format!("gd_{}", rng.gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             triggered_by: "System_Monitoring_or_External_Event".to_string(),
             previous_params: prev_params,
             new_params: current_operational_params,
@@ -184,12 +188,12 @@ mod tests {
         let engine = AGRAEngine::new();
 
         let initial_params = OperationalParameters {
-            param_id: "op_001".to_string(), last_updated: Instant::now(), resource_allocation_strategy: "Optimal_Efficiency".to_string(), permission_level_matrix: HashMap::from([("data_access".to_string(), "unrestricted".to_string())]), autonomy_level: "full_auto".to_string(), processing_speed_multiplier: 1.0, active_ethical_constraints: vec![],
+            param_id: "op_001".to_string(), last_updated: Utc::now(), resource_allocation_strategy: "Optimal_Efficiency".to_string(), permission_level_matrix: HashMap::from([("data_access".to_string(), "unrestricted".to_string())]), autonomy_level: "full_auto".to_string(), processing_speed_multiplier: 1.0, active_ethical_constraints: vec![],
         };
 
         let recent_changes = vec![
             RegulatoryEthicalChange {
-                change_id: "reg_001".to_string(), timestamp: Instant::now(), change_type: "NewRegulation".to_string(), description: "New global data privacy law enacted.".to_string(), impact_assessment: "RAG-impact-analysis".to_string(), proposed_governance_adaptations: vec![],
+                change_id: "reg_001".to_string(), timestamp: Utc::now(), change_type: "NewRegulation".to_string(), description: "New global data privacy law enacted.".to_string(), impact_assessment: "RAG-impact-analysis".to_string(), proposed_governance_adaptations: vec![],
             }
         ];
 
@@ -206,13 +210,13 @@ fn main() {
     println!("\n--- Adaptive Governance & Responsible Autonomy (RAG-Driven) Demonstration ---");
 
     let agra_engine = AGRAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: New regulatory change requires a shift in data handling policies
     println!("--- Scenario 1: New Data Regulation Compliance ---");
     let initial_tariro_params = OperationalParameters {
         param_id: "tariro_ops_001".to_string(),
-        last_updated: Instant::now() - Duration::from_days(30),
+        last_updated: Utc::now() - chrono::Duration::days(30),
         resource_allocation_strategy: "Performance_Optimized".to_string(),
         permission_level_matrix: HashMap::from([("data_access".to_string(), "standard_anonymization".to_string()), ("file_sharing".to_string(), "internal_only".to_string())]),
         autonomy_level: "full_auto".to_string(),
@@ -223,7 +227,7 @@ fn main() {
     let new_regulation_change = vec![
         RegulatoryEthicalChange {
             change_id: "gdpr_v2_impact".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             change_type: "NewRegulation".to_string(),
             description: "GDPR v2 enacted, requiring explicit consent for all data processing and data minimization by design.".to_string(),
             impact_assessment: "High_impact_on_data_flows_and_storage_protocols".to_string(),
@@ -243,7 +247,7 @@ fn main() {
     let samuel_value_shift = vec![
         RegulatoryEthicalChange {
             change_id: "samuel_autonomy_pref_change".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             change_type: "SamuelValueShift".to_string(),
             description: "Samuel prefers more human review for creative output generation.".to_string(),
             impact_assessment: "Moderate_impact_on_generative_AI_workflows".to_string(),
@@ -253,7 +257,7 @@ fn main() {
 
     let current_tariro_params_2 = OperationalParameters {
         param_id: "tariro_ops_002".to_string(),
-        last_updated: Instant::now() - Duration::from_days(7),
+        last_updated: Utc::now() - chrono::Duration::days(7),
         resource_allocation_strategy: "Balanced".to_string(),
         permission_level_matrix: HashMap::from([("data_access".to_string(), "standard_anonymization".to_string()), ("creative_output".to_string(), "full_autonomy".to_string())]),
         autonomy_level: "full_auto".to_string(),

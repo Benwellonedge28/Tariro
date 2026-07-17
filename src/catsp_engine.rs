@@ -7,10 +7,11 @@
 /// RAG for multi-objective optimization algorithms, real-time data fusion, and predictive
 /// analytics to maximize throughput, minimize latency, and ensure critical task completion.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -23,7 +24,7 @@ pub struct SchedulableTask {
     pub task_type: String, // e.g., "ComputeIntensive", "IOBound", "CriticalControl"
     pub required_resources: HashMap<String, u32>, // e.g., "cpu": 8, "gpu": 2, "memory_gb": 64
     pub priority_score: f32,
-    pub deadline: Option<Instant>,
+    pub deadline: Option<DateTime<Utc>>,
     pub current_status: String, // e.g., "Ready", "Scheduled", "Running", "Completed", "Failed"
     pub contextual_tags: Vec<String>, // e.g., "high_urgency", "low_latency_required", "sensitive_data"
 }
@@ -32,7 +33,10 @@ pub struct SchedulableTask {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OperationalContext {
     pub context_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub resource_availability: HashMap<String, u32>, // e.g., "cpu_free": 128, "gpu_free": 16
     pub network_congestion_level: f32, // 0.0-1.0
     pub active_threat_level: String, // e.g., "Low", "Medium", "High"
@@ -44,9 +48,10 @@ pub struct OperationalContext {
 pub struct SchedulingDecision {
     pub decision_id: String,
     pub task_id: String,
-    pub scheduled_at: Instant,
+    pub scheduled_at: DateTime<Utc>,
     pub assigned_agi_id: String,
-    pub predicted_completion_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub predicted_completion_time: DateTime<Utc>,
     pub justification: String, // RAG-generated explanation for the decision
 }
 
@@ -90,7 +95,7 @@ impl CATSPEngine {
 
         OperationalContext {
             context_id: format!("ctx_{}", rng.gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             resource_availability: HashMap::from([
                 ("cpu_free".to_string(), rng.gen_range(50..200)),
                 ("gpu_free".to_string(), rng.gen_range(0..10)),
@@ -116,7 +121,7 @@ impl CATSPEngine {
             let assigned_agi_id = available_agi_instances[rng.gen_range(0..available_agi_instances.len())].clone();
             task.current_status = "Scheduled".to_string();
 
-            let predicted_completion_time = Instant::now() + Duration::from_secs(rng.gen_range(10..600));
+            let predicted_completion_time = Utc::now() + Duration::from_secs(rng.gen_range(10..600));
             let justification = format!("Prioritized due to high score ({:.2}), sufficient resources on '{}', and low network congestion (RAG-driven analysis).
             
             For more information, consult the conceptual RAG for Multi-Objective Optimization for Scheduling in the database.", task.priority_score, assigned_agi_id);
@@ -125,7 +130,7 @@ impl CATSPEngine {
             return Some(SchedulingDecision {
                 decision_id: format!("sched_dec_{}", rng.gen::<u32>()),
                 task_id: task.task_id.clone(),
-                scheduled_at: Instant::now(),
+                scheduled_at: Utc::now(),
                 assigned_agi_id,
                 predicted_completion_time,
                 justification,
@@ -160,7 +165,7 @@ mod tests {
     #[test]
     fn test_catsp_engine_flow() {
         let engine = CATSPEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let mut task_critical = SchedulableTask {
             task_id: "task_critical_alert".to_string(),
@@ -188,7 +193,7 @@ fn main() {
     println!("\n--- Context-Aware Task Scheduling and Prioritization Demonstration ---");
 
     let catsp_engine = CATSPEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Ingest and fuse real-time operational context
     println!("--- Scenario 1: Ingest Operational Context ---");

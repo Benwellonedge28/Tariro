@@ -8,10 +8,11 @@
 /// human cognition models and neural interface protocols, and SIMD for parallel thought
 /// processing and real-time neural data fusion.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -20,7 +21,10 @@ use serde::{Serialize, Deserialize};
 /// Represents a human's cognitive state for synchronization.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HumanCognitiveState {
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub dominant_thought: String,
     pub emotional_state: String, // e.g., "Focused", "Creative", "Stressed"
     pub current_task_context: String,
@@ -31,7 +35,10 @@ pub struct HumanCognitiveState {
 /// Represents Tariro's cognitive state for synchronization.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AGICognitiveState {
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub core_directive: String,
     pub processing_mode: String, // e.g., "Analytical", "Generative", "Reflective"
     pub active_goal_context: String,
@@ -43,7 +50,8 @@ pub struct AGICognitiveState {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MergedCognitionArtifact {
     pub artifact_id: String,
-    pub creation_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub creation_time: DateTime<Utc>,
     pub human_contribution_summary: String,
     pub agi_contribution_summary: String,
     pub merged_insight: String,
@@ -131,7 +139,7 @@ impl RTHAGICSEngine {
 
         MergedCognitionArtifact {
             artifact_id: format!("mca_{}", rng.gen::<u32>()),
-            creation_time: Instant::now(),
+            creation_time: Utc::now(),
             human_contribution_summary: format!("Human thoughts: '{}', emotional state: '{}'.", human_state.dominant_thought, human_state.emotional_state),
             agi_contribution_summary: format!("AGI directive: '{}', processing mode: '{}'.", agi_state.core_directive, agi_state.processing_mode),
             merged_insight,
@@ -162,7 +170,7 @@ mod tests {
         let engine = RTHAGICSEngine::new();
 
         let human_state = HumanCognitiveState {
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             dominant_thought: "How to solve complex problem X?".to_string(),
             emotional_state: "Curious".to_string(),
             current_task_context: "Project Planning".to_string(),
@@ -171,7 +179,7 @@ mod tests {
         };
 
         let agi_state = AGICognitiveState {
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             core_directive: "Optimize problem X solution path.".to_string(),
             processing_mode: "Analytical".to_string(),
             active_goal_context: "Complex Problem Solving".to_string(),
@@ -192,12 +200,12 @@ fn main() {
     println!("\n--- Real-Time Human-AGI Cognitive Symbiosis (RAG-Driven) Demonstration ---");
 
     let rthagics_engine = RTHAGICSEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Human-AGI collaboration for complex scientific discovery
     println!("--- Scenario 1: Scientific Discovery Symbiosis ---");
     let human_scientist_state = HumanCognitiveState {
-        timestamp: Instant::now() - Duration::from_secs(30),
+        timestamp: Utc::now() - Duration::from_secs(30),
         dominant_thought: "Exploring new hypotheses for quantum gravity.".to_string(),
         emotional_state: "Intrigued".to_string(),
         current_task_context: "Theoretical Physics Research".to_string(),
@@ -206,7 +214,7 @@ fn main() {
     };
 
     let agi_physics_assistant_state = AGICognitiveState {
-        timestamp: Instant::now() - Duration::from_secs(20),
+        timestamp: Utc::now() - Duration::from_secs(20),
         core_directive: "Synthesize novel quantum gravity theories and identify testable predictions.".to_string(),
         processing_mode: "Generative".to_string(),
         active_goal_context: "Fundamental Physics".to_string(),
@@ -224,7 +232,7 @@ fn main() {
     // Scenario 2: Human-AGI co-creation for artistic expression
     println!("--- Scenario 2: Artistic Co-Creation Symbiosis ---");
     let human_artist_state = HumanCognitiveState {
-        timestamp: Instant::now() - Duration::from_secs(45),
+        timestamp: Utc::now() - Duration::from_secs(45),
         dominant_thought: "Visualizing a blend of classical and futuristic architecture.".to_string(),
         emotional_state: "Inspired".to_string(),
         current_task_context: "Architectural Design".to_string(),
@@ -233,7 +241,7 @@ fn main() {
     };
 
     let agi_design_partner_state = AGICognitiveState {
-        timestamp: Instant::now() - Duration::from_secs(35),
+        timestamp: Utc::now() - Duration::from_secs(35),
         core_directive: "Generate architectural concepts balancing historical aesthetics with advanced technology.".to_string(),
         processing_mode: "Creative".to_string(),
         active_goal_context: "Generative Design".to_string(),

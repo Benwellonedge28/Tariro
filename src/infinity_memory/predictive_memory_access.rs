@@ -1,4 +1,5 @@
 // src/infinity_memory/predictive_memory_access.rs
+use crate::prelude::*;
 
 use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc, Duration};

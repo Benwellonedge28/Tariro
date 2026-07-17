@@ -1,4 +1,5 @@
 // This module provides a high-level overview and coordination logic for the
+use crate::prelude::*;
 // "TARIRO AUTONOMOUS SELF-MANAGEMENT — Full Operational Sovereignty" Meta-Project.
 //
 // This meta-project is the pinnacle of Tariro's design, establishing *full operational sovereignty*

@@ -8,10 +8,11 @@
 /// resource management policies and quantum accounting models, and SIMD for parallel
 /// job queuing and real-time resource monitoring.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -47,9 +48,9 @@ pub struct QuantumJobRequest {
 pub struct QuantumJobStatus {
     pub job_id: String,
     pub resource_id: String,
-    pub submitted_at: Instant,
-    pub started_at: Option<Instant>,
-    pub completed_at: Option<Instant>,
+    pub submitted_at: DateTime<Utc>,
+    pub started_at: Option<DateTime<Utc>>,
+    pub completed_at: Option<DateTime<Utc>>,
     pub status: String, // e.g., "Queued", "Running", "Completed", "Failed"
     pub result_data: HashMap<String, String>, // e.g., "measurement_counts": "{00:100, 01:50,...}", "error_rate": "0.01"
     pub cost_units_consumed: f32,
@@ -107,8 +108,8 @@ impl QCROEngine {
                 scheduled_jobs.push(QuantumJobStatus {
                     job_id: job.job_id.clone(),
                     resource_id: resource.resource_id.clone(),
-                    submitted_at: Instant::now() - Duration::from_secs(rng.gen_range(60..300)),
-                    started_at: Some(Instant::now()),
+                    submitted_at: Utc::now() - Duration::from_secs(rng.gen_range(60..300)),
+                    started_at: Some(Utc::now()),
                     completed_at: None,
                     status: "Running".to_string(),
                     result_data: HashMap::new(),
@@ -141,14 +142,14 @@ impl QCROEngine {
         let mut completed_jobs = Vec::new();
         for mut job_status in scheduled_jobs {
             if job_status.status == "Running" && rng.gen_bool(0.8) { // Simulate successful completion
-                job_status.completed_at = Some(Instant::now());
+                job_status.completed_at = Some(Utc::now());
                 job_status.status = "Completed".to_string();
                 job_status.cost_units_consumed = rng.gen_range(1.0..10.0);
                 job_status.result_data.insert("simulated_result".to_string(), "00:500, 01:500".to_string());
                 job_status.quantum_safe_audit_trail.push_str(&format!(" Job completed successfully on '{}'.", job_status.resource_id));
                 println!("  Job '{}' completed.", job_status.job_id);
             } else if job_status.status == "Running" { // Simulate failure
-                job_status.completed_at = Some(Instant::now());
+                job_status.completed_at = Some(Utc::now());
                 job_status.status = "Failed".to_string();
                 job_status.quantum_safe_audit_trail.push_str(&format!(" Job failed on '{}' due to resource error.", job_status.resource_id));
                 println!("  Job '{}' failed.", job_status.job_id);
@@ -204,7 +205,7 @@ fn main() {
     println!("\n--- Quantum Computing Resource Orchestration (RAG-Driven) Demonstration ---");
 
     let qcro_engine = QCROEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Process a batch of quantum job requests
     println!("--- Scenario 1: Quantum Job Scheduling and Execution ---");

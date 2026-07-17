@@ -8,10 +8,11 @@
 /// system reconfigurations; RAG: autonomous systems, control theory, cybernetics, self-management,
 /// dynamic systems modeling, formal verification).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -23,7 +24,8 @@ pub struct SystemState {
     pub component_id: String,
     pub metrics: HashMap<String, f64>, // e.g., "cpu_load": 0.7, "memory_usage_gb": 12.5, "latency_ms": 50.0
     pub alerts: Vec<String>,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Represents an autonomous control policy.
@@ -34,7 +36,8 @@ pub struct ControlPolicy {
     pub triggers: HashMap<String, String>, // e.g., "cpu_load": ">0.8", "latency_ms": ">100"
     pub actions_template: Vec<String>, // e.g., "scale_up_component_X", "reallocate_memory_Y"
     pub priority: u8, // 1 (critical) to 10 (low)
-    pub last_evaluation: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub last_evaluation: DateTime<Utc>,
 }
 
 /// Represents a decision made by the control plane.
@@ -45,7 +48,8 @@ pub struct ControlDecision {
     pub triggered_state_id: String,
     pub proposed_actions: Vec<OrchestrationAction>, // Reusing OrchestrationAction from RTRPO
     pub confidence: f32,
-    pub decision_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub decision_timestamp: DateTime<Utc>,
 }
 
 /// Represents an executable action for resource orchestration (re-used from RTRPO for consistency).
@@ -56,7 +60,8 @@ pub struct OrchestrationAction {
     pub target_component_id: String,
     pub parameter: String, // e.g., "core_count", "fan_speed_pct", "task_id"
     pub value: String, // e.g., "8", "75", "quantum_simulation_task_XYZ"
-    pub initiated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub initiated_at: DateTime<Utc>,
 }
 
 /// Report for ACP operations.
@@ -126,7 +131,7 @@ impl ACP_Engine {
                 component_id: component_id.clone(),
                 metrics,
                 alerts,
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
             });
         }
         states
@@ -159,11 +164,11 @@ impl ACP_Engine {
                                 target_component_id: state.component_id.clone(),
                                 parameter: "core_count".to_string(),
                                 value: "+2".to_string(),
-                                initiated_at: Instant::now(),
+                                initiated_at: Utc::now(),
                             },
                         ],
                         confidence: rng.gen_range(0.8..0.99),
-                        decision_timestamp: Instant::now(),
+                        decision_timestamp: Utc::now(),
                     });
                 }
             }
@@ -232,7 +237,7 @@ mod tests {
                 triggers: HashMap::from([("cpu_load".to_string(), ">0.8".to_string())]),
                 actions_template: vec!["scale_up_component_X".to_string()],
                 priority: 1,
-                last_evaluation: Instant::now(),
+                last_evaluation: Utc::now(),
             },
         ];
         let decisions = engine.evaluate_control_policies_rag(&states, &policies);
@@ -264,7 +269,7 @@ fn main() {
             triggers: HashMap::from([("cpu_load".to_string(), ">0.8".to_string())]),
             actions_template: vec!["scale_up_cpu".to_string(), "reroute_task_to_idle_core".to_string()],
             priority: 1,
-            last_evaluation: Instant::now(),
+            last_evaluation: Utc::now(),
         },
         ControlPolicy {
             policy_id: "policy_high_latency".to_string(),
@@ -272,7 +277,7 @@ fn main() {
             triggers: HashMap::from([("latency_ms".to_string(), ">150".to_string())]),
             actions_template: vec!["offload_to_photonic".to_string(), "reconfigure_network_path".to_string()],
             priority: 2,
-            last_evaluation: Instant::now(),
+            last_evaluation: Utc::now(),
         },
     ];
 

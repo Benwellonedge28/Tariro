@@ -8,10 +8,11 @@
 /// and reasoning across all data types (leveraging RAG for cross-modal translation models and
 /// SIMD for high-speed fusion of large-scale multi-modal datasets).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Enum to represent different data modalities.
@@ -54,7 +55,7 @@ impl FusionEngine {
         let unified_representation: Vec<f32> = (0..256).map(|_| rng.gen_range(-1.0..1.0)).collect(); // Conceptual unified embedding
 
         FusedData {
-            id: format!("fused_{}", Instant::now().elapsed().as_secs()),
+            id: format!("fused_{}", Utc::now().timestamp()),
             unified_representation,
             original_modalities: modalities,
             fusion_confidence: rng.gen_range(0.7..0.99),

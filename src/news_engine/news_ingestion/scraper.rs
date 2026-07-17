@@ -1,4 +1,5 @@
 // src/news_engine/news_ingestion/scraper.rs
+use crate::prelude::*;
 
 //! Implements web scraping functionalities to extract news content from web pages
 //! when RSS feeds or dedicated APIs are not available or sufficient.

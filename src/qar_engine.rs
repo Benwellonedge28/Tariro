@@ -8,12 +8,14 @@
 /// quantum cryptography, and SIMD for parallel quantum simulation and quantum-safe protocol
 /// implementation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
+use chrono::{DateTime, Utc};
 
 // --- Conceptual Structures --- //
 
@@ -199,7 +201,7 @@ fn main() {
     println!("\n--- Quantum-Accelerated AI & Quantum-Resistant Security (RAG-Driven) Demonstration ---");
 
     let qar_engine = QAREngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Quantum-accelerated image classification
     println!("--- Scenario 1: Quantum AI Image Classification ---");

@@ -11,10 +11,11 @@
 /// RAG: predictive user modeling, context-aware information retrieval, personalized content delivery,
 ///      activity recognition, knowledge graph traversal).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -24,7 +25,8 @@ use rand::Rng;
 pub struct UserActivityEvent {
     pub event_id: String,
     pub user_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub activity_type: String, // e.g., "code_editing", "document_reading", "research_query"
     pub context_data: HashMap<String, String>, // e.g., "file_path": "/src/main.rs", "query_text": "quantum physics"
 }
@@ -34,7 +36,8 @@ pub struct UserActivityEvent {
 pub struct UserContext {
     pub context_id: String,
     pub user_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub current_focus_area: String,
     pub inferred_informational_need: String,
     pub confidence: f32,
@@ -45,7 +48,8 @@ pub struct UserContext {
 pub struct ProactiveInformation {
     pub info_id: String,
     pub context_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub content_type: String, // e.g., "document_link", "code_snippet", "insight_summary"
     pub content_payload: String, // The actual content or a link/reference
     pub delivery_channel: String, // e.g., "admin_ui", "neural_alert", "holographic_overlay"
@@ -92,7 +96,7 @@ impl PCIP_Engine {
         (0..num_events).map(|_| UserActivityEvent {
             event_id: format!("act_{}", rng.gen::<u32>()),
             user_id: "samuel_mukandara_alpha".to_string(),
-            timestamp: Instant::now() - Duration::from_millis(rng.gen_range(0..1000)),
+            timestamp: Utc::now() - Duration::from_millis(rng.gen_range(0..1000)),
             activity_type: "code_editing".to_string(),
             context_data: HashMap::from([("file".to_string(), "src/main.rs".to_string()), ("language".to_string(), "rust".to_string())]),
         }).collect()
@@ -110,7 +114,7 @@ impl PCIP_Engine {
         UserContext {
             context_id: format!("ctx_{}", rng.gen::<u32>()),
             user_id: "samuel_mukandara_alpha".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             current_focus_area: "quantum_cognition_rust_impl".to_string(),
             inferred_informational_need: "need_rust_quantum_libs_examples".to_string(),
             confidence: rng.gen_range(0.7..0.99),
@@ -129,7 +133,7 @@ impl PCIP_Engine {
         ProactiveInformation {
             info_id: format!("info_{}", rng.gen::<u32>()),
             context_id: user_context.context_id.clone(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             content_type: "code_snippet".to_string(),
             content_payload: "```rust\n// Example quantum rust code\nfn quantum_op() { /* ... */ }\n```".to_string(),
             delivery_channel: "admin_ui".to_string(),

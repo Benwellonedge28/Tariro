@@ -7,10 +7,11 @@
 /// It leverages RAG for narrative frameworks and character profiles, and SIMD for parallel
 /// plot branching and scene rendering.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -34,7 +35,8 @@ pub struct NarrativeEvent {
     pub description: String,
     pub involved_agents: Vec<String>,
     pub location: String,
-    pub time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub time: DateTime<Utc>,
     pub impact_on_plot: String,
 }
 
@@ -138,7 +140,7 @@ impl DMNAGEngine {
                 description: format!("Current plot point: {}.", narrative_state.current_plot_points.last().unwrap()),
                 involved_agents: narrative_state.active_agents.keys().cloned().collect(),
                 location: "various".to_string(),
-                time: Instant::now(),
+                time: Utc::now(),
                 impact_on_plot: "minor".to_string(),
             }];
 
@@ -173,7 +175,7 @@ impl DMNAGEngine {
         ContentPackage {
             package_id: format!("pkg_{}", rng.gen::<u32>()),
             request_id: request.request_id.clone(),
-            generated_at: Instant::now(),
+            generated_at: Utc::now(),
             contents: generated_contents,
             coherence_score,
             creativity_score,
@@ -200,7 +202,7 @@ mod tests {
     #[test]
     fn test_dmnag_engine_flow() {
         let engine = DMNAGEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let request = GenerationRequest {
             request_id: "fantasy_quest_001".to_string(),
@@ -223,7 +225,7 @@ fn main() {
     println!("\n--- Dynamic Multi-Agent Narrative Generation (RAG-Driven) Demonstration ---");
 
     let dmnag_engine = DMNAGEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Generate an interactive sci-fi mystery narrative
     println!("--- Scenario 1: Sci-Fi Mystery Narrative ---");

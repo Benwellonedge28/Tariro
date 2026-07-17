@@ -8,10 +8,11 @@
 /// It leverages RAG for strategic risk management frameworks and opportunity assessment
 /// models, and SIMD for parallel scenario analysis and real-time data correlation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -49,7 +50,8 @@ pub struct StrategicOpportunity {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StrategicScenario {
     pub scenario_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub name: String,
     pub variables: HashMap<String, String>,
     pub outcome_probability_distribution: HashMap<String, f32>,
@@ -101,7 +103,7 @@ impl ASROMEngine {
         if global_signals.contains(&"rapid_advancements_in_room_temp_superconductors".to_string()) && rng.gen_bool(0.4) {
              scenarios.push(StrategicScenario {
                 scenario_id: format!("strat_scen_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 name: "Superconductor Breakthrough Impact".to_string(),
                 variables: HashMap::from([("tech_maturity".to_string(), "high".to_string()), ("market_disruption".to_string(), "extreme".to_string())]),
                 outcome_probability_distribution: HashMap::from([("energy_sector_boom".to_string(), 0.7), ("compute_efficiency_spike".to_string(), 0.8)]),
@@ -197,7 +199,7 @@ fn main() {
     println!("\n--- Autonomous Strategic Risk & Opportunity Management (RAG-Driven) Demonstration ---");
 
     let asrom_engine = ASROMEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Tariro monitors the global tech landscape for a major breakthrough
     println!("--- Scenario 1: Breakthrough Detection & Strategic Response ---");

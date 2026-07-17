@@ -7,10 +7,11 @@
 /// preventing burnout. It leverages RAG for advanced scheduling algorithms and cognitive load
 /// management, and SIMD for parallel schedule optimization and real-time context adaptation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -33,7 +34,8 @@ pub struct DataAsset {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PrivacyEvent {
     pub event_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub event_type: String, // e.g., "Data_Access_Request", "Consent_Revocation", "Data_Breach_Alert"
     pub target_asset_id: Option<String>,
     pub details: String,
@@ -97,7 +99,7 @@ impl AADPSEngine {
         if rng.gen_bool(0.1) {
             privacy_events.push(PrivacyEvent {
                 event_id: format!("pe_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 event_type: "Unauthorized_Access_Attempt".to_string(),
                 target_asset_id: Some(data_assets.get(0).map_or("unknown".to_string(), |a| a.asset_id.clone())),
                 details: "Detected an attempt to access 'Confidential' data without proper authorization.".to_string(),
@@ -183,7 +185,7 @@ fn main() {
     println!("\n--- Autonomous Advanced Data Privacy & Sovereignty (RAG-Driven) Demonstration ---");
 
     let aadps_engine = AADPSEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Samuel's personal financial data requires strict privacy and EU sovereignty compliance
     println!("--- Scenario 1: Personal Data Privacy & EU Sovereignty ---");

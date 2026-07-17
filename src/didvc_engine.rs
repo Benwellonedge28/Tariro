@@ -5,10 +5,11 @@
 /// empowering users with control over their personal data. It leverages RAG for DID/VC specifications
 /// and trust framework research.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -20,7 +21,8 @@ pub struct DecentralizedIdentity {
     pub did_method: String, // e.g., "did:web", "did:ethr", "did:ion"
     pub verification_methods: Vec<String>, // Public keys or other verification means
     pub services: Vec<String>, // Endpoints for interaction
-    pub created_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub created_at: DateTime<Utc>,
 }
 
 /// Represents a Verifiable Credential (VC).
@@ -31,8 +33,8 @@ pub struct VerifiableCredential {
     pub subject_did: String,
     pub credential_type: String, // e.g., "UniversityDegree", "DriversLicense", "EmploymentRecord"
     pub claims: HashMap<String, String>, // e.g., "name": "Alice", "gpa": "3.8"
-    pub issuance_date: Instant,
-    pub expiration_date: Option<Instant>,
+    pub issuance_date: DateTime<Utc>,
+    pub expiration_date: Option<DateTime<Utc>>,
     pub proof: Vec<u8>, // Cryptographic proof (e.g., ZKP or digital signature)
 }
 
@@ -98,7 +100,7 @@ impl DIDVC_Engine {
             did_method: did_method.to_string(),
             verification_methods: vec!["ed25519_key_1".to_string()],
             services: vec!["https://example.com/didcomm".to_string()],
-            created_at: Instant::now(),
+            created_at: Utc::now(),
         }
     }
 
@@ -117,7 +119,7 @@ impl DIDVC_Engine {
             subject_did: subject_did.to_string(),
             credential_type: credential_type.to_string(),
             claims,
-            issuance_date: Instant::now(),
+            issuance_date: Utc::now(),
             expiration_date: None,
             proof: (0..rng.gen_range(64..128)).map(|_| rng.gen::<u8>()).collect(),
         }

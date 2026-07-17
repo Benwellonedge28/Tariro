@@ -12,10 +12,11 @@
 /// RAG: collective intelligence, crowd wisdom, sentiment analysis, topic modeling,
 ///      source credibility assessment, noise filtering, social computing).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -26,7 +27,8 @@ pub struct PublicDataStream {
     pub data_id: String,
     pub source_type: String, // e.g., "scientific_paper", "forum_post", "social_media_comment"
     pub content: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub author_reputation_score: f32, // Conceptual
 }
 
@@ -162,7 +164,7 @@ mod tests {
                 data_id: "data_001".to_string(),
                 source_type: "scientific_paper".to_string(),
                 content: "Breakthrough in quantum error correction announced.".to_string(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 author_reputation_score: 0.9,
             },
         ];
@@ -192,21 +194,21 @@ fn main() {
             data_id: format!("stream_{}", rand::thread_rng().gen::<u32>()),
             source_type: "scientific_paper".to_string(),
             content: "New paper on fault-tolerant quantum computing shows promising results.".to_string(),
-            timestamp: Instant::now() - Duration::from_secs(3600),
+            timestamp: Utc::now() - Duration::from_secs(3600),
             author_reputation_score: 0.95,
         },
         PublicDataStream {
             data_id: format!("stream_{}", rand::thread_rng().gen::<u32>()),
             source_type: "community_forum".to_string(),
             content: "Excited about the progress in quantum machine learning! What are your thoughts?".to_string(),
-            timestamp: Instant::now() - Duration::from_secs(1800),
+            timestamp: Utc::now() - Duration::from_secs(1800),
             author_reputation_score: 0.7,
         },
         PublicDataStream {
             data_id: format!("stream_{}", rand::thread_rng().gen::<u32>()),
             source_type: "social_media_comment".to_string(),
             content: "Quantum hype is overblown. Still decades away.".to_string(),
-            timestamp: Instant::now() - Duration::from_secs(600),
+            timestamp: Utc::now() - Duration::from_secs(600),
             author_reputation_score: 0.4,
         },
     ];

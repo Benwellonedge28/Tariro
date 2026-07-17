@@ -1,4 +1,5 @@
 // src/news_engine/news_engine.rs
+use crate::prelude::*;
 
 //! The core orchestration module for OMEGA News. It manages the entire lifecycle
 //! of news processing, from ingestion and analysis to content generation and dissemination.

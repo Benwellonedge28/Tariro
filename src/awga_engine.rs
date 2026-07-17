@@ -9,10 +9,11 @@
 /// evaluation; RAG: workflow management systems (WfMS), business process modeling (BPMN), declarative process
 /// specification, event-driven architectures, multi-agent coordination, adaptive planning, case-based reasoning).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -36,7 +37,7 @@ pub struct WorkflowTemplate {
     pub description: String,
     pub initial_tasks: Vec<WorkflowTask>,
     pub adaptation_rules: Vec<String>, // Rules for dynamic modification
-    pub creation_date: Instant,
+    pub creation_date: DateTime<Utc>,
 }
 
 /// Represents an active instance of a running workflow.
@@ -46,8 +47,10 @@ pub struct WorkflowInstance {
     pub template_id: String,
     pub current_tasks: HashMap<String, WorkflowTask>, // task_id -> WorkflowTask
     pub overall_status: String, // e.g., "active", "paused", "completed", "failed"
-    pub start_time: Instant,
-    pub last_adaptation_time: Option<Instant>,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub start_time: DateTime<Utc>,
+    pub last_adaptation_time: Option<DateTime<Utc>>,
 }
 
 /// Overall AWG&A system report.
@@ -119,7 +122,7 @@ impl AWGA_Engine {
             template_id: "generated_from_rag".to_string(),
             current_tasks: initial_tasks.into_iter().map(|t| (t.task_id.clone(), t)).collect(),
             overall_status: "active".to_string(),
-            start_time: Instant::now(),
+            start_time: Utc::now(),
             last_adaptation_time: None,
         }
     }
@@ -157,7 +160,7 @@ impl AWGA_Engine {
         thread::sleep(Duration::from_millis(250));
         let mut rng = rand::thread_rng();
 
-        workflow.last_adaptation_time = Some(Instant::now());
+        workflow.last_adaptation_time = Some(Utc::now());
         // Simulate an adaptation (e.g., add a recovery task)
         if event_description.contains("resource_shortage") {
             let recovery_task = WorkflowTask {

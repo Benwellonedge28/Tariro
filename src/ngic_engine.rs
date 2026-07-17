@@ -5,10 +5,11 @@
 /// input methods, leveraging adaptive learning algorithms for personalized control schemes (SIMD: parallel processing
 /// of neural signals; RAG: neurogaming research, adaptive control theory).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -19,7 +20,8 @@ pub struct NeuralSignal {
     pub id: String,
     pub sensor_type: String, // e.g., "EEG", "EyeTracker"
     pub raw_data: Vec<f32>, // Conceptual: signal strength over time/channels
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Represents the interpreted intent of the player.
@@ -136,8 +138,8 @@ mod tests {
         let engine = NGIC_Engine::new();
 
         let signals = vec![
-            NeuralSignal { id: "s1".to_string(), sensor_type: "EEG".to_string(), raw_data: vec![0.1, 0.2, 0.3], timestamp: Instant::now() },
-            NeuralSignal { id: "s2".to_string(), sensor_type: "EyeTracker".to_string(), raw_data: vec![0.5, 0.5], timestamp: Instant::now() },
+            NeuralSignal { id: "s1".to_string(), sensor_type: "EEG".to_string(), raw_data: vec![0.1, 0.2, 0.3], timestamp: Utc::now() },
+            NeuralSignal { id: "s2".to_string(), sensor_type: "EyeTracker".to_string(), raw_data: vec![0.5, 0.5], timestamp: Utc::now() },
         ];
         let features = engine.process_neural_signals_simd(&signals);
         assert!(!features.is_empty());
@@ -163,8 +165,8 @@ fn main() {
     // 1. Process Neural Signals (SIMD)
     println!("--- Processing Neural Signals (SIMD) ---");
     let bci_signals = vec![
-        NeuralSignal { id: "eeg_alpha_01".to_string(), sensor_type: "EEG".to_string(), raw_data: vec![8.5, 9.1, 8.8], timestamp: Instant::now() },
-        NeuralSignal { id: "eye_gaze_01".to_string(), sensor_type: "EyeTracker".to_string(), raw_data: vec![0.7, 0.3], timestamp: Instant::now() },
+        NeuralSignal { id: "eeg_alpha_01".to_string(), sensor_type: "EEG".to_string(), raw_data: vec![8.5, 9.1, 8.8], timestamp: Utc::now() },
+        NeuralSignal { id: "eye_gaze_01".to_string(), sensor_type: "EyeTracker".to_string(), raw_data: vec![0.7, 0.3], timestamp: Utc::now() },
     ];
     let processed_features = ngic_engine.process_neural_signals_simd(&bci_signals);
     println!("  Processed {} sets of neural features. Example: {:?}\n", processed_features.len(), processed_features.first());

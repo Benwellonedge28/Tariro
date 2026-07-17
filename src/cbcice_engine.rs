@@ -8,10 +8,11 @@
 /// algorithms. It leverages RAG for BCI signal processing and neuroplasticity models, and SIMD
 /// for parallel signal filtering and real-time adaptive algorithm adjustment.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -20,7 +21,8 @@ use serde::{Serialize, Deserialize};
 /// Represents a snapshot of BCI signal quality metrics.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BCISignalQuality {
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub signal_to_noise_ratio: f32,
     pub latency_ms: f32,
     pub bandwidth_mbps: f32,
@@ -32,7 +34,8 @@ pub struct BCISignalQuality {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BCICalibrationAdaptation {
     pub adaptation_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub adaptation_type: String, // e.g., "AlgorithmUpdate", "HardwareAdjustment", "PersonalizedFilter"
     pub description: String,
     pub performance_change: HashMap<String, f32>, // e.g., "latency_reduction_ms": 5.0
@@ -44,7 +47,8 @@ pub struct BCICalibrationAdaptation {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NeurophysiologicalChange {
     pub change_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub change_type: String, // e.g., "FatigueOnset", "IncreasedConcentration", "StressResponse"
     pub detected_pattern: String, // RAG-derived pattern description
     pub impact_on_bci: String,
@@ -99,7 +103,7 @@ impl CBCICEEngine {
         let neuro_state = if snr < 10.0 { "Fatigued".to_string() } else { "Alert".to_string() };
 
         BCISignalQuality {
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             signal_to_noise_ratio: snr,
             latency_ms: latency,
             bandwidth_mbps: bandwidth,
@@ -142,7 +146,7 @@ impl CBCICEEngine {
 
         let adaptation_record = BCICalibrationAdaptation {
             adaptation_id: format!("bcia_{}", rng.gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             adaptation_type: if adaptation_made { "AlgorithmUpdate".to_string() } else { "None".to_string() },
             description: if adaptation_made { "Adjusted BCI algorithms based on real-time signal quality and neurophysiological state.".to_string() } else { "No significant adaptation needed.".to_string() },
             performance_change,
@@ -191,7 +195,7 @@ fn main() {
     println!("\n--- Continuous Brain-Computer Interface (BCI) Calibration & Enhancement (RAG-Driven) Demonstration ---");
 
     let cbcice_engine = CBCICEEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Real-time BCI calibration during a high-focus cognitive task
     println!("--- Scenario 1: High-Focus Cognitive Task BCI Calibration ---");

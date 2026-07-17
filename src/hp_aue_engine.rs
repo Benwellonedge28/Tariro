@@ -9,10 +9,11 @@
 /// human-computer interaction (HCI), cognitive load theory, adaptive interfaces, multi-modal interaction,
 /// preference learning, neural-linguistic programming).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -25,7 +26,8 @@ pub struct UserPreference {
     pub category: String, // e.g., "visual_theme", "explanation_depth", "feedback_frequency"
     pub value: String, // e.g., "dark_mode", "detailed", "realtime"
     pub confidence: f32, // How certain Tariro is about this preference
-    pub last_updated: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub last_updated: DateTime<Utc>,
 }
 
 /// Represents real-time contextual data about the user and environment.
@@ -33,7 +35,8 @@ pub struct UserPreference {
 pub struct ContextualData {
     pub context_id: String,
     pub user_id: String,
-    pub time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub time: DateTime<Utc>,
     pub emotional_state: String, // Inferred, e.g., "focused", "stressed", "curious"
     pub cognitive_load: f32, // Inferred, 0.0 (low) to 1.0 (high)
     pub device_type: String, // e.g., "desktop", "mobile", "neural_interface"
@@ -48,7 +51,10 @@ pub struct InterfaceAdaptation {
     pub element: String, // e.g., "dashboard_layout", "notification_style", "explanation_verbosity"
     pub new_value: String,
     pub triggered_by: String, // e.g., "preference_change", "cognitive_load_spike", "explicit_request"
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Overall HP&AUE system report.
@@ -102,7 +108,7 @@ impl HPAUE_Engine {
             category: "display_mode".to_string(),
             value: if data.contains("dark theme") { "dark_mode".to_string() } else { "light_mode".to_string() },
             confidence: rng.gen_range(0.7..0.99),
-            last_updated: Instant::now(),
+            last_updated: Utc::now(),
         }).collect()
     }
 
@@ -115,7 +121,7 @@ impl HPAUE_Engine {
         ContextualData {
             context_id: format!("ctx_{}", rng.gen::<u32>()),
             user_id: "Samuel Mukandara".to_string(),
-            time: Instant::now(),
+            time: Utc::now(),
             emotional_state: if rng.gen_bool(0.3) { "stressed".to_string() } else { "focused".to_string() },
             cognitive_load: rng.gen_range(0.1..0.8),
             device_type: "desktop_main".to_string(),
@@ -140,7 +146,7 @@ impl HPAUE_Engine {
                 element: "notification_frequency".to_string(),
                 new_value: "low".to_string(),
                 triggered_by: "cognitive_load_spike".to_string(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
             });
         }
         if preferences.iter().any(|p| p.category == "visual_theme" && p.value == "dark_mode") {
@@ -150,7 +156,7 @@ impl HPAUE_Engine {
                 element: "system_theme".to_string(),
                 new_value: "dark".to_string(),
                 triggered_by: "user_preference".to_string(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
             });
         }
         adaptations

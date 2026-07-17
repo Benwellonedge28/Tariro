@@ -5,10 +5,11 @@
 /// emotional states, or narrative progression (SIMD: parallel audio synthesis, procedural generation;
 /// RAG: music theory, psychoacoustics, emotional response data).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -101,7 +102,7 @@ impl AMSG_Engine {
         let mut rng = rand::thread_rng();
 
         MusicalPhrase {
-            id: format!("phrase_{}", Instant::now().elapsed().as_secs()),
+            id: format!("phrase_{}", Utc::now().timestamp()),
             notes_midi: vec![60, 62, 64, 65, 67, 69, 71, 72].into_iter().map(|n| (n as f32 * params.intensity) as u8).collect(), // Scaled notes
             tempo_bpm: rng.gen_range(60..180),
             key: "C Major".to_string(),
@@ -116,7 +117,7 @@ impl AMSG_Engine {
         let mut rng = rand::thread_rng();
 
         SoundEvent {
-            id: format!("sfx_{}", Instant::now().elapsed().as_secs()),
+            id: format!("sfx_{}", Utc::now().timestamp()),
             audio_sample: vec![rng.gen_range(-1.0..1.0); rng.gen_range(5000..10000)], // Simulate short audio sample
             event_type: event_type.to_string(),
             spatial_position: position,

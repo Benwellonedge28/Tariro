@@ -5,10 +5,11 @@
 /// pollution dispersion) with extreme fidelity. It leverages RAG for meteorological data and geographical models,
 /// and SIMD for parallel Navier-Stokes equation solving.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -39,7 +40,10 @@ pub struct GridCell {
 #[derive(Debug, Clone)]
 pub struct WeatherData {
     pub station_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub wind_speed_mps: f32,
     pub wind_direction_deg: f32,
     pub atmospheric_pressure_pa: f32,
@@ -151,7 +155,7 @@ impl HIEFD_Engine {
     }
 
     /// Analyzes simulation output for environmental impact (conceptual RAG).
-    pub fn analyze_environmental_impact_rag(&self, config: &EnvironmentConfig, final_grid: &[GridCell], start_time: Instant, geo_model_id: &str) -> SimulationOutput {
+    pub fn analyze_environmental_impact_rag(&self, config: &EnvironmentConfig, final_grid: &[GridCell], start_time: DateTime<Utc>, geo_model_id: &str) -> SimulationOutput {
         println!("  [HIEFD]: Analyzing environmental impact for config '{}' (RAG for meteorological data and geographical models). Geo Model: '{}'.", config.config_id, geo_model_id);
         if let Some(mgm_info) = self.meteorological_geographical_models_rag_db.get("Coastal_Oceanography_Models") {
             format!("MGM RAG insight for impact analysis: {}. Config: '{}'", mgm_info, config.config_id);
@@ -214,7 +218,7 @@ mod tests {
         };
         let weather = WeatherData {
             station_id: "weather_stn_1".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             wind_speed_mps: 5.0,
             wind_direction_deg: 90.0,
             atmospheric_pressure_pa: 101000.0,
@@ -228,7 +232,7 @@ mod tests {
 
         let _ = engine.solve_navier_stokes_parallel_simd(&mut grid, &config);
 
-        let output = engine.analyze_environmental_impact_rag(&config, &grid, Instant::now(), &geo_model.model_id);
+        let output = engine.analyze_environmental_impact_rag(&config, &grid, Utc::now(), &geo_model.model_id);
         assert!(!output.output_id.is_empty());
 
         let report = engine.generate_hiefd_report_rag(&output);
@@ -240,7 +244,7 @@ fn main() {
     println!("\n--- High-Resolution Environmental Fluid Dynamics (HIEFD) Demonstration ---");
 
     let hiefd_engine = HIEFD_Engine::new();
-    let simulation_start_time = Instant::now();
+    let simulation_start_time = Utc::now();
 
     // Scenario 1: Configure and initialize simulation grid
     println!("--- Scenario 1: Configure and Initialize Grid ---");
@@ -266,7 +270,7 @@ fn main() {
     println!("--- Scenario 2: Apply Environmental Forces ---");
     let current_weather = WeatherData {
         station_id: "ocean_buoy_007".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         wind_speed_mps: 8.5,
         wind_direction_deg: 270.0, // Westerly wind
         atmospheric_pressure_pa: 101200.0,

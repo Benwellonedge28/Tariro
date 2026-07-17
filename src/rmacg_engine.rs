@@ -4,10 +4,11 @@
 /// This module will enable multiple specialized generative AI agents to collaborate in real-time on complex content creation tasks
 /// (SIMD: distributed processing, synchronized asset streams; RAG: agent collaboration protocols, conflict resolution strategies).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -40,7 +41,8 @@ pub struct CollaborationEvent {
     pub agent_id: String,
     pub related_asset_id: Option<String>,
     pub message: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Represents a message exchanged between agents.

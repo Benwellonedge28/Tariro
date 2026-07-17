@@ -12,10 +12,11 @@
 /// RAG: semantic understanding, vector embeddings, knowledge graph traversal,
 ///      complex query processing, data fusion, contextual understanding).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -25,7 +26,8 @@ use rand::Rng;
 pub struct Query {
     pub query_id: String,
     pub text: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub user_id: String,
 }
 
@@ -45,7 +47,8 @@ pub struct VectorEmbedding {
     pub embedding_id: String,
     pub vector: Vec<f32>,
     pub dimension: usize,
-    pub generated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub generated_at: DateTime<Utc>,
 }
 
 /// Represents a single search result.
@@ -111,7 +114,7 @@ impl SSF_Engine {
             embedding_id: format!("emb_{}", rng.gen::<u32>()),
             vector,
             dimension: dimensions,
-            generated_at: Instant::now(),
+            generated_at: Utc::now(),
         }
     }
 
@@ -187,7 +190,7 @@ mod tests {
         let test_query = Query {
             query_id: "q_001".to_string(),
             text: "quantum entanglement applications".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             user_id: "test_user".to_string(),
         };
         let query_embedding = engine.embed_query_simd(&test_query.text);
@@ -228,7 +231,7 @@ fn main() {
     let user_query = Query {
         query_id: format!("query_{}", rand::thread_rng().gen::<u32>()),
         text: "Explain the latest advancements in quantum entanglement applications for secure communication and computation.".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         user_id: "samuel_mukandara_alpha".to_string(),
     };
 

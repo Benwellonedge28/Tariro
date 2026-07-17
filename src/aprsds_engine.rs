@@ -8,10 +8,11 @@
 /// project management methodologies and strategic planning frameworks, and SIMD for parallel
 /// roadmap generation and real-time schedule optimization.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -27,8 +28,10 @@ pub struct ProjectTask {
     pub assigned_to: Option<String>,
     pub effort_estimate_hours: f32,
     pub current_progress_pct: f32,
-    pub start_date: Instant,
-    pub due_date: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub start_date: DateTime<Utc>,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub due_date: DateTime<Utc>,
     pub dependencies: Vec<String>, // List of task_ids this task depends on
     pub priority: u32, // 1 (low) to 10 (critical)
 }
@@ -42,9 +45,9 @@ pub struct ProjectRoadmap {
     pub generated_by: String, // e.g., "Tariro_Autonomous", "Samuel_Input"
     pub current_status: String, // e.g., "On_Track", "At_Risk", "Ahead_of_Schedule"
     pub tasks: Vec<ProjectTask>,
-    pub milestones: HashMap<String, Instant>, // Milestone name -> Target Date
+    pub milestones: HashMap<String, DateTime<Utc>>, // Milestone name -> Target Date
     pub resource_allocation_summary: HashMap<String, f32>, // Resource name -> % allocated
-    pub last_rescheduled: Instant,
+    pub last_rescheduled: DateTime<Utc>,
     pub optimization_strategy_used: String, // RAG-derived strategy
 }
 
@@ -52,7 +55,10 @@ pub struct ProjectRoadmap {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SchedulingEvent {
     pub event_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub event_type: String, // e.g., "Task_Completion", "Resource_Unavailable", "Priority_Change"
     pub affected_task_ids: Vec<String>,
     pub new_schedule_suggestion: String, // RAG-derived suggestion
@@ -95,7 +101,7 @@ impl APRSDSEngine {
     }
 
     /// Performs parallel roadmap generation and real-time schedule optimization (SIMD conceptualization).
-    fn parallel_roadmap_optimization_simd(&self, initial_tasks: &[ProjectTask], constraints: &HashMap<String, String>) -> (Vec<ProjectTask>, HashMap<String, Instant>, f32) { // optimized tasks, milestones, and optimization score
+    fn parallel_roadmap_optimization_simd(&self, initial_tasks: &[ProjectTask], constraints: &HashMap<String, String>) -> (Vec<ProjectTask>, HashMap<String, DateTime<Utc>>, f32) { // optimized tasks, milestones, and optimization score
         println!("    [APRSDS-SIMD]: Performing parallel roadmap optimization for {} tasks under constraints {:?}.", initial_tasks.len(), constraints);
         thread::sleep(Duration::from_millis(100));
         let mut rng = rand::Rng::thread_rng();
@@ -134,13 +140,13 @@ impl APRSDSEngine {
         // Conceptual: RAG-driven breakdown of high-level directive into initial tasks
         let initial_tasks = vec![
             ProjectTask {
-                task_id: "task_001".to_string(), name: "Phase 1 Design".to_string(), description: "Conceptual design and architecture.".to_string(), status: "Todo".to_string(), assigned_to: Some("Samuel".to_string()), effort_estimate_hours: rng.gen_range(20.0..40.0), current_progress_pct: 0.0, start_date: Instant::now(), due_date: Instant::now() + Duration::from_secs(rng.gen_range(7..14) * 24 * 3600), dependencies: vec![], priority: 8,
+                task_id: "task_001".to_string(), name: "Phase 1 Design".to_string(), description: "Conceptual design and architecture.".to_string(), status: "Todo".to_string(), assigned_to: Some("Samuel".to_string()), effort_estimate_hours: rng.gen_range(20.0..40.0), current_progress_pct: 0.0, start_date: Utc::now(), due_date: Utc::now() + Duration::from_secs(rng.gen_range(7..14) * 24 * 3600), dependencies: vec![], priority: 8,
             },
             ProjectTask {
-                task_id: "task_002".to_string(), name: "Core Implementation".to_string(), description: "Develop core modules.".to_string(), status: "Todo".to_string(), assigned_to: Some("Tariro_Autonomous".to_string()), effort_estimate_hours: rng.gen_range(80.0..160.0), current_progress_pct: 0.0, start_date: Instant::now(), due_date: Instant::now() + Duration::from_secs(rng.gen_range(21..42) * 24 * 3600), dependencies: vec!["task_001".to_string()], priority: 9,
+                task_id: "task_002".to_string(), name: "Core Implementation".to_string(), description: "Develop core modules.".to_string(), status: "Todo".to_string(), assigned_to: Some("Tariro_Autonomous".to_string()), effort_estimate_hours: rng.gen_range(80.0..160.0), current_progress_pct: 0.0, start_date: Utc::now(), due_date: Utc::now() + Duration::from_secs(rng.gen_range(21..42) * 24 * 3600), dependencies: vec!["task_001".to_string()], priority: 9,
             },
             ProjectTask {
-                task_id: "task_003".to_string(), name: "Testing & Validation".to_string(), description: "Comprehensive testing and validation.".to_string(), status: "Todo".to_string(), assigned_to: Some("Tariro_Autonomous".to_string()), effort_estimate_hours: rng.gen_range(40.0..80.0), current_progress_pct: 0.0, start_date: Instant::now(), due_date: Instant::now() + Duration::from_secs(rng.gen_range(14..28) * 24 * 3600), dependencies: vec!["task_002".to_string()], priority: 7,
+                task_id: "task_003".to_string(), name: "Testing & Validation".to_string(), description: "Comprehensive testing and validation.".to_string(), status: "Todo".to_string(), assigned_to: Some("Tariro_Autonomous".to_string()), effort_estimate_hours: rng.gen_range(40.0..80.0), current_progress_pct: 0.0, start_date: Utc::now(), due_date: Utc::now() + Duration::from_secs(rng.gen_range(14..28) * 24 * 3600), dependencies: vec!["task_002".to_string()], priority: 7,
             },
         ];
 
@@ -155,7 +161,7 @@ impl APRSDSEngine {
             tasks: optimized_tasks,
             milestones,
             resource_allocation_summary: HashMap::from([("Tariro_Compute".to_string(), 0.7), ("Samuel_Cognitive_Bandwidth".to_string(), 0.3)]),
-            last_rescheduled: Instant::now(),
+            last_rescheduled: Utc::now(),
             optimization_strategy_used: format!("RAG-derived strategy (Score: {:.2})", optimization_score),
         };
 
@@ -175,7 +181,7 @@ impl APRSDSEngine {
                 if rng.gen_bool(0.3) { task.status = "Blocked".to_string(); }
             }
         });
-        roadmap.last_rescheduled = Instant::now();
+        roadmap.last_rescheduled = Utc::now();
         roadmap.current_status = "At_Risk".to_string();
         roadmap.optimization_strategy_used = "RAG-derived re-optimization".to_string();
 
@@ -208,7 +214,7 @@ mod tests {
         assert!(!roadmap.tasks.is_empty());
 
         let event = SchedulingEvent {
-            event_id: "event_001".to_string(), timestamp: Instant::now(), event_type: "Resource_Unavailable".to_string(), affected_task_ids: vec![roadmap.tasks[0].task_id.clone()], new_schedule_suggestion: "Shift task due date by 3 days.".to_string(), justification: "Key resource offline.".to_string(), human_approval_required: true,
+            event_id: "event_001".to_string(), timestamp: Utc::now(), event_type: "Resource_Unavailable".to_string(), affected_task_ids: vec![roadmap.tasks[0].task_id.clone()], new_schedule_suggestion: "Shift task due date by 3 days.".to_string(), justification: "Key resource offline.".to_string(), human_approval_required: true,
         };
 
         let rescheduled_roadmap = engine.dynamic_reschedule_roadmap_rag(roadmap, event);
@@ -223,7 +229,7 @@ fn main() {
     println!("\n--- Autonomous Project Roadmap Synthesis & Dynamic Scheduling (RAG-Driven) Demonstration ---");
 
     let aprsds_engine = APRSDSEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Samuel provides a new high-level goal for Tariro
     println!("--- Scenario 1: New Project Roadmap Synthesis ---");
@@ -247,7 +253,7 @@ fn main() {
 
     let dependency_delay_event = SchedulingEvent {
         event_id: "event_dep_delay_001".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         event_type: "Dependency_Delayed".to_string(),
         affected_task_ids: vec![existing_roadmap.tasks[1].task_id.clone()],
         new_schedule_suggestion: "Shift all dependent tasks by 7 days and re-evaluate critical path.".to_string(),

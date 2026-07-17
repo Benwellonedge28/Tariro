@@ -7,10 +7,11 @@
 /// multi-agent coordination algorithms, emergent intelligence, and distributed ledger
 /// technologies for secure and transparent task management.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -45,7 +46,8 @@ pub struct TaskDelegationEvent {
     pub problem_id: String,
     pub delegated_to_agent_id: String,
     pub delegated_by_agent_id: String, // Or "System"
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub justification: String, // RAG-generated explanation for delegation
 }
 
@@ -111,7 +113,7 @@ impl DTDCPSEngine {
                         problem_id: problem.problem_id.clone(),
                         delegated_to_agent_id: delegated_agent_id.clone(),
                         delegated_by_agent_id: "System_Delegator".to_string(),
-                        timestamp: Instant::now(),
+                        timestamp: Utc::now(),
                         justification: format!("Agent '{}' has required capabilities and sufficient capacity (RAG-driven selection)."),
                     });
                 }
@@ -166,7 +168,7 @@ mod tests {
     #[test]
     fn test_dtdcps_engine_flow() {
         let engine = DTDCPSEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let mut problem_critical = ComplexProblem {
             problem_id: "critical_system_breach".to_string(),
@@ -220,7 +222,7 @@ fn main() {
     println!("\n--- Dynamic Task Delegation and Collective Problem Solving Demonstration ---");
 
     let dtdcps_engine = DTDCPSEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Define a complex problem requiring multi-AGI collaboration
     println!("--- Scenario 1: Define a Complex Problem ---");

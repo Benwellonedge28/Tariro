@@ -7,10 +7,11 @@
 /// RAG for distributed ledger technologies, Byzantine fault tolerance algorithms, and
 /// cryptographic proofs to maintain the integrity and trustworthiness of the AGI's global state.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use sha2::{Sha256, Digest};
 
@@ -21,7 +22,8 @@ use sha2::{Sha256, Digest};
 pub struct AgiStateUpdate {
     pub update_id: String,
     pub actor_did: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub proposed_state_changes: HashMap<String, String>, // e.g., "AI_Parameter:temp", "0.7"
     pub previous_state_hash: String,
     pub new_state_hash: String,
@@ -45,7 +47,8 @@ pub struct ConsensusVote {
     pub node_id: String,
     pub update_id: String,
     pub vote_value: String, // e.g., "Approve", "Reject"
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub signature: String,
 }
 
@@ -96,7 +99,7 @@ impl OCVMEngine {
         AgiStateUpdate {
             update_id: format!("update_{}", rng.gen::<u32>()),
             actor_did: node.node_id.clone(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             proposed_state_changes,
             previous_state_hash,
             new_state_hash: new_state_hash.clone(),
@@ -118,7 +121,7 @@ impl OCVMEngine {
             node_id: node.node_id.clone(),
             update_id: update.update_id.clone(),
             vote_value: vote_value.to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             signature: format!("mock_sig_vote_{}", rng.gen::<u32>()),
         }
     }
@@ -164,7 +167,7 @@ mod tests {
     #[test]
     fn test_ocvm_engine_flow() {
         let engine = OCVMEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let validator_node_a = ConsensusNode {
             node_id: "node_val_a".to_string(),
@@ -216,7 +219,7 @@ fn main() {
     println!("\n--- Omniversal Consensus and Validation Mechanisms Demonstration ---");
 
     let ocvm_engine = OCVMEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Define participating consensus nodes
     println!("--- Scenario 1: Define Consensus Nodes ---");

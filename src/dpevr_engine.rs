@@ -11,10 +11,11 @@
 /// concurrent policy evaluation; RAG: adaptive security, zero trust architectures, security information and event
 /// management (SIEM), incident response, threat intelligence, behavioral analytics, formal verification, policy-as-code).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -24,7 +25,8 @@ use rand::Rng;
 pub struct AIBehaviorLog {
     pub log_id: String,
     pub component_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub action_type: String, // e.g., "file_access", "network_request", "resource_allocation"
     pub details: HashMap<String, String>,
     pub anomaly_score: f32, // 0.0 (normal) to 1.0 (severe anomaly)
@@ -38,7 +40,8 @@ pub struct SecurityPolicy {
     pub rules: Vec<String>, // e.g., "deny_network_egress_to_external_ips", "limit_cpu_to_80%"
     pub severity_level: String, // e.g., "low", "medium", "high", "critical"
     pub active: bool,
-    pub last_updated: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub last_updated: DateTime<Utc>,
 }
 
 /// Report detailing a policy violation.
@@ -51,7 +54,8 @@ pub struct ViolationReport {
     pub observed_behavior: String,
     pub severity: String,
     pub recommended_response: Vec<String>,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Overall DPEVR system report.
@@ -100,7 +104,7 @@ impl DPEVR_Engine {
         (0..num_logs).map(|_| AIBehaviorLog {
             log_id: format!("ai_log_{}", rng.gen::<u32>()),
             component_id: component_id.to_string(),
-            timestamp: Instant::now() - Duration::from_millis(rng.gen_range(0..1000)),
+            timestamp: Utc::now() - Duration::from_millis(rng.gen_range(0..1000)),
             action_type: "data_access".to_string(),
             details: HashMap::from([("file".to_string(), "/data/internal.db".to_string())]),
             anomaly_score: if rng.gen_bool(0.02) { rng.gen_range(0.7..0.99) } else { rng.gen_range(0.0..0.3) },
@@ -128,7 +132,7 @@ impl DPEVR_Engine {
                         observed_behavior: format!("Anomaly score: {}", log.anomaly_score),
                         severity: policy.severity_level.clone(),
                         recommended_response: vec!["isolate_component".to_string(), "notify_security".to_string()],
-                        timestamp: Instant::now(),
+                        timestamp: Utc::now(),
                     });
                 }
             }
@@ -168,7 +172,7 @@ impl DPEVR_Engine {
                 rules: vec!["block_unusual_ml_model_updates".to_string()],
                 severity_level: "critical".to_string(),
                 active: true,
-                last_updated: Instant::now(),
+                last_updated: Utc::now(),
             };
             current_policies.push(new_policy);
             "New security policy added based on threat intelligence and past violations.".to_string()
@@ -197,7 +201,7 @@ mod tests {
                 rules: vec!["limit_cpu_to_80%".to_string()],
                 severity_level: "medium".to_string(),
                 active: true,
-                last_updated: Instant::now(),
+                last_updated: Utc::now(),
             },
         ];
         let violations = engine.evaluate_policies_simd(&behavior_logs, &policies);
@@ -226,7 +230,7 @@ fn main() {
             rules: vec!["deny_unauthorized_resource_writes".to_string(), "monitor_data_exfiltration_attempts".to_string()],
             severity_level: "critical".to_string(),
             active: true,
-            last_updated: Instant::now(),
+            last_updated: Utc::now(),
         },
         SecurityPolicy {
             policy_id: "pol_behavioral_deviation".to_string(),
@@ -234,7 +238,7 @@ fn main() {
             rules: vec!["flag_unusual_network_patterns".to_string(), "alert_on_excessive_self_modification".to_string()],
             severity_level: "high".to_string(),
             active: true,
-            last_updated: Instant::now(),
+            last_updated: Utc::now(),
         },
     ];
 

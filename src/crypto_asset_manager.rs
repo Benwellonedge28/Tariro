@@ -8,10 +8,11 @@
 /// (leveraging RAG for cryptographic best practices like NIST and SIMD for high-throughput key operations
 /// and secure storage interactions).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Types of cryptographic assets.
@@ -96,7 +97,7 @@ impl CryptoAssetLifecycleManager {
         let mut rng = rand::thread_rng();
         thread::sleep(Duration::from_millis(100));
         let value: Vec<u8> = (0..rng.gen_range(16..256)).map(|_| rng.gen::<u8>()).collect();
-        let now = Instant::now().elapsed().as_secs();
+        let now = Utc::now().timestamp();
         let asset = CryptoAsset {
             id: id.to_string(),
             asset_type,
@@ -124,7 +125,7 @@ impl CryptoAssetLifecycleManager {
         if let Some(old_asset) = self.key_vault.retrieve(asset_id).cloned() {
             self.revoke_asset(asset_id);
             self.destroy_asset_simd(asset_id); // Destroy old value
-            let new_asset = self.generate_asset_simd(&format!("{}_rotated_{}", asset_id, Instant::now().elapsed().as_secs()), asset_type, 365);
+            let new_asset = self.generate_asset_simd(&format!("{}_rotated_{}", asset_id, Utc::now().timestamp()), asset_type, 365);
             self.audit_log.push(format!("Asset '{}' rotated. New asset ID: '{}'.", asset_id, new_asset.id));
             Some(new_asset)
         } else {

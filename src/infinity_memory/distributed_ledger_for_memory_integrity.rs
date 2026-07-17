@@ -1,4 +1,5 @@
 // src/infinity_memory/distributed_ledger_for_memory_integrity.rs
+use crate::prelude::*;
 
 use chrono::{DateTime, Utc};
 use sha2::{Sha256, Digest};

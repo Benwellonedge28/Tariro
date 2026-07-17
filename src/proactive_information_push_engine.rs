@@ -6,10 +6,11 @@
 /// snippets to the Admin UI. It leverages SIMD for real-time activity monitoring and knowledge
 /// graph analysis.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -22,7 +23,8 @@ pub struct UserActivityContext {
     pub current_task: String, // e.g., "DebuggingCompiler", "ReviewingCode", "DesigningSystem"
     pub active_files: Vec<String>, // e.g., ["src/main.rs", "Cargo.toml"]
     pub recent_queries: Vec<String>,
-    pub current_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub current_timestamp: DateTime<Utc>,
     pub project_name: String,
 }
 
@@ -34,7 +36,8 @@ pub struct ProactiveInformationItem {
     pub item_type: String, // e.g., "Document", "Insight", "CodeSnippet", "RelevantAPI"
     pub source_id: String, // ID of the original KnowledgeItem or ManagedFile
     pub relevance_score: f32, // 0.0-1.0
-    pub push_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub push_timestamp: DateTime<Utc>,
     pub suggested_action: Option<String>, // e.g., "ReadNow", "ApplyFix", "Integrate"
 }
 
@@ -90,7 +93,7 @@ impl PCIPEngine {
             current_task,
             active_files: vec!["src/lib.rs".to_string(), "Cargo.toml".to_string()],
             recent_queries: vec!["Rust lifetime issues".to_string(), "SIMD optimization strategies".to_string()],
-            current_timestamp: Instant::now(),
+            current_timestamp: Utc::now(),
             project_name: "TariroCore".to_string(),
         }
     }
@@ -113,7 +116,7 @@ impl PCIPEngine {
                 item_type: "Insight".to_string(),
                 source_id: "knowledge_item_rust_err".to_string(),
                 relevance_score: rng.gen_range(0.8..0.99),
-                push_timestamp: Instant::now(),
+                push_timestamp: Utc::now(),
                 suggested_action: Some("Review error handling in current module.".to_string()),
             });
             if let Some(code) = self.code_snippet_library.get("RustResultMapErr") {
@@ -123,7 +126,7 @@ impl PCIPEngine {
                     item_type: "CodeSnippet".to_string(),
                     source_id: "code_snippet_result_mapper".to_string(),
                     relevance_score: rng.gen_range(0.7..0.95),
-                    push_timestamp: Instant::now(),
+                    push_timestamp: Utc::now(),
                     suggested_action: Some("Consider using this pattern for Result types.".to_string()),
                 });
             }
@@ -153,7 +156,7 @@ mod tests {
     #[test]
     fn test_pcip_engine_flow() {
         let engine = PCIPEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let activity = engine.monitor_user_activity_simd("test_user");
         assert!(!activity.user_id.is_empty());
@@ -170,7 +173,7 @@ fn main() {
     println!("\n--- Proactive Contextual Information Push (RAG-Driven) Demonstration ---");
 
     let pcip_engine = PCIPEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Simulate Samuel's real-time activity
     println!("--- Scenario 1: Simulate User Activity ---");

@@ -5,10 +5,11 @@
 /// behavior indicative of quantum attacks, and provide real-time alerts (SIMD: parallel processing of vast data streams
 /// for anomaly detection; RAG: quantum threat landscape, advanced anomaly detection algorithms).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -19,7 +20,8 @@ pub struct ThreatEvent {
     pub id: String,
     pub event_type: String, // e.g., "unusual_login", "data_exfiltration_attempt"
     pub severity: u8, // 1-10
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub metadata: HashMap<String, String>,
 }
 
@@ -32,7 +34,8 @@ pub struct NetworkTelemetry {
     pub port: u116,
     pub protocol: String,
     pub data_volume_bytes: u64,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Represents an anomaly score for a specific data point or behavior.
@@ -126,7 +129,7 @@ impl QTIAD_Engine {
                 id: format!("alert_{}", rng.gen::<u32>()),
                 event_type: "Quantum_Attack_Attempt_Detected".to_string(),
                 severity: 9,
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 metadata: HashMap::from([("correlation_info".to_string(), correlation_result.to_string())]),
             })
         } else {
@@ -144,8 +147,8 @@ mod tests {
         let engine = QTIAD_Engine::new();
 
         let telemetry = vec![
-            NetworkTelemetry { id: "t1".to_string(), source_ip: "192.168.1.1".to_string(), destination_ip: "10.0.0.1".to_string(), port: 80, protocol: "TCP".to_string(), data_volume_bytes: 1024, timestamp: Instant::now() },
-            NetworkTelemetry { id: "t2".to_string(), source_ip: "203.0.113.45".to_string(), destination_ip: "10.0.0.2".to_string(), port: 443, protocol: "TCP".to_string(), data_volume_bytes: 50000, timestamp: Instant::now() },
+            NetworkTelemetry { id: "t1".to_string(), source_ip: "192.168.1.1".to_string(), destination_ip: "10.0.0.1".to_string(), port: 80, protocol: "TCP".to_string(), data_volume_bytes: 1024, timestamp: Utc::now() },
+            NetworkTelemetry { id: "t2".to_string(), source_ip: "203.0.113.45".to_string(), destination_ip: "10.0.0.2".to_string(), port: 443, protocol: "TCP".to_string(), data_volume_bytes: 50000, timestamp: Utc::now() },
         ];
         let processed_summary = engine.process_security_logs_simd(&telemetry);
         assert!(!processed_summary.is_empty());
@@ -169,8 +172,8 @@ fn main() {
     // Scenario 1: Processing normal telemetry and detecting no anomalies
     println!("--- Scenario 1: Normal Operations ---");
     let normal_telemetry = vec![
-        NetworkTelemetry { id: "n_log1".to_string(), source_ip: "192.168.1.10".to_string(), destination_ip: "10.0.0.5".to_string(), port: 8080, protocol: "HTTP".to_string(), data_volume_bytes: 500, timestamp: Instant::now() },
-        NetworkTelemetry { id: "n_log2".to_string(), source_ip: "192.168.1.11".to_string(), destination_ip: "10.0.0.6".to_string(), port: 22, protocol: "SSH".to_string(), data_volume_bytes: 1200, timestamp: Instant::now() },
+        NetworkTelemetry { id: "n_log1".to_string(), source_ip: "192.168.1.10".to_string(), destination_ip: "10.0.0.5".to_string(), port: 8080, protocol: "HTTP".to_string(), data_volume_bytes: 500, timestamp: Utc::now() },
+        NetworkTelemetry { id: "n_log2".to_string(), source_ip: "192.168.1.11".to_string(), destination_ip: "10.0.0.6".to_string(), port: 22, protocol: "SSH".to_string(), data_volume_bytes: 1200, timestamp: Utc::now() },
     ];
     let processed_normal_summary = qtiad_engine.process_security_logs_simd(&normal_telemetry);
     let normal_anomalies = qtiad_engine.detect_anomalies_simd(&processed_normal_summary);
@@ -183,8 +186,8 @@ fn main() {
     // Scenario 2: Processing anomalous telemetry, correlating, and generating alert
     println!("--- Scenario 2: Quantum-Threat Simulation ---");
     let anomalous_telemetry = vec![
-        NetworkTelemetry { id: "a_log1".to_string(), source_ip: "1.2.3.4".to_string(), destination_ip: "critical_server_ip".to_string(), port: 65530, protocol: "UDP".to_string(), data_volume_bytes: 100_000_000, timestamp: Instant::now() },
-        NetworkTelemetry { id: "a_log2".to_string(), source_ip: "5.6.7.8".to_string(), destination_ip: "critical_server_ip".to_string(), port: 65531, protocol: "UDP".to_string(), data_volume_bytes: 90_000_000, timestamp: Instant::now() },
+        NetworkTelemetry { id: "a_log1".to_string(), source_ip: "1.2.3.4".to_string(), destination_ip: "critical_server_ip".to_string(), port: 65530, protocol: "UDP".to_string(), data_volume_bytes: 100_000_000, timestamp: Utc::now() },
+        NetworkTelemetry { id: "a_log2".to_string(), source_ip: "5.6.7.8".to_string(), destination_ip: "critical_server_ip".to_string(), port: 65531, protocol: "UDP".to_string(), data_volume_bytes: 90_000_000, timestamp: Utc::now() },
     ];
     let processed_anomalous_summary = qtiad_engine.process_security_logs_simd(&anomalous_telemetry);
     let detected_anomalies = qtiad_engine.detect_anomalies_simd(&processed_anomalous_summary);

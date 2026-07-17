@@ -7,10 +7,11 @@
 /// It leverages RAG for incident response playbooks and failure pattern analysis, and SIMD
 /// for parallel health checks and automated corrective actions.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -23,7 +24,7 @@ pub struct InfrastructureComponent {
     pub component_type: String, // e.g., "VirtualMachine", "DatabaseInstance", "KafkaBroker"
     pub health_status: String, // e.g., "Healthy", "Degraded", "Critical", "Offline"
     pub current_metrics: HashMap<String, f32>, // e.g., "cpu_usage_pct": 85.0, "disk_io_latency_ms": 200.0
-    pub last_healthy_check: Instant,
+    pub last_healthy_check: DateTime<Utc>,
     pub incident_count_24h: u32,
 }
 
@@ -31,7 +32,8 @@ pub struct InfrastructureComponent {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InfrastructureIssue {
     pub issue_id: String,
-    pub detected_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detected_at: DateTime<Utc>,
     pub component_id: String,
     pub severity: String, // e.g., "Warning", "Error", "Critical"
     pub problem_description: String, // RAG-derived natural language description
@@ -44,7 +46,8 @@ pub struct InfrastructureIssue {
 pub struct RemediationAction {
     pub action_id: String,
     pub issue_id: String,
-    pub started_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub started_at: DateTime<Utc>,
     pub action_type: String, // e.g., "RestartService", "ScaleOut", "DatabaseFailover"
     pub command_executed: String,
     pub status: String, // e.g., "InProgress", "Completed", "Failed"
@@ -112,7 +115,7 @@ impl SHAREngine {
             if is_problem {
                 issues.push(InfrastructureIssue {
                     issue_id: format!("issue_{}", rng.gen::<u32>()),
-                    detected_at: Instant::now(),
+                    detected_at: Utc::now(),
                     component_id: component.component_id.clone(),
                     severity,
                     problem_description: problem_desc,
@@ -158,7 +161,7 @@ impl SHAREngine {
             remediation_actions.push(RemediationAction {
                 action_id: format!("rem_{}", rng.gen::<u32>()),
                 issue_id: issue.issue_id.clone(),
-                started_at: Instant::now(),
+                started_at: Utc::now(),
                 action_type: remediation_type,
                 command_executed: command,
                 status: action_status,
@@ -197,7 +200,7 @@ mod tests {
     #[test]
     fn test_shar_engine_flow() {
         let engine = SHAREngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let components = vec![
             InfrastructureComponent {
@@ -221,7 +224,7 @@ fn main() {
     println!("\n--- Self-Healing Infrastructure & Automated Remediation (RAG-Driven) Demonstration ---");
 
     let shar_engine = SHAREngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     let all_infrastructure = vec![
         InfrastructureComponent {

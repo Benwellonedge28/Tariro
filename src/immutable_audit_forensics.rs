@@ -5,11 +5,12 @@
 /// enabling comprehensive forensic analysis (leveraging RAG for regulatory compliance requirements
 /// and SIMD for rapid log processing and anomaly detection).
 
+use crate::prelude::*;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Types of audit events.
@@ -93,7 +94,7 @@ impl AuditTrailEngine {
 
     /// Creates the very first block in the audit chain.
     fn create_genesis_block() -> AuditBlock {
-        let timestamp = Instant::now().elapsed().as_secs();
+        let timestamp = Utc::now().timestamp();
         let mut genesis = AuditBlock {
             index: 0,
             timestamp,
@@ -110,8 +111,8 @@ impl AuditTrailEngine {
         println!("  [AuditEngine]: Logging event: {:?} by {}.", event_type, actor);
         let previous_hash = self.chain.last().map_or("0".to_string(), |b| b.current_block_hash.clone());
         let new_event = AuditEvent {
-            id: format!("Event_{}", Instant::now().elapsed().as_micros()),
-            timestamp: Instant::now().elapsed().as_secs(),
+            id: format!("Event_{}", Utc::now().timestamp_micros()),
+            timestamp: Utc::now().timestamp(),
             event_type,
             actor,
             details,
@@ -132,7 +133,7 @@ impl AuditTrailEngine {
 
         let previous_block = self.chain.last().unwrap();
         let index = previous_block.index + 1;
-        let timestamp = Instant::now().elapsed().as_secs();
+        let timestamp = Utc::now().timestamp();
         let previous_block_hash = previous_block.current_block_hash.clone();
 
         let mut new_block = AuditBlock {
@@ -274,7 +275,7 @@ mod tests {
         let anomalies = engine.detect_anomalies_simd();
         assert!(!anomalies.is_empty());
 
-        let report = engine.generate_forensics_report(0, Instant::now().elapsed().as_secs(), Some("failed login".to_string()));
+        let report = engine.generate_forensics_report(0, Utc::now().timestamp(), Some("failed login".to_string()));
         assert!(!report.suspicious_events.is_empty());
 
         let compliance_status = engine.check_compliance_rag("GDPR_LogRetention");
@@ -286,7 +287,7 @@ fn main() {
     println!("\n--- Immutable Audit Trail & Forensics Engine Demonstration ---");
 
     let mut audit_engine = AuditTrailEngine::new();
-    let start_demo_time = Instant::now().elapsed().as_secs();
+    let start_demo_time = Utc::now().timestamp();
 
     // 1. Simulate logging various system activities
     audit_engine.log_event(AuditEventType::Login, "admin".to_string(), "successful login from 192.168.1.10".to_string());
@@ -330,7 +331,7 @@ fn main() {
     }
 
     // 4. Generate a forensics report for a specific time frame or criteria
-    let end_demo_time = Instant::now().elapsed().as_secs();
+    let end_demo_time = Utc::now().timestamp();
     let forensics_report = audit_engine.generate_forensics_report(start_demo_time, end_demo_time, Some("attacker".to_string()));
     println!("\n--- Forensics Report ({}) ---", forensics_report.report_id);
     println!("  Anomaly Score: {:.2}", forensics_report.anomaly_score);

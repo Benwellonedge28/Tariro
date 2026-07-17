@@ -7,10 +7,11 @@
 /// It leverages RAG for zero-knowledge proofs, verifiable delay functions, and blockchain-based
 /// audit trails to provide cryptographic assurance of computational integrity.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -32,7 +33,10 @@ pub struct VerifiableComputationRequest {
 pub struct ComputationProof {
     pub proof_id: String,
     pub request_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub proof_data: Vec<u8>, // The cryptographic proof itself
     pub verifier_id: String, // ID of the entity that generated the proof
     pub proof_type: String,
@@ -45,7 +49,7 @@ pub struct BlockchainAuditRecord {
     pub transaction_id: String,
     pub computation_proof_id: String,
     pub block_hash: String,
-    pub recorded_at: Instant,
+    pub recorded_at: DateTime<Utc>,
     pub auditor_address: String,
     pub metadata: HashMap<String, String>, // e.g., "smart_contract_address", "gas_cost"
 }
@@ -96,7 +100,7 @@ impl VCAIEngine {
         ComputationProof {
             proof_id: format!("proof_{}", rng.gen::<u32>()),
             request_id: request.request_id.clone(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             proof_data,
             verifier_id: "AGI_Integrity_Verifier_01".to_string(),
             proof_type: request.verifiable_proof_type.clone(),
@@ -122,7 +126,7 @@ impl VCAIEngine {
             transaction_id,
             computation_proof_id: proof.proof_id.clone(),
             block_hash,
-            recorded_at: Instant::now(),
+            recorded_at: Utc::now(),
             auditor_address: "0xAGIAuditorWalletAddress".to_string(),
             metadata: HashMap::from([("smart_contract_address".to_string(), "0xSmartContractAudit".to_string())]),
         }
@@ -151,7 +155,7 @@ mod tests {
     #[test]
     fn test_vcai_engine_flow() {
         let engine = VCAIEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let verifiable_request = VerifiableComputationRequest {
             request_id: "comp_agi_decision_X".to_string(),
@@ -178,7 +182,7 @@ fn main() {
     println!("\n--- Verifiable Computing for AGI Integrity Demonstration ---");
 
     let vcai_engine = VCAIEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Define a verifiable AGI computation request
     println!("--- Scenario 1: Define Verifiable AGI Computation ---");

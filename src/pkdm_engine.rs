@@ -5,10 +5,11 @@
 /// outdated or irrelevant, prompting autonomous updates or archival. It leverages SIMD
 /// for timestamp analysis and relevance trending.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -20,8 +21,9 @@ pub struct TemporalKnowledgeItem {
     pub item_id: String,
     pub content: String,
     pub domain: String, // e.g., "Technology", "Policy", "ScientificResearch"
-    pub created_at: Instant,
-    pub last_verified_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub created_at: DateTime<Utc>,
+    pub last_verified_at: DateTime<Utc>,
     pub predicted_decay_rate: f32, // 0.0 (stable) to 1.0 (rapidly decaying)
     pub current_relevance_score: f32, // 0.0-1.0
 }
@@ -33,7 +35,8 @@ pub struct KnowledgeDecayAlert {
     pub item_id: String,
     pub decay_reason: String, // e.g., "TimeElapsed", "NewContradictoryInformation", "DecreasedUtilization"
     pub severity: String, // e.g., "Low", "Medium", "High"
-    pub detected_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detected_at: DateTime<Utc>,
     pub suggested_action: String, // e.g., "VerifyNow", "Archive", "UpdateFromSource"
 }
 
@@ -43,7 +46,10 @@ pub struct KnowledgeMaintenanceAction {
     pub action_id: String,
     pub item_id: String,
     pub action_type: String, // e.g., "VerificationInitiated", "Archived", "SourceUpdateTriggered"
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub result: String,
 }
 
@@ -72,8 +78,8 @@ impl PKDMEngine {
             item_id: "rust_version_info".to_string(),
             content: "The current stable version of Rust is 1.77.2.".to_string(),
             domain: "Technology".to_string(),
-            created_at: Instant::now() - Duration::from_secs(86400 * 30),
-            last_verified_at: Instant::now() - Duration::from_secs(86400 * 7),
+            created_at: Utc::now() - Duration::from_secs(86400 * 30),
+            last_verified_at: Utc::now() - Duration::from_secs(86400 * 7),
             predicted_decay_rate: 0.6,
             current_relevance_score: 0.9,
         });
@@ -81,8 +87,8 @@ impl PKDMEngine {
             item_id: "core_math_principles".to_string(),
             content: "The Pythagorean theorem relates the sides of a right triangle.".to_string(),
             domain: "Mathematics".to_string(),
-            created_at: Instant::now() - Duration::from_secs(86400 * 365),
-            last_verified_at: Instant::now() - Duration::from_secs(86400 * 30),
+            created_at: Utc::now() - Duration::from_secs(86400 * 365),
+            last_verified_at: Utc::now() - Duration::from_secs(86400 * 30),
             predicted_decay_rate: 0.01,
             current_relevance_score: 1.0,
         });
@@ -90,8 +96,8 @@ impl PKDMEngine {
             item_id: "agi_safety_policy".to_string(),
             content: "Draft security policy for AGI resource isolation.".to_string(),
             domain: "Policy".to_string(),
-            created_at: Instant::now() - Duration::from_secs(86400 * 14),
-            last_verified_at: Instant::now() - Duration::from_secs(86400 * 2),
+            created_at: Utc::now() - Duration::from_secs(86400 * 14),
+            last_verified_at: Utc::now() - Duration::from_secs(86400 * 2),
             predicted_decay_rate: 0.4,
             current_relevance_score: 0.95,
         });
@@ -111,7 +117,7 @@ impl PKDMEngine {
         thread::sleep(Duration::from_millis(30));
         let mut rng = rand::Rng::thread_rng();
 
-        let time_since_verification = Instant::now().duration_since(item.last_verified_at).as_secs_f32();
+        let time_since_verification = Utc::now().duration_since(item.last_verified_at).as_secs_f32();
         let decay_factor = (time_since_verification / (86400.0 * 30.0)) * item.predicted_decay_rate;
         (item.current_relevance_score - decay_factor).max(0.0)
     }
@@ -135,7 +141,7 @@ impl PKDMEngine {
                     item_id: id.clone(),
                     decay_reason: "TimeElapsed".to_string(),
                     severity: if item.current_relevance_score < 0.5 { "High".to_string() } else { "Medium".to_string() },
-                    detected_at: Instant::now(),
+                    detected_at: Utc::now(),
                     suggested_action: if item.domain == "Mathematics" { "VerifyNow".to_string() } else { "UpdateFromSource".to_string() },
                 });
             }
@@ -155,7 +161,7 @@ impl PKDMEngine {
             action_id: format!("maint_{}", rng.gen::<u32>()),
             item_id: alert.item_id.clone(),
             action_type: if alert.suggested_action == "VerifyNow" { "VerificationInitiated".to_string() } else { "SourceUpdateTriggered".to_string() },
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             result: "Action successfully initiated.".to_string(),
         }
     }
@@ -181,7 +187,7 @@ mod tests {
     #[test]
     fn test_pkdm_engine_flow() {
         let mut engine = PKDMEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let alerts = engine.monitor_knowledge_decay_rag();
         // assert!(!alerts.is_empty()); // Can be empty depending on initial simulated data
@@ -200,7 +206,7 @@ fn main() {
     println!("\n--- Predictive Knowledge Decay Monitoring (RAG-Driven) Demonstration ---");
 
     let mut pkdm_engine = PKDMEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     println!("Initial Temporal Knowledge Base: {} items monitored.\n", pkdm_engine.temporal_knowledge_base.len());
 

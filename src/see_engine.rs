@@ -7,10 +7,11 @@
 /// It leverages RAG for trusted execution environment architectures, hardware security
 /// modules, and formal verification of enclave integrity.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -32,7 +33,8 @@ pub struct EnclaveComponent {
 pub struct EnclaveAttestationReport {
     pub report_id: String,
     pub component_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub measurement: String, // Cryptographic measurement of enclave state/code
     pub signer_id: String, // ID of the attestation key
     pub is_valid: bool,
@@ -111,7 +113,7 @@ impl SEEEngine {
         EnclaveAttestationReport {
             report_id: format!("attest_rpt_{}", rng.gen::<u32>()),
             component_id: component.component_id.clone(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             measurement,
             signer_id: signer,
             is_valid,
@@ -160,7 +162,7 @@ mod tests {
     #[test]
     fn test_see_engine_flow() {
         let engine = SEEEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let agi_crypto_module = EnclaveComponent {
             component_id: "crypto_module_01".to_string(),
@@ -197,7 +199,7 @@ fn main() {
     println!("\n--- Secure Enclaves for Isolated AGI Execution Demonstration ---");
 
     let see_engine = SEEEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Define critical AGI components for enclave deployment
     println!("--- Scenario 1: Define Critical AGI Components for Enclaves ---");

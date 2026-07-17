@@ -4,6 +4,14 @@
 //! "Program-and-Compile-Once-Run-Everywhere-Anywhere-Forever" (POCO-REAF).
 
 // ============================================================================
+// Prelude - Common types available to all modules
+// ============================================================================
+pub mod prelude {
+    pub use chrono::{DateTime, Utc, TimeZone, Duration as ChronoDuration};
+    pub use chrono::serde::ts_seconds;
+}
+
+// ============================================================================
 // Core Framework Modules
 // ============================================================================
 pub mod fco;

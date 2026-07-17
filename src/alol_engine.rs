@@ -11,10 +11,11 @@
 /// algorithms, Bayesian optimization, meta-learning, adaptive control theory, knowledge distillation, autonomous
 /// experimentation, causal inference).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -24,8 +25,11 @@ use rand::Rng;
 pub struct WorkflowPerformanceLog {
     pub log_id: String,
     pub workflow_instance_id: String,
-    pub start_time: Instant,
-    pub end_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub start_time: DateTime<Utc>,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub end_time: DateTime<Utc>,
     pub duration_seconds: u64,
     pub success: bool,
     pub efficiency_score: f32,
@@ -38,8 +42,11 @@ pub struct WorkflowPerformanceLog {
 #[derive(Debug, Clone)]
 pub struct LearningIterationSummary {
     pub iteration_id: String,
-    pub start_time: Instant,
-    pub end_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub start_time: DateTime<Utc>,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub end_time: DateTime<Utc>,
     pub analyzed_logs_count: u64,
     pub identified_gaps: Vec<String>,
     pub proposed_optimizations: Vec<String>,
@@ -103,8 +110,8 @@ impl ALOL_Engine {
         workflow_instance_ids.iter().map(|id| WorkflowPerformanceLog {
             log_id: format!("wpl_{}", rng.gen::<u32>()),
             workflow_instance_id: id.clone(),
-            start_time: Instant::now() - Duration::from_secs(rng.gen_range(3600..86400)),
-            end_time: Instant::now(),
+            start_time: Utc::now() - Duration::from_secs(rng.gen_range(3600..86400)),
+            end_time: Utc::now(),
             duration_seconds: rng.gen_range(300..3600),
             success: rng.gen_bool(0.95),
             efficiency_score: rng.gen_range(0.7..0.99),
@@ -131,8 +138,8 @@ impl ALOL_Engine {
 
         LearningIterationSummary {
             iteration_id: format!("iter_{}", rng.gen::<u32>()),
-            start_time: Instant::now(),
-            end_time: Instant::now(),
+            start_time: Utc::now(),
+            end_time: Utc::now(),
             analyzed_logs_count: performance_logs.len() as u32,
             identified_gaps,
             proposed_optimizations: vec!["Refine_Resource_Weights".to_string(), "Optimize_Task_Ordering".to_string()],

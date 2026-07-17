@@ -6,10 +6,11 @@
 /// It leverages RAG for decentralized identity protocols, verifiable credential schemas,
 /// and consent management frameworks to provide a transparent and auditable access control system.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -30,8 +31,8 @@ pub struct VerifiableCredential {
     pub issuer_did: String,
     pub credential_type: String, // e.g., "UniversityDegree", "EmploymentRecord", "KYC"
     pub claims: HashMap<String, String>,
-    pub issuance_date: Instant,
-    pub expiration_date: Option<Instant>,
+    pub issuance_date: DateTime<Utc>,
+    pub expiration_date: Option<DateTime<Utc>>,
     pub signature: String, // Cryptographic signature by issuer
 }
 
@@ -42,7 +43,7 @@ pub struct VerifiablePresentation {
     pub holder_did: String,
     pub verifier_did: String,
     pub credentials: Vec<VerifiableCredential>,
-    pub presentation_date: Instant,
+    pub presentation_date: DateTime<Utc>,
     pub signature: String, // Cryptographic signature by holder
 }
 
@@ -150,7 +151,7 @@ mod tests {
     #[test]
     fn test_ssiam_engine_flow() {
         let engine = SSIAMEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let user_did = DecentralizedIdentifier {
             did: "did:example:alice".to_string(),
@@ -215,7 +216,7 @@ fn main() {
     println!("\n--- Self-Sovereign Identity and Access Management (SSIAM) Demonstration ---");
 
     let ssiam_engine = SSIAMEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Register DIDs for a user and an issuer
     println!("--- Scenario 1: Register DIDs ---");

@@ -7,10 +7,11 @@
 /// hardware specs and power profiles, and SIMD for parallel resource scheduling
 /// and load balancing.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -24,7 +25,8 @@ pub struct ComputationalTask {
     pub required_resources: HashMap<String, f32>, // e.g., "cpu_cores": 8.0, "gpu_memory_gb": 16.0
     pub criticality_score: f32, // 0.0-1.0
     pub predicted_duration_s: u64,
-    pub deadline: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub deadline: DateTime<Utc>,
 }
 
 /// Represents an available hardware resource unit.
@@ -47,8 +49,10 @@ pub struct ResourceAllocation {
     pub task_id: String,
     pub resource_id: String,
     pub allocated_amount: HashMap<String, f32>,
-    pub allocated_at: Instant,
-    pub expected_release_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub allocated_at: DateTime<Utc>,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub expected_release_at: DateTime<Utc>,
     pub justification: String,
 }
 
@@ -118,7 +122,7 @@ impl AHROEngine {
                     task_id: task.task_id.clone(),
                     resource_id: resource.resource_id.clone(),
                     allocated_amount,
-                    allocated_at: Instant::now(),
+                    allocated_at: Utc::now(),
                     expected_release_at: task.deadline,
                     justification,
                 });
@@ -164,7 +168,7 @@ mod tests {
     #[test]
     fn test_ahro_engine_flow() {
         let engine = AHROEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let task = ComputationalTask {
             task_id: "ml_inference_batch".to_string(),
@@ -210,7 +214,7 @@ fn main() {
     println!("\n--- Adaptive Hardware Resource Orchestration (SIMD-Driven) Demonstration ---");
 
     let ahro_engine = AHROEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Define a pool of available resources
     let resources = vec![

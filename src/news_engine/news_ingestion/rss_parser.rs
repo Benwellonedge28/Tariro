@@ -1,4 +1,5 @@
 // src/news_engine/news_ingestion/rss_parser.rs
+use crate::prelude::*;
 
 //! Handles parsing of RSS/Atom feeds to extract news articles and their metadata.
 

@@ -4,10 +4,11 @@
 /// These agents will self-deploy, self-organize, and autonomously defend network perimeters and data integrity
 /// (leveraging RAG for threat intelligence sharing and SIMD for swarm-based anomaly detection).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Defines the role of a DASA agent.
@@ -69,7 +70,7 @@ impl DASASwarm {
             id: agent_id.clone(),
             role,
             health: 1.0,
-            last_heard_from: Instant::now().elapsed().as_secs(),
+            last_heard_from: Utc::now().timestamp(),
             current_target: None,
             active_threats_detected: Vec::new(),
         };
@@ -82,7 +83,7 @@ impl DASASwarm {
     pub fn coordinate_agents(&mut self) {
         println!("  [DASA]: Coordinating agents and rebalancing roles.");
         let mut rng = rand::thread_rng();
-        let current_time = Instant::now().elapsed().as_secs();
+        let current_time = Utc::now().timestamp();
 
         // Simulate agents detecting issues or completing tasks
         for agent in self.agents.values_mut() {
@@ -119,7 +120,7 @@ impl DASASwarm {
                 severity: rng.gen_range(0.7..0.95),
                 affected_assets: vec!["network_edge".to_string(), "web_servers".to_string()],
                 context: "Multiple agents report coordinated anomalous network traffic.".to_string(),
-                timestamp: Instant::now().elapsed().as_secs(),
+                timestamp: Utc::now().timestamp(),
             });
         }
         thread::sleep(Duration::from_millis(100));
@@ -207,7 +208,7 @@ fn main() {
                 severity: 0.9,
                 affected_assets: vec!["supply_chain_software".to_string()],
                 context: "New APT group targeting software suppliers.".to_string(),
-                timestamp: Instant::now().elapsed().as_secs(),
+                timestamp: Utc::now().timestamp(),
             });
         }
 

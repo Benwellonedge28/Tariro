@@ -8,10 +8,11 @@
 /// and computational constraints. It uses RAG for architectural patterns and algorithm design
 /// principles, and SIMD for parallel architectural simulations and real-time code optimization.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -36,7 +37,8 @@ pub struct ArchitecturalComponent {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ArchitecturalProposal {
     pub proposal_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub proposed_component_id: String,
     pub description: String,
     pub estimated_performance_gain: f32, // e.g., 0.1 for 10% gain
@@ -50,7 +52,8 @@ pub struct ArchitecturalProposal {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SelfOptimizationAction {
     pub action_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub target_component_id: String,
     pub action_type: String, // e.g., "Code_Refactoring", "Algorithm_Swap", "Parameter_Tuning", "Microservice_Split"
     pub description: String,
@@ -105,7 +108,7 @@ impl AASOEEngine {
             // Simulate a detected sub-optimal algorithm and propose/apply an optimization
             actions.push(SelfOptimizationAction {
                 action_id: format!("opt_act_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 target_component_id: current_architecture.get(0).map_or("unknown_comp".to_string(), |c| c.component_id.clone()),
                 action_type: "Algorithm_Swap".to_string(),
                 description: "Replaced bubble sort with quicksort for data processing module.".to_string(),
@@ -134,7 +137,7 @@ impl AASOEEngine {
             vec![
                 ArchitecturalProposal {
                     proposal_id: format!("prop_{}", rng.gen::<u32>()),
-                    timestamp: Instant::now(),
+                    timestamp: Utc::now(),
                     proposed_component_id: "new_async_message_queue".to_string(),
                     description: "Introduce a new asynchronous message queue for inter-service communication to handle increased concurrency.".to_string(),
                     estimated_performance_gain: 0.3,
@@ -205,7 +208,7 @@ fn main() {
     println!("\n--- Autonomous Architectural Self-Optimization & Evolution (RAG-Driven) Demonstration ---");
 
     let aasoe_engine = AASOEEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Tariro detects high latency in a core data processing module and autonomously proposes/implements an optimization
     println!("--- Scenario 1: Performance Optimization ---");

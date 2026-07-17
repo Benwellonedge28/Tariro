@@ -8,10 +8,11 @@
 /// and cognitive science models of learning, and SIMD for parallel learning experiment
 /// execution and real-time algorithm comparison.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -34,8 +35,8 @@ pub struct LearningAlgorithmConfig {
 pub struct LearningObservation {
     pub observation_id: String,
     pub config_id: String,
-    pub experiment_start: Instant,
-    pub experiment_end: Instant,
+    pub experiment_start: DateTime<Utc>,
+    pub experiment_end: DateTime<Utc>,
     pub final_performance: f32,
     pub resource_consumption: HashMap<String, f32>, // e.g., "gpu_hours": 1.5, "data_processed_gb": 10.2
     pub observed_anomalies: Vec<String>, // e.g., "plateau_in_accuracy", "oscillating_loss"
@@ -47,7 +48,8 @@ pub struct LearningObservation {
 pub struct CognitiveRefactoringRecord {
     pub record_id: String,
     pub config_id: String,
-    pub initiated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub initiated_at: DateTime<Utc>,
     pub problem_identified: String,
     pub proposed_change: String, // e.g., "Adjust learning rate by 0.005", "Add dropout layer"
     pub expected_improvement: HashMap<String, f32>, // e.g., "accuracy_gain_pct": 2.5, "speed_gain_pct": 10.0
@@ -113,8 +115,8 @@ impl AMLCREngine {
             observations.push(LearningObservation {
                 observation_id: format!("obs_{}", rng.gen::<u32>()),
                 config_id: config.config_id.clone(),
-                experiment_start: Instant::now() - Duration::from_secs(rng.gen_range(3600..10800)),
-                experiment_end: Instant::now(),
+                experiment_start: Utc::now() - Duration::from_secs(rng.gen_range(3600..10800)),
+                experiment_end: Utc::now(),
                 final_performance,
                 resource_consumption,
                 observed_anomalies,
@@ -162,7 +164,7 @@ impl AMLCREngine {
                 refactoring_records.push(CognitiveRefactoringRecord {
                     record_id: format!("crc_{}", rng.gen::<u32>()),
                     config_id: obs.config_id,
-                    initiated_at: Instant::now(),
+                    initiated_at: Utc::now(),
                     problem_identified: problem.clone(),
                     proposed_change: proposed_change.clone(),
                     expected_improvement,
@@ -222,7 +224,7 @@ fn main() {
     println!("\n--- Autonomous Meta-Learning & Cognitive Refactoring (RAG-Driven) Demonstration ---");
 
     let amlcr_engine = AMLCREngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: AI identifies suboptimal learning in an image recognition model
     println!("--- Scenario 1: Image Recognition Learning Optimization ---");

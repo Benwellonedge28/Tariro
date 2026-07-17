@@ -7,10 +7,11 @@
 /// and efficiency. It leverages RAG for pipeline optimization algorithms and data quality
 /// metrics, and SIMD for parallel data transformation and model execution.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -34,7 +35,7 @@ pub struct PredictivePipeline {
     pub stages: Vec<PipelineStage>,
     pub data_characteristics: HashMap<String, f32>, // e.g., "data_volume_gb": 1.5, "missing_values_pct": 0.05
     pub current_performance: HashMap<String, f32>, // e.g., "accuracy": 0.92, "latency_ms": 250.0
-    pub adapted_at: Instant,
+    pub adapted_at: DateTime<Utc>,
 }
 
 /// Represents a pipeline adaptation decision.
@@ -42,7 +43,10 @@ pub struct PredictivePipeline {
 pub struct PipelineAdaptation {
     pub adaptation_id: String,
     pub pipeline_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub modifications: Vec<String>, // e.g., "Swap model for light-weight variant", "Increase parallelism"
     pub justification: String, // RAG-derived rationale
     pub predicted_impact: HashMap<String, f32>, // e.g., "expected_accuracy_gain": 0.01, "expected_latency_reduction_ms": 50.0
@@ -139,7 +143,7 @@ impl SPAPEngine {
             return Some(PipelineAdaptation {
                 adaptation_id: format!("pad_{}", rng.gen::<u32>()),
                 pipeline_id: pipeline.pipeline_id.clone(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 modifications,
                 justification,
                 predicted_impact,
@@ -170,7 +174,7 @@ mod tests {
     #[test]
     fn test_spap_engine_flow() {
         let engine = SPAPEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let initial_stages = vec![
             PipelineStage { stage_id: "s1".to_string(), stage_name: "InputData".to_string(), operation_type: "SIMDTransformation".to_string(), config: HashMap::new(), status: "Pending".to_string() },
@@ -199,7 +203,7 @@ fn main() {
     println!("\n--- Self-Adapting Predictive Analytics Pipelines (RAG-Driven) Demonstration ---");
 
     let spap_engine = SPAPEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Manage a pipeline with data quality issues
     println!("--- Scenario 1: Pipeline Adaptation (Data Quality Issue) ---");

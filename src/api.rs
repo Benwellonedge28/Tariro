@@ -2,6 +2,7 @@
 
 //! Defines the external API endpoints and internal communication protocols for the Tariro AGI.
 
+use crate::prelude::*;
 use warp::{Filter, Rejection, Reply};
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};

@@ -6,10 +6,11 @@
 /// efficiency. It leverages RAG for pattern recognition heuristics and feature engineering
 /// techniques, and SIMD for parallel data mining and correlation matrix computation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -19,7 +20,8 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataStreamRecord {
     pub record_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub stream_type: String, // e.g., "Sensor", "Financial", "SocialMedia", "SystemLogs"
     pub features: HashMap<String, f32>, // Numerical features extracted
     pub categorical_data: HashMap<String, String>,
@@ -29,7 +31,8 @@ pub struct DataStreamRecord {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EmergentPattern {
     pub pattern_id: String,
-    pub detected_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detected_at: DateTime<Utc>,
     pub pattern_description: String,
     pub contributing_features: Vec<String>,
     pub confidence_score: f32,
@@ -41,7 +44,8 @@ pub struct EmergentPattern {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PredictiveModel {
     pub model_id: String,
-    pub created_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub created_at: DateTime<Utc>,
     pub target_variable: String,
     pub model_type: String, // e.g., "Regression", "Classification", "Forecasting"
     pub accuracy: f32,
@@ -96,7 +100,7 @@ impl EPDPENGINE {
         if records.len() > 5 && rng.gen_bool(0.7) {
             patterns.push(EmergentPattern {
                 pattern_id: format!("pat_{}", rng.gen::<u32>()),
-                detected_at: Instant::now(),
+                detected_at: Utc::now(),
                 pattern_description: "Strong positive correlation between system load and user login failures detected.".to_string(),
                 contributing_features: vec!["system_load".to_string(), "login_failures".to_string()],
                 confidence_score: 0.92,
@@ -107,7 +111,7 @@ impl EPDPENGINE {
         if records.len() > 10 && rng.gen_bool(0.5) {
             patterns.push(EmergentPattern {
                 pattern_id: format!("pat_{}", rng.gen::<u32>()),
-                detected_at: Instant::now(),
+                detected_at: Utc::now(),
                 pattern_description: "Unusual sequence of low-level API calls preceding data exfiltration attempt.".to_string(),
                 contributing_features: vec!["api_call_sequence".to_string(), "network_outbound".to_string()],
                 confidence_score: 0.88,
@@ -147,7 +151,7 @@ impl EPDPENGINE {
             if pattern.predictive_power > 0.8 {
                 models.push(PredictiveModel {
                     model_id: format!("model_{}", rng.gen::<u32>()),
-                    created_at: Instant::now(),
+                    created_at: Utc::now(),
                     target_variable: format!("{}_prediction", pattern.contributing_features.first().unwrap_or(&"unknown".to_string())),
                     model_type: "Classification".to_string(),
                     accuracy: rng.gen_range(0.8..0.98),
@@ -182,7 +186,7 @@ mod tests {
     #[test]
     fn test_epdp_engine_flow() {
         let engine = EPDPENGINE::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let records = vec![
             DataStreamRecord { record_id: "r1".to_string(), timestamp: now, stream_type: "Sensor".to_string(), features: HashMap::from([("temp".to_string(), 25.5), ("humidity".to_string(), 60.0)]), categorical_data: HashMap::new() },
@@ -209,7 +213,7 @@ fn main() {
     println!("\n--- Emergent Pattern Discovery & Predictive Modeling (SIMD-Driven) Demonstration ---");
 
     let epdp_engine = EPDPENGINE::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Simulate diverse data streams leading to an emergent pattern
     println!("--- Scenario 1: Cross-Stream Anomaly Detection ---");

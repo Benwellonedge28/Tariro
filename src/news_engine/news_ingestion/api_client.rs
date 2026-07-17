@@ -1,4 +1,5 @@
 // src/news_engine/news_ingestion/api_client.rs
+use crate::prelude::*;
 
 //! Provides functionality to interact with various external news APIs (e.g., NewsAPI, Google News API)
 //! to fetch structured news data.

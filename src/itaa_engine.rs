@@ -7,10 +7,11 @@
 /// computation, and redundant architectural patterns to ensure high resilience and integrity
 /// of critical AGI services.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -31,7 +32,7 @@ pub struct AgiServiceInstance {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FaultObservation {
     pub observation_id: String,
-    pub observed_at: Instant,
+    pub observed_at: DateTime<Utc>,
     pub instance_id_1: String,
     pub instance_id_2: String,
     pub discrepancy_type: String, // e.g., "StateMismatch", "OutputDivergence", "PerformanceDegradation"
@@ -44,7 +45,8 @@ pub struct FaultObservation {
 pub struct FaultToleranceAction {
     pub action_id: String,
     pub observation_id: String,
-    pub initiated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub initiated_at: DateTime<Utc>,
     pub action_type: String, // e.g., "IsolateInstance", "RollbackState", "TriggerRedundancy", "InitiateRecovery"
     pub target_instance_id: String,
     pub status: String, // e.g., "Pending", "Executing", "Completed", "Failed"
@@ -90,7 +92,7 @@ impl ITAAEngine {
         if instances.len() >= 2 && rng.gen_bool(0.3) { // Simulate a fault in 30% of checks if multiple instances
             observations.push(FaultObservation {
                 observation_id: format!("obs_{}", rng.gen::<u32>()),
-                observed_at: Instant::now(),
+                observed_at: Utc::now(),
                 instance_id_1: instances[0].instance_id.clone(),
                 instance_id_2: instances[1].instance_id.clone(),
                 discrepancy_type: "StateMismatch".to_string(),
@@ -139,7 +141,7 @@ impl ITAAEngine {
         FaultToleranceAction {
             action_id: format!("ft_action_{}", rng.gen::<u32>()),
             observation_id: observation.observation_id.clone(),
-            initiated_at: Instant::now(),
+            initiated_at: Utc::now(),
             action_type,
             target_instance_id: observation.instance_id_1.clone(),
             status: "Executing".to_string(),
@@ -170,7 +172,7 @@ mod tests {
     #[test]
     fn test_itaa_engine_flow() {
         let engine = ITAAEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let instance1 = AgiServiceInstance {
             instance_id: "agi_core_a".to_string(),
@@ -217,7 +219,7 @@ fn main() {
     println!("\n--- Intrusion-Tolerant AGI Architectures Demonstration ---");
 
     let itaa_engine = ITAAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Deploy multiple AGI service instances with simulated state divergence
     println!("--- Scenario 1: Deploy AGI Service Instances ---");

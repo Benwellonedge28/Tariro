@@ -7,10 +7,11 @@
 /// cryptographic agility across diverse hardware platforms
 /// (leveraging RAG for hardware capability discovery and SIMD for high-speed data transfer to/from hardware accelerators).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Supported hardware accelerators for cryptographic operations.
@@ -174,7 +175,7 @@ fn main() {
     // 2. Perform a cryptographic operation, offloading based on performance strategy
     let sensitive_payload = b"This is a payload requiring fast encryption.";
     println!("--- Offloading AES Encryption (Performance Strategy) ---");
-    let start_time = Instant::now();
+    let start_time = Utc::now();
     if let Some((result, used_accel)) = crypto_manager.offload_operation_simd(CryptographicOperation::AESEncrypt, sensitive_payload, OffloadStrategy::Performance) {
         let duration = start_time.elapsed().as_millis();
         println!("  AES Encryption completed in {}ms using {:?}. Output size: {}.\n", duration, used_accel, result.len());
@@ -186,7 +187,7 @@ fn main() {
     // 3. Perform another cryptographic operation, offloading based on security strategy
     let critical_signature_data = b"Data for a critical digital signature.";
     println!("--- Offloading RSA Signing (Security Strategy) ---");
-    let start_time = Instant::now();
+    let start_time = Utc::now();
     if let Some((result, used_accel)) = crypto_manager.offload_operation_simd(CryptographicOperation::RSASign, critical_signature_data, OffloadStrategy::Security) {
         let duration = start_time.elapsed().as_millis();
         println!("  RSA Signing completed in {}ms using {:?}. Output size: {}.\n", duration, used_accel, result.len());
@@ -198,7 +199,7 @@ fn main() {
     // 4. Handle a scenario where an operation might fall back to CPU
     let pqc_keygen_request = b"Generate a new post-quantum key pair.";
     println!("--- Offloading PQC Key Generation (Fallbacks to CPU if no specialized HW) ---");
-    let start_time = Instant::now();
+    let start_time = Utc::now();
     // Force CPU for demonstration, or if no PQC hardware detected
     if let Some((result, used_accel)) = crypto_manager.perform_cpu_fallback_simd(CryptographicOperation::PQCKeyGen, pqc_keygen_request) {
         let duration = start_time.elapsed().as_millis();

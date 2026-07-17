@@ -7,10 +7,11 @@
 /// behaviors. It leverages RAG for automated theorem proving, model checking, and formal
 /// specification languages to ensure the highest level of AGI security and containment.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -32,7 +33,8 @@ pub struct AgiSecurityProperty {
 pub struct VerificationResult {
     pub result_id: String,
     pub property_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub status: String, // e.g., "Verified", "CounterexampleFound", "Inconclusive"
     pub verification_tool: String,
     pub report_summary: String,
@@ -119,7 +121,7 @@ impl FVASPEngine {
         VerificationResult {
             result_id: format!("v_res_{}", rng.gen::<u32>()),
             property_id: property.property_id.clone(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             status,
             verification_tool: property.verification_method.clone(),
             report_summary,
@@ -180,7 +182,7 @@ mod tests {
     #[test]
     fn test_fvasp_engine_flow() {
         let engine = FVASPEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let integrity_property = engine.specify_agi_security_property(
             "DataIntegrity",
@@ -204,7 +206,7 @@ fn main() {
     println!("\n--- Formal Verification of AGI Security Properties Demonstration ---");
 
     let fvasp_engine = FVASPEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Formally specify critical AGI security properties
     println!("--- Scenario 1: Specify Critical AGI Security Properties ---");

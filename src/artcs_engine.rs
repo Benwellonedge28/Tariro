@@ -8,10 +8,11 @@
 /// It leverages RAG for cybersecurity frameworks and penetration testing methodologies,
 /// and SIMD for parallel exploit generation and real-time threat intelligence correlation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -34,7 +35,8 @@ pub struct Vulnerability {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RedTeamReport {
     pub report_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub scope: Vec<String>,
     pub vulnerabilities_found: Vec<Vulnerability>,
     pub attack_vectors_exploited: Vec<String>,
@@ -163,7 +165,7 @@ impl ARTCS_Engine {
 
         RedTeamReport {
             report_id: format!("rt_report_{}", rng.gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             scope,
             vulnerabilities_found,
             attack_vectors_exploited,
@@ -211,7 +213,7 @@ fn main() {
     println!("\n--- Autonomous Red-Teaming & Proactive Cybersecurity (RAG-Driven) Demonstration ---");
 
     let artcs_engine = ARTCS_Engine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: A routine, autonomous red-team exercise on Tariro's core services
     println!("--- Scenario 1: Routine Red-Teaming on Core Services ---");

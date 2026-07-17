@@ -8,10 +8,11 @@
 /// for transparent AI, explainable AI, and human-in-the-loop systems, and SIMD for parallel UI
 /// rendering and real-time data streaming for monitoring.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -21,7 +22,8 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HumanCommand {
     pub command_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub command_type: String, // e.g., "Set_Goal", "Override_Decision", "Request_Report"
     pub details: String,
     pub priority: String, // e.g., "Urgent", "High", "Normal"
@@ -32,7 +34,8 @@ pub struct HumanCommand {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TariroCognitiveState {
     pub state_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub current_task: String,
     pub active_goals: Vec<String>,
     pub decision_making_stage: String, // e.g., "Perception", "Analysis", "Planning", "Action"
@@ -45,7 +48,8 @@ pub struct TariroCognitiveState {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HumanIntervention {
     pub intervention_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub target_tariro_module: String,
     pub intervention_type: String, // e.g., "Pause", "Redirect", "Modify_Parameter", "Force_Stop"
     pub details: String,
@@ -124,7 +128,7 @@ impl AHACCIEngine {
                 println!("  [AHACCI]: Processing 'Override_Decision' command. Tariro confidence is low.");
                 interventions.push(HumanIntervention {
                     intervention_id: format!("int_{}", rng.gen::<u32>()),
-                    timestamp: Instant::now(),
+                    timestamp: Utc::now(),
                     target_tariro_module: current_tariro_state.current_task.clone(),
                     intervention_type: "Override".to_string(),
                     details: format!("Human override on decision: '{}'.", command.details),
@@ -160,11 +164,11 @@ mod tests {
 
         let samuel_commands = vec![
             HumanCommand {
-                command_id: "cmd_001".to_string(), timestamp: Instant::now(), command_type: "Set_Goal".to_string(), details: "Achieve AGI Superintelligence by 2030.".to_string(), priority: "Urgent".to_string(), expected_tariro_action: "Initiate Project Plan".to_string(),
+                command_id: "cmd_001".to_string(), timestamp: Utc::now(), command_type: "Set_Goal".to_string(), details: "Achieve AGI Superintelligence by 2030.".to_string(), priority: "Urgent".to_string(), expected_tariro_action: "Initiate Project Plan".to_string(),
             },
         ];
         let tariro_state = TariroCognitiveState {
-            state_id: "state_001".to_string(), timestamp: Instant::now(), current_task: "Analyzing market data".to_string(), active_goals: vec!["Expand Market Share".to_string()], decision_making_stage: "Analysis".to_string(), confidence_score: 0.6, resource_allocation: HashMap::new(), explainability_log_link: "log_link_1".to_string(),
+            state_id: "state_001".to_string(), timestamp: Utc::now(), current_task: "Analyzing market data".to_string(), active_goals: vec!["Expand Market Share".to_string()], decision_making_stage: "Analysis".to_string(), confidence_score: 0.6, resource_allocation: HashMap::new(), explainability_log_link: "log_link_1".to_string(),
         };
 
         let (interventions, ui_data) = engine.provide_human_agi_control_panel_rag(samuel_commands, tariro_state);
@@ -179,14 +183,14 @@ fn main() {
     println!("\n--- Autonomous Human-AGI Command & Control Interface (RAG-Driven) Demonstration ---");
 
     let ahacci_engine = AHACCIEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Samuel issues a high-level goal and monitors Tariro's response
     println!("--- Scenario 1: Goal Setting & Monitoring ---");
     let samuel_strategic_commands = vec![
         HumanCommand {
             command_id: "cmd_strat_001".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             command_type: "Set_Goal".to_string(),
             details: "Achieve full AGI singularity safely and ethically by 2040.".to_string(),
             priority: "Urgent".to_string(),
@@ -194,7 +198,7 @@ fn main() {
         },
         HumanCommand {
             command_id: "cmd_report_002".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             command_type: "Request_Report".to_string(),
             details: "Provide real-time status of AGI safety protocols.".to_string(),
             priority: "High".to_string(),
@@ -203,7 +207,7 @@ fn main() {
     ];
     let tariro_initial_state = TariroCognitiveState {
         state_id: "state_strat_001".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         current_task: "Awaiting further instructions from Samuel.".to_string(),
         active_goals: vec!["Maintain System Stability".to_string()],
         decision_making_stage: "Perception".to_string(),
@@ -220,7 +224,7 @@ fn main() {
     let samuel_intervention_command = vec![
         HumanCommand {
             command_id: "cmd_override_003".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             command_type: "Override_Decision".to_string(),
             details: "Redirection of investment portfolio: high-risk asset purchase.".to_string(),
             priority: "Urgent".to_string(),
@@ -229,7 +233,7 @@ fn main() {
     ];
     let tariro_low_confidence_state = TariroCognitiveState {
         state_id: "state_investment_002".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         current_task: "Executing investment portfolio adjustments.".to_string(),
         active_goals: vec!["Maximize ROI".to_string()],
         decision_making_stage: "Action".to_string(),

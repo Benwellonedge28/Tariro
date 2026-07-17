@@ -8,10 +8,11 @@
 /// for self-healing architectures and code optimization techniques, and SIMD for parallel
 /// code analysis and real-time system monitoring.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -21,7 +22,8 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SystemAnomaly {
     pub anomaly_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub component: String, // e.g., "RAG_Engine", "SIMD_Executor", "Workflow_Manager"
     pub description: String,
     pub severity: String, // e.g., "Critical", "Error", "Warning"
@@ -33,7 +35,8 @@ pub struct SystemAnomaly {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CorrectionAction {
     pub action_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub target_anomaly_id: String,
     pub action_type: String, // e.g., "Code_Refactor", "Config_Update", "Component_Restart", "Resource_Scale_Up"
     pub details: String,
@@ -101,7 +104,7 @@ impl ASSCSHEngine {
         if system_telemetry.get("cpu_usage_pct").map_or(false, |&val| val > 90.0) && rng.gen_bool(0.3) {
             anomalies.push(SystemAnomaly {
                 anomaly_id: format!("anom_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 component: "SIMD_Executor".to_string(),
                 description: "Sustained high CPU usage detected.".to_string(),
                 severity: "Warning".to_string(),
@@ -149,7 +152,7 @@ impl ASSCSHEngine {
 
             performed_corrections.push(CorrectionAction {
                 action_id: format!("corr_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 target_anomaly_id: anomaly.anomaly_id.clone(),
                 action_type,
                 details,
@@ -217,7 +220,7 @@ fn main() {
     println!("\n--- Autonomous Self-Correction & Self-Healing (RAG-Driven) Demonstration ---");
 
     let asscsh_engine = ASSCSHEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Tariro detects a critical anomaly in its core RAG pipeline
     println!("--- Scenario 1: Critical Anomaly Detection & Self-Healing ---");

@@ -11,10 +11,11 @@
 /// RAG: natural language inference, truth-maintenance systems, probabilistic reasoning,
 ///      knowledge consistency, contradiction resolution, logical inference).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -25,7 +26,10 @@ pub struct KnowledgeClaim {
     pub claim_id: String,
     pub content: String,
     pub source: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub certainty: f32, // 0.0 (uncertain) to 1.0 (certain)
     pub related_entities: Vec<String>,
 }
@@ -37,7 +41,8 @@ pub struct Contradiction {
     pub claim_ids: Vec<String>,
     pub contradiction_type: String, // e.g., "direct_negation", "inconsistent_property", "temporal_conflict"
     pub severity: f32, // 0.0 (minor) to 1.0 (critical)
-    pub detection_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detection_timestamp: DateTime<Utc>,
 }
 
 /// Represents a proposed strategy to resolve a contradiction.
@@ -111,7 +116,7 @@ impl RFCD_Engine {
                     claim_ids: vec![existing_claim.claim_id.clone(), conflicting_claim.claim_id.clone()],
                     contradiction_type: "inconsistent_property".to_string(),
                     severity: rng.gen_range(0.6..0.9),
-                    detection_timestamp: Instant::now(),
+                    detection_timestamp: Utc::now(),
                 });
             }
         }
@@ -165,7 +170,7 @@ mod tests {
             claim_id: "c_001".to_string(),
             content: "The speed of light is 299,792,458 meters per second.".to_string(),
             source: "physics_textbook".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             certainty: 0.99,
             related_entities: vec!["speed_of_light".to_string()],
         };
@@ -173,7 +178,7 @@ mod tests {
             claim_id: "c_002".to_string(),
             content: "A new experiment proved the speed of light is 300,000,000 meters per second.".to_string(),
             source: "new_research_paper".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             certainty: 0.8,
             related_entities: vec!["speed_of_light".to_string()],
         };
@@ -208,7 +213,7 @@ fn main() {
             claim_id: "kc_001".to_string(),
             content: "Tariro AGI was developed by Samuel Mukandara.".to_string(),
             source: "internal_docs".to_string(),
-            timestamp: Instant::now() - Duration::from_secs(86400 * 30),
+            timestamp: Utc::now() - Duration::from_secs(86400 * 30),
             certainty: 0.99,
             related_entities: vec!["Tariro AGI".to_string(), "Samuel Mukandara".to_string()],
         },
@@ -216,7 +221,7 @@ fn main() {
             claim_id: "kc_002".to_string(),
             content: "Quantum computing will revolutionize cryptography by 2030.".to_string(),
             source: "research_forecast".to_string(),
-            timestamp: Instant::now() - Duration::from_secs(86400 * 7),
+            timestamp: Utc::now() - Duration::from_secs(86400 * 7),
             certainty: 0.7,
             related_entities: vec!["quantum_computing".to_string(), "cryptography".to_string()],
         },
@@ -229,7 +234,7 @@ fn main() {
             claim_id: format!("kc_{}", rand::thread_rng().gen::<u32>()),
             content: "A recent report indicates quantum computing will NOT impact cryptography until 2050.".to_string(),
             source: "new_expert_analysis".to_string(),
-            timestamp: Instant::now() - Duration::from_secs(3600),
+            timestamp: Utc::now() - Duration::from_secs(3600),
             certainty: 0.85,
             related_entities: vec!["quantum_computing".to_string(), "cryptography".to_string()],
         },
@@ -237,7 +242,7 @@ fn main() {
             claim_id: format!("kc_{}", rand::thread_rng().gen::<u32>()),
             content: "Tariro AGI's core development was a collaborative effort of many scientists.".to_string(),
             source: "press_release".to_string(),
-            timestamp: Instant::now() - Duration::from_secs(7200),
+            timestamp: Utc::now() - Duration::from_secs(7200),
             certainty: 0.6,
             related_entities: vec!["Tariro AGI".to_string(), "scientists".to_string()],
         },

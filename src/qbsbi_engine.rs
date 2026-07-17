@@ -6,10 +6,11 @@
 /// ledger immutability (SIMD: parallel processing of block validation and cryptographic hashing; RAG: quantum-resistant
 /// blockchain protocols, distributed ledger security).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -76,7 +77,7 @@ impl QBSBI_Engine {
     /// Mines a quantum-resistant block using parallel proof-of-work/stake computation (conceptual SIMD).
     pub fn mine_quantum_resistant_block_simd(&self, previous_block_hash: &[u8], transactions: &[Transaction], difficulty: u32) -> BlockHeader {
         println!("  [QBSBI]: Mining quantum-resistant block (SIMD for parallel PoW/PoS calculation).", );
-        let start_time = Instant::now();
+        let start_time = Utc::now();
         thread::sleep(Duration::from_millis(300)); // Simulate mining
         let mut rng = rand::thread_rng();
 
@@ -87,7 +88,7 @@ impl QBSBI_Engine {
             version: 1,
             previous_block_hash: previous_block_hash.to_vec(),
             merkle_root,
-            timestamp: Instant::now().elapsed().as_secs(),
+            timestamp: Utc::now().timestamp(),
             difficulty_target: difficulty,
             nonce,
             quantum_resistant_hash: vec![],

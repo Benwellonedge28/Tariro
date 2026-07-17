@@ -6,10 +6,11 @@
 /// autonomously updating its Entangled Knowledge Graph. It leverages SIMD for parallel entity
 /// extraction & relation mapping.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -23,7 +24,8 @@ pub struct KnowledgeEntity {
     pub entity_type: String, // e.g., "Person", "Organization", "Concept", "Technology"
     pub description: String,
     pub source_documents: Vec<String>, // IDs of documents where this entity was found
-    pub discovered_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub discovered_at: DateTime<Utc>,
 }
 
 /// Represents a discovered relationship between two entities.
@@ -35,7 +37,8 @@ pub struct KnowledgeRelationship {
     pub relationship_type: String, // e.g., "DevelopedBy", "PartOf", "RelatedTo", "Influences"
     pub strength: f32, // 0.0-1.0
     pub evidence_snippets: Vec<String>, // Small text snippets supporting the relationship
-    pub discovered_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub discovered_at: DateTime<Utc>,
 }
 
 /// Represents an Entangled Knowledge Graph (simplified for conceptualization).
@@ -51,7 +54,8 @@ pub struct InformationSource {
     pub source_id: String,
     pub content: String,
     pub source_type: String, // e.g., "WebPage", "ManagedFile", "ConversationLog"
-    pub scan_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub scan_timestamp: DateTime<Utc>,
 }
 
 /// Overall Autonomous Knowledge Graph Augmentation system report.
@@ -83,12 +87,12 @@ impl AKGAEngine {
                 ("rust_lang".to_string(), KnowledgeEntity {
                     id: "rust_lang".to_string(), name: "Rust Programming Language".to_string(), entity_type: "Technology".to_string(),
                     description: "Systems programming language focused on safety, speed, and concurrency.".to_string(),
-                    source_documents: vec!["internal_doc_rust_overview".to_string()], discovered_at: Instant::now(),
+                    source_documents: vec!["internal_doc_rust_overview".to_string()], discovered_at: Utc::now(),
                 }),
                 ("tariro_ai".to_string(), KnowledgeEntity {
                     id: "tariro_ai".to_string(), name: "Tariro AGI".to_string(), entity_type: "AI_System".to_string(),
                     description: "Advanced General Intelligence developed by Samuel Mukandara.".to_string(),
-                    source_documents: vec!["internal_doc_tariro_mission".to_string()], discovered_at: Instant::now(),
+                    source_documents: vec!["internal_doc_tariro_mission".to_string()], discovered_at: Utc::now(),
                 }),
             ]),
             relationships: HashMap::new(),
@@ -118,7 +122,7 @@ impl AKGAEngine {
             self.current_knowledge_graph.entities.insert(entity_id.clone(), KnowledgeEntity {
                 id: entity_id.clone(), name: "Rust Language (from new source)".to_string(), entity_type: "Technology".to_string(),
                 description: "A programming language that is fast and memory-efficient.".to_string(),
-                source_documents: vec![new_source.source_id.clone()], discovered_at: Instant::now(),
+                source_documents: vec![new_source.source_id.clone()], discovered_at: Utc::now(),
             });
             new_entities_count += 1;
         }
@@ -129,7 +133,7 @@ impl AKGAEngine {
             self.current_knowledge_graph.relationships.insert(rel_id.clone(), KnowledgeRelationship {
                 id: rel_id.clone(), source_entity_id: "tariro_ai".to_string(), target_entity_id: "samuel_mukandara".to_string(),
                 relationship_type: "DevelopedBy".to_string(), strength: 0.95,
-                evidence_snippets: vec!["Tariro, developed by Samuel Mukandara, is a leading AGI.".to_string()], discovered_at: Instant::now(),
+                evidence_snippets: vec!["Tariro, developed by Samuel Mukandara, is a leading AGI.".to_string()], discovered_at: Utc::now(),
             });
             new_relationships_count += 1;
         }
@@ -161,7 +165,7 @@ mod tests {
     #[test]
     fn test_akga_engine_flow() {
         let mut engine = AKGAEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let new_web_page = InformationSource {
             source_id: "web_page_123".to_string(),
@@ -182,7 +186,7 @@ fn main() {
     println!("\n--- Autonomous Knowledge Graph Augmentation (RAG-Driven) Demonstration ---");
 
     let mut akga_engine = AKGAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     println!("Initial Knowledge Graph State: {} entities, {} relationships.\n",
         akga_engine.current_knowledge_graph.entities.len(),

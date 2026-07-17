@@ -12,10 +12,11 @@
 /// cognitive neuroscience, sensor fusion, natural language understanding (NLU), speech recognition, gesture recognition,
 /// gaze tracking, probabilistic graphical models, common-sense reasoning, embodied cognition).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -25,7 +26,8 @@ use rand::Rng;
 pub struct RawModalInput {
     pub input_id: String,
     pub modality: String, // e.g., "voice", "text", "gesture", "gaze"
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub raw_data: String, // e.g., "audio_waveform_base64", "typed_text", "gesture_coords"
     pub confidence: f32, // Confidence in raw data interpretation
 }
@@ -34,7 +36,8 @@ pub struct RawModalInput {
 #[derive(Debug, Clone)]
 pub struct FusedContext {
     pub context_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub user_location: String,
     pub ambient_conditions: HashMap<String, String>, // e.g., "noise_level", "lighting"
     pub user_emotional_state: String,
@@ -51,7 +54,8 @@ pub struct InterpretedIntent {
     pub confidence: f32,
     pub extracted_entities: HashMap<String, String>,
     pub proposed_action: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Overall MMICU system report.
@@ -109,7 +113,7 @@ impl MMICU_Engine {
 
         FusedContext {
             context_id: format!("ctx_{}", rng.gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             user_location: "office_chair".to_string(),
             ambient_conditions: HashMap::from([("noise_level".to_string(), "low".to_string()), ("lighting".to_string(), "natural".to_string())]),
             user_emotional_state: "neutral".to_string(),
@@ -141,7 +145,7 @@ impl MMICU_Engine {
             confidence: rng.gen_range(0.8..0.99),
             extracted_entities: HashMap::from([("topic".to_string(), "quantum_computing".to_string())]),
             proposed_action: primary_intent,
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
         }
     }
 
@@ -174,14 +178,14 @@ mod tests {
             RawModalInput {
                 input_id: "raw_voice_001".to_string(),
                 modality: "voice".to_string(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 raw_data: "play quantum music".to_string(),
                 confidence: 0.95,
             },
             RawModalInput {
                 input_id: "raw_gesture_001".to_string(),
                 modality: "gesture".to_string(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 raw_data: "point_to_speaker".to_string(),
                 confidence: 0.85,
             },
@@ -211,14 +215,14 @@ fn main() {
         RawModalInput {
             input_id: format!("input_{}", rand::thread_rng().gen::<u32>()),
             modality: "voice".to_string(),
-            timestamp: Instant::now() - Duration::from_secs(2),
+            timestamp: Utc::now() - Duration::from_secs(2),
             raw_data: "Tariro, tell me about the latest quantum entanglement research.".to_string(),
             confidence: 0.98,
         },
         RawModalInput {
             input_id: format!("input_{}", rand::thread_rng().gen::<u32>()),
             modality: "gaze".to_string(),
-            timestamp: Instant::now() - Duration::from_secs(1),
+            timestamp: Utc::now() - Duration::from_secs(1),
             raw_data: "(x: 0.7, y: 0.2)".to_string(), // Gaze directed at a holographic display
             confidence: 0.90,
         },

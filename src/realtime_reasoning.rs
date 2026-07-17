@@ -8,10 +8,11 @@
 /// adapting its reasoning based on the evolving operational context (leveraging RAG for dynamic context models
 /// and ontologies, and SIMD for high-speed pattern matching and inference).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 /// Represents a piece of contextual data.
 #[derive(Debug, Clone)]
@@ -94,11 +95,11 @@ impl RealtimeReasoningEngine {
                 if let Some(login_attempt) = self.current_context.get("login_attempts_count") {
                     if login_attempt.value.parse::<u32>().unwrap_or(0) > 5 {
                         results.push(InferenceResult {
-                            inference_id: format!("inf_{}", Instant::now().elapsed().as_secs()),
+                            inference_id: format!("inf_{}", Utc::now().timestamp()),
                             rule_id: rule.rule_id.clone(),
                             conclusion: format!("{} - Potential brute-force detected.", rule.action),
                             confidence: 0.85,
-                            timestamp: Instant::now().elapsed().as_secs(),
+                            timestamp: Utc::now().timestamp(),
                         });
                     }
                 }
@@ -144,7 +145,7 @@ mod tests {
             id: "login_attempts_count".to_string(),
             data_type: "metric".to_string(),
             value: "6".to_string(),
-            timestamp: Instant::now().elapsed().as_secs(),
+            timestamp: Utc::now().timestamp(),
             source: "auth_system".to_string(),
         });
 
@@ -178,28 +179,28 @@ fn main() {
         id: "cpu_load_avg".to_string(),
         data_type: "metric".to_string(),
         value: "0.85".to_string(),
-        timestamp: Instant::now().elapsed().as_secs(),
+        timestamp: Utc::now().timestamp(),
         source: "system_monitor".to_string(),
     });
     reasoning_engine.add_context_data(ContextData {
         id: "network_inbound_rate".to_string(),
         data_type: "metric".to_string(),
         value: "1200_mbps".to_string(),
-        timestamp: Instant::now().elapsed().as_secs(),
+        timestamp: Utc::now().timestamp(),
         source: "network_sensor".to_string(),
     });
     reasoning_engine.add_context_data(ContextData {
         id: "login_attempts_count".to_string(),
         data_type: "metric".to_string(),
         value: "7".to_string(), // High login failures
-        timestamp: Instant::now().elapsed().as_secs(),
+        timestamp: Utc::now().timestamp(),
         source: "auth_system".to_string(),
     });
     reasoning_engine.add_context_data(ContextData {
         id: "external_threat_intel".to_string(),
         data_type: "threat_feed".to_string(),
         value: "IP_1.2.3.4_blacklisted".to_string(),
-        timestamp: Instant::now().elapsed().as_secs(),
+        timestamp: Utc::now().timestamp(),
         source: "threat_intel_feed".to_string(),
     });
     println!("  Context data added.\n");

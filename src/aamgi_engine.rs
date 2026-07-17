@@ -8,10 +8,11 @@
 /// architecture patterns and meta-learning algorithms, and SIMD for parallel neural
 /// architecture search and real-time module integration/testing.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -47,7 +48,8 @@ pub struct AIModuleIntegrationReport {
     pub report_id: String,
     pub task_id: String,
     pub module_id: String,
-    pub integration_date: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub integration_date: DateTime<Utc>,
     pub successful: bool,
     pub observed_performance: HashMap<String, f32>, // Actual performance metrics after integration
     pub impact_on_overall_system: String, // RAG-derived analysis
@@ -164,7 +166,7 @@ impl AAMGIEngine {
             report_id: format!("aimir_{}", rng.gen::<u32>()),
             task_id: format!("task_from_{}", module.module_id),
             module_id: module.module_id.clone(),
-            integration_date: Instant::now(),
+            integration_date: Utc::now(),
             successful: successful_integration,
             observed_performance,
             impact_on_overall_system: impact,
@@ -221,7 +223,7 @@ fn main() {
     println!("\n--- Autonomous AI Module Generation & Integration (RAG-Driven) Demonstration ---");
 
     let aamgi_engine = AAMGIEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: AI autonomously generates a module for enhanced anomaly detection
     println!("--- Scenario 1: Enhanced Anomaly Detection Module ---");

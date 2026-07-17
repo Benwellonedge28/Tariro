@@ -6,10 +6,11 @@
 /// It combines RAG for threat intelligence, vulnerability databases, and QML algorithm research, with multi-modal
 /// data processing for diverse input types.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -18,7 +19,10 @@ use rand::Rng;
 #[derive(Debug, Clone)]
 pub struct IDSDataPoint {
     pub data_point_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub source_ip: String,
     pub destination_ip: String,
     pub protocol: String,
@@ -34,7 +38,8 @@ pub struct DetectedThreat {
     pub threat_type: String, // e.g., "DDoS", "Malware", "Zero-Day Exploit"
     pub severity: String, // e.g., "low", "medium", "high", "critical"
     pub affected_ips: Vec<String>,
-    pub detection_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detection_time: DateTime<Utc>,
     pub confidence_score: f32,
     pub qml_model_prediction: f32,
 }
@@ -58,7 +63,8 @@ pub struct ThreatIntelligence {
     pub description: String,
     pub indicators_of_compromise: Vec<String>,
     pub CVE_references: Vec<String>,
-    pub last_updated: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub last_updated: DateTime<Utc>,
 }
 
 /// Overall IDS-QML system report.
@@ -100,7 +106,7 @@ impl IDS_QML_Engine {
 
         raw_data.iter().map(|s| IDSDataPoint {
             data_point_id: format!("dp_{}_{}", s.len(), rng.gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             source_ip: format!("192.168.1.{}", rng.gen_range(1..254)),
             destination_ip: format!("10.0.0.{}", rng.gen_range(1..254)),
             protocol: if rng.gen_bool(0.7) { "TCP".to_string() } else { "UDP".to_string() },
@@ -127,7 +133,7 @@ impl IDS_QML_Engine {
                     threat_type: if qml_prediction > 0.9 { "Zero-Day Exploit".to_string() } else { "Unusual Behavior".to_string() },
                     severity: if qml_prediction > 0.85 { "critical".to_string() } else { "high".to_string() },
                     affected_ips: vec![dp.source_ip.clone(), dp.destination_ip.clone()],
-                    detection_time: Instant::now(),
+                    detection_time: Utc::now(),
                     confidence_score: qml_prediction,
                     qml_model_prediction: qml_prediction,
                 })
@@ -199,7 +205,7 @@ mod tests {
             description: "Recent DDoS attack patterns.".to_string(),
             indicators_of_compromise: vec![],
             CVE_references: vec![],
-            last_updated: Instant::now(),
+            last_updated: Utc::now(),
         };
         engine.enrich_threats_with_rag(&mut threats, &intel);
 
@@ -254,7 +260,7 @@ fn main() {
         description: "Active phishing campaign targeting financial institutions with novel obfuscation techniques.".to_string(),
         indicators_of_compromise: vec!["malicious-domain-x.com".to_string(), "172.16.0.1".to_string()],
         CVE_references: vec!["CVE-2025-12345".to_string()],
-        last_updated: Instant::now(),
+        last_updated: Utc::now(),
     };
     ids_qml_engine.enrich_threats_with_rag(&mut detected_threats, &latest_threat_intel);
     println!("  Detected threats enriched with intelligence. First threat type now: '{}'.\n", detected_threats.get(0).map_or("N/A".to_string(), |t| t.threat_type.clone()));

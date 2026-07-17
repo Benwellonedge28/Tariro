@@ -7,10 +7,11 @@
 /// for distributed systems algorithms, real-time analytics, and predictive modeling to ensure
 /// efficient, resilient, and performant AGI operations.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -39,7 +40,7 @@ pub struct SwarmTask {
     pub required_gpu: u32,
     pub required_memory_gb: u32,
     pub priority: u8, // 1 (highest) to 10 (lowest)
-    pub deadline: Option<Instant>,
+    pub deadline: Option<DateTime<Utc>>,
     pub current_assignee_agi_id: Option<String>,
     pub status: String, // e.g., "Pending", "Assigned", "Running", "Completed", "Failed"
 }
@@ -200,7 +201,7 @@ mod tests {
     #[test]
     fn test_dralb_engine_flow() {
         let engine = DRALBEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let resource_unit_1 = ResourceUnit {
             unit_id: "gpu_cluster_a".to_string(),
@@ -270,7 +271,7 @@ fn main() {
     println!("\n--- Dynamic Resource Allocation and Load Balancing for AGI Swarms Demonstration ---");
 
     let dralb_engine = DRALBEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Define AGI swarm instances and their resources
     println!("--- Scenario 1: Define AGI Swarm Instances and Resources ---");

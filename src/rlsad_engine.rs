@@ -6,10 +6,11 @@
 /// activity. It leverages RAG for system baselines and threat intel, and SIMD for parallel
 /// log parsing and statistical anomaly detection.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -18,7 +19,10 @@ use serde::{Serialize, Deserialize};
 /// Represents a single log entry from a system.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LogEntry {
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub service_name: String,
     pub log_level: String, // e.g., "INFO", "WARN", "ERROR", "CRITICAL"
     pub message: String,
@@ -30,7 +34,8 @@ pub struct LogEntry {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LogAnomaly {
     pub anomaly_id: String,
-    pub detection_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detection_time: DateTime<Utc>,
     pub log_entry_id: String, // ID of the log entry that triggered the anomaly
     pub anomaly_type: String, // e.g., "RareEvent", "SpikeInErrors", "UnauthorizedAccessPattern"
     pub severity: String, // e.g., "Low", "Medium", "High", "Critical"
@@ -82,7 +87,7 @@ impl RLSADEngine {
         if log_entry.log_level == "CRITICAL" && rng.gen_bool(0.9) {
             return Some(LogAnomaly {
                 anomaly_id: format!("anomaly_{}", rng.gen::<u32>()),
-                detection_time: Instant::now(),
+                detection_time: Utc::now(),
                 log_entry_id: log_entry.timestamp.to_string(), // Placeholder
                 anomaly_type: "CriticalErrorSpike".to_string(),
                 severity: "High".to_string(),
@@ -97,7 +102,7 @@ impl RLSADEngine {
             }
             return Some(LogAnomaly {
                 anomaly_id: format!("anomaly_{}", rng.gen::<u32>()),
-                detection_time: Instant::now(),
+                detection_time: Utc::now(),
                 log_entry_id: log_entry.timestamp.to_string(), // Placeholder
                 anomaly_type: "UnauthorizedAccessAttempt".to_string(),
                 severity: "Critical".to_string(),
@@ -140,7 +145,7 @@ mod tests {
     #[test]
     fn test_rlsad_engine_flow() {
         let engine = RLSADEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let normal_log = LogEntry {
             timestamp: now,
@@ -171,7 +176,7 @@ fn main() {
     println!("\n--- Real-time Log Stream Anomaly Detection (SIMD-Driven) Demonstration ---");
 
     let rlsad_engine = RLSADEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Simulate a stream of normal log entries
     println!("--- Scenario 1: Processing Normal Log Stream ---");

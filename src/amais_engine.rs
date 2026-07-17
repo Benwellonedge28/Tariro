@@ -7,10 +7,11 @@
 /// leverages RAG for multi-agent system architectures and game theory models, and SIMD
 /// for parallel agent execution and real-time state updates.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -31,7 +32,8 @@ pub struct Agent {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Interaction {
     pub interaction_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub initiator_agent_id: String,
     pub target_agent_id: Option<String>,
     pub interaction_type: String, // e.g., "Trade", "Communicate", "Attack", "Observe"
@@ -100,7 +102,7 @@ impl AMAISEngine {
                 let target_agent = if rng.gen_bool(0.5) { Some(format!("agent_{}", rng.gen_range(0..10))) } else { None };
                 new_interactions.push(Interaction {
                     interaction_id: format!("int_{}", rng.gen::<u32>()),
-                    timestamp: Instant::now(),
+                    timestamp: Utc::now(),
                     initiator_agent_id: agent.agent_id.clone(),
                     target_agent_id: target_agent,
                     interaction_type: action,
@@ -167,7 +169,7 @@ mod tests {
     #[test]
     fn test_amais_engine_flow() {
         let engine = AMAISEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let mut initial_agents = HashMap::new();
         initial_agents.insert("agent_a".to_string(), Agent {
@@ -199,7 +201,7 @@ fn main() {
     println!("\n--- Adaptive Multi-Agent Interaction Simulation (RAG-Driven) Demonstration ---");
 
     let amais_engine = AMAISEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Simulate an economic market with consumers and producers
     println!("--- Scenario 1: Economic Market Simulation ---");

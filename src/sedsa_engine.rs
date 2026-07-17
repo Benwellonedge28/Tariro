@@ -8,10 +8,11 @@
 /// It uses RAG for adaptive data structures and evolutionary algorithms for software, and
 /// SIMD for parallel search space exploration and real-time code execution analysis.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -49,7 +50,8 @@ pub struct SelfEvolutionEvent {
     pub event_id: String,
     pub entity_id: String, // Reference to DS or Algo ID
     pub entity_type: String, // "DataStructure" or "Algorithm"
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub trigger_condition: String, // e.g., "access_pattern_changed", "performance_degradation"
     pub adaptation_applied: String, // e.g., "Changed HashMap to Btree", "Modified sorting algorithm to QuickSort variant"
     pub observed_performance_change: HashMap<String, f32>,
@@ -135,7 +137,7 @@ impl SEDSAEngine {
                 event_id: format!("see_ds_{}", rng.gen::<u32>()),
                 entity_id: data_structure.ds_id.clone(),
                 entity_type: "DataStructure".to_string(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 trigger_condition: "read_heavy_access_pattern".to_string(),
                 adaptation_applied: format!("Switched data structure type from {} to Btree.", old_type),
                 observed_performance_change: HashMap::from([("avg_lookup_ns".to_string(), data_structure.performance_metrics.get("avg_lookup_ns").copied().unwrap())]),
@@ -160,7 +162,7 @@ impl SEDSAEngine {
                 event_id: format!("see_algo_{}", rng.gen::<u32>()),
                 entity_id: algorithm.algo_id.clone(),
                 entity_type: "Algorithm".to_string(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 trigger_condition: "suboptimal_throughput".to_string(),
                 adaptation_applied: "Generated and deployed a new algorithm variant.".to_string(),
                 observed_performance_change: HashMap::from([("throughput_ops_sec".to_string(), new_performance)]),
@@ -229,7 +231,7 @@ fn main() {
     println!("\n--- Self-Evolving Data Structures & Algorithms (RAG-Driven) Demonstration ---");
 
     let sedsa_engine = SEDSAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: A data structure adapts to changing access patterns
     println!("--- Scenario 1: Adaptive Cache Data Structure ---");

@@ -9,10 +9,11 @@
 /// performance monitoring, concurrent model retraining; RAG: reinforcement learning, meta-learning, adaptive control,
 /// system identification, anomaly detection, predictive analytics, feedback control theory, self-modifying code).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -21,7 +22,10 @@ use rand::Rng;
 #[derive(Debug, Clone)]
 pub struct PerformanceMetric {
     pub metric_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub component_id: String,
     pub metric_name: String, // e.g., "cpu_utilization", "response_latency", "ethical_alignment_score"
     pub value: f64,
@@ -36,7 +40,8 @@ pub struct OptimizationTarget {
     pub target_value: f64,
     pub optimization_type: String, // e.g., "reduce_latency", "improve_efficiency", "enhance_alignment"
     pub estimated_gain: f32,
-    pub identified_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub identified_at: DateTime<Utc>,
 }
 
 /// Represents an adaptive model or algorithm being refined.
@@ -47,7 +52,7 @@ pub struct AdaptiveModel {
     pub version: u32,
     pub training_data_hash: String,
     pub performance_score: f32,
-    pub last_retrained: Instant,
+    pub last_retrained: DateTime<Utc>,
 }
 
 /// Overall CSO&L system report.
@@ -99,7 +104,7 @@ impl CSOL_Engine {
 
         component_ids.iter().map(|id| PerformanceMetric {
             metric_id: format!("met_{}", rng.gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             component_id: id.clone(),
             metric_name: "response_latency_ms".to_string(),
             value: rng.gen_range(10.0..100.0),
@@ -125,7 +130,7 @@ impl CSOL_Engine {
                     target_value: metric.value * 0.8, // Aim for 20% improvement
                     optimization_type: "reduce_latency".to_string(),
                     estimated_gain: rng.gen_range(0.1..0.3),
-                    identified_at: Instant::now(),
+                    identified_at: Utc::now(),
                 });
             }
         }
@@ -143,7 +148,7 @@ impl CSOL_Engine {
             if rng.gen_bool(0.7) { // Simulate 70% chance of refinement
                 model.version += 1;
                 model.performance_score = (model.performance_score + rng.gen_range(0.01..0.05)).min(1.0);
-                model.last_retrained = Instant::now();
+                model.last_retrained = Utc::now();
                 refined_count += 1;
             }
         }
@@ -188,7 +193,7 @@ mod tests {
                 version: 1,
                 training_data_hash: "data_hash_xyz".to_string(),
                 performance_score: 0.85,
-                last_retrained: Instant::now(),
+                last_retrained: Utc::now(),
             },
         ];
         let refine_result = engine.refine_internal_models_simd(&targets, &mut models);
@@ -233,7 +238,7 @@ fn main() {
                 version: 5,
                 training_data_hash: "acp_data_hash_v5".to_string(),
                 performance_score: 0.92,
-                last_retrained: Instant::now() - Duration::from_secs(3600),
+                last_retrained: Utc::now() - Duration::from_secs(3600),
             },
             AdaptiveModel {
                 model_id: "evas_ethical_evaluator".to_string(),
@@ -241,7 +246,7 @@ fn main() {
                 version: 2,
                 training_data_hash: "evas_data_hash_v2".to_string(),
                 performance_score: 0.88,
-                last_retrained: Instant::now() - Duration::from_secs(7200),
+                last_retrained: Utc::now() - Duration::from_secs(7200),
             },
         ];
         let refinement_summary = csol_engine.refine_internal_models_simd(&optimization_targets, &mut active_adaptive_models);

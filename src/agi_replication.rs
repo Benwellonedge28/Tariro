@@ -4,7 +4,7 @@
 //! This includes code generation, compilation, containerization, and deployment to diverse targets,
 //! now enhanced with autonomous post-quantum cryptography (PQC) security.
 
-use chrono::{DateTime, Utc};
+use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use std::collections::HashMap;
@@ -96,7 +96,7 @@ impl ReplicationService {
     }
 
     /// Initiates a self-replication or component deployment process.
-    pub async fn initiate_replication(&mut self, mut request: ReplicationRequest) -> Result<String> { 
+    pub async fn initiate_replication(&mut self, mut request: ReplicationRequest) -> Result<String, Box<dyn std::error::Error + Send + Sync>> { 
         if self.active_requests.contains_key(&request.request_id) {
             return Err(format!("Replication request with ID {} already exists.", request.request_id).into());
         }
@@ -249,7 +249,7 @@ impl ReplicationService {
     }
 
     /// Generates code for a specific MetaProject or CompilerProject.
-    pub async fn generate_code(&self, project_id: &str, project_type: &str, target_platform: &str) -> Result<String> { 
+    pub async fn generate_code(&self, project_id: &str, project_type: &str, target_platform: &str) -> Result<String, Box<dyn std::error::Error + Send + Sync>> { 
         info!("[ReplicationService] Generating code for project '{}' (type: {}, platform: {})...", project_id, project_type, target_platform);
         // This would involve the QSM to ensure the generated code itself is quantum-resistant or signed.
         let qsm_locked = self.qsm.lock().await;

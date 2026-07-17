@@ -5,10 +5,11 @@
 /// transmission, and processing, ensuring quantum-resilient data protection (SIMD: parallel processing of
 /// cryptographic operations; RAG: quantum cryptography research, privacy-enhancing technologies).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 
@@ -29,7 +30,8 @@ pub struct EncryptedDataBlock {
     pub id: String,
     pub ciphertext: Vec<u8>,
     pub associated_key_id: String,
-    pub encryption_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub encryption_timestamp: DateTime<Utc>,
 }
 
 /// Configuration for a privacy-preserving protocol.
@@ -94,7 +96,7 @@ impl QEDPS_Engine {
             id: format!("edb_{}", rng.gen::<u32>()),
             ciphertext,
             associated_key_id: key.id.clone(),
-            encryption_timestamp: Instant::now(),
+            encryption_timestamp: Utc::now(),
         }
     }
 

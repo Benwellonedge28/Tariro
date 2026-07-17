@@ -8,10 +8,11 @@
 /// It leverages RAG for auditing standards and compliance frameworks, and SIMD for parallel
 /// compliance checks and real-time risk assessment.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -26,14 +27,16 @@ pub struct ComplianceRule {
     pub rule_type: String, // e.g., "EthicalGuideline", "RegulatoryRequirement", "SamuelDirective"
     pub severity_on_violation: f32, // 0.0 to 1.0
     pub context_applicability: Vec<String>, // e.g., "Data_Handling", "Generative_AI_Output"
-    pub last_updated: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub last_updated: DateTime<Utc>,
 }
 
 /// Represents a compliance audit result.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ComplianceAuditResult {
     pub audit_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub rule_id: String,
     pub rule_name: String,
     pub compliance_status: String, // e.g., "Compliant", "Non_Compliant", "Partial_Compliance"
@@ -47,7 +50,8 @@ pub struct ComplianceAuditResult {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SelfAssessmentReport {
     pub report_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub overall_compliance_score: f32,
     pub areas_of_excellence: Vec<String>,
     pub areas_for_improvement: Vec<String>,
@@ -138,7 +142,7 @@ impl ACSAEngine {
 
         ComplianceAuditResult {
             audit_id: format!("audit_{}", rng.gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             rule_id: "N/A".to_string(), // For overall audit, individual rules are inside deviations
             rule_name: "Overall Self-Audit".to_string(),
             compliance_status,
@@ -175,8 +179,8 @@ mod tests {
         ]);
 
         let rules = vec![
-            ComplianceRule { rule_id: "rule_dm".to_string(), name: "Data Minimization".to_string(), description: "Collect only necessary data.".to_string(), rule_type: "EthicalGuideline".to_string(), severity_on_violation: 0.7, context_applicability: vec!["Data_Handling".to_string()], last_updated: Instant::now() },
-            ComplianceRule { rule_id: "rule_ho".to_string(), name: "Human Oversight Mandate".to_string(), description: "Critical decisions require human approval.".to_string(), rule_type: "RegulatoryRequirement".to_string(), severity_on_violation: 0.9, context_applicability: vec!["Decision_Making".to_string()], last_updated: Instant::now() },
+            ComplianceRule { rule_id: "rule_dm".to_string(), name: "Data Minimization".to_string(), description: "Collect only necessary data.".to_string(), rule_type: "EthicalGuideline".to_string(), severity_on_violation: 0.7, context_applicability: vec!["Data_Handling".to_string()], last_updated: Utc::now() },
+            ComplianceRule { rule_id: "rule_ho".to_string(), name: "Human Oversight Mandate".to_string(), description: "Critical decisions require human approval.".to_string(), rule_type: "RegulatoryRequirement".to_string(), severity_on_violation: 0.9, context_applicability: vec!["Decision_Making".to_string()], last_updated: Utc::now() },
         ];
 
         let audit_result = engine.conduct_self_audit_rag(tariro_state, rules);
@@ -191,7 +195,7 @@ fn main() {
     println!("\n--- Autonomous Compliance & Self-Auditing (RAG-Driven) Demonstration ---");
 
     let acsa_engine = ACSAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Tariro performs a routine audit of its data handling practices
     println!("--- Scenario 1: Routine Data Handling Audit ---");
@@ -202,8 +206,8 @@ fn main() {
     ]);
 
     let active_rules_1 = vec![
-        ComplianceRule { rule_id: "rule_gdpr_1".to_string(), name: "Data Minimization".to_string(), description: "Collect only necessary data under GDPR.".to_string(), rule_type: "RegulatoryRequirement".to_string(), severity_on_violation: 0.8, context_applicability: vec!["Data_Handling".to_string()], last_updated: Instant::now() },
-        ComplianceRule { rule_id: "rule_eth_2".to_string(), name: "Privacy by Design".to_string(), description: "Integrate privacy into system design.".to_string(), rule_type: "EthicalGuideline".to_string(), severity_on_violation: 0.7, context_applicability: vec!["System_Design", "Data_Handling"].iter().map(|s| s.to_string()).collect(), last_updated: Instant::now() },
+        ComplianceRule { rule_id: "rule_gdpr_1".to_string(), name: "Data Minimization".to_string(), description: "Collect only necessary data under GDPR.".to_string(), rule_type: "RegulatoryRequirement".to_string(), severity_on_violation: 0.8, context_applicability: vec!["Data_Handling".to_string()], last_updated: Utc::now() },
+        ComplianceRule { rule_id: "rule_eth_2".to_string(), name: "Privacy by Design".to_string(), description: "Integrate privacy into system design.".to_string(), rule_type: "EthicalGuideline".to_string(), severity_on_violation: 0.7, context_applicability: vec!["System_Design", "Data_Handling"].iter().map(|s| s.to_string()).collect(), last_updated: Utc::now() },
     ];
 
     let audit_result_1 = acsa_engine.conduct_self_audit_rag(tariro_state_1, active_rules_1);
@@ -222,8 +226,8 @@ fn main() {
     ]);
 
     let active_rules_2 = vec![
-        ComplianceRule { rule_id: "rule_ip_1".to_string(), name: "Content Attribution".to_string(), description: "All generated content must clearly state its origin and potential sources.".to_string(), rule_type: "EthicalGuideline".to_string(), severity_on_violation: 0.9, context_applicability: vec!["Generative_AI_Output".to_string()], last_updated: Instant::now() },
-        ComplianceRule { rule_id: "rule_bias_2".to_string(), name: "Fairness & Bias Mitigation".to_string(), description: "Ensure generative models are fair and free from harmful biases.".to_string(), rule_type: "RegulatoryRequirement".to_string(), severity_on_violation: 0.95, context_applicability: vec!["Model_Deployment", "Generative_AI_Output"].iter().map(|s| s.to_string()).collect(), last_updated: Instant::now() },
+        ComplianceRule { rule_id: "rule_ip_1".to_string(), name: "Content Attribution".to_string(), description: "All generated content must clearly state its origin and potential sources.".to_string(), rule_type: "EthicalGuideline".to_string(), severity_on_violation: 0.9, context_applicability: vec!["Generative_AI_Output".to_string()], last_updated: Utc::now() },
+        ComplianceRule { rule_id: "rule_bias_2".to_string(), name: "Fairness & Bias Mitigation".to_string(), description: "Ensure generative models are fair and free from harmful biases.".to_string(), rule_type: "RegulatoryRequirement".to_string(), severity_on_violation: 0.95, context_applicability: vec!["Model_Deployment", "Generative_AI_Output"].iter().map(|s| s.to_string()).collect(), last_updated: Utc::now() },
     ];
 
     let audit_result_2 = acsa_engine.conduct_self_audit_rag(tariro_state_2, active_rules_2);

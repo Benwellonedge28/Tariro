@@ -7,10 +7,11 @@
 /// RAG for graph theory algorithms and complex network models, and SIMD for parallel graph
 /// traversal primitives and adjacency matrix operations.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -53,7 +54,8 @@ pub struct GraphDiscovery {
     pub description: String,
     pub relevant_nodes: Vec<String>,
     pub relevant_edges: Vec<String>,
-    pub discovered_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub discovered_at: DateTime<Utc>,
     pub confidence: f32,
 }
 
@@ -138,7 +140,7 @@ impl MPGTAEngine {
                 description: "Longest path detected in project dependency graph, potential bottleneck.".to_string(),
                 relevant_nodes: vec![graph.nodes.keys().next().unwrap().clone(), graph.nodes.keys().nth(1).unwrap().clone()], // Placeholder
                 relevant_edges: vec![graph.edges.keys().next().unwrap().clone()], // Placeholder
-                discovered_at: Instant::now(),
+                discovered_at: Utc::now(),
                 confidence: 0.95,
             });
         }
@@ -153,7 +155,7 @@ impl MPGTAEngine {
                     description: format!("Identified a tightly-knit community of {} nodes (e.g., microservice team).", nodes_in_cluster.len()),
                     relevant_nodes: nodes_in_cluster,
                     relevant_edges: Vec::new(), // Placeholder
-                    discovered_at: Instant::now(),
+                    discovered_at: Utc::now(),
                     confidence: 0.9,
                 });
             }
@@ -168,7 +170,7 @@ impl MPGTAEngine {
                 description: "Node with unusually high degree and dynamic activity, potentially a central point of failure or high impact.".to_string(),
                 relevant_nodes: vec![graph.nodes.keys().last().unwrap().clone()], // Placeholder
                 relevant_edges: Vec::new(),
-                discovered_at: Instant::now(),
+                discovered_at: Utc::now(),
                 confidence: 0.85,
             });
         }
@@ -198,7 +200,7 @@ mod tests {
     #[test]
     fn test_mpgta_engine_flow() {
         let engine = MPGTAEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let mut nodes = HashMap::new();
         nodes.insert("node_A".to_string(), Node { node_id: "node_A".to_string(), attributes: HashMap::new(), node_type: "Concept".to_string() });
@@ -229,7 +231,7 @@ fn main() {
     println!("\n--- Massively Parallel Graph Traversal & Analysis (SIMD-Driven) Demonstration ---");
 
     let mpgta_engine = MPGTAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Analyze a conceptual knowledge graph for critical paths
     println!("--- Scenario 1: Analyze Knowledge Graph ---");

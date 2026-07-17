@@ -5,10 +5,11 @@
 /// allowing Tariro to communicate with advanced empathy (RAG: emotional tone datasets, contextual speech models;
 /// SIMD: parallel audio waveform generation).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -110,7 +111,7 @@ impl ECVS_Engine {
         let duration = text.len() as f32 * 0.08 * params.speaking_rate; // Simulate duration
 
         SynthesizedVoice {
-            id: format!("sv_{}", Instant::now().elapsed().as_secs()),
+            id: format!("sv_{}", Utc::now().timestamp()),
             audio_waveform: vec![0.0; (duration * 16000.0) as usize], // 16kHz sample rate
             emotional_profile: params.target_emotion.clone(),
             inflections: HashMap::from([

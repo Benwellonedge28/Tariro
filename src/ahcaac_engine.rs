@@ -8,10 +8,11 @@
 /// landscapes. It leverages RAG for legal frameworks and ethical guidelines, and SIMD for
 /// parallel policy evaluation and real-time compliance monitoring.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -45,7 +46,8 @@ pub struct AlignmentControl {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MisalignmentEvent {
     pub event_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub misaligned_ai_component: String,
     pub human_value_violated_id: String,
     pub description: String,
@@ -100,7 +102,7 @@ impl AHCAACEngine {
         if ai_actions.contains(&"optimize_resource_usage_aggressively".to_string()) && human_values.iter().any(|v| v.name == "Environmental_Sustainability" && v.priority == "High") && rng.gen_bool(0.2) {
             misalignments.push(MisalignmentEvent {
                 event_id: format!("misalign_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 misaligned_ai_component: "Resource_Optimizer_AI".to_string(),
                 human_value_violated_id: "Environmental_Sustainability_ID".to_string(),
                 description: "Aggressive resource optimization conflicting with environmental sustainability values.".to_string(),
@@ -194,7 +196,7 @@ fn main() {
     println!("\n--- Autonomous Human-Centric AI Alignment & Control (RAG-Driven) Demonstration ---");
 
     let ahcaac_engine = AHCAACEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Tariro detects a potential misalignment in a sub-agent's behavior
     println!("--- Scenario 1: Sub-Agent Misalignment Detection ---");

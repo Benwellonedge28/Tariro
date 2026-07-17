@@ -7,10 +7,11 @@
 /// RAG for hierarchical task network planning, knowledge representation, and machine
 /// learning for task sequencing and resource estimation to optimize goal achievement.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -22,7 +23,7 @@ pub struct AgiGoal {
     pub goal_id: String,
     pub description: String,
     pub priority: u8, // 1 (highest) to 10 (lowest)
-    pub deadline: Option<Instant>,
+    pub deadline: Option<DateTime<Utc>>,
     pub current_status: String, // e.g., "Pending", "Decomposing", "Executing", "Completed"
 }
 
@@ -44,7 +45,8 @@ pub struct SubTask {
 pub struct RecompositionEvent {
     pub event_id: String,
     pub goal_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub trigger: String, // e.g., "TaskFailure", "NewInformation", "ResourceChange"
     pub description: String,
     pub old_subtasks: Vec<String>,
@@ -148,7 +150,7 @@ impl ATDREngine {
         RecompositionEvent {
             event_id: format!("recomp_evt_{}", rng.gen::<u32>()),
             goal_id: goal.goal_id.clone(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             trigger: new_conditions.to_string(),
             description: "Sub-tasks adjusted based on dynamic conditions.".to_string(),
             old_subtasks: old_ids,
@@ -194,7 +196,7 @@ mod tests {
     #[test]
     fn test_atdr_engine_flow() {
         let engine = ATDREngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let high_level_goal = AgiGoal {
             goal_id: "goal_research_fusion".to_string(),
@@ -225,7 +227,7 @@ fn main() {
     println!("\n--- Autonomous Task Decomposition and Recomposition Demonstration ---");
 
     let atdr_engine = ATDREngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Define a high-level AGI goal
     println!("--- Scenario 1: Define High-Level AGI Goal ---");

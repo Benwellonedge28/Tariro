@@ -7,12 +7,12 @@
 /// forensic analysis and preventing any unauthorized modification or deletion of critical security data
 /// (leveraging RAG for forensic best practices and SIMD for high-throughput hashing and log record processing).
 
+use crate::prelude::*;
 use sha2::{Digest, Sha256};
-use chrono::{Utc, DateTime};
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Represents a single audit event.

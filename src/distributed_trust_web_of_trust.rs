@@ -6,10 +6,11 @@
 /// (leveraging RAG for decentralized identity standards and SIMD for accelerating cryptographic signature verification
 /// in a web of trust).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Represents a Tariro agent's decentralized identity.
@@ -98,7 +99,7 @@ impl WebOfTrustManager {
             claim_type: claim_type.to_string(),
             claim_value: claim_value.to_string(),
             signature,
-            issued_at: Instant::now().elapsed().as_secs(),
+            issued_at: Utc::now().timestamp(),
         };
         self.credentials.push(credential.clone());
         thread::sleep(Duration::from_millis(100));
@@ -190,7 +191,7 @@ fn main() {
         id: "Tariro_Root_TA".to_string(),
         public_key: vec![20, 21, 22, 23, 24, 25],
         description: "The foundational root of trust for Tariro's ecosystem.".to_string(),
-        established_at: Instant::now().elapsed().as_secs(),
+        established_at: Utc::now().timestamp(),
     };
     wot_manager.establish_trust_anchor(root_trust_anchor.clone());
     println!("--- Trust Anchor Established: {}" , root_trust_anchor.id);

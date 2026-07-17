@@ -7,10 +7,11 @@
 /// vulnerability databases, and incident response playbooks to enable proactive defense
 /// and autonomous mitigation of risks.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -24,7 +25,7 @@ pub struct ThreatIntelligence {
     pub severity: String, // e.g., "Low", "Medium", "High", "Critical"
     pub indicators_of_compromise: Vec<String>, // e.g., IP addresses, file hashes
     pub source: String, // e.g., "MITRE ATT&CK", "OSINT Feed", "Internal Sensors"
-    pub reported_at: Instant,
+    pub reported_at: DateTime<Utc>,
 }
 
 /// Represents a detected security incident.
@@ -32,7 +33,8 @@ pub struct ThreatIntelligence {
 pub struct SecurityIncident {
     pub incident_id: String,
     pub threat_id: String,
-    pub detected_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detected_at: DateTime<Utc>,
     pub affected_components: Vec<String>, // e.g., "AGI_Core", "DataStore_A", "Agent_X"
     pub current_status: String, // e.g., "Detected", "Investigating", "Mitigated", "Remediated"
     pub details: String,
@@ -44,7 +46,8 @@ pub struct ResponseAction {
     pub action_id: String,
     pub incident_id: String,
     pub action_type: String, // e.g., "IsolateComponent", "DeployPatch", "BlockIP", "RetrainModel"
-    pub initiated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub initiated_at: DateTime<Utc>,
     pub status: String, // e.g., "Pending", "Executing", "Completed", "Failed"
     pub outcome: String,
 }
@@ -93,7 +96,7 @@ impl GAGITIREngine {
                 severity: "High".to_string(),
                 indicators_of_compromise: vec!["malicious.agi.c2".to_string(), "0x123abc".to_string()],
                 source: "OSINT Feed Gamma".to_string(),
-                reported_at: Instant::now() - Duration::from_secs(3600),
+                reported_at: Utc::now() - Duration::from_secs(3600),
             });
         }
         threats
@@ -112,7 +115,7 @@ impl GAGITIREngine {
             Some(SecurityIncident {
                 incident_id: format!("inc_{}", rng.gen::<u32>()),
                 threat_id: threat.threat_id.clone(),
-                detected_at: Instant::now(),
+                detected_at: Utc::now(),
                 affected_components: vec!["AGI_LearningModule".to_string(), "DataStore_B".to_string()],
                 current_status: "Detected".to_string(),
                 details: format!("System anomaly matching indicators for threat '{}'.", threat.threat_id),
@@ -139,7 +142,7 @@ impl GAGITIREngine {
             action_id: format!("resp_{}_{}", incident.incident_id, rng.gen::<u32>()),
             incident_id: incident.incident_id.clone(),
             action_type,
-            initiated_at: Instant::now(),
+            initiated_at: Utc::now(),
             status: "Executing".to_string(),
             outcome: format!("Attempting to '{}' affected components.", action_type),
         }
@@ -169,7 +172,7 @@ mod tests {
     #[test]
     fn test_gagitir_engine_flow() {
         let engine = GAGITIREngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let feeds = vec!["feed_a".to_string(), "feed_b".to_string()];
         let threats = engine.integrate_threat_intelligence(&feeds);
@@ -191,7 +194,7 @@ fn main() {
     println!("\n--- Global AGI Threat Intelligence and Response Demonstration ---");
 
     let gagitir_engine = GAGITIREngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Integrate and process threat intelligence feeds
     println!("--- Scenario 1: Integrate Threat Intelligence ---");

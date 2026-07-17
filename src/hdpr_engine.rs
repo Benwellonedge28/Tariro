@@ -5,10 +5,11 @@
 /// methods, particularly useful in threat detection or scientific discovery (SIMD: tensor processing,
 /// deep learning).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -75,7 +76,7 @@ impl HDPR_Engine {
         let mut rng = rand::thread_rng();
         let dimensions: Vec<f32> = (0..256).map(|_| rng.gen_range(-1.0..1.0)).collect(); // Simulated high-dimensional features
         FeatureVector {
-            id: format!("feat_{}", Instant::now().elapsed().as_secs()),
+            id: format!("feat_{}", Utc::now().timestamp()),
             dimensions,
             metadata: HashMap::from([("source_len".to_string(), raw_data.len().to_string())]),
         }

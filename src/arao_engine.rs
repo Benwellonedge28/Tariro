@@ -8,10 +8,11 @@
 /// resources. It leverages RAG for resource management strategies and procurement policies,
 /// and SIMD for parallel resource discovery and real-time cost-benefit analysis.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -47,7 +48,8 @@ pub struct AvailableResource {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AcquisitionDecision {
     pub decision_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub requirement_id: String,
     pub chosen_resource_id: String,
     pub acquired_quantity: f32,
@@ -166,7 +168,7 @@ impl ARAOEngine {
 
         AcquisitionDecision {
             decision_id: format!("aqd_{}", rng.gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             requirement_id: requirement.req_id,
             chosen_resource_id,
             acquired_quantity,
@@ -234,7 +236,7 @@ fn main() {
     println!("\n--- Autonomous Resource Acquisition & Optimization (RAG-Driven) Demonstration ---");
 
     let arao_engine = ARAOEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Project requires high-performance computational power for a new simulation
     println!("--- Scenario 1: High-Performance Compute Requirement ---");

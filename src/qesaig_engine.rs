@@ -5,10 +5,11 @@
 /// superposition for decision-making and entanglement for opponent modeling (SIMD: parallel quantum simulation;
 /// RAG: quantum game theory, advanced AI opponent models).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -83,7 +84,7 @@ impl QESAIG_Engine {
         }
 
         QuantumState {
-            id: format!("qstate_{}", Instant::now().elapsed().as_secs()),
+            id: format!("qstate_{}", Utc::now().timestamp()),
             superposition_probabilities: probabilities,
             entangled_qbits: vec![format!("qbit_{}", rng.gen::<u32>()), format!("qbit_{}", rng.gen::<u32>())],
         }

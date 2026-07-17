@@ -1,4 +1,5 @@
 // src/omega_os/config_manager.rs
+use crate::prelude::*;
 
 //! Manages high-level configuration and policy settings for OMEGA OS instances
 //! from the perspective of the Tariro AGI. This module does not deal with low-level

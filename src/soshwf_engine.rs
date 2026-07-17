@@ -8,10 +8,11 @@
 /// for anomaly detection, and closed-loop control systems to ensure robust and
 /// resilient workflow execution.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -24,7 +25,8 @@ pub struct WorkflowMetric {
     pub workflow_id: String,
     pub metric_name: String, // e.g., "Latency", "Throughput", "ErrorRate", "ResourceUtil"
     pub value: f64,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub context: HashMap<String, String>, // e.g., "step_id", "agent_id"
 }
 
@@ -33,7 +35,8 @@ pub struct WorkflowMetric {
 pub struct WorkflowIssue {
     pub issue_id: String,
     pub workflow_id: String,
-    pub detected_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detected_at: DateTime<Utc>,
     pub issue_type: String, // e.g., "PerformanceDegradation", "StepFailure", "ResourceContention"
     pub severity: String, // e.g., "Low", "Medium", "High", "Critical"
     pub description: String,
@@ -45,7 +48,8 @@ pub struct WorkflowIssue {
 pub struct AdaptiveConfiguration {
     pub config_id: String,
     pub workflow_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub changes: HashMap<String, String>, // e.g., "step_parallelism": "increase", "agent_reassignment": "true"
     pub reason: String, // Why the change was made
 }
@@ -91,7 +95,7 @@ impl SOSHWFEngine {
                 workflow_id: workflow_id.to_string(),
                 metric_name: "Latency".to_string(),
                 value: rng.gen_range(50.0..500.0),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 context: HashMap::from([("step_id".to_string(), "step_A".to_string())]),
             },
             WorkflowMetric {
@@ -99,7 +103,7 @@ impl SOSHWFEngine {
                 workflow_id: workflow_id.to_string(),
                 metric_name: "ErrorRate".to_string(),
                 value: rng.gen_range(0.0..0.05),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 context: HashMap::from([("agent_type".to_string(), "processor".to_string())]),
             },
         ]
@@ -119,7 +123,7 @@ impl SOSHWFEngine {
             issues.push(WorkflowIssue {
                 issue_id: format!("iss_{}", rng.gen::<u32>()),
                 workflow_id: metrics[0].workflow_id.clone(),
-                detected_at: Instant::now(),
+                detected_at: Utc::now(),
                 issue_type: "PerformanceDegradation".to_string(),
                 severity: "High".to_string(),
                 description: "Unusual spike in workflow latency detected.".to_string(),
@@ -143,7 +147,7 @@ impl SOSHWFEngine {
             configurations.push(AdaptiveConfiguration {
                 config_id: format!("conf_{}", rng.gen::<u32>()),
                 workflow_id: workflow_id.to_string(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 changes: HashMap::from([("step_concurrency".to_string(), "increased".to_string())]),
                 reason: format!("Automated response to issue '{}'.", issues[0].issue_id),
             });
@@ -176,7 +180,7 @@ mod tests {
     #[test]
     fn test_soshwf_engine_flow() {
         let engine = SOSHWFEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let workflow_id = "wf_data_pipeline_001";
         let metrics = engine.monitor_workflow_metrics(workflow_id);
@@ -198,7 +202,7 @@ fn main() {
     println!("\n--- Self-Optimizing and Self-Healing Workflow Engines Demonstration ---");
 
     let soshwf_engine = SOSHWFEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Monitor a critical AGI workflow
     println!("--- Scenario 1: Monitor Workflow Performance ---");

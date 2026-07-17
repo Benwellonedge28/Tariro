@@ -7,10 +7,11 @@
 /// of diagnostic routines; RAG: anomaly detection algorithms, fault tolerance patterns, root cause analysis,
 /// chaos engineering principles).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -22,7 +23,8 @@ pub struct TelemetryEvent {
     pub component: String,
     pub metric_name: String,
     pub value: f64,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub severity_threshold: f64, // Threshold for anomaly
 }
 
@@ -31,7 +33,8 @@ pub struct TelemetryEvent {
 pub struct AnomalyDetectionResult {
     pub anomaly_id: String,
     pub event_id: String,
-    pub detected_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detected_at: DateTime<Utc>,
     pub anomaly_type: String, // e.g., "resource_spike", "unusual_access_pattern", "service_degradation"
     pub prediction_confidence: f32, // 0.0-1.0
     pub predicted_impact: String,
@@ -44,7 +47,8 @@ pub struct SelfHealingAction {
     pub anomaly_id: String,
     pub action_type: String, // e.g., "restart_service", "reallocate_resources", "rollback_update"
     pub status: String, // "initiated", "completed", "failed"
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Report for PSHAR operations.
@@ -110,7 +114,7 @@ impl PSHAR_Engine {
                 anomalies.push(AnomalyDetectionResult {
                     anomaly_id: format!("anom_{}", rng.gen::<u32>()),
                     event_id: event.event_id.clone(),
-                    detected_at: Instant::now(),
+                    detected_at: Utc::now(),
                     anomaly_type: "resource_overload".to_string(),
                     prediction_confidence: rng.gen_range(0.8..0.99),
                     predicted_impact: "Potential service degradation or outage.".to_string(),
@@ -138,7 +142,7 @@ impl PSHAR_Engine {
                 anomaly_id: anomaly.anomaly_id.clone(),
                 action_type,
                 status: "initiated".to_string(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
             });
         }
         actions
@@ -169,7 +173,7 @@ mod tests {
         let engine = PSHAR_Engine::new();
 
         let events = vec![
-            TelemetryEvent { event_id: "evt_001".to_string(), component: "CPU".to_string(), metric_name: "usage".to_string(), value: 0.95, timestamp: Instant::now(), severity_threshold: 0.90 },
+            TelemetryEvent { event_id: "evt_001".to_string(), component: "CPU".to_string(), metric_name: "usage".to_string(), value: 0.95, timestamp: Utc::now(), severity_threshold: 0.90 },
         ];
         let monitored = engine.monitor_telemetry_simd(&events);
         assert!(!monitored.is_empty());
@@ -193,9 +197,9 @@ fn main() {
     // Scenario 1: Monitoring a stream of telemetry events
     println!("--- Scenario 1: Telemetry Monitoring ---");
     let telemetry_stream = vec![
-        TelemetryEvent { event_id: "tele_001".to_string(), component: "network".to_string(), metric_name: "packet_loss".to_string(), value: 0.01, timestamp: Instant::now(), severity_threshold: 0.05 },
-        TelemetryEvent { event_id: "tele_002".to_string(), component: "database".to_string(), metric_name: "query_latency_ms".to_string(), value: 150.0, timestamp: Instant::now(), severity_threshold: 100.0 },
-        TelemetryEvent { event_id: "tele_003".to_string(), component: "processor".to_string(), metric_name: "temp_celsius".to_string(), value: 85.5, timestamp: Instant::now(), severity_threshold: 90.0 },
+        TelemetryEvent { event_id: "tele_001".to_string(), component: "network".to_string(), metric_name: "packet_loss".to_string(), value: 0.01, timestamp: Utc::now(), severity_threshold: 0.05 },
+        TelemetryEvent { event_id: "tele_002".to_string(), component: "database".to_string(), metric_name: "query_latency_ms".to_string(), value: 150.0, timestamp: Utc::now(), severity_threshold: 100.0 },
+        TelemetryEvent { event_id: "tele_003".to_string(), component: "processor".to_string(), metric_name: "temp_celsius".to_string(), value: 85.5, timestamp: Utc::now(), severity_threshold: 90.0 },
     ];
     let monitored_events = pshar_engine.monitor_telemetry_simd("tariro_subsystem_A", &telemetry_stream);
     println!("  Monitored {} telemetry events. Example: Component: '{}', Metric: '{}', Value: {}.\n", monitored_events.len(), monitored_events[1].component, monitored_events[1].metric_name, monitored_events[1].value);

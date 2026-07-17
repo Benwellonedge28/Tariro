@@ -8,10 +8,11 @@
 /// RAG for generative adversarial networks, diffusion models, and multimodal transformers,
 /// and SIMD for parallel generation of multimodal content and real-time quality assessment.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -21,7 +22,8 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ContentGenerationRequest {
     pub request_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub requested_by: String, // e.g., "Samuel", "Tariro_Marketing_Agent"
     pub content_type: String, // e.g., "Text_Article", "3D_Model", "Product_Video", "Interactive_Tutorial"
     pub context_description: String, // Detailed description of the content's purpose and context
@@ -35,7 +37,8 @@ pub struct ContentGenerationRequest {
 pub struct GeneratedContent {
     pub content_id: String,
     pub request_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub output_format: String, // e.g., "Markdown", "PNG", "MP4", "GLTF"
     pub content_url: String, // URL to the generated content
     pub quality_score: f32, // 0.0 to 1.0, based on internal assessment and feedback
@@ -49,7 +52,8 @@ pub struct GeneratedContent {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct QualityAssessment {
     pub assessment_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub content_id: String,
     pub aspect: String, // e.g., "Visual_Cohesion", "Audio_Clarity", "Factual_Accuracy", "Ethical_Compliance"
     pub score: f32, // 0.0 to 1.0
@@ -101,7 +105,7 @@ impl AAMMCGEngine {
         GeneratedContent {
             content_id: format!("gen_content_{}", rng.gen::<u32>()),
             request_id: "simulated_request".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             output_format: match content_type {
                 "Text_Article" => "Markdown".to_string(),
                 "Image" => "PNG".to_string(),
@@ -146,7 +150,7 @@ impl AAMMCGEngine {
         if rng.gen_bool(0.9) {
             assessments.push(QualityAssessment {
                 assessment_id: format!("qa_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 content_id: generated_content.content_id.clone(),
                 aspect: "Overall_Quality".to_string(),
                 score: generated_content.quality_score,
@@ -157,7 +161,7 @@ impl AAMMCGEngine {
         if rng.gen_bool(0.1) { // Simulate a detected minor issue
              assessments.push(QualityAssessment {
                 assessment_id: format!("qa_issue_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 content_id: generated_content.content_id.clone(),
                 aspect: "Factual_Accuracy".to_string(),
                 score: 0.7,
@@ -192,7 +196,7 @@ mod tests {
         let engine = AAMMCGEngine::new();
 
         let request = ContentGenerationRequest {
-            request_id: "req_001".to_string(), timestamp: Instant::now(), requested_by: "Samuel".to_string(), content_type: "Image".to_string(), context_description: "Generate a futuristic cityscape for my new project.".to_string(), target_audience: "General Public".to_string(), style_guide: "Cyberpunk, vibrant colors.".to_string(), explicit_feedback: None,
+            request_id: "req_001".to_string(), timestamp: Utc::now(), requested_by: "Samuel".to_string(), content_type: "Image".to_string(), context_description: "Generate a futuristic cityscape for my new project.".to_string(), target_audience: "General Public".to_string(), style_guide: "Cyberpunk, vibrant colors.".to_string(), explicit_feedback: None,
         };
 
         let (generated, assessments) = engine.generate_multimodal_content_rag(request);
@@ -208,7 +212,7 @@ fn main() {
     println!("\n--- Autonomous Advanced Multi-Modal Content Generation (RAG-Driven) Demonstration ---");
 
     let aammcg_engine = AAMMCGEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Samuel requests a series of marketing images and videos for a new product launch
     println!("--- Scenario 1: Marketing Content Generation ---");

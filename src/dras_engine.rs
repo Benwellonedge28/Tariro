@@ -10,10 +10,11 @@
 /// dynamic programming, multi-agent systems, resource management, load balancing, predictive modeling,
 /// machine learning for scheduling).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -26,7 +27,8 @@ pub struct Resource {
     pub total_capacity: u32,
     pub available_capacity: u32,
     pub current_load: f32, // 0.0 to 1.0
-    pub last_updated: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub last_updated: DateTime<Utc>,
 }
 
 /// Represents a request for resources to execute a task.
@@ -36,8 +38,8 @@ pub struct TaskRequest {
     pub task_id: String,
     pub required_resources: HashMap<String, u32>, // resource_type -> quantity
     pub priority: u8, // 1 (critical) to 10 (low)
-    pub deadline: Option<Instant>,
-    pub submitted_at: Instant,
+    pub deadline: Option<DateTime<Utc>>,
+    pub submitted_at: DateTime<Utc>,
 }
 
 /// Represents a decision for resource allocation and task scheduling.
@@ -46,10 +48,14 @@ pub struct AllocationDecision {
     pub decision_id: String,
     pub task_id: String,
     pub allocated_resources: HashMap<String, u32>,
-    pub scheduled_start_time: Instant,
-    pub estimated_completion_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub scheduled_start_time: DateTime<Utc>,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub estimated_completion_time: DateTime<Utc>,
     pub optimization_score: f32,
-    pub decision_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub decision_timestamp: DateTime<Utc>,
 }
 
 /// Overall DRAS system report.
@@ -100,7 +106,7 @@ impl DRAS_Engine {
             total_capacity: rng.gen_range(1..64),
             available_capacity: rng.gen_range(0..32),
             current_load: rng.gen_range(0.0..1.0),
-            last_updated: Instant::now(),
+            last_updated: Utc::now(),
         }).collect()
     }
 
@@ -129,10 +135,10 @@ impl DRAS_Engine {
                     decision_id: format!("alloc_{}", rng.gen::<u32>()),
                     task_id: req.task_id.clone(),
                     allocated_resources: req.required_resources.clone(), // Simplified
-                    scheduled_start_time: Instant::now() + Duration::from_secs(rng.gen_range(0..60)),
-                    estimated_completion_time: Instant::now() + Duration::from_secs(rng.gen_range(60..3600)),
+                    scheduled_start_time: Utc::now() + Duration::from_secs(rng.gen_range(0..60)),
+                    estimated_completion_time: Utc::now() + Duration::from_secs(rng.gen_range(60..3600)),
                     optimization_score: rng.gen_range(0.8..0.99),
-                    decision_timestamp: Instant::now(),
+                    decision_timestamp: Utc::now(),
                 });
             }
         }
@@ -172,7 +178,7 @@ mod tests {
             required_resources: HashMap::from([("cpu_core".to_string(), 4), ("quantum_qubit".to_string(), 2)]),
             priority: 1,
             deadline: None,
-            submitted_at: Instant::now(),
+            submitted_at: Utc::now(),
         };
         let process_result = engine.process_task_requests_rag(&[task_req.clone()]);
         assert!(!process_result.is_empty());
@@ -211,16 +217,16 @@ fn main() {
             task_id: "quantum_simulation_euler_matrix".to_string(),
             required_resources: HashMap::from([("cpu_core".to_string(), 8), ("quantum_qubit".to_string(), 128), ("memory_gb".to_string(), 64)]),
             priority: 1, // Critical
-            deadline: Some(Instant::now() + Duration::from_secs(3600)),
-            submitted_at: Instant::now(),
+            deadline: Some(Utc::now() + Duration::from_secs(3600)),
+            submitted_at: Utc::now(),
         },
         TaskRequest {
             request_id: "req_ai_model_training_002".to_string(),
             task_id: "train_evas_v3_model".to_string(),
             required_resources: HashMap::from([("gpu_unit".to_string(), 4), ("memory_gb".to_string(), 256)]),
             priority: 2, // High
-            deadline: Some(Instant::now() + Duration::from_secs(14400)),
-            submitted_at: Instant::now(),
+            deadline: Some(Utc::now() + Duration::from_secs(14400)),
+            submitted_at: Utc::now(),
         },
     ];
     let request_summary = dras_engine.process_task_requests_rag(&incoming_task_requests);

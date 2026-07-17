@@ -8,7 +8,7 @@
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Represents a point in a decision pathway, an action taken from a state.

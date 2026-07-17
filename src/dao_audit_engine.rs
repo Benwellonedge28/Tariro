@@ -6,10 +6,11 @@
 /// decision-making. It leverages RAG for blockchain security best practices, smart contract vulnerability
 /// databases, and decentralized governance models.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -41,8 +42,11 @@ pub struct GovernanceProposal {
     pub proposal_id: String,
     pub proposer_address: String,
     pub description: String,
-    pub start_time: Instant,
-    pub end_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub start_time: DateTime<Utc>,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub end_time: DateTime<Utc>,
     pub votes_for: u64,
     pub votes_against: u64,
     pub execution_status: String, // e.g., "Pending", "Passed", "Failed", "Executed"
@@ -53,7 +57,7 @@ pub struct GovernanceProposal {
 pub struct DAOAuditReport {
     pub report_id: String,
     pub dao_contract_address: String,
-    pub audit_date: Instant,
+    pub audit_date: DateTime<Utc>,
     pub vulnerabilities_found: Vec<Vulnerability>,
     pub governance_analysis_summary: String,
     pub overall_security_rating: String,
@@ -155,7 +159,7 @@ impl DAO_Engine {
         DAOAuditReport {
             report_id: format!("dao_audit_report_{}", rng.gen::<u32>()),
             dao_contract_address: contract.contract_address.clone(),
-            audit_date: Instant::now(),
+            audit_date: Utc::now(),
             vulnerabilities_found: vulnerabilities,
             governance_analysis_summary: governance_summary,
             overall_security_rating: overall_rating.to_string(),
@@ -187,8 +191,8 @@ mod tests {
                 proposal_id: "prop_001".to_string(),
                 proposer_address: "0xproposer1".to_string(),
                 description: "Increase token supply.".to_string(),
-                start_time: Instant::now() - Duration::from_secs(3600 * 24 * 7),
-                end_time: Instant::now() - Duration::from_secs(3600 * 24 * 1),
+                start_time: Utc::now() - Duration::from_secs(3600 * 24 * 7),
+                end_time: Utc::now() - Duration::from_secs(3600 * 24 * 1),
                 votes_for: 100000,
                 votes_against: 50000,
                 execution_status: "Passed".to_string(),
@@ -197,8 +201,8 @@ mod tests {
                 proposal_id: "prop_002".to_string(),
                 proposer_address: "0xproposer2".to_string(),
                 description: "Upgrade smart contract.".to_string(),
-                start_time: Instant::now() - Duration::from_secs(3600 * 24 * 3),
-                end_time: Instant::now() + Duration::from_secs(3600 * 24 * 2),
+                start_time: Utc::now() - Duration::from_secs(3600 * 24 * 3),
+                end_time: Utc::now() + Duration::from_secs(3600 * 24 * 2),
                 votes_for: 70000,
                 votes_against: 10000,
                 execution_status: "Pending".to_string(),
@@ -280,8 +284,8 @@ contract MyDAO {
             proposal_id: "dao_prop_001_fund_grant".to_string(),
             proposer_address: "0xVoterAlice".to_string(),
             description: "Allocate 10 ETH for community grants program.".to_string(),
-            start_time: Instant::now() - Duration::from_secs(3600 * 24 * 10),
-            end_time: Instant::now() - Duration::from_secs(3600 * 24 * 3),
+            start_time: Utc::now() - Duration::from_secs(3600 * 24 * 10),
+            end_time: Utc::now() - Duration::from_secs(3600 * 24 * 3),
             votes_for: 15000000,
             votes_against: 2000000,
             execution_status: "Passed".to_string(),
@@ -290,8 +294,8 @@ contract MyDAO {
             proposal_id: "dao_prop_002_protocol_upgrade".to_string(),
             proposer_address: "0xVoterBob".to_string(),
             description: "Upgrade core protocol to v2.0 for improved scalability.".to_string(),
-            start_time: Instant::now() - Duration::from_secs(3600 * 24 * 5),
-            end_time: Instant::now() + Duration::from_secs(3600 * 24 * 2),
+            start_time: Utc::now() - Duration::from_secs(3600 * 24 * 5),
+            end_time: Utc::now() + Duration::from_secs(3600 * 24 * 2),
             votes_for: 8000000,
             votes_against: 1000000,
             execution_status: "Pending".to_string(),

@@ -1,4 +1,5 @@
 use serde::{Serialize, Deserialize};
+use crate::prelude::*;
 use chrono::{DateTime, Utc};
 use super::models::{IpAsset, IpType, IpDomain};
 use uuid::Uuid;

@@ -7,10 +7,11 @@
 /// statistical methods, cryptographic primitives for secure aggregation, and theoretical
 /// computer science for privacy guarantees.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -33,7 +34,8 @@ pub struct AnonymizedDataRecord {
     pub anonymized_data: HashMap<String, String>, // Noisy data
     pub epsilon_used: f32,
     pub delta_used: f32, // For (ε, δ)-differential privacy
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Represents a query to be performed on anonymized data.
@@ -108,7 +110,7 @@ impl DPADAEngine {
             anonymized_data,
             epsilon_used: record.privacy_budget,
             delta_used: 1e-9, // Conceptual small delta
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
         }
     }
 
@@ -158,7 +160,7 @@ mod tests {
     #[test]
     fn test_dpada_engine_flow() {
         let engine = DPADAEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let sensitive_patient_data = SensitiveDataRecord {
             record_id: "patient_001_data".to_string(),
@@ -192,7 +194,7 @@ fn main() {
     println!("\n--- Differential Privacy for AGI Data Anonymization Demonstration ---");
 
     let dpada_engine = DPADAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Prepare sensitive data records for AGI processing
     println!("--- Scenario 1: Prepare Sensitive Data Records ---");

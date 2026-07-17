@@ -5,10 +5,11 @@
 /// knowledge seamlessly across all human languages and technical domains, irrespective
 /// of original source format. It leverages SIMD for parallel translation/embedding generation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -44,7 +45,8 @@ pub struct CrossDomainAnswer {
     pub synthesized_content: String,
     pub source_snippet_ids: Vec<String>,
     pub confidence_score: f32,
-    pub generated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub generated_at: DateTime<Utc>,
 }
 
 /// Overall Cross-Lingual & Cross-Domain RAG system report.
@@ -189,7 +191,7 @@ impl CLCDRAGEngine {
             synthesized_content: final_synthesized_content,
             source_snippet_ids: source_ids,
             confidence_score: confidence,
-            generated_at: Instant::now(),
+            generated_at: Utc::now(),
         }
     }
 
@@ -213,7 +215,7 @@ mod tests {
     #[test]
     fn test_clcdrag_engine_flow() {
         let engine = CLCDRAGEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let query_fr = CrossDomainQuery {
             query_id: "q_fr_rust_quantum".to_string(),
@@ -239,7 +241,7 @@ fn main() {
     println!("\n--- Cross-Lingual & Cross-Domain RAG (RAG-Driven) Demonstration ---");
 
     let clcdrag_engine = CLCDRAGEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Samuel asks a question in English, requiring knowledge from multiple languages and domains
     println!("--- Scenario 1: Cross-Lingual, Cross-Domain Query (English) ---");

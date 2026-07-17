@@ -5,10 +5,11 @@
 /// knowledge is incomplete or uncertain relative to a given task or query, then initiate
 /// targeted information gathering. It leverages SIMD for logical inference completeness checks.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -32,7 +33,8 @@ pub struct KnowledgeGap {
     pub missing_knowledge_area: String,
     pub reason_for_gap: String, // e.g., "InsufficientData", "ConflictingInformation", "NovelConcept"
     pub severity: String, // e.g., "Low", "Medium", "High", "Critical"
-    pub detected_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detected_at: DateTime<Utc>,
     pub suggested_acquisition_strategy: String, // e.g., "WebSearch", "ExpertConsultation", "DataGeneration"
 }
 
@@ -44,7 +46,8 @@ pub struct InformationGatheringRequest {
     pub query_string: String,
     pub target_sources: Vec<String>, // e.g., "Internet", "InternalDocs", "Samuel"
     pub status: String, // e.g., "Pending", "InProgress", "Completed", "Failed"
-    pub initiated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub initiated_at: DateTime<Utc>,
 }
 
 /// Overall Automated Knowledge Gap Identification system report.
@@ -109,7 +112,7 @@ impl AKGIEngine {
                 missing_knowledge_area: missing_item.clone(),
                 reason_for_gap: "InsufficientData".to_string(),
                 severity: if rng.gen_bool(0.3) { "High".to_string() } else { "Medium".to_string() },
-                detected_at: Instant::now(),
+                detected_at: Utc::now(),
                 suggested_acquisition_strategy: "WebSearch".to_string(),
             });
         }
@@ -130,7 +133,7 @@ impl AKGIEngine {
             query_string: format!("Search for: '{}'", gap.missing_knowledge_area),
             target_sources: vec!["Internet".to_string(), "TariroInternalDB".to_string()],
             status: "InProgress".to_string(),
-            initiated_at: Instant::now(),
+            initiated_at: Utc::now(),
         }
     }
 
@@ -154,7 +157,7 @@ mod tests {
     #[test]
     fn test_akgi_engine_flow() {
         let engine = AKGIEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let task = TaskContext {
             task_id: "task_001".to_string(),
@@ -181,7 +184,7 @@ fn main() {
     println!("\n--- Automated Knowledge Gap Identification (RAG-Driven) Demonstration ---");
 
     let akgi_engine = AKGIEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Evaluate a task with known missing knowledge
     println!("--- Scenario 1: Identify Gaps for AGI Compiler Optimization ---");

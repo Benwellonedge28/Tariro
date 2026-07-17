@@ -6,10 +6,11 @@
 /// and contextual relevance. It leverages RAG for contextual feedback and domain-specific corpora,
 /// and SIMD for parallel model updates and gradient accumulation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -32,7 +33,10 @@ pub struct ContextualData {
     pub data_id: String,
     pub content: String,
     pub data_type: String, // e.g., "UserInteraction", "NewResearchPaper", "DomainCorpus"
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub relevance_score: f32, // 0.0-1.0
 }
 
@@ -44,8 +48,10 @@ pub struct FineTuningTask {
     pub training_data_ids: Vec<String>,
     pub objective: String, // e.g., "ImproveSummarization", "ReduceHallucination", "AdaptToNewDomain"
     pub status: String, // e.g., "Pending", "InProgress", "Completed", "Failed"
-    pub start_time: Instant,
-    pub end_time: Option<Instant>,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub start_time: DateTime<Utc>,
+    pub end_time: Option<DateTime<Utc>>,
 }
 
 /// Overall Autonomous LLM Fine-tuning & Adaptation system report.
@@ -134,8 +140,8 @@ impl ALFAEngine {
             training_data_ids: new_context_data.iter().map(|d| d.data_id.clone()).collect(),
             objective,
             status: "Completed".to_string(),
-            start_time: Instant::now() - Duration::from_secs(rng.gen_range(60..300)),
-            end_time: Some(Instant::now()),
+            start_time: Utc::now() - Duration::from_secs(rng.gen_range(60..300)),
+            end_time: Some(Utc::now()),
         }
     }
 
@@ -159,7 +165,7 @@ mod tests {
     #[test]
     fn test_alfa_engine_flow() {
         let engine = ALFAEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let mut llm = LLMConfig {
             model_id: "tariro_base_v1".to_string(),
@@ -188,7 +194,7 @@ fn main() {
     println!("\n--- Autonomous LLM Fine-tuning & Adaptation (RAG-Driven) Demonstration ---");
 
     let alfa_engine = ALFAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     let mut tariro_llm = LLMConfig {
         model_id: "tariro_omega_v3".to_string(),

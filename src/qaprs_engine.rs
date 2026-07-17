@@ -8,10 +8,11 @@
 /// real-world physics engines and sensor fusion algorithms, and SIMD for parallel physics
 /// simulation and real-time sensor data generation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -46,8 +47,10 @@ pub struct QuantumAgnosticEnvironment {
 pub struct RealitySimulationSession {
     pub session_id: String,
     pub env_id: String,
-    pub start_time: Instant,
-    pub end_time: Option<Instant>,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub start_time: DateTime<Utc>,
+    pub end_time: Option<DateTime<Utc>>,
     pub scenario_description: String, // e.g., "Asteroid impact on Earth", "Robotics assembly line failure"
     pub observed_anomalies: Vec<String>,
     pub causal_chain_analysis: Vec<String>, // RAG-derived causal links
@@ -131,7 +134,7 @@ impl QAPRSEngine {
         thread::sleep(Duration::from_millis(800));
         let mut rng = rand::Rng::thread_rng();
 
-        let start_time = Instant::now();
+        let start_time = Utc::now();
         let mut observed_anomalies = Vec::new();
         let mut predictive_outcomes = HashMap::new();
         let time_step_ms = 100;
@@ -156,7 +159,7 @@ impl QAPRSEngine {
             session_id: format!("rss_{}", rng.gen::<u32>()),
             env_id: environment.env_id,
             start_time,
-            end_time: Some(Instant::now()),
+            end_time: Some(Utc::now()),
             scenario_description: scenario_desc,
             observed_anomalies,
             causal_chain_analysis: vec!["Conceptual: Causal analysis based on RAG.".to_string()],
@@ -212,7 +215,7 @@ fn main() {
     println!("\n--- Quantum-Agnostic Physics & Reality Simulation (RAG-Driven) Demonstration ---");
 
     let qaprs_engine = QAPRSEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Simulate the long-term stability of a complex robotic system in a factory
     println!("--- Scenario 1: Robotic Factory Floor Simulation ---");

@@ -12,10 +12,11 @@
 /// ubiquitous computing, intelligent agents, theory of mind, human factors, decision theory, cognitive ergonomics,
 /// behavioral economics, context-aware systems, interruptibility models, just-in-time learning).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -24,7 +25,8 @@ use rand::Rng;
 #[derive(Debug, Clone)]
 pub struct ContextualTrigger {
     pub trigger_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub trigger_type: String, // e.g., "user_idle", "cognitive_load_high", "task_dependency_met", "environmental_change"
     pub related_user_id: String,
     pub context_data: HashMap<String, String>, // e.g., "current_task": "debug_quantum_circuit", "idle_duration": "5min"
@@ -36,7 +38,8 @@ pub struct ContextualTrigger {
 pub struct ProactiveSuggestion {
     pub suggestion_id: String,
     pub trigger_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub suggestion_type: String, // e.g., "information_push", "tool_activation", "task_automation", "empathic_query"
     pub content: String, // The actual suggestion or description of the action
     pub expected_impact: String,
@@ -48,7 +51,8 @@ pub struct ProactiveSuggestion {
 pub struct UserResponseToProactiveAction {
     pub response_id: String,
     pub suggestion_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub user_action: String, // e.g., "accepted", "rejected", "ignored", "modified"
     pub feedback: String, // Detailed feedback if available
     pub emotional_state_after: String, // e.g., "relieved", "annoyed", "neutral"
@@ -99,7 +103,7 @@ impl PPCA_Engine {
 
         (0..num_triggers).map(|_| ContextualTrigger {
             trigger_id: format!("trigger_{}", rng.gen::<u32>()),
-            timestamp: Instant::now() - Duration::from_millis(rng.gen_range(0..1000)),
+            timestamp: Utc::now() - Duration::from_millis(rng.gen_range(0..1000)),
             trigger_type: "user_idle".to_string(),
             related_user_id: "samuel_mukandara_alpha".to_string(),
             context_data: HashMap::from([("idle_duration_sec".to_string(), rng.gen_range(60..300).to_string())]),
@@ -119,7 +123,7 @@ impl PPCA_Engine {
         triggers.iter().map(|trigger| ProactiveSuggestion {
             suggestion_id: format!("suggest_{}", rng.gen::<u32>()),
             trigger_id: trigger.trigger_id.clone(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             suggestion_type: "information_push".to_string(),
             content: "Consider reviewing recent quantum computing research for new insights.".to_string(),
             expected_impact: "improve_task_efficiency".to_string(),
@@ -179,7 +183,7 @@ mod tests {
             UserResponseToProactiveAction {
                 response_id: "resp_001".to_string(),
                 suggestion_id: suggestions[0].suggestion_id.clone(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 user_action: "accepted".to_string(),
                 feedback: "Very helpful!".to_string(),
                 emotional_state_after: "relieved".to_string(),
@@ -187,7 +191,7 @@ mod tests {
             UserResponseToProactiveAction {
                 response_id: "resp_002".to_string(),
                 suggestion_id: suggestions[1].suggestion_id.clone(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 user_action: "ignored".to_string(),
                 feedback: "".to_string(),
                 emotional_state_after: "neutral".to_string(),
@@ -230,7 +234,7 @@ fn main() {
         UserResponseToProactiveAction {
             response_id: format!("resp_{}", rand::thread_rng().gen::<u32>()),
             suggestion_id: generated_suggestions[0].suggestion_id.clone(),
-            timestamp: Instant::now() + Duration::from_secs(1),
+            timestamp: Utc::now() + Duration::from_secs(1),
             user_action: "accepted".to_string(),
             feedback: "That was perfectly timed, thanks!".to_string(),
             emotional_state_after: "relieved".to_string(),
@@ -238,7 +242,7 @@ fn main() {
         UserResponseToProactiveAction {
             response_id: format!("resp_{}", rand::thread_rng().gen::<u32>()),
             suggestion_id: generated_suggestions[1].suggestion_id.clone(),
-            timestamp: Instant::now() + Duration::from_secs(2),
+            timestamp: Utc::now() + Duration::from_secs(2),
             user_action: "ignored".to_string(),
             feedback: "".to_string(),
             emotional_state_after: "neutral".to_string(),

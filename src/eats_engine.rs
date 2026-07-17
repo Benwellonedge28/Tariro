@@ -6,10 +6,11 @@
 /// deadlines. It leverages RAG for device-specific energy models, task dependencies, and dynamic
 /// workload balancing algorithms.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -34,7 +35,8 @@ pub struct ComputeTask {
     pub required_capacity_gflops: f32,
     pub required_time_ms: u32,
     pub energy_profile: HashMap<String, f32>, // Resource_type -> Joules/GFLOP
-    pub deadline: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub deadline: DateTime<Utc>,
     pub dependencies: Vec<String>,
     pub assigned_resource: Option<String>,
 }
@@ -45,8 +47,10 @@ pub struct SchedulingDecision {
     pub decision_id: String,
     pub task_id: String,
     pub resource_id: String,
-    pub scheduled_start_time: Instant,
-    pub estimated_completion_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub scheduled_start_time: DateTime<Utc>,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub estimated_completion_time: DateTime<Utc>,
     pub estimated_energy_cost_joules: f32,
     pub justification: String,
 }
@@ -101,14 +105,14 @@ impl EATSEngine {
             .filter(|r| r.active && r.computational_capacity_gflops >= task.required_capacity_gflops)
             .max_by(|r1, r2| r1.energy_efficiency_score.partial_cmp(&r2.energy_efficiency_score).unwrap_or(std::cmp::Ordering::Equal)) {
 
-            let estimated_completion_time = Instant::now() + Duration::from_millis(task.required_time_ms as u64);
+            let estimated_completion_time = Utc::now() + Duration::from_millis(task.required_time_ms as u64);
             let estimated_energy_cost_joules = task.required_capacity_gflops * task.energy_profile.get(&optimal_resource.resource_type).unwrap_or(&rng.gen_range(0.5..2.0));
 
             Some(SchedulingDecision {
                 decision_id: format!("sched_dec_{}_{}", task.task_id, rng.gen::<u32>()),
                 task_id: task.task_id.clone(),
                 resource_id: optimal_resource.resource_id.clone(),
-                scheduled_start_time: Instant::now(),
+                scheduled_start_time: Utc::now(),
                 estimated_completion_time,
                 estimated_energy_cost_joules,
                 justification: format!("Assigned to '{}' due to high energy efficiency and sufficient capacity.", optimal_resource.resource_id),
@@ -161,7 +165,7 @@ mod tests {
             required_capacity_gflops: 1000.0,
             required_time_ms: 5000,
             energy_profile: HashMap::from([("CPU".to_string(), 1.0), ("GPU".to_string(), 0.5)]),
-            deadline: Instant::now() + Duration::from_secs(10),
+            deadline: Utc::now() + Duration::from_secs(10),
             dependencies: vec![],
             assigned_resource: None,
         };
@@ -227,7 +231,7 @@ fn main() {
         required_capacity_gflops: 2500.0,
         required_time_ms: 100,
         energy_profile: HashMap::from([("CPU".to_string(), 1.5), ("GPU".to_string(), 0.5), ("FPGA".to_string(), 0.3)]),
-        deadline: Instant::now() + Duration::from_millis(200),
+        deadline: Utc::now() + Duration::from_millis(200),
         dependencies: vec![],
         assigned_resource: None,
     };
@@ -237,7 +241,7 @@ fn main() {
         required_capacity_gflops: 500.0,
         required_time_ms: 500,
         energy_profile: HashMap::from([("CPU".to_string(), 0.8), ("GPU".to_string(), 1.2), ("FPGA".to_string(), 1.0)]),
-        deadline: Instant::now() + Duration::from_millis(700),
+        deadline: Utc::now() + Duration::from_millis(700),
         dependencies: vec![],
         assigned_resource: None,
     };
@@ -278,8 +282,8 @@ fn main() {
             decision_id: "sched_dec_ai_inference".to_string(),
             task_id: "ai_inference_image_rec".to_string(),
             resource_id: "gpu_server_02".to_string(),
-            scheduled_start_time: Instant::now(),
-            estimated_completion_time: Instant::now() + Duration::from_millis(100),
+            scheduled_start_time: Utc::now(),
+            estimated_completion_time: Utc::now() + Duration::from_millis(100),
             estimated_energy_cost_joules: 1250.0,
             justification: "Assigned to gpu_server_02 due to high energy efficiency and sufficient capacity.".to_string(),
         },
@@ -287,8 +291,8 @@ fn main() {
             decision_id: "sched_dec_data_prep".to_string(),
             task_id: "data_preprocessing_batch".to_string(),
             resource_id: "cpu_server_01".to_string(),
-            scheduled_start_time: Instant::now(),
-            estimated_completion_time: Instant::now() + Duration::from_millis(500),
+            scheduled_start_time: Utc::now(),
+            estimated_completion_time: Utc::now() + Duration::from_millis(500),
             estimated_energy_cost_joules: 400.0,
             justification: "Assigned to cpu_server_01 due to high energy efficiency and sufficient capacity.".to_string(),
         },

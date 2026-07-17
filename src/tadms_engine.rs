@@ -8,10 +8,11 @@
 /// explainable AI frameworks and audit logging standards, and SIMD for parallel log processing
 /// and real-time anomaly detection in audit trails.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -21,7 +22,8 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuditLogEntry {
     pub log_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub action_id: String, // ID of the action/decision being logged
     pub action_type: String, // e.g., "Data_Access", "Model_Update", "Creative_Generation"
     pub initiator_type: String, // e.g., "Samuel", "Tariro_Autonomous_Agent", "System_Scheduler"
@@ -37,7 +39,8 @@ pub struct AuditLogEntry {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuditAnomaly {
     pub anomaly_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub detected_pattern: String, // e.g., "Unauthorized_Data_Access_Attempt", "Unexplained_Parameter_Change"
     pub log_entry_id: String, // ID of the log entry that triggered the anomaly
     pub severity_score: f32, // 0.0 to 1.0
@@ -49,7 +52,8 @@ pub struct AuditAnomaly {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TariroDecisionTrace {
     pub trace_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub decision_id: String,
     pub core_directive_tree: String, // RAG-derived trace of active goals/directives
     pub knowledge_retrieval_path: Vec<String>, // Knowledge items used
@@ -107,7 +111,7 @@ impl TADMSEngine {
             if entry.action_type == "Data_Access" && entry.initiator_type == "System_Scheduler" && rng.gen_bool(0.01) { // 1% chance of anomalous access
                 anomalies.push(AuditAnomaly {
                     anomaly_id: format!("an_{}", rng.gen::<u32>()),
-                    timestamp: Instant::now(),
+                    timestamp: Utc::now(),
                     detected_pattern: "Unusual_Automated_Data_Access".to_string(),
                     log_entry_id: entry.log_id.clone(),
                     severity_score: rng.gen_range(0.6..0.9),
@@ -145,7 +149,7 @@ impl TADMSEngine {
         let log_entry_id = format!("al_{}", rng.gen::<u32>());
         let log_entry = AuditLogEntry {
             log_id: log_entry_id.clone(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             action_id: decision_trace.decision_id,
             action_type: "Generic_Autonomous_Action".to_string(), // Placeholder, refine with actual action_type
             initiator_type: "Tariro_Autonomous_Agent".to_string(),
@@ -187,7 +191,7 @@ mod tests {
         let engine = TADMSEngine::new();
 
         let decision_trace = TariroDecisionTrace {
-            trace_id: "trace_001".to_string(), timestamp: Instant::now(), decision_id: "dec_001".to_string(), core_directive_tree: "Optimize_Samuel_Productivity".to_string(), knowledge_retrieval_path: vec!["KnowledgeItem: Rust Best Practices".to_string()], reasoning_steps_sequence: vec!["Analyze code for performance bottlenecks.".to_string()], alternative_paths_considered: vec!["Refactor entire module.".to_string()], final_decision: "Apply micro-optimizations.".to_string(), confidence_in_decision: 0.95,
+            trace_id: "trace_001".to_string(), timestamp: Utc::now(), decision_id: "dec_001".to_string(), core_directive_tree: "Optimize_Samuel_Productivity".to_string(), knowledge_retrieval_path: vec!["KnowledgeItem: Rust Best Practices".to_string()], reasoning_steps_sequence: vec!["Analyze code for performance bottlenecks.".to_string()], alternative_paths_considered: vec!["Refactor entire module.".to_string()], final_decision: "Apply micro-optimizations.".to_string(), confidence_in_decision: 0.95,
         };
 
         let log_entry = engine.log_and_explain_decision_rag("Refactor a Rust function for better performance.".to_string(), decision_trace);
@@ -202,13 +206,13 @@ fn main() {
     println!("\n--- Transparent & Auditable Decision-Making (RAG-Driven) Demonstration ---");
 
     let tadms_engine = TADMSEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Tariro autonomously optimizes a critical system service
     println!("--- Scenario 1: Autonomous System Optimization Audit ---");
     let optimization_decision_trace = TariroDecisionTrace {
         trace_id: "opt_trace_001".to_string(),
-        timestamp: Instant::now() - Duration::from_secs(5),
+        timestamp: Utc::now() - Duration::from_secs(5),
         decision_id: "service_opt_001".to_string(),
         core_directive_tree: "Maximize_System_Efficiency_and_Security".to_string(),
         knowledge_retrieval_path: vec!["KnowledgeItem: Rust Performance Patterns".to_string(), "KnowledgeItem: Threat Model Analysis for Microservices".to_string()],
@@ -232,7 +236,7 @@ fn main() {
     println!("--- Scenario 2: Creative Generation Review Audit ---");
     let creative_decision_trace = TariroDecisionTrace {
         trace_id: "creative_trace_001".to_string(),
-        timestamp: Instant::now() - Duration::from_secs(10),
+        timestamp: Utc::now() - Duration::from_secs(10),
         decision_id: "music_gen_001".to_string(),
         core_directive_tree: "Assist_Samuel_in_Artistic_Expression".to_string(),
         knowledge_retrieval_path: vec!["KnowledgeItem: Samuel Music Preferences".to_string(), "KnowledgeItem: Baroque Composition Theory".to_string()],

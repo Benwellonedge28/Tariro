@@ -6,10 +6,11 @@
 /// RAG for deployment strategies (e.g., canary, blue/green), model serialization formats, and
 /// infrastructure-as-code principles.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -53,8 +54,10 @@ pub struct DeploymentRecord {
     pub env_id: String,
     pub strategy_used: String,
     pub status: String, // e.g., "InProgress", "Success", "Failed", "RolledBack"
-    pub start_time: Instant,
-    pub end_time: Option<Instant>,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub start_time: DateTime<Utc>,
+    pub end_time: Option<DateTime<Utc>>,
 }
 
 /// Overall Model Deployment and Versioning system report.
@@ -121,8 +124,8 @@ impl MDVEngine {
             env_id: env.env_id.clone(),
             strategy_used: strategy.name.clone(),
             status: deployment_status.to_string(),
-            start_time: Instant::now(),
-            end_time: Some(Instant::now() + Duration::from_secs(rng.gen_range(60..300))),
+            start_time: Utc::now(),
+            end_time: Some(Utc::now() + Duration::from_secs(rng.gen_range(60..300))),
         }
     }
 

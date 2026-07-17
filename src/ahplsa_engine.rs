@@ -8,12 +8,14 @@
 /// adaptive learning platforms and cognitive science of learning, and SIMD for parallel content
 /// delivery and real-time knowledge graph updates.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
+use chrono::{DateTime, Utc};
 
 // --- Conceptual Structures --- //
 
@@ -201,7 +203,7 @@ fn main() {
     println!("\n--- Autonomous Hyper-Personalized Learning & Skill Acquisition (RAG-Driven) Demonstration ---");
 
     let ahplsa_engine = AHPLSAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Samuel needs to rapidly acquire expertise in a new, critical technology area
     println!("--- Scenario 1: Rapid New Tech Acquisition ---");

@@ -7,10 +7,11 @@
 /// before they materialize. It leverages RAG for threat intelligence feeds and attack patterns,
 /// and SIMD for parallel log analysis and pattern matching.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -20,7 +21,10 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StreamData {
     pub data_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub data_type: String, // e.g., "Syslog", "NetworkFlow", "UserActivity", "EndpointMetric"
     pub attributes: HashMap<String, String>, // Key-value pairs for raw data
     pub numerical_features: HashMap<String, f32>, // Parsed numerical features
@@ -30,7 +34,8 @@ pub struct StreamData {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Anomaly {
     pub anomaly_id: String,
-    pub detection_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detection_time: DateTime<Utc>,
     pub data_id: String, // ID of the StreamData that triggered it
     pub anomaly_score: f32, // How anomalous the event is
     pub description: String,
@@ -43,8 +48,8 @@ pub struct Anomaly {
 pub struct Threat {
     pub threat_id: String,
     pub threat_type: String, // e.g., "Malware", "IntrusionAttempt", "DataExfiltration"
-    pub first_seen: Instant,
-    pub last_seen: Instant,
+    pub first_seen: DateTime<Utc>,
+    pub last_seen: DateTime<Utc>,
     pub indicators_of_compromise: HashMap<String, String>, // e.g., "ip_address": "192.168.1.1", "file_hash": "abc123def456"
     pub confidence: f32,
     pub mitigation_recommendations: String, // RAG-derived recommendations
@@ -108,7 +113,7 @@ impl PADHEngine {
             if is_anomalous {
                 anomalies.push(Anomaly {
                     anomaly_id: format!("anom_{}", rng.gen::<u32>()),
-                    detection_time: Instant::now(),
+                    detection_time: Utc::now(),
                     data_id: data_point.data_id.clone(),
                     anomaly_score,
                     description: format!("Unusual activity detected in {} stream with score {:.2}.", data_point.data_type, anomaly_score),
@@ -147,7 +152,7 @@ impl PADHEngine {
                     threat_id: format!("thr_{}", rng.gen::<u32>()),
                     threat_type,
                     first_seen: anomaly.detection_time,
-                    last_seen: Instant::now(),
+                    last_seen: Utc::now(),
                     indicators_of_compromise: HashMap::from([
                         ("source_ip".to_string(), anomaly.attributes.get("source_ip").cloned().unwrap_or("N/A".to_string())),
                         ("event_type".to_string(), anomaly.data_type.clone()),
@@ -182,7 +187,7 @@ mod tests {
     #[test]
     fn test_padh_engine_flow() {
         let engine = PADHEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let stream_data = vec![
             StreamData { data_id: "sd_001".to_string(), timestamp: now, data_type: "Syslog".to_string(), attributes: HashMap::from([("event".to_string(), "normal activity".to_string())]), numerical_features: HashMap::new() },
@@ -204,7 +209,7 @@ fn main() {
     println!("\n--- Proactive Anomaly Detection & Threat Hunting (RAG-Driven) Demonstration ---");
 
     let padh_engine = PADHEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Simulate various data streams, including an emerging threat
     println!("--- Scenario 1: Emerging Threat Detection ---");

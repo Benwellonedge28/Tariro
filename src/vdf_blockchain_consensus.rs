@@ -5,10 +5,11 @@
 /// election or block production in next-generation blockchain protocols (leveraging RAG for VDF algorithm analysis
 /// and SIMD for accelerating VDF computations and verification).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Represents a Verifiable Delay Function proof.
@@ -52,7 +53,7 @@ impl VDFProcessor for SimpleVDFProcessor {
         println!("  [VDFProcessor]: Computing VDF for challenge input={}, difficulty={} (SIMD simulation).", challenge.input, challenge.difficulty);
         let mut current_value = challenge.input;
         let mut rng = rand::thread_rng();
-        let start_time = Instant::now();
+        let start_time = Utc::now();
 
         // Simulate sequential squaring operation
         for _ in 0..challenge.difficulty {

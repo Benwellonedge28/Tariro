@@ -11,10 +11,11 @@
 /// deception, honeypots, game theory, military intelligence, adversarial AI, behavioral psychology of attackers,
 /// threat intelligence, polymorphic code).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -27,7 +28,8 @@ pub struct DecoyAsset {
     pub ip_address: String,
     pub vulnerabilities_simulated: Vec<String>,
     pub lure_factor: f32, // 0.0 to 1.0, how attractive it is to adversaries
-    pub deployed_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub deployed_at: DateTime<Utc>,
 }
 
 /// Represents a log of an adversary's interaction with a deceptive asset.
@@ -35,7 +37,8 @@ pub struct DecoyAsset {
 pub struct AdversaryInteractionLog {
     pub log_id: String,
     pub asset_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub interaction_type: String, // e.g., "scan", "attempted_login", "data_exfiltration_attempt"
     pub source_ip: String,
     pub user_agent: String,
@@ -51,7 +54,8 @@ pub struct DeceptionStrategy {
     pub decoy_types_to_deploy: Vec<String>,
     pub deployment_pattern: String, // e.g., "distributed_random", "clustered_critical_asset_proximity"
     pub active: bool,
-    pub last_updated: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub last_updated: DateTime<Utc>,
 }
 
 /// Overall ADMC system report.
@@ -103,7 +107,7 @@ impl ADMC_Engine {
             ip_address: format!("192.168.{}.{}", rng.gen_range(1..255), rng.gen_range(1..255)),
             vulnerabilities_simulated: vec!["CVE-2023-1234".to_string(), "Fake_Zero_Day".to_string()],
             lure_factor: rng.gen_range(0.5..0.9),
-            deployed_at: Instant::now(),
+            deployed_at: Utc::now(),
         }).collect()
     }
 
@@ -145,7 +149,7 @@ impl ADMC_Engine {
 
         let mut adapted_strategy = current_strategy.clone();
         adapted_strategy.strategy_id = format!("strat_adapted_{}", rng.gen::<u32>());
-        adapted_strategy.last_updated = Instant::now();
+        adapted_strategy.last_updated = Utc::now();
 
         if new_ttps.contains_key("Lateral_Movement") {
             adapted_strategy.decoy_types_to_deploy.push("network_segment_decoy".to_string());
@@ -172,7 +176,7 @@ mod tests {
             decoy_types_to_deploy: vec!["honeypot_webserver".to_string()],
             deployment_pattern: "random".to_string(),
             active: true,
-            last_updated: Instant::now(),
+            last_updated: Utc::now(),
         };
         let deployment_result = engine.deploy_deception_network_simd(&decoys, &strategy);
         assert!(!deployment_result.is_empty());
@@ -181,7 +185,7 @@ mod tests {
             AdversaryInteractionLog {
                 log_id: "log_001".to_string(),
                 asset_id: decoys[0].asset_id.clone(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 interaction_type: "attempted_login".to_string(),
                 source_ip: "1.2.3.4".to_string(),
                 user_agent: "Mozilla/5.0".to_string(),
@@ -218,7 +222,7 @@ fn main() {
         decoy_types_to_deploy: vec!["honeypot_webserver".to_string(), "decoy_data_store".to_string()],
         deployment_pattern: "random".to_string(),
         active: true,
-        last_updated: Instant::now(),
+        last_updated: Utc::now(),
     };
     let all_decoys = [decoy_web_servers, decoy_data_stores].concat();
     let deployment_report = admc_engine.deploy_deception_network_simd(&all_decoys, &initial_deception_strategy);
@@ -230,7 +234,7 @@ fn main() {
         AdversaryInteractionLog {
             log_id: format!("int_log_{}", rand::thread_rng().gen::<u32>()),
             asset_id: all_decoys[0].asset_id.clone(),
-            timestamp: Instant::now() + Duration::from_secs(60),
+            timestamp: Utc::now() + Duration::from_secs(60),
             interaction_type: "port_scan".to_string(),
             source_ip: "103.20.100.5".to_string(),
             user_agent: "Nmap/7.91 (https://nmap.org)".to_string(),
@@ -239,7 +243,7 @@ fn main() {
         AdversaryInteractionLog {
             log_id: format!("int_log_{}", rand::thread_rng().gen::<u32>()),
             asset_id: all_decoys[3].asset_id.clone(),
-            timestamp: Instant::now() + Duration::from_secs(120),
+            timestamp: Utc::now() + Duration::from_secs(120),
             interaction_type: "sql_injection_attempt".to_string(),
             source_ip: "103.20.100.5".to_string(),
             user_agent: "sqlmap/1.5.11 (http://sqlmap.org)".to_string(),

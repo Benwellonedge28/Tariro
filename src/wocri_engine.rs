@@ -5,10 +5,11 @@
 /// (scientific papers, community forums) into actionable knowledge, filtering noise from
 /// signal. It leverages SIMD for large-scale sentiment analysis and consensus detection.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -23,7 +24,7 @@ pub struct PublicDataSnippet {
     pub sentiment_score: f32, // -1.0 (negative) to 1.0 (positive)
     pub credibility_score: f32, // 0.0-1.0
     pub domain_tags: Vec<String>,
-    pub publication_date: Instant,
+    pub publication_date: DateTime<Utc>,
 }
 
 /// Represents a detected consensus or emerging insight from the crowd.
@@ -34,7 +35,8 @@ pub struct CrowdInsight {
     pub synthesized_statement: String,
     pub supporting_snippets: Vec<String>, // IDs of snippets supporting this insight
     pub consensus_strength: f32, // 0.0-1.0, how strong the agreement is
-    pub detected_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detected_at: DateTime<Utc>,
     pub sentiment_summary: String,
 }
 
@@ -66,7 +68,7 @@ impl WOCRIEngine {
             sentiment_score: 0.7,
             credibility_score: 0.9,
             domain_tags: vec!["Rust".to_string(), "Concurrency".to_string(), "Async".to_string()],
-            publication_date: Instant::now() - Duration::from_secs(86400),
+            publication_date: Utc::now() - Duration::from_secs(86400),
         });
         public_data.insert("forum_post_simd".to_string(), PublicDataSnippet {
             id: "forum_post_simd".to_string(),
@@ -75,7 +77,7 @@ impl WOCRIEngine {
             sentiment_score: 0.2,
             credibility_score: 0.6,
             domain_tags: vec!["SIMD".to_string(), "GameDev".to_string(), "Performance".to_string()],
-            publication_date: Instant::now() - Duration::from_secs(172800),
+            publication_date: Utc::now() - Duration::from_secs(172800),
         });
         public_data.insert("blog_post_quantum".to_string(), PublicDataSnippet {
             id: "blog_post_quantum".to_string(),
@@ -84,7 +86,7 @@ impl WOCRIEngine {
             sentiment_score: 0.6,
             credibility_score: 0.75,
             domain_tags: vec!["QuantumComputing".to_string(), "FutureTech".to_string()],
-            publication_date: Instant::now() - Duration::from_secs(259200),
+            publication_date: Utc::now() - Duration::from_secs(259200),
         });
 
         let mut sentiment_model = HashMap::new();
@@ -139,7 +141,7 @@ impl WOCRIEngine {
                 synthesized_statement,
                 supporting_snippets: relevant_snippets.iter().map(|s| s.id.clone()).collect(),
                 consensus_strength: rng.gen_range(0.6..0.95),
-                detected_at: Instant::now(),
+                detected_at: Utc::now(),
                 sentiment_summary,
             });
         }
@@ -167,7 +169,7 @@ mod tests {
     #[test]
     fn test_wocri_engine_flow() {
         let engine = WOCRIEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let insights_rust = engine.detect_crowd_consensus_rag("Rust", 0.5);
         assert!(!insights_rust.is_empty());
@@ -184,7 +186,7 @@ fn main() {
     println!("\n--- Wisdom-of-the-Crowd RAG Integration (RAG-Driven) Demonstration ---");
 
     let wocri_engine = WOCRIEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Detect consensus on a technical topic (e.g., Rust Async)
     println!("--- Scenario 1: Detect Consensus on Rust Async ---");

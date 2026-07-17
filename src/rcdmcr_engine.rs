@@ -4,10 +4,11 @@
 /// This SIMD-driven feature compares large codebases and resolves merge conflicts with human-level accuracy and machine speed.
 /// It leverages RAG for project history and developer guidelines, and SIMD for parallel text comparison and conflict detection.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -19,7 +20,8 @@ pub struct CodeVersion {
     pub file_path: String,
     pub content: String,
     pub author: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Represents the result of a diff operation.
@@ -190,9 +192,9 @@ mod tests {
     fn test_rcdmcr_engine_flow() {
         let engine = RCDMCR_Engine::new();
 
-        let base = CodeVersion { version_id: "base".to_string(), file_path: "test.rs".to_string(), content: "fn main() { /* ... */ }\n".to_string(), author: "system".to_string(), timestamp: Instant::now() };
-        let v1 = CodeVersion { version_id: "v1".to_string(), file_path: "test.rs".to_string(), content: "fn main() { // feature A\n/* ... */ }\n".to_string(), author: "dev1".to_string(), timestamp: Instant::now() };
-        let v2 = CodeVersion { version_id: "v2".to_string(), file_path: "test.rs".to_string(), content: "fn main() { /* ... */\n// feature B }\n".to_string(), author: "dev2".to_string(), timestamp: Instant::now() };
+        let base = CodeVersion { version_id: "base".to_string(), file_path: "test.rs".to_string(), content: "fn main() { /* ... */ }\n".to_string(), author: "system".to_string(), timestamp: Utc::now() };
+        let v1 = CodeVersion { version_id: "v1".to_string(), file_path: "test.rs".to_string(), content: "fn main() { // feature A\n/* ... */ }\n".to_string(), author: "dev1".to_string(), timestamp: Utc::now() };
+        let v2 = CodeVersion { version_id: "v2".to_string(), file_path: "test.rs".to_string(), content: "fn main() { /* ... */\n// feature B }\n".to_string(), author: "dev2".to_string(), timestamp: Utc::now() };
 
         let diff_v1 = engine.perform_parallel_diff_simd(&base, &v1);
         let diff_v2 = engine.perform_parallel_diff_simd(&base, &v2);
@@ -221,7 +223,7 @@ fn main() {
         file_path: file_path.to_string(),
         content: "fn calculate_complex_metric(data: &[f64]) -> f64 {\n    // Initial implementation\n    data.iter().sum::<f64>() / data.len() as f64\n}\n".to_string(),
         author: "system_init".to_string(),
-        timestamp: Instant::now() - Duration::from_secs(3600 * 24 * 7),
+        timestamp: Utc::now() - Duration::from_secs(3600 * 24 * 7),
     };
 
     let dev_feature_branch_version = CodeVersion {
@@ -229,7 +231,7 @@ fn main() {
         file_path: file_path.to_string(),
         content: "fn calculate_complex_metric(data: &[f64]) -> f64 {\n    // Optimized implementation for feature branch\n    let sum: f64 = data.iter().map(|&x| x * x).sum();\n    (sum / data.len() as f64).sqrt() // RMS calculation\n}\n".to_string(),
         author: "dev_alpha".to_string(),
-        timestamp: Instant::now() - Duration::from_secs(3600 * 24 * 2),
+        timestamp: Utc::now() - Duration::from_secs(3600 * 24 * 2),
     };
 
     let hotfix_branch_version = CodeVersion {
@@ -237,7 +239,7 @@ fn main() {
         file_path: file_path.to_string(),
         content: "fn calculate_complex_metric(data: &[f64]) -> f64 {\n    // Bug fix for average calculation\n    if data.is_empty() { return 0.0; }\n    data.iter().sum::<f64>() / data.len() as f64\n}\n".to_string(),
         author: "dev_beta".to_string(),
-        timestamp: Instant::now() - Duration::from_secs(3600 * 24 * 1),
+        timestamp: Utc::now() - Duration::from_secs(3600 * 24 * 1),
     };
 
     // Scenario 1: Perform parallel diffs

@@ -5,10 +5,11 @@
 /// ensuring long-term security against quantum attacks (leveraging RAG for PQC algorithm analysis
 /// and SIMD for accelerating cryptographic operations).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Types of identities managed by the system.
@@ -88,7 +89,7 @@ impl QRIdentityManager {
             identity_type,
             public_keys: initial_keys,
             metadata: HashMap::new(),
-            registered_at: Instant::now().elapsed().as_secs(),
+            registered_at: Utc::now().timestamp(),
         };
         self.identities.insert(id, record);
         thread::sleep(Duration::from_millis(50));

@@ -7,10 +7,11 @@
 /// Joules/inference, kWh/training-hour), and regulatory compliance requirements to help users
 /// evaluate and improve the sustainability of their AI systems.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -169,7 +170,7 @@ mod tests {
     #[test]
     fn test_eeba_engine_flow() {
         let engine = EEBAEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let ai_workload = AIWorkload {
             workload_id: "llm_inference_api_prod".to_string(),
@@ -199,7 +200,7 @@ fn main() {
     println!("\n--- Energy Efficiency Benchmarking and Auditing for AI Workloads Demonstration ---");
 
     let eeba_engine = EEBAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Define an AI workload to be audited
     println!("--- Scenario 1: Define AI Workload ---");

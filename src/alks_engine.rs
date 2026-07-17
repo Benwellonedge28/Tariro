@@ -6,10 +6,11 @@
 /// (SIMD: parallel processing of ingested data, knowledge graph updates; RAG: advanced knowledge representation,
 /// ontological reasoning, information fusion).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -20,7 +21,8 @@ pub struct RawData {
     pub id: String,
     pub content: String,
     pub source: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub data_type: String, // e.g., "text", "code", "telemetry", "user_feedback"
 }
 
@@ -149,7 +151,7 @@ mod tests {
         let engine = ALKS_Engine::new();
 
         let raw_data = vec![
-            RawData { id: "d1".to_string(), content: "some log data".to_string(), source: "internal".to_string(), timestamp: Instant::now(), data_type: "log".to_string() },
+            RawData { id: "d1".to_string(), content: "some log data".to_string(), source: "internal".to_string(), timestamp: Utc::now(), data_type: "log".to_string() },
         ];
         let processed_ids = engine.ingest_and_process_data_simd(&raw_data);
         assert!(!processed_ids.is_empty());
@@ -173,9 +175,9 @@ fn main() {
     // Scenario 1: Ingesting and processing a batch of diverse data
     println!("--- Scenario 1: Data Ingestion & Processing ---");
     let data_batch = vec![
-        RawData { id: "log_2026_04_28_001".to_string(), content: "System startup sequence completed successfully.".to_string(), source: "system_logs".to_string(), timestamp: Instant::now(), data_type: "telemetry".to_string() },
-        RawData { id: "feedback_user_042".to_string(), content: "The new refactoring tool is very helpful but sometimes too aggressive.".to_string(), source: "user_feedback".to_string(), timestamp: Instant::now(), data_type: "user_feedback".to_string() },
-        RawData { id: "paper_qml_threats_v2".to_string(), content: "New paper on QML adversarial attacks provides novel insights.".to_string(), source: "external_research".to_string(), timestamp: Instant::now(), data_type: "text".to_string() },
+        RawData { id: "log_2026_04_28_001".to_string(), content: "System startup sequence completed successfully.".to_string(), source: "system_logs".to_string(), timestamp: Utc::now(), data_type: "telemetry".to_string() },
+        RawData { id: "feedback_user_042".to_string(), content: "The new refactoring tool is very helpful but sometimes too aggressive.".to_string(), source: "user_feedback".to_string(), timestamp: Utc::now(), data_type: "user_feedback".to_string() },
+        RawData { id: "paper_qml_threats_v2".to_string(), content: "New paper on QML adversarial attacks provides novel insights.".to_string(), source: "external_research".to_string(), timestamp: Utc::now(), data_type: "text".to_string() },
     ];
     let processed_data_ids = alks_engine.ingest_and_process_data_simd(&data_batch);
     println!("  Processed IDs: {:?}.\n", processed_data_ids);

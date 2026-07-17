@@ -6,10 +6,11 @@
 /// remain up-to-date, accurate, and relevant. It leverages RAG for training data selection,
 /// fine-tuning strategies (e.g., LoRA, Adapter), and model performance evaluation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -21,7 +22,7 @@ pub struct AIModelInstance {
     pub name: String,
     pub version: String,
     pub current_performance_metric: f32, // e.g., accuracy, F1-score
-    pub last_trained_at: Instant,
+    pub last_trained_at: DateTime<Utc>,
 }
 
 /// Represents new data or feedback requiring model update.
@@ -30,7 +31,10 @@ pub struct NewDataFeedback {
     pub data_id: String,
     pub data_type: String, // e.g., "NewTrainingData", "UserFeedback", "DriftDetection"
     pub content: String, // Path to data, or summary of feedback
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub relevance_score: f32,
 }
 
@@ -136,7 +140,7 @@ impl DMRFEngine {
         thread::sleep(Duration::from_millis(150));
         old_model.version = update_result.new_version.clone();
         old_model.current_performance_metric = update_result.new_performance_metric;
-        old_model.last_trained_at = Instant::now();
+        old_model.last_trained_at = Utc::now();
     }
 
     /// Generates a comprehensive report for dynamic model re-training and fine-tuning.
@@ -180,11 +184,11 @@ mod tests {
             name: "SentimentAnalyzer_v1".to_string(),
             version: "1.0.0".to_string(),
             current_performance_metric: 0.88,
-            last_trained_at: Instant::now() - Duration::from_secs(3600 * 24 * 7),
+            last_trained_at: Utc::now() - Duration::from_secs(3600 * 24 * 7),
         };
 
         let new_data = vec![
-            NewDataFeedback { data_id: "feedback_001".to_string(), data_type: "UserFeedback".to_string(), content: "New slang detected.".to_string(), timestamp: Instant::now(), relevance_score: 0.8 },
+            NewDataFeedback { data_id: "feedback_001".to_string(), data_type: "UserFeedback".to_string(), content: "New slang detected.".to_string(), timestamp: Utc::now(), relevance_score: 0.8 },
         ];
 
         let trigger_option = engine.monitor_and_trigger_rag(&model_prod, &new_data);
@@ -213,7 +217,7 @@ fn main() {
         name: "CS_Chatbot_Assistant".to_string(),
         version: "3.2.1".to_string(),
         current_performance_metric: 0.91, // e.g., customer satisfaction score
-        last_trained_at: Instant::now() - Duration::from_secs(3600 * 24 * 30), // Trained a month ago
+        last_trained_at: Utc::now() - Duration::from_secs(3600 * 24 * 30), // Trained a month ago
     };
     println!("  Monitoring model '{}' (Version: '{}'). Current performance: {:.2}. Last trained: {:?}.\n",
         chat_bot_model.name,
@@ -225,8 +229,8 @@ fn main() {
     // Scenario 2: Simulate new data/feedback arriving that might necessitate model update
     println!("--- Scenario 2: Simulate New Data/Feedback ---");
     let new_user_queries = vec![
-        NewDataFeedback { data_id: "query_001".to_string(), data_type: "NewUserQuery".to_string(), content: "Path/to/new_queries.json".to_string(), timestamp: Instant::now(), relevance_score: 0.9 },
-        NewDataFeedback { data_id: "drift_alert_002".to_string(), data_type: "DataDriftAlert".to_string(), content: "Input data distribution shift detected.".to_string(), timestamp: Instant::now(), relevance_score: 0.95 },
+        NewDataFeedback { data_id: "query_001".to_string(), data_type: "NewUserQuery".to_string(), content: "Path/to/new_queries.json".to_string(), timestamp: Utc::now(), relevance_score: 0.9 },
+        NewDataFeedback { data_id: "drift_alert_002".to_string(), data_type: "DataDriftAlert".to_string(), content: "Input data distribution shift detected.".to_string(), timestamp: Utc::now(), relevance_score: 0.95 },
     ];
     println!("  Simulated {} new data/feedback items, indicating potential need for update.\n", new_user_queries.len());
 

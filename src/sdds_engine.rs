@@ -12,10 +12,11 @@
 /// quantum-resistant erasure, secure storage, trusted platform modules (TPMs), data lifecycle management, information
 /// security policy).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -37,7 +38,10 @@ pub struct ShreddingCommand {
     pub target_data_id: String,
     pub shredding_method: String, // e.g., "nisp_800_88_purge", "dod_5220_22_m", "cryptographic_erase", "physical_destroy"
     pub initiation_reason: String, // e.g., "breach_detected", "end_of_life", "manual_override"
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Report detailing the outcome of a data shredding operation.
@@ -48,7 +52,8 @@ pub struct ShreddingReport {
     pub target_data_id: String,
     pub status: String, // e.g., "success", "partial_success", "failed", "pending_hardware_erase"
     pub verification_result: String, // e.g., "forensically_irrecoverable", "low_confidence_erasure"
-    pub completion_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub completion_time: DateTime<Utc>,
     pub details: HashMap<String, String>,
 }
 
@@ -125,7 +130,7 @@ impl SDDS_Engine {
             target_data_id: unit.data_id.clone(),
             status: "success".to_string(),
             verification_result: "forensically_irrecoverable".to_string(),
-            completion_time: Instant::now(),
+            completion_time: Utc::now(),
             details: HashMap::from([("passes".to_string(), "7".to_string()), ("final_overwritten_pattern".to_string(), "random_zeros".to_string())]),
         }).collect()
     }
@@ -180,7 +185,7 @@ mod tests {
             target_data_id: sensitive_data[0].data_id.clone(),
             shredding_method: "dod_5220_22_m".to_string(),
             initiation_reason: "test_run".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
         };
         let reports = engine.perform_secure_shredding_simd(&sensitive_data, &command);
         assert!(!reports.is_empty());
@@ -218,7 +223,7 @@ fn main() {
         target_data_id: sensitive_data_to_shred[0].data_id.clone(), // Shredding just one for example
         shredding_method: "quantum_resistant_cryptographic_erase".to_string(),
         initiation_reason: "detected_quantum_threat_actor".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
     };
     let shredding_reports = sdds_engine.perform_secure_shredding_simd(&sensitive_data_to_shred, &shred_command);
     println!("  Generated {} shredding reports. First report status: '{}'. Verification: '{}'.\n",

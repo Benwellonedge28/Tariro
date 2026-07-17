@@ -8,10 +8,11 @@
 /// landscapes. It leverages RAG for legal frameworks and ethical guidelines, and SIMD for
 /// parallel policy evaluation and real-time compliance monitoring.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -26,14 +27,16 @@ pub struct ComplianceRule {
     pub description: String,
     pub required_controls: Vec<String>, // Actions or configurations required for compliance
     pub risk_level: String, // e.g., "High", "Medium", "Low"
-    pub last_updated: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub last_updated: DateTime<Utc>,
 }
 
 /// Represents a potential compliance violation or ethical dilemma.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ComplianceViolation {
     pub violation_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub rule_id: String,
     pub description: String,
     pub implicated_component: String, // e.g., "Data_Processing_Module", "AI_Decision_Engine"
@@ -47,7 +50,8 @@ pub struct ComplianceViolation {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PolicyEvaluation {
     pub evaluation_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub rule_id: String,
     pub component_id: String,
     pub compliant: bool,
@@ -103,7 +107,7 @@ impl AERCEngine {
                 let compliant = rng.gen_bool(0.95); // 95% compliant normally
                 evaluations.push(PolicyEvaluation {
                     evaluation_id: format!("peval_{}", rng.gen::<u32>()),
-                    timestamp: Instant::now(),
+                    timestamp: Utc::now(),
                     rule_id: rule.rule_id.clone(),
                     component_id: system.clone(),
                     compliant,
@@ -140,7 +144,7 @@ impl AERCEngine {
                 let human_escalation = rng.gen_bool(0.6); // Critical/Major often needs human
                 violations.push(ComplianceViolation {
                     violation_id: format!("viol_{}", rng.gen::<u32>()),
-                    timestamp: Instant::now(),
+                    timestamp: Utc::now(),
                     rule_id: eval.rule_id.clone(),
                     description: format!("RAG-derived: Violation of {} rule detected in {} component. Lack of {} control.", eval.rule_id, eval.component_id, active_compliance_rules.iter().find(|r| r.rule_id == eval.rule_id).map_or("unknown_control".to_string(), |r| r.required_controls.get(0).cloned().unwrap_or("N/A".to_string()))),
                     implicated_component: eval.component_id.clone(),
@@ -180,10 +184,10 @@ mod tests {
         let systems_to_audit = vec!["Tariro_Data_Store".to_string(), "Tariro_Decision_Engine".to_string()];
         let active_rules = vec![
             ComplianceRule {
-                rule_id: "rule_gdpr_data_min".to_string(), name: "GDPR Data Minimization".to_string(), category: "GDPR".to_string(), description: "Collect and process only data necessary for purpose.".to_string(), required_controls: vec!["data_masking".to_string()], risk_level: "High".to_string(), last_updated: Instant::now(),
+                rule_id: "rule_gdpr_data_min".to_string(), name: "GDPR Data Minimization".to_string(), category: "GDPR".to_string(), description: "Collect and process only data necessary for purpose.".to_string(), required_controls: vec!["data_masking".to_string()], risk_level: "High".to_string(), last_updated: Utc::now(),
             },
             ComplianceRule {
-                rule_id: "rule_ai_fairness".to_string(), name: "AI Fairness Principle".to_string(), category: "Internal_Ethics".to_string(), description: "Ensure AI decisions are unbiased.".to_string(), required_controls: vec!["bias_detection_algos".to_string()], risk_level: "Medium".to_string(), last_updated: Instant::now(),
+                rule_id: "rule_ai_fairness".to_string(), name: "AI Fairness Principle".to_string(), category: "Internal_Ethics".to_string(), description: "Ensure AI decisions are unbiased.".to_string(), required_controls: vec!["bias_detection_algos".to_string()], risk_level: "Medium".to_string(), last_updated: Utc::now(),
             },
         ];
 
@@ -200,7 +204,7 @@ fn main() {
     println!("\n--- Autonomous Ethical & Regulatory Compliance (RAG-Driven) Demonstration ---");
 
     let aerc_engine = AERCEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Routine compliance check on Tariro's data processing modules against GDPR and internal ethics
     println!("--- Scenario 1: Routine Compliance Check ---");

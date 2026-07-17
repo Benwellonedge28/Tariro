@@ -6,10 +6,11 @@
 /// (RAG: UX/UI design principles, cognitive psychology of decision-making; SIMD: real-time feedback loops,
 /// parallel UI rendering).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -30,7 +31,8 @@ pub struct HumanDecision {
     pub step_id: String,
     pub chosen_option: Option<String>,
     pub custom_input: Option<String>,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub operator_id: String,
 }
 
@@ -89,7 +91,7 @@ impl HILOG_Engine {
             step_id: step_id.to_string(),
             chosen_option: chosen_option.map(|s| s.to_string()),
             custom_input: custom_input.map(|s| s.to_string()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             operator_id: operator_id.to_string(),
         }
     }

@@ -8,10 +8,11 @@
 /// It leverages RAG for real-world physics engines and sensor fusion algorithms, and SIMD
 /// for parallel physics simulation and real-time sensor data generation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -46,8 +47,10 @@ pub struct SandboxSession {
     pub session_id: String,
     pub env_id: String,
     pub agent_ids: Vec<String>,
-    pub start_time: Instant,
-    pub end_time: Option<Instant>,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub start_time: DateTime<Utc>,
+    pub end_time: Option<DateTime<Utc>>,
     pub scenario_description: String, // e.g., "Navigate to destination X under adverse weather."
     pub outcomes: Vec<String>, // e.g., "Collision_Detected", "Task_Completed"
     pub policy_updates_recommended: Vec<String>, // RAG-derived policy adjustments
@@ -122,7 +125,7 @@ impl ASTVSEngine {
         let mut rng = rand::Rng::thread_rng();
 
         let mut agent_map: HashMap<String, AutonomousAgent> = agents.into_iter().map(|a| (a.agent_id.clone(), a)).collect();
-        let start_time = Instant::now();
+        let start_time = Utc::now();
         let mut outcomes = Vec::new();
         let mut policy_updates_recommended = Vec::new();
 
@@ -145,7 +148,7 @@ impl ASTVSEngine {
             env_id: environment.env_id,
             agent_ids: agent_map.keys().cloned().collect(),
             start_time,
-            end_time: Some(Instant::now()),
+            end_time: Some(Utc::now()),
             scenario_description: scenario_desc,
             outcomes,
             policy_updates_recommended,
@@ -205,7 +208,7 @@ fn main() {
     println!("\n--- Autonomous System Training & Validation Sandbox (RAG-Driven) Demonstration ---");
 
     let astvs_engine = ASTVSEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Train a self-driving car in a simulated urban environment under varying conditions
     println!("--- Scenario 1: Self-Driving Car Training Simulation ---");

@@ -9,10 +9,11 @@
 /// powerful and interpretable intelligence (leveraging RAG for hybrid AI architectures and symbolic
 /// knowledge bases, and SIMD for accelerating both neural computations and symbolic inference).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 /// Represents a neural network component.
 #[derive(Debug, Clone)]
@@ -141,7 +142,7 @@ impl NeuralSymbolicEngine {
         }
 
         HybridInferenceResult {
-            result_id: format!("hybrid_inf_{}", Instant::now().elapsed().as_secs()),
+            result_id: format!("hybrid_inf_{}", Utc::now().timestamp()),
             neural_output: neural_vec,
             symbolic_conclusion: symbolic_map.and_then(|mut m| m.remove("disease")),
             final_interpretation,

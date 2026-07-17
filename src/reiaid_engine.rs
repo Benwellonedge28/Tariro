@@ -6,10 +6,11 @@
 /// It leverages RAG for model architectures, training data characteristics, and domain knowledge
 /// to generate context-aware justifications and highlight influential factors for any AI output.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -130,7 +131,7 @@ mod tests {
     #[test]
     fn test_reiaid_engine_flow() {
         let engine = REIAIDEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let ai_model = AIModel {
             model_id: "credit_score_predictor_v1".to_string(),
@@ -163,7 +164,7 @@ fn main() {
     println!("\n--- Real-time Explainability and Interpretability for AI Decisions Demonstration ---");
 
     let reiaid_engine = REIAIDEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Define an AI model being used
     println!("--- Scenario 1: Define AI Model ---");

@@ -5,10 +5,11 @@
 /// and homomorphic encryption techniques (leveraging RAG for PQC scheme evaluation
 /// and SIMD for high-throughput encryption/decryption operations).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Supported Quantum-Safe Encryption Algorithms.
@@ -92,7 +93,7 @@ impl QuantumSafeStorage {
             ciphertext,
             encryption_algo: key.algorithm.clone(),
             key_id: key.key_id.clone(),
-            timestamp: Instant::now().elapsed().as_secs(),
+            timestamp: Utc::now().timestamp(),
             associated_data: HashMap::new(),
         }
     }

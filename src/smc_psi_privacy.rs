@@ -7,10 +7,11 @@
 /// crucial for privacy-preserving data collaboration and analytics
 /// (leveraging RAG for SMC/PSI protocols like Oblivious Transfer and SIMD for accelerating cryptographic operations).
 
+use crate::prelude::*;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Represents a party participating in the SMC/PSI computation.
@@ -138,7 +139,7 @@ fn main() {
         "user_abc_hash".to_string()
     ];
     println!("--- Performing PSI for Shared User Detection (SIMD) ---");
-    let psi_start = Instant::now();
+    let psi_start = Utc::now();
     let result = smc_manager.perform_psi_simd(&my_dataset, SecureComputationProtocol::DiffieHellmanPSI);
     let psi_duration = psi_start.elapsed().as_millis();
     println!("  PSI Result: Found {} common elements in {}ms.", result.common_elements.len(), psi_duration);
@@ -146,7 +147,7 @@ fn main() {
 
     // 3. Perform a Secure Multi-Party Computation (e.g., computing an average or sum across private data)
     println!("--- Performing SMC for Private Data Aggregation (SIMD) ---");
-    let smc_start = Instant::now();
+    let smc_start = Utc::now();
     let aggregated_result = smc_manager.perform_smc_simd("compute_global_threat_score", SecureComputationProtocol::SecretSharing);
     let smc_duration = smc_start.elapsed().as_millis();
     println!("  SMC Aggregate Result (Encrypted/Shared): {:x?}", &aggregated_result[..8]);

@@ -7,10 +7,11 @@
 /// diagnostic knowledge bases and causal inference models, and SIMD for parallel log processing
 /// and graph-based root cause analysis.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -20,7 +21,10 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TelemetryEvent {
     pub event_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub component_id: String,
     pub event_type: String, // e.g., "ErrorLog", "MetricSpike", "API_Latency_High"
     pub message: String,
@@ -31,7 +35,8 @@ pub struct TelemetryEvent {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RootCause {
     pub root_cause_id: String,
-    pub discovered_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub discovered_at: DateTime<Utc>,
     pub affected_components: Vec<String>,
     pub causal_chain: Vec<String>, // Sequence of events leading to failure
     pub probable_cause: String, // RAG-derived diagnosis
@@ -43,7 +48,7 @@ pub struct RootCause {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PredictedFault {
     pub fault_id: String,
-    pub predicted_at: Instant,
+    pub predicted_at: DateTime<Utc>,
     pub affected_component_id: String,
     pub fault_type: String, // e.g., "DiskFailure", "MemoryLeak", "ServiceCrash"
     pub probability: f32,
@@ -120,7 +125,7 @@ impl ARCAPEngine {
             if events.iter().any(|e| e.event_type == "ErrorLog" && e.message.contains("OutOfMemory")) && rng.gen_bool(0.7) {
                 root_causes.push(RootCause {
                     root_cause_id: format!("rc_{}", rng.gen::<u32>()),
-                    discovered_at: Instant::now(),
+                    discovered_at: Utc::now(),
                     affected_components: vec![component_id.clone()],
                     causal_chain: vec!["Memory leak in service X leading to OOM.".to_string()],
                     probable_cause: "Memory Leak".to_string(),
@@ -131,7 +136,7 @@ impl ARCAPEngine {
                 if rng.gen_bool(0.6) { // Also predict a future fault
                     predicted_faults.push(PredictedFault {
                         fault_id: format!("pf_{}", rng.gen::<u32>()),
-                        predicted_at: Instant::now(),
+                        predicted_at: Utc::now(),
                         affected_component_id: component_id.clone(),
                         fault_type: "ServiceCrash".to_string(),
                         probability: rng.gen_range(0.7..0.9),
@@ -166,7 +171,7 @@ mod tests {
     #[test]
     fn test_arcap_engine_flow() {
         let engine = ARCAPEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let telemetry = vec![
             TelemetryEvent { event_id: "e1".to_string(), timestamp: now, component_id: "service_a".to_string(), event_type: "InfoLog".to_string(), message: "Service A started.".to_string(), metadata: HashMap::new() },
@@ -187,7 +192,7 @@ fn main() {
     println!("\n--- Automated Root Cause Analysis & Predictive Fault Prevention (RAG-Driven) Demonstration ---");
 
     let arcap_engine = ARCAPEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Analyze a series of telemetry events to find a root cause
     println!("--- Scenario 1: Root Cause Analysis ---");

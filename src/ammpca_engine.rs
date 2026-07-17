@@ -8,10 +8,11 @@
 /// multi-modal fusion and cognitive perception models, and SIMD for parallel sensor data
 /// processing and real-time contextual inference.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -22,7 +23,8 @@ use serde::{Serialize, Deserialize};
 pub struct SensorData {
     pub sensor_id: String,
     pub modality: String, // e.g., "Visual", "Auditory", "Haptic", "Biometric", "Internal"
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub raw_value: String, // e.g., "image_bytes", "audio_waveform", "vibration_intensity", "heart_rate"
     pub processing_status: String, // e.g., "Raw", "Filtered", "Normalized"
     pub contextual_tags: Vec<String>, // e.g., "room_noise", "user_movement"
@@ -32,7 +34,8 @@ pub struct SensorData {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FusedPerception {
     pub perception_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub fused_from_sensors: Vec<String>, // List of sensor_ids contributing
     pub interpreted_context: HashMap<String, String>, // e.g., "room_lighting": "bright", "user_emotion": "focused", "task_relevance": "high"
     pub certainty_score: f32, // 0.0 to 1.0
@@ -44,7 +47,8 @@ pub struct FusedPerception {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EnvironmentalModel {
     pub model_id: String,
-    pub last_updated: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub last_updated: DateTime<Utc>,
     pub spatial_map: HashMap<String, String>, // e.g., "room_layout": "map_data", "object_positions": "coords"
     pub temporal_events: Vec<String>, // History of perceived events
     pub actor_states: HashMap<String, FusedPerception>, // State of Samuel and other actors
@@ -97,7 +101,7 @@ impl AMMPCAEngine {
         if rng.gen_bool(0.7) {
             perceptions.push(FusedPerception {
                 perception_id: format!("fp_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 fused_from_sensors: sensor_data.iter().map(|s| s.sensor_id.clone()).collect(),
                 interpreted_context: HashMap::from([("ambient_light".to_string(), "moderate".to_string()), ("sound_level".to_string(), "low".to_string())]),
                 certainty_score: rng.gen_range(0.8..0.99),
@@ -108,7 +112,7 @@ impl AMMPCAEngine {
         if rng.gen_bool(0.1) { // Simulate a novel event
              perceptions.push(FusedPerception {
                 perception_id: format!("fp_novel_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 fused_from_sensors: sensor_data.iter().map(|s| s.sensor_id.clone()).collect(),
                 interpreted_context: HashMap::from([("unexpected_motion".to_string(), "true".to_string()), ("unusual_sound".to_string(), "true".to_string())]),
                 certainty_score: rng.gen_range(0.9..0.99),
@@ -134,7 +138,7 @@ impl AMMPCAEngine {
         let new_perceptions = self.parallel_sensor_processing_context_inference_simd(&incoming_sensor_data);
 
         let mut updated_model = existing_environmental_model;
-        updated_model.last_updated = Instant::now();
+        updated_model.last_updated = Utc::now();
 
         // Conceptual: RAG-driven integration of new perceptions into the environmental model
         for perception in &new_perceptions {
@@ -172,15 +176,15 @@ mod tests {
         let engine = AMMPCAEngine::new();
 
         let existing_model = EnvironmentalModel {
-            model_id: "env_model_001".to_string(), last_updated: Instant::now(), spatial_map: HashMap::new(), temporal_events: vec![], actor_states: HashMap::new(), predictive_changes: "stable".to_string(), coherence_score: 0.95,
+            model_id: "env_model_001".to_string(), last_updated: Utc::now(), spatial_map: HashMap::new(), temporal_events: vec![], actor_states: HashMap::new(), predictive_changes: "stable".to_string(), coherence_score: 0.95,
         };
 
         let sensor_data = vec![
             SensorData {
-                sensor_id: "cam_001".to_string(), modality: "Visual".to_string(), timestamp: Instant::now(), raw_value: "image_bytes_1".to_string(), processing_status: "Raw".to_string(), contextual_tags: vec!["motion_detection".to_string()],
+                sensor_id: "cam_001".to_string(), modality: "Visual".to_string(), timestamp: Utc::now(), raw_value: "image_bytes_1".to_string(), processing_status: "Raw".to_string(), contextual_tags: vec!["motion_detection".to_string()],
             },
             SensorData {
-                sensor_id: "mic_002".to_string(), modality: "Auditory".to_string(), timestamp: Instant::now(), raw_value: "audio_waveform_1".to_string(), processing_status: "Raw".to_string(), contextual_tags: vec!["speech_detected".to_string()],
+                sensor_id: "mic_002".to_string(), modality: "Auditory".to_string(), timestamp: Utc::now(), raw_value: "audio_waveform_1".to_string(), processing_status: "Raw".to_string(), contextual_tags: vec!["speech_detected".to_string()],
             },
         ];
 
@@ -197,7 +201,7 @@ fn main() {
     println!("\n--- Autonomous Multi-Modal Perception & Contextual Awareness (RAG-Driven) Demonstration ---");
 
     let ammpca_engine = AMMPCAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Tariro processes a burst of sensory data from Samuel's home environment
     println!("--- Scenario 1: Home Environment Sensory Fusion ---");
@@ -205,7 +209,7 @@ fn main() {
         SensorData {
             sensor_id: "smart_cam_living_room".to_string(),
             modality: "Visual".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             raw_value: "encoded_video_frame_001".to_string(),
             processing_status: "Raw".to_string(),
             contextual_tags: vec!["motion_detected".to_string(), "human_figure".to_string()],
@@ -213,7 +217,7 @@ fn main() {
         SensorData {
             sensor_id: "smart_mic_kitchen".to_string(),
             modality: "Auditory".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             raw_value: "encoded_audio_clip_001".to_string(),
             processing_status: "Raw".to_string(),
             contextual_tags: vec!["utensil_clatter".to_string(), "human_speech".to_string()],
@@ -221,7 +225,7 @@ fn main() {
         SensorData {
             sensor_id: "biometric_watch_samuel".to_string(),
             modality: "Biometric".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             raw_value: "heart_rate:72,stress_level:0.3".to_string(),
             processing_status: "Raw".to_string(),
             contextual_tags: vec!["samuel_present".to_string()],
@@ -250,7 +254,7 @@ fn main() {
         SensorData {
             sensor_id: "desk_cam_001".to_string(),
             modality: "Visual".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             raw_value: "encoded_video_frame_unusual".to_string(),
             processing_status: "Raw".to_string(),
             contextual_tags: vec!["unexpected_object".to_string()],
@@ -258,7 +262,7 @@ fn main() {
         SensorData {
             sensor_id: "desk_mic_001".to_string(),
             modality: "Auditory".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             raw_value: "encoded_audio_clip_unusual".to_string(),
             processing_status: "Raw".to_string(),
             contextual_tags: vec!["unusual_frequency".to_string()],

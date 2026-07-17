@@ -1,4 +1,5 @@
 use super::models::{IpAsset, IpType, OwnershipShare};
+use crate::prelude::*;
 use chrono::{Utc, Duration};
 use uuid::Uuid;
 

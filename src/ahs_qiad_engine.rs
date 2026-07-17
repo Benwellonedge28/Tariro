@@ -6,10 +6,11 @@
 /// to identify and neutralize sophisticated threats. It leverages RAG for threat intelligence,
 /// honeypot design patterns, and quantum-inspired security research.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -30,7 +31,8 @@ pub struct HoneypotInstance {
 pub struct HoneypotEvent {
     pub event_id: String,
     pub honeypot_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub attacker_ip: String,
     pub action_type: String, // e.g., "LoginAttempt", "FileAccessed", "SQL_Injection"
     pub raw_data: String,
@@ -162,7 +164,7 @@ mod tests {
         let mut event = HoneypotEvent {
             event_id: "evt_001".to_string(),
             honeypot_id: ssh_hp.honeypot_id.clone(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             attacker_ip: "10.0.0.99".to_string(),
             action_type: "BruteForceAttempt".to_string(),
             raw_data: "login: root, pass: 123456".to_string(),
@@ -205,7 +207,7 @@ fn main() {
     let mut attack_event = HoneypotEvent {
         event_id: "db_attack_987".to_string(),
         honeypot_id: db_hp.honeypot_id.clone(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         attacker_ip: "203.0.113.1".to_string(),
         action_type: "Blind_SQL_Injection_Attempt".to_string(),
         raw_data: "UNION SELECT name, password FROM users --".to_string(),

@@ -5,10 +5,11 @@
 /// information sources during retrieval, providing transparency and confidence scores for derived
 /// insights. It leverages SIMD for source reputation scoring and historical accuracy checks.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -23,7 +24,7 @@ pub struct InformationSourceMetadata {
     pub historical_accuracy_score: f32, // 0.0-1.0, based on past assessments
     pub known_bias_score: f32, // 0.0 (no bias) to 1.0 (extreme bias)
     pub publication_frequency: String,
-    pub last_evaluated: Instant,
+    pub last_evaluated: DateTime<Utc>,
 }
 
 /// Represents a retrieved insight from a source.
@@ -70,19 +71,19 @@ impl DSCAEngine {
         let mut sd = HashMap::new();
         sd.insert("nyt".to_string(), InformationSourceMetadata {
             source_id: "nyt".to_string(), name: "New York Times".to_string(), source_type: "NewsOutlet".to_string(),
-            historical_accuracy_score: 0.85, known_bias_score: 0.2, publication_frequency: "Daily".to_string(), last_evaluated: Instant::now(),
+            historical_accuracy_score: 0.85, known_bias_score: 0.2, publication_frequency: "Daily".to_string(), last_evaluated: Utc::now(),
         });
         sd.insert("arxiv".to_string(), InformationSourceMetadata {
             source_id: "arxiv".to_string(), name: "arXiv.org".to_string(), source_type: "AcademicJournal".to_string(),
-            historical_accuracy_score: 0.95, known_bias_score: 0.05, publication_frequency: "Daily".to_string(), last_evaluated: Instant::now(),
+            historical_accuracy_score: 0.95, known_bias_score: 0.05, publication_frequency: "Daily".to_string(), last_evaluated: Utc::now(),
         });
         sd.insert("fringe_blog".to_string(), InformationSourceMetadata {
             source_id: "fringe_blog".to_string(), name: "Conspiracy Theories Daily".to_string(), source_type: "Blog".to_string(),
-            historical_accuracy_score: 0.1, known_bias_score: 0.9, publication_frequency: "Weekly".to_string(), last_evaluated: Instant::now(),
+            historical_accuracy_score: 0.1, known_bias_score: 0.9, publication_frequency: "Weekly".to_string(), last_evaluated: Utc::now(),
         });
         sd.insert("tariro_internal".to_string(), InformationSourceMetadata {
             source_id: "tariro_internal".to_string(), name: "Tariro Internal Docs".to_string(), source_type: "InternalDoc".to_string(),
-            historical_accuracy_score: 0.99, known_bias_score: 0.01, publication_frequency: "Continuous".to_string(), last_evaluated: Instant::now(),
+            historical_accuracy_score: 0.99, known_bias_score: 0.01, publication_frequency: "Continuous".to_string(), last_evaluated: Utc::now(),
         });
 
         let mut ca_model = HashMap::new();
@@ -158,7 +159,7 @@ mod tests {
     #[test]
     fn test_dsca_engine_flow() {
         let engine = DSCAEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let insight_from_arxiv = RetrievedInsight {
             insight_id: "insight_01".to_string(),
@@ -191,7 +192,7 @@ fn main() {
     println!("\n--- Dynamic Source Credibility Assessment (RAG-Driven) Demonstration ---");
 
     let dsca_engine = DSCAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Process insights from a highly credible source (e.g., academic journal)
     println!("--- Scenario 1: Insight from Highly Credible Source ---");

@@ -9,10 +9,11 @@
 /// concurrent impact simulation; RAG: strategic planning, multi-objective optimization, decision theory,
 /// cognitive architectures, preference learning, environmental modeling, foresight analysis).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -25,7 +26,8 @@ pub struct StrategicDirective {
     pub description: String,
     pub priority: u8, // 1 (highest) to 10 (lowest)
     pub long_term_vision_alignment: String,
-    pub issued_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub issued_at: DateTime<Utc>,
 }
 
 /// Represents a concrete, actionable operational goal.
@@ -36,7 +38,7 @@ pub struct OperationalGoal {
     pub short_description: String,
     pub metrics: HashMap<String, String>, // e.g., "target_value": "99.9%", "unit": "uptime"
     pub current_progress: f32,
-    pub deadline: Option<Instant>,
+    pub deadline: Option<DateTime<Utc>>,
     pub dependencies: Vec<String>, // Other goal_ids this goal depends on
 }
 
@@ -103,7 +105,7 @@ impl AGSP_Engine {
             description: format!("Detailed description for: {}", d),
             priority: rng.gen_range(1..5),
             long_term_vision_alignment: "High".to_string(),
-            issued_at: Instant::now(),
+            issued_at: Utc::now(),
         }).collect()
     }
 
@@ -125,7 +127,7 @@ impl AGSP_Engine {
                     short_description: format!("Optimize resource usage for '{}'.", dir.title),
                     metrics: HashMap::from([("target_value".to_string(), "99.5%".to_string()), ("unit".to_string(), "efficiency".to_string())]),
                     current_progress: rng.gen_range(0.0..50.0),
-                    deadline: if rng.gen_bool(0.6) { Some(Instant::now() + Duration::from_secs(rng.gen_range(3600..86400))) } else { None },
+                    deadline: if rng.gen_bool(0.6) { Some(Utc::now() + Duration::from_secs(rng.gen_range(3600..86400))) } else { None },
                     dependencies: Vec::new(),
                 });
             }

@@ -10,10 +10,11 @@
 /// consensus building; RAG: multi-criteria decision analysis (MCDA), game theory, distributed AI, collective
 /// intelligence, ethical decision-making, conflict resolution, consensus protocols, swarm intelligence).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -25,7 +26,8 @@ pub struct DecisionInput {
     pub source: String, // e.g., "sensor_data", "user_query", "internal_report"
     pub data: HashMap<String, String>,
     pub urgency: u8, // 1 (highest) to 10 (lowest)
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Represents a potential course of action or choice.
@@ -49,7 +51,8 @@ pub struct DecisionResult {
     pub execution_status: String, // e.g., "pending", "in_progress", "completed", "rejected"
     pub actual_cost: Option<f32>,
     pub actual_benefit: Option<f32>,
-    pub decision_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub decision_timestamp: DateTime<Utc>,
 }
 
 /// Overall IDO system report.
@@ -102,7 +105,7 @@ impl IDO_Engine {
             source: "environmental_sensor".to_string(),
             data: HashMap::from([("temp".to_string(), "25C".to_string()), ("humidity".to_string(), "60%".to_string())]),
             urgency: rng.gen_range(1..5),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
         }).collect()
     }
 
@@ -190,7 +193,7 @@ mod tests {
             execution_status: "completed".to_string(),
             actual_cost: Some(95.0),
             actual_benefit: Some(210.0),
-            decision_timestamp: Instant::now(),
+            decision_timestamp: Utc::now(),
         };
         let monitor_result = engine.execute_and_monitor_decision_rag(&decision_res);
         assert!(!monitor_result.is_empty());
@@ -254,7 +257,7 @@ fn main() {
         execution_status: "in_progress".to_string(), // Decision initiated, awaiting completion
         actual_cost: None,
         actual_benefit: None,
-        decision_timestamp: Instant::now(),
+        decision_timestamp: Utc::now(),
     };
     let monitoring_update = ido_engine.execute_and_monitor_decision_rag(&final_decision_result);
     println!("  Decision Monitoring Update: {}\n", monitoring_update);

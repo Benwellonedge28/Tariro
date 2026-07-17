@@ -8,10 +8,11 @@
 /// of explanation trees; RAG: explainable AI (XAI), causality, cognitive psychology, audit trails, ethical AI
 /// frameworks, natural language generation for explanations, Bayesian inference for reasoning paths).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -21,7 +22,10 @@ use rand::Rng;
 pub struct DecisionLogEntry {
     pub entry_id: String,
     pub decision_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub component_making_decision: String,
     pub inputs_considered: HashMap<String, String>, // e.g., "sensor_data": "{...}", "policy_id": "policy_X"
     pub final_action_taken: String,
@@ -48,7 +52,8 @@ pub struct ExplanationOutput {
     pub format_type: String, // e.g., "natural_language_text", "visual_flowchart", "causal_graph"
     pub content: String, // The generated explanation
     pub complexity_score: u8,
-    pub generated_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub generated_timestamp: DateTime<Utc>,
 }
 
 /// Report for TDME operations.
@@ -101,7 +106,7 @@ impl TDME_Engine {
         DecisionLogEntry {
             entry_id: format!("log_{}", rng.gen::<u32>()),
             decision_id: decision_id.to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             component_making_decision: component_id.to_string(),
             inputs_considered: inputs.clone(),
             final_action_taken: action.to_string(),
@@ -161,7 +166,7 @@ impl TDME_Engine {
             format_type: "natural_language_text".to_string(),
             content: explanation_text,
             complexity_score: rng.gen_range(3..8),
-            generated_timestamp: Instant::now(),
+            generated_timestamp: Utc::now(),
         }
     }
 
@@ -229,7 +234,7 @@ fn main() {
     let log_entry_2 = DecisionLogEntry {
         entry_id: format!("log_{}", rand::thread_rng().gen::<u32>()),
         decision_id: complex_decision_id.clone(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         component_making_decision: "energy_management_system".to_string(),
         inputs_considered: HashMap::from([
             ("current_energy_draw".to_string(), "1500W".to_string()),

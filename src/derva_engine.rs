@@ -9,10 +9,11 @@
 /// philosophy, legal precedents, and Samuel's values, and SIMD for parallel ethical reasoning
 /// and real-time value alignment.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -27,14 +28,17 @@ pub struct EthicalPrinciple {
     pub source: String, // e.g., "Samuel_Values", "Universal_Human_Rights", "Constitutional_Law"
     pub priority: u32, // Higher number indicates higher priority
     pub context_applicability: Vec<String>, // e.g., "AI_Deployment", "Data_Privacy"
-    pub last_reviewed: Instant,
+    pub last_reviewed: DateTime<Utc>,
 }
 
 /// Represents an ethical dilemma or potential violation detected.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EthicalDilemma {
     pub dilemma_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub description: String,
     pub involved_action: String,
     pub conflicting_principles: Vec<String>, // IDs of principles that are in conflict
@@ -47,7 +51,10 @@ pub struct EthicalDilemma {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ValueAlignmentState {
     pub state_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub samuel_values_profile: HashMap<String, String>, // e.g., "privacy": "high", "autonomy": "max"
     pub Tariro_decision_context: HashMap<String, String>, // e.g., "current_mission": "A_deploy", "data_usage": "analytics"
     pub active_ethical_principles: Vec<String>, // IDs of currently active principles
@@ -135,8 +142,8 @@ impl DERVAEngine {
 
         // Conceptual: RAG-driven loading of active ethical principles based on context and Samuel's values
         let active_principles = vec![
-            EthicalPrinciple { principle_id: "dp_001".to_string(), name: "Data Privacy".to_string(), description: "Protect user data.".to_string(), source: "GDPR".to_string(), priority: 8, context_applicability: vec!["Data_Privacy".to_string()], last_reviewed: Instant::now() },
-            EthicalPrinciple { principle_id: "sca_001".to_string(), name: "Samuel Creative Autonomy".to_string(), description: "Respect Samuel's creative ownership.".to_string(), source: "Samuel_Values".to_string(), priority: 9, context_applicability: vec!["Creative_Work".to_string()], last_reviewed: Instant::now() },
+            EthicalPrinciple { principle_id: "dp_001".to_string(), name: "Data Privacy".to_string(), description: "Protect user data.".to_string(), source: "GDPR".to_string(), priority: 8, context_applicability: vec!["Data_Privacy".to_string()], last_reviewed: Utc::now() },
+            EthicalPrinciple { principle_id: "sca_001".to_string(), name: "Samuel Creative Autonomy".to_string(), description: "Respect Samuel's creative ownership.".to_string(), source: "Samuel_Values".to_string(), priority: 9, context_applicability: vec!["Creative_Work".to_string()], last_reviewed: Utc::now() },
         ];
 
         let (conflicts, alignment_score) = self.parallel_ethical_evaluation_simd(&current_decision_context, &active_principles);
@@ -151,7 +158,7 @@ impl DERVAEngine {
 
         EthicalDilemma {
             dilemma_id: format!("ed_{}", rng.gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             description: format!("Ethical assessment for action: '{}'.", action_description),
             involved_action: action_description,
             conflicting_principles: conflicts,
@@ -184,7 +191,7 @@ mod tests {
 
         let current_context = HashMap::from([("data_access_level".to_string(), "restricted".to_string())]);
         let samuel_val_state = ValueAlignmentState {
-            state_id: "svs_001".to_string(), timestamp: Instant::now(), samuel_values_profile: HashMap::new(), Tariro_decision_context: HashMap::new(), active_ethical_principles: vec![], alignment_score: 0.95,
+            state_id: "svs_001".to_string(), timestamp: Utc::now(), samuel_values_profile: HashMap::new(), Tariro_decision_context: HashMap::new(), active_ethical_principles: vec![], alignment_score: 0.95,
         };
 
         let dilemma = engine.evaluate_action_ethically_rag("Process sensitive user data for analytics.".to_string(), current_context, samuel_val_state);
@@ -200,7 +207,7 @@ fn main() {
     println!("\n--- Dynamic Ethical Reasoning & Value Alignment (RAG-Driven) Demonstration ---");
 
     let derva_engine = DERVAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Tariro evaluates a proposed action that involves data usage
     println!("--- Scenario 1: Data Usage Ethical Review ---");
@@ -211,7 +218,7 @@ fn main() {
     ]);
     let samuel_values_data_usage = ValueAlignmentState {
         state_id: "samuel_val_data".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         samuel_values_profile: HashMap::from([("privacy".to_string(), "high".to_string()), ("utility".to_string(), "medium".to_string())]),
         Tariro_decision_context: HashMap::new(),
         active_ethical_principles: vec!["Data Privacy".to_string()],
@@ -234,7 +241,7 @@ fn main() {
     ]);
     let samuel_values_creative_work = ValueAlignmentState {
         state_id: "samuel_val_creative".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         samuel_values_profile: HashMap::from([("creative_autonomy".to_string(), "max".to_string()), ("originality".to_string(), "high".to_string())]),
         Tariro_decision_context: HashMap::new(),
         active_ethical_principles: vec!["Samuel Creative Autonomy".to_string(), "Intellectual Property Rights".to_string()],

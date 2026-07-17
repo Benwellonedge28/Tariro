@@ -5,10 +5,11 @@
 /// for protecting sensitive computations, cryptographic keys, and critical data from software-level attacks
 /// (leveraging RAG for enclave programming best practices and SIMD for accelerating secure enclave operations).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Types of secure hardware enclaves.
@@ -73,7 +74,7 @@ impl SecureEnclaveManager {
     /// Initializes and provisions a secure enclave.
     pub fn initialize_enclave(&mut self, config: EnclaveConfig) -> String {
         println!("  [SEM]: Initializing {:?} enclave with {}MB memory.", config.enclave_type, config.memory_size_mb);
-        let enclave_id = format!("Enclave_{}_{}", config.enclave_type, Instant::now().elapsed().as_micros());
+        let enclave_id = format!("Enclave_{}_{}", config.enclave_type, Utc::now().timestamp_micros());
         self.active_enclaves.insert(enclave_id.clone(), config);
         thread::sleep(Duration::from_millis(150));
         enclave_id
@@ -91,7 +92,7 @@ impl SecureEnclaveManager {
             enclave_id: enclave_id.to_string(),
             report,
             is_verified,
-            verified_at: Instant::now().elapsed().as_secs(),
+            verified_at: Utc::now().timestamp(),
         }
     }
 

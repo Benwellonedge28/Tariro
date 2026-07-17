@@ -8,10 +8,11 @@
 /// formal language theory for policy definition, and secure multi-party computation
 /// for trustless verification of modifications.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -26,7 +27,8 @@ pub struct ProposedModification {
     pub original_code_hash: String,
     pub proposed_code_snippet: String,
     pub justification: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Represents a safelist entry for allowed code modifications.
@@ -148,7 +150,7 @@ mod tests {
     #[test]
     fn test_smcs_engine_flow() {
         let engine = SMCSEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let proposed_mod = ProposedModification {
             modification_id: "mod_optimize_loop".to_string(),
@@ -184,7 +186,7 @@ fn main() {
     println!("\n--- Self-Modifying Code Safelists and Sandboxing Demonstration ---");
 
     let smcs_engine = SMCSEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Define safelists for permissible AGI self-modifications
     println!("--- Scenario 1: Define Self-Modification Safelists ---");

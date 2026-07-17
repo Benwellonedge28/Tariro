@@ -6,10 +6,11 @@
 /// (SIMD: parallel processing of network flows and policy enforcement; RAG: SDN security in quantum era,
 /// network function virtualization).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -23,7 +24,8 @@ pub struct NetworkFlow {
     pub protocol: String,
     pub port: u16,
     pub packet_count: u64,
-    pub start_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub start_time: DateTime<Utc>,
 }
 
 /// Represents an SDN policy for network traffic management.
@@ -135,7 +137,7 @@ mod tests {
         let engine = QSSDN_Engine::new();
 
         let flows = vec![
-            NetworkFlow { flow_id: "f1".to_string(), source_ip: "1.1.1.1".to_string(), destination_ip: "2.2.2.2".to_string(), protocol: "TCP".to_string(), port: 80, packet_count: 100, start_time: Instant::now() },
+            NetworkFlow { flow_id: "f1".to_string(), source_ip: "1.1.1.1".to_string(), destination_ip: "2.2.2.2".to_string(), protocol: "TCP".to_string(), port: 80, packet_count: 100, start_time: Utc::now() },
         ];
         let processed_flows = engine.process_network_flows_simd(&flows);
         assert!(!processed_flows.is_empty());
@@ -162,8 +164,8 @@ fn main() {
     // Scenario 1: Processing incoming network flows
     println!("--- Scenario 1: Processing Network Flows ---");
     let inbound_flows = vec![
-        NetworkFlow { flow_id: "flow_001".to_string(), source_ip: "192.168.1.50".to_string(), destination_ip: "10.0.0.10".to_string(), protocol: "TCP".to_string(), port: 443, packet_count: 500, start_time: Instant::now() },
-        NetworkFlow { flow_id: "flow_002".to_string(), source_ip: "external_attacker_ip".to_string(), destination_ip: "10.0.0.20".to_string(), protocol: "UDP".to_string(), port: 53, packet_count: 10000, start_time: Instant::now() },
+        NetworkFlow { flow_id: "flow_001".to_string(), source_ip: "192.168.1.50".to_string(), destination_ip: "10.0.0.10".to_string(), protocol: "TCP".to_string(), port: 443, packet_count: 500, start_time: Utc::now() },
+        NetworkFlow { flow_id: "flow_002".to_string(), source_ip: "external_attacker_ip".to_string(), destination_ip: "10.0.0.20".to_string(), protocol: "UDP".to_string(), port: 53, packet_count: 10000, start_time: Utc::now() },
     ];
     let processed_flows_output = qssdn_engine.process_network_flows_simd(&inbound_flows);
     println!("  Processed {} flows. Example: Flow ID '{}', Protocol: '{}'.\n", processed_flows_output.len(), processed_flows_output[0].flow_id, processed_flows_output[0].protocol);

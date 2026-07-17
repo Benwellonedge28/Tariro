@@ -11,10 +11,11 @@
 /// scheduling theory, risk management, real-time analytics, strategic planning, adaptive control, queueing networks,
 /// decision trees).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -29,7 +30,8 @@ pub struct WorkflowContext {
     pub dependencies: Vec<String>, // Other workflow_ids this workflow depends on
     pub resource_needs: HashMap<String, u32>, // resource_type -> quantity
     pub current_status: String, // e.g., "pending", "running", "paused"
-    pub submission_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub submission_time: DateTime<Utc>,
 }
 
 /// Represents a workflow with its calculated priority score.
@@ -38,7 +40,8 @@ pub struct PrioritizedWorkflow {
     pub workflow_id: String,
     pub priority_score: f32, // Higher score means higher priority
     pub rank: u32,
-    pub estimated_start_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub estimated_start_time: DateTime<Utc>,
 }
 
 /// Represents a decision on how workflows should be scheduled and executed.
@@ -48,7 +51,9 @@ pub struct SchedulingDecision {
     pub scheduled_workflows: Vec<String>, // Ordered list of workflow_ids to execute
     pub resource_allocations: HashMap<String, HashMap<String, u32>>, // workflow_id -> resource -> quantity
     pub total_estimated_runtime: Duration,
-    pub decision_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub decision_timestamp: DateTime<Utc>,
     pub optimization_objective: String, // e.g., "maximize_throughput", "minimize_latency"
 }
 
@@ -105,7 +110,7 @@ impl IWPS_Engine {
             dependencies: Vec::new(),
             resource_needs: HashMap::from([("cpu".to_string(), rng.gen_range(1..16))]),
             current_status: "pending".to_string(),
-            submission_time: Instant::now() - Duration::from_secs(rng.gen_range(0..3600)),
+            submission_time: Utc::now() - Duration::from_secs(rng.gen_range(0..3600)),
         }).collect()
     }
 
@@ -121,7 +126,7 @@ impl IWPS_Engine {
                 workflow_id: ctx.workflow_id.clone(),
                 priority_score: base_score + rng.gen_range(-5.0..5.0),
                 rank: 0, // Will be set after sorting
-                estimated_start_time: Instant::now() + Duration::from_secs(rng.gen_range(0..3600)),
+                estimated_start_time: Utc::now() + Duration::from_secs(rng.gen_range(0..3600)),
             }
         }).collect();
 
@@ -146,7 +151,7 @@ impl IWPS_Engine {
             scheduled_workflows: prioritized_workflows.iter().map(|wf| wf.workflow_id.clone()).collect(),
             resource_allocations: HashMap::new(), // Simplified
             total_estimated_runtime: Duration::from_secs(rng.gen_range(3600..86400)),
-            decision_timestamp: Instant::now(),
+            decision_timestamp: Utc::now(),
             optimization_objective: "maximize_throughput".to_string(),
         }
     }
@@ -162,7 +167,7 @@ impl IWPS_Engine {
 
         let mut adapted_decision = current_decision.clone();
         adapted_decision.decision_id = format!("sched_dec_adapted_{}", rng.gen::<u32>());
-        adapted_decision.decision_timestamp = Instant::now();
+        adapted_decision.decision_timestamp = Utc::now();
         adapted_decision.scheduled_workflows.rotate_left(1); // Simulate re-sequencing
         adapted_decision
     }

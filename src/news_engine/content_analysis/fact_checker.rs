@@ -1,4 +1,5 @@
 // src/news_engine/content_analysis/fact_checker.rs
+use crate::prelude::*;
 
 //! Provides functionality for evaluating the factual accuracy of claims made
 //! within news content, leveraging external knowledge bases and verification algorithms.

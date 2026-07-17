@@ -9,10 +9,11 @@
 /// interaction design and human factors engineering, and SIMD for parallel data processing
 /// for multimodal streams and real-time context switching.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -26,14 +27,16 @@ pub struct MultimodalInteractionStream {
     pub data_payloads: HashMap<String, String>, // e.g., "Visual": "Holographic_Object_Data", "Auditory": "Speech_Synthesis_PCM"
     pub importance_weights: HashMap<String, f32>, // e.g., "Neural": 0.8, "Visual": 0.1, "Auditory": 0.1
     pub interaction_context: String, // e.g., "Goal_Setting", "Creative_Ideation", "System_Alert"
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Represents an adapted multimodal interface configuration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MultimodalInterfaceConfiguration {
     pub config_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub visual_layout: String, // e.g., "Minimalist_HUD", "Detailed_Data_Grid", "Immersive_3D_Scene"
     pub auditory_mode: String, // e.g., "Subtle_Notification", "Natural_Conversation", "Direct_Audio_Injection"
     pub neural_modulation_parameters: HashMap<String, f32>, // e.g., "Focus_Enhancement_Freq": 40.0
@@ -44,7 +47,8 @@ pub struct MultimodalInterfaceConfiguration {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SamuelFeedback {
     pub feedback_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub preference_rating: f32, // 1.0 to 10.0
     pub subjective_state: String, // e.g., "Delighted", "Overwhelmed", "Indifferent"
     pub explicit_comments: Option<String>,
@@ -132,7 +136,7 @@ impl OMHAIIAEngine {
 
         let configuration = MultimodalInterfaceConfiguration {
             config_id: format!("mic_{}", rng.gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             visual_layout,
             auditory_mode,
             neural_modulation_parameters: neural_params,
@@ -170,12 +174,12 @@ mod tests {
             data_payloads: HashMap::new(),
             importance_weights: HashMap::new(),
             interaction_context: "Creative_Ideation".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
         };
 
         let feedback = SamuelFeedback {
             feedback_id: "fb_001".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             preference_rating: 8.5,
             subjective_state: "Engaged".to_string(),
             explicit_comments: None,
@@ -195,7 +199,7 @@ fn main() {
     println!("\n--- Omni-Modal H-AGI Interaction & Interface Adaptation (RAG-Driven) Demonstration ---");
 
     let omhaiia_engine = OMHAIIAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Samuel is engaged in a complex creative ideation session
     println!("--- Scenario 1: Creative Ideation Multimodal Interaction ---");
@@ -205,12 +209,12 @@ fn main() {
         data_payloads: HashMap::from([("Visual".to_string(), "Artistic_Concept_Mesh".to_string())]),
         importance_weights: HashMap::from([("Neural".to_string(), 0.6), ("Visual".to_string(), 0.3), ("Haptic".to_string(), 0.1)]),
         interaction_context: "New_Project_Design".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
     };
 
     let samuel_fb_1 = SamuelFeedback {
         feedback_id: "fb_creative_01".to_string(),
-        timestamp: Instant::now() - Duration::from_secs(10),
+        timestamp: Utc::now() - Duration::from_secs(10),
         preference_rating: 9.0,
         subjective_state: "Highly_Inspired".to_string(),
         explicit_comments: Some("The immersive visual feedback is excellent.".to_string()),
@@ -232,12 +236,12 @@ fn main() {
         data_payloads: HashMap::from([("Visual".to_string(), "System_Health_Logs".to_string())]),
         importance_weights: HashMap::from([("Visual".to_string(), 0.5), ("Auditory".to_string(), 0.5)]),
         interaction_context: "Critical_System_Update".to_string(),
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
     };
 
     let samuel_fb_2 = SamuelFeedback {
         feedback_id: "fb_overwhelmed_01".to_string(),
-        timestamp: Instant::now() - Duration::from_secs(5),
+        timestamp: Utc::now() - Duration::from_secs(5),
         preference_rating: 4.5,
         subjective_state: "Overwhelmed".to_string(),
         explicit_comments: Some("Too many notifications at once.".to_string()),

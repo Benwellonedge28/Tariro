@@ -8,10 +8,11 @@
 /// standards, and SIMD for parallel transaction processing and real-time financial anomaly
 /// detection.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -21,7 +22,8 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FinancialTransaction {
     pub tx_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub tx_type: String, // e.g., "Expense", "Income", "Transfer"
     pub amount: f64,
     pub currency: String, // e.g., "USD", "EUR", "BTC"
@@ -35,7 +37,8 @@ pub struct FinancialTransaction {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FinancialReport {
     pub report_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub report_type: String, // e.g., "Budget_Vs_Actual", "Cash_Flow", "Profit_Loss"
     pub period: String, // e.g., "Monthly", "Quarterly", "YTD"
     pub data: HashMap<String, f64>, // Key financial metrics
@@ -54,7 +57,8 @@ pub struct ProjectBudget {
     pub actual_expenditure: HashMap<String, f64>,
     pub remaining_budget: f64,
     pub status: String, // e.g., "On_Track", "Over_Budget", "Under_Budget"
-    pub last_updated: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub last_updated: DateTime<Utc>,
 }
 
 /// Overall Autonomous Financial Management & Optimization system report.
@@ -141,7 +145,7 @@ impl AFMOEngine {
         } else if current_budget.remaining_budget < current_budget.total_budget * 0.1 {
             current_budget.status = "Approaching_Limit".to_string();
         }
-        current_budget.last_updated = Instant::now();
+        current_budget.last_updated = Utc::now();
 
         // Conceptual: RAG-driven financial insights and forecasting
         let insights_summary = format!("Budget for '{}' is '{}'. Remaining: {:.2}. Identified {} anomalies. Autonomous cost optimizations applied.",
@@ -153,7 +157,7 @@ impl AFMOEngine {
 
         let financial_report = FinancialReport {
             report_id: format!("fr_{}", rng.gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             report_type: "Budget_Vs_Actual".to_string(),
             period: "Current_Month".to_string(),
             data: HashMap::from([("actual_expenditure".to_string(), current_budget.actual_expenditure.values().sum()), ("remaining_budget".to_string(), current_budget.remaining_budget)]),
@@ -188,17 +192,17 @@ mod tests {
         let engine = AFMOEngine::new();
 
         let mut budget = ProjectBudget {
-            budget_id: "pb_001".to_string(), project_id: "Project_Nova".to_string(), total_budget: 10000.0, allocated_funds: HashMap::new(), actual_expenditure: HashMap::new(), remaining_budget: 10000.0, status: "On_Track".to_string(), last_updated: Instant::now(),
+            budget_id: "pb_001".to_string(), project_id: "Project_Nova".to_string(), total_budget: 10000.0, allocated_funds: HashMap::new(), actual_expenditure: HashMap::new(), remaining_budget: 10000.0, status: "On_Track".to_string(), last_updated: Utc::now(),
         };
         budget.allocated_funds.insert("Software_License".to_string(), 2000.0);
         budget.allocated_funds.insert("Cloud_Compute".to_string(), 5000.0);
 
         let transactions = vec![
             FinancialTransaction {
-                tx_id: "tx_s_001".to_string(), timestamp: Instant::now(), tx_type: "Expense".to_string(), amount: 500.0, currency: "USD".to_string(), category: "Software_License".to_string(), description: "Rust Analyzer License".to_string(), project_id: Some("Project_Nova".to_string()), status: "Completed".to_string(),
+                tx_id: "tx_s_001".to_string(), timestamp: Utc::now(), tx_type: "Expense".to_string(), amount: 500.0, currency: "USD".to_string(), category: "Software_License".to_string(), description: "Rust Analyzer License".to_string(), project_id: Some("Project_Nova".to_string()), status: "Completed".to_string(),
             },
             FinancialTransaction {
-                tx_id: "tx_c_001".to_string(), timestamp: Instant::now(), tx_type: "Expense".to_string(), amount: 1500.0, currency: "USD".to_string(), category: "Cloud_Compute".to_string(), description: "AWS EC2 usage Q1".to_string(), project_id: Some("Project_Nova".to_string()), status: "Completed".to_string(),
+                tx_id: "tx_c_001".to_string(), timestamp: Utc::now(), tx_type: "Expense".to_string(), amount: 1500.0, currency: "USD".to_string(), category: "Cloud_Compute".to_string(), description: "AWS EC2 usage Q1".to_string(), project_id: Some("Project_Nova".to_string()), status: "Completed".to_string(),
             },
         ];
 
@@ -215,7 +219,7 @@ fn main() {
     println!("\n--- Autonomous Financial Management & Optimization (RAG-Driven) Demonstration ---");
 
     let afmo_engine = AFMOEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     let mut Tariro_project_budget = ProjectBudget {
         budget_id: "tariro_infra_pb_001".to_string(),
@@ -225,7 +229,7 @@ fn main() {
         actual_expenditure: HashMap::new(),
         remaining_budget: 100000.0,
         status: "On_Track".to_string(),
-        last_updated: Instant::now() - Duration::from_days(7),
+        last_updated: Utc::now() - chrono::Duration::days(7),
     };
     Tariro_project_budget.actual_expenditure.insert("Cloud_Compute".to_string(), 10000.0);
     Tariro_project_budget.actual_expenditure.insert("Software_Licenses".to_string(), 5000.0);
@@ -235,13 +239,13 @@ fn main() {
     println!("--- Scenario 1: Processing New Transactions ---");
     let new_tx_batch = vec![
         FinancialTransaction {
-            tx_id: "tx_cloud_q2_001".to_string(), timestamp: Instant::now(), tx_type: "Expense".to_string(), amount: 15000.0, currency: "USD".to_string(), category: "Cloud_Compute".to_string(), description: "AWS usage Q2 start.".to_string(), project_id: Some("Tariro_Core_Infrastructure".to_string()), status: "Completed".to_string(),
+            tx_id: "tx_cloud_q2_001".to_string(), timestamp: Utc::now(), tx_type: "Expense".to_string(), amount: 15000.0, currency: "USD".to_string(), category: "Cloud_Compute".to_string(), description: "AWS usage Q2 start.".to_string(), project_id: Some("Tariro_Core_Infrastructure".to_string()), status: "Completed".to_string(),
         },
         FinancialTransaction {
-            tx_id: "tx_license_ext_001".to_string(), timestamp: Instant::now(), tx_type: "Expense".to_string(), amount: 7500.0, currency: "USD".to_string(), category: "Software_Licenses".to_string(), description: "NVIDIA AI SDK Pro license.".to_string(), project_id: Some("Tariro_Core_Infrastructure".to_string()), status: "Completed".to_string(),
+            tx_id: "tx_license_ext_001".to_string(), timestamp: Utc::now(), tx_type: "Expense".to_string(), amount: 7500.0, currency: "USD".to_string(), category: "Software_Licenses".to_string(), description: "NVIDIA AI SDK Pro license.".to_string(), project_id: Some("Tariro_Core_Infrastructure".to_string()), status: "Completed".to_string(),
         },
         FinancialTransaction {
-            tx_id: "tx_income_api_001".to_string(), timestamp: Instant::now(), tx_type: "Income".to_string(), amount: 20000.0, currency: "USD".to_string(), category: "API_Revenue".to_string(), description: "Q1 API access revenue.".to_string(), project_id: None, status: "Completed".to_string(),
+            tx_id: "tx_income_api_001".to_string(), timestamp: Utc::now(), tx_type: "Income".to_string(), amount: 20000.0, currency: "USD".to_string(), category: "API_Revenue".to_string(), description: "Q1 API access revenue.".to_string(), project_id: None, status: "Completed".to_string(),
         },
     ];
 
@@ -256,7 +260,7 @@ fn main() {
     println!("--- Scenario 2: Unexpected Large Expense & Anomaly Detection ---");
     let unexpected_expense_tx = vec![
         FinancialTransaction {
-            tx_id: "tx_emergency_001".to_string(), timestamp: Instant::now(), tx_type: "Expense".to_string(), amount: 30000.0, currency: "USD".to_string(), category: "Emergency_Repair".to_string(), description: "Critical hardware failure in primary compute cluster.".to_string(), project_id: Some("Tariro_Core_Infrastructure".to_string()), status: "Completed".to_string(),
+            tx_id: "tx_emergency_001".to_string(), timestamp: Utc::now(), tx_type: "Expense".to_string(), amount: 30000.0, currency: "USD".to_string(), category: "Emergency_Repair".to_string(), description: "Critical hardware failure in primary compute cluster.".to_string(), project_id: Some("Tariro_Core_Infrastructure".to_string()), status: "Completed".to_string(),
         },
     ];
 

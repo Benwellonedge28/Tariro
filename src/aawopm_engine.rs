@@ -9,10 +9,11 @@
 /// project management methodologies and workflow automation patterns, and SIMD for
 /// parallel task scheduling and real-time workflow state monitoring.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -27,7 +28,8 @@ pub struct WorkflowTask {
     pub assignee_type: String, // e.g., "Human", "Tariro_Sub_Agent", "External_Service"
     pub assignee_id: String,
     pub status: String, // e.g., "Pending", "In_Progress", "Review", "Completed", "Blocked"
-    pub due_date: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub due_date: DateTime<Utc>,
     pub dependencies: Vec<String>, // IDs of tasks this task depends on
     pub quality_score: Option<f32>, // 0.0 to 1.0
     pub rag_derived_instructions: String, // Detailed instructions for the assignee
@@ -41,8 +43,9 @@ pub struct Workflow {
     pub description: String,
     pub owner: String, // e.g., "Samuel", "Tariro_Project_Manager_AI"
     pub status: String, // e.g., "Active", "Paused", "Completed", "Archived"
-    pub start_date: Instant,
-    pub end_date: Option<Instant>,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub start_date: DateTime<Utc>,
+    pub end_date: Option<DateTime<Utc>>,
     pub tasks: Vec<WorkflowTask>, // List of tasks in the workflow
     pub overall_progress: f32, // 0.0 to 1.0
     pub critical_path: Vec<String>, // IDs of tasks on the critical path
@@ -53,7 +56,8 @@ pub struct Workflow {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MonitoringUpdate {
     pub update_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub entity_id: String, // Task or Workflow ID
     pub entity_type: String, // "Task" or "Workflow"
     pub metric: String, // e.g., "Progress_Update", "Blockage_Detected", "Resource_Deviation"
@@ -107,7 +111,7 @@ impl AAWOPMEngine {
         if rng.gen_bool(0.1) { // Simulate a task blockage
             updates.push(MonitoringUpdate {
                 update_id: format!("mon_upd_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 entity_id: workflow.tasks.get(0).map_or("unknown_task".to_string(), |t| t.task_id.clone()),
                 entity_type: "Task".to_string(),
                 metric: "Blockage_Detected".to_string(),
@@ -119,7 +123,7 @@ impl AAWOPMEngine {
          if rng.gen_bool(0.3) { // Simulate a progress update
             updates.push(MonitoringUpdate {
                 update_id: format!("mon_upd_prog_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 entity_id: workflow.workflow_id.clone(),
                 entity_type: "Workflow".to_string(),
                 metric: "Progress_Update".to_string(),
@@ -165,7 +169,7 @@ impl AAWOPMEngine {
         workflow.overall_progress = rng.gen_range(0.0..1.0);
         if workflow.overall_progress > 0.9 && workflow.status != "Completed" {
             workflow.status = "Completed".to_string();
-            workflow.end_date = Some(Instant::now());
+            workflow.end_date = Some(Utc::now());
             println!("  [AAWOPM]: Workflow '{}' completed.\n", workflow.name);
         }
 
@@ -195,12 +199,12 @@ mod tests {
         let engine = AAWOPMEngine::new();
 
         let initial_workflow = Workflow {
-            workflow_id: "wf_001".to_string(), name: "Launch New Product".to_string(), description: "Oversee the launch of Tariro's next-gen product.".to_string(), owner: "Samuel".to_string(), status: "Active".to_string(), start_date: Instant::now(), end_date: None, tasks: vec![
+            workflow_id: "wf_001".to_string(), name: "Launch New Product".to_string(), description: "Oversee the launch of Tariro's next-gen product.".to_string(), owner: "Samuel".to_string(), status: "Active".to_string(), start_date: Utc::now(), end_date: None, tasks: vec![
                 WorkflowTask {
-                    task_id: "task_001".to_string(), name: "Market Research".to_string(), description: "Conduct extensive market research.".to_string(), assignee_type: "Human".to_string(), assignee_id: "analyst_alpha".to_string(), status: "Pending".to_string(), due_date: Instant::now() + Duration::from_secs(3600 * 24 * 7), dependencies: vec![], quality_score: None, rag_derived_instructions: "".to_string(),
+                    task_id: "task_001".to_string(), name: "Market Research".to_string(), description: "Conduct extensive market research.".to_string(), assignee_type: "Human".to_string(), assignee_id: "analyst_alpha".to_string(), status: "Pending".to_string(), due_date: Utc::now() + Duration::from_secs(3600 * 24 * 7), dependencies: vec![], quality_score: None, rag_derived_instructions: "".to_string(),
                 },
                 WorkflowTask {
-                    task_id: "task_002".to_string(), name: "Product Design".to_string(), description: "Design product features.".to_string(), assignee_type: "Tariro_Sub_Agent".to_string(), assignee_id: "design_ai".to_string(), status: "Pending".to_string(), due_date: Instant::now() + Duration::from_secs(3600 * 24 * 14), dependencies: vec!["task_001".to_string()], quality_score: None, rag_derived_instructions: "".to_string(),
+                    task_id: "task_002".to_string(), name: "Product Design".to_string(), description: "Design product features.".to_string(), assignee_type: "Tariro_Sub_Agent".to_string(), assignee_id: "design_ai".to_string(), status: "Pending".to_string(), due_date: Utc::now() + Duration::from_secs(3600 * 24 * 14), dependencies: vec!["task_001".to_string()], quality_score: None, rag_derived_instructions: "".to_string(),
                 },
             ], overall_progress: 0.1, critical_path: vec![], rag_derived_optimization: "".to_string(),
         };
@@ -218,7 +222,7 @@ fn main() {
     println!("\n--- Autonomous Advanced Workflow Orchestration & Project Management (RAG-Driven) Demonstration ---");
 
     let aawopm_engine = AAWOPMEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Tariro orchestrates a complex product development workflow with human and AI tasks
     println!("--- Scenario 1: Product Development Workflow ---");

@@ -12,10 +12,11 @@
 /// systems, knowledge graphs, adversarial machine learning (AML), data provenance, information theory, trusted
 /// computing base (TCB)).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -24,7 +25,8 @@ use rand::Rng;
 #[derive(Debug, Clone)]
 pub struct DataStream {
     pub stream_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub source: String,
     pub destination: String,
     pub content_type: String, // e.g., "text/plain", "json", "ai_prompt", "model_update"
@@ -40,7 +42,8 @@ pub struct SemanticPolicy {
     pub rules: Vec<String>, // e.g., "block_sensitive_keywords", "allow_only_signed_model_updates"
     pub action_on_violation: String, // e.g., "block", "quarantine", "log_and_alert"
     pub active: bool,
-    pub last_updated: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub last_updated: DateTime<Utc>,
 }
 
 /// Represents a data stream event that was filtered or flagged.
@@ -52,7 +55,8 @@ pub struct FilteredEvent {
     pub violation_type: String,
     pub original_content_hash: String,
     pub action_taken: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Overall CFSF system report.
@@ -100,7 +104,7 @@ impl CFSF_Engine {
 
         (0..num_streams).map(|_| DataStream {
             stream_id: format!("stream_{}", rng.gen::<u32>()),
-            timestamp: Instant::now() - Duration::from_millis(rng.gen_range(0..1000)),
+            timestamp: Utc::now() - Duration::from_millis(rng.gen_range(0..1000)),
             source: format!("ai_agent_{}", rng.gen::<u32>() % 5),
             destination: format!("external_service_{}", rng.gen::<u32>() % 3),
             content_type: "ai_response".to_string(),
@@ -129,7 +133,7 @@ impl CFSF_Engine {
                         violation_type: "low_semantic_trust".to_string(),
                         original_content_hash: stream.payload_hash.clone(),
                         action_taken: policy.action_on_violation.clone(),
-                        timestamp: Instant::now(),
+                        timestamp: Utc::now(),
                     });
                 }
             }
@@ -169,7 +173,7 @@ impl CFSF_Engine {
                 rules: vec!["strict_payload_integrity_check".to_string(), "semantic_context_validation".to_string()],
                 action_on_violation: "quarantine_source".to_string(),
                 active: true,
-                last_updated: Instant::now(),
+                last_updated: Utc::now(),
             };
             current_policies.push(new_policy);
             "New policy added to counter data poisoning attempts.".to_string()
@@ -197,7 +201,7 @@ mod tests {
                 rules: vec!["block_social_security_numbers".to_string()],
                 action_on_violation: "block".to_string(),
                 active: true,
-                last_updated: Instant::now(),
+                last_updated: Utc::now(),
             },
         ];
         let filtered = engine.apply_semantic_filters_simd(&streams, &policies);
@@ -226,7 +230,7 @@ fn main() {
             rules: vec!["block_stream_if_semantic_score_below_0.3".to_string()],
             action_on_violation: "quarantine".to_string(),
             active: true,
-            last_updated: Instant::now(),
+            last_updated: Utc::now(),
         },
         SemanticPolicy {
             policy_id: "pol_exfiltration_keywords".to_string(),
@@ -234,7 +238,7 @@ fn main() {
             rules: vec!["block_if_contains_secret_keys_or_classified_docs".to_string()],
             action_on_violation: "alert_and_block".to_string(),
             active: true,
-            last_updated: Instant::now(),
+            last_updated: Utc::now(),
         },
     ];
 

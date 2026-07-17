@@ -11,10 +11,11 @@
 /// interaction (HCI), distributed tracing, log analysis, anomaly detection, predictive analytics, augmented reality (AR)
 /// interfaces, graph theory for network visualization).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -25,7 +26,8 @@ pub struct TelemetryEvent {
     pub event_id: String,
     pub workflow_instance_id: String,
     pub component_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub event_type: String, // e.g., "task_start", "task_complete", "error", "resource_usage"
     pub payload: HashMap<String, String>,
 }
@@ -49,7 +51,8 @@ pub struct WorkflowVisualization {
     pub nodes: Vec<WorkflowGraphNode>,
     pub edges: Vec<(String, String, String)>, // (source_node_id, target_node_id, type_of_connection)
     pub layout_data: HashMap<String, String>, // e.g., "positions_x_y", "zoom_level"
-    pub generated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub generated_at: DateTime<Utc>,
 }
 
 /// Overall RTWM&V system report.
@@ -132,7 +135,7 @@ impl RTWMV_Engine {
             nodes: workflow_graph.values().cloned().collect(),
             edges: vec![("node_A".to_string(), "node_B".to_string(), "depends_on".to_string())], // Simplified
             layout_data: HashMap::from([("force_directed_layout".to_string(), "applied".to_string())]),
-            generated_at: Instant::now(),
+            generated_at: Utc::now(),
         }
     }
 
@@ -166,7 +169,7 @@ mod tests {
                 event_id: "evt_001".to_string(),
                 workflow_instance_id: "wf_test_001".to_string(),
                 component_id: "task_init".to_string(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 event_type: "task_start".to_string(),
                 payload: HashMap::new(),
             },
@@ -199,7 +202,7 @@ fn main() {
             event_id: format!("tele_evt_{}", rand::thread_rng().gen::<u32>()),
             workflow_instance_id: monitored_workflow_instance_id.clone(),
             component_id: "agent_key_exchange".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             event_type: "start_key_exchange".to_string(),
             payload: HashMap::from([("phase".to_string(), "quantum_key_distribution".to_string())]),
         },
@@ -207,7 +210,7 @@ fn main() {
             event_id: format!("tele_evt_{}", rand::thread_rng().gen::<u32>()),
             workflow_instance_id: monitored_workflow_instance_id.clone(),
             component_id: "agent_qkd_verification".to_string(),
-            timestamp: Instant::now() + Duration::from_millis(50),
+            timestamp: Utc::now() + Duration::from_millis(50),
             event_type: "qkd_verification_success".to_string(),
             payload: HashMap::from([("latency_ms".to_string(), "25".to_string())]),
         },

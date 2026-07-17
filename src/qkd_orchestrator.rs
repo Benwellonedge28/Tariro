@@ -5,10 +5,11 @@
 /// providing future-proof communication security against even quantum computer attacks
 /// (leveraging RAG for QKD protocol standards and SIMD for high-speed key sifting and error correction).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Represents an endpoint participating in a QKD session.
@@ -77,7 +78,7 @@ impl QKDSessionManager {
     /// Initiates a QKD session between two endpoints.
     pub fn initiate_qkd_session(&mut self, endpoint1: &QKDEndpoint, endpoint2: &QKDEndpoint, protocol: QKDProtocol) -> String {
         println!("  [QKDSM]: Initiating QKD session between '{}' and '{}' using {:?}.", endpoint1.id, endpoint2.id, protocol);
-        let session_id = format!("QKD_Session_{}_{}_{}", endpoint1.id, endpoint2.id, Instant::now().elapsed().as_micros());
+        let session_id = format!("QKD_Session_{}_{}_{}", endpoint1.id, endpoint2.id, Utc::now().timestamp_micros());
         self.active_sessions.insert(session_id.clone(), protocol);
         thread::sleep(Duration::from_millis(200));
         session_id
@@ -117,7 +118,7 @@ impl QKDSessionManager {
         SharedSecretKey {
             key_id: format!("SharedKey_{}", session_id),
             key_material: final_key,
-            generated_at: Instant::now().elapsed().as_secs(),
+            generated_at: Utc::now().timestamp(),
             protocol_used: self.active_sessions.get(session_id).unwrap().clone(),
             security_level: 1.0 - security_level, // Higher is better
         }
@@ -185,8 +186,8 @@ fn main() {
     // 3. Simulate raw key bit generation (e.g., from quantum measurements)
     let mut rng = rand::thread_rng();
     let raw_key_length = 10000; // Number of raw quantum bits
-    let raw_bits_alice = RawKeyBits { bits: (0..raw_key_length).map(|_| rng.gen::<bool>()).collect(), timestamp: Instant::now().elapsed().as_secs() };
-    let raw_bits_bob = RawKeyBits { bits: (0..raw_key_length).map(|_| rng.gen::<bool>()).collect(), timestamp: Instant::now().elapsed().as_secs() };
+    let raw_bits_alice = RawKeyBits { bits: (0..raw_key_length).map(|_| rng.gen::<bool>()).collect(), timestamp: Utc::now().timestamp() };
+    let raw_bits_bob = RawKeyBits { bits: (0..raw_key_length).map(|_| rng.gen::<bool>()).collect(), timestamp: Utc::now().timestamp() };
 
     // 4. Perform key sifting (classical communication to agree on measurement bases)
     println!("--- Performing Key Sifting (SIMD) ---");

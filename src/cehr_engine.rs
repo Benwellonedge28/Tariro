@@ -8,10 +8,11 @@
 /// RAG: thermodynamics of computation, information theory, neuromorphic computing principles, waste heat recovery,
 /// distributed energy systems).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -193,8 +194,8 @@ mod tests {
         let engine = CEHR_Engine::new();
 
         let sensor_data_mock = vec![
-            SensorData { sensor_id: "cpu_0_temp".to_string(), sensor_type: "temperature".to_string(), value: 70.0, unit: "C".to_string(), timestamp: Instant::now() },
-            SensorData { sensor_id: "cpu_0_util".to_string(), sensor_type: "cpu_utilization".to_string(), value: 0.15, unit: "%".to_string(), timestamp: Instant::now() },
+            SensorData { sensor_id: "cpu_0_temp".to_string(), sensor_type: "temperature".to_string(), value: 70.0, unit: "C".to_string(), timestamp: Utc::now() },
+            SensorData { sensor_id: "cpu_0_util".to_string(), sensor_type: "cpu_utilization".to_string(), value: 0.15, unit: "%".to_string(), timestamp: Utc::now() },
         ];
         let waste_streams = engine.identify_waste_streams_simd(&sensor_data_mock);
         assert!(!waste_streams.is_empty());
@@ -226,10 +227,10 @@ fn main() {
     // Using a mock SensorData to simulate system telemetry (assuming it's defined elsewhere or copied)
     let current_telemetry = vec![
         // For waste heat
-        SensorData { sensor_id: "gpu_temp_0".to_string(), sensor_type: "temperature".to_string(), value: 85.0, unit: "C".to_string(), timestamp: Instant::now() },
+        SensorData { sensor_id: "gpu_temp_0".to_string(), sensor_type: "temperature".to_string(), value: 85.0, unit: "C".to_string(), timestamp: Utc::now() },
         // For unused CPU cycles
-        SensorData { sensor_id: "cpu_util_0".to_string(), sensor_type: "cpu_utilization".to_string(), value: 0.1, unit: "%".to_string(), timestamp: Instant::now() },
-        SensorData { sensor_id: "mem_frag_level".to_string(), sensor_type: "memory_fragmentation".to_string(), value: 0.25, unit: "%".to_string(), timestamp: Instant::now() },
+        SensorData { sensor_id: "cpu_util_0".to_string(), sensor_type: "cpu_utilization".to_string(), value: 0.1, unit: "%".to_string(), timestamp: Utc::now() },
+        SensorData { sensor_id: "mem_frag_level".to_string(), sensor_type: "memory_fragmentation".to_string(), value: 0.25, unit: "%".to_string(), timestamp: Utc::now() },
     ];
     let identified_waste_streams = cehr_engine.identify_waste_streams_simd(&current_telemetry);
     println!("  Identified {} waste streams. Example: Type: '{}', Quantity: {:.2}.\n", identified_waste_streams.len(), identified_waste_streams[0].waste_type, identified_waste_streams[0].quantity);

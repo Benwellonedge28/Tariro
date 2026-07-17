@@ -4,10 +4,11 @@
 /// This module will allow Tariro to autonomously filter out irrelevant information before processing,
 /// improving efficiency and focus, based on deep understanding of current goals (RAG: semantic relevance scoring).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -64,7 +65,7 @@ impl InformationPruner {
     pub fn define_context(&self, current_goal: String, relevant_keywords: Vec<String>, importance_threshold: f32) -> Context {
         println!("  [CAIP]: Defining context for goal '{}' with threshold {:.2}.", current_goal, importance_threshold);
         Context {
-            id: format!("ctx_{}", Instant::now().elapsed().as_secs()),
+            id: format!("ctx_{}", Utc::now().timestamp()),
             current_goal,
             relevant_keywords,
             importance_threshold,

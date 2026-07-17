@@ -5,10 +5,11 @@
 /// to protect data against attacks from future quantum computers (SIMD: parallel execution of complex cryptographic
 /// primitives; RAG: post-quantum cryptography standards, cryptanalysis of QRC).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -73,7 +74,7 @@ impl QRC_Engine {
     /// Generates a QRC key pair (public and private keys) in parallel (conceptual SIMD).
     pub fn generate_qrc_keypair_simd(&self, algorithm: &str, security_level: u32) -> QRC_Keypair {
         println!("  [QRC]: Generating QRC keypair for '{}' at security level {} (SIMD for parallel key generation).", algorithm, security_level);
-        let start_time = Instant::now();
+        let start_time = Utc::now();
         thread::sleep(Duration::from_millis(200)); // Simulate computation
         let mut rng = rand::thread_rng();
 
@@ -88,7 +89,7 @@ impl QRC_Engine {
     /// Signs data using a QRC private key in parallel (conceptual SIMD).
     pub fn sign_data_simd(&self, data: &[u8], keypair: &QRC_Keypair) -> SignedData {
         println!("  [QRC]: Signing data of size {} using '{}' algorithm (SIMD for parallel signing).", data.len(), keypair.algorithm);
-        let start_time = Instant::now();
+        let start_time = Utc::now();
         thread::sleep(Duration::from_millis(150)); // Simulate computation
         let mut rng = rand::thread_rng();
 
@@ -102,7 +103,7 @@ impl QRC_Engine {
     /// Verifies a QRC signature using the public key in parallel (conceptual SIMD).
     pub fn verify_signature_simd(&self, signed_data: &SignedData, public_key: &[u8]) -> bool {
         println!("  [QRC]: Verifying signature using '{}' algorithm (SIMD for parallel verification).", signed_data.algorithm);
-        let start_time = Instant::now();
+        let start_time = Utc::now();
         thread::sleep(Duration::from_millis(100)); // Simulate computation
         let mut rng = rand::thread_rng();
 

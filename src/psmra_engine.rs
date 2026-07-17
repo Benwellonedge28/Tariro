@@ -8,10 +8,11 @@
 /// It leverages RAG for real-world physics engines and sensor fusion algorithms, and SIMD
 /// for parallel physics simulation and real-time sensor data generation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -48,7 +49,8 @@ pub struct ScenarioPredictionResult {
 pub struct DynamicEvent {
     pub event_id: String,
     pub event_type: String, // e.g., "MarketCrash", "NaturalDisaster", "TechnologicalBreakthrough"
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub location: String,
     pub impact_description: String,
     pub affected_systems: Vec<String>,
@@ -202,7 +204,7 @@ fn main() {
     println!("\n--- Predictive Scenario Modeling & Risk Assessment (RAG-Driven) Demonstration ---");
 
     let psmra_engine = PSMRAEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Model the impact of a new technological breakthrough on global economy
     println!("--- Scenario 1: Global Economic Impact of AI Breakthrough ---");

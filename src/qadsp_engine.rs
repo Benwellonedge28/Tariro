@@ -6,10 +6,11 @@
 /// and decision-making on exabyte-scale inputs. It leverages RAG for quantum data structures
 /// and stream processing algorithms, and SIMD for quantum-inspired parallel data transformations.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -19,7 +20,10 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataPacket {
     pub packet_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub payload_size_bytes: u64,
     pub data_type: String, // e.g., "SensorData", "NetworkTraffic", "FinancialTransaction"
     pub quantum_superposition_state: Vec<f32>, // Conceptual: representation of quantum state
@@ -33,7 +37,7 @@ pub struct QuantumProcessedData {
     pub derived_insight: String,
     pub quantum_entanglement_score: f32, // 0.0-1.0 (higher = more complex quantum correlation)
     pub processing_latency_ns: u64,
-    pub processed_at: Instant,
+    pub processed_at: DateTime<Utc>,
 }
 
 /// Overall Quantum-Accelerated Data Streaming & Processing system report.
@@ -112,7 +116,7 @@ impl QADSPEngine {
                 derived_insight,
                 quantum_entanglement_score: rng.gen_range(0.7..0.99),
                 processing_latency_ns: rng.gen_range(100..500),
-                processed_at: Instant::now(),
+                processed_at: Utc::now(),
             });
         }
 
@@ -140,7 +144,7 @@ mod tests {
     #[test]
     fn test_qadsp_engine_flow() {
         let engine = QADSPEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let packets = vec![
             DataPacket { packet_id: "p1".to_string(), timestamp: now, payload_size_bytes: 1024, data_type: "SensorData".to_string(), quantum_superposition_state: vec![0.5, 0.5] },
@@ -160,7 +164,7 @@ fn main() {
     println!("\n--- Quantum-Accelerated Data Streaming & Processing (SIMD-Driven) Demonstration ---");
 
     let qadsp_engine = QADSPEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Process a burst of sensor data
     println!("--- Scenario 1: Quantum-Accelerated Sensor Data Processing ---");

@@ -1,0 +1,19 @@
+feat: Fix compilation errors and enhance Tariro AGI system
+
+Major fixes:
+- Fixed duplicate 'pub pub fn' syntax errors in engine files
+- Fixed quantum_security::mod:: path syntax errors
+- Fixed duplicate TariroUniversalMetaCompiler import in lib.rs
+- Created quantum_security module with threat_intelligence submodule
+- Added MetaProject, CompilerSnapshot, MetaProjectStatus exports to compiler
+- Added tracing::{info, error} logging imports
+- Fixed AGIControl type alias in config module
+- Fixed HashMap and Duration imports
+- Fixed tokio::time::sleep calls in agi_replication.rs
+- Fixed event_bus.rs escaped quotes
+
+New features:
+- Quantum Security Manager with post-quantum cryptography support
+- PqcMigrationRecommendation for quantum-resistant upgrades
+- ThreatSeverity levels for security monitoring
+- Enhanced compiler module with compilation metrics

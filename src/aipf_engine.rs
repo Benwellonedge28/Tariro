@@ -11,10 +11,11 @@
 /// RAG: reinforcement learning, semantic relevance scoring, urgency detection,
 ///      dynamic prioritization, noise reduction, context-aware filtering).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -25,7 +26,8 @@ pub struct IncomingDataItem {
     pub item_id: String,
     pub content: String,
     pub source_type: String, // e.g., "email", "news_feed", "sensor_data", "conversation_snippet"
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub associated_user_goal_id: Option<String>,
 }
 
@@ -169,14 +171,14 @@ mod tests {
             item_id: "data_001".to_string(),
             content: "Urgent security alert: zero-day exploit detected!".to_string(),
             source_type: "security_feed".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             associated_user_goal_id: Some("security_monitoring".to_string()),
         };
         let item2 = IncomingDataItem {
             item_id: "data_002".to_string(),
             content: "New cat video on YouTube.".to_string(),
             source_type: "social_media".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             associated_user_goal_id: None,
         };
 
@@ -209,28 +211,28 @@ fn main() {
             item_id: format!("item_{}", rand::thread_rng().gen::<u32>()),
             content: "Urgent: Project Alpha deadline moved up by 3 days. Requires immediate attention.".to_string(),
             source_type: "internal_comm".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             associated_user_goal_id: Some("project_alpha_development".to_string()),
         },
         IncomingDataItem {
             item_id: format!("item_{}", rand::thread_rng().gen::<u32>()),
             content: "New blog post: 10 tips for better sleep.".to_string(),
             source_type: "lifestyle_blog".to_string(),
-            timestamp: Instant::now() - Duration::from_secs(3600),
+            timestamp: Utc::now() - Duration::from_secs(3600),
             associated_user_goal_id: None,
         },
         IncomingDataItem {
             item_id: format!("item_{}", rand::thread_rng().gen::<u32>()),
             content: "Research paper on novel AI architecture published today.".to_string(),
             source_type: "scientific_feed".to_string(),
-            timestamp: Instant::now() - Duration::from_secs(120),
+            timestamp: Utc::now() - Duration::from_secs(120),
             associated_user_goal_id: Some("market_research_ai_trends".to_string()),
         },
         IncomingDataItem {
             item_id: format!("item_{}", rand::thread_rng().gen::<u32>()),
             content: "Your weekly newsletter from a random marketing agency.".to_string(),
             source_type: "email".to_string(),
-            timestamp: Instant::now() - Duration::from_secs(7200),
+            timestamp: Utc::now() - Duration::from_secs(7200),
             associated_user_goal_id: None,
         },
     ];

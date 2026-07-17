@@ -7,10 +7,11 @@
 /// (leveraging RAG for software attestation standards and SIMD for accelerating integrity checks and cryptographic
 /// signing of attestations).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Types of components that can be attested.
@@ -75,7 +76,7 @@ impl SupplyChainSecurityManager {
             hash_digest,
             signer_id: signer_id.to_string(),
             signature,
-            timestamp: Instant::now().elapsed().as_secs(),
+            timestamp: Utc::now().timestamp(),
         }
     }
 
@@ -177,7 +178,7 @@ fn main() {
             ("tariro_agent_core".to_string(), tariro_core_hash.clone()),
             ("secure_module_lib".to_string(), vec![0xCD; 32]),
         ]),
-        minimum_timestamp: Instant::now().elapsed().as_secs() - 3600, // Policy created an hour ago
+        minimum_timestamp: Utc::now().timestamp() - 3600, // Policy created an hour ago
     };
     sc_manager.update_trust_anchors(current_policy);
     println!("  Production policy loaded for Tariro components.\n");

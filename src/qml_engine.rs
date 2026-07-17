@@ -8,12 +8,14 @@
 /// ML architectures and quantum optimization algorithms, and SIMD for parallel quantum
 /// circuit execution and real-time model parameter updates.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
+use chrono::{DateTime, Utc};
 
 // --- Conceptual Structures --- //
 
@@ -213,7 +215,7 @@ fn main() {
     println!("\n--- Quantum Machine Learning Model Training (RAG-Driven) Demonstration ---");
 
     let qml_engine = QMLEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Train a Quantum Neural Network for a classification task
     println!("--- Scenario 1: Quantum Neural Network Training ---");

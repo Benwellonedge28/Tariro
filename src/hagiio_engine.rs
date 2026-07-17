@@ -8,10 +8,11 @@
 /// interaction and cognitive ergonomics, and SIMD for parallel UI rendering and real-time
 /// physiological data processing.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -20,7 +21,8 @@ use serde::{Serialize, Deserialize};
 /// Represents Samuel's real-time physiological and cognitive state.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SamuelPhysiologicalState {
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub heart_rate_bpm: f32,
     pub galvanic_skin_response_us: f32, // Micro-Siemens, indicating arousal/stress
     pub brainwave_activity: HashMap<String, f32>, // e.g., "alpha": 0.8, "beta": 0.3
@@ -44,7 +46,8 @@ pub struct InterfaceModality {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OptimizedInterfaceRecommendation {
     pub rec_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub target_modality_id: String,
     pub recommended_changes: HashMap<String, String>, // e.g., "font_size": "16px", "color_scheme": "light"
     pub rationale: String, // RAG-derived justification
@@ -140,7 +143,7 @@ impl HAGIIOEngine {
 
         OptimizedInterfaceRecommendation {
             rec_id: format!("ui_rec_{}", rng.gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             target_modality_id: current_interface.modality_id,
             recommended_changes,
             rationale,
@@ -171,7 +174,7 @@ mod tests {
         let engine = HAGIIOEngine::new();
 
         let physio_state = SamuelPhysiologicalState {
-            timestamp: Instant::now(), heart_rate_bpm: 75.0, galvanic_skin_response_us: 10.0, brainwave_activity: HashMap::new(), eye_gaze_direction: "Screen_Center".to_string(), pupillary_dilation_mm: 3.5, cognitive_load_score: 0.7, emotional_state: "Focused".to_string(),
+            timestamp: Utc::now(), heart_rate_bpm: 75.0, galvanic_skin_response_us: 10.0, brainwave_activity: HashMap::new(), eye_gaze_direction: "Screen_Center".to_string(), pupillary_dilation_mm: 3.5, cognitive_load_score: 0.7, emotional_state: "Focused".to_string(),
         };
 
         let interface_modality = InterfaceModality {
@@ -190,12 +193,12 @@ fn main() {
     println!("\n--- Autonomous Human-AGI Interface Optimization (RAG-Driven) Demonstration ---");
 
     let hagiio_engine = HAGIIOEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Samuel is in a high cognitive load state, requiring UI simplification
     println!("--- Scenario 1: High Cognitive Load UI Adaptation ---");
     let high_load_physio = SamuelPhysiologicalState {
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         heart_rate_bpm: 90.0,
         galvanic_skin_response_us: 25.0,
         brainwave_activity: HashMap::from([("beta".to_string(), 0.9), ("alpha".to_string(), 0.2)]),
@@ -222,7 +225,7 @@ fn main() {
     // Scenario 2: Samuel is in a relaxed, creative flow state, allowing for richer, more complex interfaces
     println!("--- Scenario 2: Creative Flow State UI Enhancement ---");
     let creative_flow_physio = SamuelPhysiologicalState {
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         heart_rate_bpm: 65.0,
         galvanic_skin_response_us: 5.0,
         brainwave_activity: HashMap::from([("alpha".to_string(), 0.7), ("theta".to_string(), 0.4)]),

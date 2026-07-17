@@ -6,10 +6,11 @@
 /// relationships. It leverages RAG for contextual metadata and multi-modal embeddings,
 /// and SIMD for parallel feature extraction and cross-modal fusion.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -22,7 +23,8 @@ pub struct MultiModalDataItem {
     pub data_type: String, // e.g., "Text", "Image", "Audio", "Sensor"
     pub content_summary: String, // Short textual description or extracted text
     pub raw_data_ref: String, // e.g., URL, file path, sensor ID
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub extracted_features: HashMap<String, Vec<f32>>, // e.g., "image_embedding": [0.1, 0.2, ...]
     pub semantic_tags: Vec<String>,
 }
@@ -35,7 +37,8 @@ pub struct DataCorrelation {
     pub correlation_type: String, // e.g., "TemporalCoincidence", "SemanticSimilarity", "CausalLink"
     pub strength: f32, // 0.0-1.0
     pub explanation: String,
-    pub detected_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub detected_at: DateTime<Utc>,
 }
 
 /// Overall Multi-Modal Data Correlation Engine system report.
@@ -133,7 +136,7 @@ impl MMDCEEngine {
                         explanation: format!("Strong correlation detected between '{}' ({}) and '{}' ({}).",
                             item1.item_id, item1.data_type, item2.item_id, item2.data_type
                         ),
-                        detected_at: Instant::now(),
+                        detected_at: Utc::now(),
                     });
                 }
             }
@@ -163,7 +166,7 @@ mod tests {
     #[test]
     fn test_mmdce_engine_flow() {
         let engine = MMDCEEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let text_data = MultiModalDataItem {
             item_id: "text_report_01".to_string(),
@@ -207,7 +210,7 @@ fn main() {
     println!("\n--- Multi-Modal Data Correlation Engine (SIMD-Driven) Demonstration ---");
 
     let mmdce_engine = MMDCEEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Correlate various data types around a software release
     println!("--- Scenario 1: Software Release Event Correlation ---");

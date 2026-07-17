@@ -5,10 +5,11 @@
 /// using robust training techniques and real-time perturbation detection (leveraging RAG for attack patterns
 /// and SIMD for rapid model re-evaluation).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Identifiers for different ML models.
@@ -93,7 +94,7 @@ impl AMLShield {
                 attack_type,
                 magnitude: rng.gen_range(0.01..0.1),
                 confidence: rng.gen_range(0.7..0.95),
-                detected_at: Instant::now().elapsed().as_secs(),
+                detected_at: Utc::now().timestamp(),
                 affected_model_ids: vec![model_id.clone()],
             };
             println!("    -> Detected {:?} perturbation with confidence {:.2}.
@@ -192,7 +193,7 @@ fn main() {
     // Simulate several cycles of operation
     for i in 0..3 {
         println!("\n========================== AML Shield Cycle {} ==========================", i + 1);
-        let current_time = Instant::now().elapsed().as_secs();
+        let current_time = Utc::now().timestamp();
         let mut rng = rand::thread_rng();
 
         // Simulate input data for Image Classifier

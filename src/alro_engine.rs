@@ -7,10 +7,11 @@
 /// and hyperparameter tuning strategies, and SIMD for parallel gradient descent and
 /// Hessian matrix approximation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -33,7 +34,8 @@ pub struct TrainingState {
 pub struct OptimizationDecision {
     pub decision_id: String,
     pub model_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub new_learning_rate: f32,
     pub optimizer_config: HashMap<String, String>, // e.g., "optimizer_type": "Adam", "momentum": "0.9"
     pub justification: String, // RAG-derived explanation
@@ -135,7 +137,7 @@ impl ALROEngine {
         OptimizationDecision {
             decision_id: format!("opt_{}", rng.gen::<u32>()),
             model_id: training_state.model_id.clone(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             new_learning_rate,
             optimizer_config: HashMap::from([("optimizer_type".to_string(), "Adam".to_string()), ("momentum".to_string(), "0.9".to_string())]),
             justification,
@@ -163,7 +165,7 @@ mod tests {
     #[test]
     fn test_alro_engine_flow() {
         let engine = ALROEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let initial_state = TrainingState {
             model_id: "test_model_01".to_string(),
@@ -221,7 +223,7 @@ fn main() {
     println!("\n--- Adaptive Learning Rate Optimization (RAG-Driven) Demonstration ---");
 
     let alro_engine = ALROEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Initial model training with suboptimal learning rate
     println!("--- Scenario 1: Suboptimal LR Detected ---");

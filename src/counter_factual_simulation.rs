@@ -4,10 +4,11 @@
 /// This module will allow Tariro to simulate alternative pasts and presents to understand cause-and-effect with
 /// perfect accuracy, refining predictive models (SIMD: massive parallel state-space exploration).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -93,7 +94,7 @@ impl RealitySimulator {
         let resulting_state = self.apply_intervention(original_state, intervention);
 
         SimulationResult {
-            simulation_id: format!("sim_{}", Instant::now().elapsed().as_secs()),
+            simulation_id: format!("sim_{}", Utc::now().timestamp()),
             original_reality_id: original_state.id.clone(),
             intervention: intervention.clone(),
             resulting_state,

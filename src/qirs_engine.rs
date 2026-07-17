@@ -8,10 +8,11 @@
 /// RAG: quantum optimization algorithms, combinatorial optimization, energy-aware computing, heterogeneous
 /// computing architectures).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -24,7 +25,7 @@ pub struct ComputationalTask {
     pub memory_gb: f64,
     pub duration_seconds: u32,
     pub priority: u8,
-    pub deadlines: Option<Instant>,
+    pub deadlines: Option<DateTime<Utc>>,
 }
 
 /// Represents a constraint on resource availability or usage.
@@ -192,7 +193,7 @@ fn main() {
     // Scenario 1: Analyzing various computational task requirements
     println!("--- Scenario 1: Task Requirement Analysis ---");
     let computational_tasks = vec![
-        ComputationalTask { task_id: "quantum_sim_01".to_string(), complexity: 1e12, memory_gb: 64.0, duration_seconds: 1800, priority: 9, deadlines: Some(Instant::now() + Duration::from_secs(3600)) },
+        ComputationalTask { task_id: "quantum_sim_01".to_string(), complexity: 1e12, memory_gb: 64.0, duration_seconds: 1800, priority: 9, deadlines: Some(Utc::now() + Duration::from_secs(3600)) },
         ComputationalTask { task_id: "ai_inference_02".to_string(), complexity: 5e11, memory_gb: 16.0, duration_seconds: 300, priority: 7, deadlines: None },
         ComputationalTask { task_id: "data_processing_03".to_string(), complexity: 2e10, memory_gb: 32.0, duration_seconds: 600, priority: 6, deadlines: None },
     ];

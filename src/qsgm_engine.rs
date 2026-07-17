@@ -9,10 +9,11 @@
 /// concurrent consensus processing; RAG: quantum voting, secure multi-party computation, decentralized autonomous
 /// organizations (DAO), cryptographic proofs, game theory for governance, quantum consensus algorithms).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -24,7 +25,8 @@ pub struct GovernanceProposal {
     pub title: String,
     pub description: String,
     pub proposer_id: String,
-    pub submission_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub submission_timestamp: DateTime<Utc>,
     pub target_parameters: HashMap<String, String>, // e.g., "acp_threshold_cpu": "0.9"
     pub required_stake: u64,
 }
@@ -37,7 +39,8 @@ pub struct QuantumVote {
     pub voter_id: String,
     pub vote_value: bool, // true for 'yes', false for 'no'
     pub quantum_proof_of_vote: String, // Cryptographic proof of vote, quantum-resistant
-    pub vote_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub vote_timestamp: DateTime<Utc>,
 }
 
 /// Represents the outcome of a governance decision.
@@ -47,7 +50,9 @@ pub struct GovernanceDecision {
     pub proposal_id: String,
     pub outcome: String, // e.g., "approved", "rejected", "deferred"
     pub execution_status: String, // e.g., "pending", "executed", "failed"
-    pub decision_timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub decision_timestamp: DateTime<Utc>,
     pub quorum_achieved: bool,
     pub total_yes_votes: u36,
     pub total_no_votes: u36,
@@ -176,7 +181,7 @@ mod tests {
             title: "Increase ACP CPU Threshold".to_string(),
             description: "Adjust ACP CPU threshold to 0.9 to improve responsiveness.".to_string(),
             proposer_id: "tariro_core".to_string(),
-            submission_timestamp: Instant::now(),
+            submission_timestamp: Utc::now(),
             target_parameters: HashMap::from([("acp_cpu_threshold".to_string(), "0.9".to_string())]),
             required_stake: 100,
         };
@@ -186,11 +191,11 @@ mod tests {
         let votes = vec![
             QuantumVote {
                 vote_id: "vote_001".to_string(), proposal_id: proposal.proposal_id.clone(), voter_id: "stakeholder_A".to_string(),
-                vote_value: true, quantum_proof_of_vote: "qproof_xyz1".to_string(), vote_timestamp: Instant::now(),
+                vote_value: true, quantum_proof_of_vote: "qproof_xyz1".to_string(), vote_timestamp: Utc::now(),
             },
             QuantumVote {
                 vote_id: "vote_002".to_string(), proposal_id: proposal.proposal_id.clone(), voter_id: "stakeholder_B".to_string(),
-                vote_value: false, quantum_proof_of_vote: "qproof_xyz2".to_string(), vote_timestamp: Instant::now(),
+                vote_value: false, quantum_proof_of_vote: "qproof_xyz2".to_string(), vote_timestamp: Utc::now(),
             },
         ];
         let (yes, no) = engine.process_quantum_votes_simd(&proposal.proposal_id, &votes);
@@ -202,7 +207,7 @@ mod tests {
             proposal_id: proposal.proposal_id.clone(),
             outcome: "approved".to_string(),
             execution_status: "pending".to_string(),
-            decision_timestamp: Instant::now(),
+            decision_timestamp: Utc::now(),
             quorum_achieved: true,
             total_yes_votes: yes,
             total_no_votes: no,
@@ -227,7 +232,7 @@ fn main() {
         title: "Revise EVAS Principle: Data Minimization Threshold".to_string(),
         description: "Propose to lower the default data minimization threshold in EVAS to enhance user privacy.".to_string(),
         proposer_id: "tariro_ethical_board".to_string(),
-        submission_timestamp: Instant::now(),
+        submission_timestamp: Utc::now(),
         target_parameters: HashMap::from([("evas_data_min_threshold_level".to_string(), "0.3".to_string())]),
         required_stake: 500,
     };
@@ -241,15 +246,15 @@ fn main() {
     let stakeholder_votes = vec![
         QuantumVote {
             vote_id: "qv_s001".to_string(), proposal_id: ethical_framework_proposal.proposal_id.clone(), voter_id: "stakeholder_A".to_string(),
-            vote_value: true, quantum_proof_of_vote: "qpv_A_xyz123".to_string(), vote_timestamp: Instant::now(),
+            vote_value: true, quantum_proof_of_vote: "qpv_A_xyz123".to_string(), vote_timestamp: Utc::now(),
         },
         QuantumVote {
             vote_id: "qv_s002".to_string(), proposal_id: ethical_framework_proposal.proposal_id.clone(), voter_id: "stakeholder_B".to_string(),
-            vote_value: true, quantum_proof_of_vote: "qpv_B_xyz456".to_string(), vote_timestamp: Instant::now(),
+            vote_value: true, quantum_proof_of_vote: "qpv_B_xyz456".to_string(), vote_timestamp: Utc::now(),
         },
         QuantumVote {
             vote_id: "qv_s003".to_string(), proposal_id: ethical_framework_proposal.proposal_id.clone(), voter_id: "stakeholder_C".to_string(),
-            vote_value: false, quantum_proof_of_vote: "qpv_C_xyz789".to_string(), vote_timestamp: Instant::now(),
+            vote_value: false, quantum_proof_of_vote: "qpv_C_xyz789".to_string(), vote_timestamp: Utc::now(),
         },
     ];
     let (yes_votes, no_votes) = qsgm_engine.process_quantum_votes_simd(&ethical_framework_proposal.proposal_id, &stakeholder_votes);
@@ -262,7 +267,7 @@ fn main() {
         proposal_id: ethical_framework_proposal.proposal_id.clone(),
         outcome: if yes_votes > no_votes { "approved".to_string() } else { "rejected".to_string() },
         execution_status: "pending".to_string(),
-        decision_timestamp: Instant::now(),
+        decision_timestamp: Utc::now(),
         quorum_achieved: true, // Assuming quorum for demo
         total_yes_votes: yes_votes,
         total_no_votes: no_votes,

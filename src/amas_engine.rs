@@ -7,10 +7,11 @@
 /// algorithms and evolutionary computing, and SIMD for parallel model evaluation and
 /// fitness function computation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -44,7 +45,8 @@ pub struct OptimalArchitecture {
     pub task_type: String,
     pub architecture_definition: CandidateArchitecture,
     pub achieved_performance: HashMap<String, f32>, // e.g., "accuracy": 0.985, "inference_latency_ms": 5.0
-    pub discovery_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub discovery_time: DateTime<Utc>,
     pub rag_justification: String,
 }
 
@@ -176,7 +178,7 @@ impl AMASEngine {
             task_type: best_arch.task_type.clone(),
             architecture_definition: best_arch,
             achieved_performance,
-            discovery_time: Instant::now(),
+            discovery_time: Utc::now(),
             rag_justification,
         }
     }
@@ -201,7 +203,7 @@ mod tests {
     #[test]
     fn test_amas_engine_flow() {
         let engine = AMASEngine::new();
-        let now = Instant::now();
+        let now = Utc::now();
 
         let initial_layers: HashMap<String, NeuralLayer> = HashMap::from([
             ("conv1".to_string(), NeuralLayer { layer_type: "Conv2D".to_string(), config: HashMap::from([("filters".to_string(), "32".to_string())]), connections_from: Vec::new() }),
@@ -244,7 +246,7 @@ fn main() {
     println!("\n--- Autonomous Model Architecture Search (RAG-Driven) Demonstration ---");
 
     let amas_engine = AMASEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Search for an optimal image classification architecture
     println!("--- Scenario 1: Image Classification Architecture Search ---");

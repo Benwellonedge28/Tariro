@@ -8,10 +8,11 @@
 /// reality stack. It leverages RAG for digital twin architectures and quantum simulation,
 /// and SIMD for parallel environmental rendering and real-time quantum state synchronization.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 
@@ -37,7 +38,7 @@ pub struct DigitalTwinEcosystem {
     pub elements: Vec<TwinElement>,
     pub quantum_state_hash: String, // Conceptual: Hash of the synchronized quantum state of the twin
     pub predictive_model_accuracy: f32,
-    pub last_synchronization: Instant,
+    pub last_synchronization: DateTime<Utc>,
     pub integrity_score: f32, // 0.0 to 1.0 (how true is the twin to reality)
 }
 
@@ -126,7 +127,7 @@ impl QFDTEngine {
         let (new_quantum_state_hash, new_integrity_score) = self.parallel_rendering_quantum_sync_simd(&twin.elements);
         twin.quantum_state_hash = new_quantum_state_hash;
         twin.integrity_score = new_integrity_score;
-        twin.last_synchronization = Instant::now();
+        twin.last_synchronization = Utc::now();
         twin.predictive_model_accuracy = rng.gen_range(0.9..0.98);
 
         println!("  Digital Twin for '{}' updated. Integrity Score: {:.3}.\n", twin.owner, twin.integrity_score);
@@ -185,7 +186,7 @@ mod tests {
         let engine = QFDTEngine::new();
 
         let mut twin = DigitalTwinEcosystem {
-            twin_id: "samuel_twin_001".to_string(), owner: "Samuel Mukandara".to_string(), elements: Vec::new(), quantum_state_hash: "initial_qsh".to_string(), predictive_model_accuracy: 0.8, last_synchronization: Instant::now(), integrity_score: 0.95,
+            twin_id: "samuel_twin_001".to_string(), owner: "Samuel Mukandara".to_string(), elements: Vec::new(), quantum_state_hash: "initial_qsh".to_string(), predictive_model_accuracy: 0.8, last_synchronization: Utc::now(), integrity_score: 0.95,
         };
         twin.elements.push(TwinElement {
             element_id: "asset_laptop_001".to_string(), element_type: "PhysicalAsset".to_string(), current_state: HashMap::from([("battery".to_string(), "80%".to_string())]), historical_data_link: "link_to_logs".to_string(), quantum_entanglement_state: None, interactions: vec![], anomaly_detection_score: 0.05,
@@ -216,7 +217,7 @@ fn main() {
     println!("\n--- Autonomous Quantum-Fidelity Digital Twin (RAG-Driven) Demonstration ---");
 
     let qfdt_engine = QFDTEngine::new();
-    let now = Instant::now();
+    let now = Utc::now();
 
     // Scenario 1: Initializing Samuel's Digital Twin with core elements
     println!("--- Scenario 1: Digital Twin Initialization & Update ---");
@@ -226,7 +227,7 @@ fn main() {
         elements: vec![],
         quantum_state_hash: "QSH_initial".to_string(),
         predictive_model_accuracy: 0.0,
-        last_synchronization: Instant::now(),
+        last_synchronization: Utc::now(),
         integrity_score: 0.0,
     };
 

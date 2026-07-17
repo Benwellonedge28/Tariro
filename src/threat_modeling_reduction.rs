@@ -10,7 +10,7 @@
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Categories of threats based on the STRIDE model.

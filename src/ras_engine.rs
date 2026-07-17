@@ -6,10 +6,11 @@
 /// efficiency, minimizing latency, and optimizing cost. It leverages RAG for system telemetry,
 /// workload prediction, and resource optimization algorithms, with SIMD for parallel scheduling decisions.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -35,7 +36,7 @@ pub struct ScheduledTask {
     pub required_memory: f32,
     pub required_network: f32,
     pub priority: u32, // 1 (high) to 5 (low)
-    pub deadline: Option<Instant>,
+    pub deadline: Option<DateTime<Utc>>,
 }
 
 /// Represents a workload prediction.
@@ -53,8 +54,10 @@ pub struct SchedulingDecision {
     pub decision_id: String,
     pub task_id: String,
     pub assigned_resource_id: String,
-    pub estimated_start_time: Instant,
-    pub estimated_completion_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub estimated_start_time: DateTime<Utc>,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub estimated_completion_time: DateTime<Utc>,
     pub cost_estimate: f32,
 }
 
@@ -125,7 +128,7 @@ impl RASEngine {
         let chosen_resource = suitable_resources.get(rng.gen_range(0..suitable_resources.len()))
             .unwrap_or(&available_resources[0]); // Fallback
 
-        let now = Instant::now();
+        let now = Utc::now();
         SchedulingDecision {
             decision_id: format!("sched_{}", rng.gen::<u32>()),
             task_id: task.task_id.clone(),
@@ -223,7 +226,7 @@ fn main() {
         required_memory: 15.0,
         required_network: 50.0,
         priority: 1,
-        deadline: Some(Instant::now() + Duration::from_secs(3600)), // Must complete within 1 hour
+        deadline: Some(Utc::now() + Duration::from_secs(3600)), // Must complete within 1 hour
     };
     println!("  Defined high-priority task '{}' with CPU requirement: {}.\n", real_time_analytics_task.name, real_time_analytics_task.required_cpu);
 

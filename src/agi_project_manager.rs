@@ -2,7 +2,7 @@
 
 //! Manages projects and tasks for the Tariro AGI, enabling autonomous goal achievement.
 
-use chrono::{DateTime, Utc};
+use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use std::collections::HashMap;
@@ -37,6 +37,19 @@ pub enum ProjectStatus {
     Failed,
 }
 
+impl std::fmt::Display for ProjectStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ProjectStatus::Planning => write!(f, "Planning"),
+            ProjectStatus::InProgress => write!(f, "InProgress"),
+            ProjectStatus::Paused => write!(f, "Paused"),
+            ProjectStatus::Completed => write!(f, "Completed"),
+            ProjectStatus::Archived => write!(f, "Archived"),
+            ProjectStatus::Failed => write!(f, "Failed"),
+        }
+    }
+}
+
 /// Represents a discrete task within a project.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ProjectTask {
@@ -65,6 +78,19 @@ pub enum TaskStatus {
     Review,
     Done,
     Failed,
+}
+
+impl std::fmt::Display for TaskStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TaskStatus::Todo => write!(f, "Todo"),
+            TaskStatus::InProgress => write!(f, "InProgress"),
+            TaskStatus::Blocked => write!(f, "Blocked"),
+            TaskStatus::Review => write!(f, "Review"),
+            TaskStatus::Done => write!(f, "Done"),
+            TaskStatus::Failed => write!(f, "Failed"),
+        }
+    }
 }
 
 /// Priority of a task.

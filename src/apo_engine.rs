@@ -7,10 +7,11 @@
 /// monitoring and parallel optimization; RAG: performance profiling, low-level optimization techniques,
 /// hardware architecture insights).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -21,7 +22,8 @@ pub struct SystemMetric {
     pub metric_id: String,
     pub name: String, // e.g., "cpu_utilization", "memory_usage_gb", "simd_lane_saturation"
     pub value: f64,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Represents an identified performance bottleneck.
@@ -147,7 +149,7 @@ mod tests {
         let engine = APO_Engine::new();
 
         let metrics = vec![
-            SystemMetric { metric_id: "cpu_001".to_string(), name: "cpu_utilization".to_string(), value: 0.85, timestamp: Instant::now() },
+            SystemMetric { metric_id: "cpu_001".to_string(), name: "cpu_utilization".to_string(), value: 0.85, timestamp: Utc::now() },
         ];
         let processed_metrics = engine.monitor_system_metrics_simd("test_system", &metrics);
         assert!(!processed_metrics.is_empty());
@@ -171,10 +173,10 @@ fn main() {
     // Scenario 1: Monitoring real-time system metrics
     println!("--- Scenario 1: Monitoring System Metrics ---");
     let current_metrics = vec![
-        SystemMetric { metric_id: "cpu_load_avg_5m".to_string(), name: "cpu_utilization".to_string(), value: 0.75, timestamp: Instant::now() },
-        SystemMetric { metric_id: "mem_used_gb".to_string(), name: "memory_usage".to_string(), value: 12.5, timestamp: Instant::now() },
-        SystemMetric { metric_id: "disk_io_ops_sec".to_string(), name: "disk_io".to_string(), value: 1500.0, timestamp: Instant::now() },
-        SystemMetric { metric_id: "simd_saturation_qml".to_string(), name: "simd_lane_saturation".to_string(), value: 0.92, timestamp: Instant::now() },
+        SystemMetric { metric_id: "cpu_load_avg_5m".to_string(), name: "cpu_utilization".to_string(), value: 0.75, timestamp: Utc::now() },
+        SystemMetric { metric_id: "mem_used_gb".to_string(), name: "memory_usage".to_string(), value: 12.5, timestamp: Utc::now() },
+        SystemMetric { metric_id: "disk_io_ops_sec".to_string(), name: "disk_io".to_string(), value: 1500.0, timestamp: Utc::now() },
+        SystemMetric { metric_id: "simd_saturation_qml".to_string(), name: "simd_lane_saturation".to_string(), value: 0.92, timestamp: Utc::now() },
     ];
     let monitored_metrics = apo_engine.monitor_system_metrics_simd("tariro_main_node", &current_metrics);
     println!("  Monitored {} metrics. SIMD saturation: {:.2}.\n", monitored_metrics.len(), monitored_metrics[3].value);

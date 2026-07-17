@@ -9,10 +9,11 @@
 /// (leveraging RAG for meta-learning paradigms and adaptive algorithms, and SIMD for high-speed policy
 /// updates and model recalibration).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Represents an experience tuple (state, action, reward, next_state).
@@ -134,7 +135,7 @@ mod tests {
             action: 0,
             reward: 1.0,
             next_state: vec![0.2, 0.3, 0.4],
-            timestamp: Instant::now().elapsed().as_secs(),
+            timestamp: Utc::now().timestamp(),
         };
         agent.process_experience(experience);
 
@@ -173,7 +174,7 @@ fn main() {
             action: i % 2,
             reward: (i as f32 + 1.0) * 0.5,
             next_state: vec![0.1 * (i + 1) as f32, 0.2 * (i + 1) as f32, 0.3 * (i + 1) as f32],
-            timestamp: Instant::now().elapsed().as_secs(),
+            timestamp: Utc::now().timestamp(),
         };
         learning_agent.process_experience(experience);
     }

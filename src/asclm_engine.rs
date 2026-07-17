@@ -7,6 +7,7 @@
 /// prevents burnout. It leverages RAG for advanced scheduling algorithms and cognitive load
 /// management, and SIMD for parallel schedule optimization and real-time context adaptation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
@@ -33,7 +34,10 @@ pub struct ScheduledEvent {
 /// Represents Samuel's current and predicted cognitive load profile.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CognitiveLoadProfile {
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub current_load: f32, // 0.0 to 1.0
     pub predicted_load_next_hour: f32,
     pub historical_peak_load: f32,
@@ -46,7 +50,10 @@ pub struct CognitiveLoadProfile {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ScheduleAdjustment {
     pub adjustment_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub recommended_action: String, // e.g., "Reschedule_Meeting", "Delegate_Task", "Insert_Break"
     pub target_event_id: Option<String>,
     pub new_time: Option<SystemTime>,
@@ -131,7 +138,7 @@ impl ASCLMEngine {
             
             adjustments.push(ScheduleAdjustment {
                 adjustment_id: format!("adj_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 recommended_action: "Insert_Mandatory_Break".to_string(),
                 target_event_id: target_event_id.clone(),
                 new_time: Some(SystemTime::now() + Duration::from_secs(3600)), // 1 hour from now
@@ -144,7 +151,7 @@ impl ASCLMEngine {
             let target_event_id = current_schedule.iter().filter(|e| e.priority_score < 0.5).min_by(|a,b| a.start_time.duration_since(UNIX_EPOCH).unwrap().as_secs_f32().partial_cmp(&b.start_time.duration_since(UNIX_EPOCH).unwrap().as_secs_f32()).unwrap_or(std::cmp::Ordering::Equal)).map(|e| e.event_id.clone());
             adjustments.push(ScheduleAdjustment {
                 adjustment_id: format!("adj_{}", rng.gen::<u32>()),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 recommended_action: "Reprioritize_Task".to_string(),
                 target_event_id,
                 new_time: None,
@@ -193,7 +200,7 @@ mod tests {
         ];
 
         let cognitive_profile = CognitiveLoadProfile {
-            timestamp: Instant::now(), current_load: 0.9, predicted_load_next_hour: 0.8, historical_peak_load: 0.95, burnout_risk_score: 0.7, optimal_work_blocks: vec![], contributing_factors: HashMap::new(),
+            timestamp: Utc::now(), current_load: 0.9, predicted_load_next_hour: 0.8, historical_peak_load: 0.95, burnout_risk_score: 0.7, optimal_work_blocks: vec![], contributing_factors: HashMap::new(),
         };
 
         let adjustments = engine.manage_schedule_and_load_rag(current_schedule, cognitive_profile, vec!["Strategic Goal A".to_string()]);
@@ -221,7 +228,7 @@ fn main() {
         },
     ];
     let high_load_profile = CognitiveLoadProfile {
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         current_load: 0.85,
         predicted_load_next_hour: 0.9,
         historical_peak_load: 0.92,
@@ -250,7 +257,7 @@ fn main() {
         },
     ];
     let low_load_profile = CognitiveLoadProfile {
-        timestamp: Instant::now(),
+        timestamp: Utc::now(),
         current_load: 0.2,
         predicted_load_next_hour: 0.3,
         historical_peak_load: 0.8,

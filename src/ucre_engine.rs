@@ -9,10 +9,11 @@
 /// operational data; RAG: legal informatics, regulatory compliance, ethical AI, policy enforcement, formal verification
 /// of rules, automated auditing).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -25,7 +26,8 @@ pub struct ComplianceRule {
     pub rule_description: String,
     pub violation_severity: String, // e.g., "minor", "moderate", "critical"
     pub automated_action_template: Option<String>, // e.g., "redact_data", "suspend_access", "log_audit_alert"
-    pub last_updated: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub last_updated: DateTime<Utc>,
 }
 
 /// Represents an operational event that needs to be checked against compliance rules.
@@ -34,7 +36,8 @@ pub struct OperationalEvent {
     pub event_id: String,
     pub event_type: String, // e.g., "data_access", "model_deployment", "user_interaction"
     pub event_data: HashMap<String, String>, // Contextual data: user_id, data_id, location, etc.
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub associated_decision_id: Option<String>,
 }
 
@@ -47,7 +50,8 @@ pub struct ComplianceViolation {
     pub description: String,
     pub severity: String,
     pub proposed_action: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub human_review_required: bool,
 }
 
@@ -110,7 +114,7 @@ impl UCRE_Engine {
                         ("data_sensitivity".to_string(), "PII_Level_3".to_string()),
                         ("access_location".to_string(), "EU_Region".to_string()),
                     ]),
-                    timestamp: Instant::now(),
+                    timestamp: Utc::now(),
                     associated_decision_id: Some(format!("dec_{}", rng.gen::<u32>())),
                 });
             }
@@ -141,7 +145,7 @@ impl UCRE_Engine {
                         description: format!("GDPR PII data accessed outside EU for event '{}'.", event.event_id),
                         severity: rule.violation_severity.clone(),
                         proposed_action: rule.automated_action_template.clone().unwrap_or("Escalate_to_human_review".to_string()),
-                        timestamp: Instant::now(),
+                        timestamp: Utc::now(),
                         human_review_required: rule.violation_severity == "critical",
                     });
                 }
@@ -202,7 +206,7 @@ mod tests {
                 rule_description: "PII data must not leave EU without explicit consent.".to_string(),
                 violation_severity: "critical".to_string(),
                 automated_action_template: Some("redact_data_and_alert_compliance".to_string()),
-                last_updated: Instant::now(),
+                last_updated: Utc::now(),
             },
         ];
         let violations = engine.evaluate_compliance_rules_rag(&events, &rules);
@@ -240,7 +244,7 @@ fn main() {
             rule_description: "Personal data cannot be transferred outside EEA without adequate safeguards.".to_string(),
             violation_severity: "critical".to_string(),
             automated_action_template: Some("block_transfer_and_notify_dpo".to_string()),
-            last_updated: Instant::now(),
+            last_updated: Utc::now(),
         },
         ComplianceRule {
             rule_id: "hipaa_access_log".to_string(),
@@ -248,7 +252,7 @@ fn main() {
             rule_description: "All access to protected health information must be logged.".to_string(),
             violation_severity: "moderate".to_string(),
             automated_action_template: Some("generate_audit_log_entry_if_missing".to_string()),
-            last_updated: Instant::now(),
+            last_updated: Utc::now(),
         },
         ComplianceRule {
             rule_id: "internal_data_retention".to_string(),
@@ -256,7 +260,7 @@ fn main() {
             rule_description: "Temporary data should be purged after 90 days.".to_string(),
             violation_severity: "minor".to_string(),
             automated_action_template: Some("trigger_data_purge_process".to_string()),
-            last_updated: Instant::now(),
+            last_updated: Utc::now(),
         },
     ];
     let detected_violations = ucre_engine.evaluate_compliance_rules_rag(&monitored_events, &active_compliance_rules);

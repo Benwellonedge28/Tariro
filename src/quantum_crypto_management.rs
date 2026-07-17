@@ -4,10 +4,11 @@
 /// It will oversee and dynamically update cryptographic protocols to defend against quantum computing threats
 /// (leveraging SIMD for rapid encryption/decryption and key rotation).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 /// Represents different cryptographic algorithms.
@@ -71,7 +72,7 @@ impl CryptoManager {
         println!("  [CryptoManager]: Generating {:?} key.", algorithm);
         let mut rng = rand::thread_rng();
         let key_id = format!("Key_{}_{}", algorithm, rng.gen::<u32>());
-        let current_time = Instant::now().elapsed().as_secs();
+        let current_time = Utc::now().timestamp();
         let key_value: Vec<u8> = (0..32).map(|_| rng.gen::<u8>()).collect(); // Dummy key data
 
         let is_qr = match algorithm {
@@ -186,7 +187,7 @@ fn main() {
     println!("\n--- Quantum-Resistant Cryptography Management Demonstration ---");
 
     let mut crypto_manager = CryptoManager::new();
-    let start_time = Instant::now().elapsed().as_secs();
+    let start_time = Utc::now().timestamp();
 
     // 1. Generate initial keys, including some quantum-resistant ones
     let aes_key = crypto_manager.generate_key(CryptoAlgorithm::AES256, 3600); // Expires in 1 hour

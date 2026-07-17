@@ -4,6 +4,7 @@
 //! This service autonomously monitors for critical quantum threats and
 //! generates actionable alerts, including direct notifications to the SUPER ADMIN.
 
+use crate::prelude::*;
 use std::sync::{Arc, Mutex};
 use tokio::time::{self, Duration};
 use crate::telemetry::TelemetryLogger;

@@ -6,10 +6,11 @@
 /// footprint of digital services. It leverages RAG for real-time carbon intensity data, energy market prices,
 /// and application flexibility profiles.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -41,7 +42,8 @@ pub struct CarbonAwareScheduleRecommendation {
     pub recommendation_id: String,
     pub task_id: String,
     pub recommended_region_id: String,
-    pub scheduled_start_time: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub scheduled_start_time: DateTime<Utc>,
     pub estimated_carbon_savings_gco2: f32,
     pub estimated_cost_savings_usd: f32,
     pub justification: String,
@@ -102,7 +104,7 @@ impl CAAEngine {
             recommendation_id: format!("cas_rec_{}", rng.gen::<u32>()),
             task_id: task.task_id.clone(),
             recommended_region_id: best_region.region_id.clone(),
-            scheduled_start_time: Instant::now() + Duration::from_secs(rng.gen_range(0..3600) as u64), // Potentially delay based on flexibility
+            scheduled_start_time: Utc::now() + Duration::from_secs(rng.gen_range(0..3600) as u64), // Potentially delay based on flexibility
             estimated_carbon_savings_gco2: estimated_carbon_savings,
             estimated_cost_savings_usd: estimated_cost_savings,
             justification: format!("Lowest carbon intensity region ({} gCO2/kWh).", best_region.current_carbon_intensity_gco2_kwh),

@@ -5,10 +5,11 @@
 /// for real-time mapping, environmental monitoring, and urban planning. It leverages RAG for geospatial ontologies
 /// and SIMD for parallel raster/vector operations.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -17,7 +18,8 @@ use rand::Rng;
 #[derive(Debug, Clone)]
 pub struct SatelliteImageTile {
     pub tile_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub resolution_meters_per_pixel: f32,
     pub pixel_data: Vec<u8>, // Conceptual: e.g., RGB values
     pub bounding_box: ((f32, f32), (f32, f32)), // min_lat_lon, max_lat_lon
@@ -56,7 +58,8 @@ pub struct GeospatialLayer {
 pub struct ProcessedMapOutput {
     pub output_id: String,
     pub processed_layers: Vec<GeospatialLayer>,
-    pub generated_at: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub generated_at: DateTime<Utc>,
     pub spatial_analysis_summary: String,
     pub visualization_data: Vec<u8>, // Conceptual: e.g., rendered map image
 }
@@ -159,7 +162,7 @@ impl MPGDP_Engine {
         ProcessedMapOutput {
             output_id: format!("map_output_{}", rng.gen::<u32>()),
             processed_layers: processed_layers.to_vec(),
-            generated_at: Instant::now(),
+            generated_at: Utc::now(),
             spatial_analysis_summary: format!("Comprehensive map output generated from {} layers, processing {} data points. Key insights derived from geospatial ontologies for urban planning and environmental monitoring.", processed_layers.len(), total_data_processed),
             visualization_data: vec![rng.gen::<u8>() ; 1024], // Conceptual image data
         }
@@ -176,7 +179,7 @@ mod tests {
 
         let img = SatelliteImageTile {
             tile_id: "img1".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             resolution_meters_per_pixel: 0.5,
             pixel_data: vec![0; 100],
             bounding_box: ((10.0, 10.0), (10.5, 10.5)),
@@ -216,8 +219,8 @@ fn main() {
     // Scenario 1: Ingest various geospatial data types
     println!("--- Scenario 1: Ingest Geospatial Data ---");
     let satellite_images = vec![
-        SatelliteImageTile { tile_id: format!("sat_tile_{}", rand::thread_rng().gen::<u32>()), timestamp: Instant::now(), resolution_meters_per_pixel: 0.3, pixel_data: vec![100; 1000], bounding_box: ((34.0, -118.0), (34.1, -117.9)) },
-        SatelliteImageTile { tile_id: format!("sat_tile_{}", rand::thread_rng().gen::<u32>()), timestamp: Instant::now(), resolution_meters_per_pixel: 0.3, pixel_data: vec![120; 1000], bounding_box: ((34.1, -118.0), (34.2, -117.9)) },
+        SatelliteImageTile { tile_id: format!("sat_tile_{}", rand::thread_rng().gen::<u32>()), timestamp: Utc::now(), resolution_meters_per_pixel: 0.3, pixel_data: vec![100; 1000], bounding_box: ((34.0, -118.0), (34.1, -117.9)) },
+        SatelliteImageTile { tile_id: format!("sat_tile_{}", rand::thread_rng().gen::<u32>()), timestamp: Utc::now(), resolution_meters_per_pixel: 0.3, pixel_data: vec![120; 1000], bounding_box: ((34.1, -118.0), (34.2, -117.9)) },
     ];
     let lidar_scans = vec![
         LiDARPointData { point_id: format!("lidar_p_{}", rand::thread_rng().gen::<u32>()), coordinates: (34.05, -117.95, 150.0), intensity: 200, classification: 2 },

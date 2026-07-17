@@ -12,10 +12,11 @@
 /// RAG: affective computing, human-computer interaction (HCI), cognitive psychology, nonverbal communication,
 /// sentiment analysis, reinforcement learning for user modeling, personalized learning, dynamic UI/UX).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use rand::Rng;
 
 // --- Conceptual Structures --- //
@@ -24,7 +25,8 @@ use rand::Rng;
 #[derive(Debug, Clone)]
 pub struct MultiModalSensorData {
     pub data_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub vocal_analysis: HashMap<String, f32>, // e.g., "pitch", "volume", "pauses_per_min"
     pub facial_landmarks: HashMap<String, f32>, // e.g., "brow_furrow", "smile_intensity"
     pub physiological_signals: HashMap<String, f32>, // e.g., "heart_rate", "skin_conductance"
@@ -35,7 +37,8 @@ pub struct MultiModalSensorData {
 #[derive(Debug, Clone)]
 pub struct EmotionalState {
     pub state_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
     pub primary_emotion: String, // e.g., "calm", "frustrated", "curious", "stressed"
     pub cognitive_load: f32, // 0.0 (low) to 1.0 (high)
     pub engagement_level: f32, // 0.0 (disengaged) to 1.0 (highly engaged)
@@ -50,7 +53,8 @@ pub struct InterfaceAdaptationCommand {
     pub adaptation_type: String, // e.g., "increase_empathy", "reduce_complexity", "highlight_key_info"
     pub new_parameter_value: String,
     pub initiated_by_state_id: String,
-    pub timestamp: Instant,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Overall EAIAC system report.
@@ -118,7 +122,7 @@ impl EAIAC_Engine {
 
         EmotionalState {
             state_id: format!("emotion_{}", rng.gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             primary_emotion,
             cognitive_load: rng.gen_range(0.1..0.9),
             engagement_level: rng.gen_range(0.3..0.95),
@@ -148,7 +152,7 @@ impl EAIAC_Engine {
             adaptation_type: adaptation_type,
             new_parameter_value: new_value,
             initiated_by_state_id: current_state.state_id.clone(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
         }
     }
 
@@ -180,7 +184,7 @@ mod tests {
         let raw_data = vec![
             MultiModalSensorData {
                 data_id: "raw_001".to_string(),
-                timestamp: Instant::now(),
+                timestamp: Utc::now(),
                 vocal_analysis: HashMap::new(),
                 facial_landmarks: HashMap::new(),
                 physiological_signals: HashMap::new(),
@@ -198,7 +202,7 @@ mod tests {
 
         let subsequent_state = EmotionalState {
             state_id: "sub_emotion_001".to_string(),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             primary_emotion: "calm".to_string(),
             cognitive_load: 0.2,
             engagement_level: 0.8,
@@ -219,7 +223,7 @@ fn main() {
     let user_input_data = vec![
         MultiModalSensorData {
             data_id: format!("sensor_data_{}", rand::thread_rng().gen::<u32>()),
-            timestamp: Instant::now(),
+            timestamp: Utc::now(),
             vocal_analysis: HashMap::from([("pitch".to_string(), 150.0), ("volume".to_string(), 0.7)]), // Simulating vocal data
             facial_landmarks: HashMap::from([("brow_furrow".to_string(), 0.8), ("smile_intensity".to_string(), 0.1)]), // Simulating facial data
             physiological_signals: HashMap::from([("heart_rate".to_string(), 95.0), ("skin_conductance".to_string(), 0.6)]), // Simulating physiological data
@@ -249,7 +253,7 @@ fn main() {
     println!("--- Scenario 4: Evaluate User Response ---");
     let subsequent_user_state = EmotionalState {
         state_id: format!("emotion_{}", rand::thread_rng().gen::<u32>()),
-        timestamp: Instant::now() + Duration::from_secs(5),
+        timestamp: Utc::now() + Duration::from_secs(5),
         primary_emotion: "calm".to_string(), // Simulate successful calming effect
         cognitive_load: 0.3,
         engagement_level: 0.8,

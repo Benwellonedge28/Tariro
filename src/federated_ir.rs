@@ -7,10 +7,11 @@
 /// providing a unified and comprehensive view of information (leveraging RAG for schema mapping and
 /// query translation, and SIMD for high-speed parallel data fetching and result fusion).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 /// Represents a data source in the federated system.
 #[derive(Debug, Clone)]
@@ -81,7 +82,7 @@ impl FederatedIRManager {
                         title: "Rust Programming Primer".to_string(),
                         snippet: "An introduction to the Rust programming language.".to_string(),
                         score: 0.9,
-                        timestamp: Instant::now().elapsed().as_secs(),
+                        timestamp: Utc::now().timestamp(),
                     });
                 }
                 if source_clone.name.contains("Knowledge") && query_clone.text.contains("Tariro") {
@@ -91,7 +92,7 @@ impl FederatedIRManager {
                         title: "Tariro AGI Definition".to_string(),
                         snippet: "An advanced autonomous general intelligence.".to_string(),
                         score: 0.95,
-                        timestamp: Instant::now().elapsed().as_secs(),
+                        timestamp: Utc::now().timestamp(),
                     });
                 }
                 results_from_source
