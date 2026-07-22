@@ -84,7 +84,7 @@ impl SEEEngine {
     pub fn deploy_agi_to_enclave(&self, component: EnclaveComponent) -> EnclaveComponent {
         println!("  [SEE]: Deploying AGI component '{}' to secure enclave.", component.name);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut deployed_component = component.clone();
         deployed_component.current_status = "Deployed".to_string();
@@ -102,7 +102,7 @@ impl SEEEngine {
             format!("RAG insight for attestation: {}. Component ID: '{}'", hsm_info, component.component_id);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let is_valid = rng.gen_bool(0.99); // 99% chance of valid attestation
         let measurement = format!("measurement_{}", component.code_hash);
@@ -128,7 +128,7 @@ impl SEEEngine {
             format!("RAG insight for enclave execution: {}. Input data: '{}'", tee_info, request.input_data_id);
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         if attested_component.current_status == "Deployed" || attested_component.current_status == "Attested" {
             println!("  AGI task '{}' successfully executed in secure enclave.\n", request.request_id);

@@ -15,6 +15,7 @@ use rand::Rng;
 
 /// Represents a task assigned to an agent.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct AgentTask {
     pub id: String,
     pub description: String,
@@ -35,7 +36,7 @@ pub struct SharedAsset {
 }
 
 /// Represents a collaboration event or message between agents.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct CollaborationEvent {
     pub event_type: String, // e.g., "task_completed", "asset_update", "conflict_detected"
     pub agent_id: String,

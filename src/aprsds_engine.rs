@@ -104,7 +104,7 @@ impl APRSDSEngine {
     fn parallel_roadmap_optimization_simd(&self, initial_tasks: &[ProjectTask], constraints: &HashMap<String, String>) -> (Vec<ProjectTask>, HashMap<String, DateTime<Utc>>, f32) { // optimized tasks, milestones, and optimization score
         println!("    [APRSDS-SIMD]: Performing parallel roadmap optimization for {} tasks under constraints {:?}.", initial_tasks.len(), constraints);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut optimized_tasks = initial_tasks.to_vec();
         // Simulate SIMD-accelerated dependency graph analysis, resource leveling, and schedule compression
@@ -135,7 +135,7 @@ impl APRSDSEngine {
             format!("RAG knowledge for strategic planning: '{}'", spf.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Conceptual: RAG-driven breakdown of high-level directive into initial tasks
         let initial_tasks = vec![
@@ -173,7 +173,7 @@ impl APRSDSEngine {
     pub fn dynamic_reschedule_roadmap_rag(&self, mut roadmap: ProjectRoadmap, scheduling_event: SchedulingEvent) -> ProjectRoadmap {
         println!("  [APRSDS]: Dynamically rescheduling roadmap '{}' due to event '{}'.", roadmap.project_name, scheduling_event.event_type);
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         roadmap.tasks.iter_mut().for_each(|task| {
             if scheduling_event.affected_task_ids.contains(&task.task_id) {

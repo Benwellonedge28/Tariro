@@ -19,7 +19,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents observed or explicitly set user preferences.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct UserPreference {
     pub preference_id: String,
     pub user_id: String,
@@ -31,7 +32,7 @@ pub struct UserPreference {
 }
 
 /// Represents real-time contextual data about the user and environment.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ContextualData {
     pub context_id: String,
     pub user_id: String,
@@ -44,7 +45,7 @@ pub struct ContextualData {
 }
 
 /// Represents an adaptation made to the user interface or interaction.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct InterfaceAdaptation {
     pub adaptation_id: String,
     pub user_id: String,

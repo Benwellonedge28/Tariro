@@ -164,7 +164,7 @@ impl SSFEngine {
     pub fn fuse_data_points_simd(&self, query_id: &str, snippets: &[KnowledgeSnippet]) -> FusedAnswer {
         println!("  [SSF]: Fusing {} data points into a comprehensive answer for query '{}'.", snippets.len(), query_id);
         thread::sleep(Duration::from_millis(80));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let fused_content = snippets.iter()
             .map(|s| s.content.clone())

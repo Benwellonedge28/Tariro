@@ -19,6 +19,7 @@ use rand::Rng;
 
 /// Represents a single component in the AGI system.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct SystemComponent {
     pub component_id: String,
     pub component_type: String, // e.g., "Hardware", "SoftwareModule", "CognitiveProcess"
@@ -29,7 +30,7 @@ pub struct SystemComponent {
 }
 
 /// Represents a predicted system event (e.g., anomaly, bottleneck, failure).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SystemEventPrediction {
     pub prediction_id: String,
     pub component_id: String,
@@ -85,7 +86,7 @@ impl OSSMPEngine {
             format!("RAG insight for prediction: {}. Component health: '{}'", history_info, component.health_score);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate a prediction based on health score and some random chance
         if component.health_score < 70.0 && rng.gen_bool(0.6) {

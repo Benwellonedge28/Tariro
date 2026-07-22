@@ -98,7 +98,7 @@ impl ACSAEngine {
     fn parallel_compliance_risk_assessment_simd(&self, tariro_state: &HashMap<String, String>, compliance_rules: &[ComplianceRule]) -> (Vec<String>, f32) { // detected deviations and overall risk
         println!("    [ACSA-SIMD]: Performing parallel compliance checks and risk assessment for {} rules.", compliance_rules.len());
         thread::sleep(Duration::from_millis(70));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut deviations = Vec::new();
         let mut total_risk = 0.0;
@@ -127,7 +127,7 @@ impl ACSAEngine {
             format!("RAG knowledge for compliance frameworks: '{}'", cf_db.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let (detected_deviations, overall_risk) = self.parallel_compliance_risk_assessment_simd(&tariro_current_state, &active_compliance_rules);
 

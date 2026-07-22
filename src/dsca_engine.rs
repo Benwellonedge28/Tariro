@@ -113,7 +113,7 @@ impl DSCAEngine {
             format!("RAG insight for credibility assessment: {}. Insight content: '{}'", model_logic, insight.content.chars().take(50).collect::<String>());
         }
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let (historical_accuracy, known_bias) = self.evaluate_source_reputation_simd(&insight.source_id);
 

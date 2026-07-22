@@ -21,7 +21,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a user's activity event.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct UserActivityEvent {
     pub event_id: String,
     pub user_id: String,
@@ -32,7 +33,7 @@ pub struct UserActivityEvent {
 }
 
 /// Represents the current context of the user, derived from various sources.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct UserContext {
     pub context_id: String,
     pub user_id: String,
@@ -44,7 +45,7 @@ pub struct UserContext {
 }
 
 /// Represents a piece of information proactively pushed to the user.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ProactiveInformation {
     pub info_id: String,
     pub context_id: String,

@@ -108,7 +108,7 @@ impl VMCCEngine {
             format!("RAG insight for consolidation: {}. Active VMs: '{}'", profiling_info, vms.len());
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut recommendations = Vec::new();
 

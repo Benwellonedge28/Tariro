@@ -93,7 +93,7 @@ impl PADHEngine {
     fn parallel_log_analysis_simd(&self, data_stream: &[StreamData]) -> Vec<Anomaly> {
         println!("    [PADH-SIMD]: Performing parallel log analysis on {} data points.", data_stream.len());
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut anomalies = Vec::new();
         for data_point in data_stream {
@@ -135,7 +135,7 @@ impl PADHEngine {
             format!("RAG knowledge for attack patterns: '{}'", attack_pat.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(400));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let detected_anomalies = self.parallel_log_analysis_simd(&stream_data);
 

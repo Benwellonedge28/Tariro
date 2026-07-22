@@ -98,7 +98,7 @@ impl ARPPMEngine {
     fn parallel_sentiment_analysis_media_monitoring_simd(&self, content_streams: &[String]) -> Vec<SentimentAnalysis> { // list of sentiment analyses
         println!("    [ARPPM-SIMD]: Performing parallel sentiment analysis on {} content streams.", content_streams.len());
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut analyses = Vec::new();
         // Simulate SIMD-accelerated processing of millions of pieces of media content for sentiment, emotion, and key phrase extraction
@@ -139,7 +139,7 @@ impl ARPPMEngine {
             format!("RAG knowledge for public relations theory: '{}'", prt.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(2000));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let sentiment_analyses = self.parallel_sentiment_analysis_media_monitoring_simd(&media_streams);
 

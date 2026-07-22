@@ -93,7 +93,7 @@ impl DLCTEngine {
     fn parallel_ledger_hashing_simd(&self, block_data: &str, num_iterations: u32) -> (String, u64) { // hash and nonce
         println!("    [DLC&T-SIMD]: Performing parallel cryptographic hashing for block data. Iterations: {}.", num_iterations);
         thread::sleep(Duration::from_millis(50));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate SIMD-accelerated hashing with proof-of-work like mechanism
         let mut hasher = Sha256::new();
@@ -116,7 +116,7 @@ impl DLCTEngine {
             format!("RAG knowledge for verifiable computing: '{}'", vc.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         ledger_state.pending_transactions.push(transaction.clone());
         println!("  Transaction added to pending pool: '{}'.", transaction.transaction_id);

@@ -97,7 +97,7 @@ impl ANAGEngine {
     fn parallel_design_space_search_proof_checking_simd(&self, problem: &DesignProblem) -> GeneratedDesign { // generated design
         println!("    [ANAG-SIMD]: Searching design space and proof-checking for problem '{}' in parallel.", problem.name);
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate SIMD-accelerated exploration of a vast design space, generating and formally verifying millions of candidate algorithms/architectures concurrently
         GeneratedDesign {
@@ -124,7 +124,7 @@ impl ANAGEngine {
             format!("RAG knowledge for theoretical CS: '{}'", tcs.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(2000));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Conceptual: RAG-augment the problem description with deep theoretical context
         let augmented_problem = format!("Novel design problem: {}. Context: {}. Constraints: {:?}. RAG-derived theoretical insights from [relevant TCS paper].",

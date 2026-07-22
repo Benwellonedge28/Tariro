@@ -91,7 +91,7 @@ impl HWSSPEngine {
     fn parallel_simulation_execution_simd(&self, initial_entities: &mut HashMap<String, SimulatedEntity>, global_factors: &HashMap<String, String>, simulation_steps: u36) { // updates entities in place
         println!("    [HWSSP-SIMD]: Executing parallel simulation for {} entities over {} steps.", initial_entities.len(), simulation_steps);
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         for _step in 0..simulation_steps {
             for (_id, entity) in initial_entities.iter_mut() {
@@ -120,7 +120,7 @@ impl HWSSPEngine {
             format!("RAG knowledge for socio-economic theories: '{}'", socio_eco_theories.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(700));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut current_entities = initial_world_state.simulated_entities.clone();
         let mut current_global_factors = initial_world_state.global_environmental_factors.clone();

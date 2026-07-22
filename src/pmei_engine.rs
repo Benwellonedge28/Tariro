@@ -90,7 +90,7 @@ impl PMEIEngine {
             format!("RAG insight for prediction: {}. Component type: '{}'", failure_info, component.component_type);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut predictions = Vec::new();
         // Simulate a failure prediction based on sensor data exceeding thresholds or operational hours

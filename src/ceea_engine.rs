@@ -96,7 +96,7 @@ impl CEEAEngine {
             format!("RAG insight for formal verification: {}. Layer hash: '{}'", fm_info, layer.code_hash);
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let is_verified = rng.gen_bool(0.9);
         if is_verified {
@@ -118,7 +118,7 @@ impl CEEAEngine {
             format!("RAG insight for certification: {}. Environment: '{}'", tcb_info, env_name);
         }
         thread::sleep(Duration::from_millis(400));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let overall_trust_score = rng.gen_range(0.9..0.999);
 

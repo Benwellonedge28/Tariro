@@ -17,6 +17,7 @@ use rand::Rng;
 
 /// Represents a step in a generative workflow that requires human input.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct GenerativeStep {
     pub id: String,
     pub description: String,
@@ -26,7 +27,7 @@ pub struct GenerativeStep {
 }
 
 /// Represents human input or decision for a generative step.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct HumanDecision {
     pub step_id: String,
     pub chosen_option: Option<String>,

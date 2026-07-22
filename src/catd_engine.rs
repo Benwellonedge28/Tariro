@@ -90,7 +90,7 @@ impl CATDEngine {
     fn parallel_perturbation_generation_simd(&self, original_data: &InputData, attack_type: &str, epsilon: f32) -> AdversarialPerturbation {
         println!("    [CATD-SIMD]: Generating parallel perturbations for attack type '{}' with epsilon {}.", attack_type, epsilon);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let perturbation_data = match original_data {
             InputData::Text(s) => {
@@ -145,7 +145,7 @@ impl CATDEngine {
             format!("RAG knowledge for defense strategies: '{}'", defense_strat.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(400));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let attack_type = if rng.gen_bool(0.6) { "FGSM".to_string() } else { "PGD".to_string() };
         let epsilon = rng.gen_range(0.01..0.1);

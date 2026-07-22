@@ -17,6 +17,7 @@ use rand::Rng;
 
 /// Represents a trained AI model ready for deployment.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct TrainedAIModel {
     pub model_id: String,
     pub name: String,
@@ -46,7 +47,7 @@ pub struct DeploymentStrategy {
 }
 
 /// Represents a deployment record.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct DeploymentRecord {
     pub deployment_id: String,
     pub model_id: String,
@@ -105,7 +106,7 @@ impl MDVEngine {
             format!("RAG insight for deployment: {}. Traffic split: '{}'", deploy_strategy_info, strategy.traffic_split_percentage);
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let deployment_status = if rng.gen_bool(0.9) { "Success" } else { "Failed" }; // Simulate 90% success rate
 
@@ -136,7 +137,7 @@ impl MDVEngine {
             format!("RAG insight for monitoring/rollback: {}. Environment health: '{}'", iac_info, env.health_status);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         if record.status == "Success" && rng.gen_bool(0.05) && record.model_id != previous_model_id.clone().unwrap_or_default() { // Simulate 5% chance of post-deploy issue
             println!("  [MDV]: Degraded performance detected! Initiating auto-rollback for deployment '{}'.\n", record.deployment_id);

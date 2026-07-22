@@ -96,7 +96,7 @@ impl DVFSEngine {
             format!("RAG insight for DVFS recommendation: {}. Processor type: '{}'", spec_info, processor.processor_type);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let recommended_frequency = if predicted_workload_pct < 20.0 {
             processor.min_frequency_mhz + rng.gen_range(0..500) // Lower frequency for low load
@@ -130,7 +130,7 @@ impl DVFSEngine {
         processor.current_frequency_mhz = recommendation.recommended_frequency_mhz;
         processor.current_voltage_mv = recommendation.recommended_voltage_mv;
         // Simulate power draw change
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
         processor.current_power_draw_watts = (processor.current_frequency_mhz as f32 / 3000.0) * (processor.current_voltage_mv as f32 / 1200.0) * 100.0 * rng.gen_range(0.8..1.2);
     }
 

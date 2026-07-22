@@ -97,7 +97,7 @@ impl ACSMOEngine {
     fn parallel_code_evaluation_simd(&self, code_candidates: &[String]) -> HashMap<String, HashMap<String, f32>> { // code_hash -> performance_metrics
         println!("    [ACSMO-SIMD]: Performing parallel evaluation of {} code candidates.", code_candidates.len());
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut evaluation_results = HashMap::new();
         for candidate in code_candidates {
@@ -121,7 +121,7 @@ impl ACSMOEngine {
             format!("RAG knowledge for genetic programming: '{}'", gp_algo.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(500));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut modification_records = Vec::new();
 

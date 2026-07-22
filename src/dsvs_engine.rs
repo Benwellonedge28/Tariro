@@ -90,7 +90,7 @@ impl DSVSEngine {
     fn parallel_nearest_neighbor_search_simd(&self, query_vec: &Vec<f32>, all_embeddings: &HashMap<String, VectorEmbedding>, k: u32) -> Vec<SearchResult> {
         println!("    [DSVS-SIMD]: Performing parallel nearest neighbor search for {} embeddings.", all_embeddings.len());
         thread::sleep(Duration::from_millis(50));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut raw_results = Vec::new();
         for (emb_id, emb_item) in all_embeddings {

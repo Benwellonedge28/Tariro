@@ -16,6 +16,7 @@ use rand::Rng;
 
 /// Represents a quantum key used for secure communication.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct QuantumKey {
     pub id: String,
     pub key_material: Vec<u8>, // Conceptual: actual quantum key data
@@ -24,7 +25,7 @@ pub struct QuantumKey {
 }
 
 /// Represents an encrypted data packet.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct EncryptedPacket {
     pub id: String,
     pub original_hash: String,
@@ -33,7 +34,7 @@ pub struct EncryptedPacket {
 }
 
 /// Represents a hash of the game state, for integrity checking.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct GameStateHash {
     pub round_number: u32,
     pub state_hash: String,

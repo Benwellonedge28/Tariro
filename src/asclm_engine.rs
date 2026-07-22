@@ -100,7 +100,7 @@ impl ASCLMEngine {
     fn parallel_schedule_context_adaptation_simd(&self, events: &[ScheduledEvent], current_load: &CognitiveLoadProfile) -> Vec<ScheduledEvent> { // optimized schedule
         println!("    [ASCLM-SIMD]: Optimizing schedule and adapting to real-time context in parallel.");
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut optimized_events = events.to_vec();
         // Simulate SIMD-accelerated evaluation of millions of schedule permutations against Samuel's cognitive profile
@@ -124,7 +124,7 @@ impl ASCLMEngine {
             format!("RAG knowledge for cognitive load management: '{}'", clm.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(1500));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let optimized_schedule = self.parallel_schedule_context_adaptation_simd(&current_schedule, &cognitive_profile);
         current_schedule = optimized_schedule; // Update with optimized schedule

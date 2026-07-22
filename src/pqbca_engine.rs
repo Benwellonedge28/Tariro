@@ -14,7 +14,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a blockchain block.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct Block {
     pub block_id: String,
     pub height: u64,

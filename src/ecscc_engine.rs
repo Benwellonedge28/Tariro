@@ -93,7 +93,7 @@ impl ECSCCEngine {
     fn parallel_knowledge_computational_simd(&self, query: &CognitiveQuery) -> (Vec<InjectedKnowledgeItem>, HashMap<String, String>) { // injected items and computation results
         println!("    [ECSCC-SIMD]: Executing parallel knowledge retrieval and computational offload for query '{}'.", query.query_id);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate SIMD-accelerated search across vast knowledge bases and execution of analytical tasks
         let injected_items = vec![
@@ -131,7 +131,7 @@ impl ECSCCEngine {
             format!("RAG knowledge for cognitive augmentation: '{}'", caf.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let (injected_knowledge, computational_offload_results) = self.parallel_knowledge_computational_simd(&query);
 

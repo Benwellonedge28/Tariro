@@ -13,11 +13,12 @@ use std::fmt;
 use std::thread;
 use std::time::Duration;
 use rand::Rng;
+use serde::{Serialize, Deserialize};
 
 // --- Conceptual Structures --- //
 
 /// Represents a decision or behavior executed by Tariro.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DecisionEvent {
     pub event_id: String,
     pub decision_context: String,
@@ -40,7 +41,7 @@ pub struct EthicalPrinciple {
 }
 
 /// Represents a detected deviation from ethical principles or values.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ValueDriftReport {
     pub drift_id: String,
     pub decision_event_id: String,

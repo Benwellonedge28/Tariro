@@ -17,6 +17,7 @@ use rand_chacha::ChaCha8Rng;
 
 /// Represents a quantum-safe cryptographic key.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct QuantumSafeKey {
     pub id: String,
     pub key_material: Vec<u8>,
@@ -25,7 +26,7 @@ pub struct QuantumSafeKey {
 }
 
 /// Represents a block of data encrypted with quantum-safe methods.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct EncryptedDataBlock {
     pub id: String,
     pub ciphertext: Vec<u8>,

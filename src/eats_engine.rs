@@ -17,6 +17,7 @@ use rand::Rng;
 
 /// Represents a computational resource in a heterogeneous system.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct ComputeResource {
     pub resource_id: String,
     pub resource_type: String, // e.g., "CPU", "GPU", "FPGA", "TPU"
@@ -28,7 +29,7 @@ pub struct ComputeResource {
 }
 
 /// Represents a task to be scheduled.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ComputeTask {
     pub task_id: String,
     pub task_type: String, // e.g., "AIInference", "DataProcessing", "ScientificSimulation"
@@ -42,7 +43,7 @@ pub struct ComputeTask {
 }
 
 /// Represents a scheduling decision.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SchedulingDecision {
     pub decision_id: String,
     pub task_id: String,
@@ -98,7 +99,7 @@ impl EATSEngine {
             format!("RAG insight for scheduling: {}. Task type: '{}'", balancing_info, task.task_type);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate finding the "most energy-efficient" resource that can meet the task's requirements
         if let Some(optimal_resource) = available_resources.iter()

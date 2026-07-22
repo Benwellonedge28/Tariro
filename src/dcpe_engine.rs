@@ -86,7 +86,7 @@ impl DCPEEngine {
     pub fn establish_containment_policy(&self, name: &str, rules: Vec<String>, enforcement_level: &str) -> ContainmentPolicy {
         println!("  [DCPE]: Establishing new containment policy: '{}'. Level: '{}'.", name, enforcement_level);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         ContainmentPolicy {
             policy_id: format!("pol_{}", rng.gen::<u32>()),
@@ -104,7 +104,7 @@ impl DCPEEngine {
             format!("RAG insight for violation detection: {}. Policy: '{}'", rtid_info, policy.name);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut violations = Vec::new();
         // Simulate detecting a violation based on behavior log and policy rules
@@ -141,7 +141,7 @@ impl DCPEEngine {
             format!("RAG insight for enforcement: {}. Violation severity: '{}'", asp_info, violation.severity);
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         ContainmentAction {
             action_id: format!("action_{}", rng.gen::<u32>()),

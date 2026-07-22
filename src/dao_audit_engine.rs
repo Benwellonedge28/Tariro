@@ -17,6 +17,7 @@ use rand::Rng;
 
 /// Represents a DAO smart contract.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct DAOSmartContract {
     pub contract_address: String,
     pub bytecode_hash: Vec<u8>,
@@ -37,7 +38,7 @@ pub struct Vulnerability {
 }
 
 /// Represents a governance proposal within a DAO.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct GovernanceProposal {
     pub proposal_id: String,
     pub proposer_address: String,

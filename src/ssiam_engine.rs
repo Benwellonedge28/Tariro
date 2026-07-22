@@ -108,7 +108,7 @@ impl SSIAMEngine {
             format!("RAG insight for access verification: {}. Requester DID: '{}'", protocol_info, request.requester_did);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate verification logic: check if required credentials are present in the presentation
         let mut all_required_present = true;

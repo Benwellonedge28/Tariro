@@ -17,6 +17,7 @@ use rand::Rng;
 
 /// Represents an AI model instance, possibly in production.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct AIModelInstance {
     pub model_id: String,
     pub name: String,
@@ -26,7 +27,7 @@ pub struct AIModelInstance {
 }
 
 /// Represents new data or feedback requiring model update.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct NewDataFeedback {
     pub data_id: String,
     pub data_type: String, // e.g., "NewTrainingData", "UserFeedback", "DriftDetection"
@@ -97,7 +98,7 @@ impl DMRFEngine {
             format!("RAG insight for monitoring: {}. Feedback items: '{}'", monitoring_info, new_data_feedback.len());
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate trigger condition based on performance drop or new data relevance
         if model.current_performance_metric < 0.85 || new_data_feedback.iter().any(|d| d.relevance_score > 0.7) && rng.gen_bool(0.7) {
@@ -117,7 +118,7 @@ impl DMRFEngine {
             format!("RAG insight for fine-tuning: {}. Strategy: '{}'", fine_tuning_info, strategy.name);
         }
         thread::sleep(Duration::from_millis(400));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let new_performance = model.current_performance_metric + rng.gen_range(0.01..0.05);
         let new_version = format!("{}.{}", model.version, rng.gen_range(1..10));

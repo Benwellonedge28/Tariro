@@ -17,6 +17,7 @@ use rand::Rng;
 
 /// Represents a dynamic honeypot instance.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct HoneypotInstance {
     pub honeypot_id: String,
     pub name: String,
@@ -27,7 +28,7 @@ pub struct HoneypotInstance {
 }
 
 /// Represents an interaction or event detected by the honeypot.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct HoneypotEvent {
     pub event_id: String,
     pub honeypot_id: String,

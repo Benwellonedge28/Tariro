@@ -111,7 +111,7 @@ impl CLCDRAGEngine {
     fn parallel_translate_and_embed(&self, text: &str, target_lang: &str) -> Vec<f32> {
         println!("    [CLCDRAG-SIMD]: Parallel translating and embedding text for language '{}'.", target_lang);
         thread::sleep(Duration::from_millis(70));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
         // Simplified: return a random embedding, representing the translation + embedding process
         vec![rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>()]
     }
@@ -162,7 +162,7 @@ impl CLCDRAGEngine {
     pub fn synthesize_cross_domain_answer_rag(&self, query_id: &str, snippets: &[MultilingualKnowledgeSnippet], target_language: &str) -> CrossDomainAnswer {
         println!("  [CLCDRAG]: Synthesizing answer in '{}' for query '{}' from {} snippets.", target_language, query_id, snippets.len());
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut combined_content = String::new();
         let mut source_ids = Vec::new();

@@ -100,7 +100,7 @@ impl HFNSEEngine {
     fn parallel_neural_simulation_simd(&self, arch: &NeuralArchitecture, timesteps: u64) -> HashMap<String, Vec<f32>> { // (neuron_id -> activation_history)
         println!("    [HFNSE-SIMD]: Performing parallel neural network simulation for {} timesteps.", timesteps);
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut activation_history: HashMap<String, Vec<f32>> = HashMap::new();
 
@@ -140,7 +140,7 @@ impl HFNSEEngine {
             format!("RAG knowledge for cognitive models: '{}'", cog_model.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(500));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let start_time = Utc::now();
         let activation_history = self.parallel_neural_simulation_simd(arch, timesteps);

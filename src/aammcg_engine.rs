@@ -99,7 +99,7 @@ impl AAMMCGEngine {
     fn parallel_multimodal_generation_quality_assessment_simd(&self, current_prompt: &str, content_type: &str) -> GeneratedContent { // generated content
         println!("    [AAMMCG-SIMD]: Generating '{}' content with prompt '{}' in parallel and assessing quality.", content_type, current_prompt);
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate SIMD-accelerated execution of generative models and concurrent quality assessment passes
         GeneratedContent {
@@ -132,7 +132,7 @@ impl AAMMCGEngine {
             format!("RAG knowledge for multimodal transformers: '{}'", mmt.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(2000));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Conceptual: RAG-augment the initial prompt with deep contextual understanding
         let augmented_prompt = format!("Generate a {} based on Samuel's needs: {}. Consider target audience: {}. Style: {}. Prior feedback: {}. RAG-context: detailed knowledge about [specific topic from RAG].",
@@ -170,7 +170,7 @@ impl AAMMCGEngine {
             });
         }
 
-        println!("  Content generation complete. Generated '{}'. Quality: {:.2}.\n", generated_content.content_type, generated_content.quality_score);
+        println!("  Content generation complete. Quality: {:.2}.\n", generated_content.quality_score);
         (generated_content, assessments)
     }
 

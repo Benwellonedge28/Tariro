@@ -128,7 +128,7 @@ impl MediaComposer {
     pub fn generate_image(&self, description: &str, resolution: (u32, u32)) -> ImageOutput {
         println!("  [MMCC]: Generating image for '{}' at {:?} (SIMD for parallel media rendering).", description, resolution);
         thread::sleep(Duration::from_millis(180));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
         ImageOutput {
             id: format!("img_{}", Utc::now().timestamp()),
             pixel_data: vec![0; (resolution.0 * resolution.1 * 3) as usize], // Simulate RGB pixel data

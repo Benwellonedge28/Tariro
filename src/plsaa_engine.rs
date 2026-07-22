@@ -96,7 +96,7 @@ impl PLSAAEngine {
     fn parallel_content_generation_simd(&self, profile: &SamuelLearningProfile, topic: &str, desired_format: &str) -> LearningContent { // generated content
         println!("    [PLSAA-SIMD]: Generating personalized content for '{}' on topic '{}' in format '{}'.", profile.profile_id, topic, desired_format);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let difficulty = ((profile.learning_pace_multiplier * 5.0).min(10.0)) as u32;
         let content_payload = format!("Conceptual content for {}. Tailored to {}.", topic, profile.preferred_learning_style);
@@ -122,7 +122,7 @@ impl PLSAAEngine {
             format!("RAG knowledge for personalized learning theories: '{}'", plt.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Conceptual: RAG-driven analysis of learning profile and content generation
         let recommended_format = if samuel_profile.preferred_learning_style == "Visual" { "InteractiveSimulation" } else { "PersonalizedLecture" };

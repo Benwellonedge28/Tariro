@@ -19,7 +19,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a single compliance rule or regulation.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct ComplianceRule {
     pub rule_id: String,
     pub rule_category: String, // e.g., "GDPR_Privacy", "HIPAA_Security", "Internal_Data_Usage"
@@ -31,7 +32,7 @@ pub struct ComplianceRule {
 }
 
 /// Represents an operational event that needs to be checked against compliance rules.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct OperationalEvent {
     pub event_id: String,
     pub event_type: String, // e.g., "data_access", "model_deployment", "user_interaction"
@@ -42,7 +43,7 @@ pub struct OperationalEvent {
 }
 
 /// Represents a detected compliance violation.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ComplianceViolation {
     pub violation_id: String,
     pub event_id: String,

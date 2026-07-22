@@ -15,7 +15,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a Decentralized Identifier (DID).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct DecentralizedIdentity {
     pub did_id: String,
     pub did_method: String, // e.g., "did:web", "did:ethr", "did:ion"

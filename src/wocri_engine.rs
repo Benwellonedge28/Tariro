@@ -102,7 +102,7 @@ impl WOCRIEngine {
     fn large_scale_sentiment_analysis_simd(&self, content: &str) -> f32 {
         println!("    [WOCRI-SIMD]: Performing large-scale sentiment analysis on content snippet.");
         thread::sleep(Duration::from_millis(40));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
         // Simulate RAG-driven sentiment model
         if content.contains("praising") || content.contains("optimism") { rng.gen_range(0.6..0.9) }
         else if content.contains("complexity") || content.contains("concerns") { rng.gen_range(0.1..0.5) }
@@ -116,7 +116,7 @@ impl WOCRIEngine {
             format!("RAG insight for consensus detection: {}. Target topic: '{}'", sentiment_info, topic);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut relevant_snippets = Vec::new();
         for (_id, snippet) in self.public_data_store.iter() {

@@ -104,7 +104,7 @@ impl AAWOPMEngine {
     fn parallel_task_scheduling_workflow_monitoring_simd(&self, workflow: &Workflow) -> Vec<MonitoringUpdate> { // list of monitoring updates
         println!("    [AAWOPM-SIMD]: Scheduling tasks for workflow '{}' and monitoring state in parallel.", workflow.name);
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut updates = Vec::new();
         // Simulate SIMD-accelerated dependency resolution, resource allocation checks, and progress aggregation
@@ -145,7 +145,7 @@ impl AAWOPMEngine {
             format!("RAG knowledge for workflow automation: '{}'", wap.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(2000));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Conceptual: RAG-driven dynamic task allocation and dependency management
         for task in workflow.tasks.iter_mut() {

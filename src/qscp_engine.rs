@@ -95,7 +95,7 @@ impl QSCPEngine {
     fn parallel_quantum_data_processing_simd(&self, raw_quantum_data: &[u8]) -> (Vec<u8>, f32) { // (generated_key_material, error_rate)
         println!("    [QSCP-SIMD]: Processing {} bytes of raw quantum data in parallel.", raw_quantum_data.len());
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let key_material_size = raw_quantum_data.len() / 2; // Conceptual key generation
         let generated_key_material: Vec<u8> = (0..key_material_size).map(|_| rng.gen::<u8>()).collect();
@@ -114,7 +114,7 @@ impl QSCPEngine {
             format!("RAG knowledge for quantum-safe networking: '{}'", qsns.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(500));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let raw_quantum_data: Vec<u8> = (0..1024).map(|_| rng.gen::<u8>()).collect(); // Conceptual raw quantum data
         let (key_material, error_rate) = self.parallel_quantum_data_processing_simd(&raw_quantum_data);
@@ -144,7 +144,7 @@ impl QSCPEngine {
     pub fn send_secure_data_rag(&self, channel: &SecureChannel, payload: &[u8]) -> SecureDataPacket {
         println!("  [QSCP]: Sending secure data over channel '{}'. Payload size: {} bytes.", channel.channel_id, payload.len());
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let encrypted_payload_hash = format!("encrypted_hash_{}", rng.gen::<u32>()); // Conceptual encryption and hashing
         let integrity_status = if rng.gen_bool(0.99) { "Verified".to_string() } else { "Failed".to_string() };

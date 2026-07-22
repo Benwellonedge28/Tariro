@@ -108,7 +108,7 @@ impl HCRAGEngine {
     fn parallel_scenario_evaluation_simd(&self, scenario: &Scenario, relevant_knowledge: &[ScenarioRelevantKnowledge]) -> (Vec<String>, Vec<String>, Vec<String>, f32) {
         println!("    [HCRAG-SIMD]: Performing parallel scenario evaluation for '{}'.", scenario.scenario_id);
         thread::sleep(Duration::from_millis(50));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut predicted_outcomes = Vec::new();
         let mut identified_risks = Vec::new();
@@ -135,7 +135,7 @@ impl HCRAGEngine {
             format!("RAG insight for scenario evaluation: {}. Scenario premise: '{}'", model_logic, scenario.premise.chars().take(50).collect::<String>());
         }
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut relevant_knowledge = Vec::new();
         for (_id, snippet) in self.knowledge_base_for_scenarios.iter() {

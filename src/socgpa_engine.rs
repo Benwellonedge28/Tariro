@@ -88,7 +88,7 @@ impl SOCGPAEngine {
     fn parallel_code_gen_and_auto_tune_simd(&self, task: &ComputationTask, arch: &TargetArchitecture) -> (String, HashMap<String, f32>) {
         println!("    [SOCGPA-SIMD]: Parallel code generation and auto-tuning for task '{}' on '{}'.", task.task_id, arch.name);
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut generated_code = format!("// Optimized code for task {} on {} using SIMD\n", task.task_id, arch.name);
 
@@ -122,7 +122,7 @@ impl SOCGPAEngine {
             format!("RAG knowledge for optimization patterns: '{}'", opt_pattern.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(400));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let (generated_code, observed_perf) = self.parallel_code_gen_and_auto_tune_simd(task, arch);
 

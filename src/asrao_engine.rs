@@ -98,7 +98,7 @@ impl ASRAOEngine {
     fn parallel_allocation_simulations_demand_forecasting_simd(&self, available_resources: &[Resource], requests: &[AllocationRequest]) -> Vec<AllocationPlan> { // list of potential plans
         println!("    [ASRAO-SIMD]: Running parallel simulations for {} resources and {} requests.", available_resources.len(), requests.len());
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut plans = Vec::new();
         // Simulate SIMD-accelerated evaluation of millions of allocation permutations, forecasting outcomes and impacts in real-time
@@ -126,7 +126,7 @@ impl ASRAOEngine {
             format!("RAG knowledge for scheduling: '{}'", rsa.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(2000));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let potential_plans = self.parallel_allocation_simulations_demand_forecasting_simd(&current_resources, &incoming_requests);
 

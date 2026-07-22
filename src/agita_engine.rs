@@ -98,7 +98,7 @@ impl AGITAEngine {
     fn parallel_data_sentiment_simd(&self, raw_data: &[RawGlobalDatum]) -> HashMap<String, f32> { // data_id -> sentiment_score
         println!("    [AGITA-SIMD]: Ingesting {} raw global data items in parallel and performing sentiment analysis.", raw_data.len());
         thread::sleep(Duration::from_millis(90));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut sentiment_scores = HashMap::new();
         // Simulate SIMD-accelerated tokenization, linguistic feature extraction, and sentiment scoring
@@ -118,7 +118,7 @@ impl AGITAEngine {
             format!("RAG knowledge for market analysis: '{}'", mat.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let sentiment_scores = self.parallel_data_sentiment_simd(&raw_data_batch);
 
@@ -130,15 +130,17 @@ impl AGITAEngine {
             let actionable_recommendation = format!("RAG-derived action: Consider research into '{}'.", datum.data_type);
             let relevant_projects: Vec<String> = samuel_active_projects.iter().filter(|_| rng.gen_bool(0.7)).cloned().collect();
 
+            let data_id = datum.data_id.clone();
+            let sentiment = *sentiment_scores.get(&data_id).unwrap_or(&0.0);
             intelligence_items.push(IntelligenceItem {
                 item_id: format!("intel_{}", rng.gen::<u32>()),
                 timestamp: Utc::now(),
-                original_data_ids: vec![datum.data_id],
+                original_data_ids: vec![data_id.clone()],
                 title: format!("Intel: {} from {}", datum.data_type, datum.source),
                 summary,
                 relevant_projects,
                 strategic_implications: implications,
-                sentiment_score: *sentiment_scores.get(&datum.data_id).unwrap_or(&0.0),
+                sentiment_score: sentiment,
                 trend_affinity_score: rng.gen_range(0.0..1.0),
                 actionable_recommendation,
             });

@@ -99,7 +99,7 @@ impl AKGIEngine {
             format!("RAG insight for gap identification: {}. Task description: '{}'", logic_rules, task.description.chars().take(50).collect::<String>());
         }
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let required_task_knowledge = vec!["RustCompilerOptimizations".to_string(), "AGIContainmentProtocols".to_string(), "QuantumComputingSecurity".to_string()];
         let missing_knowledge = self.parallel_completeness_check_simd(&task.current_knowledge_assumptions, &required_task_knowledge);
@@ -125,7 +125,7 @@ impl AKGIEngine {
     pub fn initiate_information_gathering(&self, gap: &KnowledgeGap) -> InformationGatheringRequest {
         println!("  [AKGI]: Initiating information gathering for gap '{}' ('{}').", gap.gap_id, gap.missing_knowledge_area);
         thread::sleep(Duration::from_millis(80));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         InformationGatheringRequest {
             request_id: format!("req_{}", rng.gen::<u32>()),

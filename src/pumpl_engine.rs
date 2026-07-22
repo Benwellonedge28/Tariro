@@ -22,7 +22,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents an event of user interaction with Tariro or its environment.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct UserInteractionEvent {
     pub event_id: String,
     pub user_id: String,
@@ -34,7 +35,7 @@ pub struct UserInteractionEvent {
 }
 
 /// Represents a comprehensive profile of a user, including learned preferences and behavioral patterns.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct UserProfile {
     pub user_id: String,
     #[serde(with = "chrono::serde::ts_seconds")]
@@ -46,7 +47,7 @@ pub struct UserProfile {
 }
 
 /// Represents a prediction of a user's future preference or action.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct PredictedPreference {
     pub prediction_id: String,
     pub user_id: String,

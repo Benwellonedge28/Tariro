@@ -88,7 +88,7 @@ impl SMCSEngine {
             format!("RAG insight for safelist evaluation: {}. Proposed snippet: '{}'", flt_info, modification.proposed_code_snippet);
         }
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate evaluation: check if any safelist pattern matches and context is allowed
         let is_safe = safelists.iter().any(|entry| {
@@ -109,7 +109,7 @@ impl SMCSEngine {
             format!("RAG insight for sandboxing: {}. Target path: '{}'", sdca_info, modification.target_code_path);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let execution_status = if rng.gen_bool(0.9) { "Success".to_string() } else { "PolicyViolation".to_string() };
         let safety_score = rng.gen_range(0.7..1.0);

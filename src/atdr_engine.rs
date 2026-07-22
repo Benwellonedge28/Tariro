@@ -89,7 +89,7 @@ impl ATDREngine {
             format!("RAG insight for decomposition: {}. Goal: '{}'", htn_info, goal.description);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate decomposition into 2-3 sub-tasks
         let num_subtasks = rng.gen_range(2..4);
@@ -121,7 +121,7 @@ impl ATDREngine {
             format!("RAG insight for recomposition: {}. Conditions: '{}'", kr_info, new_conditions);
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let old_ids: Vec<String> = current_subtasks.iter().map(|st| st.subtask_id.clone()).collect();
 
@@ -162,7 +162,7 @@ impl ATDREngine {
     pub fn assign_subtask_to_agent(&self, subtask: &mut SubTask, available_agents: &[String]) -> Option<String> {
         println!("  [ATDR]: Assigning subtask '{}'.", subtask.subtask_id);
         thread::sleep(Duration::from_millis(50));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         if let Some(agent_id) = available_agents.first().cloned() {
             subtask.assigned_agent_id = Some(agent_id.clone());

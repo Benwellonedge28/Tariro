@@ -16,6 +16,7 @@ use rand::Rng;
 
 /// Represents a quantum bit (qubit) state (e.g., polarization).
 #[derive(Debug, Clone, Copy)]
+use serde::{Serialize, Deserialize};
 pub enum QubitState {
     H, // Horizontal polarization
     V, // Vertical polarization
@@ -51,7 +52,7 @@ impl MeasurementBasis {
 }
 
 /// Represents a QKD participant (Alice or Bob).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct QKDParticipant {
     pub participant_id: String,
     pub role: String, // "Alice" (sender) or "Bob" (receiver)
@@ -60,7 +61,7 @@ pub struct QKDParticipant {
 }
 
 /// Represents a QKD channel event.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct QKDChannelEvent {
     pub event_id: String,
     pub sender: String,

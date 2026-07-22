@@ -17,7 +17,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a reading from a classical sensor.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct SensorReading {
     pub sensor_id: String,
     pub sensor_type: String, // e.g., "temperature", "humidity", "power_consumption", "cpu_load"
@@ -29,7 +30,7 @@ pub struct SensorReading {
 }
 
 /// Represents a measurement of a quantum state.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct QuantumStateMeasurement {
     pub measurement_id: String,
     pub qbit_id: String,

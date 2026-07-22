@@ -102,7 +102,7 @@ impl AMMIEngine {
             format!("RAG insight for modality selection: {}. User attention: '{}'", um_info, context.user_attention_level);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut chosen_modalities = Vec::new();
         // Simulate selection based on context
@@ -126,7 +126,7 @@ impl AMMIEngine {
             format!("RAG insight for multi-modal processing: {}. Input types: '{}'", mmfa_info, input_modalities.iter().map(|m| m.to_string()).collect::<Vec<String>>().join(", "));
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut response_content = HashMap::new();
         // Simulate AGI generating response across modalities

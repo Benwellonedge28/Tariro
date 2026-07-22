@@ -100,7 +100,7 @@ impl AASOEEngine {
     fn parallel_architectural_simulations_code_optimization_simd(&self, current_architecture: &[ArchitecturalComponent], proposed_changes: &[ArchitecturalProposal]) -> Vec<SelfOptimizationAction> { // list of actions
         println!("    [AASOE-SIMD]: Running parallel architectural simulations and real-time code optimization.");
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut actions = Vec::new();
         // Simulate SIMD-accelerated execution of architectural simulations, stress tests, and formal verification of self-modifying code
@@ -130,7 +130,7 @@ impl AASOEEngine {
             format!("RAG knowledge for algorithm design: '{}'", adp.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(2000));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Conceptual: RAG-driven generation of architectural proposals based on demands
         let proposed_changes = if environmental_demands.contains(&"high_concurrency_demand".to_string()) {

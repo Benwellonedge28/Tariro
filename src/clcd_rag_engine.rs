@@ -20,7 +20,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents raw text data from various sources and languages.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct RawTextData {
     pub data_id: String,
     pub language: String, // e.g., "en", "fr", "zh"
@@ -41,7 +42,7 @@ pub struct TranslatedData {
 }
 
 /// Represents a universal semantic embedding, language and domain agnostic.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SemanticEmbedding {
     pub embedding_id: String,
     pub vector: Vec<f32>,

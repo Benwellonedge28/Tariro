@@ -96,7 +96,7 @@ impl ASROMEngine {
     fn parallel_scenario_analysis_risk_detection_simd(&self, global_signals: &[String], samuel_objectives: &[String]) -> Vec<StrategicScenario> { // list of scenarios
         println!("    [ASROM-SIMD]: Performing parallel scenario analysis on {} signals and {} objectives.", global_signals.len(), samuel_objectives.len());
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut scenarios = Vec::new();
         // Simulate SIMD-accelerated correlation of thousands of global signals against strategic goals to identify risks and opportunities
@@ -123,7 +123,7 @@ impl ASROMEngine {
             format!("RAG knowledge for opportunity models: '{}'", oam.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(2000));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let scenarios = self.parallel_scenario_analysis_risk_detection_simd(&current_global_data, &samuel_strategic_objectives);
 

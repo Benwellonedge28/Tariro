@@ -98,7 +98,7 @@ impl AERCEngine {
     fn parallel_policy_evaluation_monitoring_simd(&self, systems_under_review: &[String], active_rules: &[ComplianceRule]) -> Vec<PolicyEvaluation> { // list of policy evaluations
         println!("    [AERC-SIMD]: Evaluating {} active rules across {} systems in parallel.", active_rules.len(), systems_under_review.len());
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut evaluations = Vec::new();
         // Simulate SIMD-accelerated comparison of system configurations and operational logs against compliance rule patterns
@@ -130,7 +130,7 @@ impl AERCEngine {
             format!("RAG knowledge for ethical guidelines: '{}'", eg.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(1800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let policy_evaluations = self.parallel_policy_evaluation_monitoring_simd(&systems_to_audit, &active_compliance_rules);
 

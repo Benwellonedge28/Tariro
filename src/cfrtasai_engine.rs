@@ -16,7 +16,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents an AI workload activity that consumes energy.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct AIWorkloadActivity {
     pub activity_id: String,
     pub activity_type: String, // e.g., "Training", "Inference", "DataStorage", "DataTransfer"
@@ -31,7 +32,7 @@ pub struct AIWorkloadActivity {
 }
 
 /// Represents the carbon intensity of an energy grid at a specific location/time.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct CarbonIntensity {
     pub location: String,
     #[serde(with = "chrono::serde::ts_seconds")]
@@ -96,7 +97,7 @@ impl CFTRASAIEngine {
             format!("RAG insight for carbon intensity: {}. Location: '{}'", ci_info, location);
         }
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let carbon_kg_per_kwh = match location {
             "US-East-1" => rng.gen_range(0.3..0.5),
@@ -127,7 +128,7 @@ impl CFTRASAIEngine {
             format!("RAG insight for reduction: {}. Activity type: '{}'", green_compute_info, activity.activity_type);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let strategy_type = if activity.activity_type == "Training" && rng.gen_bool(0.7) {
             "ShiftWorkload".to_string()

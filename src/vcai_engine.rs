@@ -90,7 +90,7 @@ impl VCAIEngine {
             format!("RAG insight for proof generation: {}. Proof type: '{}'", zkp_info, request.verifiable_proof_type);
         }
         thread::sleep(Duration::from_millis(400));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let is_valid = request.expected_output_hash == actual_output_hash && rng.gen_bool(0.95); // 95% chance of valid proof if hashes match
         let proof_data = vec![rng.gen::<u8>(); 128]; // Conceptual proof data
@@ -115,7 +115,7 @@ impl VCAIEngine {
             format!("RAG insight for blockchain record: {}. Proof validity: '{}'", bba_info, proof.is_valid);
         }
         thread::sleep(Duration::from_millis(350));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let transaction_id = format!("tx_{}", rng.gen::<u32>());
         let block_hash = format!("block_{}", rng.gen::<u32>());

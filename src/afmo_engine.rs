@@ -99,7 +99,7 @@ impl AFMOEngine {
     fn parallel_tx_anomaly_detection_simd(&self, transactions: &[FinancialTransaction]) -> (Vec<String>, Vec<FinancialTransaction>) { // anomalies and processed_transactions
         println!("    [AFMO-SIMD]: Processing {} financial transactions in parallel for anomaly detection.", transactions.len());
         thread::sleep(Duration::from_millis(60));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut anomalies = Vec::new();
         let mut processed_transactions = Vec::new();
@@ -124,7 +124,7 @@ impl AFMOEngine {
             format!("RAG knowledge for accounting standards: '{}'", acs.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let (anomalies, processed_tx) = self.parallel_tx_anomaly_detection_simd(&new_transactions);
         if !anomalies.is_empty() {

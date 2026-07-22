@@ -20,7 +20,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a high-level strategic objective for Tariro.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct HighLevelObjective {
     pub objective_id: String,
     pub title: String,
@@ -44,7 +45,7 @@ pub struct SubTask {
 }
 
 /// Represents an optimized execution plan for a set of sub-tasks.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ExecutionPlan {
     pub plan_id: String,
     pub objective_id: String,

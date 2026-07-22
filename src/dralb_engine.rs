@@ -126,7 +126,7 @@ impl DRALBEngine {
             format!("RAG insight for task allocation: {}. Task type: '{}'", ds_info, task.task_type);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut best_instance_id: Option<String> = None;
         let mut max_score = -1.0;
@@ -161,7 +161,7 @@ impl DRALBEngine {
         thread::sleep(Duration::from_millis(250));
 
         // Conceptual: Identify overloaded instances and migrate tasks
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
         for (_agi_id, instance) in swarm_instances.iter_mut() {
             for unit in &mut instance.resource_units {
                 if unit.current_load_pct > 70.0 && rng.gen_bool(0.6) {

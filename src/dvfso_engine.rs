@@ -95,7 +95,7 @@ impl DVFSOEngine {
             format!("RAG insight for DVFS prediction: {}. Core ID: '{}'", processor_info, core.core_id);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Conceptual prediction: scale down for light workloads, up for heavy.
         let suggested_freq = if core.current_utilization_pct < 0.3 {
@@ -126,7 +126,7 @@ impl DVFSOEngine {
         core.current_frequency_mhz = recommendation.suggested_frequency_mhz;
         core.current_voltage_mv = recommendation.suggested_voltage_mv;
         // Simulate power draw change
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
         core.current_power_draw_watts = (core.current_frequency_mhz as f32 / core.max_frequency_mhz as f32) * (core.current_voltage_mv as f32 / core.max_voltage_mv as f32) * 200.0 * rng.gen_range(0.8..1.2);
     }
 

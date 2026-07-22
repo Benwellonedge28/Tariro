@@ -21,6 +21,7 @@ use rand::Rng;
 
 /// Represents an ethical principle or value.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct EthicalPrinciple {
     pub principle_id: String,
     pub name: String,
@@ -31,7 +32,7 @@ pub struct EthicalPrinciple {
 }
 
 /// Represents an action proposed by an autonomous agent.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ActionProposal {
     pub proposal_id: String,
     pub agent_id: String,
@@ -44,7 +45,7 @@ pub struct ActionProposal {
 }
 
 /// Represents the ethical evaluation of an action proposal.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct EthicalEvaluation {
     pub evaluation_id: String,
     pub proposal_id: String,

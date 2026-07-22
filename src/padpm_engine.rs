@@ -92,7 +92,7 @@ impl PADPMEngine {
     pub fn ingest_sensor_data(&self, component_id: &str, raw_readings: &[f64]) -> Vec<ComponentSensorData> {
         println!("  [PADPM]: Ingesting {} raw readings for component '{}'.", raw_readings.len(), component_id);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         raw_readings.iter().map(|&val| ComponentSensorData {
             data_id: format!("data_{}", rng.gen::<u32>()),
@@ -111,7 +111,7 @@ impl PADPMEngine {
             format!("RAG insight for anomaly detection: {}. Component: '{}'", mlpr_info, component_id);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut anomalies = Vec::new();
         // Simulate anomaly detection based on a threshold or complex ML model
@@ -137,7 +137,7 @@ impl PADPMEngine {
             format!("RAG insight for predictive maintenance: {}. Anomaly type: '{}'", re_info, anomaly.anomaly_type);
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let action_type = anomaly.recommended_action.clone().unwrap_or("GenericMaintenance".to_string());
         let target_date = Utc::now() + Duration::from_secs(rng.gen_range(3600..86400)); // 1 hour to 1 day from now

@@ -90,7 +90,7 @@ impl AMAISEngine {
     fn parallel_agent_execution_simd(&self, agents: &mut HashMap<String, Agent>, environment: &HashMap<String, String>) -> Vec<Interaction> { // new interactions
         println!("    [AMAIS-SIMD]: Performing parallel execution for {} agents.", agents.len());
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut new_interactions = Vec::new();
         for (_id, agent) in agents.iter_mut() {
@@ -124,7 +124,7 @@ impl AMAISEngine {
             format!("RAG knowledge for game theory: '{}'", game_theory.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(500));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut current_simulation_state = initial_state;
 

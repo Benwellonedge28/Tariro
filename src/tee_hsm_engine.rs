@@ -22,6 +22,7 @@ use rand::Rng;
 
 /// Represents a secure execution environment within a TEE.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct SecureEnclaveContext {
     pub enclave_id: String,
     pub ai_component_id: String,
@@ -43,7 +44,7 @@ pub struct CryptographicKey {
 }
 
 /// Report containing the results of a remote attestation process.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AttestationReport {
     pub report_id: String,
     pub enclave_id: String,

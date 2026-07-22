@@ -88,7 +88,7 @@ impl AHATCFEngine {
             format!("RAG insight for role adaptation: {}. Context: '{}'", hfe_info, task_context);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut assigned_roles = HashMap::new();
         assigned_roles.insert("Human_Leader".to_string(), human_members.keys().next().cloned().unwrap_or("None".to_string()));
@@ -114,7 +114,7 @@ impl AHATCFEngine {
             format!("RAG insight for common ground: {}. Human input: '{}'", csd_info, human_input);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         if rng.gen_bool(0.9) { // 90% chance of successful common ground
             println!("  Human and AGI have achieved common understanding.\n");
@@ -132,7 +132,7 @@ impl AHATCFEngine {
             format!("RAG insight for task assignment: {}. Task description: '{}'", eai_info, task_desc);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut assigned_to = HashMap::new();
         let collaboration_type = if task_desc.contains("creative") {

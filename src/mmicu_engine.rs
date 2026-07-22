@@ -22,7 +22,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents raw input from a single modality (e.g., voice, text, gesture).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct RawModalInput {
     pub input_id: String,
     pub modality: String, // e.g., "voice", "text", "gesture", "gaze"
@@ -33,7 +34,7 @@ pub struct RawModalInput {
 }
 
 /// Represents a fused, comprehensive contextual model of the user and environment.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct FusedContext {
     pub context_id: String,
     #[serde(with = "chrono::serde::ts_seconds")]
@@ -46,7 +47,7 @@ pub struct FusedContext {
 }
 
 /// Represents Tariro's interpretation of user intent and extracted context.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct InterpretedIntent {
     pub intent_id: String,
     pub fused_context_id: String,

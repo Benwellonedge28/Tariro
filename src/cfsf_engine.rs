@@ -22,7 +22,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents an incoming or outgoing data packet/message.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct DataStream {
     pub stream_id: String,
     #[serde(with = "chrono::serde::ts_seconds")]
@@ -35,7 +36,7 @@ pub struct DataStream {
 }
 
 /// Defines semantic filtering rules and policies.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SemanticPolicy {
     pub policy_id: String,
     pub name: String,
@@ -47,7 +48,7 @@ pub struct SemanticPolicy {
 }
 
 /// Represents a data stream event that was filtered or flagged.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct FilteredEvent {
     pub event_id: String,
     pub stream_id: String,

@@ -95,7 +95,7 @@ impl RTAACMEngine {
             format!("RAG insight for auditing: {}. Event details: '{}'", rkb_info, event.details.get("action").unwrap_or(&"N/A".to_string()));
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut violations = Vec::new();
         for standard in standards {
@@ -136,7 +136,7 @@ impl RTAACMEngine {
             format!("RAG insight for logs/alerts: {}. Violations count: '{}'", fl_info, violations.len());
         }
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut logs_and_alerts = Vec::new();
         for violation in violations {

@@ -16,7 +16,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents an authentication request from a client.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct AuthenticationRequest {
     pub user_id: String,
     pub challenge: Vec<u8>,

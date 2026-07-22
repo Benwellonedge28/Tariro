@@ -92,7 +92,7 @@ impl SHAREngine {
     fn parallel_health_check_simd(&self, components: &[&InfrastructureComponent]) -> Vec<InfrastructureIssue> {
         println!("    [SHAR-SIMD]: Performing parallel health checks on {} components.", components.len());
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut issues = Vec::new();
         for component in components {
@@ -137,7 +137,7 @@ impl SHAREngine {
             format!("RAG knowledge for failure patterns: '{}'", failure_pattern.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(400));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let detected_issues = self.parallel_health_check_simd(&infrastructure_state.iter().collect());
 

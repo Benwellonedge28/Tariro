@@ -95,7 +95,7 @@ impl ASTVSEngine {
     fn parallel_simulation_step_simd(&self, agents: &mut HashMap<String, AutonomousAgent>, environment: &SandboxEnvironment) {
         println!("    [ASTVS-SIMD]: Executing parallel simulation step for {} agents in environment '{}'.", agents.len(), environment.env_id);
         thread::sleep(Duration::from_millis(80));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         for (_id, agent) in agents.iter_mut() {
             // Simulate SIMD-accelerated physics updates, sensor data generation, and agent policy execution
@@ -122,7 +122,7 @@ impl ASTVSEngine {
             format!("RAG knowledge for sensor fusion: '{}'", sensor_fusion.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(700));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut agent_map: HashMap<String, AutonomousAgent> = agents.into_iter().map(|a| (a.agent_id.clone(), a)).collect();
         let start_time = Utc::now();

@@ -102,7 +102,7 @@ impl IEHSMEngine {
             format!("RAG insight for prediction: {}. Number of sources: '{}'", prediction_info, sources.len());
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let predicted_supply = sources.iter().map(|s| s.current_power_output_watts).sum::<f32>() * rng.gen_range(0.8..1.2);
         let predicted_demand = consumers.iter().map(|c| c.current_power_demand_watts).sum::<f32>() * rng.gen_range(0.9..1.1);
@@ -116,7 +116,7 @@ impl IEHSMEngine {
             format!("RAG insight for recommendations: {}. Storage health: '{}'", bms_info, storage.health_pct);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let action_type = if predicted_supply > predicted_demand && storage.current_charge_wh < storage.max_capacity_wh * 0.9 {
             "ChargeStorage".to_string()

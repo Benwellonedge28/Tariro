@@ -91,7 +91,7 @@ impl ARSLBEngine {
     fn parallel_resource_allocation_simd(&self, workload: &ServiceWorkload, available_resources: &[&ComputeResource]) -> Vec<String> { // resource_ids for allocation
         println!("    [ARSLB-SIMD]: Performing parallel resource allocation for service '{}'.", workload.service_id);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut allocated_resources = Vec::new();
         let required_capacity = workload.predicted_demand_24h.iter().max_by(|a,b| a.partial_cmp(b).unwrap()).copied().unwrap_or(0.0) * 1.2; // 20% buffer
@@ -122,7 +122,7 @@ impl ARSLBEngine {
             format!("RAG knowledge for capacity planning: '{}'", cap_plan.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(400));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let required_resources_for_forecast: Vec<String> = self.parallel_resource_allocation_simd(&workload, &all_resources.iter().collect());
 

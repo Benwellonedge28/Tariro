@@ -101,7 +101,7 @@ impl TADMSEngine {
     fn parallel_log_processing_simd(&self, log_entries: &[AuditLogEntry]) -> (Vec<AuditAnomaly>, HashMap<String, f32>) { // detected anomalies and explainability scores
         println!("    [TADMS-SIMD]: Processing {} audit log entries in parallel for anomaly detection.", log_entries.len());
         thread::sleep(Duration::from_millis(90));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut anomalies = Vec::new();
         let mut explainability_scores = HashMap::new();
@@ -134,7 +134,7 @@ impl TADMSEngine {
             format!("RAG knowledge for audit logging standards: '{}'", als.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Conceptual: RAG-driven generation of human-readable explainability summary
         let explainability_summary = format!("Tariro decided to '{}' based on core directive '{}', considering knowledge from {} items, following steps: {}. Alternatives considered: {}. Confidence: {:.2}.",

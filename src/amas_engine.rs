@@ -88,7 +88,7 @@ impl AMASEngine {
     fn parallel_model_evaluation_simd(&self, architectures: &[&CandidateArchitecture]) -> HashMap<String, f32> { // arch_id -> fitness_score
         println!("    [AMAS-SIMD]: Performing parallel model evaluation for {} architectures.", architectures.len());
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut fitness_scores = HashMap::new();
         for arch in architectures {
@@ -112,7 +112,7 @@ impl AMASEngine {
             format!("RAG knowledge for evolutionary computing: '{}'", evo_comp.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(500));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut current_population = initial_population;
         let num_generations = rng.gen_range(5..15);

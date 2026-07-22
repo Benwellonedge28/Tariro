@@ -86,7 +86,7 @@ impl PECGEngine {
     fn parallel_content_customization_simd(&self, template: &ContentTemplate, user: &UserProfile) -> String { // personalized content
         println!("    [PECG-SIMD]: Performing parallel content customization for user '{}' from template '{}'.", user.user_id, template.template_id);
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut personalized_text = template.base_content.clone();
 
@@ -114,7 +114,7 @@ impl PECGEngine {
             format!("RAG knowledge for experiential KBs: '{}'", exp_kb.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(500));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let personalized_output = self.parallel_content_customization_simd(&content_template, &user_profile);
 

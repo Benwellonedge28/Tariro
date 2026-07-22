@@ -19,7 +19,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a forecast of resource demands for a specific period.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct ResourceDemandForecast {
     pub forecast_id: String,
     pub resource_type: String, // e.g., "cpu_utilization", "energy_consumption", "qbit_entanglement_demand"
@@ -29,7 +30,7 @@ pub struct ResourceDemandForecast {
 }
 
 /// Represents an optimal plan for resource allocation.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ResourceAllocationPlan {
     pub plan_id: String,
     #[serde(with = "chrono::serde::ts_seconds")]
@@ -40,7 +41,7 @@ pub struct ResourceAllocationPlan {
 }
 
 /// Represents an executable action for resource orchestration.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct OrchestrationAction {
     pub action_id: String,
     pub action_type: String, // e.g., "scale_up_cpu", "reroute_energy", "offload_to_photonic", "adjust_cooling"

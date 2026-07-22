@@ -85,7 +85,7 @@ impl FVASPEngine {
     pub fn specify_agi_security_property(&self, name: &str, specification: &str, component: &str) -> AgiSecurityProperty {
         println!("  [FVASP]: Specifying security property '{}' for component '{}'.", name, component);
         thread::sleep(Duration::from_millis(50));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         AgiSecurityProperty {
             property_id: format!("prop_{}", rng.gen::<u32>()),
@@ -104,7 +104,7 @@ impl FVASPEngine {
             format!("RAG insight for verification: {}. Target component: '{}'", atp_info, property.target_agi_component);
         }
         thread::sleep(Duration::from_millis(600)); // Simulate long verification time
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut status = "Verified".to_string();
         let mut confidence = rng.gen_range(0.9..0.999);
@@ -136,7 +136,7 @@ impl FVASPEngine {
             format!("RAG insight for analysis: {}. Result confidence: '{}'", mc_info, result.confidence);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         if result.status == "CounterexampleFound" {
             let severity = if rng.gen_bool(0.7) { "Critical".to_string() } else { "High".to_string() };

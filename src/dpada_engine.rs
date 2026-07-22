@@ -84,7 +84,7 @@ impl DPADAEngine {
             format!("RAG insight for anonymization: {}. Record owner: '{}'", appsm_info, record.data_owner_id);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut anonymized_data = HashMap::new();
         // Simulate adding noise to numerical data and generalizing categorical data
@@ -121,7 +121,7 @@ impl DPADAEngine {
             format!("RAG insight for query: {}. Expected accuracy loss: '{}'", tcsfpg_info, query.expected_accuracy_loss);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate query result with added noise/fuzziness
         if query.query_string.contains("COUNT") && query.query_string.contains("age > 50") {

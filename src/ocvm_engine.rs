@@ -18,7 +18,8 @@ use sha2::{Sha256, Digest};
 // --- Conceptual Structures --- //
 
 /// Represents a state update or transaction in the AGI system.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct AgiStateUpdate {
     pub update_id: String,
     pub actor_did: String,
@@ -41,7 +42,7 @@ pub struct ConsensusNode {
 }
 
 /// Represents a consensus vote by a node.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ConsensusVote {
     pub vote_id: String,
     pub node_id: String,
@@ -92,7 +93,7 @@ impl OCVMEngine {
     pub fn propose_state_update(&self, node: &ConsensusNode, proposed_changes: HashMap<String, String>, previous_hash: String) -> AgiStateUpdate {
         println!("  [OCVM]: Node '{}' proposing state update.", node.node_id);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let new_state_hash = OCVMEngine::generate_hash(&format!("{}{:?}{}{}", previous_hash, proposed_changes, node.node_id, rng.gen::<u32>()));
 
@@ -114,7 +115,7 @@ impl OCVMEngine {
             format!("RAG insight for voting: {}. Node type: '{}'", bft_info, node.node_type);
         }
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         ConsensusVote {
             vote_id: format!("vote_{}_{}", node.node_id, rng.gen::<u32>()),
@@ -130,7 +131,7 @@ impl OCVMEngine {
     pub fn commit_state_update(&self, update: &AgiStateUpdate, votes: &[ConsensusVote], total_nodes: u64) -> bool {
         println!("  [OCVM]: Committing state update '{}'. Votes received: {}. Total nodes: {}.", update.update_id, votes.len(), total_nodes);
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let approve_votes = votes.iter().filter(|v| v.vote_value == "Approve").count() as u64;
         // Simple majority consensus for demonstration

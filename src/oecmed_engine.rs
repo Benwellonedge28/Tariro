@@ -106,7 +106,7 @@ impl OECMEDEngine {
             format!("RAG insight for task recommendation: {}. Task latency tolerance: '{}'ms", app_req_info, task.latency_tolerance_ms);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let recommended_action = if device.battery_level_pct < 20.0 && network.bandwidth_mbps > 50 && task.latency_tolerance_ms > 100 {
             "OffloadToCloud".to_string() // Low battery, good network, high latency tolerance

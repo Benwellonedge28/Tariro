@@ -18,7 +18,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents data from environmental and hardware sensors.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct SensorData {
     pub sensor_id: String,
     pub sensor_type: String, // e.g., "temperature", "power_draw", "cpu_utilization"

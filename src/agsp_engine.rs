@@ -19,7 +19,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a high-level strategic directive from Samuel Mukandara.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct StrategicDirective {
     pub directive_id: String,
     pub title: String,

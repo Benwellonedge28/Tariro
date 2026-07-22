@@ -88,7 +88,7 @@ impl WVIDEngine {
     pub fn generate_workflow_snapshot(&self, workflow_id: &str, current_states: &HashMap<String, String>) -> WorkflowSnapshot {
         println!("  [WVID]: Generating snapshot for workflow '{}'.", workflow_id);
         thread::sleep(Duration::from_millis(50));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         WorkflowSnapshot {
             snapshot_id: format!("snap_{}", rng.gen::<u32>()),
@@ -113,7 +113,7 @@ impl WVIDEngine {
             format!("RAG insight for debugging: {}. Command type: '{}'", uidp_info, command.command_type);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut description = format!("Command '{}' executed. ", command.command_type);
         let mut suggested_fix = None;

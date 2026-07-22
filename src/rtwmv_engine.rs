@@ -21,7 +21,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a single telemetry event from a workflow component.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct TelemetryEvent {
     pub event_id: String,
     pub workflow_instance_id: String,
@@ -44,7 +45,7 @@ pub struct WorkflowGraphNode {
 }
 
 /// Represents the complete visual data for a workflow graph.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct WorkflowVisualization {
     pub visualization_id: String,
     pub workflow_instance_id: String,

@@ -37,7 +37,7 @@ pub struct Certificate {
 }
 
 /// Represents an identity in the decentralized PKI.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Identity {
     pub id: String,
     pub public_key_hash: Vec<u8>,

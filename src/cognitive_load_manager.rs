@@ -16,6 +16,7 @@ use rand::Rng;
 
 /// Represents a cognitive resource.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct CognitiveResource {
     pub name: String,
     pub current_utilization: f32, // 0.0 to 1.0
@@ -24,7 +25,7 @@ pub struct CognitiveResource {
 }
 
 /// Represents a task requiring cognitive resources.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Task {
     pub id: String,
     pub priority: u32, // Higher number means higher priority
@@ -34,7 +35,7 @@ pub struct Task {
 }
 
 /// Represents a snapshot of cognitive load metrics.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct LoadMetric {
     #[serde(with = "chrono::serde::ts_seconds")]
     pub timestamp: DateTime<Utc>,

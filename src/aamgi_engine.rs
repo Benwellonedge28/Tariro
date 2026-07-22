@@ -94,7 +94,7 @@ impl AAMGIEngine {
     fn parallel_module_design_and_test_simd(&self, task: &AIModuleGenerationTask) -> (String, HashMap<String, f32>) { // (generated_code, observed_performance)
         println!("    [AAMGI-SIMD]: Performing parallel architecture search and testing for task '{}'.", task.task_id);
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate SIMD-accelerated NAS, code generation, and test suite execution
         let generated_code = format!("// Generated Rust code for {} with capabilities {:?}\nfn execute() {{ /* complex logic */ }}", task.problem_statement, task.desired_capabilities);
@@ -117,7 +117,7 @@ impl AAMGIEngine {
             format!("RAG knowledge for meta-learning algorithms: '{}'", meta_learn.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(600));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let (generated_code, observed_performance) = self.parallel_module_design_and_test_simd(&task);
 
@@ -144,7 +144,7 @@ impl AAMGIEngine {
     pub fn integrate_ai_module_rag(&self, module: GeneratedAIModule) -> AIModuleIntegrationReport {
         println!("  [AAMGI]: Integrating AI module '{}' (ID: '{}') into the system.", module.name, module.module_id);
         thread::sleep(Duration::from_millis(400));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let successful_integration = rng.gen_bool(0.9);
         let observed_performance = if successful_integration {

@@ -22,7 +22,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a stream of public data to be analyzed.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct PublicDataStream {
     pub data_id: String,
     pub source_type: String, // e.g., "scientific_paper", "forum_post", "social_media_comment"

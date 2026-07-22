@@ -97,7 +97,7 @@ impl SEDSAEngine {
     fn parallel_evolution_evaluation_simd(&self, candidates: &[String], context: &str) -> Vec<HashMap<String, f32>> { // performance_metrics for each candidate
         println!("    [SEDSA-SIMD]: Evaluating {} candidates in parallel for context '{}'.", candidates.len(), context);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut results = Vec::new();
         for _candidate in candidates {
@@ -121,7 +121,7 @@ impl SEDSAEngine {
             format!("RAG knowledge for evolutionary algorithms: '{}'", eas.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(600));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut evolution_events = Vec::new();
 

@@ -95,7 +95,7 @@ impl QAPRSEngine {
     fn parallel_physics_simulation_simd(&self, objects: &mut HashMap<String, SimulatedPhysicalObject>, environment: &QuantumAgnosticEnvironment, time_step_ms: u32) {
         println!("    [QAPRS-SIMD]: Executing parallel physics simulation for {} objects in environment '{}' for {}ms.", objects.len(), environment.env_id, time_step_ms);
         thread::sleep(Duration::from_millis(50));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         for (_id, obj) in objects.iter_mut() {
             // Simulate SIMD-accelerated calculation of forces, accelerations, new positions, and sensor data
@@ -132,7 +132,7 @@ impl QAPRSEngine {
             format!("RAG knowledge for classical sensor fusion: '{}'", sensor_fusion.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let start_time = Utc::now();
         let mut observed_anomalies = Vec::new();

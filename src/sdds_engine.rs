@@ -23,6 +23,7 @@ use rand::Rng;
 
 /// Represents a unit of sensitive data that needs to be securely shredded.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct SensitiveDataUnit {
     pub data_id: String,
     pub location: String, // e.g., "/var/tariro/secrets.enc", "memory_region_0xDEADBEEF"
@@ -32,7 +33,7 @@ pub struct SensitiveDataUnit {
 }
 
 /// Represents a command to shred data or trigger self-destruct.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ShreddingCommand {
     pub command_id: String,
     pub target_data_id: String,
@@ -45,7 +46,7 @@ pub struct ShreddingCommand {
 }
 
 /// Report detailing the outcome of a data shredding operation.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ShreddingReport {
     pub report_id: String,
     pub command_id: String,

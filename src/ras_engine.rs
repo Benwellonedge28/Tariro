@@ -17,6 +17,7 @@ use rand::Rng;
 
 /// Represents an available computing resource.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct ComputeResource {
     pub resource_id: String,
     pub resource_type: String, // e.g., "CPU", "GPU", "Memory", "Network"
@@ -40,7 +41,7 @@ pub struct ScheduledTask {
 }
 
 /// Represents a workload prediction.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct WorkloadPrediction {
     pub prediction_id: String,
     pub resource_type: String,
@@ -49,7 +50,7 @@ pub struct WorkloadPrediction {
 }
 
 /// Represents a scheduling decision.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SchedulingDecision {
     pub decision_id: String,
     pub task_id: String,

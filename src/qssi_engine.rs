@@ -22,6 +22,7 @@ use rand::Rng;
 
 /// Represents a secure runtime environment for an AI component.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct RuntimeContext {
     pub context_id: String,
     pub component_id: String,
@@ -33,7 +34,7 @@ pub struct RuntimeContext {
 }
 
 /// Defines security rules and constraints for a sandbox.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SecurityPolicy {
     pub policy_id: String,
     pub resource_access_rules: HashMap<String, String>, // resource_path -> permission_level
@@ -45,7 +46,7 @@ pub struct SecurityPolicy {
 }
 
 /// Report detailing a security audit or a breach detection.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SecurityAuditReport {
     pub report_id: String,
     pub runtime_context_id: String,

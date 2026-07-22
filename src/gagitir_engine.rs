@@ -18,6 +18,7 @@ use rand::Rng;
 
 /// Represents a piece of threat intelligence.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct ThreatIntelligence {
     pub threat_id: String,
     pub threat_type: String, // e.g., "Malware", "Exploit", "DDoS", "AdversarialAI"
@@ -29,7 +30,7 @@ pub struct ThreatIntelligence {
 }
 
 /// Represents a detected security incident.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SecurityIncident {
     pub incident_id: String,
     pub threat_id: String,
@@ -41,7 +42,7 @@ pub struct SecurityIncident {
 }
 
 /// Represents an automated response action.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ResponseAction {
     pub action_id: String,
     pub incident_id: String,
@@ -85,7 +86,7 @@ impl GAGITIREngine {
     pub fn integrate_threat_intelligence(&self, feeds: &[String]) -> Vec<ThreatIntelligence> {
         println!("  [GAGITIR]: Integrating {} threat intelligence feeds.", feeds.len());
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut threats = Vec::new();
         if rng.gen_bool(0.7) {
@@ -109,7 +110,7 @@ impl GAGITIREngine {
             format!("RAG insight for incident detection: {}. Threat type: '{}'", tl_info, threat.threat_type);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         if system_logs.contains("anomaly") && rng.gen_bool(0.8) {
             Some(SecurityIncident {
@@ -130,7 +131,7 @@ impl GAGITIREngine {
             format!("RAG insight for response: {}. Incident ID: '{}'", ir_info, incident.incident_id);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let action_type = match incident.threat_type.as_str() {
             "Malware" => "IsolateComponent".to_string(),

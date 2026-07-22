@@ -86,7 +86,7 @@ impl AITSHOEngine {
     pub fn identify_skill_gaps(&self, operator: &HumanOperatorProfile) -> HashMap<String, f32> {
         println!("  [AITSHO]: Identifying skill gaps for operator '{}'.", operator.name);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut gaps = HashMap::new();
         // Simulate identifying skills below a certain proficiency
@@ -105,7 +105,7 @@ impl AITSHOEngine {
             format!("RAG insight for module generation: {}. Operator learning style: '{}'", cts_info, operator.learning_style);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         TrainingModule {
             module_id: format!("mod_{}", rng.gen::<u32>()),
@@ -125,7 +125,7 @@ impl AITSHOEngine {
             format!("RAG insight for skill transfer: {}. Skill: '{}'", hci_info, skill);
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         SkillTransferEvent {
             event_id: format!("xfer_{}", rng.gen::<u32>()),

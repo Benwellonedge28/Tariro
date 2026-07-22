@@ -161,7 +161,7 @@ impl ReplicationService {
         info!("[ReplicationWorkflow] Starting workflow for request: {}", request_id);
         tokio::time::sleep(Duration::from_secs(1)).await;
 
-        let qsm_locked = qsm.lock().await; 
+        let qsm_locked = qsm.lock().unwrap(); 
 
         // Simulate Code Generation (PQC-secured)
         Self::update_request_status_and_log(&request_id, ReplicationStatus::GeneratingCode, "Code generation started.", &telemetry_logger, &event_bus).await;
@@ -249,10 +249,10 @@ impl ReplicationService {
     }
 
     /// Generates code for a specific MetaProject or CompilerProject.
-    pub async fn generate_code(&self, project_id: &str, project_type: &str, target_platform: &str) -> Result<String, Box<dyn std::error::Error + Send + Sync>> { 
+    pub async fn generate_code(&self, project_id: &str, project_type: &str, target_platform: &str) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
         info!("[ReplicationService] Generating code for project '{}' (type: {}, platform: {})...", project_id, project_type, target_platform);
         // This would involve the QSM to ensure the generated code itself is quantum-resistant or signed.
-        let qsm_locked = self.qsm.lock().await;
+        let qsm_locked = self.qsm.lock().unwrap();
         let sensitive_generation_params = b"AGI code generation parameters.";
         let protected_params = qsm_locked.protect_data(sensitive_generation_params, "code_gen_params").await?;
         info!("Code generation parameters PQC-protected.");

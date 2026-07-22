@@ -95,7 +95,7 @@ impl ASSCSHEngine {
     fn parallel_code_system_monitoring_simd(&self, codebase_metrics: &HashMap<String, f32>, system_telemetry: &HashMap<String, f32>) -> (Vec<SystemAnomaly>, Vec<OptimizationTarget>) { // detected anomalies and optimization targets
         println!("    [ASSCSH-SIMD]: Analyzing codebase and system telemetry in parallel.");
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut anomalies = Vec::new();
         let mut optimizations = Vec::new();
@@ -138,7 +138,7 @@ impl ASSCSHEngine {
             format!("RAG knowledge for code optimization: '{}'", cot.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(1500));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let (anomalies, mut optimizations_found) = self.parallel_code_system_monitoring_simd(&current_codebase_state.iter().map(|(k,v)| (k.clone(), v.parse::<f32>().unwrap_or(0.0))).collect(), &current_system_state.iter().map(|(k,v)| (k.clone(), v.parse::<f32>().unwrap_or(0.0))).collect());
         

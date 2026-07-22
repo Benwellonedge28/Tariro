@@ -18,7 +18,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a single resource consumption event.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct ResourceEvent {
     pub event_id: String,
     pub resource_type: String, // e.g., "cpu_cycles", "energy_joules", "memory_bytes", "bandwidth_gb"
@@ -33,7 +34,7 @@ pub struct ResourceEvent {
 }
 
 /// Represents a securely attributed record of resource usage.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AttributionRecord {
     pub record_id: String,
     pub event_id: String,

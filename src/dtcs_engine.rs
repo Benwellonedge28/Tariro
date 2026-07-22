@@ -21,6 +21,7 @@ use rand::Rng;
 
 /// Represents the state of an autonomous agent in the distributed system.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct AgentState {
     pub agent_id: String,
     pub current_task: String,
@@ -31,7 +32,7 @@ pub struct AgentState {
 }
 
 /// Represents a message exchanged for coordination between agents.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct CoordinationMessage {
     pub message_id: String,
     pub sender_id: String,
@@ -45,7 +46,7 @@ pub struct CoordinationMessage {
 }
 
 /// Represents an event that requires system-wide synchronization.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SynchronizationEvent {
     pub event_id: String,
     pub event_type: String, // e.g., "global_state_snapshot", "consensus_round_start", "barrier_reached"

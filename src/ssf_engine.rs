@@ -22,7 +22,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a user query.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct Query {
     pub query_id: String,
     pub text: String,
@@ -42,7 +43,7 @@ pub struct KnowledgeItem {
 }
 
 /// Represents a vector embedding of a query or knowledge item.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct VectorEmbedding {
     pub embedding_id: String,
     pub vector: Vec<f32>,

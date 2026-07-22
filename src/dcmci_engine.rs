@@ -94,7 +94,7 @@ impl DCMCIEngine {
     fn parallel_graph_inference_simd(&self, graph_nodes: &HashMap<String, CognitiveNode>, graph_edges: &HashMap<String, CognitiveEdge>) -> HashMap<String, f32> { // inferred context weights
         println!("    [DCMCI-SIMD]: Performing parallel graph inference on {} nodes and {} edges.", graph_nodes.len(), graph_edges.len());
         thread::sleep(Duration::from_millis(80));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut inferred_context_weights = HashMap::new();
         // Simulate SIMD-accelerated traversal, pattern matching, and weight propagation across the graph
@@ -114,7 +114,7 @@ impl DCMCIEngine {
             format!("RAG knowledge for semantic reasoning: '{}'", sr.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate updating graph based on recent activity
         for activity in recent_activity {

@@ -22,7 +22,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents environmental scan data for AR mapping.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct EnvironmentScanData {
     pub scan_id: String,
     #[serde(with = "chrono::serde::ts_seconds")]
@@ -36,7 +37,7 @@ pub struct EnvironmentScanData {
 }
 
 /// Represents a holographic object rendered by Tariro.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct HolographicObject {
     pub object_id: String,
     pub object_type: String, // e.g., "3d_model", "interactive_chart", "ai_avatar"
@@ -47,7 +48,7 @@ pub struct HolographicObject {
 }
 
 /// Represents a user interaction event with the holographic interface.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SpatialInteractionEvent {
     pub event_id: String,
     #[serde(with = "chrono::serde::ts_seconds")]

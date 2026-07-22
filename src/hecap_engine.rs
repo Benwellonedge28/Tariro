@@ -79,7 +79,7 @@ impl HECAPEngine {
     pub fn encrypt_agi_data(&self, plain_text_data: &[u8], encryption_scheme: &str) -> EncryptedData {
         println!("  [HECAP]: Encrypting AGI data using {} scheme.", encryption_scheme);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         EncryptedData {
             data_id: format!("enc_data_{}", rng.gen::<u32>()),
@@ -96,7 +96,7 @@ impl HECAPEngine {
             format!("RAG insight for homomorphic computation: {}. Request output type: '{}'", acp_info, request.required_output_type);
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut encrypted_output = Vec::new();
         for data_id in &request.encrypted_input_data_ids {

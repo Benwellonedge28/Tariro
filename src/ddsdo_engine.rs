@@ -15,7 +15,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a logical shard of data.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct DataShard {
     pub shard_id: String,
     pub data_size_bytes: u64,
@@ -25,7 +26,7 @@ pub struct DataShard {
 }
 
 /// Represents metrics from a storage/compute node.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct NodeMetrics {
     pub node_id: String,
     #[serde(with = "chrono::serde::ts_seconds")]
@@ -38,7 +39,7 @@ pub struct NodeMetrics {
 }
 
 /// Represents a detected workload pattern.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct WorkloadPattern {
     pub pattern_id: String,
     pub description: String,
@@ -47,7 +48,7 @@ pub struct WorkloadPattern {
 }
 
 /// Represents a plan for re-sharding and redistribution.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ShardingPlan {
     pub plan_id: String,
     #[serde(with = "chrono::serde::ts_seconds")]

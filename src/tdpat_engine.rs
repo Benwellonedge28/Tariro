@@ -17,7 +17,8 @@ use sha2::{Sha256, Digest};
 // --- Conceptual Structures --- //
 
 /// Represents a data asset within the AGI ecosystem.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct DataAsset {
     pub asset_id: String,
     pub asset_name: String,
@@ -26,7 +27,7 @@ pub struct DataAsset {
 }
 
 /// Represents a data transformation or event.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct DataEvent {
     pub event_id: String,
     pub event_type: String, // e.g., "Creation", "Modification", "Access", "Deletion", "Transformation"
@@ -87,7 +88,7 @@ impl TDPATEngine {
     pub fn track_data_event(&self, asset: &mut DataAsset, event_type: &str, actor_id: &str, metadata: HashMap<String, String>) -> DataEvent {
         println!("  [TDPAT]: Tracking '{}' event for asset '{}' by actor '{}'.", event_type, asset.asset_id, actor_id);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let previous_hash = Some(asset.current_hash.clone());
         // Simulate new content or transformation leading to a new hash
@@ -130,7 +131,7 @@ impl TDPATEngine {
         println!("  [TDPAT]: Auditing integrity for asset '{}'.", lineage.asset_id);
         thread::sleep(Duration::from_millis(150));
         // Conceptual: In a real system, this would verify cryptographic hashes and DLT records.
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
         rng.gen_bool(0.95) // Simulate 95% chance of passing audit
     }
 

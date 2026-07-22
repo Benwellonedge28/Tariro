@@ -94,7 +94,7 @@ impl AMMPCAEngine {
     fn parallel_sensor_processing_context_inference_simd(&self, sensor_data: &[SensorData]) -> Vec<FusedPerception> { // list of fused perceptions
         println!("    [AMMPCA-SIMD]: Processing {} sensor data points and inferring context in parallel.", sensor_data.len());
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut perceptions = Vec::new();
         // Simulate SIMD-accelerated feature extraction, pattern matching, and initial fusion across raw sensor streams
@@ -133,7 +133,7 @@ impl AMMPCAEngine {
             format!("RAG knowledge for cognitive perception models: '{}'", cpm.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(1800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let new_perceptions = self.parallel_sensor_processing_context_inference_simd(&incoming_sensor_data);
 

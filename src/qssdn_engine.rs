@@ -16,7 +16,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a network flow record.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct NetworkFlow {
     pub flow_id: String,
     pub source_ip: String,

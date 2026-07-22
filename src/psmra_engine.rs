@@ -94,7 +94,7 @@ impl PSMRAEngine {
     fn parallel_prediction_evaluation_simd(&self, scenario: &PredictiveScenario, current_state: &HashMap<String, String>) -> ScenarioPredictionResult {
         println!("    [PSMRA-SIMD]: Running parallel predictive models for scenario '{}'.", scenario.name);
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut simulated_end_state = current_state.clone();
         let mut predicted_metrics_history: HashMap<String, Vec<f32>> = HashMap::new();
@@ -146,7 +146,7 @@ impl PSMRAEngine {
             format!("RAG knowledge for economic models: '{}'", economic_models.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(700));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let result = self.parallel_prediction_evaluation_simd(&scenario, &current_global_state);
 

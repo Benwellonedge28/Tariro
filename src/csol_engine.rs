@@ -19,7 +19,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a system performance metric.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct PerformanceMetric {
     pub metric_id: String,
     #[serde(with = "chrono::serde::ts_seconds")]
@@ -33,7 +34,7 @@ pub struct PerformanceMetric {
 }
 
 /// Represents an identified optimization target.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct OptimizationTarget {
     pub target_id: String,
     pub metric_id: String,

@@ -22,7 +22,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents multi-modal sensor data capturing user input.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct MultiModalSensorData {
     pub data_id: String,
     #[serde(with = "chrono::serde::ts_seconds")]
@@ -34,7 +35,7 @@ pub struct MultiModalSensorData {
 }
 
 /// Represents the inferred emotional and cognitive state of the user.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct EmotionalState {
     pub state_id: String,
     #[serde(with = "chrono::serde::ts_seconds")]
@@ -46,7 +47,7 @@ pub struct EmotionalState {
 }
 
 /// Command to adapt Tariro's interface based on emotional state.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct InterfaceAdaptationCommand {
     pub command_id: String,
     pub target_interface_element: String, // e.g., "response_tone", "font_size", "information_density"

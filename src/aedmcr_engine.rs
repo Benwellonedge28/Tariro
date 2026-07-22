@@ -94,7 +94,7 @@ impl AEDMCRAEngine {
     fn parallel_ethical_modeling_value_optimization_simd(&self, dilemma: &EthicalDilemma, principles: &[EthicalPrinciple]) -> HashMap<String, HashMap<String, f32>> { // optimized predicted outcomes
         println!("    [AEDMCR-SIMD]: Modeling ethical scenarios and optimizing value weights in parallel.");
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut optimized_outcomes = dilemma.predicted_outcomes.clone();
         // Simulate SIMD-accelerated evaluation of hundreds of thousands of ethical decision paths, adjusting value weights dynamically for optimal alignment with Samuel's core principles
@@ -120,7 +120,7 @@ impl AEDMCRAEngine {
             format!("RAG knowledge for moral philosophy: '{}'", mp.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(2000));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let optimized_outcomes = self.parallel_ethical_modeling_value_optimization_simd(&dilemma, &samuel_core_principles);
 

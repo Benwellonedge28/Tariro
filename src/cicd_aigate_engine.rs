@@ -16,7 +16,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a code change or commit in the CI/CD pipeline.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct CodeCommit {
     pub commit_id: String,
     pub author: String,

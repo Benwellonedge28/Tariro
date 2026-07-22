@@ -12,7 +12,7 @@ use std::collections::HashMap;
 
 /// Represents a single meta-goal for the Tariro AGI.
 /// Meta-goals are persistent, high-level objectives that inform all other operations.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Hash)]
 pub struct MetaGoal {
     pub id: String,
     pub title: String,

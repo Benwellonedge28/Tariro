@@ -95,7 +95,7 @@ impl ArchitectureEvolutionEngine {
             format!("RAG insight for architecture analysis: {}. Components: '{:?}'", metrics_info, components.iter().map(|c| c.name.clone()).collect::<Vec<_>>());
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut insights = Vec::new();
         if components.iter().any(|c| c.complexity_score > 0.8 && rng.gen_bool(0.4)) {
@@ -118,7 +118,7 @@ impl ArchitectureEvolutionEngine {
             format!("RAG insight for proposal: {}. Insight severity: '{}'", patterns_info, insight.severity);
         }
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         ArchitecturalChangeProposal {
             proposal_id: format!("prop_{}", rng.gen::<u32>()),
@@ -134,7 +134,7 @@ impl ArchitectureEvolutionEngine {
     pub fn implement_and_validate_change(&self, proposal: &ArchitecturalChangeProposal) -> ArchitecturalChangeResult {
         println!("  [ArchEvo]: Implementing and validating change '{}'.", proposal.proposal_id);
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         ArchitecturalChangeResult {
             result_id: format!("res_{}", rng.gen::<u32>()),

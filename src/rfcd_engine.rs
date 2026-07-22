@@ -21,7 +21,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a single piece of knowledge or a factual claim.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct KnowledgeClaim {
     pub claim_id: String,
     pub content: String,
@@ -35,7 +36,7 @@ pub struct KnowledgeClaim {
 }
 
 /// Represents a detected contradiction between two or more claims.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Contradiction {
     pub contradiction_id: String,
     pub claim_ids: Vec<String>,

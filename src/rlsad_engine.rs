@@ -81,7 +81,7 @@ impl RLSADEngine {
     fn parallel_log_analysis_simd(&self, log_entry: &LogEntry, baselines: &HashMap<String, String>, threat_intel: &HashMap<String, String>) -> Option<LogAnomaly> {
         println!("    [RLSAD-SIMD]: Performing parallel log parsing and statistical anomaly detection for '{}'.", log_entry.log_level);
         thread::sleep(Duration::from_millis(40));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate anomaly detection
         if log_entry.log_level == "CRITICAL" && rng.gen_bool(0.9) {

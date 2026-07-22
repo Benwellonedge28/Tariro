@@ -16,6 +16,7 @@ use rand::Rng;
 
 /// Represents a Post-Quantum Random Number Generator.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct PQRNG {
     pub rng_id: String,
     pub name: String,
@@ -25,7 +26,7 @@ pub struct PQRNG {
 }
 
 /// Represents a generated PQRNG output.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct PQRNGOutput {
     pub output_id: String,
     pub rng_id: String,

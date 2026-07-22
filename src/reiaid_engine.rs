@@ -89,7 +89,7 @@ impl REIAIDEngine {
             format!("RAG insight for explanation: {}. Model type: '{}'", arch_info, model.model_type);
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let human_readable_text = format!("The AI model '{}' predicted '{}' for input '{}' because of influential factors like '{}' and '{}'.",
             model.model_id,

@@ -87,7 +87,7 @@ impl MGSCEngine {
     fn parallel_content_rendering_simd(&self, request: &GenerationRequest) -> HashMap<String, GeneratedContent> {
         println!("    [MGSC-SIMD]: Performing parallel content rendering for request '{}'.", request.request_id);
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut generated_contents = HashMap::new();
         for modality in &request.target_modalities {
@@ -120,7 +120,7 @@ impl MGSCEngine {
             format!("RAG knowledge for generative models: '{}'", gen_model.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(500));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let generated_contents = self.parallel_content_rendering_simd(&request);
 

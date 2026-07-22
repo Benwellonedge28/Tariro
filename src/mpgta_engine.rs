@@ -98,7 +98,7 @@ impl MPGTAEngine {
     fn parallel_graph_primitives_simd(&self, graph: &ColossalGraph) -> (HashMap<String, u64>, HashMap<String, Vec<String>>) { // (degrees, clusters_by_node)
         println!("    [MPGTA-SIMD]: Performing parallel graph traversal primitives and adjacency matrix operations.");
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut degrees = HashMap::new();
         for node_id in graph.nodes.keys() {
@@ -125,7 +125,7 @@ impl MPGTAEngine {
             format!("RAG knowledge for network models: '{}'", network_models.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let (degrees, clusters) = self.parallel_graph_primitives_simd(graph);
 

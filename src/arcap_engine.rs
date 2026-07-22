@@ -94,7 +94,7 @@ impl ARCAPEngine {
     fn parallel_log_processing_simd(&self, events: &[TelemetryEvent]) -> HashMap<String, Vec<TelemetryEvent>> { // component_id -> related events
         println!("    [ARCAP-SIMD]: Performing parallel log processing on {} events.", events.len());
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut grouped_events: HashMap<String, Vec<TelemetryEvent>> = HashMap::new();
         for event in events {
@@ -114,7 +114,7 @@ impl ARCAPEngine {
             format!("RAG knowledge for causal inference: '{}'", causal_model.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(400));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let grouped_events = self.parallel_log_processing_simd(&raw_telemetry);
 

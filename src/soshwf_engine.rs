@@ -87,7 +87,7 @@ impl SOSHWFEngine {
     pub fn monitor_workflow_metrics(&self, workflow_id: &str) -> Vec<WorkflowMetric> {
         println!("  [SOSHWF]: Monitoring metrics for workflow '{}'.", workflow_id);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         vec![
             WorkflowMetric {
@@ -116,7 +116,7 @@ impl SOSHWFEngine {
             format!("RAG insight for anomaly detection: {}. Metrics count: '{}'", mlad_info, metrics.len());
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut issues = Vec::new();
         if rng.gen_bool(0.3) { // 30% chance of detecting an issue
@@ -140,7 +140,7 @@ impl SOSHWFEngine {
             format!("RAG insight for self-healing: {}. Workflow ID: '{}'", clc_info, workflow_id);
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut configurations = Vec::new();
         if !issues.is_empty() && rng.gen_bool(0.8) { // 80% chance of successful adaptation

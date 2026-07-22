@@ -80,7 +80,7 @@ impl OCSAEngine {
     fn parallel_ast_parsing_and_pattern_matching_simd(&self, file_content: &str, language: &str) -> Vec<CodeIssue> {
         println!("    [OCSA-SIMD]: Performing parallel AST parsing and pattern matching for {} code.", language);
         thread::sleep(Duration::from_millis(70));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
         let mut issues = Vec::new();
 
         // Simulate issue detection based on content and language

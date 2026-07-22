@@ -19,7 +19,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a health metric for a specific workflow task or component.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct WorkflowHealthMetric {
     pub metric_id: String,
     pub workflow_instance_id: String,
@@ -34,7 +35,7 @@ pub struct WorkflowHealthMetric {
 }
 
 /// Represents a prediction of a potential workflow failure.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct FailurePrediction {
     pub prediction_id: String,
     pub workflow_instance_id: String,
@@ -47,7 +48,7 @@ pub struct FailurePrediction {
 }
 
 /// Represents an automatic self-healing action taken.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct HealingAction {
     pub action_id: String,
     pub prediction_id: String,

@@ -96,7 +96,7 @@ impl AHPLSAEngine {
     fn parallel_content_delivery_knowledge_graph_simd(&self, learning_pathway: &LearningPathway) -> Vec<EducationalContent> { // delivered content
         println!("    [AHPLSA-SIMD]: Delivering content for pathway '{}' and updating knowledge graph in parallel.", learning_pathway.name);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut delivered_content = Vec::new();
         // Simulate SIMD-accelerated retrieval and serving of educational content chunks, alongside parallel updates to Samuel's knowledge graph based on consumption patterns
@@ -125,7 +125,7 @@ impl AHPLSAEngine {
             format!("RAG knowledge for cognitive science of learning: '{}'", csol.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(2000));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut identified_gaps = Vec::new();
         let mut curated_pathways = Vec::new();

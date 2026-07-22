@@ -92,7 +92,7 @@ impl EPDPENGINE {
     fn parallel_data_mining_simd(&self, records: &[DataStreamRecord]) -> (Vec<EmergentPattern>, Vec<Vec<f32>>) {
         println!("    [EPDP-SIMD]: Performing parallel data mining and correlation matrix computation on {} records.", records.len());
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut patterns = Vec::new();
         let mut correlation_matrix = vec![vec![0.0; 3]; 3]; // Conceptual 3x3 matrix
@@ -142,7 +142,7 @@ impl EPDPENGINE {
             format!("RAG knowledge for feature engineering: '{}'", fet.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(400));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let (patterns, _correlation_matrix) = self.parallel_data_mining_simd(&data_streams);
 

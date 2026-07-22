@@ -92,7 +92,7 @@ impl EEBAEngine {
             format!("RAG insight for benchmarking: {}. Hardware: '{}'", metrics_info, workload.hardware_used);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let workload_carbon_footprint = measured_energy_kwh * carbon_intensity_kg_per_kwh;
         let industry_avg_carbon = workload.compute_hours * 0.4; // Conceptual average
@@ -115,7 +115,7 @@ impl EEBAEngine {
             format!("RAG insight for audit: {}. Workload type: '{}'", practices_info, workload.workload_type);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut findings = Vec::new();
         if benchmark.value > benchmark.industry_average * 1.2 {

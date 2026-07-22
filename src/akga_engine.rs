@@ -111,7 +111,7 @@ impl AKGAEngine {
             format!("RAG insight for entity extraction: {}. Source content snippet: '{}'", ee_logic, new_source.content.chars().take(50).collect::<String>());
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut new_entities_count = 0;
         let mut new_relationships_count = 0;

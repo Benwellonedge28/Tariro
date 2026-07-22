@@ -98,7 +98,7 @@ impl ODTEngine {
     fn parallel_state_update_simd(&self, current_components: &mut HashMap<String, DigitalTwinComponent>, sensor_data: &HashMap<String, f32>) {
         println!("    [ODT-SIMD]: Performing parallel state updates for {} components with {} sensor data points.", current_components.len(), sensor_data.len());
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         for (_id, component) in current_components.iter_mut() {
             // Simulate SIMD-accelerated processing of sensor data and updating component metrics
@@ -121,7 +121,7 @@ impl ODTEngine {
             format!("RAG knowledge for system dynamics simulation: '{}'", sds.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(700));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut current_components: HashMap<String, DigitalTwinComponent> = initial_components.into_iter().map(|c| (c.component_id.clone(), c)).collect();
         self.parallel_state_update_simd(&mut current_components, &external_sensor_data);
@@ -154,7 +154,7 @@ impl ODTEngine {
     pub fn run_digital_twin_simulation_rag(&self, twin_state: &DigitalTwinState, scenario: String) -> DigitalTwinSimulation {
         println!("  [ODT]: Running simulation for scenario: '{}'.", scenario);
         thread::sleep(Duration::from_millis(500));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let simulated_events = vec![
             "Simulated 1000 concurrent user requests.".to_string(),

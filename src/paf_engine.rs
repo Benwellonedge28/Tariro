@@ -16,7 +16,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a single system metric data point.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct SystemMetric {
     #[serde(with = "chrono::serde::ts_seconds")]
     #[serde(with = "chrono::serde::ts_seconds")]
@@ -39,7 +40,7 @@ pub struct PredictiveBehaviorModel {
 }
 
 /// Represents a forecast for a system metric.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct MetricForecast {
     pub forecast_id: String,
     pub metric_name: String,
@@ -51,7 +52,7 @@ pub struct MetricForecast {
 }
 
 /// Represents a detected anomaly.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AnomalyDetection {
     pub anomaly_id: String,
     pub metric_name: String,

@@ -93,7 +93,7 @@ impl CBCICEEngine {
     fn parallel_signal_processing_simd(&self, raw_bci_data: &[f32], current_calibration: &HashMap<String, String>) -> BCISignalQuality { // processed signal quality
         println!("    [CBCICE-SIMD]: Performing parallel signal processing for BCI data with current calibration '{}'.", current_calibration.get("filter_type").unwrap_or(&"None".to_string()));
         thread::sleep(Duration::from_millis(70));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate SIMD-accelerated filtering, noise reduction, and signal quality assessment
         let snr = rng.gen_range(5.0..20.0);
@@ -122,7 +122,7 @@ impl CBCICEEngine {
             format!("RAG knowledge for neuroplasticity models: '{}'", npm.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let signal_quality = self.parallel_signal_processing_simd(&raw_bci_data_stream, &current_calibration_settings);
         println!("  Current BCI Signal Quality - Latency: {:.2}ms, SNR: {:.2}dB, Neuro State: '{}'.", signal_quality.latency_ms, signal_quality.signal_to_noise_ratio, signal_quality.neurophysiological_state);

@@ -96,7 +96,7 @@ impl AMLCREngine {
     fn parallel_learning_evaluation_simd(&self, configs: &[LearningAlgorithmConfig], training_data_hash: &str) -> Vec<LearningObservation> { // observations
         println!("    [AMLCR-SIMD]: Executing {} learning experiments in parallel on data {}.", configs.len(), training_data_hash);
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut observations = Vec::new();
         for config in configs {
@@ -136,7 +136,7 @@ impl AMLCREngine {
             format!("RAG knowledge for cognitive science models: '{}'", cognitive_model.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(600));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let observations = self.parallel_learning_evaluation_simd(&current_learning_configs, &training_data_hash);
         let mut refactoring_records = Vec::new();

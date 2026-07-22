@@ -100,7 +100,7 @@ impl EANEngine {
             format!("RAG insight for traffic prediction: {}. Target: '{}'", traffic_info, target_id);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         TrafficPrediction {
             prediction_id: format!("tp_{}_{}", target_id, rng.gen::<u32>()),
@@ -117,7 +117,7 @@ impl EANEngine {
             format!("RAG insight for recommendations: {}. Total links: '{}'", green_net_info, links.len());
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut recommendations = Vec::new();
         for link in links.iter().filter(|l| l.active && l.current_utilization_pct < 0.1 && rng.gen_bool(0.6)) {

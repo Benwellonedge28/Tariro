@@ -90,7 +90,7 @@ impl QAREngine {
     fn parallel_quantum_simulation_simd(&self, circuit: &QuantumCircuit, input_data: &HashMap<String, String>) -> HashMap<String, String> { // simulated quantum output
         println!("    [QAR-SIMD]: Performing parallel quantum simulation for circuit '{}' with {} qubits.", circuit.circuit_id, circuit.num_qubits);
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut output = HashMap::new();
         match circuit.algorithm_type.as_str() {
@@ -119,7 +119,7 @@ impl QAREngine {
             format!("RAG knowledge for quantum crypto: '{}'", qc.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(500));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut ai_result: Option<QuantumAIResult> = None;
         let mut crypto_solution: Option<QuantumResistantCrypto> = None;

@@ -89,7 +89,7 @@ impl APMEngine {
             format!("RAG insight for recommendation: {}. Predicted workload: '{}'", workload_info, predicted_workload_pct);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let suggested_state = if predicted_workload_pct < 0.2 && component.current_workload_pct < 0.1 {
             "Hibernating".to_string()
@@ -115,7 +115,7 @@ impl APMEngine {
         thread::sleep(Duration::from_millis(150));
         component.current_power_state = recommendation.suggested_power_state.clone();
         // Simulate change in power draw
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
         component.current_power_draw_watts = rng.gen_range(5.0..component.max_power_draw_watts * 0.5);
     }
 

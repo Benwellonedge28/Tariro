@@ -97,7 +97,7 @@ impl IACORPEngine {
             format!("RAG insight for orchestration: {}. Task description: '{}'", comm_info, task.task_description);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate task distribution and initial status updates
         for agi_id in &task.participating_agi_ids {

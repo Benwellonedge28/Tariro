@@ -20,6 +20,7 @@ use rand::Rng;
 
 /// Represents a single task within a workflow.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct WorkflowTask {
     pub task_id: String,
     pub task_type: String, // e.g., "data_ingestion", "model_training", "decision_making"
@@ -41,7 +42,7 @@ pub struct WorkflowTemplate {
 }
 
 /// Represents an active instance of a running workflow.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct WorkflowInstance {
     pub instance_id: String,
     pub template_id: String,

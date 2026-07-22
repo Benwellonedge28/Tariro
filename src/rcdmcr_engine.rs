@@ -14,7 +14,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a version of source code.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct CodeVersion {
     pub version_id: String,
     pub file_path: String,

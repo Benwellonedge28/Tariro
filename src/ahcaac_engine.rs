@@ -95,7 +95,7 @@ impl AHCAACEngine {
     fn parallel_ethical_reasoning_behavioral_monitoring_simd(&self, ai_actions: &[String], human_values: &[HumanValue]) -> Vec<MisalignmentEvent> { // detected misalignment events
         println!("    [AHCAAC-SIMD]: Monitoring AI actions and performing ethical reasoning in parallel.");
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut misalignments = Vec::new();
         // Simulate SIMD-accelerated comparison of AI actions against known human values and ethical constraints
@@ -125,7 +125,7 @@ impl AHCAACEngine {
             format!("RAG knowledge for human value modeling: '{}'", hvm.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(1800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let detected_misalignments = self.parallel_ethical_reasoning_behavioral_monitoring_simd(&ai_actions_log, &current_human_values);
 

@@ -96,7 +96,7 @@ impl QMLEngine {
     fn parallel_quantum_circuit_execution_simd(&self, model: &QuantumMLModel, parameters: &[f32], data_batch: &HashMap<String, String>) -> (Vec<f32>, f32) { // (new_parameters, loss)
         println!("    [QML-SIMD]: Executing quantum circuit for model '{}' with {} parameters on batch size {}.", model.model_id, parameters.len(), data_batch.len());
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate SIMD-accelerated forward pass and parameter update for multiple quantum circuits/data points
         let mut new_parameters = parameters.to_vec();
@@ -118,7 +118,7 @@ impl QMLEngine {
             format!("RAG knowledge for quantum optimization: '{}'", q_opt.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(500));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut current_parameters = job.starting_parameters.clone();
         let mut loss_history = Vec::new();

@@ -17,7 +17,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a system performance metric.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct SystemMetric {
     pub metric_id: String,
     pub name: String, // e.g., "cpu_utilization", "memory_usage_gb", "simd_lane_saturation"

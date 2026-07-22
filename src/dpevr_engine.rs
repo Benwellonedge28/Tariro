@@ -21,7 +21,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a log of an AI component's behavior or activity.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct AIBehaviorLog {
     pub log_id: String,
     pub component_id: String,
@@ -33,7 +34,7 @@ pub struct AIBehaviorLog {
 }
 
 /// Defines a security policy for AI behavior or resource access.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SecurityPolicy {
     pub policy_id: String,
     pub policy_name: String,
@@ -45,7 +46,7 @@ pub struct SecurityPolicy {
 }
 
 /// Report detailing a policy violation.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ViolationReport {
     pub report_id: String,
     pub component_id: String,

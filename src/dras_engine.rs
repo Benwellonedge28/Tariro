@@ -20,7 +20,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents an available computational or physical resource.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct Resource {
     pub resource_id: String,
     pub resource_type: String, // e.g., "cpu_core", "gpu_unit", "quantum_qubit", "nano_agent_type_A"
@@ -43,7 +44,7 @@ pub struct TaskRequest {
 }
 
 /// Represents a decision for resource allocation and task scheduling.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AllocationDecision {
     pub decision_id: String,
     pub task_id: String,

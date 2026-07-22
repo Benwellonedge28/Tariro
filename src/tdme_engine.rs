@@ -18,7 +18,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents an entry in the decision log.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct DecisionLogEntry {
     pub entry_id: String,
     pub decision_id: String,
@@ -45,7 +46,7 @@ pub struct ReasoningStep {
 }
 
 /// Represents a human-readable explanation of a decision.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ExplanationOutput {
     pub explanation_id: String,
     pub decision_id: String,

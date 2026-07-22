@@ -105,7 +105,7 @@ impl DERVAEngine {
     fn parallel_ethical_evaluation_simd(&self, action_context: &HashMap<String, String>, active_principles: &[EthicalPrinciple]) -> (Vec<String>, f32) { // identified conflicts and alignment score
         println!("    [DERVA-SIMD]: Performing parallel ethical evaluation for action in context {:?} with {} principles.", action_context, active_principles.len());
         thread::sleep(Duration::from_millis(70));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut conflicts = Vec::new();
         let mut alignment_score = rng.gen_range(0.8..0.99);
@@ -138,7 +138,7 @@ impl DERVAEngine {
             format!("RAG knowledge for Samuel's values: '{}'", svp.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Conceptual: RAG-driven loading of active ethical principles based on context and Samuel's values
         let active_principles = vec![

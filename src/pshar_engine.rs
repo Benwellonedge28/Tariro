@@ -17,7 +17,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a single telemetry event from a system component.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct TelemetryEvent {
     pub event_id: String,
     pub component: String,
@@ -29,7 +30,7 @@ pub struct TelemetryEvent {
 }
 
 /// Represents the result of an anomaly detection process.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AnomalyDetectionResult {
     pub anomaly_id: String,
     pub event_id: String,
@@ -41,7 +42,7 @@ pub struct AnomalyDetectionResult {
 }
 
 /// Represents an action taken for self-healing.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SelfHealingAction {
     pub action_id: String,
     pub anomaly_id: String,

@@ -92,7 +92,7 @@ impl AADPSEngine {
     fn parallel_policy_enforcement_data_flow_simd(&self, data_assets: &[DataAsset], access_requests: &[String]) -> Vec<PrivacyEvent> { // handled privacy events
         println!("    [AADPS-SIMD]: Enforcing access policies and monitoring data flow in parallel for {} assets.", data_assets.len());
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut privacy_events = Vec::new();
         // Simulate SIMD-accelerated matching of access requests against policies and real-time data movement analysis
@@ -121,7 +121,7 @@ impl AADPSEngine {
             format!("RAG knowledge for data provenance: '{}'", dlp.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(1500));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let handled_privacy_events = self.parallel_policy_enforcement_data_flow_simd(&data_assets, &incoming_requests);
 

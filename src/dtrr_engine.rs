@@ -19,7 +19,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a detected potential security threat event.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct ThreatEvent {
     pub event_id: String,
     pub event_type: String, // e.g., "port_scan", "malware_signature_match", "unusual_login_attempt"
@@ -34,7 +35,7 @@ pub struct ThreatEvent {
 }
 
 /// Represents a recommended or executed counter-measure.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct CounterMeasure {
     pub measure_id: String,
     pub threat_event_id: String,

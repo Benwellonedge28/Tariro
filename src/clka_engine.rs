@@ -16,7 +16,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a piece of raw information from an external source.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct RawInformation {
     pub info_id: String,
     pub source_type: String, // e.g., "WebPage", "Document", "Codebase", "Conversation"
@@ -48,7 +49,7 @@ pub struct KnowledgeRelationship {
 }
 
 /// Represents the overall knowledge graph state.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct KnowledgeGraph {
     pub graph_id: String,
     pub entities: HashMap<String, KnowledgeEntity>,
@@ -102,7 +103,7 @@ impl CLKAEngine {
             format!("RAG insight for entity extraction: {}. Content type: '{}'", ie_info, raw_info.source_type);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         vec![
             KnowledgeEntity {
@@ -131,7 +132,7 @@ impl CLKAEngine {
             format!("RAG insight for relationship discovery: {}. Entities involved: '{}'", kg_info, entities.len());
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut relationships = Vec::new();
         if entities.len() >= 2 && rng.gen_bool(0.7) {

@@ -19,7 +19,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a proposal for a governance decision.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct GovernanceProposal {
     pub proposal_id: String,
     pub title: String,
@@ -32,7 +33,7 @@ pub struct GovernanceProposal {
 }
 
 /// Represents a quantum-safe vote on a proposal.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct QuantumVote {
     pub vote_id: String,
     pub proposal_id: String,
@@ -44,7 +45,7 @@ pub struct QuantumVote {
 }
 
 /// Represents the outcome of a governance decision.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct GovernanceDecision {
     pub decision_id: String,
     pub proposal_id: String,

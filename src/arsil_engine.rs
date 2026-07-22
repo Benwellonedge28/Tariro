@@ -95,7 +95,7 @@ impl ARSILEngine {
     fn parallel_experiment_execution_simd(&self, experiments: &[ImprovementExperiment]) -> Vec<SelfImprovementApplication> { // applications
         println!("    [ARSIL-SIMD]: Executing {} self-improvement experiments in parallel.", experiments.len());
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut applications = Vec::new();
         for exp in experiments {
@@ -129,7 +129,7 @@ impl ARSILEngine {
             format!("RAG knowledge for recursive self-optimization: '{}'", rsop.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(600));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut experiments_to_run = Vec::new();
         for lim in current_limitations {

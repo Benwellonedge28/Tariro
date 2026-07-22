@@ -18,7 +18,8 @@ use sha2::{Sha256, Digest};
 // --- Conceptual Structures --- //
 
 /// Represents a proposal within the DAO.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct DaoProposal {
     pub proposal_id: String,
     pub proposer_did: String, // DID of the proposer
@@ -33,7 +34,7 @@ pub struct DaoProposal {
 }
 
 /// Represents a vote cast on a proposal.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct DaoVote {
     pub vote_id: String,
     pub voter_did: String,
@@ -48,7 +49,7 @@ pub struct DaoVote {
 }
 
 /// Represents the current state of the AGI's configurable parameters.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AgiParameters {
     pub parameter_name: String,
     pub current_value: String,
@@ -107,7 +108,7 @@ impl DAOAGIEngine {
             format!("RAG insight for proposal execution: {}. Proposal ID: '{}'", sc_info, proposal.proposal_id);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         if proposal.status == "Passed" && rng.gen_bool(0.9) {
             // Simulate applying changes

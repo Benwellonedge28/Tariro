@@ -86,7 +86,7 @@ impl IRRFTEngine {
     pub fn monitor_resource_nodes(&self, nodes: &mut HashMap<String, AgiResourceNode>) {
         //println!("  [IRRFT]: Monitoring {} resource nodes.", nodes.len());
         thread::sleep(Duration::from_millis(50));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         for (_id, node) in nodes.iter_mut() {
             node.last_heartbeat = Utc::now();
@@ -110,7 +110,7 @@ impl IRRFTEngine {
             format!("RAG insight for re-allocation: {}. Tasks count: '{}'", rl_info, tasks.len());
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut events = Vec::new();
 

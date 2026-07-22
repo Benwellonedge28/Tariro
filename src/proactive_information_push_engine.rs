@@ -83,7 +83,7 @@ impl PCIPEngine {
     pub fn monitor_user_activity_simd(&self, user_id: &str) -> UserActivityContext {
         println!("    [PCIP-SIMD]: Monitoring real-time activity for user '{}'.", user_id);
         thread::sleep(Duration::from_millis(30));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let possible_tasks = vec!["DebuggingCompiler", "ReviewingCode", "DesigningSystem", "WritingDocumentation"];
         let current_task = possible_tasks[rng.gen_range(0..possible_tasks.len())].to_string();
@@ -105,7 +105,7 @@ impl PCIPEngine {
             format!("RAG insight for info push: {}. Current task: '{}'", kg_info, activity.current_task);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut pushed_items = Vec::new();
 

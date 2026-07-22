@@ -15,7 +15,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a raw neural signal from a BCI or eye-tracker.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct NeuralSignal {
     pub id: String,
     pub sensor_type: String, // e.g., "EEG", "EyeTracker"

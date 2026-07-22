@@ -98,7 +98,7 @@ impl ARAOEngine {
     fn parallel_resource_evaluation_simd(&self, requirement: &ResourceRequirement, available_resources: &[AvailableResource]) -> (Option<AvailableResource>, f32) { // best resource and its score
         println!("    [ARAO-SIMD]: Performing parallel evaluation of {} available resources for requirement '{}'.", available_resources.len(), requirement.req_id);
         thread::sleep(Duration::from_millis(80));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut best_resource: Option<AvailableResource> = None;
         let mut best_score = -1.0;
@@ -136,7 +136,7 @@ impl ARAOEngine {
             format!("RAG knowledge for procurement policies: '{}'", pp.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let (chosen_resource_opt, evaluation_score) = self.parallel_resource_evaluation_simd(&requirement, &current_available_resources);
 

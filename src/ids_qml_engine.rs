@@ -16,7 +16,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a single network packet or log entry as a data point for IDS.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct IDSDataPoint {
     pub data_point_id: String,
     #[serde(with = "chrono::serde::ts_seconds")]
@@ -32,7 +33,7 @@ pub struct IDSDataPoint {
 }
 
 /// Represents a detected threat or anomaly.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct DetectedThreat {
     pub threat_id: String,
     pub threat_type: String, // e.g., "DDoS", "Malware", "Zero-Day Exploit"
@@ -56,7 +57,7 @@ pub struct QMLIDSModel {
 }
 
 /// Represents external threat intelligence or vulnerability data.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ThreatIntelligence {
     pub intel_id: String,
     pub source: String,

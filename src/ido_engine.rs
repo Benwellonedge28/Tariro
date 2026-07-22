@@ -20,7 +20,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents an input to a decision process.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct DecisionInput {
     pub input_id: String,
     pub source: String, // e.g., "sensor_data", "user_query", "internal_report"
@@ -43,7 +44,7 @@ pub struct DecisionOption {
 }
 
 /// Represents the final outcome of a decision process.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct DecisionResult {
     pub result_id: String,
     pub selected_option_id: String,

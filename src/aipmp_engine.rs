@@ -99,7 +99,7 @@ impl AIPMPEngine {
     fn parallel_ip_scanning_infringement_detection_simd(&self, ip_assets: &[IntellectualProperty], scan_targets: &[String]) -> Vec<IPScanResult> { // list of scan results
         println!("    [AIPMP-SIMD]: Scanning {} IP assets across {} targets in parallel for infringements.", ip_assets.len(), scan_targets.len());
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut scan_results = Vec::new();
         // Simulate SIMD-accelerated comparison of IP asset features against billions of online sources and databases
@@ -127,7 +127,7 @@ impl AIPMPEngine {
             format!("RAG knowledge for patent analytics: '{}'", pad.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(2000));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate registration of new creative works
         for work in new_creative_works {

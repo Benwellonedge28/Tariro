@@ -99,7 +99,7 @@ impl AHSCDEngine {
             format!("RAG insight for AGI proposal: {}. Context: '{}'", hcip_info, current_context);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         AgiProposal {
             proposal_id: format!("prop_{}", rng.gen::<u32>()),
@@ -119,7 +119,7 @@ impl AHSCDEngine {
             format!("RAG insight for joint decision: {}. AGI confidence: '{}'", cog_psy_info, agi_proposal.confidence);
         }
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let (chosen_action, decision_rationale, allocation_of_control) = if let Some(command) = human_command {
             if command.command_type == "Override" {

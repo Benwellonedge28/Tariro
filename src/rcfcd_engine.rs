@@ -103,7 +103,7 @@ impl RCFCDEngine {
     fn parallel_truth_value_assessment_simd(&self, statement: &FactualStatement) -> f32 {
         println!("    [RCFCD-SIMD]: Performing parallel truth-value assessment for statement '{}'.", statement.statement_id);
         thread::sleep(Duration::from_millis(30));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
         // Simulate RAG-driven truth assessment
         if statement.content.contains("garbage collector") && statement.source_id.contains("misinfo") { 0.1 }
         else if statement.content.contains("memory safety") { 0.98 }
@@ -117,7 +117,7 @@ impl RCFCDEngine {
             format!("RAG insight for contradiction detection: {}. New statement: '{}'", model_logic, new_statement.content.chars().take(50).collect::<String>());
         }
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut contradictions = Vec::new();
 

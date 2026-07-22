@@ -21,7 +21,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents the contextual information for a given workflow.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct WorkflowContext {
     pub workflow_id: String,
     pub strategic_importance: u8, // 1 (highest) to 10 (lowest)
@@ -35,7 +36,7 @@ pub struct WorkflowContext {
 }
 
 /// Represents a workflow with its calculated priority score.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct PrioritizedWorkflow {
     pub workflow_id: String,
     pub priority_score: f32, // Higher score means higher priority
@@ -45,7 +46,7 @@ pub struct PrioritizedWorkflow {
 }
 
 /// Represents a decision on how workflows should be scheduled and executed.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SchedulingDecision {
     pub decision_id: String,
     pub scheduled_workflows: Vec<String>, // Ordered list of workflow_ids to execute

@@ -93,7 +93,7 @@ impl QFDTEngine {
     fn parallel_rendering_quantum_sync_simd(&self, elements: &[TwinElement]) -> (String, f32) { // quantum_state_hash and integrity_score
         println!("    [QFDT-SIMD]: Rendering {} twin elements in parallel and synchronizing quantum state.", elements.len());
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate SIMD-accelerated rendering of complex environments and quantum state updates
         let quantum_state_hash = format!("QSH_{}", rng.gen::<u32>());
@@ -112,7 +112,7 @@ impl QFDTEngine {
             format!("RAG knowledge for quantum simulation: '{}'", qs.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(1200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Merge new elements and update existing ones
         for new_elem in new_elements_data {
@@ -138,7 +138,7 @@ impl QFDTEngine {
     pub fn run_predictive_scenario_rag(&self, twin: &DigitalTwinEcosystem, scenario: DigitalTwinScenario) -> DigitalTwinScenario {
         println!("  [QFDT]: Running predictive scenario '{}' in digital twin for '{}'.", scenario.name, twin.owner);
         thread::sleep(Duration::from_millis(2000));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Conceptual: RAG-driven simulation and analysis of complex interactions within the twin
         let observed_outcomes = HashMap::from([("long_term_impact_positive".to_string(), rng.gen_bool(0.7).to_string())]);

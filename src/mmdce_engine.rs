@@ -77,7 +77,7 @@ impl MMDCEEngine {
     fn parallel_fusion_simd(&self, item1: &MultiModalDataItem, item2: &MultiModalDataItem) -> f32 {
         println!("    [MMDCE-SIMD]: Performing parallel feature extraction and cross-modal fusion.");
         thread::sleep(Duration::from_millis(50));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Conceptual: SIMD-accelerated comparison of extracted features
         let mut similarity = 0.0;
@@ -114,7 +114,7 @@ impl MMDCEEngine {
             format!("RAG knowledge for contextual correlation: '{}'", ontology.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut correlations = Vec::new();
         if items.len() < 2 { return correlations; }

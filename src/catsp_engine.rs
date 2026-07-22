@@ -91,7 +91,7 @@ impl CATSPEngine {
             format!("RAG insight for context fusion: {}. Raw data: '{}'", rtdf_info, raw_data_streams);
         }
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         OperationalContext {
             context_id: format!("ctx_{}", rng.gen::<u32>()),
@@ -114,7 +114,7 @@ impl CATSPEngine {
             format!("RAG insight for scheduling: {}. Task type: '{}'", moo_info, task.task_type);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate intelligent scheduling based on priority, resources, and context
         if !available_agi_instances.is_empty() && rng.gen_bool(0.9) { // 90% chance of successful scheduling

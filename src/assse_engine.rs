@@ -100,7 +100,7 @@ impl ASSSEEngine {
     fn parallel_sandbox_execution_monitoring_simd(&self, sandbox_configs: &[HashMap<String, String>]) -> Vec<SandboxEnvironment> { // list of running sandboxes
         println!("    [ASSSE-SIMD]: Instantiating {} sandboxes in parallel and monitoring performance.", sandbox_configs.len());
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut sandboxes = Vec::new();
         for config in sandbox_configs {
@@ -128,7 +128,7 @@ impl ASSSEEngine {
             format!("RAG knowledge for simulation modeling: '{}'", sm.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let sandbox_configs = vec![config.clone()];
         let sandboxes = self.parallel_sandbox_execution_monitoring_simd(&sandbox_configs);
@@ -151,7 +151,7 @@ impl ASSSEEngine {
     pub fn run_simulation_rag(&self, sandbox: &SandboxEnvironment, scenario: SimulationScenario) -> SimulationResult {
         println!("  [ASSSE]: Running simulation '{}' in sandbox '{}'.", scenario.name, sandbox.name);
         thread::sleep(Duration::from_millis(1500));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Conceptual: RAG-driven analysis of simulation events and expected vs. actual outcomes
         let actual_outcomes = HashMap::from([("feature_behaved_as_expected".to_string(), rng.gen_bool(0.9).to_string())]);

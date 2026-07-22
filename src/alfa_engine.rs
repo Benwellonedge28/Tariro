@@ -92,7 +92,7 @@ impl ALFAEngine {
     fn parallel_model_update_simd(&self, llm: &mut LLMConfig, training_data_size_gb: f32) -> HashMap<String, f32> {
         println!("    [ALFA-SIMD]: Performing parallel model update for LLM '{}' with {:.2} GB data.", llm.model_id, training_data_size_gb);
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate SIMD-accelerated gradient accumulation and model parameter updates
         let current_accuracy = llm.performance_metrics.get("accuracy").copied().unwrap_or(0.85);
@@ -118,7 +118,7 @@ impl ALFAEngine {
             format!("RAG knowledge for domain corpora: '{}'", corpora.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(500));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let total_training_data_gb = new_context_data.iter().map(|d| d.content.len() as f32 / (1024.0 * 1024.0 * 1024.0)).sum::<f32>();
 

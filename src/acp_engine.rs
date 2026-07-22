@@ -14,11 +14,12 @@ use std::fmt;
 use std::thread;
 use std::time::Duration;
 use rand::Rng;
+use serde::{Serialize, Deserialize};
 
 // --- Conceptual Structures --- //
 
 /// Represents the current state of a system or subsystem.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SystemState {
     pub state_id: String,
     pub component_id: String,
@@ -29,7 +30,7 @@ pub struct SystemState {
 }
 
 /// Represents an autonomous control policy.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ControlPolicy {
     pub policy_id: String,
     pub policy_name: String,
@@ -41,7 +42,7 @@ pub struct ControlPolicy {
 }
 
 /// Represents a decision made by the control plane.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ControlDecision {
     pub decision_id: String,
     pub policy_id: String,
@@ -53,7 +54,7 @@ pub struct ControlDecision {
 }
 
 /// Represents an executable action for resource orchestration (re-used from RTRPO for consistency).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct OrchestrationAction {
     pub action_id: String,
     pub action_type: String, // e.g., "scale_up_cpu", "reroute_energy", "offload_to_photonic", "adjust_cooling"

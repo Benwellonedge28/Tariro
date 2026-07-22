@@ -85,7 +85,7 @@ impl NUIEngine {
     pub fn monitor_user_cognitive_profile(&self, user_id: &str) -> UserCognitiveProfile {
         println!("  [NUI]: Monitoring cognitive profile for user '{}'.", user_id);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         UserCognitiveProfile {
             user_id: user_id.to_string(),
@@ -105,7 +105,7 @@ impl NUIEngine {
             format!("RAG insight for UI adaptation: {}. User emotional state: '{}'", cn_info, user_profile.emotional_state);
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut adapted_elements = Vec::new();
         for mut element in current_ui_elements {
@@ -130,7 +130,7 @@ impl NUIEngine {
             format!("RAG insight for feedback processing: {}. Perceived usability: '{}'", hci_info, feedback.perceived_usability_score);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         if feedback.perceived_usability_score < 0.7 && rng.gen_bool(0.8) {
             println!("  Negative feedback detected. Suggesting NUI adaptation adjustments.\n");

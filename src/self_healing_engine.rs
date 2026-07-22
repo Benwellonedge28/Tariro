@@ -16,6 +16,7 @@ use rand::Rng;
 
 /// Represents a monitored software component.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct SoftwareComponent {
     pub component_id: String,
     pub name: String,
@@ -25,7 +26,7 @@ pub struct SoftwareComponent {
 }
 
 /// Represents a detected issue or anomaly.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct DetectedIssue {
     pub issue_id: String,
     pub component_id: String,

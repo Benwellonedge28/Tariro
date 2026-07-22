@@ -94,7 +94,7 @@ impl AHACCIEngine {
     fn parallel_ui_rendering_data_streaming_simd(&self, cognitive_state: &TariroCognitiveState) -> String { // rendered UI data stream
         println!("    [AHACCI-SIMD]: Rendering UI and streaming data for cognitive state '{}' in parallel.", cognitive_state.state_id);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate SIMD-accelerated processing of complex data structures into high-fidelity, low-latency UI elements
         let ui_data_stream = format!("UI_Stream: Cognitive State: {}. Current Task: {}. Confidence: {:.2}. Explainability Link: {}.",
@@ -116,7 +116,7 @@ impl AHACCIEngine {
             format!("RAG knowledge for human-in-the-loop systems: '{}'", hitl.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(1800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let ui_data_stream = self.parallel_ui_rendering_data_streaming_simd(&current_tariro_state);
 

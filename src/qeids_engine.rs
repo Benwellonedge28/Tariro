@@ -16,7 +16,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a captured network packet.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct NetworkPacket {
     pub id: String,
     pub source_ip: String,
@@ -29,7 +30,7 @@ pub struct NetworkPacket {
 }
 
 /// Represents a detected intrusion event.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct IntrusionEvent {
     pub event_id: String,
     pub event_type: String, // e.g., "malware_attempt", "data_exfiltration", "privilege_escalation"

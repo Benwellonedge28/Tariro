@@ -97,7 +97,7 @@ impl RTHAGICSEngine {
     fn parallel_cognitive_fusion_simd(&self, human_neural_data: &[f32], agi_internal_signals: &[f32]) -> Vec<f32> { // merged neural representation
         println!("    [RTHAGICS-SIMD]: Performing parallel fusion of human and AGI neural data.");
         thread::sleep(Duration::from_millis(50));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut merged_data = Vec::with_capacity(human_neural_data.len().max(agi_internal_signals.len()));
         for i in 0..merged_data.capacity() {
@@ -118,7 +118,7 @@ impl RTHAGICSEngine {
             format!("RAG knowledge for neural interface protocols: '{}'", nip.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let merged_neural_representation = self.parallel_cognitive_fusion_simd(&human_state.neural_activity_signature, &agi_state.internal_processing_load.to_string().as_bytes().iter().map(|&b| b as f32).collect::<Vec<f32>>()); // Simplified AGI signal
 

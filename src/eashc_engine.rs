@@ -18,6 +18,7 @@ use rand::Rng;
 
 /// Represents a heterogeneous computing device.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct ComputeDevice {
     pub device_id: String,
     pub device_type: String, // e.g., "CPU", "GPU", "FPGA", "TPU", "AI_Accelerator"
@@ -28,7 +29,7 @@ pub struct ComputeDevice {
 }
 
 /// Represents a computational task.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ComputeTask {
     pub task_id: String,
     pub task_type: String, // e.g., "AI_Inference", "DataProcessing", "Simulation"
@@ -41,7 +42,7 @@ pub struct ComputeTask {
 }
 
 /// Represents a scheduled task assignment.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ScheduledAssignment {
     pub assignment_id: String,
     pub task_id: String,
@@ -97,7 +98,7 @@ impl EASTSHCEngine {
             format!("RAG insight for scheduling: {}. Task performance required: '{}'", device_info, task.required_performance_score);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Conceptual scheduling logic: prioritize energy-efficient devices if power-sensitive, else performance
         let best_device = available_devices.iter().min_by_key(|device| {

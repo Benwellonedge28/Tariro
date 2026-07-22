@@ -101,7 +101,7 @@ impl DCCOEngine {
             format!("RAG insight for cooling prediction: {}. Current avg temp: '{}'", cfd_info, current_sensors.iter().filter(|s| s.sensor_type == "Temperature").map(|s| s.current_value).sum::<f32>() / current_sensors.len() as f32);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Conceptual prediction: higher workload or temperature means higher cooling need
         let avg_temp = current_sensors.iter().filter(|s| s.sensor_type == "Temperature").map(|s| s.current_value).sum::<f32>() / current_sensors.len() as f32;
@@ -118,7 +118,7 @@ impl DCCOEngine {
             format!("RAG insight for recommendations: {}. Unit type: '{}'", sensor_analysis_info, unit.unit_type);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let suggested_setting = if predicted_cooling_need_pct > 70.0 {
             unit.max_setting // Max cooling
@@ -144,7 +144,7 @@ impl DCCOEngine {
         thread::sleep(Duration::from_millis(150));
         unit.current_setting = recommendation.suggested_setting;
         // Simulate power draw change
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
         unit.current_power_draw_watts = (unit.min_setting + (unit.max_setting - unit.min_setting) * (unit.current_setting / unit.max_setting) * 0.8) * rng.gen_range(1.0..1.2);
     }
 

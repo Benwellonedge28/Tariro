@@ -91,7 +91,7 @@ impl CPKIEngine {
     fn parallel_tokenization_and_embedding_update_simd(&self, content: &str) -> (Vec<String>, HashMap<String, Vec<f32>>) {
         println!("    [CPKI-SIMD]: Performing parallel tokenization and embedding update for content length {}.", content.len());
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let tokens: Vec<String> = content.split_whitespace().map(|s| s.to_string()).collect();
 
@@ -114,7 +114,7 @@ impl CPKIEngine {
             format!("RAG knowledge for data extraction: '{}'", extraction_method.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(400));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut processed_content_batches = Vec::new();
         let mut injected_concepts = Vec::new();

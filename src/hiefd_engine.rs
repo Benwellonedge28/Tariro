@@ -16,6 +16,7 @@ use rand::Rng;
 
 /// Represents configuration for an environmental fluid dynamics simulation.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct EnvironmentConfig {
     pub config_id: String,
     pub simulation_area: (f32, f32, f32), // e.g., (width, height, depth) in km
@@ -26,7 +27,7 @@ pub struct EnvironmentConfig {
 }
 
 /// Represents a single cell in the simulation grid.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct GridCell {
     pub id: u64,
     pub position: (f32, f32, f32),
@@ -37,7 +38,7 @@ pub struct GridCell {
 }
 
 /// Represents real-time or historical meteorological data.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct WeatherData {
     pub station_id: String,
     #[serde(with = "chrono::serde::ts_seconds")]

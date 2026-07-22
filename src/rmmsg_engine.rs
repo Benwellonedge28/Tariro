@@ -90,7 +90,7 @@ impl RMMSGEngine {
     fn parallel_rendering_simd(&self, objects: &HashMap<String, GeneratedObject>, terrain: &[f32]) -> f32 { // rendering_performance_ms
         println!("    [RMMSG-SIMD]: Performing parallel rendering for {} objects and terrain data length {}.", objects.len(), terrain.len());
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate SIMD-accelerated vertex transformation, shading, and rasterization
         let base_render_time = rng.gen_range(10.0..50.0);
@@ -110,7 +110,7 @@ impl RMMSGEngine {
             format!("RAG knowledge for environment generation: '{}'", env_algo.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(500));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Conceptual: RAG-driven selection of base environment and assets
         let environment_description = format!("A {style} scene of a {biome} with {features}.",

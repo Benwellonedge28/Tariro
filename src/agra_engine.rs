@@ -100,7 +100,7 @@ impl AGRAEngine {
     fn parallel_policy_evaluation_simd(&self, current_params: &OperationalParameters, triggers: &Vec<RegulatoryEthicalChange>) -> (HashMap<String, String>, f32) { // proposed adjustments and confidence
         println!("    [AGRA-SIMD]: Performing parallel policy evaluation for {} triggers.", triggers.len());
         thread::sleep(Duration::from_millis(80));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut proposed_adjustments = HashMap::new();
         let mut confidence = rng.gen_range(0.7..0.99);
@@ -134,7 +134,7 @@ impl AGRAEngine {
             format!("RAG knowledge for moral compass principles: '{}'", mcp.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let (proposed_adjustments, decision_confidence) = self.parallel_policy_evaluation_simd(&current_operational_params, &recent_changes);
 

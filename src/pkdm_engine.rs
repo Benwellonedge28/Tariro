@@ -115,7 +115,7 @@ impl PKDMEngine {
     fn analyze_knowledge_freshness_simd(&self, item: &TemporalKnowledgeItem) -> f32 {
         println!("    [PKDM-SIMD]: Analyzing knowledge freshness for item '{}'.", item.item_id);
         thread::sleep(Duration::from_millis(30));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let time_since_verification = Utc::now().duration_since(item.last_verified_at).as_secs_f32();
         let decay_factor = (time_since_verification / (86400.0 * 30.0)) * item.predicted_decay_rate;
@@ -129,7 +129,7 @@ impl PKDMEngine {
             format!("RAG insight for decay monitoring: {}. Monitored items: {}", model_logic, self.temporal_knowledge_base.len());
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut alerts = Vec::new();
         for (id, item) in self.temporal_knowledge_base.iter_mut() {
@@ -155,7 +155,7 @@ impl PKDMEngine {
     pub fn perform_maintenance_action(&self, alert: &KnowledgeDecayAlert) -> KnowledgeMaintenanceAction {
         println!("  [PKDM]: Performing maintenance action for item '{}' based on alert '{}'.", alert.item_id, alert.alert_id);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         KnowledgeMaintenanceAction {
             action_id: format!("maint_{}", rng.gen::<u32>()),

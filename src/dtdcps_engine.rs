@@ -87,7 +87,7 @@ impl DTDCPSEngine {
             format!("RAG insight for delegation: {}. Problem caps: '{}'", maca_info, problem.required_capabilities.join(", "));
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut delegation_events = Vec::new();
         let mut potential_agents = Vec::new();
@@ -131,7 +131,7 @@ impl DTDCPSEngine {
             format!("RAG insight for collective solving: {}. Problem description: '{}'", ei_info, problem.description);
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         if !assigned_agents.is_empty() && rng.gen_bool(0.8) {
             problem.current_status = "Solving".to_string();

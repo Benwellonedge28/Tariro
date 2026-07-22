@@ -21,7 +21,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents performance metrics and logs for a completed workflow instance.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct WorkflowPerformanceLog {
     pub log_id: String,
     pub workflow_instance_id: String,
@@ -39,7 +40,7 @@ pub struct WorkflowPerformanceLog {
 }
 
 /// Summarizes the findings of a single learning iteration.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct LearningIterationSummary {
     pub iteration_id: String,
     #[serde(with = "chrono::serde::ts_seconds")]

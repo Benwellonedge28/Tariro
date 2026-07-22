@@ -90,7 +90,7 @@ impl SPAPEngine {
     fn parallel_pipeline_execution_simd(&self, pipeline: &PredictivePipeline) -> HashMap<String, f32> { // metrics
         println!("    [SPAP-SIMD]: Performing parallel execution for pipeline '{}' with {} stages.", pipeline.pipeline_id, pipeline.stages.len());
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate SIMD-accelerated data processing and model inference
         let mut metrics = HashMap::new();
@@ -111,7 +111,7 @@ impl SPAPEngine {
             format!("RAG knowledge for data quality: '{}'", data_quality.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(400));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let execution_metrics = self.parallel_pipeline_execution_simd(&pipeline);
         pipeline.current_performance = execution_metrics.clone();

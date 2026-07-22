@@ -15,7 +15,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a tile of satellite imagery.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct SatelliteImageTile {
     pub tile_id: String,
     #[serde(with = "chrono::serde::ts_seconds")]
@@ -44,7 +45,7 @@ pub struct GISFeature {
 }
 
 /// Represents a processed geospatial layer.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct GeospatialLayer {
     pub layer_id: String,
     pub layer_type: String, // e.g., "elevation_model", "land_cover", "road_network"
@@ -54,7 +55,7 @@ pub struct GeospatialLayer {
 }
 
 /// Represents the final processed map output.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ProcessedMapOutput {
     pub output_id: String,
     pub processed_layers: Vec<GeospatialLayer>,

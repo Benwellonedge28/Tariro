@@ -93,7 +93,7 @@ impl OMHAIIAEngine {
     fn parallel_multimodal_processing_simd(&self, stream: &MultimodalInteractionStream) -> HashMap<String, f32> { // processed importance weights
         println!("    [OMHAIIA-SIMD]: Processing multimodal stream '{}' with {} modalities in parallel.", stream.stream_id, stream.modalities.len());
         thread::sleep(Duration::from_millis(60));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut processed_weights = HashMap::new();
         for modality in &stream.modalities {
@@ -113,7 +113,7 @@ impl OMHAIIAEngine {
             format!("RAG knowledge for human factors: '{}'", hfe.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let importance_analysis = self.parallel_multimodal_processing_simd(&stream);
         println!("  Multimodal Importance Analysis complete: {:?}.", importance_analysis);

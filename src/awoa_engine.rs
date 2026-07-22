@@ -93,7 +93,7 @@ impl AWOAEngine {
             format!("RAG insight for workflow generation: {}. Goal: '{}'", wfp_info, goal);
         }
         thread::sleep(Duration::from_millis(200));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let steps = vec![
             WorkflowStep {
@@ -142,7 +142,7 @@ impl AWOAEngine {
         if step.status == "Pending" {
             println!("  [AWOA]: Executing step '{}' (Agent: {:?}).", step.step_name, step.agent_assigned_id);
             thread::sleep(Duration::from_millis(step.expected_duration_ms as u64));
-            let mut rng = rand::Rng::thread_rng();
+            let mut rng = rand::thread_rng();
             if rng.gen_bool(0.95) { // 95% success rate
                 step.status = "Completed".to_string();
                 println!("  Step '{}' completed.", step.step_name);
@@ -163,7 +163,7 @@ impl AWOAEngine {
             format!("RAG insight for adaptation: {}. Workflow goal: '{}'", ai_planning_info, workflow.current_goal);
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         if rng.gen_bool(0.7) { // 70% chance of successful adaptation
             workflow.current_status = "Re-Planning".to_string();

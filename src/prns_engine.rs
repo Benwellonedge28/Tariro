@@ -104,7 +104,7 @@ impl PRNSEngine {
     fn parallel_preference_matching_simd(&self, context: &SamuelContext, candidate_pool_size: usize) -> Vec<(String, f32)> {
         println!("    [PRNS-SIMD]: Matching {} candidates against cognitive context in parallel.", candidate_pool_size);
         thread::sleep(Duration::from_millis(60));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate SIMD matching (e.g., dot products of context vectors vs. candidate vectors)
         (0..5).map(|i| (format!("candidate_{}", i), rng.gen_range(0.7..0.99))).collect()
@@ -120,7 +120,7 @@ impl PRNSEngine {
         }
 
         thread::sleep(Duration::from_millis(700));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let top_matches = self.parallel_preference_matching_simd(&context, 1000);
         
@@ -147,7 +147,7 @@ impl PRNSEngine {
     pub fn monitor_and_nudge_rag(&self, context: &SamuelContext) -> Option<PersonalizedNudge> {
         println!("  [PRNS]: Monitoring cognitive drift for potential nudge delivery.");
         thread::sleep(Duration::from_millis(400));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         if context.focus_quality < 4.0 && context.energy_level > 5.0 {
             println!("  [PRNS]: Focus drop detected while energy is sufficient. Preparing nudge.");

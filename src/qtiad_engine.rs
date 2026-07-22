@@ -15,7 +15,8 @@ use rand::Rng;
 // --- Conceptual Structures --- //
 
 /// Represents a potential security threat event.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
 pub struct ThreatEvent {
     pub id: String,
     pub event_type: String, // e.g., "unusual_login", "data_exfiltration_attempt"
@@ -26,7 +27,7 @@ pub struct ThreatEvent {
 }
 
 /// Represents network traffic or system log telemetry.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct NetworkTelemetry {
     pub id: String,
     pub source_ip: String,

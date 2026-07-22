@@ -96,7 +96,7 @@ impl QCROEngine {
     fn parallel_job_scheduling_simd(&self, job_queue: &[QuantumJobRequest], available_resources: &[QuantumResource]) -> (Vec<QuantumJobStatus>, Vec<QuantumResource>) { // (scheduled_jobs, updated_resources)
         println!("    [QCRO-SIMD]: Performing parallel job scheduling on {} jobs and {} resources.", job_queue.len(), available_resources.len());
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut scheduled_jobs = Vec::new();
         let mut updated_resources = available_resources.to_vec();
@@ -134,7 +134,7 @@ impl QCROEngine {
             format!("RAG knowledge for accounting models: '{}'", accounting.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(500));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let (scheduled_jobs, updated_resources) = self.parallel_job_scheduling_simd(&job_requests, &current_resources);
 

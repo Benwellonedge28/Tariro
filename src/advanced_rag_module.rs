@@ -133,7 +133,9 @@ impl RAGModule {
         if !retrieved_context.is_empty() {
             response.push_str("\n  Retrieved key information segments:");
             for chunk in retrieved_context.iter().take(2) {
-                response.push_str(&format!("\n    - (ID: {}) {}", chunk.id, &chunk.content[..chunk.content.chars().nth(50).unwrap_or(chunk.content.len())]));
+                let preview_len = chunk.content.chars().nth(50).unwrap_or(chunk.content.chars().count());
+                let preview = chunk.content.chars().take(50).collect::<String>();
+                response.push_str(&format!("\n    - (ID: {}) {}", chunk.id, preview));
             }
         }
 

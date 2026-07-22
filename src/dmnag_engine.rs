@@ -88,7 +88,7 @@ impl DMNAGEngine {
     fn parallel_plot_branching_simd(&self, agents: &HashMap<String, NarrativeAgent>, current_events: &[NarrativeEvent]) -> Vec<String> { // possible next plot points
         println!("    [DMNAG-SIMD]: Performing parallel plot branching for {} agents and {} events.", agents.len(), current_events.len());
         thread::sleep(Duration::from_millis(150));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut possible_next_events = Vec::new();
         for _i in 0..rng.gen_range(1..4) {
@@ -112,7 +112,7 @@ impl DMNAGEngine {
             format!("RAG knowledge for character profiles: '{}'", character_info.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(500));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Initialize narrative state (conceptual)
         let mut narrative_state = NarrativeState {

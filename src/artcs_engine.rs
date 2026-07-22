@@ -96,7 +96,7 @@ impl ARTCS_Engine {
     fn parallel_exploit_threat_correlation_simd(&self, target_components: &[String], current_threat_intel: &HashMap<String, String>) -> Vec<String> { // potential exploits generated
         println!("    [ARTCS-SIMD]: Generating exploits and correlating with threat intelligence for {} components.", target_components.len());
         thread::sleep(Duration::from_millis(120));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut potential_exploits = Vec::new();
         // Simulate SIMD-accelerated exploit generation based on component characteristics and known threat patterns
@@ -119,7 +119,7 @@ impl ARTCS_Engine {
             format!("RAG knowledge for pen testing methods: '{}'", ptm.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(1500));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let generated_exploits = self.parallel_exploit_threat_correlation_simd(&scope, &threat_intelligence);
 

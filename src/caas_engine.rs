@@ -17,6 +17,7 @@ use rand::Rng;
 
 /// Represents a data center or region's energy grid profile.
 #[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
 pub struct GridProfile {
     pub region_id: String,
     pub current_carbon_intensity_gco2_kwh: f32,
@@ -37,7 +38,7 @@ pub struct CarbonAwareTask {
 }
 
 /// Represents a carbon-aware scheduling recommendation.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct CarbonAwareScheduleRecommendation {
     pub recommendation_id: String,
     pub task_id: String,
@@ -92,7 +93,7 @@ impl CAAEngine {
             format!("RAG insight for carbon intensity: {}. Task power demand: '{}'kWh", carbon_info, task.estimated_power_demand_kwh);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Find region with lowest carbon intensity that can run the task, considering flexibility
         let best_region = grid_profiles.iter().min_by(|a, b| a.current_carbon_intensity_gco2_kwh.partial_cmp(&b.current_carbon_intensity_gco2_kwh).unwrap_or(std::cmp::Ordering::Equal)).unwrap_or(&grid_profiles[0]);

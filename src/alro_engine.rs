@@ -80,7 +80,7 @@ impl ALROEngine {
     fn parallel_gradient_descent_simd(&self, training_state: &TrainingState) -> (f32, f32) { // (new_loss, new_gradient_magnitude)
         println!("    [ALRO-SIMD]: Performing parallel gradient descent and Hessian matrix approximation for model '{}'.", training_state.model_id);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate SIMD-accelerated gradient computation and approximation of second derivatives
         let new_loss = training_state.current_loss * rng.gen_range(0.95..1.05) - training_state.learning_rate * rng.gen_range(0.01..0.1);
@@ -99,7 +99,7 @@ impl ALROEngine {
             format!("RAG knowledge for hyperparameter tuning: '{}'", hp_tuning.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let (new_loss, new_gradient_magnitude) = self.parallel_gradient_descent_simd(&training_state);
         training_state.current_loss = new_loss;

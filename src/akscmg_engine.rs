@@ -96,7 +96,7 @@ impl AKSCMG_Engine {
     fn parallel_pattern_semantic_inference_simd(&self, fragments: &[RawKnowledgeFragment]) -> Vec<(String, f32)> { // fragment_id -> pattern_score
         println!("    [AKSCMG-SIMD]: Performing parallel pattern recognition and semantic inference on {} fragments.", fragments.len());
         thread::sleep(Duration::from_millis(70));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate SIMD-accelerated embedding generation, clustering, and anomaly detection in knowledge space
         fragments.iter().map(|f| (f.fragment_id.clone(), rng.gen_range(0.0..1.0))).collect()
@@ -112,7 +112,7 @@ impl AKSCMG_Engine {
             format!("RAG knowledge for conceptual blending: '{}'", cbt.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let pattern_scores = self.parallel_pattern_semantic_inference_simd(&raw_fragments);
 

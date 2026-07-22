@@ -94,7 +94,7 @@ impl AHROEngine {
     fn parallel_resource_scheduling_simd(&self, task: &ComputationalTask, available_resources: &[&HardwareResource]) -> Option<ResourceAllocation> {
         println!("    [AHRO-SIMD]: Performing parallel resource scheduling for task '{}'.", task.task_id);
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate parallel matching of task requirements against available resources
         for &resource in available_resources {

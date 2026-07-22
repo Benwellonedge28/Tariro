@@ -86,7 +86,7 @@ impl ITAAEngine {
     pub fn monitor_agi_service_instances(&self, instances: &[AgiServiceInstance]) -> Vec<FaultObservation> {
         println!("  [ITAA]: Monitoring {} AGI service instances for discrepancies.", instances.len());
         thread::sleep(Duration::from_millis(100));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut observations = Vec::new();
         if instances.len() >= 2 && rng.gen_bool(0.3) { // Simulate a fault in 30% of checks if multiple instances
@@ -110,7 +110,7 @@ impl ITAAEngine {
             format!("RAG insight for BFT: {}. Instances: '{}'", bft_info, instances.len());
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         if instances.len() >= 3 && rng.gen_bool(0.9) { // 90% chance of achieving consensus with 3+ instances
             for instance in instances.iter_mut() {
@@ -132,7 +132,7 @@ impl ITAAEngine {
             format!("RAG insight for action: {}. Discrepancy type: '{}'", smpc_info, observation.discrepancy_type);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let action_type = if observation.severity == "Critical" { "IsolateInstance".to_string() } else { "TriggerRedundancy".to_string() };
 

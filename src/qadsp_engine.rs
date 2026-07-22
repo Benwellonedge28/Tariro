@@ -76,7 +76,7 @@ impl QADSPEngine {
     fn quantum_inspired_parallel_transform_simd(&self, packets: &[DataPacket]) -> Vec<DataPacket> {
         println!("    [QADSP-SIMD]: Performing quantum-inspired parallel data transformations on {} packets.", packets.len());
         thread::sleep(Duration::from_millis(70));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let mut transformed_packets = Vec::new();
         for packet in packets {
@@ -98,7 +98,7 @@ impl QADSPEngine {
             format!("RAG knowledge for stream processing algorithms: '{}'", spa.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(300));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let transformed_packets = self.quantum_inspired_parallel_transform_simd(&incoming_packets);
 

@@ -94,7 +94,7 @@ impl HAGIIOEngine {
     fn parallel_ui_physio_processing_simd(&self, current_ui_state: &HashMap<String, String>, physiological_data: &SamuelPhysiologicalState) -> (f32, f32) { // cognitive friction and UI performance score
         println!("    [HAGIIO-SIMD]: Processing physiological data and UI state in parallel.");
         thread::sleep(Duration::from_millis(70));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         // Simulate SIMD-accelerated correlation of physiological metrics with UI elements to derive cognitive friction
         let cognitive_friction = (physiological_data.cognitive_load_score * 0.7 + physiological_data.galvanic_skin_response_us / 100.0) / 2.0;
@@ -113,7 +113,7 @@ impl HAGIIOEngine {
             format!("RAG knowledge for cognitive ergonomics: '{}'", ce.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(800));
-        let mut rng = rand::Rng::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let (cognitive_friction, _) = self.parallel_ui_physio_processing_simd(&current_interface.current_config, &samuel_physio_state);
 
