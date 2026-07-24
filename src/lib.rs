@@ -79,6 +79,16 @@ pub mod agita_engine;
 pub mod admin_omniversal_control;
 
 // ============================================================================
+// AGI Core Systems
+// ============================================================================
+pub mod causal_reasoning_engine;
+pub mod world_model;
+pub mod consciousness;
+pub mod continuous_learning;
+pub mod agency;
+pub mod neural_symbolic_integration;
+
+// ============================================================================
 // Version and Constants
 // ============================================================================
 pub const VERSION: &str = "1.0.12";
