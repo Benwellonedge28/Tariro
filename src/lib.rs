@@ -87,6 +87,9 @@ pub mod consciousness;
 pub mod continuous_learning;
 pub mod agency;
 pub mod neural_symbolic_integration;
+pub mod unified_memory;
+pub mod common_sense_reasoning;
+pub mod executive_function;
 
 // ============================================================================
 // Version and Constants
