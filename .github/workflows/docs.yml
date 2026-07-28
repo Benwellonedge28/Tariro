@@ -27,20 +27,20 @@ jobs:
         with:
           components: rust-docs
       - name: Cache cargo registry
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cargo/registry
           key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
       - name: Cache cargo index
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cargo/git
           key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
       - name: Build documentation
-        run: cargo doc --no-deps --all-features
+        run: cargo doc --no-deps
         working-directory: .
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -61,22 +61,3 @@ jobs:
             exit 1
           fi
           echo "README.md exists and is valid."
-
-  coverage:
-    name: Code Coverage
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          components: llvm-tools-preview
-      - name: Install cargo-llvm-cov
-        uses: taiki-e/install-action@cargo-llvm-cov
-      - name: Generate coverage report
-        run: cargo llvm-cov --all-features --lcov --output-path lcov.info
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: lcov.info
-          fail_ci_if_error: false

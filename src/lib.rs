@@ -90,6 +90,10 @@ pub mod neural_symbolic_integration;
 pub mod unified_memory;
 pub mod common_sense_reasoning;
 pub mod executive_function;
+pub mod perceptual_processing;
+pub mod emotional_architecture;
+pub mod deep_language_understanding;
+pub mod meta_cognition;
 
 // ============================================================================
 // Version and Constants
