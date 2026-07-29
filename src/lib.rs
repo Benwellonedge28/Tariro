@@ -96,6 +96,35 @@ pub mod deep_language_understanding;
 pub mod meta_cognition;
 
 // ============================================================================
+// Safety & Alignment Modules
+// ============================================================================
+pub mod value_alignment;
+pub mod constitutional_ai;
+pub mod safety_constraints;
+pub mod interruptibility;
+pub mod shutdown_mechanism;
+
+// ============================================================================
+// Autonomy & Agency Modules
+// ============================================================================
+pub mod goal_generation;
+pub mod intrinsic_motivation;
+pub mod agency;
+pub mod tool_use;
+
+// ============================================================================
+// Ethics & Explainability Modules
+// ============================================================================
+pub mod moral_reasoning;
+pub mod explainability;
+pub mod privacy_preservation;
+
+// ============================================================================
+// Verification Modules
+// ============================================================================
+pub mod formal_verification;
+
+// ============================================================================
 // Version and Constants
 // ============================================================================
 pub const VERSION: &str = "1.0.12";
