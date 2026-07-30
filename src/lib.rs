@@ -125,6 +125,34 @@ pub mod privacy_preservation;
 pub mod formal_verification;
 
 // ============================================================================
+// Advanced Memory Modules
+// ============================================================================
+pub mod episodic_memory;
+pub mod semantic_memory;
+pub mod working_memory;
+
+// ============================================================================
+// Advanced Planning Modules
+// ============================================================================
+pub mod htn_planning;
+pub mod mcts_planning;
+pub mod counterfactual_reasoning;
+
+// ============================================================================
+// Advanced Learning Modules
+// ============================================================================
+pub mod causal_learning;
+pub mod self_supervised_learning;
+pub mod few_shot_learning;
+
+// ============================================================================
+// Consciousness & Social Cognition
+// ============================================================================
+pub mod consciousness_engine;
+pub mod theory_of_mind;
+pub mod creativity_engine;
+
+// ============================================================================
 // Version and Constants
 // ============================================================================
 pub const VERSION: &str = "1.0.12";
