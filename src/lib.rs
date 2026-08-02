@@ -12,6 +12,11 @@ pub mod prelude {
 }
 
 // ============================================================================
+// Utility Modules
+// ============================================================================
+pub mod serde_utils;
+
+// ============================================================================
 // Core Framework Modules
 // ============================================================================
 pub mod fco;
@@ -151,6 +156,16 @@ pub mod few_shot_learning;
 pub mod consciousness_engine;
 pub mod theory_of_mind;
 pub mod creativity_engine;
+
+// ============================================================================
+// Security & Sovereignty Modules
+// ============================================================================
+pub mod adversarial_defense;
+pub mod compliance_framework;
+pub mod local_inference;
+pub mod model_quantization;
+pub mod trusted_execution;
+pub mod zero_trust;
 
 // ============================================================================
 // Version and Constants
