@@ -106,7 +106,7 @@ pub struct Operator {
     pub name: String,
     pub parameters: Vec<TypedParameter>,
     pub preconditions: Vec<Precondition>,
-    pub effects: Vec[Effect; 2],  // [positive, negative]
+    pub effects: Vec<Effect>,  // [positive, negative]
     pub duration: Duration,
     pub cost: f32,
 }

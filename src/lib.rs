@@ -114,7 +114,6 @@ pub mod shutdown_mechanism;
 // ============================================================================
 pub mod goal_generation;
 pub mod intrinsic_motivation;
-pub mod agency;
 pub mod tool_use;
 
 // ============================================================================

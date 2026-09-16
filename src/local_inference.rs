@@ -50,7 +50,7 @@ pub struct ModelParameters {
     pub total_parameters: usize,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ModelArchitecture {
     Transformer,
     Mamba,

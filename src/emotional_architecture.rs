@@ -1008,7 +1008,10 @@ impl EmotionalArchitecture {
             }
             EmotionalInput::VAD(vad) => {
                 self.current_state.vad = vad;
-                self.current_state.basic_emotions[emotion.to_index()] = 0.5;
+                // Initialize all basic emotions to neutral when using VAD input
+                for i in 0..self.current_state.basic_emotions.len() {
+                    self.current_state.basic_emotions[i] = 0.5;
+                }
             }
         }
 

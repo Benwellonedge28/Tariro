@@ -84,7 +84,7 @@ pub struct MCTSNode {
     pub is_terminal: bool,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct MCTSNodeRef {
     pub node_id: String,
     pub move_id: String,

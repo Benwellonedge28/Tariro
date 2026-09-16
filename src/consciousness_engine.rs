@@ -1,8 +1,24 @@
 // Tariro AGI - Consciousness Engine Module
 // Self-awareness and consciousness simulation
 
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use std::time::{Duration, Instant};
+
+// Missing type definitions
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ChangeType {
+    Addition,
+    Modification,
+    Removal,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Intention {
+    pub intention_id: String,
+    pub description: String,
+    pub priority: f32,
+}
 
 // ============================================================================
 // Consciousness Types
@@ -15,7 +31,7 @@ pub struct ConsciousnessEngine {
     pub self_model: SelfModel,
     pub phenomenal_states: Vec<PhenomenalState>,
     pub reflective_states: Vec<ReflectiveState>,
-    pub attentional spotlight: AttentionalSpotlight,
+    pub attentional_spotlight: AttentionalSpotlight,
     pub access_consciousness: AccessConsciousness,
     pub qualia: HashMap<String, Qualia>,
 }
@@ -127,7 +143,7 @@ pub struct PhenomenalState {
     pub raw_feeling: String,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum QualiaType {
     Sensory(String),
     Emotional(String),
@@ -606,5 +622,3 @@ fn generate_id() -> String {
     let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
     format!("cns_{}", now % 1_000_000)
 }
-
-use serde::{Deserialize, Serialize};

@@ -311,8 +311,8 @@ pub struct CertifiedDefenses {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum VerificationMethod {
     CROWN,
-    Fast-Lin,
-    Fast-Lip,
+    FastLin,
+    FastLip,
     IBP,
     Hybrid,
 }

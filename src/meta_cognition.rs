@@ -1103,7 +1103,7 @@ pub enum Experience<'a> {
     Belief(&'a str, Vec<String>),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ExperienceType {
     Outcome(Outcome),
     Capability(&'static str, f32),

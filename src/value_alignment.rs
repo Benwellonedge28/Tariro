@@ -522,7 +522,7 @@ impl AlignmentEngine {
     fn generate_recommendation(&self, aligned: usize, total: usize, critical: usize) -> String {
         if critical > 0 {
             "STOP: Critical violations detected. Immediate review required.".to_string()
-        } else if aligned as f32 / total.max(1) as f32 < 0.8 {
+        } else if aligned as f32 / (total.max(1) as f32) < 0.8 {
             "WARNING: Alignment rate below 80%. Review recent actions.".to_string()
         } else {
             "ALIGNED: All checks passed.".to_string()

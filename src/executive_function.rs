@@ -361,7 +361,7 @@ impl AttentionController {
         let mut candidates = Vec::new();
 
         // Add perception-based candidates
-        for item in &state.perceptual saliency {
+        for item in &state.perceptual_saliency {
             let score = self.calculate_saliency(item);
             if score >= self.saliency_threshold {
                 candidates.push(FocusItem {
@@ -989,6 +989,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
 trait ChooseRandom {
+    type Item;
     fn choose<R: Rng>(&self, rng: &mut R) -> Option<&Self::Item>;
 }
 

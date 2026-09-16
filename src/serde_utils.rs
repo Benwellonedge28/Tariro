@@ -1,7 +1,7 @@
 // Tariro AGI - Serde Utilities
 // Custom serialization for types that don't implement Serialize/Deserialize natively
 
-use serde::{Deserialize, Deserializer, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde::de::Error as DeError;
 use std::time::{Duration, Instant};
 
@@ -68,24 +68,5 @@ impl From<SerializableInstant> for Instant {
 // Duration Serialization
 // ============================================================================
 
-/// Duration already implements Serialize/Deserialize, but we provide explicit impls
-/// for consistency with SerializableInstant
-
-impl Serialize for Duration {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        serializer.serialize_u64(self.as_nanos() as u64)
-    }
-}
-
-impl<'de> Deserialize<'de> for Duration {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let nanos = u64::deserialize(deserializer)?;
-        Ok(Duration::from_nanos(nanos))
-    }
-}
+// Duration already implements Serialize/Deserialize natively via serde,
+// so no custom implementation is needed.

@@ -1,6 +1,7 @@
 // Tariro AGI - Few-Shot Learning Module
 // Learning from few examples
 
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::cmp::Ordering;
 

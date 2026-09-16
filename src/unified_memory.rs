@@ -10,6 +10,42 @@ use std::collections::{HashMap, VecDeque};
 use std::sync::RwLock;
 use std::time::{Duration, Instant};
 
+// Missing type definitions
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MemoryEpisode {
+    pub episode_id: String,
+    pub start_time: Instant,
+    pub end_time: Option<Instant>,
+    pub events: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InferenceRule {
+    pub rule_id: String,
+    pub name: String,
+    pub premise: String,
+    pub conclusion: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Evidence {
+    pub evidence_id: String,
+    pub content: String,
+    pub source: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HabitStrength {
+    pub strength: f64,
+    pub last_practiced: Option<Instant>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Precondition {
+    pub condition: String,
+    pub satisfied: bool,
+}
+
 /// Represents the unified memory system integrating all memory types
 pub struct UnifiedMemory {
     pub working_memory: WorkingMemory,

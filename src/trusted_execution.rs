@@ -27,7 +27,7 @@ pub enum TEEType {
     ARMTrustZone,
     AWSNitro,
     GoogleAsylo,
-    RISC-VKeystone,
+    RISCVKeystone,
     AMDSEV,
 }
 

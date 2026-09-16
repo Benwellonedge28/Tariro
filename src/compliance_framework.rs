@@ -1,8 +1,76 @@
 // Tariro AGI - Compliance Framework
 // Multi-framework regulatory compliance engine
 
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use std::time::Instant;
+
+// Missing stub types
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PhysicalSafeguards {
+    pub facility_access: bool,
+    pub workstation_security: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TechnicalSafeguards {
+    pub access_control: bool,
+    pub audit_controls: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HIPAABreachNotification {
+    pub notification_required: bool,
+    pub notification_sent: Option<Instant>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RiskAnalysis {
+    pub analysis_date: Instant,
+    pub risk_level: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WorkforceSecurity {
+    pub background_checks: bool,
+    pub training_completed: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AccessManagement {
+    pub role_based_access: bool,
+    pub periodic_review: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SecurityAwarenessProgram {
+    pub training_frequency: String,
+    pub last_training: Option<Instant>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct IncidentResponse {
+    pub plan_exists: bool,
+    pub tested: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ContingencyPlan {
+    pub backup_frequency: String,
+    pub recovery_time: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SecurityEvaluation {
+    pub evaluation_date: Instant,
+    pub result: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BABaintenance {
+    pub maintenance_date: Instant,
+    pub description: String,
+}
 
 // ============================================================================
 // Compliance Framework Types
@@ -366,6 +434,17 @@ pub struct ComplianceFinding {
     pub status: FindingStatus,
     pub created_at: Instant,
     pub resolved_at: Option<Instant>,
+}
+
+/// Status of a compliance finding
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum FindingStatus {
+    Open,
+    InProgress,
+    UnderReview,
+    Resolved,
+    Closed,
+    WontFix,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

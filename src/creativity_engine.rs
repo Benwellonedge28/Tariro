@@ -457,7 +457,7 @@ impl CreativityEngine {
             metaphor_id: generate_id(),
             source_domain: source.to_string(),
             target_domain: target.to_string(),
-            mappings,
+            mappings: mapping,
             literal_claim: format!("{} is {}", target, source),
             metaphorical_interpretation: format!("Understanding {} in terms of {}", target, source),
             novel_insight: self.generate_metaphorical_insight(source, target),
@@ -686,7 +686,7 @@ pub struct SurfaceMapping {
 }
 
 /// Transformation types
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Transformation {
     AttributeChange(String, AttributeValue),
     RelationInversion,
