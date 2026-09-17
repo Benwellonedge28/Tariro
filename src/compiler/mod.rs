@@ -3,6 +3,7 @@
 use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 /// MetaProject represents a project being compiled by the meta-compiler
 #[derive(Debug, Clone, Serialize, Deserialize)]

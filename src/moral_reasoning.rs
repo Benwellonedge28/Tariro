@@ -2,7 +2,8 @@
 // Ethical decision-making and moral judgment
 
 use std::collections::{HashMap, VecDeque};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // Moral Framework Types
@@ -122,7 +123,7 @@ pub struct MoralJudgment {
     pub reasoning: Vec<MoralReason>,
     pub recommendations: Vec<String>,
     pub concerns: Vec<String>,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -346,7 +347,7 @@ impl MoralReasoningEngine {
             reasoning: all_reasons,
             recommendations,
             concerns,
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
         };
 
         // Record in history

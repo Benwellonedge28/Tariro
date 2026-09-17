@@ -2,7 +2,8 @@
 // INT8/FP16/ONNX optimization for local inference
 
 use std::collections::{HashMap, VecDeque};
-use std::time::Instant;
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // Quantization Types
@@ -114,7 +115,7 @@ pub struct CalibratedModel {
     pub model_id: String,
     pub original_precision: QuantPrecision,
     pub quantized_precision: QuantPrecision,
-    pub quantization_date: Instant,
+    pub quantization_date: DateTime<Utc>,
     pub calibration_data: CalibrationData,
     pub layer_info: Vec<LayerQuantization>,
     pub metrics: QuantizationMetrics,
@@ -237,7 +238,7 @@ pub struct Benchmark {
     pub inference_time_ms: f32,
     pub memory_usage_mb: f32,
     pub throughput: f32,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -506,7 +507,7 @@ impl QuantizationEngine {
             model_id: generate_id(),
             original_precision: QuantPrecision::FP16,
             quantized_precision: if config.quantization_bits == 4 { QuantPrecision::INT4 } else { QuantPrecision::INT8 },
-            quantization_date: Instant::now(),
+            quantization_date: DateTime<Utc>::now(),
             calibration_data: CalibrationData {
                 dataset_name: "wikitext".to_string(),
                 num_samples: 512,
@@ -554,7 +555,7 @@ impl QuantizationEngine {
             model_id: generate_id(),
             original_precision: QuantPrecision::FP16,
             quantized_precision: QuantPrecision::INT4,
-            quantization_date: Instant::now(),
+            quantization_date: DateTime<Utc>::now(),
             calibration_data: CalibrationData {
                 dataset_name: "calibration".to_string(),
                 num_samples: 1024,

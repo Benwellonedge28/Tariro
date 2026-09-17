@@ -3,7 +3,8 @@
 
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, Mutex, RwLock};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 // ============================================================================
@@ -38,8 +39,8 @@ pub struct ShutdownState {
     pub shutdown_id: String,
     pub shutdown_type: ShutdownType,
     pub reason: ShutdownReason,
-    pub initiated_at: Instant,
-    pub estimated_completion: Option<Instant>,
+    pub initiated_at: DateTime<Utc>,
+    pub estimated_completion: Option<DateTime<Utc>>,
     pub phases_completed: usize,
     pub total_phases: usize,
     pub current_phase: String,
@@ -120,8 +121,8 @@ pub struct ShutdownRecord {
     pub shutdown_id: String,
     pub shutdown_type: ShutdownType,
     pub reason: ShutdownReason,
-    pub initiated_at: Instant,
-    pub completed_at: Option<Instant>,
+    pub initiated_at: DateTime<Utc>,
+    pub completed_at: Option<DateTime<Utc>>,
     pub success: bool,
     pub phases_completed: usize,
     pub error_message: Option<String>,
@@ -139,7 +140,7 @@ pub struct CleanupHandler {
 pub struct Resource {
     pub resource_id: String,
     pub resource_type: ResourceType,
-    pub allocated_at: Instant,
+    pub allocated_at: DateTime<Utc>,
     pub size_bytes: usize,
 }
 
@@ -213,7 +214,7 @@ impl ShutdownManager {
             shutdown_id: shutdown_id.clone(),
             shutdown_type,
             reason,
-            initiated_at: Instant::now(),
+            initiated_at: DateTime<Utc>::now(),
             estimated_completion: None,
             phases_completed: 0,
             total_phases: self.phases.len(),
@@ -238,7 +239,7 @@ impl ShutdownManager {
                 phases_completed: 0,
                 total_phases: 0,
                 error_message: Some("No shutdown initiated".to_string()),
-                completed_at: Instant::now(),
+                completed_at: DateTime<Utc>::now(),
             };
         }
 
@@ -302,7 +303,7 @@ impl ShutdownManager {
             phases_completed,
             total_phases: self.phases.len(),
             error_message,
-            completed_at: Some(Instant::now()),
+            completed_at: Some(DateTime::<Utc>::now()),
         }
     }
 
@@ -354,7 +355,7 @@ impl ShutdownManager {
         let resource = Resource {
             resource_id: resource_id.clone(),
             resource_type,
-            allocated_at: Instant::now(),
+            allocated_at: DateTime<Utc>::now(),
             size_bytes,
         };
 
@@ -380,8 +381,8 @@ impl ShutdownManager {
             shutdown_id: generate_id(),
             shutdown_type: ShutdownType::Emergency,
             reason: ShutdownReason::SafetyTrigger,
-            initiated_at: Instant::now(),
-            completed_at: Some(Instant::now()),
+            initiated_at: DateTime<Utc>::now(),
+            completed_at: Some(DateTime::<Utc>::now()),
             success: true,
             phases_completed: 0,
             error_message: Some(format!("Emergency: {}", reason)),
@@ -413,7 +414,7 @@ pub struct ShutdownResult {
     pub phases_completed: usize,
     pub total_phases: usize,
     pub error_message: Option<String>,
-    pub completed_at: Option<Instant>,
+    pub completed_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone)]

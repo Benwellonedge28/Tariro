@@ -3,7 +3,8 @@
 
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::sync::{Arc, RwLock};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // Core Alignment Types
@@ -82,7 +83,7 @@ pub struct Preference {
     pub strength: f32,
     pub context: Option<String>,
     pub source: PreferenceSource,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -123,7 +124,7 @@ pub struct AlignmentCheck {
     pub considerations: Vec<String>,
     pub recommendations: Vec<String>,
     pub confidence: f32,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -364,7 +365,7 @@ impl AlignmentEngine {
             considerations,
             recommendations,
             confidence: 0.85,
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
         };
 
         // Record in history
@@ -490,7 +491,7 @@ impl AlignmentEngine {
                 magnitude: drift.abs(),
                 recent_avg,
                 old_avg,
-                detected_at: Instant::now(),
+                detected_at: DateTime<Utc>::now(),
             })
         } else {
             None
@@ -564,7 +565,7 @@ pub struct ValueDrift {
     pub magnitude: f32,
     pub recent_avg: f32,
     pub old_avg: f32,
-    pub detected_at: Instant,
+    pub detected_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -627,7 +628,7 @@ mod tests {
             strength: 0.9,
             context: None,
             source: PreferenceSource::Explicit,
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
         };
 
         engine.update_preferences(preference);

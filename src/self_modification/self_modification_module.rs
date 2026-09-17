@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 /// Represents a self-modification proposal
 #[derive(Debug, Serialize, Deserialize, Clone)]

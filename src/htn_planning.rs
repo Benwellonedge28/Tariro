@@ -2,7 +2,8 @@
 // Decomposition-based planning for complex goals
 
 use std::collections::{HashMap, HashSet, VecDeque, BinaryHeap};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // HTN Planning Types
@@ -336,7 +337,7 @@ impl HTNPlanner {
 
     /// Solve planning problem
     pub fn solve(&mut self, problem: &PlanningProblem) -> Result<HTNPlan, PlanningError> {
-        let start_time = Instant::now();
+        let start_time = DateTime::<Utc>::now();
         self.stats = PlannerStats::default();
 
         let domain = self.domain.as_ref()

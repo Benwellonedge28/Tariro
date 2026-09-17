@@ -2,7 +2,8 @@
 // Autonomous goal self-generation and management
 
 use std::collections::{HashMap, VecDeque};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // Goal Types
@@ -17,8 +18,8 @@ pub struct Goal {
     pub lifecycle: GoalLifecycle,
     pub status: GoalStatus,
     pub priority: Priority,
-    pub created_at: Instant,
-    pub deadline: Option<Instant>,
+    pub created_at: DateTime<Utc>,
+    pub deadline: Option<DateTime<Utc>>,
     pub dependencies: Vec<String>,
     pub subgoals: Vec<String>,
     pub progress: f32,
@@ -82,13 +83,13 @@ pub enum Complexity {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GoalLifecycle {
-    pub proposed_at: Option<Instant>,
-    pub accepted_at: Option<Instant>,
-    pub rejected_at: Option<Instant>,
-    pub started_at: Option<Instant>,
-    pub completed_at: Option<Instant>,
-    pub abandoned_at: Option<Instant>,
-    pub failed_at: Option<Instant>,
+    pub proposed_at: Option<DateTime<Utc>>,
+    pub accepted_at: Option<DateTime<Utc>>,
+    pub rejected_at: Option<DateTime<Utc>>,
+    pub started_at: Option<DateTime<Utc>>,
+    pub completed_at: Option<DateTime<Utc>>,
+    pub abandoned_at: Option<DateTime<Utc>>,
+    pub failed_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -404,7 +405,7 @@ impl GoalGeneration {
                 complexity: Complexity::Moderate,
             },
             lifecycle: GoalLifecycle {
-                proposed_at: Some(Instant::now()),
+                proposed_at: Some(DateTime::<Utc>::now()),
                 accepted_at: None,
                 rejected_at: None,
                 started_at: None,
@@ -414,7 +415,7 @@ impl GoalGeneration {
             },
             status: GoalStatus::Proposed,
             priority: Priority::Normal,
-            created_at: Instant::now(),
+            created_at: DateTime<Utc>::now(),
             deadline: None,
             dependencies: vec![],
             subgoals: vec![],
@@ -445,7 +446,7 @@ impl GoalGeneration {
                 complexity: Complexity::Moderate,
             },
             lifecycle: GoalLifecycle {
-                proposed_at: Some(Instant::now()),
+                proposed_at: Some(DateTime::<Utc>::now()),
                 accepted_at: None,
                 rejected_at: None,
                 started_at: None,
@@ -455,7 +456,7 @@ impl GoalGeneration {
             },
             status: GoalStatus::Proposed,
             priority: template.default_priority,
-            created_at: Instant::now(),
+            created_at: DateTime<Utc>::now(),
             deadline: None,
             dependencies: vec![],
             subgoals: vec![],
@@ -524,7 +525,7 @@ impl GoalGeneration {
     pub fn accept_goal(&mut self, goal_id: &str) -> bool {
         if let Some(goal) = self.goals.iter_mut().find(|g| g.goal_id == goal_id) {
             goal.status = GoalStatus::Accepted;
-            goal.lifecycle.accepted_at = Some(Instant::now());
+            goal.lifecycle.accepted_at = Some(DateTime::<Utc>::now());
             return true;
         }
         false
@@ -534,7 +535,7 @@ impl GoalGeneration {
     pub fn start_goal(&mut self, goal_id: &str) -> bool {
         if let Some(goal) = self.goals.iter_mut().find(|g| g.goal_id == goal_id) {
             goal.status = GoalStatus::Active;
-            goal.lifecycle.started_at = Some(Instant::now());
+            goal.lifecycle.started_at = Some(DateTime::<Utc>::now());
             return true;
         }
         false
@@ -547,7 +548,7 @@ impl GoalGeneration {
 
             if goal.progress >= 1.0 {
                 goal.status = GoalStatus::Completed;
-                goal.lifecycle.completed_at = Some(Instant::now());
+                goal.lifecycle.completed_at = Some(DateTime::<Utc>::now());
             }
 
             return true;
@@ -560,7 +561,7 @@ impl GoalGeneration {
         if self.config.allow_goal_abandonment {
             if let Some(goal) = self.goals.iter_mut().find(|g| g.goal_id == goal_id) {
                 goal.status = GoalStatus::Abandoned;
-                goal.lifecycle.abandoned_at = Some(Instant::now());
+                goal.lifecycle.abandoned_at = Some(DateTime::<Utc>::now());
 
                 // Move to history
                 self.goal_history.push_back(goal.clone());

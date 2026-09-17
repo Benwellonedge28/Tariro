@@ -8,14 +8,15 @@ use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use std::sync::RwLock;
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // Missing type definitions
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MemoryEpisode {
     pub episode_id: String,
-    pub start_time: Instant,
-    pub end_time: Option<Instant>,
+    pub start_time: DateTime<Utc>,
+    pub end_time: Option<DateTime<Utc>>,
     pub events: Vec<String>,
 }
 
@@ -37,7 +38,7 @@ pub struct Evidence {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HabitStrength {
     pub strength: f64,
-    pub last_practiced: Option<Instant>,
+    pub last_practiced: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -75,7 +76,7 @@ pub struct WorkingMemoryItem {
     pub source: MemorySource,
     pub associations: Vec<String>,
     pub timestamp: DateTime<Utc>,
-    pub last_accessed: Instant,
+    pub last_accessed: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -397,7 +398,7 @@ impl UnifiedMemory {
             source,
             associations: Vec::new(),
             timestamp: Utc::now(),
-            last_accessed: Instant::now(),
+            last_accessed: DateTime<Utc>::now(),
         };
 
         let item_id = item.id.clone();
@@ -599,7 +600,7 @@ impl UnifiedMemory {
             .find(|i| i.id == memory_id)
         {
             item.activation = 1.0;
-            item.last_accessed = Instant::now();
+            item.last_accessed = DateTime::<Utc>::now();
         }
 
         // Update bindings

@@ -2,7 +2,8 @@
 // Mathematical safety guarantees and formal proofs
 
 use std::collections::{HashMap, HashSet, VecDeque};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // Formal Specification Types
@@ -139,7 +140,7 @@ pub struct VerificationResult {
     pub proof: Option<Proof>,
     pub counterexample: Option<Counterexample>,
     pub statistics: VerificationStats,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -188,7 +189,7 @@ pub struct Counterexample {
 pub struct State {
     pub state_id: String,
     pub values: HashMap<String, String>,
-    pub timestamp: Option<Instant>,
+    pub timestamp: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -348,7 +349,7 @@ impl FormalVerificationEngine {
 
     /// Verify a system against properties
     pub fn verify(&mut self, request: &VerificationRequest) -> VerificationResult {
-        let start_time = Instant::now();
+        let start_time = DateTime::<Utc>::now();
         let mut property_results = Vec::new();
 
         for property in &request.properties {
@@ -378,7 +379,7 @@ impl FormalVerificationEngine {
                 memory_used_mb: 10.0,
                 method_used: request.method,
             },
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
         };
 
         // Record in history

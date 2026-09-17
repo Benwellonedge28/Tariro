@@ -2,7 +2,8 @@
 // Simulation-based planning for complex decision spaces
 
 use std::collections::{HashMap, VecDeque, BinaryHeap};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 use std::cmp::Ordering;
 use rand::Rng;
 
@@ -235,7 +236,7 @@ impl MCTSTree {
 
     /// Run MCTS iterations
     pub fn search(&mut self, environment: &mut impl MCTSEnvironment) -> Result<MCTSResult, MCTSError> {
-        let start_time = Instant::now();
+        let start_time = DateTime::<Utc>::now();
         let mut iterations = 0;
 
         while self.should_continue(iterations, start_time) {
@@ -258,7 +259,7 @@ impl MCTSTree {
     }
 
     /// Check if search should continue
-    fn should_continue(&self, iterations: usize, start_time: Instant) -> bool {
+    fn should_continue(&self, iterations: usize, start_time: DateTime<Utc>) -> bool {
         if iterations >= self.config.max_iterations {
             return false;
         }

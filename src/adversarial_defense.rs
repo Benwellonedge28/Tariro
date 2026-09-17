@@ -2,7 +2,8 @@
 // Protection against poisoning, evasion, and manipulation attacks
 
 use std::collections::{HashMap, VecDeque};
-use std::time::Instant;
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // Adversarial Defense Types
@@ -199,7 +200,7 @@ pub struct AnomalyDetector {
     pub name: String,
     pub detector_type: DetectorType,
     pub threshold: f32,
-    pub trained_on: Option<Instant>,
+    pub trained_on: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -395,7 +396,7 @@ pub enum DetectionApproach {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ScanResult {
     pub scan_id: String,
-    pub scanned_at: Instant,
+    pub scanned_at: DateTime<Utc>,
     pub backdoor_candidates: Vec<BackdoorCandidate>,
     pub clean_samples: usize,
     pub poisoned_samples: usize,
@@ -421,7 +422,7 @@ pub struct DataSignature {
     pub signature_id: String,
     pub data_hash: String,
     pub algorithm: HashAlgorithm,
-    pub signed_at: Instant,
+    pub signed_at: DateTime<Utc>,
     pub signatory: String,
 }
 
@@ -438,7 +439,7 @@ pub struct ProvenanceEntry {
     pub entry_id: String,
     pub data_id: String,
     pub source: DataSource,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub transformations: Vec<String>,
 }
 
@@ -568,7 +569,7 @@ pub enum CheckType_ {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DefenseAlert {
     pub alert_id: String,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub alert_type: AlertType_,
     pub severity: ThreatSeverity,
     pub title: String,

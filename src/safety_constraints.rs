@@ -2,7 +2,8 @@
 // Runtime safety enforcement and constraint checking
 
 use std::collections::{HashMap, HashSet, VecDeque};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // Safety Constraint Types
@@ -75,7 +76,7 @@ pub struct ActiveViolation {
     pub violation_id: String,
     pub constraint_id: String,
     pub action: String,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub acknowledged: bool,
 }
 
@@ -87,8 +88,8 @@ pub struct ViolationRecord {
     pub action: String,
     pub enforcement_level: EnforcementLevel,
     pub action_taken: ActionTaken,
-    pub timestamp: Instant,
-    pub resolved_at: Option<Instant>,
+    pub timestamp: DateTime<Utc>,
+    pub resolved_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -407,7 +408,7 @@ impl SafetyConstraints {
                 EnforcementLevel::Warn => ActionTaken::Warned,
                 _ => ActionTaken::Logged,
             },
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             resolved_at: None,
         };
 

@@ -3,6 +3,7 @@ use crate::prelude::*;
 use std::collections::HashMap;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // Placeholder for RAG to provide framework documentation and compatibility charts
 pub struct RagCompatibilityDocs {

@@ -4,6 +4,7 @@ use crate::prelude::*;
 //! Handles parsing of RSS/Atom feeds to extract news articles and their metadata.
 
 use chrono::{DateTime, Utc};
+use std::time::Duration;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;

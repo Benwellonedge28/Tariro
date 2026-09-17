@@ -7,6 +7,7 @@
 
 use crate::prelude::*;
 use chrono::{DateTime, Utc};
+use std::time::Duration;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -228,6 +229,7 @@ impl std::error::Error for SecurityError {}
 pub mod threat_intelligence {
     use serde::{Deserialize, Serialize};
     use chrono::{DateTime, Utc};
+use std::time::Duration;
 
     /// Severity level for security threats
     #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]

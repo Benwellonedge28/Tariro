@@ -2,7 +2,8 @@
 // Active working memory with attention mechanisms
 
 use std::collections::{HashMap, VecDeque, BinaryHeap, HashSet};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // Working Memory Types
@@ -21,8 +22,8 @@ pub struct WorkingMemoryItem {
     pub priority: f32,
 
     // Temporal
-    pub added_at: Instant,
-    pub last_accessed: Instant,
+    pub added_at: DateTime<Utc>,
+    pub last_accessed: DateTime<Utc>,
     pub decay_rate: f32,
 
     // Binding
@@ -185,7 +186,7 @@ pub struct MemoryChunk {
     pub binding_key: String,
     pub integrated_content: String,
     pub stability: f32,
-    pub formed_at: Instant,
+    pub formed_at: DateTime<Utc>,
 }
 
 // ============================================================================
@@ -299,7 +300,7 @@ pub struct EpisodicBuffer {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EpisodeSummary {
     pub summary: String,
-    pub temporal_marker: Instant,
+    pub temporal_marker: DateTime<Utc>,
     pub key_items: Vec<String>,
 }
 
@@ -526,7 +527,7 @@ impl WorkingMemoryStore {
     pub fn get(&mut self, item_id: &str) -> Option<&WorkingMemoryItem> {
         if let Some(&idx) = self.item_index.get(item_id) {
             let item = &mut self.items[idx];
-            item.last_accessed = Instant::now();
+            item.last_accessed = DateTime::<Utc>::now();
             item.activation = (item.activation + self.config.rehearsal_benefit).min(1.0);
             self.stats.items_retrieved += 1;
             Some(item)
@@ -614,7 +615,7 @@ impl WorkingMemoryStore {
             binding_key: binding_key.to_string(),
             integrated_content: format!("Chunk of {} items", item_ids.len()),
             stability: 0.5,
-            formed_at: Instant::now(),
+            formed_at: DateTime<Utc>::now(),
         };
 
         // Store binding
@@ -638,7 +639,7 @@ impl WorkingMemoryStore {
         if let Some(&idx) = self.item_index.get(item_id) {
             let item = &mut self.items[idx];
             item.activation = (item.activation + self.config.rehearsal_benefit).min(1.0);
-            item.last_accessed = Instant::now();
+            item.last_accessed = DateTime::<Utc>::now();
             Ok(())
         } else {
             Err(WorkingMemoryError::ItemNotFound)
@@ -793,8 +794,8 @@ mod tests {
             activation: 0.8,
             attention_weight: 1.0,
             priority: 0.9,
-            added_at: Instant::now(),
-            last_accessed: Instant::now(),
+            added_at: DateTime<Utc>::now(),
+            last_accessed: DateTime<Utc>::now(),
             decay_rate: 0.01,
             binding_key: None,
             chunk_id: None,
@@ -822,8 +823,8 @@ mod tests {
             activation: 0.9,
             attention_weight: 1.0,
             priority: 1.0,
-            added_at: Instant::now(),
-            last_accessed: Instant::now(),
+            added_at: DateTime<Utc>::now(),
+            last_accessed: DateTime<Utc>::now(),
             decay_rate: 0.01,
             binding_key: None,
             chunk_id: None,

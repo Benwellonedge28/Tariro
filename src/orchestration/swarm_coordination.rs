@@ -3,6 +3,7 @@ use crate::prelude::*;
 use std::collections::HashMap;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // Placeholder for a NanoAgent struct (defined elsewhere, e.g., in a 'nano_agents' module)
 #[derive(Debug, Clone)]

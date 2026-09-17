@@ -2,7 +2,8 @@
 // Sovereign, defense-in-depth security model
 
 use std::collections::{HashMap, HashSet, VecDeque};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 use std::sync::{Arc, RwLock};
 use std::hash::{Hash, Hasher};
 use std::collections::hash_map::DefaultHasher;
@@ -46,8 +47,8 @@ pub struct Identity {
     pub attributes: IdentityAttributes,
     pub roles: Vec<String>,
     pub groups: Vec<String>,
-    pub created_at: Instant,
-    pub last_authenticated: Option<Instant>,
+    pub created_at: DateTime<Utc>,
+    pub last_authenticated: Option<DateTime<Utc>>,
     pub is_active: bool,
     pub risk_score: f32,
 }
@@ -75,8 +76,8 @@ pub struct Credential {
     pub credential_type: CredentialType,
     pub hashed_value: String,
     pub salt: String,
-    pub created_at: Instant,
-    pub expires_at: Option<Instant>,
+    pub created_at: DateTime<Utc>,
+    pub expires_at: Option<DateTime<Utc>>,
     pub is_primary: bool,
 }
 
@@ -95,9 +96,9 @@ pub struct Session {
     pub session_id: String,
     pub identity_id: String,
     pub device_id: Option<String>,
-    pub started_at: Instant,
-    pub last_activity: Instant,
-    pub expires_at: Instant,
+    pub started_at: DateTime<Utc>,
+    pub last_activity: DateTime<Utc>,
+    pub expires_at: DateTime<Utc>,
     pub ip_address: String,
     pub user_agent: String,
     pub mfa_verified: bool,
@@ -163,8 +164,8 @@ pub struct MFARequirement {
 pub struct TrustedDevice {
     pub device_id: String,
     pub device_fingerprint: String,
-    pub registered_at: Instant,
-    pub last_used: Instant,
+    pub registered_at: DateTime<Utc>,
+    pub last_used: DateTime<Utc>,
     pub trust_level: TrustLevel,
 }
 
@@ -331,7 +332,7 @@ pub struct PolicyDecision {
     pub matched_policy: Option<String>,
     pub reasons: Vec<String>,
     pub obligations: Vec<Obligation>,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub ttl: Duration,
 }
 
@@ -514,8 +515,8 @@ pub struct ManagedDevice {
     pub device_id: String,
     pub device_type: DeviceType,
     pub owner: String,
-    pub enrolled_at: Instant,
-    pub last_seen: Instant,
+    pub enrolled_at: DateTime<Utc>,
+    pub last_seen: DateTime<Utc>,
     pub platform: String,
     pub os_version: String,
     pub security_posture: SecurityPosture,
@@ -551,8 +552,8 @@ pub struct DeviceCertificate {
     pub thumbprint: String,
     pub issued_to: String,
     pub issued_by: String,
-    pub valid_from: Instant,
-    pub valid_to: Instant,
+    pub valid_from: DateTime<Utc>,
+    pub valid_to: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -615,7 +616,7 @@ pub enum CheckType {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeviceAssessment {
     pub device_id: String,
-    pub assessed_at: Instant,
+    pub assessed_at: DateTime<Utc>,
     pub findings: Vec<AssessmentFinding>,
     pub risk_score: f32,
     pub recommendation: String,
@@ -792,7 +793,7 @@ pub struct AuditLogger {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuditEvent {
     pub event_id: String,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub event_type: AuditEventType,
     pub actor: ActorInfo,
     pub resource: ResourceInfo,
@@ -911,7 +912,7 @@ pub enum ThreatAction {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Anomaly {
     pub anomaly_id: String,
-    pub detected_at: Instant,
+    pub detected_at: DateTime<Utc>,
     pub anomaly_type: AnomalyType,
     pub score: f32,
     pub description: String,
@@ -933,7 +934,7 @@ pub struct IOC {
     pub value: String,
     pub source: String,
     pub confidence: f32,
-    pub valid_until: Option<Instant>,
+    pub valid_until: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -948,7 +949,7 @@ pub enum IOCType {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ThreatIntelligence {
     pub feeds: Vec<ThreatFeed>,
-    pub last_updated: Instant,
+    pub last_updated: DateTime<Utc>,
     pub indicators: Vec<IOC>,
 }
 
@@ -977,7 +978,7 @@ pub struct SecurityAlert {
     pub title: String,
     pub description: String,
     pub source: String,
-    pub detected_at: Instant,
+    pub detected_at: DateTime<Utc>,
     pub status: AlertStatus,
     pub assigned_to: Option<String>,
 }
@@ -1070,7 +1071,7 @@ impl ZeroTrustEngine {
                 compliance_policies: vec![],
                 device_assessment: DeviceAssessment {
                     device_id: String::new(),
-                    assessed_at: Instant::now(),
+                    assessed_at: DateTime<Utc>::now(),
                     findings: vec![],
                     risk_score: 0.0,
                     recommendation: String::new(),
@@ -1131,7 +1132,7 @@ impl ZeroTrustEngine {
                 ioCs: vec![],
                 threat_intel: ThreatIntelligence {
                     feeds: vec![],
-                    last_updated: Instant::now(),
+                    last_updated: DateTime<Utc>::now(),
                     indicators: vec![],
                 },
             },
@@ -1170,9 +1171,9 @@ impl ZeroTrustEngine {
             session_id: generate_id(),
             identity_id: identity.identity_id.clone(),
             device_id: device_id.map(String::from),
-            started_at: Instant::now(),
-            last_activity: Instant::now(),
-            expires_at: Instant::now() + self.session_manager.config.max_session_duration,
+            started_at: DateTime<Utc>::now(),
+            last_activity: DateTime<Utc>::now(),
+            expires_at: DateTime<Utc>::now() + self.session_manager.config.max_session_duration,
             ip_address: String::new(),
             user_agent: String::new(),
             mfa_verified,
@@ -1210,13 +1211,13 @@ impl ZeroTrustEngine {
             .ok_or(AuthError::InvalidSession)?;
 
         // Check if session is valid
-        if Instant::now() > session.expires_at {
+        if DateTime::<Utc>::now() > session.expires_at {
             return Err(AuthError::SessionExpired);
         }
 
         // Update last activity
         let mut session = session.clone();
-        session.last_activity = Instant::now();
+        session.last_activity = DateTime::<Utc>::now();
         self.identity_provider.session_store.insert(session_id.to_string(), session);
 
         // Build authorization request
@@ -1229,7 +1230,7 @@ impl ZeroTrustEngine {
                 device_trust: session.context.device_type.clone(),
                 network_type: session.context.network_type.clone(),
                 location: session.context.location.clone(),
-                time: Instant::now(),
+                time: DateTime<Utc>::now(),
             },
         };
 
@@ -1280,7 +1281,7 @@ impl ZeroTrustEngine {
                 matched_policy: Some(policy.policy_id.clone()),
                 reasons: vec![format!("Matched policy: {}", policy.name)],
                 obligations: vec![],
-                timestamp: Instant::now(),
+                timestamp: DateTime<Utc>::now(),
                 ttl: Duration::from_secs(300),
             })
         } else {
@@ -1291,7 +1292,7 @@ impl ZeroTrustEngine {
                 matched_policy: None,
                 reasons: vec!["No matching policy found".to_string()],
                 obligations: vec![],
-                timestamp: Instant::now(),
+                timestamp: DateTime<Utc>::now(),
                 ttl: Duration::from_secs(300),
             })
         }
@@ -1340,7 +1341,7 @@ impl ZeroTrustEngine {
     fn log_audit_event(&mut self, event_type: AuditEventType, identity_id: &str, outcome: Outcome) {
         let event = AuditEvent {
             event_id: generate_id(),
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             event_type,
             actor: ActorInfo {
                 identity_id: identity_id.to_string(),
@@ -1394,7 +1395,7 @@ pub struct AuthorizationContext {
     pub device_trust: String,
     pub network_type: String,
     pub location: Option<String>,
-    pub time: Instant,
+    pub time: DateTime<Utc>,
 }
 
 /// Authentication result
@@ -1497,7 +1498,7 @@ mod tests {
             },
             roles: vec!["admin".to_string()],
             groups: vec![],
-            created_at: Instant::now(),
+            created_at: DateTime<Utc>::now(),
             last_authenticated: None,
             is_active: true,
             risk_score: 0.1,

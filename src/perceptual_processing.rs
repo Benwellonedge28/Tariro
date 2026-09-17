@@ -3,7 +3,8 @@
 
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
 
@@ -31,7 +32,7 @@ pub struct VisualData {
     pub spatial_features: Vec<f32>,
     pub semantic_features: Vec<f32>,
     pub temporal_features: Vec<f32>,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub confidence: f32,
     pub objects: Vec<VisualObject>,
     pub scene_context: SceneContext,
@@ -192,7 +193,7 @@ pub struct AuditoryData {
     pub semantic_content: Option<String>,
     pub speaker_embedding: Option<Vec<f32>>,
     pub emotional_tone: Option<EmotionTag>,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub source_direction: Option<f32>,
     pub confidence: f32,
 }
@@ -232,7 +233,7 @@ pub struct TextualData {
     pub sentiment: Option<Sentiment>,
     pub entities: Vec<Entity>,
     pub relations: Vec<Relation>,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub confidence: f32,
 }
 
@@ -334,7 +335,7 @@ pub struct SpatialDeixis {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TemporalDeixis {
     pub deictic_word: String,
-    pub reference_time: Instant,
+    pub reference_time: DateTime<Utc>,
     pub relative_time: Duration,
 }
 
@@ -422,7 +423,7 @@ pub struct Relation {
 /// Temporal sensory data (for sequence processing)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TemporalData {
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub sequence_data: Vec<f32>,
     pub temporal_patterns: Vec<TemporalPattern>,
     pub periodicity: Option<Periodicity>,
@@ -476,7 +477,7 @@ pub struct AbstractData {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PerceptualResult {
     pub perception_id: Uuid,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub modality: Modality,
     pub raw_data: SensoryData,
     pub processed_features: Vec<f32>,
@@ -1083,7 +1084,7 @@ pub struct ObjectTracker {
 #[derive(Debug, Clone)]
 pub struct ObjectTrack {
     pub id: u64,
-    pub last_seen: Instant,
+    pub last_seen: DateTime<Utc>,
     pub positions: VecDeque<(f32, f32)>,
     pub velocity: (f32, f32),
     pub confident_frames: usize,
@@ -1098,7 +1099,7 @@ impl ObjectTracker {
         }
     }
 
-    pub fn update(&mut self, objects: &[VisualObject], now: Instant) -> Vec<VisualObject> {
+    pub fn update(&mut self, objects: &[VisualObject], now: DateTime<Utc>) -> Vec<VisualObject> {
         let mut updated_objects = Vec::new();
 
         for obj in objects {
@@ -1823,13 +1824,13 @@ pub struct AttentionFocus {
     pub spatial_location: Option<(f32, f32)>,
     pub object_id: Option<u64>,
     pub intensity: f32,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 /// Attention snapshot for history
 #[derive(Debug, Clone)]
 pub struct AttentionSnapshot {
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub focus: AttentionFocus,
     pub saliency_map: Vec<f32>,
 }
@@ -1844,7 +1845,7 @@ impl AttentionController {
         }
     }
 
-    pub fn update(&mut self, saliency: &[f32], task_relevance: &[f32], timestamp: Instant) {
+    pub fn update(&mut self, saliency: &[f32], task_relevance: &[f32], timestamp: DateTime<Utc>) {
         let mut combined_weights = Vec::new();
 
         for i in 0..saliency.len().min(task_relevance.len()) {
@@ -2043,7 +2044,7 @@ impl PerceptualProcessing {
 
     /// Process incoming sensory data
     pub fn process(&mut self, data: SensoryData) -> PerceptualResult {
-        let now = Instant::now();
+        let now = DateTime::<Utc>::now();
         let modality = match &data {
             SensoryData::Visual(_) => Modality::Visual,
             SensoryData::Auditory(_) => Modality::Auditory,
@@ -2362,7 +2363,7 @@ impl PerceptualProcessing {
 
     /// Get recent perceptions
     pub fn get_recent_perceptions(&self, duration: Duration) -> Vec<PerceptualResult> {
-        let now = Instant::now();
+        let now = DateTime::<Utc>::now();
         self.context_buffer.recent_perceptions
             .iter()
             .filter(|p| now.duration_since(p.timestamp) < duration)
@@ -2470,7 +2471,7 @@ impl ContextBuffer {
     }
 
     fn prune(&mut self) {
-        let now = Instant::now();
+        let now = DateTime::<Utc>::now();
         while let Some(front) = self.recent_perceptions.front() {
             if now.duration_since(front.timestamp) > self.temporal_window {
                 self.recent_perceptions.pop_front();
@@ -2573,7 +2574,7 @@ impl PerceptualResult {
     pub fn new(data: SensoryData, features: Vec<f32>, confidence: f32) -> Self {
         Self {
             perception_id: Uuid::new(),
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             modality: match &data {
                 SensoryData::Visual(_) => Modality::Visual,
                 SensoryData::Auditory(_) => Modality::Auditory,
@@ -2613,7 +2614,7 @@ mod tests {
             spatial_features: vec![],
             semantic_features: vec![],
             temporal_features: vec![],
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             confidence: 0.9,
             objects: vec![],
             scene_context: SceneContext {
@@ -2652,7 +2653,7 @@ mod tests {
             spatial_features: vec![],
             semantic_features: vec![],
             temporal_features: vec![],
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             confidence: 0.9,
             objects: vec![],
             scene_context: SceneContext {
@@ -2681,7 +2682,7 @@ mod tests {
     #[test]
     fn test_object_tracker() {
         let mut tracker = ObjectTracker::new();
-        let now = Instant::now();
+        let now = DateTime::<Utc>::now();
 
         let objects = vec![
             VisualObject {
@@ -2711,7 +2712,7 @@ mod tests {
             spatial_features: vec![],
             semantic_features: vec![],
             temporal_features: vec![],
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             confidence: 0.9,
             objects: vec![],
             scene_context: SceneContext {
@@ -2755,7 +2756,7 @@ mod tests {
                 sentiment: None,
                 entities: vec![],
                 relations: vec![],
-                timestamp: Instant::now(),
+                timestamp: DateTime<Utc>::now(),
                 confidence: 0.9,
             }),
             vec![0.5],
@@ -2773,7 +2774,7 @@ mod tests {
                 semantic_content: None,
                 speaker_embedding: None,
                 emotional_tone: None,
-                timestamp: Instant::now(),
+                timestamp: DateTime<Utc>::now(),
                 source_direction: None,
                 confidence: 0.9,
             }),

@@ -2,6 +2,7 @@
 use crate::prelude::*;
 
 use chrono::{DateTime, Utc};
+use std::time::Duration;
 use sha2::{Sha256, Digest};
 
 pub struct Block {

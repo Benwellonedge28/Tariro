@@ -3,7 +3,8 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
-use std::time::Instant;
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // Missing stub types
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -21,12 +22,12 @@ pub struct TechnicalSafeguards {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HIPAABreachNotification {
     pub notification_required: bool,
-    pub notification_sent: Option<Instant>,
+    pub notification_sent: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RiskAnalysis {
-    pub analysis_date: Instant,
+    pub analysis_date: DateTime<Utc>,
     pub risk_level: String,
 }
 
@@ -45,7 +46,7 @@ pub struct AccessManagement {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SecurityAwarenessProgram {
     pub training_frequency: String,
-    pub last_training: Option<Instant>,
+    pub last_training: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -62,13 +63,13 @@ pub struct ContingencyPlan {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SecurityEvaluation {
-    pub evaluation_date: Instant,
+    pub evaluation_date: DateTime<Utc>,
     pub result: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BABaintenance {
-    pub maintenance_date: Instant,
+    pub maintenance_date: DateTime<Utc>,
     pub description: String,
 }
 
@@ -109,8 +110,8 @@ pub struct FrameworkControl {
     pub subcategory: String,
     pub control_type: ControlType,
     pub implementation_status: ImplementationStatus,
-    pub last_reviewed: Option<Instant>,
-    pub next_review: Option<Instant>,
+    pub last_reviewed: Option<DateTime<Utc>>,
+    pub next_review: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -190,7 +191,7 @@ pub enum MappingRelationship {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuditSchedule {
     pub frequency: AuditFrequency,
-    pub next_audit: Option<Instant>,
+    pub next_audit: Option<DateTime<Utc>>,
     pub auditor: String,
     pub scope: Vec<String>,
 }
@@ -208,8 +209,8 @@ pub struct Certification {
     pub cert_id: String,
     pub cert_type: CertificationType,
     pub issued_by: String,
-    pub issued_date: Instant,
-    pub expiry_date: Option<Instant>,
+    pub issued_date: DateTime<Utc>,
+    pub expiry_date: Option<DateTime<Utc>>,
     pub status: CertificationStatus,
     pub scope: String,
 }
@@ -245,8 +246,8 @@ pub struct Control {
 pub struct ControlImplementation {
     pub status: ImplementationStatus,
     pub description: String,
-    pub start_date: Option<Instant>,
-    pub completion_date: Option<Instant>,
+    pub start_date: Option<DateTime<Utc>>,
+    pub completion_date: Option<DateTime<Utc>>,
     pub automation_level: AutomationLevel,
     pub integration_points: Vec<String>,
 }
@@ -260,8 +261,8 @@ pub enum AutomationLevel {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ControlTesting {
-    pub last_test_date: Option<Instant>,
-    pub next_test_date: Option<Instant>,
+    pub last_test_date: Option<DateTime<Utc>>,
+    pub next_test_date: Option<DateTime<Utc>>,
     pub test_results: Vec<TestResult>,
     pub test_methodology: TestMethodology,
     pub exceptions: Vec<ControlException>,
@@ -270,7 +271,7 @@ pub struct ControlTesting {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TestResult {
     pub result_id: String,
-    pub test_date: Instant,
+    pub test_date: DateTime<Utc>,
     pub tester: String,
     pub result: TestOutcome,
     pub findings: Vec<String>,
@@ -299,8 +300,8 @@ pub struct ControlException {
     pub exception_id: String,
     pub description: String,
     pub risk_accepted_by: String,
-    pub approval_date: Instant,
-    pub expiry_date: Option<Instant>,
+    pub approval_date: DateTime<Utc>,
+    pub expiry_date: Option<DateTime<Utc>>,
     pub remediation_plan: String,
 }
 
@@ -325,7 +326,7 @@ pub struct Evidence {
     pub title: String,
     pub description: String,
     pub location: String,
-    pub collected_at: Instant,
+    pub collected_at: DateTime<Utc>,
     pub collected_by: String,
     pub integrity_hash: String,
     pub metadata: HashMap<String, String>,
@@ -350,7 +351,7 @@ pub struct ChainOfCustodyEntry {
     pub evidence_id: String,
     pub action: CustodyAction,
     pub performed_by: String,
-    pub performed_at: Instant,
+    pub performed_at: DateTime<Utc>,
     pub notes: String,
 }
 
@@ -390,8 +391,8 @@ pub struct ComplianceAssessment {
     pub assessment_type: AssessmentType,
     pub scope: Vec<String>,
     pub status: AssessmentStatus,
-    pub start_date: Instant,
-    pub end_date: Option<Instant>,
+    pub start_date: DateTime<Utc>,
+    pub end_date: Option<DateTime<Utc>>,
     pub assessor: String,
     pub findings: Vec<ComplianceFinding>,
     pub overall_score: f32,
@@ -432,8 +433,8 @@ pub struct ComplianceFinding {
     pub recommendations: Vec<String>,
     pub remediation_plan: RemediationPlan,
     pub status: FindingStatus,
-    pub created_at: Instant,
-    pub resolved_at: Option<Instant>,
+    pub created_at: DateTime<Utc>,
+    pub resolved_at: Option<DateTime<Utc>>,
 }
 
 /// Status of a compliance finding
@@ -488,7 +489,7 @@ pub struct RemediationPlan {
     pub plan_id: String,
     pub actions: Vec<RemediationAction>,
     pub owner: String,
-    pub deadline: Option<Instant>,
+    pub deadline: Option<DateTime<Utc>>,
     pub resources_required: Vec<String>,
     pub estimated_effort: String,
     pub status: RemediationStatus,
@@ -499,8 +500,8 @@ pub struct RemediationAction {
     pub action_id: String,
     pub description: String,
     pub assignee: String,
-    pub due_date: Option<Instant>,
-    pub completed_at: Option<Instant>,
+    pub due_date: Option<DateTime<Utc>>,
+    pub completed_at: Option<DateTime<Utc>>,
     pub status: RemediationStatus,
 }
 
@@ -544,10 +545,10 @@ pub struct SubjectAccessRequest {
     pub request_id: String,
     pub request_type: SARType,
     pub submitted_by: String,
-    pub submitted_at: Instant,
+    pub submitted_at: DateTime<Utc>,
     pub status: SARStatus,
-    pub response_deadline: Instant,
-    pub completed_at: Option<Instant>,
+    pub response_deadline: DateTime<Utc>,
+    pub completed_at: Option<DateTime<Utc>>,
     pub data_provided: Vec<String>,
     pub exemptions_claimed: Vec<String>,
 }
@@ -591,7 +592,7 @@ pub struct LawfulBasis {
     pub basis_id: String,
     pub basis_type: BasisType,
     pub description: String,
-    pub documented_at: Instant,
+    pub documented_at: DateTime<Utc>,
     pub documented_by: String,
 }
 
@@ -624,7 +625,7 @@ pub struct DPOInfo {
     pub email: String,
     pub phone: String,
     pub qualifications: Vec<String>,
-    pub appointed_at: Instant,
+    pub appointed_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -671,9 +672,9 @@ pub struct BreachNotificationProcess {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BreachRecord {
     pub breach_id: String,
-    pub detected_at: Instant,
-    pub described_at: Option<Instant>,
-    pub notified_at: Option<Instant>,
+    pub detected_at: DateTime<Utc>,
+    pub described_at: Option<DateTime<Utc>>,
+    pub notified_at: Option<DateTime<Utc>>,
     pub type_: BreachType,
     pub categories: Vec<String>,
     pub data_affected: Vec<String>,
@@ -765,7 +766,7 @@ pub struct ISAAudit {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuditEntry {
     pub entry_id: String,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub event_type: ComplianceEventType,
     pub user: String,
     pub description: String,
@@ -832,8 +833,8 @@ impl ComplianceEngine {
                     subcategory: "Control Environment".to_string(),
                     control_type: ControlType::Administrative,
                     implementation_status: ImplementationStatus::Implemented,
-                    last_reviewed: Some(Instant::now()),
-                    next_review: Some(Instant::now()),
+                    last_reviewed: Some(DateTime::<Utc>::now()),
+                    next_review: Some(DateTime::<Utc>::now()),
                 },
                 FrameworkControl {
                     control_id: "CC6.1".to_string(),
@@ -843,8 +844,8 @@ impl ComplianceEngine {
                     subcategory: "Logical Access".to_string(),
                     control_type: ControlType::Technical,
                     implementation_status: ImplementationStatus::Implemented,
-                    last_reviewed: Some(Instant::now()),
-                    next_review: Some(Instant::now()),
+                    last_reviewed: Some(DateTime::<Utc>::now()),
+                    next_review: Some(DateTime::<Utc>::now()),
                 },
                 FrameworkControl {
                     control_id: "CC7.1".to_string(),
@@ -854,8 +855,8 @@ impl ComplianceEngine {
                     subcategory: "Operations".to_string(),
                     control_type: ControlType::Technical,
                     implementation_status: ImplementationStatus::Implemented,
-                    last_reviewed: Some(Instant::now()),
-                    next_review: Some(Instant::now()),
+                    last_reviewed: Some(DateTime::<Utc>::now()),
+                    next_review: Some(DateTime::<Utc>::now()),
                 },
             ],
             requirements: vec![
@@ -881,7 +882,7 @@ impl ComplianceEngine {
             mappings: vec![],
             audit_schedule: AuditSchedule {
                 frequency: AuditFrequency::Annually,
-                next_audit: Some(Instant::now()),
+                next_audit: Some(DateTime::<Utc>::now()),
                 auditor: "External Auditor".to_string(),
                 scope: vec!["Security".to_string(), "Availability".to_string()],
             },
@@ -890,8 +891,8 @@ impl ComplianceEngine {
                     cert_id: "soc2_cert_001".to_string(),
                     cert_type: CertificationType::SOC2TypeII,
                     issued_by: "AICPA".to_string(),
-                    issued_date: Instant::now(),
-                    expiry_date: Some(Instant::now()),
+                    issued_date: DateTime<Utc>::now(),
+                    expiry_date: Some(DateTime::<Utc>::now()),
                     status: CertificationStatus::Active,
                     scope: "Security and Availability".to_string(),
                 },
@@ -916,8 +917,8 @@ impl ComplianceEngine {
                     subcategory: "Information Security Policies".to_string(),
                     control_type: ControlType::Administrative,
                     implementation_status: ImplementationStatus::Implemented,
-                    last_reviewed: Some(Instant::now()),
-                    next_review: Some(Instant::now()),
+                    last_reviewed: Some(DateTime::<Utc>::now()),
+                    next_review: Some(DateTime::<Utc>::now()),
                 },
                 FrameworkControl {
                     control_id: "A.8.1".to_string(),
@@ -927,8 +928,8 @@ impl ComplianceEngine {
                     subcategory: "Asset Management".to_string(),
                     control_type: ControlType::Administrative,
                     implementation_status: ImplementationStatus::Implemented,
-                    last_reviewed: Some(Instant::now()),
-                    next_review: Some(Instant::now()),
+                    last_reviewed: Some(DateTime::<Utc>::now()),
+                    next_review: Some(DateTime::<Utc>::now()),
                 },
                 FrameworkControl {
                     control_id: "A.9.1".to_string(),
@@ -938,8 +939,8 @@ impl ComplianceEngine {
                     subcategory: "Access Control".to_string(),
                     control_type: ControlType::Technical,
                     implementation_status: ImplementationStatus::Implemented,
-                    last_reviewed: Some(Instant::now()),
-                    next_review: Some(Instant::now()),
+                    last_reviewed: Some(DateTime::<Utc>::now()),
+                    next_review: Some(DateTime::<Utc>::now()),
                 },
             ],
             requirements: vec![
@@ -956,7 +957,7 @@ impl ComplianceEngine {
             mappings: vec![],
             audit_schedule: AuditSchedule {
                 frequency: AuditFrequency::Annually,
-                next_audit: Some(Instant::now()),
+                next_audit: Some(DateTime::<Utc>::now()),
                 auditor: "Certification Body".to_string(),
                 scope: vec!["All Annex A controls".to_string()],
             },
@@ -977,7 +978,7 @@ impl ComplianceEngine {
             assessment_type,
             scope: framework.audit_schedule.scope.clone(),
             status: AssessmentStatus::Planned,
-            start_date: Instant::now(),
+            start_date: DateTime<Utc>::now(),
             end_date: None,
             assessor: String::new(),
             findings: Vec::new(),
@@ -1009,7 +1010,7 @@ impl ComplianceEngine {
             evidence_id: evidence.evidence_id,
             action: CustodyAction::Created,
             performed_by: "system".to_string(),
-            performed_at: Instant::now(),
+            performed_at: DateTime<Utc>::now(),
             notes: String::new(),
         });
     }
@@ -1068,7 +1069,7 @@ impl ComplianceEngine {
     fn log_event(&mut self, event_type: ComplianceEventType, item_id: &str) {
         self.audit_trail.push_back(AuditEntry {
             entry_id: generate_id(),
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             event_type,
             user: "system".to_string(),
             description: format!("{:?} on {}", event_type, item_id),
@@ -1136,7 +1137,7 @@ impl std::fmt::Display for ComplianceError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuditLogEntry {
     pub entry_id: String,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub event_type: String,
     pub user: String,
     pub resource: String,
@@ -1162,7 +1163,6 @@ pub enum CertificationType {
     GDPR,
 }
 
-use serde::{Deserialize, Serialize};
 
 // ============================================================================
 // Tests
@@ -1200,7 +1200,7 @@ mod tests {
             title: "Test Evidence".to_string(),
             description: "Test description".to_string(),
             location: "/evidence/test.pdf".to_string(),
-            collected_at: Instant::now(),
+            collected_at: DateTime<Utc>::now(),
             collected_by: "auditor".to_string(),
             integrity_hash: "abc123".to_string(),
             metadata: HashMap::new(),

@@ -2,7 +2,8 @@
 // Long-term memory for experiences and events
 
 use std::collections::{HashMap, VecDeque, BinaryHeap, HashSet};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 use std::cmp::Ordering;
 
 // ============================================================================
@@ -14,7 +15,7 @@ use std::cmp::Ordering;
 pub struct EpisodicMemory {
     pub memory_id: String,
     pub event_id: String,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub duration: Option<Duration>,
 
     // Content
@@ -41,7 +42,7 @@ pub struct EpisodicMemory {
 
     // Retrieval metadata
     pub access_count: usize,
-    pub last_accessed: Option<Instant>,
+    pub last_accessed: Option<DateTime<Utc>>,
     pub decay_factor: f32,
 }
 
@@ -166,14 +167,14 @@ pub struct Timeline {
     pub timeline_id: String,
     pub name: String,
     pub memory_ids: Vec<String>,
-    pub start_time: Instant,
-    pub end_time: Option<Instant>,
+    pub start_time: DateTime<Utc>,
+    pub end_time: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone)]
 pub struct RepetitionEntry {
     pub memory_id: String,
-    pub next_review: Instant,
+    pub next_review: DateTime<Utc>,
     pub interval: Duration,
     pub ease_factor: f32,
     pub repetitions: usize,
@@ -335,7 +336,7 @@ impl EpisodicMemoryStore {
             // Boost accessibility and record access
             let mut memory = pm.memory;
             memory.access_count += 1;
-            memory.last_accessed = Some(Instant::now());
+            memory.last_accessed = Some(DateTime::<Utc>::now());
             memory.accessibility = (memory.accessibility + self.config.importance_boost_on_access).min(1.0);
 
             results.push(memory);
@@ -425,7 +426,7 @@ impl EpisodicMemoryStore {
     }
 
     /// Get memories from a specific time period
-    pub fn get_temporal_slice(&self, start: Instant, end: Instant) -> Vec<&EpisodicMemory> {
+    pub fn get_temporal_slice(&self, start: DateTime<Utc>, end: DateTime<Utc>) -> Vec<&EpisodicMemory> {
         self.memories.iter()
             .filter(|m| m.timestamp >= start && m.timestamp <= end)
             .collect()
@@ -554,7 +555,7 @@ impl EpisodicMemoryStore {
     fn schedule_review(&mut self, memory: &EpisodicMemory) {
         let entry = RepetitionEntry {
             memory_id: memory.memory_id.clone(),
-            next_review: Instant::now() + Duration::from_secs(3600), // 1 hour
+            next_review: DateTime<Utc>::now() + Duration::from_secs(3600), // 1 hour
             interval: Duration::from_secs(3600),
             ease_factor: 2.5,
             repetitions: 0,
@@ -565,7 +566,7 @@ impl EpisodicMemoryStore {
 
     /// Get memories due for review
     pub fn get_review_memories(&self) -> Vec<&EpisodicMemory> {
-        let now = Instant::now();
+        let now = DateTime::<Utc>::now();
 
         self.repetition_schedule.iter()
             .filter(|(_, entry)| entry.next_review <= now)
@@ -669,8 +670,8 @@ pub struct MemoryQuery {
 
 #[derive(Debug, Clone)]
 pub struct TemporalRange {
-    pub start: Instant,
-    pub end: Instant,
+    pub start: DateTime<Utc>,
+    pub end: DateTime<Utc>,
 }
 
 fn generate_id() -> String {
@@ -696,7 +697,7 @@ mod tests {
         let memory = EpisodicMemory {
             memory_id: generate_id(),
             event_id: "evt1".to_string(),
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             duration: Some(Duration::from_secs(3600)),
             narrative: "Had a productive meeting about the project".to_string(),
             events: vec![],
@@ -750,7 +751,7 @@ mod tests {
         let memory = EpisodicMemory {
             memory_id: generate_id(),
             event_id: "evt1".to_string(),
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             duration: Some(Duration::from_secs(3600)),
             narrative: "Learned about machine learning".to_string(),
             events: vec![],

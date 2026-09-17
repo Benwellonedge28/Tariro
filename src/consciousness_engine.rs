@@ -3,7 +3,8 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // Missing type definitions
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -134,7 +135,7 @@ pub struct Value {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PhenomenalState {
     pub state_id: String,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub qualia_type: QualiaType,
     pub intensity: f32,
     pub valence: f32,
@@ -169,7 +170,7 @@ pub struct Qualia {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReflectiveState {
     pub state_id: String,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub reflection_type: ReflectionType,
     pub content: String,
     pub depth: ReflectionDepth,
@@ -246,7 +247,7 @@ pub enum FocusBreadth {
 pub struct AttentionShift {
     pub from: String,
     pub to: String,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub voluntary: bool,
     pub trigger: String,
 }
@@ -284,7 +285,7 @@ pub struct ReportableContent {
     pub content_id: String,
     pub content: String,
     pub format: ContentFormat,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -361,7 +362,7 @@ impl ConsciousnessEngine {
             content_id: generate_id(),
             content: content.to_string(),
             format,
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
         };
 
         self.access_consciousness.reportable_content.push(reportable);
@@ -380,7 +381,7 @@ impl ConsciousnessEngine {
 
         let state = PhenomenalState {
             state_id: generate_id(),
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             qualia_type,
             intensity,
             valence,
@@ -423,7 +424,7 @@ impl ConsciousnessEngine {
 
         let state = ReflectiveState {
             state_id: generate_id(),
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             reflection_type,
             content: content.to_string(),
             depth: self.assess_depth(content),
@@ -506,7 +507,7 @@ impl ConsciousnessEngine {
             let shift = AttentionShift {
                 from: old_focus,
                 to: new_focus.to_string(),
-                timestamp: Instant::now(),
+                timestamp: DateTime<Utc>::now(),
                 voluntary: true,
                 trigger: "task_demand".to_string(),
             };

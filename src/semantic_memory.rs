@@ -2,7 +2,8 @@
 // Knowledge graph-based semantic memory system
 
 use std::collections::{HashMap, HashSet, VecDeque, BinaryHeap};
-use std::time::Instant;
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 use std::cmp::Ordering;
 
 // ============================================================================
@@ -29,8 +30,8 @@ pub struct SemanticMemory {
     pub confidence: f32,
     pub source: String,
     pub evidence: Vec<Evidence>,
-    pub learned_at: Instant,
-    pub last_updated: Instant,
+    pub learned_at: DateTime<Utc>,
+    pub last_updated: DateTime<Utc>,
 
     // Activation
     pub activation_level: f32,
@@ -144,7 +145,7 @@ pub struct Evidence {
     pub content: String,
     pub weight: f32,
     pub source: String,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -764,8 +765,8 @@ mod tests {
             confidence: 0.9,
             source: "textbook".to_string(),
             evidence: vec![],
-            learned_at: Instant::now(),
-            last_updated: Instant::now(),
+            learned_at: DateTime<Utc>::now(),
+            last_updated: DateTime<Utc>::now(),
             activation_level: 1.0,
             access_frequency: 0,
             spread_activation: 0.0,
@@ -792,8 +793,8 @@ mod tests {
             confidence: 0.95,
             source: "research".to_string(),
             evidence: vec![],
-            learned_at: Instant::now(),
-            last_updated: Instant::now(),
+            learned_at: DateTime<Utc>::now(),
+            last_updated: DateTime<Utc>::now(),
             activation_level: 1.0,
             access_frequency: 0,
             spread_activation: 0.0,

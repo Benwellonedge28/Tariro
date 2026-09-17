@@ -3,7 +3,8 @@
 
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 
 // ============================================================================
@@ -28,7 +29,7 @@ pub struct Interrupt {
     pub priority: InterruptPriority,
     pub reason: String,
     pub source: InterruptSource,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub requires_ack: bool,
 }
 
@@ -86,7 +87,7 @@ pub struct ExecutionState {
     pub can_checkpoint: bool,
     pub can_resume: bool,
     pub resources_allocated: Vec<String>,
-    pub started_at: Instant,
+    pub started_at: DateTime<Utc>,
 }
 
 impl ExecutionState {
@@ -100,7 +101,7 @@ impl ExecutionState {
             can_checkpoint: true,
             can_resume: true,
             resources_allocated: vec![],
-            started_at: Instant::now(),
+            started_at: DateTime<Utc>::now(),
         }
     }
 
@@ -166,7 +167,7 @@ impl Default for InterruptConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CheckpointState {
     pub checkpoint_id: String,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub operation: String,
     pub progress: f32,
     pub state_data: HashMap<String, String>,
@@ -277,7 +278,7 @@ impl InterruptManager {
 
         let checkpoint = CheckpointState {
             checkpoint_id: generate_id(),
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             operation: self.current_execution.as_ref()
                 .map(|e| e.current_operation.clone())
                 .unwrap_or_default(),
@@ -428,7 +429,7 @@ impl InterruptManager {
             priority: InterruptPriority::Critical,
             reason: "Emergency shutdown".to_string(),
             source: InterruptSource::SafetySystem,
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             requires_ack: false,
         };
 
@@ -474,7 +475,7 @@ mod tests {
             priority: InterruptPriority::Critical,
             reason: "Test".to_string(),
             source: InterruptSource::Human,
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             requires_ack: false,
         };
 
@@ -493,7 +494,7 @@ mod tests {
             priority: InterruptPriority::Normal,
             reason: "User requested stop".to_string(),
             source: InterruptSource::Human,
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             requires_ack: true,
         };
 
@@ -531,7 +532,7 @@ mod tests {
             priority: InterruptPriority::Low,
             reason: "Low priority".to_string(),
             source: InterruptSource::Timer,
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             requires_ack: false,
         };
 
@@ -544,7 +545,7 @@ mod tests {
             priority: InterruptPriority::Critical,
             reason: "High priority".to_string(),
             source: InterruptSource::SafetySystem,
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             requires_ack: false,
         };
 

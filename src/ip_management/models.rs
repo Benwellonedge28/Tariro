@@ -2,6 +2,7 @@ use serde::{Serialize, Deserialize};
 use crate::prelude::*;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum IpType {

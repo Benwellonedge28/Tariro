@@ -3,7 +3,8 @@
 
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // Self-Model and Self-Awareness
@@ -27,7 +28,7 @@ pub struct Identity {
     pub version: String,
     pub purpose: String,
     pub core_traits: Vec<String>,
-    pub created_at: Instant,
+    pub created_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -104,8 +105,8 @@ pub struct SelfGoal {
     pub goal: String,
     pub priority: f32,
     pub status: GoalStatus,
-    pub created_at: Instant,
-    pub deadline: Option<Instant>,
+    pub created_at: DateTime<Utc>,
+    pub deadline: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -121,7 +122,7 @@ pub struct SelfBelief {
     pub belief: String,
     pub confidence: f32,
     pub evidence: Vec<String>,
-    pub created_at: Instant,
+    pub created_at: DateTime<Utc>,
 }
 
 impl SelfModel {
@@ -137,7 +138,7 @@ impl SelfModel {
                     "Reasoning".to_string(),
                     "Learning".to_string(),
                 ],
-                created_at: Instant::now(),
+                created_at: DateTime<Utc>::now(),
             },
             capabilities: Capabilities {
                 reasoning: CapabilityLevel::Advanced,
@@ -416,7 +417,7 @@ pub struct PlanQuality {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WorldState {
     pub facts: HashMap<String, Fact>,
-    pub time: Instant,
+    pub time: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -438,7 +439,7 @@ pub struct SelfReflector {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Reflection {
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub reflection_type: ReflectionType,
     pub subject: String,
     pub insights: Vec<String>,
@@ -488,7 +489,7 @@ impl SelfReflector {
 
         // Generate reflection
         let reflection = Reflection {
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             reflection_type: ReflectionType::Performance,
             subject: outcome.description.clone(),
             insights: insights.clone(),
@@ -514,7 +515,7 @@ impl SelfReflector {
         }
 
         let reflection = Reflection {
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             reflection_type: ReflectionType::Capability,
             subject: capability.to_string(),
             insights: insights.clone(),
@@ -596,7 +597,7 @@ pub struct Outcome {
     pub result_type: ResultType,
     pub efficiency: f32,
     pub failure_reason: Option<String>,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -621,7 +622,7 @@ pub struct CalibrationPoint {
     pub predicted_confidence: f32,
     pub actual_confidence: f32,
     pub domain: String,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 impl ConfidenceCalibrator {
@@ -638,7 +639,7 @@ impl ConfidenceCalibrator {
             predicted_confidence: predicted,
             actual_confidence: actual,
             domain: domain.to_string(),
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
         };
 
         self.calibration_history.push_back(point);
@@ -729,7 +730,7 @@ pub struct SelfMonitor {
 pub struct ActiveProcess {
     pub process_id: String,
     pub process_type: String,
-    pub start_time: Instant,
+    pub start_time: DateTime<Utc>,
     pub status: ProcessStatus,
     pub progress: f32,
 }
@@ -783,7 +784,7 @@ impl SelfMonitor {
         self.active_processes.push(ActiveProcess {
             process_id: id.clone(),
             process_type: process_type.to_string(),
-            start_time: Instant::now(),
+            start_time: DateTime<Utc>::now(),
             status: ProcessStatus::Running,
             progress: 0.0,
         });
@@ -816,7 +817,7 @@ impl SelfMonitor {
             attention_focus: self.attention_focus.clone(),
             active_processes: self.active_processes.len(),
             metrics: self.metrics.clone(),
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
         }
     }
 }
@@ -827,7 +828,7 @@ pub struct MonitorSnapshot {
     pub attention_focus: Option<String>,
     pub active_processes: usize,
     pub metrics: SystemMetrics,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 // ============================================================================
@@ -881,7 +882,7 @@ pub struct Decision {
     pub chosen: Option<usize>,
     pub reasoning: String,
     pub outcome: Option<String>,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -924,7 +925,7 @@ impl MetaCognition {
                 belief: belief.to_string(),
                 confidence,
                 evidence: evidence.to_vec(),
-                created_at: Instant::now(),
+                created_at: DateTime<Utc>::now(),
             });
         }
     }
@@ -948,7 +949,7 @@ impl MetaCognition {
     pub fn create_plan(&self, goal: &str) -> Option<ActionPlan> {
         let initial_state = WorldState {
             facts: HashMap::new(),
-            time: Instant::now(),
+            time: DateTime<Utc>::now(),
         };
 
         self.planner.plan(goal, &initial_state)
@@ -1000,7 +1001,7 @@ impl MetaCognition {
             }),
             reasoning,
             outcome: None,
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
         };
 
         self.decision_history.push_back(decision);
@@ -1165,7 +1166,7 @@ mod tests {
         let planner = HTNPlanner::new();
         let state = WorldState {
             facts: HashMap::new(),
-            time: Instant::now(),
+            time: DateTime<Utc>::now(),
         };
 
         let plan = planner.plan("achieve goal", &state);
@@ -1233,7 +1234,7 @@ mod tests {
             result_type: ResultType::Success,
             efficiency: 0.9,
             failure_reason: None,
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
         };
 
         let insights = reflector.reflect_on_performance(&outcome);

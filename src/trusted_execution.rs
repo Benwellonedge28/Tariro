@@ -2,7 +2,8 @@
 // Hardware-backed security for sovereign AI operations
 
 use std::collections::HashMap;
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // TEE Types
@@ -44,7 +45,7 @@ pub struct Enclave {
     pub enclave_type: TEEType,
     pub state: EnclaveState,
     pub memory_size_mb: usize,
-    pub created_at: Instant,
+    pub created_at: DateTime<Utc>,
     pub measurements: EnclaveMeasurement,
     pub capabilities: Vec<EnclaveCapability>,
 }
@@ -166,10 +167,10 @@ pub struct AttestationEvidence {
     pub enclave_id: String,
     pub quote: Vec<u8>,
     pub signature: Vec<u8>,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub is_verified: bool,
     pub verification_result: Option<VerificationResult>,
-    pub expires_at: Instant,
+    pub expires_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -281,8 +282,8 @@ pub struct SecureFile {
     pub content_hash: String,
     pub encrypted_size: usize,
     pub permissions: FilePermissions,
-    pub created_at: Instant,
-    pub last_accessed: Instant,
+    pub created_at: DateTime<Utc>,
+    pub last_accessed: DateTime<Utc>,
     pub access_count: usize,
 }
 
@@ -321,7 +322,7 @@ pub struct StoredKey {
     pub key_type: KeyType,
     pub key_size_bits: usize,
     pub sealed_key: Vec<u8>,
-    pub creation_date: Instant,
+    pub creation_date: DateTime<Utc>,
     pub key_usage: Vec<KeyUsage>,
     pub key_lifetime: KeyLifetime,
 }
@@ -356,8 +357,8 @@ pub enum UsageType {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KeyLifetime {
-    pub valid_from: Instant,
-    pub valid_until: Option<Instant>,
+    pub valid_from: DateTime<Utc>,
+    pub valid_until: Option<DateTime<Utc>>,
     pub expires_after_use: bool,
     pub max_uses: Option<usize>,
 }
@@ -431,7 +432,7 @@ pub struct SealedData {
     pub sealed_blob: Vec<u8>,
     pub seal_type: SealType,
     pub sealing_policy: SealingPolicy,
-    pub created_at: Instant,
+    pub created_at: DateTime<Utc>,
     pub key_id: Option<String>,
 }
 
@@ -584,7 +585,7 @@ impl TEEEngine {
             enclave_type: self.tee_type,
             state: EnclaveState::Initialized,
             memory_size_mb: memory_mb,
-            created_at: Instant::now(),
+            created_at: DateTime<Utc>::now(),
             measurements: EnclaveMeasurement {
                 mr_enclave: generate_measurement(),
                 mr_signer: generate_measurement(),
@@ -623,10 +624,10 @@ impl TEEEngine {
             enclave_id: enclave_id.to_string(),
             quote,
             signature: vec![],
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             is_verified: false,
             verification_result: None,
-            expires_at: Instant::now() + Duration::from_secs(86400),
+            expires_at: DateTime<Utc>::now() + Duration::from_secs(86400),
         };
 
         Ok(evidence)
@@ -710,7 +711,7 @@ impl TEEEngine {
                 },
                 allowed_signers: vec![],
             },
-            created_at: Instant::now(),
+            created_at: DateTime<Utc>::now(),
             key_id: None,
         };
 
@@ -765,13 +766,13 @@ impl TEEEngine {
             key_type,
             key_size_bits: size_bits,
             sealed_key: vec![],
-            creation_date: Instant::now(),
+            creation_date: DateTime<Utc>::now(),
             key_usage: vec![
                 KeyUsage { usage: UsageType::Encrypt, allowed: true },
                 KeyUsage { usage: UsageType::Decrypt, allowed: true },
             ],
             key_lifetime: KeyLifetime {
-                valid_from: Instant::now(),
+                valid_from: DateTime<Utc>::now(),
                 valid_until: None,
                 expires_after_use: false,
                 max_uses: None,

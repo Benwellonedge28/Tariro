@@ -2,7 +2,8 @@
 // Privacy protection and data governance
 
 use std::collections::{HashMap, HashSet, VecDeque};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // Privacy Types
@@ -118,7 +119,7 @@ pub struct PersonalData {
     pub pii_types: Vec<PIAType>,
     pub sensitivity: SensitivityLevel,
     pub source: String,
-    pub collected_at: Instant,
+    pub collected_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -176,9 +177,9 @@ pub struct ConsentRecord {
     pub data_type: DataType,
     pub consent_type: ConsentType,
     pub granted: bool,
-    pub timestamp: Instant,
-    pub expires_at: Option<Instant>,
-    pub withdrawal_timestamp: Option<Instant>,
+    pub timestamp: DateTime<Utc>,
+    pub expires_at: Option<DateTime<Utc>>,
+    pub withdrawal_timestamp: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -194,8 +195,8 @@ pub struct ProcessedDataRecord {
     pub processing_type: ProcessingType,
     pub anonymized: bool,
     pub pseudonymized: bool,
-    pub processed_at: Instant,
-    pub retention_until: Option<Instant>,
+    pub processed_at: DateTime<Utc>,
+    pub retention_until: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -217,7 +218,7 @@ pub struct AccessLog {
     pub access_type: AccessType,
     pub granted: bool,
     pub reason: Option<String>,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -448,8 +449,8 @@ impl PrivacyPreservationEngine {
             processing_type: request.processing_type,
             anonymized: request.anonymize,
             pseudonymized: request.pseudonymize,
-            processed_at: Instant::now(),
-            retention_until: Some(Instant::now() + Duration::from_secs(365 * 24 * 3600)),
+            processed_at: DateTime<Utc>::now(),
+            retention_until: Some(DateTime::<Utc>::now() + Duration::from_secs(365 * 24 * 3600)),
         };
 
         self.data_inventory.processed_records.push_back(record);
@@ -487,7 +488,7 @@ impl PrivacyPreservationEngine {
 
     /// Get privacy audit report
     pub fn generate_audit_report(&self) -> PrivacyAuditReport {
-        let now = Instant::now();
+        let now = DateTime::<Utc>::now();
         let recent_logs: Vec<_> = self.access_logs.iter().rev().take(100).collect();
 
         PrivacyAuditReport {
@@ -551,12 +552,12 @@ pub enum AnonymizationMethod {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PrivacyAuditReport {
     pub report_id: String,
-    pub generated_at: Instant,
+    pub generated_at: DateTime<Utc>,
     pub total_data_items: usize,
     pub total_access_logs: usize,
     pub consent_records: usize,
     pub violations: usize,
-    pub last_audit: Option<Instant>,
+    pub last_audit: Option<DateTime<Utc>>,
 }
 
 fn generate_id() -> String {

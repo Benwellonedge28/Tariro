@@ -2,7 +2,8 @@
 // Learning representations without explicit labels
 
 use std::collections::{HashMap, VecDeque};
-use std::time::Instant;
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // Self-Supervised Learning Types
@@ -86,7 +87,7 @@ pub struct TaskPerformance {
     pub accuracy: f32,
     pub loss: f32,
     pub steps: usize,
-    pub last_updated: Instant,
+    pub last_updated: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -207,7 +208,7 @@ pub struct Checkpoint {
     pub step: usize,
     pub loss: f32,
     pub accuracy: f32,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -3,7 +3,8 @@
 
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // Emotion Representations
@@ -134,7 +135,7 @@ pub struct EmotionalState {
     pub vad: VADEmotion,                  // Dimensional representation
     pub mood: MoodState,                  // Longer-term mood
     pub emotional_complexity: f32,        // How mixed/differentiated emotions are
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub duration: Duration,
 }
 
@@ -145,7 +146,7 @@ impl EmotionalState {
             vad: VADEmotion::neutral(),
             mood: MoodState::neutral(),
             emotional_complexity: 0.0,
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             duration: Duration::ZERO,
         }
     }
@@ -639,7 +640,7 @@ pub struct EmotionalMemory {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EmotionalEpisode {
     pub id: Uuid,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub stimulus: String,
     pub emotional_state: EmotionalState,
     pub intensity: f32,
@@ -685,7 +686,7 @@ impl EmotionalMemory {
     pub fn store(&mut self, stimulus: &str, state: &EmotionalState, outcome: &str) {
         let episode = EmotionalEpisode {
             id: Uuid::new(),
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             stimulus: stimulus.to_string(),
             emotional_state: state.clone(),
             intensity: state.total_intensity(),
@@ -1049,7 +1050,7 @@ impl EmotionalArchitecture {
             + vad.arousal * intensity * 0.5;
 
         // Update timestamp
-        self.current_state.timestamp = Instant::now();
+        self.current_state.timestamp = DateTime::<Utc>::now();
     }
 
     /// Apply sentiment analysis result

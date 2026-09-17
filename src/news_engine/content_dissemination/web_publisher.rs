@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use std::collections::HashMap;
 use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 use crate::news_engine::news_engine::OmegaNewsArticle;
 

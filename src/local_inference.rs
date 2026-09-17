@@ -3,7 +3,8 @@
 
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // Local Inference Types
@@ -505,7 +506,7 @@ impl LocalInferenceEngine {
 
     /// Run inference
     pub fn generate(&mut self, session_id: &str, prompt: &str) -> Result<GenerationResult, InferenceError> {
-        let start_time = Instant::now();
+        let start_time = DateTime::<Utc>::now();
 
         let session = self.inference_sessions.get_mut(session_id)
             .ok_or(InferenceError::SessionNotFound)?;

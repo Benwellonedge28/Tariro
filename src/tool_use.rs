@@ -2,7 +2,8 @@
 // Enables AGI to use external tools and APIs
 
 use std::collections::{HashMap, VecDeque};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 use std::sync::Arc;
 
 // ============================================================================
@@ -101,7 +102,7 @@ pub struct ToolResult {
     pub error: Option<String>,
     pub execution_time: Duration,
     pub retries: usize,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 // ============================================================================
@@ -124,8 +125,8 @@ pub struct ToolExecution {
     pub request: ToolRequest,
     pub result: Option<ToolResult>,
     pub status: ExecutionStatus,
-    pub started_at: Instant,
-    pub completed_at: Option<Instant>,
+    pub started_at: DateTime<Utc>,
+    pub completed_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -440,7 +441,7 @@ impl ToolUseEngine {
 
     /// Execute a tool
     pub async fn execute_tool(&mut self, request: ToolRequest) -> ToolResult {
-        let start_time = Instant::now();
+        let start_time = DateTime::<Utc>::now();
         let execution_id = generate_id();
 
         // Check if tool exists
@@ -455,7 +456,7 @@ impl ToolUseEngine {
                     error: Some(format!("Tool '{}' not found", request.tool_id)),
                     execution_time: start_time.elapsed(),
                     retries: 0,
-                    timestamp: Instant::now(),
+                    timestamp: DateTime<Utc>::now(),
                 };
             }
         };
@@ -471,7 +472,7 @@ impl ToolUseEngine {
                     error: Some("Tool use not permitted".to_string()),
                     execution_time: start_time.elapsed(),
                     retries: 0,
-                    timestamp: Instant::now(),
+                    timestamp: DateTime<Utc>::now(),
                 };
             }
         }
@@ -487,7 +488,7 @@ impl ToolUseEngine {
                 error: Some(error),
                 execution_time: start_time.elapsed(),
                 retries: 0,
-                timestamp: Instant::now(),
+                timestamp: DateTime<Utc>::now(),
             };
         }
 
@@ -505,7 +506,7 @@ impl ToolUseEngine {
             result: Some(result.clone()),
             status: if result.success { ExecutionStatus::Completed } else { ExecutionStatus::Failed },
             started_at: start_time,
-            completed_at: Some(Instant::now()),
+            completed_at: Some(DateTime::<Utc>::now()),
         };
 
         self.execution_history.push_back(execution);
@@ -539,7 +540,7 @@ impl ToolUseEngine {
                     error: None,
                     execution_time: Duration::from_millis(100),
                     retries: 0,
-                    timestamp: Instant::now(),
+                    timestamp: DateTime<Utc>::now(),
                 }
             }
             ToolType::Calculator => {
@@ -558,7 +559,7 @@ impl ToolUseEngine {
                     error: if result.is_none() { Some("Invalid expression".to_string()) } else { None },
                     execution_time: Duration::from_millis(10),
                     retries: 0,
-                    timestamp: Instant::now(),
+                    timestamp: DateTime<Utc>::now(),
                 }
             }
             _ => {
@@ -570,7 +571,7 @@ impl ToolUseEngine {
                     error: None,
                     execution_time: Duration::from_millis(50),
                     retries: 0,
-                    timestamp: Instant::now(),
+                    timestamp: DateTime<Utc>::now(),
                 }
             }
         }

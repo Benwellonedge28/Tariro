@@ -2,7 +2,8 @@
 // Provides interpretable explanations for AI decisions
 
 use std::collections::{HashMap, VecDeque};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // Explanation Types
@@ -55,7 +56,7 @@ pub struct Explanation {
     pub confidence: f32,
     pub alternatives: Vec<Alternative>,
     pub counterfactuals: Vec<Counterfactual>,
-    pub generated_at: Instant,
+    pub generated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -251,7 +252,7 @@ impl XAIEngine {
             confidence: decision.confidence,
             alternatives: vec![],
             counterfactuals: vec![],
-            generated_at: Instant::now(),
+            generated_at: DateTime<Utc>::now(),
         }
     }
 
@@ -277,7 +278,7 @@ impl XAIEngine {
             confidence: decision.confidence,
             alternatives: vec![],
             counterfactuals: vec![],
-            generated_at: Instant::now(),
+            generated_at: DateTime<Utc>::now(),
         }
     }
 
@@ -310,7 +311,7 @@ impl XAIEngine {
             confidence: decision.confidence,
             alternatives: vec![],
             counterfactuals: vec![],
-            generated_at: Instant::now(),
+            generated_at: DateTime<Utc>::now(),
         }
     }
 
@@ -335,7 +336,7 @@ impl XAIEngine {
             confidence: decision.confidence,
             alternatives: vec![],
             counterfactuals,
-            generated_at: Instant::now(),
+            generated_at: DateTime<Utc>::now(),
         }
     }
 
@@ -378,7 +379,7 @@ impl XAIEngine {
             confidence: decision.confidence,
             alternatives: vec![],
             counterfactuals: vec![],
-            generated_at: Instant::now(),
+            generated_at: DateTime<Utc>::now(),
         }
     }
 
@@ -412,7 +413,7 @@ impl XAIEngine {
             confidence: decision.confidence,
             alternatives: vec![],
             counterfactuals: vec![],
-            generated_at: Instant::now(),
+            generated_at: DateTime<Utc>::now(),
         }
     }
 
@@ -433,7 +434,7 @@ pub struct Decision {
     pub features: Vec<Feature>,
     pub outcome: String,
     pub confidence: f32,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -474,7 +475,7 @@ mod tests {
             ],
             outcome: "Positive".to_string(),
             confidence: 0.85,
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
         };
 
         let request = ExplanationRequest {
@@ -500,7 +501,7 @@ mod tests {
             features: vec![],
             outcome: "42".to_string(),
             confidence: 0.9,
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
         };
 
         let request = ExplanationRequest {

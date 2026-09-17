@@ -5,6 +5,7 @@ use crate::prelude::*;
 //! of news processing, from ingestion and analysis to content generation and dissemination.
 
 use chrono::{DateTime, Utc};
+use std::time::Duration;
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
 use tokio::time::{self, Duration};

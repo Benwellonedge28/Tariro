@@ -3,7 +3,8 @@
 
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::sync::{Arc, RwLock};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // Tokenization and Text Processing
@@ -1415,7 +1416,7 @@ impl Default for LanguageConfig {
 pub struct Utterance {
     pub speaker: String,
     pub text: String,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub analysis: Option<UtteranceAnalysis>,
 }
 
@@ -1494,7 +1495,7 @@ impl DeepLanguageUnderstanding {
         self.conversation_history.push_back(Utterance {
             speaker: speaker.to_string(),
             text: text.to_string(),
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
             analysis: Some(analysis.clone()),
         });
 

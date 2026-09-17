@@ -36,7 +36,7 @@ pub struct AgentModel {
     pub emotions: EmotionalState,
     pub personality: Personality,
     pub mental_model_version: usize,
-    pub last_updated: Instant,
+    pub last_updated: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -355,10 +355,11 @@ pub struct RelationshipEvent {
     pub event_type: String,
     pub description: String,
     pub impact_on_relationship: f32,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // Implementation
@@ -438,7 +439,7 @@ impl TheoryOfMindEngine {
                 behavioral_patterns: vec![],
             },
             mental_model_version: 1,
-            last_updated: Instant::now(),
+            last_updated: DateTime<Utc>::now(),
         };
 
         self.agents.insert(agent_id.to_string(), agent);
@@ -464,7 +465,7 @@ impl TheoryOfMindEngine {
             );
 
             agent.mental_model_version += 1;
-            agent.last_updated = Instant::now();
+            agent.last_updated = DateTime::<Utc>::now();
         }
     }
 
@@ -701,7 +702,7 @@ impl Default for TheoryOfMindEngine {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Observation {
     pub observation_id: String,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub observation_type: ObservationType,
     pub content: String,
     pub source: String,
@@ -771,7 +772,6 @@ fn generate_id() -> String {
     format!("tom_{}", now % 1_000_000)
 }
 
-use serde::{Deserialize, Serialize};
 
 // ============================================================================
 // Tests
@@ -807,7 +807,7 @@ mod tests {
             event_type: "cooperation".to_string(),
             description: "Worked together on project".to_string(),
             impact_on_relationship: 0.2,
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
         };
 
         tom.update_relationship("agent1", "agent2", event);

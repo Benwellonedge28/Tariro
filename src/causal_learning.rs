@@ -2,7 +2,8 @@
 // Learning causal relationships from observations
 
 use std::collections::{HashMap, HashSet, VecDeque};
-use std::time::Instant;
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 use rand::Rng;
 
 // ============================================================================
@@ -112,7 +113,7 @@ pub enum InterventionEffect {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Observation {
     pub observation_id: String,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
     pub values: HashMap<String, String>,
     pub context: String,
     pub is_intervention: bool,
@@ -266,7 +267,7 @@ impl CausalLearner {
 
     /// Learn causal structure from observations
     pub fn learn_structure(&mut self, variables: &[String], observations: &[Observation]) -> CausalGraph {
-        let start_time = Instant::now();
+        let start_time = DateTime::<Utc>::now();
 
         // Step 1: Initialize complete undirected graph
         self.initialize_skeleton(variables);

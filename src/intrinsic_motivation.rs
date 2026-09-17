@@ -2,7 +2,8 @@
 // Internal motivation systems for autonomous learning
 
 use std::collections::{HashMap, VecDeque};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // Motivation Types
@@ -51,7 +52,7 @@ pub struct DriveState {
     pub current_level: f32,
     pub target_level: f32,
     pub urgency: f32,
-    pub last_updated: Instant,
+    pub last_updated: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -62,7 +63,7 @@ pub struct EngagementRecord {
     pub novelty: f32,
     pub challenge: f32,
     pub competence_gain: f32,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone)]
@@ -282,7 +283,7 @@ impl IntrinsicMotivationSystem {
             if let Some(drive) = self.current_drives.iter_mut().find(|d| d.motivation_type == motivation.motivation_type) {
                 drive.current_level = urgency;
                 drive.urgency = urgency;
-                drive.last_updated = Instant::now();
+                drive.last_updated = DateTime::<Utc>::now();
             } else if urgency > self.config.min_motivation_threshold {
                 self.current_drives.push(DriveState {
                     drive_id: generate_id(),
@@ -290,7 +291,7 @@ impl IntrinsicMotivationSystem {
                     current_level: urgency,
                     target_level: motivation.satisfaction_threshold,
                     urgency,
-                    last_updated: Instant::now(),
+                    last_updated: DateTime<Utc>::now(),
                 });
             }
         }
@@ -343,7 +344,7 @@ impl IntrinsicMotivationSystem {
             novelty: activity.novelty,
             challenge: activity.challenge,
             competence_gain: activity.competence_gain,
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
         };
 
         self.engagement_history.push_back(record);

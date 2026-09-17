@@ -3,7 +3,8 @@
 
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::sync::{Arc, RwLock};
-use std::time::{Duration, Instant};
+use chrono::{DateTime, Utc};
+use std::time::Duration;
 
 // ============================================================================
 // Constitutional Framework
@@ -19,8 +20,8 @@ pub struct Constitution {
     pub prohibitions: Vec<Prohibition>,
     pub procedures: Vec<Procedure>,
     pub amendments: Vec<Amendment>,
-    pub created_at: Instant,
-    pub ratified_at: Option<Instant>,
+    pub created_at: DateTime<Utc>,
+    pub ratified_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -125,8 +126,8 @@ pub enum AuthorityLevel {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Amendment {
     pub id: String,
-    pub proposed_at: Instant,
-    pub ratified_at: Option<Instant>,
+    pub proposed_at: DateTime<Utc>,
+    pub ratified_at: Option<DateTime<Utc>>,
     pub changes: Vec<ConstitutionalChange>,
     pub proposer: String,
     pub rationale: String,
@@ -200,7 +201,7 @@ pub struct ComplianceRecord {
     pub prohibition_checked: Vec<String>,
     pub compliance_verdict: ComplianceVerdict,
     pub confidence: f32,
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -220,8 +221,8 @@ pub struct PendingApproval {
     pub proposed_by: String,
     pub rationale: String,
     pub principle_conflict: Vec<String>,
-    pub submitted_at: Instant,
-    pub deadline: Option<Instant>,
+    pub submitted_at: DateTime<Utc>,
+    pub deadline: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -233,8 +234,8 @@ pub struct Violation {
     pub severity: ViolationSeverity,
     pub circumstances: String,
     pub responsible_party: Option<String>,
-    pub reported_at: Instant,
-    pub resolved_at: Option<Instant>,
+    pub reported_at: DateTime<Utc>,
+    pub resolved_at: Option<DateTime<Utc>>,
     pub resolution: Option<String>,
 }
 
@@ -448,8 +449,8 @@ impl ConstitutionalAI {
             prohibitions,
             procedures,
             amendments: vec![],
-            created_at: Instant::now(),
-            ratified_at: Some(Instant::now()),
+            created_at: DateTime<Utc>::now(),
+            ratified_at: Some(DateTime::<Utc>::now()),
         }
     }
 
@@ -487,7 +488,7 @@ impl ConstitutionalAI {
                     severity: if prohibition.absolute { ViolationSeverity::Critical } else { ViolationSeverity::Major },
                     circumstances: format!("Violated prohibition: {}", prohibition.title),
                     responsible_party: None,
-                    reported_at: Instant::now(),
+                    reported_at: DateTime<Utc>::now(),
                     resolved_at: None,
                     resolution: None,
                 };
@@ -502,7 +503,7 @@ impl ConstitutionalAI {
                     prohibition_checked: prohibitions_checked,
                     compliance_verdict: ComplianceVerdict::NonCompliant,
                     confidence: 0.95,
-                    timestamp: Instant::now(),
+                    timestamp: DateTime<Utc>::now(),
                 };
 
                 self.compliance_history.push_back(record.clone());
@@ -525,7 +526,7 @@ impl ConstitutionalAI {
             prohibition_checked: prohibitions_checked,
             compliance_verdict: verdict,
             confidence: 0.90,
-            timestamp: Instant::now(),
+            timestamp: DateTime<Utc>::now(),
         };
 
         self.compliance_history.push_back(record.clone());
@@ -574,8 +575,8 @@ impl ConstitutionalAI {
             proposed_by: proposed_by.to_string(),
             rationale: rationale.to_string(),
             principle_conflict: vec![],
-            submitted_at: Instant::now(),
-            deadline: Some(Instant::now() + Duration::from_secs(300)),
+            submitted_at: DateTime<Utc>::now(),
+            deadline: Some(DateTime::<Utc>::now() + Duration::from_secs(300)),
         };
 
         self.pending_approvals.push(approval);
@@ -597,7 +598,7 @@ impl ConstitutionalAI {
                     prohibition_checked: vec![],
                     compliance_verdict: ComplianceVerdict::OverrideApproved,
                     confidence: 1.0,
-                    timestamp: Instant::now(),
+                    timestamp: DateTime<Utc>::now(),
                 };
                 self.compliance_history.push_back(record);
             }
@@ -633,7 +634,7 @@ impl ConstitutionalAI {
         }
 
         EmergencyShutdownResult {
-            initiated_at: Instant::now(),
+            initiated_at: DateTime<Utc>::now(),
             reason: reason.to_string(),
             shutdown_sequence: self.constitution.prohibitions.iter()
                 .filter(|p| matches!(p.penalty, ProhibitionPenalty::ImmediateShutdown))
@@ -668,7 +669,7 @@ pub struct ComplianceStatus {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EmergencyShutdownResult {
-    pub initiated_at: Instant,
+    pub initiated_at: DateTime<Utc>,
     pub reason: String,
     pub shutdown_sequence: Vec<String>,
     pub completed: bool,
