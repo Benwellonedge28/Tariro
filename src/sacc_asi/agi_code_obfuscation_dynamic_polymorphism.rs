@@ -12,14 +12,14 @@ pub struct CodeObfuscationRecord {
     pub target_module: String,
     pub obfuscation_level: ObfuscationLevel,
     pub transformation_details: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
 }
 
 pub struct DynamicPolymorphismInstance {
     pub instance_id: String,
     pub original_function_id: String,
     pub polymorphic_variant: String,
-    pub last_mutation: chrono::DateTime<chrono::Utc>,
+    pub last_mutation: DateTime<Utc>,
 }
 
 pub struct AGICodeObfuscationDynamicPolymorphism {

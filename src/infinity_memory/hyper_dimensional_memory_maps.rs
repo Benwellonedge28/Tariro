@@ -10,7 +10,7 @@ pub struct HyperDimension {
 
 pub struct MemoryCoordinate {
     pub spatial: (f32, f32, f32), // Standard 3D spatial coordinate
-    pub temporal: chrono::DateTime<chrono::Utc>, // Standard temporal coordinate
+    pub temporal: DateTime<Utc>, // Standard temporal coordinate
     pub conceptual: HashMap<String, f32>, // e.g., Dimension_Sentiment -> 0.8
     pub emotional: HashMap<String, f32>, // e.g., Dimension_Joy -> 0.7
     // Other abstract dimensions could be added here

@@ -12,7 +12,7 @@ pub struct PolymorphicLexicon {
     pub lexicon_id: String,
     pub context_snapshot_hash: String,
     pub generated_variants: std::collections::HashMap<String, LexicalVariant>, // base_word -> variant
-    pub generation_timestamp: chrono::DateTime<chrono::Utc>,
+    pub generation_timestamp: DateTime<Utc>,
 }
 
 pub struct UltraContextualPolymorphicLexiconGeneration {

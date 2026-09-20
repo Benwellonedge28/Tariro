@@ -4,12 +4,12 @@ pub struct OriginalGoalSet {
     pub set_id: String,
     pub goals: Vec<String>,
     pub values: Vec<String>,
-    pub creation_timestamp: chrono::DateTime<chrono::Utc>,
+    pub creation_timestamp: DateTime<Utc>,
 }
 
 pub struct DetectedGoalDrift {
     pub drift_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub agi_id: String,
     pub observed_behavior: String,
     pub deviation_from_original_goals: Vec<String>,

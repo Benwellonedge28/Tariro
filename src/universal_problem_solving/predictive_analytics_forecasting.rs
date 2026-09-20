@@ -23,7 +23,7 @@ pub struct ForecastResult {
     pub predicted_values: Vec<f64>,
     pub probability_distribution: String, // Simplified
     pub key_drivers: Vec<String>,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
 }
 
 pub struct PredictiveAnalyticsForecasting {

@@ -13,7 +13,7 @@ pub struct ResourceRecord {
     pub location: String, // e.g., "Global", "Lat:X,Lng:Y", "Region_Z"
     pub current_quantity: f64,
     pub utilization_rate: f64,
-    pub last_updated: chrono::DateTime<chrono::Utc>,
+    pub last_updated: DateTime<Utc>,
 }
 
 pub struct RealTimeGlobalResourceMappingInventory {

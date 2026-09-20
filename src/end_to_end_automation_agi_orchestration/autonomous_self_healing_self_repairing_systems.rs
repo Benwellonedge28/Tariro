@@ -18,7 +18,7 @@ pub struct SystemComponent {
 pub struct DetectedFailure {
     pub failure_id: String,
     pub component_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub failure_type: FailureType,
     pub diagnostics: String,
 }

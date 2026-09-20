@@ -8,7 +8,7 @@ pub struct ProceduralMemory {
     pub steps: Vec<String>, // A sequence of high-level actions or instructions
     pub parameters: HashMap<String, String>, // Customizable parameters for the procedure
     pub skill_level: f32, // Learned proficiency, 0.0 to 1.0
-    pub last_executed: Option<chrono::DateTime<chrono::Utc>>,
+    pub last_executed: Option<DateTime<Utc>>,
     pub associated_semantic_ids: Vec<String>, // Links to general knowledge about this procedure
 }
 

@@ -10,7 +10,7 @@ pub struct Location {
 pub struct MemoryEvent {
     pub event_id: String,
     pub description: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub location: Option<Location>,
     pub associated_knowledge_ids: Vec<String>,
     pub emotional_valence: f64, // -1 (negative) to 1 (positive)
@@ -34,7 +34,7 @@ impl SpatiotemporalMemoryIndexingRetrieval {
         self.memory_index.insert(event.event_id.clone(), event);
     }
 
-    pub fn retrieve_memories_by_time_range(&self, start: chrono::DateTime<chrono::Utc>, end: chrono::DateTime<chrono::Utc>) -> Vec<&MemoryEvent> {
+    pub fn retrieve_memories_by_time_range(&self, start: DateTime<Utc>, end: DateTime<Utc>) -> Vec<&MemoryEvent> {
         println!("Retrieving memories between {} and {}.", start, end);
         self.memory_index.values()
             .filter(|m| m.timestamp >= start && m.timestamp <= end)

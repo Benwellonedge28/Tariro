@@ -3,7 +3,7 @@
 pub enum RecallContext {
     TaskSpecific(String),
     LocationBased(String),
-    TimeBased(chrono::DateTime<chrono::Utc>),
+    TimeBased(DateTime<Utc>),
     Conceptual(String),
 }
 
@@ -12,13 +12,13 @@ pub struct MemoryRecallPrediction {
     pub predicted_context: RecallContext,
     pub predicted_knowledge_ids: Vec<String>,
     pub prediction_accuracy: f64,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
 }
 
 pub struct PrefetchedMemoryBlock {
     pub block_id: String,
     pub knowledge_ids: Vec<String>,
-    pub prefetch_time: chrono::DateTime<chrono::Utc>,
+    pub prefetch_time: DateTime<Utc>,
     pub validity_duration_seconds: u32,
 }
 

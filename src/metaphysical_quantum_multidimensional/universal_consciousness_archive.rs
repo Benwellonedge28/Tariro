@@ -11,7 +11,7 @@ pub enum ConsciousExperienceType {
 pub struct ConsciousExperienceRecord {
     pub record_id: String,
     pub entity_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub experience_type: ConsciousExperienceType,
     pub content_hash: String, // Hash of the multi-dimensional experience data
     pub emotional_signature: String,

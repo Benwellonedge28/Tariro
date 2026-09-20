@@ -14,7 +14,7 @@ pub struct SelfModificationReport {
     pub new_config_id: String,
     pub reason_for_modification: String,
     pub performance_gain: f64,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
 }
 
 pub struct CognitiveLinguisticArchitecturesSelfModifyingLanguageModels {

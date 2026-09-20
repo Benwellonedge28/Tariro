@@ -6,7 +6,7 @@ pub struct LanguageVersion {
     pub minor: u32,
     pub patch: u32,
     pub specification_hash: String,
-    pub release_date: chrono::DateTime<chrono::Utc>,
+    pub release_date: DateTime<Utc>,
 }
 
 pub enum CompatibilityStatus {

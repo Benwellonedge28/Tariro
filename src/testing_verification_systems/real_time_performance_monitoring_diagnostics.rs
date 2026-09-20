@@ -16,7 +16,7 @@ pub struct SystemComponent {
 }
 
 pub struct PerformanceMetricData {
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub component_id: String,
     pub metric_type: MetricType,
     pub value: f64,
@@ -25,7 +25,7 @@ pub struct PerformanceMetricData {
 pub struct DiagnosticReport {
     pub report_id: String,
     pub component_id: String,
-    pub detection_time: chrono::DateTime<chrono::Utc>,
+    pub detection_time: DateTime<Utc>,
     pub anomaly_details: String,
     pub root_cause_analysis: String,
     pub suggested_remediation: String,

@@ -16,7 +16,7 @@ pub enum MetricType {
 }
 
 pub struct NetworkMetric {
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub source_id: String,
     pub metric_type: MetricType,
     pub value: f64,

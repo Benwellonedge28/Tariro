@@ -17,7 +17,7 @@ pub enum PredictiveModelType {
 pub struct SystemTelemetry {
     pub telemetry_id: String,
     pub component_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub metrics: std::collections::HashMap<String, f64>,
     pub logs: Vec<String>,
 }
@@ -26,7 +26,7 @@ pub struct PredictedEvent {
     pub event_id: String,
     pub prediction_target: PredictionTarget,
     pub component_id: String,
-    pub predicted_time: chrono::DateTime<chrono::Utc>,
+    pub predicted_time: DateTime<Utc>,
     pub probability: f64,
     pub detected_anomalies: Vec<String>,
     pub recommended_action: String,

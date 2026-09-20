@@ -10,7 +10,7 @@ pub struct SystemAnomaly {
     pub anomaly_id: String,
     pub system_type: SystemType,
     pub observed_symptoms: Vec<String>,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
 }
 
 pub struct DiagnosticReport {

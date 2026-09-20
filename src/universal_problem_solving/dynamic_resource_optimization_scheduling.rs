@@ -13,7 +13,7 @@ pub struct ResourceDemand {
     pub resource_type: ResourceType,
     pub quantity: f64,
     pub priority: u8,
-    pub required_by: chrono::DateTime<chrono::Utc>,
+    pub required_by: DateTime<Utc>,
     pub associated_task_id: String,
 }
 
@@ -23,8 +23,8 @@ pub struct ResourceAllocation {
     pub resource_type: ResourceType,
     pub allocated_quantity: f64,
     pub allocated_to: String, // e.g., "Project_X", "Mission_Y"
-    pub start_time: chrono::DateTime<chrono::Utc>,
-    pub end_time: chrono::DateTime<chrono::Utc>,
+    pub start_time: DateTime<Utc>,
+    pub end_time: DateTime<Utc>,
 }
 
 pub struct DynamicResourceOptimizationScheduling {

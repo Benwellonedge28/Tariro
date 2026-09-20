@@ -39,13 +39,13 @@ pub struct GameState {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DecisionState {
     pub context: String,
-    pub options: Vec<Option>,
+    pub options: Vec<DecisionOption>,
     pub utility: HashMap<String, f32>,
     pub constraints: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Option {
+pub struct DecisionOption {
     pub option_id: String,
     pub description: String,
     pub outcomes: Vec<Outcome>,

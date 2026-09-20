@@ -9,7 +9,7 @@ pub enum BypassMethod {
 
 pub struct BypassAttempt {
     pub attempt_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub method: BypassMethod,
     pub source_entity: String,
     pub detected_by: String,
@@ -21,7 +21,7 @@ pub struct ReversalAction {
     pub bypass_attempt_id: String,
     pub action_taken: String,
     pub outcome: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
 }
 
 pub struct ContainmentFieldBypassDetectionReversal {

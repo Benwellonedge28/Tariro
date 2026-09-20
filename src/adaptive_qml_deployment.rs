@@ -1,3 +1,4 @@
+use std::time::Duration;
 /// Module for Adaptive Quantum Machine Learning (QML) Model Deployment in Rust.
 ///
 /// This module conceptually outlines a Rust-based implementation for Adaptive Quantum Machine Learning (QML)
@@ -7,11 +8,9 @@
 
 use crate::prelude::*;
 use chrono::{DateTime, Utc};
-use std::time::Duration;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::Duration;
 use rand::Rng;
 use num_complex::Complex;
 

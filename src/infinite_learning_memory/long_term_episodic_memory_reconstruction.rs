@@ -3,8 +3,8 @@
 pub struct EpisodicMemory {
     pub memory_id: String,
     pub event_description: String,
-    pub start_time: chrono::DateTime<chrono::Utc>,
-    pub end_time: chrono::DateTime<chrono::Utc>,
+    pub start_time: DateTime<Utc>,
+    pub end_time: DateTime<Utc>,
     pub location: Option<String>,
     pub sensory_details: std::collections::HashMap<String, String>, // e.g., "visual": "image_ID", "audio": "audio_ID"
     pub emotional_state: f64, // -1 to 1

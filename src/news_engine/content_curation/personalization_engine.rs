@@ -18,8 +18,8 @@ pub struct UserProfile {
     pub preferences: UserPreferences,
     pub interaction_history: Vec<InteractionRecord>,
     pub inferred_interests: Vec<String>, // Topics or keywords inferred from behavior
-    pub created_at: chrono::DateTime<chrono::Utc>,
-    pub last_updated: chrono::DateTime<chrono::Utc>,
+    pub created_at: DateTime<Utc>,
+    pub last_updated: DateTime<Utc>,
 }
 
 /// Stores explicit user preferences.
@@ -70,7 +70,7 @@ pub enum ReadingLevel {
 pub struct InteractionRecord {
     pub article_id: String,
     pub interaction_type: InteractionType,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub sentiment_at_interaction: Option<f32>, // What was the article's sentiment when interacted with
 }
 

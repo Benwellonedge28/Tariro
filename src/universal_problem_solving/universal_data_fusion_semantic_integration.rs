@@ -14,7 +14,7 @@ pub struct DataEntry {
     pub source_type: DataSourceType,
     pub raw_content: String,
     pub original_format: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
 }
 
 pub struct FusedKnowledge {

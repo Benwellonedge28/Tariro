@@ -12,8 +12,8 @@ pub struct MemoryEntry {
     pub memory_id: String,
     pub memory_type: MemoryType,
     pub content_hash: String,
-    pub creation_time: chrono::DateTime<chrono::Utc>,
-    pub last_access_time: chrono::DateTime<chrono::Utc>,
+    pub creation_time: DateTime<Utc>,
+    pub last_access_time: DateTime<Utc>,
     pub strength_score: f64, // 0-1, likelihood of being critical
     pub redundancy_score: f64, // 0-1, how much overlap with other memories
 }
@@ -22,7 +22,7 @@ pub struct PruningDecision {
     pub decision_id: String,
     pub pruned_memory_id: String,
     pub reason: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
 }
 
 pub struct MemoryConsolidationSynapticPruning {

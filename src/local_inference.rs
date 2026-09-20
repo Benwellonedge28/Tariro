@@ -562,7 +562,8 @@ impl LocalInferenceEngine {
 
             output_ids.push(next_token);
 
-            if next_token == tokenizer.eos_token().unwrap_or(2) {
+            // Use common EOS token (typically 2 for many tokenizers)
+            if next_token == 2 {
                 break;
             }
         }

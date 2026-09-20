@@ -242,6 +242,15 @@ pub struct Benchmark {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum RecommendationType {
+    QuantizationMethod,
+    OperatorFusion,
+    MemoryOptimization,
+    Performance,
+    Accuracy,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Recommendation {
     pub recommendation_type: RecommendationType,
     pub description: String,

@@ -10,7 +10,7 @@ pub enum IntegrityTarget {
 pub struct ChecksumRecord {
     pub record_id: String,
     pub target: IntegrityTarget,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub cryptographic_hash: String, // e.g., SHA3-512, BLAKE3, Quantum-Safe Hash
     pub verification_result: bool,
 }

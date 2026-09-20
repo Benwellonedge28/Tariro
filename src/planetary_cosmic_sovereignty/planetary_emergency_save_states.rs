@@ -24,7 +24,7 @@ pub struct ArchivalFacility {
 pub struct SaveStateReport {
     pub report_id: String,
     pub save_state_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub data_integrity_score: f64,
     pub recovery_simulation_success: bool,
     pub estimated_reconstruction_time_years: f64,

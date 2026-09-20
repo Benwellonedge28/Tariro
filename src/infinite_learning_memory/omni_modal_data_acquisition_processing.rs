@@ -14,7 +14,7 @@ pub enum DataModality {
 pub struct RawDataPacket {
     pub packet_id: String,
     pub modality: DataModality,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub payload: Vec<u8>, // Raw binary data
     pub metadata: std::collections::HashMap<String, String>,
 }

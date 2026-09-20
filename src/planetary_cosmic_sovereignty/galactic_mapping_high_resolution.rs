@@ -28,7 +28,7 @@ pub struct GalacticMapSegment {
     pub coordinates_range: String,
     pub mapped_objects_count: u64,
     pub data_fidelity_score: f64,
-    pub last_update: chrono::DateTime<chrono::Utc>,
+    pub last_update: DateTime<Utc>,
 }
 
 pub struct GalacticMappingHighResolution {

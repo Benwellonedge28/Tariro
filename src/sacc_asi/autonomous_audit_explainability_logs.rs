@@ -10,7 +10,7 @@ pub enum LogLevel {
 
 pub struct AuditEntry {
     pub entry_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub event_type: String,
     pub agent_id: String,
     pub action_taken: String,

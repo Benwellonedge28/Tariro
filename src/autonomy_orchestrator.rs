@@ -30,7 +30,7 @@ pub struct AgiDecisionLog {
     pub decision: String,
     pub reasoning: String,
     pub autonomy_level: f32,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
 }
 
 pub struct AutonomyOrchestrator {

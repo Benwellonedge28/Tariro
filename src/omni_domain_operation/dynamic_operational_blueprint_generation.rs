@@ -11,7 +11,7 @@ pub struct OperationalRequirement {
     pub requirement_id: String,
     pub description: String,
     pub priority: u8,
-    pub target_date: chrono::DateTime<chrono::Utc>,
+    pub target_date: DateTime<Utc>,
 }
 
 pub struct OperationalBlueprint {

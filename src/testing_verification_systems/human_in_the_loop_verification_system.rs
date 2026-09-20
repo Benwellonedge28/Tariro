@@ -18,7 +18,7 @@ pub struct HumanFeedback {
     pub feedback_id: String,
     pub task_id: String,
     pub human_verifier_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub feedback_content: String,
     pub ai_decision_updated: bool,
 }

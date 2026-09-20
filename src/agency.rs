@@ -255,14 +255,14 @@ pub struct Decision {
     pub decision_id: String,
     pub timestamp: DateTime<Utc>,
     pub context: String,
-    pub options: Vec<Option>,
+    pub options: Vec<DecisionOption>,
     pub chosen_option: String,
     pub reasoning: String,
     pub outcome: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Option {
+pub struct DecisionOption {
     pub option_id: String,
     pub name: String,
     pub utility: f64,

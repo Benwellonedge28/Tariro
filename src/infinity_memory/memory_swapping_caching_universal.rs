@@ -14,7 +14,7 @@ pub struct MemoryBlock {
     pub id: String,
     pub size_bytes: usize,
     pub layer: MemoryLayer,
-    pub last_accessed: chrono::DateTime<chrono::Utc>,
+    pub last_accessed: DateTime<Utc>,
     pub access_frequency: u64,
     // In a real system, this would contain actual data or references to data location
     pub content_preview: String, // Simplified representation of content

@@ -12,7 +12,7 @@ pub enum SensorType {
 pub struct SensorData {
     pub sensor_id: String,
     pub sensor_type: SensorType,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub value: String, // Simplified: actual data would be structured (e.g., JSON, binary)
     pub metadata: std::collections::HashMap<String, String>, // e.g., "location", "unit"
 }

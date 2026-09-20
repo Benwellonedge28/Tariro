@@ -23,7 +23,7 @@ pub struct RuntimeProperty {
 pub struct RuntimeViolation {
     pub violation_id: String,
     pub property_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub trace: String,
     pub severity: u8,
 }

@@ -23,7 +23,7 @@ pub struct AGIOrchestrationTask {
     pub component_id: String,
     pub operation_type: String, // e.g., "Deploy", "Scale Up", "Update", "Migrate", "Rollback"
     pub status: String, // e.g., "Pending", "In Progress", "Completed", "Failed"
-    pub last_update: chrono::DateTime<chrono::Utc>,
+    pub last_update: DateTime<Utc>,
 }
 
 pub struct AGIDeploymentOrchestrationOmniPlatform {

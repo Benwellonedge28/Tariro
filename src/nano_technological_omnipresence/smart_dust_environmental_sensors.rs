@@ -19,7 +19,7 @@ pub struct SensorNode {
 pub struct EnvironmentalData {
     pub data_id: String,
     pub node_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub factor: EnvironmentalFactor,
     pub value: f64,
     pub unit: String,

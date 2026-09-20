@@ -13,14 +13,14 @@ pub struct AGIWorkload {
     pub name: String,
     pub priority: u8,
     pub required_resources: std::collections::HashMap<ResourceType, f64>, // e.g., CPU: 0.8 (cores)
-    pub deadline: Option<chrono::DateTime<chrono::Utc>>,
+    pub deadline: Option<DateTime<Utc>>,
 }
 
 pub struct ResourceAllocation {
     pub allocation_id: String,
     pub workload_id: String,
     pub allocated_resources: std::collections::HashMap<ResourceType, f64>,
-    pub allocation_time: chrono::DateTime<chrono::Utc>,
+    pub allocation_time: DateTime<Utc>,
     pub optimization_score: f64,
 }
 

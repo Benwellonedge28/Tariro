@@ -21,7 +21,7 @@ pub struct DeploymentRecord {
     pub deploy_id: String,
     pub component_id: String,
     pub version: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub environment: String,
     pub status: String, // e.g., "Success", "Failed", "Rolled Back"
 }
@@ -29,7 +29,7 @@ pub struct DeploymentRecord {
 pub struct LifecycleEventLog {
     pub event_id: String,
     pub component_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub event_type: String, // e.g., "Version Bump", "Deployment", "Rollback", "Security Patch"
     pub details: String,
 }

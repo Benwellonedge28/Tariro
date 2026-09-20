@@ -11,7 +11,7 @@ pub enum ActionCategory {
 pub struct ConsciousAction {
     pub action_id: String,
     pub actor_entity_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub category: ActionCategory,
     pub impact_hash: String, // Hash of the action's multi-dimensional ripple effects
 }

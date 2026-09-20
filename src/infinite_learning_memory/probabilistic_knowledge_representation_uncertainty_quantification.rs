@@ -6,7 +6,7 @@ pub struct ProbabilisticFact {
     pub probability: f64, // 0-1, 1 being certainty
     pub uncertainty_quantification: f64, // e.g., standard deviation, variance of probability distribution
     pub source_evidence_ids: Vec<String>,
-    pub last_updated: chrono::DateTime<chrono::Utc>,
+    pub last_updated: DateTime<Utc>,
 }
 
 pub struct ProbabilisticRule {

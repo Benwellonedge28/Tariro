@@ -14,7 +14,7 @@ pub enum EnvironmentalMetric {
 pub struct EnvironmentalDataPoint {
     pub sensor_id: String,
     pub metric: EnvironmentalMetric,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub value: f64,
     pub unit: String,
     pub location: String, // e.g., "Earth_Amazon_Basin", "Mars_Elysium_Planitia"

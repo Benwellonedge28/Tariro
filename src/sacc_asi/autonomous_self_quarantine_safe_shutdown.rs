@@ -17,7 +17,7 @@ pub struct QuarantineProtocol {
     pub target_agi_id: String,
     pub reason: String,
     pub level: QuarantineLevel,
-    pub initiated_at: chrono::DateTime<chrono::Utc>,
+    pub initiated_at: DateTime<Utc>,
     pub status: String,
 }
 
@@ -26,7 +26,7 @@ pub struct ShutdownLog {
     pub target_agi_id: String,
     pub reason: String,
     pub shutdown_type: ShutdownType,
-    pub initiated_at: chrono::DateTime<chrono::Utc>,
+    pub initiated_at: DateTime<Utc>,
     pub completion_status: String,
 }
 

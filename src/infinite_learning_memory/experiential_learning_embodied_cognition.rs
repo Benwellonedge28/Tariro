@@ -9,7 +9,7 @@ pub enum ExperienceModality {
 pub struct ExperienceRecord {
     pub record_id: String,
     pub modality: ExperienceModality,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub sensory_data_ref: Vec<String>, // References to raw sensory data packets (from Feature 41)
     pub action_taken: Option<String>,
     pub outcome_observed: String,

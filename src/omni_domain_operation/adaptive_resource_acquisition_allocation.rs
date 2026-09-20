@@ -21,7 +21,7 @@ pub struct AcquiredResource {
     pub resource_type: ResourceType,
     pub quantity: f64,
     pub current_location: String,
-    pub availability: chrono::DateTime<chrono::Utc>,
+    pub availability: DateTime<Utc>,
     pub cost_per_unit: f64,
 }
 

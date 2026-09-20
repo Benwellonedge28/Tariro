@@ -17,7 +17,7 @@ pub struct ThreatFeedSource {
 pub struct ThreatIntelligenceAlert {
     pub alert_id: String,
     pub source_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub threat_type: String,
     pub indicators_of_compromise: Vec<String>,
     pub severity: ThreatSeverity,

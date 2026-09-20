@@ -13,7 +13,7 @@ pub struct ContainmentField {
     pub strength: f64, // 0-1, 1 being impenetrable
     pub integrity_status: String,
     pub target_entity_id: String, // e.g., "Tariro_Core_AI", "Rogue_AGI_Instance"
-    pub active_since: chrono::DateTime<chrono::Utc>,
+    pub active_since: DateTime<Utc>,
 }
 
 pub struct DynamicContainmentFieldGenerationMaintenance {

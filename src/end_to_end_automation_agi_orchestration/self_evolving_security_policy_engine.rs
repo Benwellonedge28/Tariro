@@ -9,7 +9,7 @@ pub enum PolicyType {
 
 pub struct SystemEvent {
     pub event_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub event_type: String,
     pub source_ip: String,
     pub details: String,
@@ -21,7 +21,7 @@ pub struct SecurityPolicy {
     pub policy_type: PolicyType,
     pub rules: Vec<String>, // e.g., "DENY IP 1.2.3.4 access to port 22"
     pub enforcement_level: u8,
-    pub last_updated: chrono::DateTime<chrono::Utc>,
+    pub last_updated: DateTime<Utc>,
 }
 
 pub struct PolicyEvolutionReport {

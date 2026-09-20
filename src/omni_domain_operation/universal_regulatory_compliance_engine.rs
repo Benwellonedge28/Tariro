@@ -13,7 +13,7 @@ pub struct Regulation {
     pub jurisdiction: Jurisdiction,
     pub category: String, // e.g., "Environmental", "Privacy", "Safety", "Labor", "SpaceLaw"
     pub rules_text: String,
-    pub effective_date: chrono::DateTime<chrono::Utc>,
+    pub effective_date: DateTime<Utc>,
 }
 
 pub struct ComplianceCheckResult {

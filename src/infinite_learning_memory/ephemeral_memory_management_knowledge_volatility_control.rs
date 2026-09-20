@@ -11,8 +11,8 @@ pub struct EphemeralMemoryEntry {
     pub entry_id: String,
     pub ephemeral_type: EphemeralType,
     pub content_hash: String,
-    pub creation_time: chrono::DateTime<chrono::Utc>,
-    pub expiration_time: Option<chrono::DateTime<chrono::Utc>>,
+    pub creation_time: DateTime<Utc>,
+    pub expiration_time: Option<DateTime<Utc>>,
     pub persistence_priority: f64, // 0-1, 1 means likely to become long-term memory
     pub associated_task_id: Option<String>,
 }

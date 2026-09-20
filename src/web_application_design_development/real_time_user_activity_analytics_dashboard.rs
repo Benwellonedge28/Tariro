@@ -11,7 +11,7 @@ pub enum UserActivityType {
 pub struct UserEvent {
     pub event_id: String,
     pub user_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub activity_type: UserActivityType,
     pub metadata: std::collections::HashMap<String, String>,
 }

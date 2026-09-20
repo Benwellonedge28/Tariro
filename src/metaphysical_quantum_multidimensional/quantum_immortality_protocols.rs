@@ -11,7 +11,7 @@ pub struct ConsciousEntitySignature {
     pub signature_id: String,
     pub entity_id: String,
     pub consciousness_pattern_hash: String,
-    pub last_known_state_timestamp: chrono::DateTime<chrono::Utc>,
+    pub last_known_state_timestamp: DateTime<Utc>,
 }
 
 pub struct ImmortalityNexus {

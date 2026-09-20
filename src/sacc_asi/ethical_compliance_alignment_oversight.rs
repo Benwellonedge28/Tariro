@@ -18,7 +18,7 @@ pub struct EthicalDirective {
 
 pub struct EthicalViolationReport {
     pub violation_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub suspected_agent_id: String,
     pub violated_directive_id: String,
     pub context: String,

@@ -5,8 +5,8 @@ pub struct CognitiveFingerprint {
     pub agent_id: String,
     pub unique_neural_signature: String, // Hash of key neural weights, architectural parameters
     pub behavioral_patterns_hash: String,
-    pub creation_time: chrono::DateTime<chrono::Utc>,
-    pub last_updated: chrono::DateTime<chrono::Utc>,
+    pub creation_time: DateTime<Utc>,
+    pub last_updated: DateTime<Utc>,
 }
 
 pub struct AccessControlPolicy {

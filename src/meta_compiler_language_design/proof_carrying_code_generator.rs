@@ -12,7 +12,7 @@ pub struct ProofCarryingCode {
     pub compiled_code_hash: String,
     pub embedded_proofs: Vec<FormalProof>,
     pub claims: Vec<String>, // e.g., "memory_safe", "termination_guaranteed"
-    pub verification_timestamp: chrono::DateTime<chrono::Utc>,
+    pub verification_timestamp: DateTime<Utc>,
 }
 
 pub struct ProofCarryingCodeGenerator {

@@ -20,7 +20,7 @@ pub struct SBOMRecord {
     pub product_name: String,
     pub product_version: String,
     pub components: Vec<SoftwareComponent>,
-    pub generated_timestamp: chrono::DateTime<chrono::Utc>,
+    pub generated_timestamp: DateTime<Utc>,
 }
 
 pub struct SBOMVerificationReport {

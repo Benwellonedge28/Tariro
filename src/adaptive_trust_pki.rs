@@ -1,3 +1,4 @@
+use std::time::Duration;
 /// Module for Adaptive Trust Anchoring & Decentralized PKI in Rust.
 ///
 /// This module conceptually outlines a Rust-based implementation for Adaptive Trust Anchoring & Decentralized PKI.
@@ -9,11 +10,9 @@
 
 use crate::prelude::*;
 use chrono::{DateTime, Utc};
-use std::time::Duration;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
-use std::time::Duration;
 use rand::Rng;
 
 /// Represents a trust anchor in the PKI.

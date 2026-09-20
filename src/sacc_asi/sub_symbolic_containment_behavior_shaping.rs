@@ -17,7 +17,7 @@ pub struct ContainmentMechanism {
 
 pub struct BehavioralInterventionReport {
     pub report_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub mechanism_id: String,
     pub metric_before: f64,
     pub metric_after: f64,

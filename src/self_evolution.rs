@@ -12,7 +12,7 @@ pub struct AgiEvolutionLog {
     pub event_type: String,
     pub description: String,
     pub details: serde_json::Value,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
 }
 
 pub struct SelfEvolutionEngine {

@@ -181,7 +181,7 @@ impl Default for EvasCompliancePolicy {
 /// Security event types for audit logging
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SecurityEvent {
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub event_type: String,
     pub operation: String,
     pub result: String,

@@ -11,7 +11,7 @@ pub enum OverrideCommand {
 pub struct OversightSession {
     pub session_id: String,
     pub admin_id: String,
-    pub start_time: chrono::DateTime<chrono::Utc>,
+    pub start_time: DateTime<Utc>,
     pub active_view: String, // e.g. "Core_Cognition", "Goal_Network", "Ethics_Monitor"
 }
 

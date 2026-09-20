@@ -18,7 +18,7 @@ pub struct CompliancePolicy {
 
 pub struct SystemAuditLog {
     pub log_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub event_type: String,
     pub user_id: String,
     pub resource_accessed: String,
@@ -27,7 +27,7 @@ pub struct SystemAuditLog {
 pub struct ComplianceReport {
     pub report_id: String,
     pub policy_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub compliance_score: f64,
     pub violations_detected: Vec<String>,
     pub recommended_actions: Vec<String>,

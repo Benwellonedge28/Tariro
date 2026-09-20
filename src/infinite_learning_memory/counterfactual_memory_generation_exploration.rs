@@ -4,7 +4,7 @@ pub struct PastEvent {
     pub event_id: String,
     pub description: String,
     pub actual_outcome: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
 }
 
 pub struct CounterfactualScenario {

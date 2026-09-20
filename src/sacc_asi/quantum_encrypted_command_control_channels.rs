@@ -13,7 +13,7 @@ pub struct EncryptedMessage {
     pub receiver_id: String,
     pub ciphertext: Vec<u8>,
     pub quantum_key_session_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub integrity_check: String,
 }
 

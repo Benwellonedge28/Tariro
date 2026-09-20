@@ -18,7 +18,7 @@ pub struct CodeModificationRequest {
 
 pub struct CodebaseVersion {
     pub version_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub changes_summary: String,
     pub parent_version_id: Option<String>,
     pub self_modified: bool,

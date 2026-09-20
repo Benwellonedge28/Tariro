@@ -9,7 +9,7 @@ pub enum BreachSeverity {
 
 pub struct BreachDetection {
     pub detection_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub location: String,
     pub severity: BreachSeverity,
     pub description: String,

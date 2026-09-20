@@ -5,7 +5,7 @@ pub struct EphemeralConstruct {
     pub original_message_hash: String,
     pub generated_construct: String,
     pub intended_recipient_id: String,
-    pub decay_timestamp: chrono::DateTime<chrono::Utc>,
+    pub decay_timestamp: DateTime<Utc>,
     pub single_interpretation_flag: bool,
 }
 

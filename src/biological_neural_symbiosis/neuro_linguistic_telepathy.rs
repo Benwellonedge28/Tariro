@@ -19,7 +19,7 @@ pub struct TelepathicMessage {
     pub receiver_id: String,
     pub conceptual_payload: String, // Language-less, pure semantic data
     pub emotional_context: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
 }
 
 pub struct NeuroLinguisticTelepathy {

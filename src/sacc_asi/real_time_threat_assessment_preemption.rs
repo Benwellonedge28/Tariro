@@ -12,7 +12,7 @@ pub struct ThreatVector {
     pub origin: ThreatOrigin,
     pub severity: f64, // 0-1
     pub description: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
 }
 
 pub struct PreemptiveDefense {

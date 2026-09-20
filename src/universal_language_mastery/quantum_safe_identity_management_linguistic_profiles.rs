@@ -11,7 +11,7 @@ pub struct LinguisticProfile {
 pub struct VerifiedInteraction {
     pub interaction_id: String,
     pub linguistic_profile_id: String,
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub communication_type: String,
     pub verified_quantum_signature: String,
 }

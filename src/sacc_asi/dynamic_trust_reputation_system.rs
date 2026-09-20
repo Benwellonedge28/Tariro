@@ -5,7 +5,7 @@ pub struct AgentReputation {
     pub trust_score: f64, // 0-1, 1 being fully trusted
     pub reliability_score: f64,
     pub ethical_compliance_history: Vec<String>, // References to EthicalViolationReports
-    pub last_evaluation: chrono::DateTime<chrono::Utc>,
+    pub last_evaluation: DateTime<Utc>,
 }
 
 pub struct DynamicTrustReputationSystem {
