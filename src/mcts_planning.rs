@@ -236,7 +236,7 @@ impl MCTSTree {
 
     /// Run MCTS iterations
     pub fn search(&mut self, environment: &mut impl MCTSEnvironment) -> Result<MCTSResult, MCTSError> {
-        let start_time = DateTime::<Utc>::now();
+        let start_time = Utc::now();
         let mut iterations = 0;
 
         while self.should_continue(iterations, start_time) {
@@ -263,7 +263,7 @@ impl MCTSTree {
         if iterations >= self.config.max_iterations {
             return false;
         }
-        if start_time.elapsed() >= self.config.time_limit {
+        if Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default() >= self.config.time_limit {
             return false;
         }
         true

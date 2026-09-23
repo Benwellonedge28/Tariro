@@ -441,7 +441,7 @@ impl ToolUseEngine {
 
     /// Execute a tool
     pub async fn execute_tool(&mut self, request: ToolRequest) -> ToolResult {
-        let start_time = DateTime::<Utc>::now();
+        let start_time = Utc::now();
         let execution_id = generate_id();
 
         // Check if tool exists
@@ -454,7 +454,7 @@ impl ToolUseEngine {
                     success: false,
                     output: None,
                     error: Some(format!("Tool '{}' not found", request.tool_id)),
-                    execution_time: start_time.elapsed(),
+                    execution_time: Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default(),
                     retries: 0,
                     timestamp: DateTime<Utc>::now(),
                 };
@@ -470,7 +470,7 @@ impl ToolUseEngine {
                     success: false,
                     output: None,
                     error: Some("Tool use not permitted".to_string()),
-                    execution_time: start_time.elapsed(),
+                    execution_time: Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default(),
                     retries: 0,
                     timestamp: DateTime<Utc>::now(),
                 };
@@ -486,7 +486,7 @@ impl ToolUseEngine {
                 success: false,
                 output: None,
                 error: Some(error),
-                execution_time: start_time.elapsed(),
+                execution_time: Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default(),
                 retries: 0,
                 timestamp: DateTime<Utc>::now(),
             };
@@ -506,7 +506,7 @@ impl ToolUseEngine {
             result: Some(result.clone()),
             status: if result.success { ExecutionStatus::Completed } else { ExecutionStatus::Failed },
             started_at: start_time,
-            completed_at: Some(DateTime::<Utc>::now()),
+            completed_at: Some(Utc::now()),
         };
 
         self.execution_history.push_back(execution);

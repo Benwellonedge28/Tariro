@@ -267,7 +267,7 @@ impl CausalLearner {
 
     /// Learn causal structure from observations
     pub fn learn_structure(&mut self, variables: &[String], observations: &[Observation]) -> CausalGraph {
-        let start_time = DateTime::<Utc>::now();
+        let start_time = Utc::now();
 
         // Step 1: Initialize complete undirected graph
         self.initialize_skeleton(variables);
@@ -284,7 +284,7 @@ impl CausalLearner {
         // Build final causal graph
         let graph = self.build_causal_graph(variables);
 
-        self.stats.learning_time_ms = start_time.elapsed().as_millis() as u64;
+        self.stats.learning_time_ms = Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default().as_millis() as u64;
 
         graph
     }

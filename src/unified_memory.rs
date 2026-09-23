@@ -600,7 +600,7 @@ impl UnifiedMemory {
             .find(|i| i.id == memory_id)
         {
             item.activation = 1.0;
-            item.last_accessed = DateTime::<Utc>::now();
+            item.last_accessed = Utc::now();
         }
 
         // Update bindings

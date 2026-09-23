@@ -31,7 +31,7 @@ pub struct Motivation {
     pub enabled: bool,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum MotivationType {
     Curiosity,         // Drive to explore unknowns
     Competence,        // Drive to improve skills
@@ -283,7 +283,7 @@ impl IntrinsicMotivationSystem {
             if let Some(drive) = self.current_drives.iter_mut().find(|d| d.motivation_type == motivation.motivation_type) {
                 drive.current_level = urgency;
                 drive.urgency = urgency;
-                drive.last_updated = DateTime::<Utc>::now();
+                drive.last_updated = Utc::now();
             } else if urgency > self.config.min_motivation_threshold {
                 self.current_drives.push(DriveState {
                     drive_id: generate_id(),

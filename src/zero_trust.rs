@@ -1211,13 +1211,13 @@ impl ZeroTrustEngine {
             .ok_or(AuthError::InvalidSession)?;
 
         // Check if session is valid
-        if DateTime::<Utc>::now() > session.expires_at {
+        if Utc::now() > session.expires_at {
             return Err(AuthError::SessionExpired);
         }
 
         // Update last activity
         let mut session = session.clone();
-        session.last_activity = DateTime::<Utc>::now();
+        session.last_activity = Utc::now();
         self.identity_provider.session_store.insert(session_id.to_string(), session);
 
         // Build authorization request

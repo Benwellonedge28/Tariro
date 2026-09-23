@@ -179,7 +179,7 @@ pub struct LearningStrategy {
     pub name: String,
     pub description: String,
     pub effectiveness: f64,
-    pub适用_scenarios: Vec<String>,
+    pub applicable_scenarios: Vec<String>,
     pub steps: Vec<String>,
 }
 
@@ -241,7 +241,7 @@ impl ContinuousLearning {
                     name: "Spaced Repetition".to_string(),
                     description: "Review at increasing intervals".to_string(),
                     effectiveness: 0.85,
-                    适用_scenarios: vec!["Memory".to_string(), "Facts".to_string()],
+                    applicable_scenarios: vec!["Memory".to_string(), "Facts".to_string()],
                     steps: vec![
                         "Learn new information".to_string(),
                         "Review after 1 day".to_string(),
@@ -254,7 +254,7 @@ impl ContinuousLearning {
                     name: "Interleaving".to_string(),
                     description: "Mix different topics during practice".to_string(),
                     effectiveness: 0.75,
-                    适用_scenarios: vec!["Skills".to_string(), "Procedures".to_string()],
+                    applicable_scenarios: vec!["Skills".to_string(), "Procedures".to_string()],
                     steps: vec![
                         "Identify related skills".to_string(),
                         "Create mixed practice sets".to_string(),
@@ -394,14 +394,14 @@ impl ContinuousLearning {
             LearningStep {
                 step_number: 1,
                 task: format!("Learn basics of {}", skill_name),
-                objective: "Understand fundamental concepts",
+                objective: "Understand fundamental concepts".to_string(),
                 resources: vec!["documentation".to_string()],
                 practice_exercises: vec!["Basic exercise 1".to_string()],
             },
             LearningStep {
                 step_number: 2,
                 task: format!("Practice {} in {}", skill_name, domain),
-                objective: "Apply knowledge in context",
+                objective: "Apply knowledge in context".to_string(),
                 resources: vec!["examples".to_string()],
                 practice_exercises: vec!["Intermediate exercise".to_string()],
             },

@@ -3,7 +3,7 @@
 
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Utc, TimeDelta};
 use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
@@ -1148,7 +1148,7 @@ impl ObjectTracker {
         }
 
         // Remove old tracks
-        self.tracks.retain(|_, track| now.duration_since(track.last_seen) < self.max_age);
+        self.tracks.retain(|_, track| now.signed_duration_since(track.last_seen).to_std().unwrap_or_default() < self.max_age);
 
         updated_objects
     }
@@ -1677,15 +1677,15 @@ impl EntityExtractor {
 
 /// Temporal alignment between modalities
 pub struct TemporalAligner {
-    alignment_window: Duration,
-    max_time_diff: Duration,
+    alignment_window: TimeDelta,
+    max_time_diff: TimeDelta,
 }
 
 impl TemporalAligner {
     pub fn new() -> Self {
         Self {
-            alignment_window: Duration::from_millis(500),
-            max_time_diff: Duration::from_secs(2),
+            alignment_window: TimeDelta::milliseconds(500),
+            max_time_diff: TimeDelta::seconds(2),
         }
     }
 
@@ -1696,9 +1696,9 @@ impl TemporalAligner {
         for (i, (idx, p1)) in perception_refs.iter() {
             for (_, p2) in perception_refs.iter().skip(i + 1) {
                 let time_diff = if p1.timestamp > p2.timestamp {
-                    p1.timestamp.duration_since(p2.timestamp)
+                    p1.timestamp.signed_duration_since(p2.timestamp)
                 } else {
-                    p2.timestamp.duration_since(p1.timestamp)
+                    p2.timestamp.signed_duration_since(p1.timestamp)
                 };
 
                 if time_diff < self.max_time_diff {
@@ -1707,7 +1707,7 @@ impl TemporalAligner {
                         perception_b: *i + 1,
                         time_diff,
                         alignment_type: self.classify_alignment(&p1.modality, &p2.modality, time_diff),
-                        confidence: 1.0 - (time_diff.as_millis() as f32 / self.max_time_diff.as_millis() as f32),
+                        confidence: 1.0 - (time_diff.num_milliseconds() as f32 / self.max_time_diff.num_milliseconds() as f32),
                     });
                 }
             }
@@ -1716,10 +1716,10 @@ impl TemporalAligner {
         alignments
     }
 
-    fn classify_alignment(&self, m1: &Modality, m2: &Modality, time_diff: Duration) -> AlignmentType {
+    fn classify_alignment(&self, m1: &Modality, m2: &Modality, time_diff: TimeDelta) -> AlignmentType {
         match (m1, m2) {
             (Modality::Visual, Modality::Auditory) | (Modality::Auditory, Modality::Visual) => {
-                if time_diff < Duration::from_millis(200) {
+                if time_diff < TimeDelta::milliseconds(200) {
                     AlignmentType::Synchronized
                 } else {
                     AlignmentType::Correlated
@@ -2044,7 +2044,7 @@ impl PerceptualProcessing {
 
     /// Process incoming sensory data
     pub fn process(&mut self, data: SensoryData) -> PerceptualResult {
-        let now = DateTime::<Utc>::now();
+        let now = Utc::now();
         let modality = match &data {
             SensoryData::Visual(_) => Modality::Visual,
             SensoryData::Auditory(_) => Modality::Auditory,
@@ -2363,10 +2363,10 @@ impl PerceptualProcessing {
 
     /// Get recent perceptions
     pub fn get_recent_perceptions(&self, duration: Duration) -> Vec<PerceptualResult> {
-        let now = DateTime::<Utc>::now();
+        let now = Utc::now();
         self.context_buffer.recent_perceptions
             .iter()
-            .filter(|p| now.duration_since(p.timestamp) < duration)
+            .filter(|p| now.signed_duration_since(p.timestamp) < duration)
             .cloned()
             .collect()
     }
@@ -2471,9 +2471,9 @@ impl ContextBuffer {
     }
 
     fn prune(&mut self) {
-        let now = DateTime::<Utc>::now();
+        let now = Utc::now();
         while let Some(front) = self.recent_perceptions.front() {
-            if now.duration_since(front.timestamp) > self.temporal_window {
+            if now.signed_duration_since(front.timestamp) > self.temporal_window {
                 self.recent_perceptions.pop_front();
             } else {
                 break;
@@ -2682,7 +2682,7 @@ mod tests {
     #[test]
     fn test_object_tracker() {
         let mut tracker = ObjectTracker::new();
-        let now = DateTime::<Utc>::now();
+        let now = Utc::now();
 
         let objects = vec![
             VisualObject {

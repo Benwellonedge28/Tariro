@@ -336,7 +336,7 @@ impl EpisodicMemoryStore {
             // Boost accessibility and record access
             let mut memory = pm.memory;
             memory.access_count += 1;
-            memory.last_accessed = Some(DateTime::<Utc>::now());
+            memory.last_accessed = Some(Utc::now());
             memory.accessibility = (memory.accessibility + self.config.importance_boost_on_access).min(1.0);
 
             results.push(memory);
@@ -353,7 +353,7 @@ impl EpisodicMemoryStore {
         score += memory.importance * 0.3;
 
         // Recency weight
-        let age_hours = memory.timestamp.elapsed().as_secs_f32() / 3600.0;
+        let age_hours = Utc::now().signed_duration_since(memory.timestamp).num_seconds() as f32 / 3600.0;
         let recency = (1.0 / (1.0 + age_hours / 24.0)).min(1.0);
         score += recency * 0.2;
 
@@ -566,7 +566,7 @@ impl EpisodicMemoryStore {
 
     /// Get memories due for review
     pub fn get_review_memories(&self) -> Vec<&EpisodicMemory> {
-        let now = DateTime::<Utc>::now();
+        let now = Utc::now();
 
         self.repetition_schedule.iter()
             .filter(|(_, entry)| entry.next_review <= now)

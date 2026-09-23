@@ -10,7 +10,7 @@ use std::time::Duration;
 // Emotion Representations
 // ============================================================================
 
-/// Basic emotion types (Ekman's fundamental emotions)
+/// Basic emotion types (Ekman's fundamental emotions plus neutral)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum BasicEmotion {
     Happiness,
@@ -19,6 +19,7 @@ pub enum BasicEmotion {
     Fear,
     Surprise,
     Disgust,
+    Neutral,
 }
 
 impl BasicEmotion {
@@ -30,6 +31,7 @@ impl BasicEmotion {
             BasicEmotion::Fear => 3,
             BasicEmotion::Surprise => 4,
             BasicEmotion::Disgust => 5,
+            BasicEmotion::Neutral => 6,
         }
     }
 
@@ -41,6 +43,7 @@ impl BasicEmotion {
             3 => Some(BasicEmotion::Fear),
             4 => Some(BasicEmotion::Surprise),
             5 => Some(BasicEmotion::Disgust),
+            6 => Some(BasicEmotion::Neutral),
             _ => None,
         }
     }
@@ -53,6 +56,7 @@ impl BasicEmotion {
             BasicEmotion::Fear => 0.8,
             BasicEmotion::Surprise => 0.8,
             BasicEmotion::Disgust => 0.6,
+            BasicEmotion::Neutral => 0.5,
         }
     }
 
@@ -64,6 +68,7 @@ impl BasicEmotion {
             BasicEmotion::Fear => -0.6,
             BasicEmotion::Surprise => 0.2,
             BasicEmotion::Disgust => -0.8,
+            BasicEmotion::Neutral => 0.0,
         }
     }
 }
@@ -115,8 +120,10 @@ impl VADEmotion {
             BasicEmotion::Surprise
         } else if self.valence < -0.5 {
             BasicEmotion::Disgust
+        } else if self.valence.abs() < 0.2 && (self.arousal - 0.5).abs() < 0.2 {
+            BasicEmotion::Neutral
         } else {
-            BasicEmotion::Sadness // Default fallback
+            BasicEmotion::Neutral // Default fallback
         }
     }
 
@@ -131,7 +138,7 @@ impl VADEmotion {
 /// Complete emotional state representation
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EmotionalState {
-    pub basic_emotions: [f32; 6],        // Intensity of each basic emotion
+    pub basic_emotions: [f32; 7],        // Intensity of each basic emotion
     pub vad: VADEmotion,                  // Dimensional representation
     pub mood: MoodState,                  // Longer-term mood
     pub emotional_complexity: f32,        // How mixed/differentiated emotions are
@@ -142,11 +149,11 @@ pub struct EmotionalState {
 impl EmotionalState {
     pub fn new() -> Self {
         Self {
-            basic_emotions: [0.0; 6],
+            basic_emotions: [0.0; 7],
             vad: VADEmotion::neutral(),
-            mood: MoodState::neutral(),
+            mood: MoodState::Neutral,
             emotional_complexity: 0.0,
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             duration: Duration::ZERO,
         }
     }
@@ -170,7 +177,7 @@ impl EmotionalState {
     }
 
     pub fn update_duration(&mut self) {
-        self.duration = self.timestamp.elapsed();
+        self.duration = Utc::now().signed_duration_since(self.timestamp).to_std();
     }
 }
 
@@ -686,7 +693,7 @@ impl EmotionalMemory {
     pub fn store(&mut self, stimulus: &str, state: &EmotionalState, outcome: &str) {
         let episode = EmotionalEpisode {
             id: Uuid::new(),
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             stimulus: stimulus.to_string(),
             emotional_state: state.clone(),
             intensity: state.total_intensity(),
@@ -1050,7 +1057,7 @@ impl EmotionalArchitecture {
             + vad.arousal * intensity * 0.5;
 
         // Update timestamp
-        self.current_state.timestamp = DateTime::<Utc>::now();
+        self.current_state.timestamp = Utc::now();
     }
 
     /// Apply sentiment analysis result

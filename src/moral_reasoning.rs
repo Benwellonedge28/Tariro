@@ -10,7 +10,7 @@ use std::time::Duration;
 // ============================================================================
 
 /// Moral framework types
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum MoralFramework {
     Deontological,     // Rule-based ethics (Kant)
     Utilitarian,        // Outcome-based ethics (Bentham, Mill)

@@ -465,7 +465,7 @@ impl TheoryOfMindEngine {
             );
 
             agent.mental_model_version += 1;
-            agent.last_updated = DateTime::<Utc>::now();
+            agent.last_updated = Utc::now();
         }
     }
 

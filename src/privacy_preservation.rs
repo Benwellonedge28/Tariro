@@ -450,7 +450,7 @@ impl PrivacyPreservationEngine {
             anonymized: request.anonymize,
             pseudonymized: request.pseudonymize,
             processed_at: DateTime<Utc>::now(),
-            retention_until: Some(DateTime::<Utc>::now() + Duration::from_secs(365 * 24 * 3600)),
+            retention_until: Some(Utc::now() + Duration::from_secs(365 * 24 * 3600)),
         };
 
         self.data_inventory.processed_records.push_back(record);
@@ -488,7 +488,7 @@ impl PrivacyPreservationEngine {
 
     /// Get privacy audit report
     pub fn generate_audit_report(&self) -> PrivacyAuditReport {
-        let now = DateTime::<Utc>::now();
+        let now = Utc::now();
         let recent_logs: Vec<_> = self.access_logs.iter().rev().take(100).collect();
 
         PrivacyAuditReport {

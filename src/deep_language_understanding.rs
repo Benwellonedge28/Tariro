@@ -1312,11 +1312,11 @@ impl TextGenerator {
         let mut words = Vec::new();
 
         // Generate based on frame elements
-        if let Some(actor) = frame.elements.get("Actor") {
+        if let Some(actor) = frame.frame_elements.get("Actor") {
             words.push(actor.value.clone());
         }
 
-        if let Some(theme) = frame.elements.get("Theme") {
+        if let Some(theme) = frame.frame_elements.get("Theme") {
             words.push("the".to_string());
             words.push(theme.value.clone());
         }

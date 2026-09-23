@@ -337,7 +337,7 @@ impl HTNPlanner {
 
     /// Solve planning problem
     pub fn solve(&mut self, problem: &PlanningProblem) -> Result<HTNPlan, PlanningError> {
-        let start_time = DateTime::<Utc>::now();
+        let start_time = Utc::now();
         self.stats = PlannerStats::default();
 
         let domain = self.domain.as_ref()
@@ -356,7 +356,7 @@ impl HTNPlanner {
         // Plan search
         let result = self.plan_search(initial_state, domain, problem);
 
-        self.stats.planning_time_ms = start_time.elapsed().as_millis() as u64;
+        self.stats.planning_time_ms = Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default().as_millis() as u64;
 
         result
     }

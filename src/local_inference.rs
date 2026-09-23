@@ -506,7 +506,7 @@ impl LocalInferenceEngine {
 
     /// Run inference
     pub fn generate(&mut self, session_id: &str, prompt: &str) -> Result<GenerationResult, InferenceError> {
-        let start_time = DateTime::<Utc>::now();
+        let start_time = Utc::now();
 
         let session = self.inference_sessions.get_mut(session_id)
             .ok_or(InferenceError::SessionNotFound)?;
@@ -524,7 +524,7 @@ impl LocalInferenceEngine {
         // Decode output
         let output_text = tokenizer.decode(&output_ids);
 
-        let inference_time = start_time.elapsed();
+        let inference_time = Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default();
         session.statistics.inference_time_ms = inference_time.as_millis() as u64;
         session.statistics.tokens_generated = output_ids.len();
         session.statistics.tokens_per_second = output_ids.len() as f32 / inference_time.as_secs_f32();

@@ -450,7 +450,7 @@ impl ConstitutionalAI {
             procedures,
             amendments: vec![],
             created_at: DateTime<Utc>::now(),
-            ratified_at: Some(DateTime::<Utc>::now()),
+            ratified_at: Some(Utc::now()),
         }
     }
 
@@ -576,7 +576,7 @@ impl ConstitutionalAI {
             rationale: rationale.to_string(),
             principle_conflict: vec![],
             submitted_at: DateTime<Utc>::now(),
-            deadline: Some(DateTime::<Utc>::now() + Duration::from_secs(300)),
+            deadline: Some(Utc::now() + Duration::from_secs(300)),
         };
 
         self.pending_approvals.push(approval);

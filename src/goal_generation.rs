@@ -405,7 +405,7 @@ impl GoalGeneration {
                 complexity: Complexity::Moderate,
             },
             lifecycle: GoalLifecycle {
-                proposed_at: Some(DateTime::<Utc>::now()),
+                proposed_at: Some(Utc::now()),
                 accepted_at: None,
                 rejected_at: None,
                 started_at: None,
@@ -446,7 +446,7 @@ impl GoalGeneration {
                 complexity: Complexity::Moderate,
             },
             lifecycle: GoalLifecycle {
-                proposed_at: Some(DateTime::<Utc>::now()),
+                proposed_at: Some(Utc::now()),
                 accepted_at: None,
                 rejected_at: None,
                 started_at: None,
@@ -525,7 +525,7 @@ impl GoalGeneration {
     pub fn accept_goal(&mut self, goal_id: &str) -> bool {
         if let Some(goal) = self.goals.iter_mut().find(|g| g.goal_id == goal_id) {
             goal.status = GoalStatus::Accepted;
-            goal.lifecycle.accepted_at = Some(DateTime::<Utc>::now());
+            goal.lifecycle.accepted_at = Some(Utc::now());
             return true;
         }
         false
@@ -535,7 +535,7 @@ impl GoalGeneration {
     pub fn start_goal(&mut self, goal_id: &str) -> bool {
         if let Some(goal) = self.goals.iter_mut().find(|g| g.goal_id == goal_id) {
             goal.status = GoalStatus::Active;
-            goal.lifecycle.started_at = Some(DateTime::<Utc>::now());
+            goal.lifecycle.started_at = Some(Utc::now());
             return true;
         }
         false
@@ -548,7 +548,7 @@ impl GoalGeneration {
 
             if goal.progress >= 1.0 {
                 goal.status = GoalStatus::Completed;
-                goal.lifecycle.completed_at = Some(DateTime::<Utc>::now());
+                goal.lifecycle.completed_at = Some(Utc::now());
             }
 
             return true;
@@ -561,7 +561,7 @@ impl GoalGeneration {
         if self.config.allow_goal_abandonment {
             if let Some(goal) = self.goals.iter_mut().find(|g| g.goal_id == goal_id) {
                 goal.status = GoalStatus::Abandoned;
-                goal.lifecycle.abandoned_at = Some(DateTime::<Utc>::now());
+                goal.lifecycle.abandoned_at = Some(Utc::now());
 
                 // Move to history
                 self.goal_history.push_back(goal.clone());

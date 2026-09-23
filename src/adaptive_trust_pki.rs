@@ -93,7 +93,7 @@ impl PKIManager {
         let record = DLTRecord {
             record_type: "identity_registration".to_string(),
             data_hash: identity.public_key_hash.clone(),
-            timestamp: Utc::now().timestamp(),
+            timestamp: Utc::now().timestamp() as u64,
             signed_by: "Tariro_Root_CA".to_string(),
         };
         self.dlt_ledger.push(record);
@@ -105,14 +105,14 @@ impl PKIManager {
         println!("  [PKI]: Issuing certificate for '{}' by '{}'.", subject_id, issuer_id);
         let mut rng = rand::thread_rng();
         thread::sleep(Duration::from_millis(150));
-        let now = Utc::now().timestamp();
+        let now = Utc::now().timestamp() as u64;
         let cert = Certificate {
             id: format!("cert_{}_{}", subject_id, now),
             subject_id: subject_id.to_string(),
             public_key,
             issuer_id: issuer_id.to_string(),
             issued_at: now,
-            expires_at: now + duration_days * 24 * 3600,
+            expires_at: now + (duration_days * 24 * 3600),
             signature: (0..64).map(|_| rng.gen::<u8>()).collect(),
         };
         self.issued_certificates.insert(cert.id.clone(), cert.clone());
@@ -131,7 +131,7 @@ impl PKIManager {
         println!("  [PKI]: Validating trust for certificate '{}' (SIMD for high-throughput validation).", cert_id);
         thread::sleep(Duration::from_millis(120));
         if let Some(cert) = self.issued_certificates.get(cert_id) {
-            let now = Utc::now().timestamp();
+            let now = Utc::now().timestamp() as u64;
             if now > cert.expires_at { return TrustStatus::Expired; }
             
             // Check for revocation on DLT (conceptual)
@@ -157,7 +157,7 @@ impl PKIManager {
             let record = DLTRecord {
                 record_type: "certificate_revocation".to_string(),
                 data_hash: cert.signature.clone(), // Simplified: hash of cert signature as identifier
-                timestamp: Utc::now().timestamp(),
+                timestamp: Utc::now().timestamp() as u64,
                 signed_by: "Tariro_Root_CA".to_string(),
             };
             self.dlt_ledger.push(record);
@@ -225,7 +225,7 @@ fn main() {
     let root_trust_anchor = TrustAnchor {
         id: "Tariro_Global_Root_TA".to_string(),
         public_key: vec![0xA1, 0xB2, 0xC3, 0xD4, 0xE5, 0xF6, 0x07, 0x18], // Conceptual key
-        issued_at: Utc::now().timestamp(),
+        issued_at: Utc::now().timestamp() as u64,
         expires_at: u64::MAX, // Long-lived
     };
     pki_manager.trust_anchors.insert(root_trust_anchor.id.clone(), root_trust_anchor.clone());

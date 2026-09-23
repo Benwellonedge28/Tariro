@@ -303,7 +303,7 @@ impl ShutdownManager {
             phases_completed,
             total_phases: self.phases.len(),
             error_message,
-            completed_at: Some(DateTime::<Utc>::now()),
+            completed_at: Some(Utc::now()),
         }
     }
 
@@ -382,7 +382,7 @@ impl ShutdownManager {
             shutdown_type: ShutdownType::Emergency,
             reason: ShutdownReason::SafetyTrigger,
             initiated_at: DateTime<Utc>::now(),
-            completed_at: Some(DateTime::<Utc>::now()),
+            completed_at: Some(Utc::now()),
             success: true,
             phases_completed: 0,
             error_message: Some(format!("Emergency: {}", reason)),

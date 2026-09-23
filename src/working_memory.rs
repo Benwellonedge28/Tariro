@@ -42,6 +42,8 @@ pub enum WorkingContent {
     Procedural(ProceduralContent),
     Episodic(EpisodicContent),
     Affective(AffectiveContent),
+    Visual(String),
+    Verbal(String),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -215,7 +217,7 @@ pub struct WorkingMemoryStore {
     central_executive: CentralExecutive,
 
     // Phonological loop
-    phonological_store: PhonologicalLoop,
+    phonological_loop: PhonologicalLoop,
 
     // Visuospatial sketchpad
     visuospatial_sketchpad: VisuospatialStore,
@@ -527,7 +529,7 @@ impl WorkingMemoryStore {
     pub fn get(&mut self, item_id: &str) -> Option<&WorkingMemoryItem> {
         if let Some(&idx) = self.item_index.get(item_id) {
             let item = &mut self.items[idx];
-            item.last_accessed = DateTime::<Utc>::now();
+            item.last_accessed = Utc::now();
             item.activation = (item.activation + self.config.rehearsal_benefit).min(1.0);
             self.stats.items_retrieved += 1;
             Some(item)
@@ -639,7 +641,7 @@ impl WorkingMemoryStore {
         if let Some(&idx) = self.item_index.get(item_id) {
             let item = &mut self.items[idx];
             item.activation = (item.activation + self.config.rehearsal_benefit).min(1.0);
-            item.last_accessed = DateTime::<Utc>::now();
+            item.last_accessed = Utc::now();
             Ok(())
         } else {
             Err(WorkingMemoryError::ItemNotFound)

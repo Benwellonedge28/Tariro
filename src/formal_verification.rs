@@ -349,7 +349,7 @@ impl FormalVerificationEngine {
 
     /// Verify a system against properties
     pub fn verify(&mut self, request: &VerificationRequest) -> VerificationResult {
-        let start_time = DateTime::<Utc>::now();
+        let start_time = Utc::now();
         let mut property_results = Vec::new();
 
         for property in &request.properties {
@@ -373,7 +373,7 @@ impl FormalVerificationEngine {
             proof: None,
             counterexample: None,
             statistics: VerificationStats {
-                verification_time: start_time.elapsed(),
+                verification_time: Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default(),
                 states_explored: 100, // Simplified
                 transitions_explored: 200,
                 memory_used_mb: 10.0,
