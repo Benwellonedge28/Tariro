@@ -59,7 +59,7 @@ impl ExecutiveFunction {
 
         // Step 6: Behavior selection
         let selected_behavior = self.behavior_selector.select(
-            &self.goal_manager.highest_priority_goal(),
+            self.goal_manager.highest_priority_goal().as_ref(),
             &focus_items,
             &resources,
             context

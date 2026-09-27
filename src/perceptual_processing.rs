@@ -1694,8 +1694,8 @@ impl TemporalAligner {
         let mut alignments = Vec::new();
         let mut perception_refs: Vec<_> = perceptions.iter().enumerate().collect();
 
-        for (i, (idx, p1)) in perception_refs.iter() {
-            for (_, p2) in perception_refs.iter().skip(i + 1) {
+        for (i, p1) in perception_refs.iter() {
+            for (_, p2) in perception_refs.iter().skip(*i + 1) {
                 let time_diff = if p1.timestamp > p2.timestamp {
                     p1.timestamp.signed_duration_since(p2.timestamp)
                 } else {
@@ -1704,7 +1704,7 @@ impl TemporalAligner {
 
                 if time_diff < self.max_time_diff {
                     alignments.push(TemporalAlignment {
-                        perception_a: *idx,
+                        perception_a: *i,
                         perception_b: *i + 1,
                         time_diff,
                         alignment_type: self.classify_alignment(&p1.modality, &p2.modality, time_diff),

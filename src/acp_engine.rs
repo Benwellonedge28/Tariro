@@ -153,7 +153,7 @@ impl ACP_Engine {
         let mut decisions = Vec::new();
         for state in states {
             for policy in policies {
-                if state.alerts.contains(&"High CPU load detected.".to_string()) && policy.triggers.get("cpu_load") == Some(&">0.8") {
+                if state.alerts.contains(&"High CPU load detected.".to_string()) && policy.triggers.get("cpu_load") == Some(&">0.8".to_string()) {
                     decisions.push(ControlDecision {
                         decision_id: format!("dec_{}", rng.gen::<u32>()),
                         policy_id: policy.policy_id.clone(),
