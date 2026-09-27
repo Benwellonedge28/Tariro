@@ -1697,9 +1697,9 @@ impl TemporalAligner {
         for (i, p1) in perception_refs.iter() {
             for (_, p2) in perception_refs.iter().skip(*i + 1) {
                 let time_diff = if p1.timestamp > p2.timestamp {
-                    p1.timestamp.signed_duration_since(p2.timestamp)
+                    p1.timestamp.signed_duration_since(p2.timestamp).to_std().unwrap_or(Duration::ZERO)
                 } else {
-                    p2.timestamp.signed_duration_since(p1.timestamp)
+                    p2.timestamp.signed_duration_since(p1.timestamp).to_std().unwrap_or(Duration::ZERO)
                 };
 
                 if time_diff < self.max_time_diff {
@@ -2367,7 +2367,10 @@ impl PerceptualProcessing {
         let now = Utc::now();
         self.context_buffer.recent_perceptions
             .iter()
-            .filter(|p| now.signed_duration_since(p.timestamp) < duration)
+            .filter(|p| {
+                let time_diff = now.signed_duration_since(p.timestamp).to_std().unwrap_or(Duration::ZERO);
+                time_diff < duration
+            })
             .cloned()
             .collect()
     }
@@ -2474,7 +2477,8 @@ impl ContextBuffer {
     fn prune(&mut self) {
         let now = Utc::now();
         while let Some(front) = self.recent_perceptions.front() {
-            if now.signed_duration_since(front.timestamp) > self.temporal_window {
+            let time_diff = now.signed_duration_since(front.timestamp).to_std().unwrap_or(Duration::ZERO);
+            if time_diff > self.temporal_window {
                 self.recent_perceptions.pop_front();
             } else {
                 break;

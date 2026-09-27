@@ -177,7 +177,7 @@ impl EmotionalState {
     }
 
     pub fn update_duration(&mut self) {
-        self.duration = Utc::now().signed_duration_since(self.timestamp).to_std();
+        self.duration = Utc::now().signed_duration_since(self.timestamp).to_std().unwrap_or(Duration::ZERO);
     }
 }
 
@@ -337,8 +337,9 @@ impl EmotionDetector {
         let mut max_idx = 0;
 
         for (i, score) in emotion_scores.iter().enumerate() {
-            if *score > max_score {
-                max_score = *score;
+            let score_f32 = *score as f32;
+            if score_f32 > max_score {
+                max_score = score_f32;
                 max_idx = i;
             }
         }
