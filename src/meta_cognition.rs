@@ -198,6 +198,7 @@ impl SelfModel {
             },
             goals: vec![],
             beliefs: vec![],
+            emotional_state: None,
         }
     }
 
