@@ -299,6 +299,23 @@ pub enum BottleneckType {
     ExternalDependency,
 }
 
+impl std::fmt::Display for BottleneckType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            BottleneckType::CPU => write!(f, "CPU"),
+            BottleneckType::Memory => write!(f, "Memory"),
+            BottleneckType::DiskIO => write!(f, "Disk I/O"),
+            BottleneckType::Network => write!(f, "Network"),
+            BottleneckType::Database => write!(f, "Database"),
+            BottleneckType::LockContention => write!(f, "Lock Contention"),
+            BottleneckType::AlgorithmComplexity => write!(f, "Algorithm Complexity"),
+            BottleneckType::Configuration => write!(f, "Configuration"),
+            BottleneckType::ResourceLimit => write!(f, "Resource Limit"),
+            BottleneckType::ExternalDependency => write!(f, "External Dependency"),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OptimizationRecommendation {
     pub recommendation_type: RecommendationType,
@@ -402,6 +419,24 @@ pub enum IssueType {
     Deadlock,
     MemoryLeak,
     Crash,
+}
+
+impl std::fmt::Display for IssueType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            IssueType::PerformanceDegradation => write!(f, "Performance Degradation"),
+            IssueType::ResourceExhaustion => write!(f, "Resource Exhaustion"),
+            IssueType::ConfigurationError => write!(f, "Configuration Error"),
+            IssueType::DependencyFailure => write!(f, "Dependency Failure"),
+            IssueType::SecurityVulnerability => write!(f, "Security Vulnerability"),
+            IssueType::DataInconsistency => write!(f, "Data Inconsistency"),
+            IssueType::ServiceUnavailability => write!(f, "Service Unavailability"),
+            IssueType::Timeout => write!(f, "Timeout"),
+            IssueType::Deadlock => write!(f, "Deadlock"),
+            IssueType::MemoryLeak => write!(f, "Memory Leak"),
+            IssueType::Crash => write!(f, "Crash"),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd)]

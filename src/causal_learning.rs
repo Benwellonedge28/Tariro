@@ -28,7 +28,7 @@ pub struct CausalGraph {
     pub adj_matrix: Vec<Vec<f32>>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CausalNode {
     pub node_id: String,
     pub name: String,

@@ -149,6 +149,7 @@ pub enum TimeOfDay {
     Dusk,
     Night,
     Midnight,
+    Unknown,
 }
 
 /// Indoor vs outdoor classification

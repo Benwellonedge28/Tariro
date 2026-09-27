@@ -141,6 +141,7 @@ pub struct BodyComponent {
 }
 
 /// Attention system for consciousness
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AttentionSystem {
     pub focus: AttentionFocus,
     pub spotlight: Spotlight,

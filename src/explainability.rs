@@ -207,7 +207,7 @@ impl XAIEngine {
             ExplanationType::Selectable => self.generate_selectable(decision, request),
             ExplanationType::Attribution => self.generate_attribution(decision),
             ExplanationType::Counterfactual => self.generate_counterfactual(decision),
-            ExplanationType::Process => self.generate_process(decision, &request.audience),
+            ExplanationType::Process => self.generate_process(decision, &request.target_audience),
             ExplanationType::RuleBased => self.generate_rule_based(decision),
         };
 

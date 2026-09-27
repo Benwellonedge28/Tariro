@@ -384,7 +384,7 @@ impl MoralReasoningEngine {
                 }
 
                 // Check universalizability
-                if request.alternatives.len() > 1 {
+                if request.context.alternatives.len() > 1 {
                     score += 0.2;
                     considerations.push("Multiple alternatives considered".to_string());
                 }

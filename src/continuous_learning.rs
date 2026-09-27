@@ -69,6 +69,7 @@ pub enum ConceptType {
     Heuristic,
     Rule,
     Theory,
+    Experience,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -614,7 +614,7 @@ pub enum ResultType {
 /// Confidence calibration system
 pub struct ConfidenceCalibrator {
     calibration_history: VecDeque<CalibrationPoint>,
-    calibration_errors: Vec<f32>,
+    calibration_errors: VecDeque<f32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -629,7 +629,7 @@ impl ConfidenceCalibrator {
     pub fn new() -> Self {
         Self {
             calibration_history: VecDeque::new(),
-            calibration_errors: Vec::new(),
+            calibration_errors: VecDeque::new(),
         }
     }
 
@@ -1018,14 +1018,14 @@ impl MetaCognition {
 
     /// Reflect on experience
     pub fn reflect(&mut self, experience: &Experience) -> Vec<String> {
-        match experience.experience_type {
-            ExperienceType::Outcome(outcome) => {
-                self.reflector.reflect_on_performance(&outcome)
+        match experience {
+            Experience::Outcome(outcome) => {
+                self.reflector.reflect_on_performance(outcome)
             }
-            ExperienceType::Capability(cap, perf) => {
+            Experience::Capability(cap, perf) => {
                 self.reflector.reflect_on_capabilities(cap, *perf)
             }
-            ExperienceType::Belief(belief, evidence) => {
+            Experience::Belief(belief, evidence) => {
                 self.reflector.reflect_on_belief(belief, evidence)
             }
         }

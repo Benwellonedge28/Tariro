@@ -373,7 +373,7 @@ pub struct SyntacticNode {
     pub attributes: HashMap<String, String>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum NodeType {
     Sentence,
     Clause,
@@ -383,6 +383,7 @@ pub enum NodeType {
     AdjectivePhrase,
     AdverbPhrase,
     Terminal,
+    Determiner,
 }
 
 /// Dependency tree
@@ -786,7 +787,7 @@ impl SemanticParser {
 
         Frame {
             frame_type: "Event".to_string(),
-            elements,
+            frame_elements: elements,
             relations: vec![],
         }
     }
@@ -886,7 +887,7 @@ impl PragmaticAnalyzer {
         if text_lower.ends_with('?') || text_lower.contains("what") || text_lower.contains("how") {
             SpeechAct::Directive
         } else if text_lower.ends_with('!') {
-            SpeechAct::Expressiv
+            SpeechAct::Expressive
         } else if text_lower.starts_with("i promise") || text_lower.starts_with("i will") {
             SpeechAct::Commissive
         } else {

@@ -355,7 +355,7 @@ impl EmotionDetector {
 
     /// Detect emotion from voice/audio features
     pub fn detect_from_voice(&self, pitch: f32, intensity: f32, speaking_rate: f32) -> (BasicEmotion, f32) {
-        let mut scores = [0.0f32; 6];
+        let mut scores = [0.0f32; 7];
 
         // High pitch + high intensity + fast speech = Happiness/Surprise
         if pitch > 200.0 && intensity > 0.7 {
@@ -394,7 +394,7 @@ impl EmotionDetector {
 
     /// Detect emotion from facial features
     pub fn detect_from_face(&self, smile_intensity: f32, brow_furrow: f32, eye_widening: f32) -> (BasicEmotion, f32) {
-        let mut scores = [0.0f32; 6];
+        let mut scores = [0.0f32; 7];
 
         // Smile = Happiness
         scores[BasicEmotion::Happiness.to_index()] = smile_intensity;
@@ -432,7 +432,7 @@ impl EmotionDetector {
         }
 
         // Weighted voting
-        let mut weighted_scores = [0.0f32; 6];
+        let mut weighted_scores = [0.0f32; 7];
 
         for (emotion, confidence, source) in detections {
             let weight = self.confidence_weights.get(source).copied().unwrap_or(0.33);
@@ -604,6 +604,7 @@ impl EmpathyEngine {
             BasicEmotion::Fear => EmpathyResponseType::Reassure,
             BasicEmotion::Surprise => EmpathyResponseType::Engage,
             BasicEmotion::Disgust => EmpathyResponseType::Distance,
+            BasicEmotion::Neutral => EmpathyResponseType::Engage,
         }
     }
 
@@ -656,7 +657,7 @@ pub struct EmotionalEpisode {
     pub learned: bool,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Uuid([u8; 16]);
 
 impl Uuid {
@@ -1169,6 +1170,7 @@ impl EmotionalArchitecture {
             BasicEmotion::Fear => Some(EmotionalAction::Retreat),
             BasicEmotion::Surprise => Some(EmotionalAction::Investigate),
             BasicEmotion::Disgust => Some(EmotionalAction::Avoid),
+            BasicEmotion::Neutral => None,
         }
     }
 

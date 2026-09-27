@@ -462,7 +462,7 @@ impl EpisodicMemoryStore {
             timeline_id: timeline_id.to_string(),
             name: name.to_string(),
             memory_ids,
-            start_time: start.unwrap_or_else(Instant::now),
+            start_time: start.unwrap_or_else(Utc::now),
             end_time: end,
         });
     }

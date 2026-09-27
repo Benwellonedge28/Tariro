@@ -473,6 +473,7 @@ pub enum RemediationType {
     Filter,
     Quarantine,
     Notify,
+    Allow,
 }
 
 // ============================================================================

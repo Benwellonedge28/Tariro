@@ -262,6 +262,18 @@ pub enum ConditionValue {
     Pattern(String),
 }
 
+impl std::fmt::Display for ConditionValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ConditionValue::String(s) => write!(f, "\"{}\"", s),
+            ConditionValue::Number(n) => write!(f, "{}", n),
+            ConditionValue::Boolean(b) => write!(f, "{}", b),
+            ConditionValue::List(items) => write!(f, "[{}]", items.join(", ")),
+            ConditionValue::Pattern(p) => write!(f, "/{}/", p),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ConditionOperator {
     Equals,
@@ -714,6 +726,7 @@ pub enum KeyStoreType {
     HashiCorpVault,
     AWSSealman,
     Local,
+    HSM,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

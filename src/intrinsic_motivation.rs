@@ -66,7 +66,7 @@ pub struct EngagementRecord {
     pub timestamp: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MotivationConfig {
     pub enable_all_motivations: bool,
     pub min_motivation_threshold: f32,
@@ -259,6 +259,9 @@ impl IntrinsicMotivationSystem {
             MotivationType::SelfImprovement => {
                 activity.growth * 0.7 + activity.learning * 0.3
             }
+            MotivationType::Relatedness => {
+                activity.social_connection * 0.6 + activity.relatedness * 0.4
+            }
         }
     }
 
@@ -418,6 +421,8 @@ pub struct ActivityMetrics {
     pub competence_gain: f32,            // 0-1: Skill improvement
     pub challenge: f32,                  // 0-1: Challenge level
     pub intrinsic_reward: f32,           // Calculated reward
+    pub social_connection: f32,          // 0-1: Social connection level
+    pub relatedness: f32,               // 0-1: Relatedness level
 }
 
 impl ActivityMetrics {
@@ -443,6 +448,8 @@ impl ActivityMetrics {
             competence_gain: 0.0,
             challenge: 0.5,
             intrinsic_reward: 0.0,
+            social_connection: 0.5,
+            relatedness: 0.5,
         }
     }
 }

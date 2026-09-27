@@ -11,7 +11,7 @@ use std::time::Duration;
 // ============================================================================
 
 /// Sovereign inference engine - no external dependencies
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct LocalInferenceEngine {
     pub engine_id: String,
     pub model_registry: ModelRegistry,
@@ -575,7 +575,7 @@ impl LocalInferenceEngine {
     fn sample_next_token(&self, session: &SessionConfig, _ids: &[usize]) -> Result<usize, InferenceError> {
         // In real implementation, this would use the model to predict next token
         // For now, return a simple prediction
-        let vocab_size = self.tokenizers.get(&session.config.max_tokens.to_string())
+        let vocab_size = self.tokenizers.get(&session.max_tokens.to_string())
             .map(|t| t.vocab_size())
             .unwrap_or(32000);
 

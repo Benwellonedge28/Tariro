@@ -136,14 +136,14 @@ pub struct GoalTemplate {
     pub default_priority: Priority,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TriggerCondition {
     pub condition_type: ConditionType,
     pub threshold: f32,
     pub comparison: Comparison,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ConditionType {
     PerformanceBelow,
     OpportunityDetected,
@@ -153,7 +153,7 @@ pub enum ConditionType {
     CuriosityTriggered,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Comparison {
     LessThan,
     GreaterThan,
