@@ -660,7 +660,7 @@ impl TEEEngine {
         };
 
         // Verify measurement matches
-        let measurement_valid = evidence.quote.starts_with(&enclave.measurements.mr_enclave);
+        let measurement_valid = evidence.quote.starts_with(enclave.measurements.mr_enclave.as_bytes());
 
         VerificationResult {
             is_valid: measurement_valid,
