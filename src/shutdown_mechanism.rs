@@ -239,7 +239,7 @@ impl ShutdownManager {
                 phases_completed: 0,
                 total_phases: 0,
                 error_message: Some("No shutdown initiated".to_string()),
-                completed_at: Utc::now(),
+                completed_at: None,
             };
         }
 

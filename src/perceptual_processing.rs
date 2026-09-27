@@ -1697,16 +1697,17 @@ impl TemporalAligner {
         for (i, p1) in perception_refs.iter() {
             for (_, p2) in perception_refs.iter().skip(*i + 1) {
                 let time_diff = if p1.timestamp > p2.timestamp {
-                    p1.timestamp.signed_duration_since(p2.timestamp).to_std().unwrap_or(Duration::ZERO)
+                    p1.timestamp.signed_duration_since(p2.timestamp)
                 } else {
-                    p2.timestamp.signed_duration_since(p1.timestamp).to_std().unwrap_or(Duration::ZERO)
+                    p2.timestamp.signed_duration_since(p1.timestamp)
                 };
 
                 if time_diff < self.max_time_diff {
+                    let time_diff_std = time_diff.to_std().unwrap_or(Duration::ZERO);
                     alignments.push(TemporalAlignment {
                         perception_a: *i,
                         perception_b: *i + 1,
-                        time_diff,
+                        time_diff: time_diff_std,
                         alignment_type: self.classify_alignment(&p1.modality, &p2.modality, time_diff),
                         confidence: 1.0 - (time_diff.num_milliseconds() as f32 / self.max_time_diff.num_milliseconds() as f32),
                     });

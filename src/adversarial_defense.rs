@@ -924,7 +924,7 @@ impl AdversarialDefenseEngine {
             detected_patterns,
             confidence: if injection_score > 0.7 { 0.95 } else { 0.7 },
             sanitized_prompt: if is_injection {
-                self.sanitize_prompt(prompt, &detected_patterns)
+                Some(self.sanitize_prompt(prompt, &detected_patterns))
             } else {
                 None
             },
