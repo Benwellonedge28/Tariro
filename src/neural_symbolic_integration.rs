@@ -68,7 +68,7 @@ pub struct NeuralLayer {
     pub neurons: Vec<Neuron>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum LayerType {
     Input,
     Hidden,

@@ -33,7 +33,7 @@ pub struct Interrupt {
     pub requires_ack: bool,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum InterruptPriority {
     Critical,   // Absolute priority
     High,
@@ -101,7 +101,7 @@ impl ExecutionState {
             can_checkpoint: true,
             can_resume: true,
             resources_allocated: vec![],
-            started_at: DateTime<Utc>::now(),
+            started_at: Utc::now(),
         }
     }
 
@@ -278,7 +278,7 @@ impl InterruptManager {
 
         let checkpoint = CheckpointState {
             checkpoint_id: generate_id(),
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             operation: self.current_execution.as_ref()
                 .map(|e| e.current_operation.clone())
                 .unwrap_or_default(),
@@ -429,7 +429,7 @@ impl InterruptManager {
             priority: InterruptPriority::Critical,
             reason: "Emergency shutdown".to_string(),
             source: InterruptSource::SafetySystem,
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             requires_ack: false,
         };
 
@@ -475,7 +475,7 @@ mod tests {
             priority: InterruptPriority::Critical,
             reason: "Test".to_string(),
             source: InterruptSource::Human,
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             requires_ack: false,
         };
 
@@ -494,7 +494,7 @@ mod tests {
             priority: InterruptPriority::Normal,
             reason: "User requested stop".to_string(),
             source: InterruptSource::Human,
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             requires_ack: true,
         };
 
@@ -532,7 +532,7 @@ mod tests {
             priority: InterruptPriority::Low,
             reason: "Low priority".to_string(),
             source: InterruptSource::Timer,
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             requires_ack: false,
         };
 
@@ -545,7 +545,7 @@ mod tests {
             priority: InterruptPriority::Critical,
             reason: "High priority".to_string(),
             source: InterruptSource::SafetySystem,
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             requires_ack: false,
         };
 

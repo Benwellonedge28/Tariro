@@ -449,7 +449,7 @@ impl ConstitutionalAI {
             prohibitions,
             procedures,
             amendments: vec![],
-            created_at: DateTime<Utc>::now(),
+            created_at: Utc::now(),
             ratified_at: Some(Utc::now()),
         }
     }
@@ -488,7 +488,7 @@ impl ConstitutionalAI {
                     severity: if prohibition.absolute { ViolationSeverity::Critical } else { ViolationSeverity::Major },
                     circumstances: format!("Violated prohibition: {}", prohibition.title),
                     responsible_party: None,
-                    reported_at: DateTime<Utc>::now(),
+                    reported_at: Utc::now(),
                     resolved_at: None,
                     resolution: None,
                 };
@@ -503,7 +503,7 @@ impl ConstitutionalAI {
                     prohibition_checked: prohibitions_checked,
                     compliance_verdict: ComplianceVerdict::NonCompliant,
                     confidence: 0.95,
-                    timestamp: DateTime<Utc>::now(),
+                    timestamp: Utc::now(),
                 };
 
                 self.compliance_history.push_back(record.clone());
@@ -526,7 +526,7 @@ impl ConstitutionalAI {
             prohibition_checked: prohibitions_checked,
             compliance_verdict: verdict,
             confidence: 0.90,
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
         };
 
         self.compliance_history.push_back(record.clone());
@@ -575,7 +575,7 @@ impl ConstitutionalAI {
             proposed_by: proposed_by.to_string(),
             rationale: rationale.to_string(),
             principle_conflict: vec![],
-            submitted_at: DateTime<Utc>::now(),
+            submitted_at: Utc::now(),
             deadline: Some(Utc::now() + Duration::from_secs(300)),
         };
 
@@ -598,7 +598,7 @@ impl ConstitutionalAI {
                     prohibition_checked: vec![],
                     compliance_verdict: ComplianceVerdict::OverrideApproved,
                     confidence: 1.0,
-                    timestamp: DateTime<Utc>::now(),
+                    timestamp: Utc::now(),
                 };
                 self.compliance_history.push_back(record);
             }
@@ -634,7 +634,7 @@ impl ConstitutionalAI {
         }
 
         EmergencyShutdownResult {
-            initiated_at: DateTime<Utc>::now(),
+            initiated_at: Utc::now(),
             reason: reason.to_string(),
             shutdown_sequence: self.constitution.prohibitions.iter()
                 .filter(|p| matches!(p.penalty, ProhibitionPenalty::ImmediateShutdown))

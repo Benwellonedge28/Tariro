@@ -1496,7 +1496,7 @@ impl DeepLanguageUnderstanding {
         self.conversation_history.push_back(Utterance {
             speaker: speaker.to_string(),
             text: text.to_string(),
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             analysis: Some(analysis.clone()),
         });
 

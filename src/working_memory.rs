@@ -617,7 +617,7 @@ impl WorkingMemoryStore {
             binding_key: binding_key.to_string(),
             integrated_content: format!("Chunk of {} items", item_ids.len()),
             stability: 0.5,
-            formed_at: DateTime<Utc>::now(),
+            formed_at: Utc::now(),
         };
 
         // Store binding
@@ -796,8 +796,8 @@ mod tests {
             activation: 0.8,
             attention_weight: 1.0,
             priority: 0.9,
-            added_at: DateTime<Utc>::now(),
-            last_accessed: DateTime<Utc>::now(),
+            added_at: Utc::now(),
+            last_accessed: Utc::now(),
             decay_rate: 0.01,
             binding_key: None,
             chunk_id: None,
@@ -825,8 +825,8 @@ mod tests {
             activation: 0.9,
             attention_weight: 1.0,
             priority: 1.0,
-            added_at: DateTime<Utc>::now(),
-            last_accessed: DateTime<Utc>::now(),
+            added_at: Utc::now(),
+            last_accessed: Utc::now(),
             decay_rate: 0.01,
             binding_key: None,
             chunk_id: None,

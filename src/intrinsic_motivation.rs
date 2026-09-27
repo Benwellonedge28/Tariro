@@ -294,7 +294,7 @@ impl IntrinsicMotivationSystem {
                     current_level: urgency,
                     target_level: motivation.satisfaction_threshold,
                     urgency,
-                    last_updated: DateTime<Utc>::now(),
+                    last_updated: Utc::now(),
                 });
             }
         }
@@ -347,7 +347,7 @@ impl IntrinsicMotivationSystem {
             novelty: activity.novelty,
             challenge: activity.challenge,
             competence_gain: activity.competence_gain,
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
         };
 
         self.engagement_history.push_back(record);

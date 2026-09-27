@@ -555,7 +555,7 @@ impl EpisodicMemoryStore {
     fn schedule_review(&mut self, memory: &EpisodicMemory) {
         let entry = RepetitionEntry {
             memory_id: memory.memory_id.clone(),
-            next_review: DateTime<Utc>::now() + Duration::from_secs(3600), // 1 hour
+            next_review: Utc::now() + Duration::from_secs(3600), // 1 hour
             interval: Duration::from_secs(3600),
             ease_factor: 2.5,
             repetitions: 0,
@@ -697,7 +697,7 @@ mod tests {
         let memory = EpisodicMemory {
             memory_id: generate_id(),
             event_id: "evt1".to_string(),
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             duration: Some(Duration::from_secs(3600)),
             narrative: "Had a productive meeting about the project".to_string(),
             events: vec![],
@@ -751,7 +751,7 @@ mod tests {
         let memory = EpisodicMemory {
             memory_id: generate_id(),
             event_id: "evt1".to_string(),
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             duration: Some(Duration::from_secs(3600)),
             narrative: "Learned about machine learning".to_string(),
             events: vec![],

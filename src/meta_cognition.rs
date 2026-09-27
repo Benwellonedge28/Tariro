@@ -138,7 +138,7 @@ impl SelfModel {
                     "Reasoning".to_string(),
                     "Learning".to_string(),
                 ],
-                created_at: DateTime<Utc>::now(),
+                created_at: Utc::now(),
             },
             capabilities: Capabilities {
                 reasoning: CapabilityLevel::Advanced,
@@ -490,7 +490,7 @@ impl SelfReflector {
 
         // Generate reflection
         let reflection = Reflection {
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             reflection_type: ReflectionType::Performance,
             subject: outcome.description.clone(),
             insights: insights.clone(),
@@ -516,7 +516,7 @@ impl SelfReflector {
         }
 
         let reflection = Reflection {
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             reflection_type: ReflectionType::Capability,
             subject: capability.to_string(),
             insights: insights.clone(),
@@ -640,14 +640,14 @@ impl ConfidenceCalibrator {
             predicted_confidence: predicted,
             actual_confidence: actual,
             domain: domain.to_string(),
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
         };
 
         self.calibration_history.push_back(point);
 
         // Calculate error
         let error = (predicted - actual).abs();
-        self.calibration_errors.push(error);
+        self.calibration_errors.push_back(error);
 
         // Keep history bounded
         while self.calibration_history.len() > 1000 {
@@ -785,7 +785,7 @@ impl SelfMonitor {
         self.active_processes.push(ActiveProcess {
             process_id: id.clone(),
             process_type: process_type.to_string(),
-            start_time: DateTime<Utc>::now(),
+            start_time: Utc::now(),
             status: ProcessStatus::Running,
             progress: 0.0,
         });
@@ -818,7 +818,7 @@ impl SelfMonitor {
             attention_focus: self.attention_focus.clone(),
             active_processes: self.active_processes.len(),
             metrics: self.metrics.clone(),
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
         }
     }
 }
@@ -926,7 +926,7 @@ impl MetaCognition {
                 belief: belief.to_string(),
                 confidence,
                 evidence: evidence.to_vec(),
-                created_at: DateTime<Utc>::now(),
+                created_at: Utc::now(),
             });
         }
     }
@@ -950,7 +950,7 @@ impl MetaCognition {
     pub fn create_plan(&self, goal: &str) -> Option<ActionPlan> {
         let initial_state = WorldState {
             facts: HashMap::new(),
-            time: DateTime<Utc>::now(),
+            time: Utc::now(),
         };
 
         self.planner.plan(goal, &initial_state)
@@ -1002,7 +1002,7 @@ impl MetaCognition {
             }),
             reasoning,
             outcome: None,
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
         };
 
         self.decision_history.push_back(decision);
@@ -1105,7 +1105,7 @@ pub enum Experience<'a> {
     Belief(&'a str, Vec<String>),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ExperienceType {
     Outcome(Outcome),
     Capability(&'static str, f32),
@@ -1167,7 +1167,7 @@ mod tests {
         let planner = HTNPlanner::new();
         let state = WorldState {
             facts: HashMap::new(),
-            time: DateTime<Utc>::now(),
+            time: Utc::now(),
         };
 
         let plan = planner.plan("achieve goal", &state);
@@ -1235,7 +1235,7 @@ mod tests {
             result_type: ResultType::Success,
             efficiency: 0.9,
             failure_reason: None,
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
         };
 
         let insights = reflector.reflect_on_performance(&outcome);

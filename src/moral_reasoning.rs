@@ -347,7 +347,7 @@ impl MoralReasoningEngine {
             reasoning: all_reasons,
             recommendations,
             concerns,
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
         };
 
         // Record in history

@@ -1084,7 +1084,7 @@ impl ZeroTrustEngine {
                 compliance_policies: vec![],
                 device_assessment: DeviceAssessment {
                     device_id: String::new(),
-                    assessed_at: DateTime<Utc>::now(),
+                    assessed_at: Utc::now(),
                     findings: vec![],
                     risk_score: 0.0,
                     recommendation: String::new(),
@@ -1145,7 +1145,7 @@ impl ZeroTrustEngine {
                 ioCs: vec![],
                 threat_intel: ThreatIntelligence {
                     feeds: vec![],
-                    last_updated: DateTime<Utc>::now(),
+                    last_updated: Utc::now(),
                     indicators: vec![],
                 },
             },
@@ -1184,9 +1184,9 @@ impl ZeroTrustEngine {
             session_id: generate_id(),
             identity_id: identity.identity_id.clone(),
             device_id: device_id.map(String::from),
-            started_at: DateTime<Utc>::now(),
-            last_activity: DateTime<Utc>::now(),
-            expires_at: DateTime<Utc>::now() + self.session_manager.config.max_session_duration,
+            started_at: Utc::now(),
+            last_activity: Utc::now(),
+            expires_at: Utc::now() + self.session_manager.config.max_session_duration,
             ip_address: String::new(),
             user_agent: String::new(),
             mfa_verified,
@@ -1243,7 +1243,7 @@ impl ZeroTrustEngine {
                 device_trust: session.context.device_type.clone(),
                 network_type: session.context.network_type.clone(),
                 location: session.context.location.clone(),
-                time: DateTime<Utc>::now(),
+                time: Utc::now(),
             },
         };
 
@@ -1294,7 +1294,7 @@ impl ZeroTrustEngine {
                 matched_policy: Some(policy.policy_id.clone()),
                 reasons: vec![format!("Matched policy: {}", policy.name)],
                 obligations: vec![],
-                timestamp: DateTime<Utc>::now(),
+                timestamp: Utc::now(),
                 ttl: Duration::from_secs(300),
             })
         } else {
@@ -1305,7 +1305,7 @@ impl ZeroTrustEngine {
                 matched_policy: None,
                 reasons: vec!["No matching policy found".to_string()],
                 obligations: vec![],
-                timestamp: DateTime<Utc>::now(),
+                timestamp: Utc::now(),
                 ttl: Duration::from_secs(300),
             })
         }
@@ -1354,7 +1354,7 @@ impl ZeroTrustEngine {
     fn log_audit_event(&mut self, event_type: AuditEventType, identity_id: &str, outcome: Outcome) {
         let event = AuditEvent {
             event_id: generate_id(),
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             event_type,
             actor: ActorInfo {
                 identity_id: identity_id.to_string(),
@@ -1511,7 +1511,7 @@ mod tests {
             },
             roles: vec!["admin".to_string()],
             groups: vec![],
-            created_at: DateTime<Utc>::now(),
+            created_at: Utc::now(),
             last_authenticated: None,
             is_active: true,
             risk_score: 0.1,

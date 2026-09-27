@@ -283,7 +283,7 @@ pub struct RehearsalItem {
     pub repetition_count: u32,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ConsolidationLevel {
     Labile,      // Easily modified
     Transitional, // Being consolidated
@@ -398,7 +398,7 @@ impl UnifiedMemory {
             source,
             associations: Vec::new(),
             timestamp: Utc::now(),
-            last_accessed: DateTime<Utc>::now(),
+            last_accessed: Utc::now(),
         };
 
         let item_id = item.id.clone();

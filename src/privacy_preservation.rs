@@ -449,7 +449,7 @@ impl PrivacyPreservationEngine {
             processing_type: request.processing_type,
             anonymized: request.anonymize,
             pseudonymized: request.pseudonymize,
-            processed_at: DateTime<Utc>::now(),
+            processed_at: Utc::now(),
             retention_until: Some(Utc::now() + Duration::from_secs(365 * 24 * 3600)),
         };
 

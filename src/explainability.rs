@@ -252,7 +252,7 @@ impl XAIEngine {
             confidence: decision.confidence,
             alternatives: vec![],
             counterfactuals: vec![],
-            generated_at: DateTime<Utc>::now(),
+            generated_at: Utc::now(),
         }
     }
 
@@ -278,7 +278,7 @@ impl XAIEngine {
             confidence: decision.confidence,
             alternatives: vec![],
             counterfactuals: vec![],
-            generated_at: DateTime<Utc>::now(),
+            generated_at: Utc::now(),
         }
     }
 
@@ -311,7 +311,7 @@ impl XAIEngine {
             confidence: decision.confidence,
             alternatives: vec![],
             counterfactuals: vec![],
-            generated_at: DateTime<Utc>::now(),
+            generated_at: Utc::now(),
         }
     }
 
@@ -336,7 +336,7 @@ impl XAIEngine {
             confidence: decision.confidence,
             alternatives: vec![],
             counterfactuals,
-            generated_at: DateTime<Utc>::now(),
+            generated_at: Utc::now(),
         }
     }
 
@@ -379,7 +379,7 @@ impl XAIEngine {
             confidence: decision.confidence,
             alternatives: vec![],
             counterfactuals: vec![],
-            generated_at: DateTime<Utc>::now(),
+            generated_at: Utc::now(),
         }
     }
 
@@ -413,7 +413,7 @@ impl XAIEngine {
             confidence: decision.confidence,
             alternatives: vec![],
             counterfactuals: vec![],
-            generated_at: DateTime<Utc>::now(),
+            generated_at: Utc::now(),
         }
     }
 
@@ -475,7 +475,7 @@ mod tests {
             ],
             outcome: "Positive".to_string(),
             confidence: 0.85,
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
         };
 
         let request = ExplanationRequest {
@@ -501,7 +501,7 @@ mod tests {
             features: vec![],
             outcome: "42".to_string(),
             confidence: 0.9,
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
         };
 
         let request = ExplanationRequest {

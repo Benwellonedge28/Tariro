@@ -2575,7 +2575,7 @@ impl PerceptualResult {
     pub fn new(data: SensoryData, features: Vec<f32>, confidence: f32) -> Self {
         Self {
             perception_id: Uuid::new(),
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             modality: match &data {
                 SensoryData::Visual(_) => Modality::Visual,
                 SensoryData::Auditory(_) => Modality::Auditory,
@@ -2615,7 +2615,7 @@ mod tests {
             spatial_features: vec![],
             semantic_features: vec![],
             temporal_features: vec![],
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             confidence: 0.9,
             objects: vec![],
             scene_context: SceneContext {
@@ -2654,7 +2654,7 @@ mod tests {
             spatial_features: vec![],
             semantic_features: vec![],
             temporal_features: vec![],
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             confidence: 0.9,
             objects: vec![],
             scene_context: SceneContext {
@@ -2713,7 +2713,7 @@ mod tests {
             spatial_features: vec![],
             semantic_features: vec![],
             temporal_features: vec![],
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             confidence: 0.9,
             objects: vec![],
             scene_context: SceneContext {
@@ -2757,7 +2757,7 @@ mod tests {
                 sentiment: None,
                 entities: vec![],
                 relations: vec![],
-                timestamp: DateTime<Utc>::now(),
+                timestamp: Utc::now(),
                 confidence: 0.9,
             }),
             vec![0.5],
@@ -2775,7 +2775,7 @@ mod tests {
                 semantic_content: None,
                 speaker_embedding: None,
                 emotional_tone: None,
-                timestamp: DateTime<Utc>::now(),
+                timestamp: Utc::now(),
                 source_direction: None,
                 confidence: 0.9,
             }),

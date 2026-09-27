@@ -456,7 +456,7 @@ impl ToolUseEngine {
                     error: Some(format!("Tool '{}' not found", request.tool_id)),
                     execution_time: Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default(),
                     retries: 0,
-                    timestamp: DateTime<Utc>::now(),
+                    timestamp: Utc::now(),
                 };
             }
         };
@@ -472,7 +472,7 @@ impl ToolUseEngine {
                     error: Some("Tool use not permitted".to_string()),
                     execution_time: Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default(),
                     retries: 0,
-                    timestamp: DateTime<Utc>::now(),
+                    timestamp: Utc::now(),
                 };
             }
         }
@@ -488,7 +488,7 @@ impl ToolUseEngine {
                 error: Some(error),
                 execution_time: Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default(),
                 retries: 0,
-                timestamp: DateTime<Utc>::now(),
+                timestamp: Utc::now(),
             };
         }
 
@@ -540,7 +540,7 @@ impl ToolUseEngine {
                     error: None,
                     execution_time: Duration::from_millis(100),
                     retries: 0,
-                    timestamp: DateTime<Utc>::now(),
+                    timestamp: Utc::now(),
                 }
             }
             ToolType::Calculator => {
@@ -559,7 +559,7 @@ impl ToolUseEngine {
                     error: if result.is_none() { Some("Invalid expression".to_string()) } else { None },
                     execution_time: Duration::from_millis(10),
                     retries: 0,
-                    timestamp: DateTime<Utc>::now(),
+                    timestamp: Utc::now(),
                 }
             }
             _ => {
@@ -571,7 +571,7 @@ impl ToolUseEngine {
                     error: None,
                     execution_time: Duration::from_millis(50),
                     retries: 0,
-                    timestamp: DateTime<Utc>::now(),
+                    timestamp: Utc::now(),
                 }
             }
         }

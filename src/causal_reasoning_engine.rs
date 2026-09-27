@@ -18,7 +18,7 @@ pub struct CausalEdge {
     pub delay: u32, // Time steps for effect
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CausalMechanism {
     Direct,
     Indirect,

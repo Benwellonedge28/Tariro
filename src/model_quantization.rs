@@ -516,7 +516,7 @@ impl QuantizationEngine {
             model_id: generate_id(),
             original_precision: QuantPrecision::FP16,
             quantized_precision: if config.quantization_bits == 4 { QuantPrecision::INT4 } else { QuantPrecision::INT8 },
-            quantization_date: DateTime<Utc>::now(),
+            quantization_date: Utc::now(),
             calibration_data: CalibrationData {
                 dataset_name: "wikitext".to_string(),
                 num_samples: 512,
@@ -564,7 +564,7 @@ impl QuantizationEngine {
             model_id: generate_id(),
             original_precision: QuantPrecision::FP16,
             quantized_precision: QuantPrecision::INT4,
-            quantization_date: DateTime<Utc>::now(),
+            quantization_date: Utc::now(),
             calibration_data: CalibrationData {
                 dataset_name: "calibration".to_string(),
                 num_samples: 1024,

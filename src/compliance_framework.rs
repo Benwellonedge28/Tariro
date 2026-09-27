@@ -891,7 +891,7 @@ impl ComplianceEngine {
                     cert_id: "soc2_cert_001".to_string(),
                     cert_type: CertificationType::SOC2TypeII,
                     issued_by: "AICPA".to_string(),
-                    issued_date: DateTime<Utc>::now(),
+                    issued_date: Utc::now(),
                     expiry_date: Some(Utc::now()),
                     status: CertificationStatus::Active,
                     scope: "Security and Availability".to_string(),
@@ -978,7 +978,7 @@ impl ComplianceEngine {
             assessment_type,
             scope: framework.audit_schedule.scope.clone(),
             status: AssessmentStatus::Planned,
-            start_date: DateTime<Utc>::now(),
+            start_date: Utc::now(),
             end_date: None,
             assessor: String::new(),
             findings: Vec::new(),
@@ -1010,7 +1010,7 @@ impl ComplianceEngine {
             evidence_id: evidence.evidence_id,
             action: CustodyAction::Created,
             performed_by: "system".to_string(),
-            performed_at: DateTime<Utc>::now(),
+            performed_at: Utc::now(),
             notes: String::new(),
         });
     }
@@ -1069,7 +1069,7 @@ impl ComplianceEngine {
     fn log_event(&mut self, event_type: ComplianceEventType, item_id: &str) {
         self.audit_trail.push_back(AuditEntry {
             entry_id: generate_id(),
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             event_type,
             user: "system".to_string(),
             description: format!("{:?} on {}", event_type, item_id),
@@ -1200,7 +1200,7 @@ mod tests {
             title: "Test Evidence".to_string(),
             description: "Test description".to_string(),
             location: "/evidence/test.pdf".to_string(),
-            collected_at: DateTime<Utc>::now(),
+            collected_at: Utc::now(),
             collected_by: "auditor".to_string(),
             integrity_hash: "abc123".to_string(),
             metadata: HashMap::new(),

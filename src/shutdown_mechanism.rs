@@ -214,7 +214,7 @@ impl ShutdownManager {
             shutdown_id: shutdown_id.clone(),
             shutdown_type,
             reason,
-            initiated_at: DateTime<Utc>::now(),
+            initiated_at: Utc::now(),
             estimated_completion: None,
             phases_completed: 0,
             total_phases: self.phases.len(),
@@ -239,7 +239,7 @@ impl ShutdownManager {
                 phases_completed: 0,
                 total_phases: 0,
                 error_message: Some("No shutdown initiated".to_string()),
-                completed_at: DateTime<Utc>::now(),
+                completed_at: Utc::now(),
             };
         }
 
@@ -355,7 +355,7 @@ impl ShutdownManager {
         let resource = Resource {
             resource_id: resource_id.clone(),
             resource_type,
-            allocated_at: DateTime<Utc>::now(),
+            allocated_at: Utc::now(),
             size_bytes,
         };
 
@@ -381,7 +381,7 @@ impl ShutdownManager {
             shutdown_id: generate_id(),
             shutdown_type: ShutdownType::Emergency,
             reason: ShutdownReason::SafetyTrigger,
-            initiated_at: DateTime<Utc>::now(),
+            initiated_at: Utc::now(),
             completed_at: Some(Utc::now()),
             success: true,
             phases_completed: 0,

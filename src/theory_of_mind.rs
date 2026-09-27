@@ -439,7 +439,7 @@ impl TheoryOfMindEngine {
                 behavioral_patterns: vec![],
             },
             mental_model_version: 1,
-            last_updated: DateTime<Utc>::now(),
+            last_updated: Utc::now(),
         };
 
         self.agents.insert(agent_id.to_string(), agent);
@@ -807,7 +807,7 @@ mod tests {
             event_type: "cooperation".to_string(),
             description: "Worked together on project".to_string(),
             impact_on_relationship: 0.2,
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
         };
 
         tom.update_relationship("agent1", "agent2", event);

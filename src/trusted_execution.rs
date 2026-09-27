@@ -585,7 +585,7 @@ impl TEEEngine {
             enclave_type: self.tee_type,
             state: EnclaveState::Initialized,
             memory_size_mb: memory_mb,
-            created_at: DateTime<Utc>::now(),
+            created_at: Utc::now(),
             measurements: EnclaveMeasurement {
                 mr_enclave: generate_measurement(),
                 mr_signer: generate_measurement(),
@@ -624,10 +624,10 @@ impl TEEEngine {
             enclave_id: enclave_id.to_string(),
             quote,
             signature: vec![],
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             is_verified: false,
             verification_result: None,
-            expires_at: DateTime<Utc>::now() + Duration::from_secs(86400),
+            expires_at: Utc::now() + Duration::from_secs(86400),
         };
 
         Ok(evidence)
@@ -711,7 +711,7 @@ impl TEEEngine {
                 },
                 allowed_signers: vec![],
             },
-            created_at: DateTime<Utc>::now(),
+            created_at: Utc::now(),
             key_id: None,
         };
 
@@ -766,13 +766,13 @@ impl TEEEngine {
             key_type,
             key_size_bits: size_bits,
             sealed_key: vec![],
-            creation_date: DateTime<Utc>::now(),
+            creation_date: Utc::now(),
             key_usage: vec![
                 KeyUsage { usage: UsageType::Encrypt, allowed: true },
                 KeyUsage { usage: UsageType::Decrypt, allowed: true },
             ],
             key_lifetime: KeyLifetime {
-                valid_from: DateTime<Utc>::now(),
+                valid_from: Utc::now(),
                 valid_until: None,
                 expires_after_use: false,
                 max_uses: None,

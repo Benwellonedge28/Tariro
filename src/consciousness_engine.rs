@@ -362,7 +362,7 @@ impl ConsciousnessEngine {
             content_id: generate_id(),
             content: content.to_string(),
             format,
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
         };
 
         self.access_consciousness.reportable_content.push(reportable);
@@ -381,7 +381,7 @@ impl ConsciousnessEngine {
 
         let state = PhenomenalState {
             state_id: generate_id(),
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             qualia_type,
             intensity,
             valence,
@@ -424,7 +424,7 @@ impl ConsciousnessEngine {
 
         let state = ReflectiveState {
             state_id: generate_id(),
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             reflection_type,
             content: content.to_string(),
             depth: self.assess_depth(content),
@@ -507,7 +507,7 @@ impl ConsciousnessEngine {
             let shift = AttentionShift {
                 from: old_focus,
                 to: new_focus.to_string(),
-                timestamp: DateTime<Utc>::now(),
+                timestamp: Utc::now(),
                 voluntary: true,
                 trigger: "task_demand".to_string(),
             };

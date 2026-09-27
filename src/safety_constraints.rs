@@ -408,7 +408,7 @@ impl SafetyConstraints {
                 EnforcementLevel::Warn => ActionTaken::Warned,
                 _ => ActionTaken::Logged,
             },
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
             resolved_at: None,
         };
 

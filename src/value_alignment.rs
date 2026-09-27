@@ -365,7 +365,7 @@ impl AlignmentEngine {
             considerations,
             recommendations,
             confidence: 0.85,
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
         };
 
         // Record in history
@@ -491,7 +491,7 @@ impl AlignmentEngine {
                 magnitude: drift.abs(),
                 recent_avg,
                 old_avg,
-                detected_at: DateTime<Utc>::now(),
+                detected_at: Utc::now(),
             })
         } else {
             None
@@ -628,7 +628,7 @@ mod tests {
             strength: 0.9,
             context: None,
             source: PreferenceSource::Explicit,
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
         };
 
         engine.update_preferences(preference);

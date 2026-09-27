@@ -379,7 +379,7 @@ impl FormalVerificationEngine {
                 memory_used_mb: 10.0,
                 method_used: request.method,
             },
-            timestamp: DateTime<Utc>::now(),
+            timestamp: Utc::now(),
         };
 
         // Record in history
