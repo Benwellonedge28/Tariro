@@ -355,11 +355,11 @@ impl MCTSTree {
         for action in actions_to_expand {
             let child_state = environment.apply_action(&node.state, &action)?;
 
-            let child_node = MCTSNode::new(child_state, Some(node_id.clone()));
+            let child_node = MCTSNode::new(child_state, Some(node_id.to_string()));
 
             let child_ref = MCTSNodeRef {
                 node_id: child_node.node_id.clone(),
-                move_id: action,
+                move_id: action.to_string(),
             };
 
             // Update parent

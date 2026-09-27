@@ -750,8 +750,9 @@ impl CausalLearner {
         let mut paths = Vec::new();
         let mut visited = HashSet::new();
         visited.insert(source.to_string());
+        let mut current_path = vec![source.to_string()];
 
-        self.dfs_backdoor(graph, source, target, &mut visited, &mut paths, vec![source.to_string()]);
+        self.dfs_backdoor(graph, source, target, &mut visited, &mut paths, &mut current_path);
 
         paths
     }
@@ -778,7 +779,8 @@ impl CausalLearner {
 
     fn find_paths(&self, graph: &CausalGraph, source: &str, target: &str) -> Vec<Vec<String>> {
         let mut paths = Vec::new();
-        self.dfs_paths(graph, source, target, &mut HashSet::new(), &mut paths, vec![source.to_string()]);
+        let mut current_path = vec![source.to_string()];
+        self.dfs_paths(graph, source, target, &mut HashSet::new(), &mut paths, &mut current_path);
         paths
     }
 
