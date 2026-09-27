@@ -59,7 +59,6 @@ pub enum ShutdownStatus {
 }
 
 /// Shutdown phase
-#[derive(Debug, Clone)]
 pub struct ShutdownPhase {
     pub phase_id: String,
     pub name: String,
@@ -67,6 +66,18 @@ pub struct ShutdownPhase {
     pub timeout: Duration,
     pub critical: bool,
     pub handler: Box<dyn Fn() -> PhaseResult + Send + Sync>,
+}
+
+impl std::fmt::Debug for ShutdownPhase {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ShutdownPhase")
+            .field("phase_id", &self.phase_id)
+            .field("name", &self.name)
+            .field("description", &self.description)
+            .field("timeout", &self.timeout)
+            .field("critical", &self.critical)
+            .finish()
+    }
 }
 
 // ============================================================================
@@ -128,12 +139,21 @@ pub struct ShutdownRecord {
     pub error_message: Option<String>,
 }
 
-#[derive(Debug, Clone)]
 pub struct CleanupHandler {
     pub handler_id: String,
     pub name: String,
     pub priority: usize,
     pub handler: Box<dyn Fn() -> bool + Send + Sync>,
+}
+
+impl std::fmt::Debug for CleanupHandler {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("CleanupHandler")
+            .field("handler_id", &self.handler_id)
+            .field("name", &self.name)
+            .field("priority", &self.priority)
+            .finish()
+    }
 }
 
 #[derive(Debug, Clone)]

@@ -343,7 +343,7 @@ impl MCTSTree {
         // Select actions to expand based on policy
         let actions_to_expand = match self.config.expansion_policy {
             ExpansionPolicy::AllChildren => actions,
-            ExpansionPolicy::SingleChild => vec![actions.choose()],
+            ExpansionPolicy::SingleChild => actions.first().map(|a| vec![a.clone()]).unwrap_or_default(),
             ExpansionPolicy::Progressive => {
                 let node_visits = node.visits.max(1);
                 let depth = (node_visits as f32).ln().floor() as usize;

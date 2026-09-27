@@ -539,8 +539,8 @@ impl CounterfactualEngine {
             edges.iter()
                 .filter(|e| e.target == effect)
                 .map(|e| e.strength)
-                .max()
-                .unwrap_or(0.5)
+                .fold(0.0f32, |max, val| max.max(val))
+                .max(0.5)
         } else {
             0.5
         }
@@ -589,7 +589,7 @@ impl CounterfactualEngine {
 
     /// Get counterfactual history
     pub fn get_history(&self) -> &[CounterfactualReasoning] {
-        &self.counterfactualss
+        &self.counterfactuals
     }
 
     /// Get statistics

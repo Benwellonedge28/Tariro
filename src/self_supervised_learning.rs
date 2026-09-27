@@ -325,19 +325,21 @@ impl ContrastiveLearner {
         let sim_matrix = self.cosine_similarity_matrix(&z, &z);
 
         // Mask out self-similarity
-        let mut logits = sim_matrix / temperature;
+        let logits: Vec<Vec<f32>> = sim_matrix.into_iter().map(|row| {
+            row.into_iter().map(|v| v / temperature).collect()
+        }).collect();
 
         // Create positive mask
         let positives = self.create_positive_mask(batch_size);
 
         // Compute loss
         let exp_logits = self.exp_normalize(&logits);
-        let positive_loss = (logits * positives).sum() / (batch_size as f32 * 2.0);
+        let positive_loss = (logits.iter().flatten().zip(positives.iter().flatten()).map(|(l, p)| l * p).sum::<f32>()) / (batch_size as f32 * 2.0);
 
         // Numerical stability
         let max_log = logits.iter().flatten().fold(f32::MIN, |a, &b| a.max(b));
-        let stable_exp = exp_logits.iter().map(|row| row.iter().map(|x| (x - max_log).exp())).collect::<Vec<_>>();
-        let sum_exp = stable_exp.iter().map(|row| row.iter().sum::<f32>()).collect::<Vec<_>>();
+        let stable_exp: Vec<Vec<f32>> = exp_logits.iter().map(|row| row.iter().map(|x| (x - max_log).exp())).collect();
+        let sum_exp: Vec<f32> = stable_exp.iter().map(|row| row.iter().sum::<f32>()).collect();
 
         // Cross entropy
         let loss = positives.iter().enumerate()
@@ -585,14 +587,17 @@ impl MaskedAutoencoder {
     }
 
     /// Generate random mask
-    pub fn generate_mask(&self, seq_len: usize, device: &str) -> Vec<bool> {
+    pub fn generate_mask(&self, seq_len: usize, _device: &str) -> Vec<bool> {
         let mask_len = (seq_len as f32 * self.mask_ratio) as usize;
         let mut mask = vec![false; seq_len];
 
-        // Random mask positions
-        let mut rng = rand::thread_rng();
-        let positions: Vec<usize> = (0..seq_len).collect();
-        let masked_positions: Vec<usize> = positions.choose_multiple(&mut rng, mask_len).cloned().collect();
+        // Random mask positions using simple shuffle
+        let mut positions: Vec<usize> = (0..seq_len).collect();
+        for i in (0..seq_len).rev() {
+            let j = if i > 0 { rand::random::<usize>() % (i + 1) } else { 0 };
+            positions.swap(i, j);
+        }
+        let masked_positions: Vec<usize> = positions.into_iter().take(mask_len).collect();
 
         for pos in masked_positions {
             mask[pos] = true;

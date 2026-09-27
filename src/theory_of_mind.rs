@@ -527,7 +527,7 @@ impl TheoryOfMindEngine {
         let predicted_behavior = self.predict_behavior(&agent.personality);
         inferred_state.intentions.push(predicted_behavior);
 
-        confidence = confidence.min(0.95);
+        confidence = confidence.max(0.0).min(0.95);
 
         MentalStateInference {
             inference_id: generate_id(),

@@ -1159,6 +1159,11 @@ impl ZeroTrustEngine {
         let identity = self.identity_provider.identity_store.get(username)
             .ok_or(AuthError::UserNotFound)?;
 
+        // Extract values needed before mutable borrow
+        let identity_id = identity.identity_id.clone();
+        let risk_score = identity.risk_score;
+        let risk_score_for_session = self.calculate_risk_score(&identity, device_id);
+
         // Verify credentials
         let credential = identity.credentials.iter()
             .find(|c| c.credential_type == CredentialType::Password && c.is_primary)
@@ -1167,13 +1172,13 @@ impl ZeroTrustEngine {
         // Hash and compare password
         let hashed_input = hash_password(password, &credential.salt);
         if hashed_input != credential.hashed_value {
-            self.log_audit_event(AuditEventType::Authentication, &identity.identity_id, Outcome::Failure);
+            self.log_audit_event(AuditEventType::Authentication, &identity_id, Outcome::Failure);
             return Err(AuthError::InvalidCredentials);
         }
 
         // Check MFA if required
         let mfa_verified = if self.identity_provider.mfa_config.require_mfa {
-            self.verify_mfa(identity)?;
+            self.verify_mfa(&identity)?;
             true
         } else {
             true
@@ -1182,7 +1187,7 @@ impl ZeroTrustEngine {
         // Create session
         let session = Session {
             session_id: generate_id(),
-            identity_id: identity.identity_id.clone(),
+            identity_id: identity_id.clone(),
             device_id: device_id.map(String::from),
             started_at: Utc::now(),
             last_activity: Utc::now(),
@@ -1194,7 +1199,7 @@ impl ZeroTrustEngine {
                 location: None,
                 device_type: String::new(),
                 network_type: String::new(),
-                risk_score: self.calculate_risk_score(identity, device_id),
+                risk_score: risk_score_for_session,
             },
         };
 
@@ -1202,12 +1207,12 @@ impl ZeroTrustEngine {
         self.identity_provider.session_store.insert(session_id.clone(), session);
         self.session_manager.active_sessions += 1;
 
-        self.log_audit_event(AuditEventType::Authentication, &identity.identity_id, Outcome::Success);
+        self.log_audit_event(AuditEventType::Authentication, &identity_id, Outcome::Success);
 
         Ok(AuthResult {
             session_id,
             mfa_required: !mfa_verified,
-            risk_score: identity.risk_score,
+            risk_score,
             redirect_url: None,
         })
     }
@@ -1228,6 +1233,12 @@ impl ZeroTrustEngine {
             return Err(AuthError::SessionExpired);
         }
 
+        // Extract values before moving
+        let session_identity_id = session.identity_id.clone();
+        let session_device_type = session.context.device_type.clone();
+        let session_network_type = session.context.network_type.clone();
+        let session_location = session.context.location.clone();
+
         // Update last activity
         let mut session = session.clone();
         session.last_activity = Utc::now();
@@ -1236,13 +1247,13 @@ impl ZeroTrustEngine {
         // Build authorization request
         let authz_request = AuthorizationRequest {
             session_id: session_id.to_string(),
-            identity_id: session.identity_id.clone(),
+            identity_id: session_identity_id,
             resource: resource.to_string(),
             action: action.to_string(),
             context: AuthorizationContext {
-                device_trust: session.context.device_type.clone(),
-                network_type: session.context.network_type.clone(),
-                location: session.context.location.clone(),
+                device_trust: session_device_type,
+                network_type: session_network_type,
+                location: session_location,
                 time: Utc::now(),
             },
         };

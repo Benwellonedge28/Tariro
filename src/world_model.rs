@@ -676,7 +676,7 @@ impl PlanningHorizon {
     }
 
     fn assess_risk(&self, path: &[WorldState]) -> RiskAssessment {
-        let mut max_deviation = 0.0;
+        let mut max_deviation: f64 = 0.0;
         let mut volatility = 0.0;
 
         for i in 1..path.len() {

@@ -64,6 +64,38 @@ impl QuantumSecurityManager {
     pub fn decrypt(&self, data: &[u8], key: &[u8]) -> Result<Vec<u8>, SecurityError> {
         Ok(data.to_vec())
     }
+
+    /// Protect data using quantum-resistant encryption
+    pub async fn protect_data(&self, data: &[u8], _context: &str) -> Result<Vec<u8>, SecurityError> {
+        // In production, this would use Kyber for key encapsulation
+        // For now, return data as-is (simulated protection)
+        Ok(data.to_vec())
+    }
+
+    /// Establish a quantum-safe communication channel
+    pub async fn establish_quantum_safe_channel(&self, _target: &str) -> Result<QuantumSafeChannel, SecurityError> {
+        // In production, this would establish a PQC-secured channel
+        // For now, return a mock channel
+        Ok(QuantumSafeChannel {
+            peer: _target.to_string(),
+            established: Utc::now(),
+        })
+    }
+}
+
+/// Quantum-safe communication channel
+#[derive(Debug, Clone)]
+pub struct QuantumSafeChannel {
+    peer: String,
+    established: DateTime<Utc>,
+}
+
+impl QuantumSafeChannel {
+    /// Send data over the quantum-safe channel
+    pub async fn send_data(&self, _data: &[u8], _aad: &[u8]) -> Result<Vec<u8>, SecurityError> {
+        // Simulated response
+        Ok(b"acknowledgment".to_vec())
+    }
 }
 
 impl Default for QuantumSecurityManager {

@@ -320,6 +320,14 @@ struct PlanningState {
     decomposition: Vec<DecompositionNode>,
 }
 
+impl PlanningState {
+    fn apply_action(&mut self, action: PlanAction) {
+        self.plan.push(action.clone());
+        self.total_cost += action.cost;
+        self.current_time += action.duration;
+    }
+}
+
 impl HTNPlanner {
     pub fn new() -> Self {
         Self {

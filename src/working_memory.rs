@@ -695,8 +695,8 @@ impl WorkingMemoryStore {
         let mut lowest_idx = 0;
         let mut lowest_activation = f32::MAX;
 
-        for (idx, item) in self.items.iter().enumerate() {
-            let effective_activation = item.activation * item.attention_weight;
+        for (idx, mem_item) in self.items.iter().enumerate() {
+            let effective_activation = mem_item.activation * mem_item.attention_weight;
             if effective_activation < lowest_activation {
                 lowest_activation = effective_activation;
                 lowest_idx = idx;

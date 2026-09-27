@@ -500,8 +500,11 @@ impl BehaviorSelector {
 
         // Either exploit (best) or explore (random)
         if rand_simple() < self.exploration_rate {
-            if let Some((name, _)) = candidates.iter().choose(&mut rand::thread_rng()) {
-                return self.instantiate_behavior(name, focus_items, goal);
+            if !candidates.is_empty() {
+                let idx = (rand_simple() * candidates.len() as f64) as usize % candidates.len();
+                if let Some((name, _)) = candidates.get(idx) {
+                    return self.instantiate_behavior(name, focus_items, goal);
+                }
             }
         }
 
@@ -537,7 +540,7 @@ impl BehaviorSelector {
 
         // Focus alignment
         let focus_overlap = focus_items.iter()
-            .filter(|item| template.preconditions.iter().any(|p| p.contains(item)))
+            .filter(|item| template.preconditions.iter().any(|p| p.contains(&**item)))
             .count() as f64;
         score += focus_overlap / (template.preconditions.len().max(1) as f64) * 0.3;
 

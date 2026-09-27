@@ -44,7 +44,7 @@ pub struct Attribute {
     pub importance: f32,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum AttributeValue {
     Numeric(f32),
     Categorical(String),

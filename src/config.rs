@@ -79,7 +79,7 @@ impl AGIConfig {
         let toml_string = toml::to_string_pretty(self)
             .map_err(|e| format!("Failed to serialize config: {}", e))?;
         fs::write(path, toml_string)
-            .map_err(|e| format!("Failed to write config file: {}", e))?
+            .map_err(|e| format!("Failed to write config file: {}", e))
     }
 
     /// Retrieves a setting from `agi_settings`.

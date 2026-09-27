@@ -11,7 +11,6 @@ use std::time::Duration;
 // ============================================================================
 
 /// Sovereign inference engine - no external dependencies
-#[derive(Debug)]
 pub struct LocalInferenceEngine {
     pub engine_id: String,
     pub model_registry: ModelRegistry,
@@ -20,6 +19,20 @@ pub struct LocalInferenceEngine {
     pub models: HashMap<String, ModelWeights>,
     pub config: InferenceConfig,
     pub hardware: HardwareBackend,
+}
+
+impl std::fmt::Debug for LocalInferenceEngine {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("LocalInferenceEngine")
+            .field("engine_id", &self.engine_id)
+            .field("model_registry", &self.model_registry)
+            .field("inference_sessions", &self.inference_sessions)
+            .field("tokenizers", &self.tokenizers.keys().collect::<Vec<_>>())
+            .field("models", &self.models.keys().collect::<Vec<_>>())
+            .field("config", &self.config)
+            .field("hardware", &self.hardware)
+            .finish()
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
