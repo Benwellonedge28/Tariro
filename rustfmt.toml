@@ -1,0 +1,51 @@
+# Rustfmt configuration for Tariro AGI
+# https://rust-lang.github.io/rustfmt/
+
+# Formatting options
+edition = "2021"
+max_width = 100
+tab_spaces = 4
+hard_tabs = false
+newline_style = "Auto"
+
+# Structure formatting
+struct_lit_width = 60
+struct_variant_width = 60
+struct_field_align_threshold = 20
+
+# Imports
+imports_granularity = "Crate"
+group_imports = "StdExternalCrate"
+use_try_shorthand = true
+use_field_init_shorthand = true
+
+# Control flow
+force_explicit_abi = true
+newline_suggestions = true
+
+# Formatting options for specific constructs
+array_width = 60
+chain_width = 60
+fn_args_width = 60
+closure_fn_return_depth = 1
+closure_style = "Rfc"
+fn_return_indent = "WithArgs"
+
+# Type-related
+type_alias_width = 50
+
+# Comment settings
+wrap_comments = true
+comment_width = 80
+
+# Module-specific settings
+format_code_in_doc_comments = true
+normalize_comments = true
+normalize_doc_attributes = true
+
+# Other
+emit_version = false
+report_todo = "Unnumbered"
+report_fixme = "Unnumbered"
+merge_derives = true
+use_small_heuristics = "Default"

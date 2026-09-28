@@ -1,0 +1,33 @@
+# Clippy configuration for Tariro AGI
+# https://rust-lang.github.io/rust-clippy/
+
+# Cognitive complexity - allow reasonable complexity
+cognitive-complexity-threshold = 30
+
+# Too many arguments - allow up to 8 for complex function signatures
+too-many-arguments-threshold = 8
+
+# Type complexity - allow reasonable complexity
+type-complexity-threshold = 800
+
+# Allowed by default lints
+single-char-binding-names-threshold = 5
+too-large-for-stack = 200
+enum-variant-name-threshold = 3
+
+# Disallowed lints (warnings become errors)
+disallowed-lints = [
+    "clippy::unwrap_used",
+    "clippy::expect_used",
+    "clippy::panic",
+    "clippy::unreachable",
+    "clippy::todo",
+]
+
+# Allow these lints in specific contexts
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
+allow-panic-in-tests = true
+
+# Deprecated lints - suppress instead of fix
+suppress-multiple-crate-versions = true
