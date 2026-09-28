@@ -46,6 +46,11 @@ pub mod quantum_security;
 pub mod tumc_core;
 
 // ============================================================================
+// Knowledge-Centric AGI Modules (Symbolic AI - Not Token Prediction)
+// ============================================================================
+pub mod knowledge;
+
+// ============================================================================
 // AGI Engine Modules
 // ============================================================================
 
@@ -176,6 +181,60 @@ pub const POCO_REAF: &str = "Program-and-Compile-Once-Run-Everywhere-Anywhere-Fo
 /// The Absolute Smallest Quantum of Temporality: Mukandara Time (mts)
 pub type MukandaraTime = u128;
 
+// ============================================================================
+// Error Types
+// ============================================================================
+
+/// Main error type for Tariro AGI operations
+#[derive(Debug, Clone)]
+pub enum TariroError {
+    /// Configuration error
+    Configuration(String),
+    /// Runtime error
+    Runtime(String),
+    /// Compilation error
+    Compilation(String),
+    /// Serialization error
+    Serialization(String),
+    /// Network error
+    Network(String),
+    /// Security error
+    Security(String),
+    /// Unknown error
+    Unknown(String),
+}
+
+impl std::fmt::Display for TariroError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TariroError::Configuration(s) => write!(f, "Configuration error: {}", s),
+            TariroError::Runtime(s) => write!(f, "Runtime error: {}", s),
+            TariroError::Compilation(s) => write!(f, "Compilation error: {}", s),
+            TariroError::Serialization(s) => write!(f, "Serialization error: {}", s),
+            TariroError::Network(s) => write!(f, "Network error: {}", s),
+            TariroError::Security(s) => write!(f, "Security error: {}", s),
+            TariroError::Unknown(s) => write!(f, "Unknown error: {}", s),
+        }
+    }
+}
+
+impl std::error::Error for TariroError {}
+
+// ============================================================================
+// Utility Functions
+// ============================================================================
+
+/// Generate a unique ID for entities
+pub fn generate_id() -> String {
+    use uuid::Uuid;
+    Uuid::new_v4().to_string()
+}
+
+/// Generate a UUID
+pub fn generate_uuid() -> String {
+    generate_id()
+}
+
 /// Infinitism represents values that can be finite, negative infinity, or positive infinity
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Infinitism {
@@ -293,3 +352,4 @@ pub use crate::tumc_core::TariroUniversalMetaCompiler;
 pub use crate::fco::MukandaraState;
 pub use crate::growth::GrowthDynamics;
 pub use crate::atve::TestResult;
+pub use crate::config::AGIConfig;
