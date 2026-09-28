@@ -124,9 +124,11 @@ impl CausalReasoningEngine {
     /// Add a causal edge to the graph
     pub fn add_causal_edge(&mut self, edge: CausalEdge) {
         // Check for cycles
+        let from = edge.from.clone();
+        let to = edge.to.clone();
         if !self.would_create_cycle(&edge) {
             self.causal_graph.edges.push(edge);
-            println!("[CausalReasoning] Added causal edge: {} -> {}", edge.from, edge.to);
+            println!("[CausalReasoning] Added causal edge: {} -> {}", from, to);
         } else {
             println!("[CausalReasoning] WARNING: Cycle detected, edge not added");
         }

@@ -686,7 +686,7 @@ pub struct SurfaceMapping {
 }
 
 /// Transformation types
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Transformation {
     AttributeChange(String, AttributeValue),
     RelationInversion,

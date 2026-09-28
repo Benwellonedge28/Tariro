@@ -112,8 +112,9 @@ impl PhysicsEngine {
 
     /// Add a physics body to the simulation
     pub fn add_body(&mut self, body: PhysicsBody) {
-        self.entities.insert(body.entity_id.clone(), body);
-        println!("[Physics] Added body: {}", body.entity_id);
+        let entity_id = body.entity_id.clone();
+        self.entities.insert(entity_id.clone(), body);
+        println!("[Physics] Added body: {}", entity_id);
     }
 
     /// Simulate physics for one timestep
@@ -306,8 +307,9 @@ impl SocialDynamicsEngine {
 
     /// Add a social agent
     pub fn add_agent(&mut self, agent: SocialAgent) {
-        self.agents.insert(agent.id.clone(), agent);
-        println!("[Social] Added agent: {}", agent.id);
+        let agent_id = agent.id.clone();
+        self.agents.insert(agent_id.clone(), agent);
+        println!("[Social] Added agent: {}", agent_id);
     }
 
     /// Simulate an interaction between agents
@@ -458,7 +460,7 @@ impl SocialDynamicsEngine {
 
         OpinionResult {
             topic: topic.to_string(),
-            final_opinions: opinions,
+            final_opinions: opinions.clone(),
             convergence: self.compute_opinion_convergence(&opinions),
         }
     }
@@ -635,7 +637,7 @@ impl PlanningHorizon {
 
         FutureScenario {
             action: action.to_string(),
-            path,
+            path: path.clone(),
             final_state: current_state,
             expected_utility: utility,
             risk_assessment: self.assess_risk(&path),
