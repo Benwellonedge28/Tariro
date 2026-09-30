@@ -9,6 +9,9 @@ pub mod world_model;
 pub mod motivation;
 pub mod cognition_engine;
 
+#[cfg(test)]
+mod tests;
+
 pub use consciousness::Consciousness;
 pub use working_memory::WorkingMemory;
 pub use world_model::WorldModel;

@@ -11,6 +11,9 @@ pub mod commonsense;
 pub mod formal;
 pub mod mind;
 
+#[cfg(test)]
+mod tests;
+
 pub use knowledge_graph::KnowledgeGraph;
 pub use reasoning::ReasoningEngine;
 pub use logic::LogicEngine;
