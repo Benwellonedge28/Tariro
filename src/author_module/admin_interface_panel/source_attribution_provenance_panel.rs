@@ -1,5 +1,6 @@
 // src/author_module/admin_interface_panel/source_attribution_provenance_panel.rs
 
+use crate::prelude::*;
 pub struct SourceAttributionProvenancePanel;
 
 impl SourceAttributionProvenancePanel {

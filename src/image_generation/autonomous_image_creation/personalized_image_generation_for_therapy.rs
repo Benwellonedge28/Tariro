@@ -1,5 +1,6 @@
 // src/image_generation/autonomous_image_creation/personalized_image_generation_for_therapy.rs
 
+use crate::prelude::*;
 pub struct TherapyImageGenerator;
 
 impl TherapyImageGenerator {

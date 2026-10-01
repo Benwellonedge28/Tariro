@@ -7,6 +7,7 @@
 /// parallel execution of meta-learning algorithms and rapid adaptation of learned models; RAG: meta-learning
 /// algorithms, few-shot learning, domain adaptation, knowledge distillation, lifelong learning).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

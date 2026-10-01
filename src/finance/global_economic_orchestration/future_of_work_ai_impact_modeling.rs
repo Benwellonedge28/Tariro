@@ -1,5 +1,6 @@
 // src/finance/global_economic_orchestration/future_of_work_ai_impact_modeling.rs
 
+use crate::prelude::*;
 pub struct FutureOfWorkModeler {
     // Analyzes and predicts the economic impact of AI and automation on labor markets.
 }

@@ -5,6 +5,7 @@
 //! environment for rigorous testing and iterative optimization of new features
 //! and architectural changes without impacting the live system.
 
+use crate::prelude::*;
 pub mod virtualization_engine;
 pub mod simulation_engine;
 pub mod automated_test_suite;

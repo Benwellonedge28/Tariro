@@ -1,5 +1,6 @@
 // src/admin_voice_interface/auditing_explainability/impact_assessment_reports_voice.rs
 
+use crate::prelude::*;
 pub struct ImpactAssessmentReporter;
 
 impl ImpactAssessmentReporter {

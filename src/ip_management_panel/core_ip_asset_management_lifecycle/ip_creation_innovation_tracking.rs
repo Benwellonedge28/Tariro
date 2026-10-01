@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/ip_creation_innovation_tracking.rs
 
+use crate::prelude::*;
 pub struct IpCreationInnovationTracking;
 
 impl IpCreationInnovationTracking {

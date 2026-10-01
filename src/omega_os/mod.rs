@@ -11,5 +11,6 @@
 //! - High-level OMEGA OS configuration parameters managed by Tariro.
 //! - Status monitoring and control functionalities for deployed OMEGA OS instances.
 
+use crate::prelude::*;
 pub mod os_interface;
 pub mod config_manager;

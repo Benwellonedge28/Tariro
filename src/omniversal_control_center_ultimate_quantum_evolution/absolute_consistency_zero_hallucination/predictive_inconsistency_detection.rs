@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/absolute_consistency_zero_hallucination/predictive_inconsistency_detection.rs
 
+use crate::prelude::*;
 pub struct InconsistencyDetector;
 
 impl InconsistencyDetector {

@@ -1,5 +1,6 @@
 // src/tariro_chatbot/advanced_chatbot_functionalities/proactive_suggestion_engine.rs
 
+use crate::prelude::*;
 pub struct ProactiveSuggestionEngine;
 
 impl ProactiveSuggestionEngine {

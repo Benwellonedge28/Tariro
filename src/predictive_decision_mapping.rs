@@ -5,6 +5,7 @@
 /// using multi-dimensional simulation (leveraging RAG for historical decision logs and SIMD for parallel
 /// simulation of outcomes).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

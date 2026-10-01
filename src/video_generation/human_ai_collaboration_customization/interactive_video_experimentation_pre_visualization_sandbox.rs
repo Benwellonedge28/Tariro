@@ -1,5 +1,6 @@
 // src/video_generation/human_ai_collaboration_customization/interactive_video_experimentation_pre_visualization_sandbox.rs
 
+use crate::prelude::*;
 pub struct VideoSandbox;
 
 impl VideoSandbox {

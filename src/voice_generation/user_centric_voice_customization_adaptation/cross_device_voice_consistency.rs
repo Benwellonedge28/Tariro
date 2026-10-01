@@ -1,5 +1,6 @@
 // src/voice_generation/user_centric_voice_customization_adaptation/cross_device_voice_consistency.rs
 
+use crate::prelude::*;
 pub struct CrossDeviceVoiceConsistencyManager;
 
 impl CrossDeviceVoiceConsistencyManager {

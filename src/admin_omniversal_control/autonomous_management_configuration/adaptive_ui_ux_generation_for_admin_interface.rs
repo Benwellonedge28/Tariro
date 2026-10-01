@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/autonomous_management_configuration/adaptive_ui_ux_generation_for_admin_interface.rs
 
+use crate::prelude::*;
 pub struct UIUXGenerator;
 
 impl UIUXGenerator {

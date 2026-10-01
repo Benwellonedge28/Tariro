@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/universal_content_concept_traceability/content_based_ethical_risk_assessment.rs
 
+use crate::prelude::*;
 pub struct ContentBasedEthicalRiskAssessment;
 
 impl ContentBasedEthicalRiskAssessment {

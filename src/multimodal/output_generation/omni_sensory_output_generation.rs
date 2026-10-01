@@ -1,5 +1,6 @@
 // src/multimodal/output_generation/omni_sensory_output_generation.rs
 
+use crate::prelude::*;
 pub struct OmniSensoryOutputGenerator {
     // Generating outputs across all conceivable sensory modalities.
 }

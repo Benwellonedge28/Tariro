@@ -1,5 +1,6 @@
 // src/music/performance_live_events/predictive_crowd_behavior_analysis.rs
 
+use crate::prelude::*;
 pub struct CrowdAnalyzer {
     // Analyze crowd energy and behavior in real-time to adjust performance dynamics or safety protocols.
 }

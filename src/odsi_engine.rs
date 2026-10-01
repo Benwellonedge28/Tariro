@@ -5,6 +5,7 @@
 /// to create unprecedented levels of game immersion (SIMD: parallel processing of sensory data streams;
 /// RAG: psychophysics, multi-sensory integration research).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

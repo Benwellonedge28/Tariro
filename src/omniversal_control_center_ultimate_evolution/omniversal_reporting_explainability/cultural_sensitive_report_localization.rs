@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/omniversal_reporting_explainability/cultural_sensitive_report_localization.rs
 
+use crate::prelude::*;
 pub struct ReportLocalizer;
 
 impl ReportLocalizer {

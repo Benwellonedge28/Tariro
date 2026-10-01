@@ -4,6 +4,7 @@
 /// This module will allow Tariro to perform probabilistic reasoning and inference on complex, high-dimensional
 /// datasets using quantum-inspired algorithms (SIMD: parallel quantum simulation; RAG: quantum research papers).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

@@ -1,3 +1,4 @@
+use crate::prelude::*;
 pub mod trend_analyzer;
 pub mod impact_assessor;
 pub mod recommender;

@@ -1,5 +1,6 @@
 // src/author_module/admin_interface_panel/side_by_side_comparison_viewer_versioned_content.rs
 
+use crate::prelude::*;
 pub struct SideBySideComparisonViewerVersionedContent;
 
 impl SideBySideComparisonViewerVersionedContent {

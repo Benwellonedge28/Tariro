@@ -1,6 +1,7 @@
 // Tariro AGI - Monte Carlo Tree Search (MCTS) Planning Module
 // Simulation-based planning for complex decision spaces
 
+use crate::prelude::*;
 use std::collections::{HashMap, VecDeque, BinaryHeap};
 use chrono::{DateTime, Utc};
 use std::time::Duration;

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_cognitive_integration_control/thought_pattern_command_generation.rs
 
+use crate::prelude::*;
 pub struct ThoughtPatternCommander;
 
 impl ThoughtPatternCommander {

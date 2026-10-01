@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_semantic_versioning_impact_analysis/multi_modal_content_diffing.rs
 
+use crate::prelude::*;
 pub struct MultiModalContentDiffing;
 
 impl MultiModalContentDiffing {

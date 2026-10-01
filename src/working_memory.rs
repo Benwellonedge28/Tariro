@@ -1,6 +1,7 @@
 // Tariro AGI - Working Memory Module
 // Active working memory with attention mechanisms
 
+use crate::prelude::*;
 use std::collections::{HashMap, VecDeque, BinaryHeap, HashSet};
 use chrono::{DateTime, Utc};
 use std::time::Duration;

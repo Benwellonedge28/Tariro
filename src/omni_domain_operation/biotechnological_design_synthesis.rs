@@ -1,5 +1,6 @@
 // src/omni_domain_operation/biotechnological_design_synthesis.rs
 
+use crate::prelude::*;
 pub enum BiologicalEntity {
     Protein(String),
     Enzyme(String),

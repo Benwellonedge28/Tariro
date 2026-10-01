@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/simulated_admin_environments_training/security_patch_validation_sandbox.rs
 
+use crate::prelude::*;
 pub struct PatchValidationSandbox;
 
 impl PatchValidationSandbox {

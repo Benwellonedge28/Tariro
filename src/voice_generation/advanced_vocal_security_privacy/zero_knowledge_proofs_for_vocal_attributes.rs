@@ -1,5 +1,6 @@
 // src/voice_generation/advanced_vocal_security_privacy/zero_knowledge_proofs_for_vocal_attributes.rs
 
+use crate::prelude::*;
 pub struct ZKP_VocalAttributes;
 
 impl ZKP_VocalAttributes {

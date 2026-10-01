@@ -1,3 +1,4 @@
+use crate::prelude::*;
 pub struct SensorDataIngestor {
     // Configuration for various sensor types
 }

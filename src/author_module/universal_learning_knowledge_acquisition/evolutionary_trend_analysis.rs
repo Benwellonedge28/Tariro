@@ -1,5 +1,6 @@
 // src/author_module/universal_learning_knowledge_acquisition/evolutionary_trend_analysis.rs
 
+use crate::prelude::*;
 pub struct EvolutionaryTrendAnalysis;
 
 impl EvolutionaryTrendAnalysis {

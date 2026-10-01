@@ -1,6 +1,7 @@
 // Tariro AGI - Goal Generation Module
 // Autonomous goal self-generation and management
 
+use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
 use std::time::Duration;

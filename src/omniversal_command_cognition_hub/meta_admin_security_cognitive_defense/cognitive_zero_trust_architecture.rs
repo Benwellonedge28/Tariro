@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/meta_admin_security_cognitive_defense/cognitive_zero_trust_architecture.rs
 
+use crate::prelude::*;
 pub struct CognitiveZeroTrustArchitecture;
 
 impl CognitiveZeroTrustArchitecture {

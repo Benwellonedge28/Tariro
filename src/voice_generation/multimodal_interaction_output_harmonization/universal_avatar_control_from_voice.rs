@@ -1,5 +1,6 @@
 // src/voice_generation/multimodal_interaction_output_harmonization/universal_avatar_control_from_voice.rs
 
+use crate::prelude::*;
 pub struct AvatarVoiceController;
 
 impl AvatarVoiceController {

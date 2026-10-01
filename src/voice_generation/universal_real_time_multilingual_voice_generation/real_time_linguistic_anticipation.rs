@@ -1,5 +1,6 @@
 // src/voice_generation/universal_real_time_multilingual_voice_generation/real_time_linguistic_anticipation.rs
 
+use crate::prelude::*;
 pub struct LinguisticAnticipator;
 
 impl LinguisticAnticipator {

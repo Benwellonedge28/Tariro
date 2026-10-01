@@ -1,5 +1,6 @@
 // src/tariro_chatbot/threat_invisibility_security/immutable_audit_trail_for_chat_sessions.rs
 
+use crate::prelude::*;
 pub struct ImmutableAuditTrailForChatSessions;
 
 impl ImmutableAuditTrailForChatSessions {

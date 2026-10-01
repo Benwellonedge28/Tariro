@@ -4,6 +4,7 @@
 //! Its purpose is to autonomously diagnose and attempt to remediate minor issues
 //! within the sandbox without requiring human intervention or code modification.
 
+use crate::prelude::*;
 use crate::{prelude::*,
     Module,
     ModuleContext,

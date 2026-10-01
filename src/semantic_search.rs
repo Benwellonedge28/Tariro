@@ -8,6 +8,7 @@
 /// (leveraging RAG for NLP models and embedding generation, and SIMD for high-speed vector
 /// similarity search).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

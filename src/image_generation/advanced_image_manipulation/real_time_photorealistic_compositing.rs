@@ -1,5 +1,6 @@
 // src/image_generation/advanced_image_manipulation/real_time_photorealistic_compositing.rs
 
+use crate::prelude::*;
 pub struct RealtimeCompositor;
 
 impl RealtimeCompositor {

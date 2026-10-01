@@ -1,5 +1,6 @@
 // src/finance/analysis/adaptive_ml_market_prediction.rs
 
+use crate::prelude::*;
 pub struct AdaptiveMLPredictor {
     // Continuously adapts and retrains machine learning models for market prediction.
 }

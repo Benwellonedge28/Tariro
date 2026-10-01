@@ -1,5 +1,6 @@
 // src/author_module/admin_interface_panel/content_graveyard_archival.rs
 
+use crate::prelude::*;
 pub struct ContentGraveyardArchival;
 
 impl ContentGraveyardArchival {

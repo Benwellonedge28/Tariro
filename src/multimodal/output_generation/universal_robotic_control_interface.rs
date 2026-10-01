@@ -1,5 +1,6 @@
 // src/multimodal/output_generation/universal_robotic_control_interface.rs
 
+use crate::prelude::*;
 pub struct RoboticControlInterface {
     // Directly controlling any robotic or physical actuation system through a unified multimodal command framework.
 }

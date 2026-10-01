@@ -6,6 +6,7 @@
 /// systems (SIMD: parallel execution of cryptographic primitives within hardware; RAG: hardware security, trusted
 /// execution environments, side-channel attack mitigation).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

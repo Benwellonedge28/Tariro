@@ -3,6 +3,7 @@
 //! This module provides functionalities for curating news content, including
 //! filtering, ranking, and personalizing articles based on user preferences or AGI objectives.
 
+use crate::prelude::*;
 pub mod filter_engine;
 pub mod ranking_algorithm;
 pub mod personalization_engine;

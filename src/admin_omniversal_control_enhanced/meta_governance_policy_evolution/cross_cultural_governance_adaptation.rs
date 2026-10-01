@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/meta_governance_policy_evolution/cross_cultural_governance_adaptation.rs
 
+use crate::prelude::*;
 pub struct CrossCulturalAdapter;
 
 impl CrossCulturalAdapter {

@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/omniversal_reporting_explainability/interactive_deep_dive_reports.rs
 
+use crate::prelude::*;
 pub struct DeepDiveReporter;
 
 impl DeepDiveReporter {

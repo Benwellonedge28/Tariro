@@ -1,5 +1,6 @@
 // src/author_module/admin_interface_panel/content_metadata_editor.rs
 
+use crate::prelude::*;
 pub struct ContentMetadataEditor;
 
 impl ContentMetadataEditor {

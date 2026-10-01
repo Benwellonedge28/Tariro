@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/immutable_audit_log_of_all_vcs_actions.rs
 
+use crate::prelude::*;
 pub struct VCSAuditLog;
 
 impl VCSAuditLog {

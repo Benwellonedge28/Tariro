@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/nl_document_control/admin_knowledge_base_auto_update.rs
 
+use crate::prelude::*;
 pub struct KnowledgeBaseUpdater;
 
 impl KnowledgeBaseUpdater {

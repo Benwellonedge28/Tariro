@@ -1,5 +1,6 @@
 // src/image_generation/multimodal_contextual_understanding/physiological_response_prediction_from_images.rs
 
+use crate::prelude::*;
 pub struct PhysiologicalPredictor;
 
 impl PhysiologicalPredictor {

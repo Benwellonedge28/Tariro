@@ -3,6 +3,7 @@
 /// This module provides conceptual components for ingesting, parsing, and
 /// buffering real-time event data from various sources for situational awareness.
 
+use crate::prelude::*;
 use std::collections::VecDeque;
 use std::sync::{Arc, Mutex};
 use serde::{Serialize, Deserialize};

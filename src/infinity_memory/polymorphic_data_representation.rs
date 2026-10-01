@@ -1,5 +1,6 @@
 // src/infinity_memory/polymorphic_data_representation.rs
 
+use crate::prelude::*;
 pub enum DataFormat {
     Text(String),
     Binary(Vec<u8>),

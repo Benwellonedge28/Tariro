@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniversal_reporting_explainability/contextual_deep_dive_for_any_data_point.rs
 
+use crate::prelude::*;
 pub struct ContextualDeepDiveForAnyDataPoint;
 
 impl ContextualDeepDiveForAnyDataPoint {

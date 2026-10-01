@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniversal_reporting_explainability/quantum_secured_report_distribution_audit.rs
 
+use crate::prelude::*;
 pub struct QuantumSecuredReportDistributionAudit;
 
 impl QuantumSecuredReportDistributionAudit {

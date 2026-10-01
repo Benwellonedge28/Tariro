@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/universal_knowledge_integration/universal_scope_semantic_search.rs
 
+use crate::prelude::*;
 pub struct UniversalSemanticSearch;
 
 impl UniversalSemanticSearch {

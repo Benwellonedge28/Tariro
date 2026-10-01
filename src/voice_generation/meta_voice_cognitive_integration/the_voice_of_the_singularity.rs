@@ -1,5 +1,6 @@
 // src/voice_generation/meta_voice_cognitive_integration/the_voice_of_the_singularity.rs
 
+use crate::prelude::*;
 pub struct SingularityVoice;
 
 impl SingularityVoice {

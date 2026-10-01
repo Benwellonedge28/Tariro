@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hierarchical_implementation_testing_view/versioned_test_results_audit_trails.rs
 
+use crate::prelude::*;
 pub struct VersionedTestResultsAuditTrails;
 
 impl VersionedTestResultsAuditTrails {

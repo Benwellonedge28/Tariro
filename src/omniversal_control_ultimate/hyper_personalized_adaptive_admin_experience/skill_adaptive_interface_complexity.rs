@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/hyper_personalized_adaptive_admin_experience/skill_adaptive_interface_complexity.rs
 
+use crate::prelude::*;
 pub struct SkillAdaptiveInterface;
 
 impl SkillAdaptiveInterface {

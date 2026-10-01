@@ -1,5 +1,6 @@
 // src/image_generation/autonomous_image_creation/generative_adversarial_design_gad.rs
 
+use crate::prelude::*;
 pub struct GenerativeAdversarialDesigner;
 
 impl GenerativeAdversarialDesigner {

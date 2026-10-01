@@ -1,5 +1,6 @@
 // src/biological_neural_symbiosis/synthetic_organism_design.rs
 
+use crate::prelude::*;
 pub enum BioDevicePurpose {
     CarbonSequestration,
     Bioremediation,

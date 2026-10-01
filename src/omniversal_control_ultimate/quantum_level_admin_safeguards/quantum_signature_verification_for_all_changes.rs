@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/quantum_level_admin_safeguards/quantum_signature_verification_for_all_changes.rs
 
+use crate::prelude::*;
 pub struct QuantumSignatureVerifier;
 
 impl QuantumSignatureVerifier {

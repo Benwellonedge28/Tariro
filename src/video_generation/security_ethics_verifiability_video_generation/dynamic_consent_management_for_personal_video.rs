@@ -1,5 +1,6 @@
 // src/video_generation/security_ethics_verifiability_video_generation/dynamic_consent_management_for_personal_video.rs
 
+use crate::prelude::*;
 pub struct PersonalVideoConsentManager;
 
 impl PersonalVideoConsentManager {

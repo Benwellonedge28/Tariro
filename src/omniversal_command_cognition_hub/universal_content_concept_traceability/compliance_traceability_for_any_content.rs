@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/universal_content_concept_traceability/compliance_traceability_for_any_content.rs
 
+use crate::prelude::*;
 pub struct ComplianceTraceabilityForAnyContent;
 
 impl ComplianceTraceabilityForAnyContent {

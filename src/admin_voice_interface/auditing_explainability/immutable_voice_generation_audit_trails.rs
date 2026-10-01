@@ -1,5 +1,6 @@
 // src/admin_voice_interface/auditing_explainability/immutable_voice_generation_audit_trails.rs
 
+use crate::prelude::*;
 pub struct ImmutableAuditTrail;
 
 impl ImmutableAuditTrail {

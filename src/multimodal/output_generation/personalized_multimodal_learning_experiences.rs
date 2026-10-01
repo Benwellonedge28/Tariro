@@ -1,5 +1,6 @@
 // src/multimodal/output_generation/personalized_multimodal_learning_experiences.rs
 
+use crate::prelude::*;
 pub struct LearningExperienceGenerator {
     // Generating adaptive, multi-sensory learning content tailored to an individual's cognitive style.
 }

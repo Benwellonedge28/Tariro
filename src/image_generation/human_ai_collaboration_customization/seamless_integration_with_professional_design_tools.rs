@@ -1,5 +1,6 @@
 // src/image_generation/human_ai_collaboration_customization/seamless_integration_with_professional_design_tools.rs
 
+use crate::prelude::*;
 pub struct DesignToolIntegrator;
 
 impl DesignToolIntegrator {

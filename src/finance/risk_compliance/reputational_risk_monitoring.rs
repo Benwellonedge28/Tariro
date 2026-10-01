@@ -1,5 +1,6 @@
 // src/finance/risk_compliance/reputational_risk_monitoring.rs
 
+use crate::prelude::*;
 pub struct ReputationalRiskMonitor {
     // Monitors global sentiment and news to assess and mitigate reputational risks.
 }

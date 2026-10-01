@@ -1,5 +1,6 @@
 // src/video_generation/performance_scalability_infrastructure_video_generation/energy_optimized_video_synthesis.rs
 
+use crate::prelude::*;
 pub struct EnergyOptimizedVideoSynthesizer;
 
 impl EnergyOptimizedVideoSynthesizer {

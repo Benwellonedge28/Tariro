@@ -1,5 +1,6 @@
 // src/multimodal/output_generation/emotionally_resonant_output_synthesis.rs
 
+use crate::prelude::*;
 pub struct EmotionalSynthesizer {
     // Generating multimodal outputs that precisely convey desired emotional states.
 }

@@ -1,5 +1,6 @@
 // src/tariro_chatbot/system_wide_natural_language_control/version_control_query.rs
 
+use crate::prelude::*;
 pub struct VersionControlQuery;
 
 impl VersionControlQuery {

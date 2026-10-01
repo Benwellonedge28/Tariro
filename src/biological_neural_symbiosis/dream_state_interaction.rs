@@ -1,5 +1,6 @@
 // src/biological_neural_symbiosis/dream_state_interaction.rs
 
+use crate::prelude::*;
 pub enum DreamObjective {
     AcceleratedLearning,
     TraumaTherapy,

@@ -1,5 +1,6 @@
 // src/image_generation/performance_scalability_infrastructure/universal_image_cache_distribution_network.rs
 
+use crate::prelude::*;
 pub struct ImageCacheNetwork;
 
 impl ImageCacheNetwork {

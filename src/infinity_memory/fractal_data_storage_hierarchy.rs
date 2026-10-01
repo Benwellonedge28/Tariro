@@ -1,5 +1,6 @@
 // src/infinity_memory/fractal_data_storage_hierarchy.rs
 
+use crate::prelude::*;
 pub struct FractalDataStorageHierarchy {
     // Represents the root of the fractal data structure.
     // In a real implementation, this would involve complex data structures

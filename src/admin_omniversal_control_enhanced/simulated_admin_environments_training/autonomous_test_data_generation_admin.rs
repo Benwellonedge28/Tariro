@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/simulated_admin_environments_training/autonomous_test_data_generation_admin.rs
 
+use crate::prelude::*;
 pub struct TestDataGenerator;
 
 impl TestDataGenerator {

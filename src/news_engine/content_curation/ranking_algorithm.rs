@@ -3,6 +3,7 @@
 //! Provides functionality for ranking news articles based on various factors
 //! such as relevance, recency, quality, sentiment, and user engagement.
 
+use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use std::collections::HashMap;

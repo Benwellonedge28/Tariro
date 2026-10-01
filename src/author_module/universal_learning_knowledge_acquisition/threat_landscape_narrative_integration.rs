@@ -1,5 +1,6 @@
 // src/author_module/universal_learning_knowledge_acquisition/threat_landscape_narrative_integration.rs
 
+use crate::prelude::*;
 pub struct ThreatLandscapeNarrativeIntegration;
 
 impl ThreatLandscapeNarrativeIntegration {

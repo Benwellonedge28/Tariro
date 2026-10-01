@@ -1,5 +1,6 @@
 // src/omniversal_ultimate/secure_sovereign_access_extreme_scales/geo_spatial_admin_access_control.rs
 
+use crate::prelude::*;
 pub struct GeoSpatialAccessControl;
 
 impl GeoSpatialAccessControl {

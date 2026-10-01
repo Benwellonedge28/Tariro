@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/quantum_metaphysical_administration/causal_chain_manipulation_interface.rs
 
+use crate::prelude::*;
 pub struct CausalChainManipulator;
 
 impl CausalChainManipulator {

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/dynamic_service_pricing_panel/dynamic_discount_incentive_generation_behavioral.rs
 
+use crate::prelude::*;
 pub struct DynamicDiscountIncentiveGenerationBehavioral;
 
 impl DynamicDiscountIncentiveGenerationBehavioral {

@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/self_supervised_multimodal_feature_learning.rs
 
+use crate::prelude::*;
 pub struct FeatureLearner {
     // Learning robust multimodal features from unlabeled data by finding intrinsic correlations.
 }

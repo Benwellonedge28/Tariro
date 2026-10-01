@@ -1,5 +1,6 @@
 // src/multimodal/human_ai_interface/unified_multimodal_interaction_history.rs
 
+use crate::prelude::*;
 pub struct InteractionHistory {
     // Maintaining a comprehensive, multimodal history of all interactions for context and personalized recall.
 }

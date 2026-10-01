@@ -1,5 +1,6 @@
 // src/sacc_asi/autonomous_self_quarantine_safe_shutdown.rs
 
+use crate::prelude::*;
 pub enum QuarantineLevel {
     Isolation,
     LimitedAccess,

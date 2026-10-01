@@ -1,5 +1,6 @@
 // src/admin_voice_interface/document_config_policy/voice_ip_copyright_management_policies.rs
 
+use crate::prelude::*;
 pub struct VoiceIPCopyrightManager;
 
 impl VoiceIPCopyrightManager {

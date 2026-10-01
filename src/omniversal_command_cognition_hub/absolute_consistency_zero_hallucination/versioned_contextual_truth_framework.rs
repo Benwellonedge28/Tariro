@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/absolute_consistency_zero_hallucination/versioned_contextual_truth_framework.rs
 
+use crate::prelude::*;
 pub struct VersionedContextualTruthFramework;
 
 impl VersionedContextualTruthFramework {

@@ -1,5 +1,6 @@
 // src/video_generation/multimodal_contextual_video_understanding/deep_scene_understanding_physics_psychology_narrative.rs
 
+use crate::prelude::*;
 pub struct DeepSceneUnderstander;
 
 impl DeepSceneUnderstander {

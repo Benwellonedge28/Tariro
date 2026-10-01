@@ -1,5 +1,6 @@
 // src/video_generation/advanced_video_manipulation/dynamic_lighting_shadow_remapping_video.rs
 
+use crate::prelude::*;
 pub struct VideoLightingRemapper;
 
 impl VideoLightingRemapper {

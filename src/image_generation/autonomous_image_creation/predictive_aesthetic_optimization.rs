@@ -1,5 +1,6 @@
 // src/image_generation/autonomous_image_creation/predictive_aesthetic_optimization.rs
 
+use crate::prelude::*;
 pub struct AestheticOptimizer;
 
 impl AestheticOptimizer {

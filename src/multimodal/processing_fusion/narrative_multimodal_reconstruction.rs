@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/narrative_multimodal_reconstruction.rs
 
+use crate::prelude::*;
 pub struct NarrativeReconstructor {
     // Reconstructing coherent narratives or events from fragmented and asynchronous multimodal data streams.
 }

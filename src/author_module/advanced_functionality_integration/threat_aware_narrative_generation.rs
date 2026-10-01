@@ -1,5 +1,6 @@
 // src/author_module/advanced_functionality_integration/threat_aware_narrative_generation.rs
 
+use crate::prelude::*;
 pub struct ThreatAwareNarrativeGeneration;
 
 impl ThreatAwareNarrativeGeneration {

@@ -1,5 +1,6 @@
 // src/video_generation/human_ai_collaboration_customization/personalized_cinematic_style_learning.rs
 
+use crate::prelude::*;
 pub struct CinematicStyleLearner;
 
 impl CinematicStyleLearner {

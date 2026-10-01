@@ -1,5 +1,6 @@
 // src/admin_voice_interface/voice_profile_persona_management/voice_persona_lifecycle_management.rs
 
+use crate::prelude::*;
 pub struct VoicePersonaLifecycleManager;
 
 impl VoicePersonaLifecycleManager {

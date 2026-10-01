@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/user_role_based_access_control_vcs.rs
 
+use crate::prelude::*;
 pub struct VCSAccessControl;
 
 impl VCSAccessControl {

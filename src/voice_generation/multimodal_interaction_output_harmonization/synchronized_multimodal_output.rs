@@ -1,5 +1,6 @@
 // src/voice_generation/multimodal_interaction_output_harmonization/synchronized_multimodal_output.rs
 
+use crate::prelude::*;
 pub struct MultimodalOutputSynchronizer;
 
 impl MultimodalOutputSynchronizer {

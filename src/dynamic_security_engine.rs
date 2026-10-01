@@ -7,6 +7,7 @@
 /// (leveraging RAG for threat intelligence feeds and policy best practices, and SIMD for high-speed policy evaluation
 /// and cryptographic primitive re-initialization).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

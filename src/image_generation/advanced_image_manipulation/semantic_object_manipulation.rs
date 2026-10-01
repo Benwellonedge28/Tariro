@@ -1,5 +1,6 @@
 // src/image_generation/advanced_image_manipulation/semantic_object_manipulation.rs
 
+use crate::prelude::*;
 pub struct SemanticManipulator;
 
 impl SemanticManipulator {

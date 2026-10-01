@@ -1,6 +1,7 @@
 // Tariro AGI - Episodic Memory Module
 // Long-term memory for experiences and events
 
+use crate::prelude::*;
 use std::collections::{HashMap, VecDeque, BinaryHeap, HashSet};
 use chrono::{DateTime, Utc};
 use std::time::Duration;

@@ -7,6 +7,7 @@
 /// per watt on resource-limited hardware. (SIMD: parallel execution of optimized inference kernels, multi-model
 /// inferencing; RAG: TinyML, efficient AI hardware, model compression, edge computing security, distributed inference).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

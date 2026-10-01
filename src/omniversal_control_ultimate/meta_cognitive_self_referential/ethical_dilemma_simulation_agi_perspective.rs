@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/meta_cognitive_self_referential/ethical_dilemma_simulation_agi_perspective.rs
 
+use crate::prelude::*;
 pub struct AGIEthicalSimulator;
 
 impl AGIEthicalSimulator {

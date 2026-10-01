@@ -1,5 +1,6 @@
 // src/multimodal/output_generation/ethical_multimodal_persuasion_influence.rs
 
+use crate::prelude::*;
 pub struct EthicalPersuader {
     // Using multimodal outputs for ethical persuasion or guidance, always adhering to E.V.A.S. principles.
 }

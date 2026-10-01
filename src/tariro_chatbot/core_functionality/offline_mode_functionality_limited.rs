@@ -1,5 +1,6 @@
 // src/tariro_chatbot/core_functionality/offline_mode_functionality_limited.rs
 
+use crate::prelude::*;
 pub struct OfflineModeFunctionalityLimited;
 
 impl OfflineModeFunctionalityLimited {

@@ -1,5 +1,6 @@
 // src/omni_domain_operation/autonomous_space_exploration.rs
 
+use crate::prelude::*;
 pub struct SpaceMission {
     pub mission_id: String,
     pub target: String, // e.g., "Mars", "Europa", "Alpha Centauri"

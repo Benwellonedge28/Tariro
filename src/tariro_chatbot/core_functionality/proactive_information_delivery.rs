@@ -1,5 +1,6 @@
 // src/tariro_chatbot/core_functionality/proactive_information_delivery.rs
 
+use crate::prelude::*;
 pub struct ProactiveInformationDelivery;
 
 impl ProactiveInformationDelivery {

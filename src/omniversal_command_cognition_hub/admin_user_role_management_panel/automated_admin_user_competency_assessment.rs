@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/admin_user_role_management_panel/automated_admin_user_competency_assessment.rs
 
+use crate::prelude::*;
 pub struct AutomatedAdminUserCompetencyAssessment;
 
 impl AutomatedAdminUserCompetencyAssessment {

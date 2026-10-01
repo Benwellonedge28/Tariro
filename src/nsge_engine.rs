@@ -5,6 +5,7 @@
 /// user choices or environmental stimuli (RAG: storytelling archetypes, dramatic theory, psychological profiles;
 /// SIMD: parallel plot exploration, character behavior simulation).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

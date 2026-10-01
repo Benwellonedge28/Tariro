@@ -1,5 +1,6 @@
 // src/testing_verification_systems/software_bill_of_materials_verification.rs
 
+use crate::prelude::*;
 pub enum DependencyType {
     Direct,
     Transitive,

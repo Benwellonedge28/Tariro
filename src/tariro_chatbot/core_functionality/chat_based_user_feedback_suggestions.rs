@@ -1,5 +1,6 @@
 // src/tariro_chatbot/core_functionality/chat_based_user_feedback_suggestions.rs
 
+use crate::prelude::*;
 pub struct ChatBasedUserFeedbackSuggestions;
 
 impl ChatBasedUserFeedbackSuggestions {

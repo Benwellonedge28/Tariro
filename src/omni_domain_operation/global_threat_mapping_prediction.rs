@@ -1,5 +1,6 @@
 // src/omni_domain_operation/global_threat_mapping_prediction.rs
 
+use crate::prelude::*;
 pub enum ThreatType {
     NaturalDisaster(String), // e.g., "Earthquake", "Hurricane", "VolcanicEruption"
     Conflict(String),        // e.g., "Geopolitical", "CivilUnrest", "CyberWarfare"

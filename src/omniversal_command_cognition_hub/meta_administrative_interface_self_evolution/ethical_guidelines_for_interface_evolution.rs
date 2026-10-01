@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/meta_administrative_interface_self_evolution/ethical_guidelines_for_interface_evolution.rs
 
+use crate::prelude::*;
 pub struct InterfaceEthicalGuidelines;
 
 impl InterfaceEthicalGuidelines {

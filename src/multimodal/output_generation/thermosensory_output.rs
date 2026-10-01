@@ -1,5 +1,6 @@
 // src/multimodal/output_generation/thermosensory_output.rs
 
+use crate::prelude::*;
 pub struct ThermosensoryOutputGenerator {
     // Generating specific thermal sensations to provide feedback or enhance virtual reality experiences.
 }

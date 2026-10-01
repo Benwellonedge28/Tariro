@@ -1,5 +1,6 @@
 // src/infinity_memory/dynamic_memory_allocation_deallocation.rs
 
+use crate::prelude::*;
 pub struct DynamicMemoryAllocationDeallocation {
     // Represents an intelligent, autonomous memory management system.
     // In a real implementation, this would involve hooks into the operating system's

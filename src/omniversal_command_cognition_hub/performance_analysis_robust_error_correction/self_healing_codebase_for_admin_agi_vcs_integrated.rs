@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/performance_analysis_robust_error_correction/self_healing_codebase_for_admin_agi_vcs_integrated.rs
 
+use crate::prelude::*;
 pub struct SelfHealingCodebaseVCSIntegrated;
 
 impl SelfHealingCodebaseVCSIntegrated {

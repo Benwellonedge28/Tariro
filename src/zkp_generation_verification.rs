@@ -5,6 +5,7 @@
 /// critical for privacy-preserving authentication, verifiable computation, and blockchain scaling
 /// (leveraging RAG for ZKP scheme analysis and SIMD for accelerating polynomial commitments and cryptographic pairings).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

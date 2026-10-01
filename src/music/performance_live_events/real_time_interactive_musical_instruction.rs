@@ -1,5 +1,6 @@
 // src/music/performance_live_events/real_time_interactive_musical_instruction.rs
 
+use crate::prelude::*;
 pub struct MusicalInstructor {
     // Provide real-time, personalized musical instruction and feedback to performers during live practice or performance.
 }

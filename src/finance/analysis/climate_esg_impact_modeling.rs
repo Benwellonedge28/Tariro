@@ -1,5 +1,6 @@
 // src/finance/analysis/climate_esg_impact_modeling.rs
 
+use crate::prelude::*;
 pub struct ClimateESGModeler {
     // Quantifies and predicts the financial risks and opportunities associated with climate change and ESG factors.
 }

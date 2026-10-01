@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/meta_cognitive_self_referential/why_am_i_administering_this_query.rs
 
+use crate::prelude::*;
 pub struct TaskPurposeExplainer;
 
 impl TaskPurposeExplainer {

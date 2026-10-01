@@ -1,5 +1,6 @@
 // src/tariro_chatbot/research_development_facilitation/rd_progress_tracking_reporting.rs
 
+use crate::prelude::*;
 pub struct RDProgressTrackingReporting;
 
 impl RDProgressTrackingReporting {

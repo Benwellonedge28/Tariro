@@ -1,5 +1,6 @@
 // src/music/creation_composition/context_aware_soundtrack_generation.rs
 
+use crate::prelude::*;
 pub struct SoundtrackGenerator {
     // Generate adaptive, evolving soundtracks for films, games, or immersive experiences that respond to real-time events and user interaction.
 }

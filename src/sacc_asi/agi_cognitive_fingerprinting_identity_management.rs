@@ -1,5 +1,6 @@
 // src/sacc_asi/agi_cognitive_fingerprinting_identity_management.rs
 
+use crate::prelude::*;
 pub struct CognitiveFingerprint {
     pub fingerprint_id: String,
     pub agent_id: String,

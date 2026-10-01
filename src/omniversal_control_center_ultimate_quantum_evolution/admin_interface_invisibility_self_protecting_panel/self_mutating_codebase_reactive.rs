@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/admin_interface_invisibility_self_protecting_panel/self_mutating_codebase_reactive.rs
 
+use crate::prelude::*;
 pub struct SelfMutatingCodebaseReactive;
 
 impl SelfMutatingCodebaseReactive {

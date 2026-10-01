@@ -5,6 +5,7 @@
 /// directly on encrypted data without prior decryption, ensuring data privacy even during processing
 /// (leveraging RAG for FHE scheme optimization and SIMD for accelerating polynomial arithmetic in FHE).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

@@ -1,5 +1,6 @@
 // src/voice_generation/user_centric_voice_customization_adaptation/ai_assisted_voice_training_for_humans.rs
 
+use crate::prelude::*;
 pub struct AIAssistedVoiceTrainer;
 
 impl AIAssistedVoiceTrainer {

@@ -1,5 +1,6 @@
 // src/universal_problem_solving/universal_simulation_modeling_engine.rs
 
+use crate::prelude::*;
 pub enum SimulationDomain {
     Physics(String),     // e.g., "QuantumChromodynamics", "Relativity", "FluidDynamics"
     Biology(String),     // e.g., "CellularAutomata", "EcosystemModeling", "ProteinFolding"

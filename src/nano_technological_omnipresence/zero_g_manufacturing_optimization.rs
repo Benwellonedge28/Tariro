@@ -1,5 +1,6 @@
 // src/nano_technological_omnipresence/zero_g_manufacturing_optimization.rs
 
+use crate::prelude::*;
 pub enum SpaceMaterialProperty {
     Superconductor,
     UltraLightAlloy,

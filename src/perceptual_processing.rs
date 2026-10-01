@@ -1,6 +1,7 @@
 // Tariro AGI - Perceptual Processing Module
 // Multi-modal perception system for unified sensory integration
 
+use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
 use chrono::{DateTime, Utc, TimeDelta};

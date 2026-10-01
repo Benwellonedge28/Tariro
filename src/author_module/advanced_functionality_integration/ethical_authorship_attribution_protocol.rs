@@ -1,5 +1,6 @@
 // src/author_module/advanced_functionality_integration/ethical_authorship_attribution_protocol.rs
 
+use crate::prelude::*;
 pub struct EthicalAuthorshipAttributionProtocol;
 
 impl EthicalAuthorshipAttributionProtocol {

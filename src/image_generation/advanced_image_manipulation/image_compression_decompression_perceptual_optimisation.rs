@@ -1,5 +1,6 @@
 // src/image_generation/advanced_image_manipulation/image_compression_decompression_perceptual_optimisation.rs
 
+use crate::prelude::*;
 pub struct PerceptualCompressor;
 
 impl PerceptualCompressor {

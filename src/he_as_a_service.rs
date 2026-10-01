@@ -4,6 +4,7 @@
 /// This service will allow users to perform computations on encrypted data without decrypting it,
 /// ensuring maximum privacy (leveraging SIMD for accelerating polynomial arithmetic in HE schemes).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

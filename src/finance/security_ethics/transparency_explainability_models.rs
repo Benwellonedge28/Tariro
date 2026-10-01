@@ -1,5 +1,6 @@
 // src/finance/security_ethics/transparency_explainability_models.rs
 
+use crate::prelude::*;
 pub struct ExplainabilityEngine {
     // Ensures all financial models are fully transparent and their reasoning is explainable to human regulators and users.
 }

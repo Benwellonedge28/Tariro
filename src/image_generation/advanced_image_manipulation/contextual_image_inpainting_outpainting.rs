@@ -1,5 +1,6 @@
 // src/image_generation/advanced_image_manipulation/contextual_image_inpainting_outpainting.rs
 
+use crate::prelude::*;
 pub struct ImageInpainterOutpainter;
 
 impl ImageInpainterOutpainter {

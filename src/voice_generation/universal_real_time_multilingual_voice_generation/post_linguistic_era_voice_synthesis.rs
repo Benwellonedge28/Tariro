@@ -1,5 +1,6 @@
 // src/voice_generation/universal_real_time_multilingual_voice_generation/post_linguistic_era_voice_synthesis.rs
 
+use crate::prelude::*;
 pub struct PostLinguisticVoiceSynthesizer;
 
 impl PostLinguisticVoiceSynthesizer {

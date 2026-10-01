@@ -6,6 +6,7 @@
 /// to optimize the overall software design. It leverages RAG for architectural patterns, design principles,
 /// and evolutionary architecture models.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

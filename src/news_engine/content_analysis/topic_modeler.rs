@@ -3,6 +3,7 @@
 //! Provides functionality for identifying and categorizing the main topics
 //! present within news content using various topic modeling techniques.
 
+use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use std::collections::HashMap;

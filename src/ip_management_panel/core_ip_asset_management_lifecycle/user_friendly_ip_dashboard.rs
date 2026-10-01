@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/user_friendly_ip_dashboard.rs
 
+use crate::prelude::*;
 pub struct UserFriendlyIpDashboard;
 
 impl UserFriendlyIpDashboard {

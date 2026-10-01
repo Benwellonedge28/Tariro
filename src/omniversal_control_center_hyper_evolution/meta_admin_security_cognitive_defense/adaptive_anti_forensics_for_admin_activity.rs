@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/meta_admin_security_cognitive_defense/adaptive_anti_forensics_for_admin_activity.rs
 
+use crate::prelude::*;
 pub struct AdaptiveAntiForensics;
 
 impl AdaptiveAntiForensics {

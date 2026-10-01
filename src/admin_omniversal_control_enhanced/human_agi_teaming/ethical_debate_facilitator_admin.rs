@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/human_agi_teaming/ethical_debate_facilitator_admin.rs
 
+use crate::prelude::*;
 pub struct EthicalDebateFacilitator;
 
 impl EthicalDebateFacilitator {

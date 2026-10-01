@@ -1,5 +1,6 @@
 // src/nano_technological_omnipresence/self_repairing_infrastructure.rs
 
+use crate::prelude::*;
 pub enum InfrastructureMaterial {
     Concrete,
     Steel,

@@ -1,5 +1,6 @@
 // src/voice_generation/user_centric_voice_customization_adaptation/adaptive_speaking_style_mimicry_contrast.rs
 
+use crate::prelude::*;
 pub struct SpeakingStyleAdapter;
 
 impl SpeakingStyleAdapter {

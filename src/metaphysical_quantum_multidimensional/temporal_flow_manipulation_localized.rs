@@ -1,5 +1,6 @@
 // src/metaphysical_quantum_multidimensional/temporal_flow_manipulation_localized.rs
 
+use crate::prelude::*;
 pub enum TemporalZoneEffect {
     Acceleration,
     Deceleration,

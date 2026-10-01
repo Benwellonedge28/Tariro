@@ -6,6 +6,7 @@
 /// capabilities, identify areas for improvement, and generate introspective insights
 /// that feed back into the Autonomy Policy Engine and Self-Optimization Module.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

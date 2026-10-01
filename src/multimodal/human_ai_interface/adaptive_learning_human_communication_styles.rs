@@ -1,5 +1,6 @@
 // src/multimodal/human_ai_interface/adaptive_learning_human_communication_styles.rs
 
+use crate::prelude::*;
 pub struct CommunicationStyleLearner {
     // Continuously learning individual human multimodal communication patterns and adapting its own accordingly.
 }

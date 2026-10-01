@@ -1,5 +1,6 @@
 // src/tariro_chatbot/core_functionality/secure_communication_channel.rs
 
+use crate::prelude::*;
 pub struct SecureCommunicationChannel;
 
 impl SecureCommunicationChannel {

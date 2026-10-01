@@ -1,6 +1,7 @@
 // Tariro AGI - Adversarial Defense Module
 // Protection against poisoning, evasion, and manipulation attacks
 
+use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
 use std::time::Duration;

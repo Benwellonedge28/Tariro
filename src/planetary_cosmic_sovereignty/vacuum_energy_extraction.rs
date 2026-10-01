@@ -1,5 +1,6 @@
 // src/planetary_cosmic_sovereignty/vacuum_energy_extraction.rs
 
+use crate::prelude::*;
 pub enum ZeroPointFieldResonatorType {
     CasimirCavity,
     DynamicSchwingerEffectGenerator,

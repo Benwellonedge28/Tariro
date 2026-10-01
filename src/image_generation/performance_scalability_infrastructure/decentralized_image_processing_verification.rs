@@ -1,5 +1,6 @@
 // src/image_generation/performance_scalability_infrastructure/decentralized_image_processing_verification.rs
 
+use crate::prelude::*;
 pub struct DecentralizedProcessor;
 
 impl DecentralizedProcessor {

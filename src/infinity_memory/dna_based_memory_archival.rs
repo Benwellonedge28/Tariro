@@ -1,5 +1,6 @@
 // src/infinity_memory/dna_based_memory_archival.rs
 
+use crate::prelude::*;
 pub struct DnaSequence {
     pub id: String,
     pub nucleotides: String, // e.g., "ATGCGTGA..."

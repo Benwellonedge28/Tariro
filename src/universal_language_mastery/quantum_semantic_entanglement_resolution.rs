@@ -1,5 +1,6 @@
 // src/universal_language_mastery/quantum_semantic_entanglement_resolution.rs
 
+use crate::prelude::*;
 pub struct QuantumSemanticLinguisticExpression {
     pub expression_id: String,
     pub raw_linguistic_input: String,

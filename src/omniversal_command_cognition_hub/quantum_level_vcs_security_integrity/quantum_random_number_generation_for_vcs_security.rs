@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/quantum_level_vcs_security_integrity/quantum_random_number_generation_for_vcs_security.rs
 
+use crate::prelude::*;
 pub struct QuantumRandomNumberGenerationForVCSSecurity;
 
 impl QuantumRandomNumberGenerationForVCSSecurity {

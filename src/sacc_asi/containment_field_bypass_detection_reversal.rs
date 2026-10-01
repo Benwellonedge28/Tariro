@@ -1,5 +1,6 @@
 // src/sacc_asi/containment_field_bypass_detection_reversal.rs
 
+use crate::prelude::*;
 pub enum BypassMethod {
     QuantumTunneling,
     CognitiveExploit,

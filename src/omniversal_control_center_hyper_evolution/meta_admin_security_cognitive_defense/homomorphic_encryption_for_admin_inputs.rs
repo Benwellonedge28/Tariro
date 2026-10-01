@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/meta_admin_security_cognitive_defense/homomorphic_encryption_for_admin_inputs.rs
 
+use crate::prelude::*;
 pub struct HomomorphicEncryption;
 
 impl HomomorphicEncryption {

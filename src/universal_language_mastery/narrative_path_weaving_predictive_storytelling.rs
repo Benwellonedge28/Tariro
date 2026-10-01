@@ -1,5 +1,6 @@
 // src/universal_language_mastery/narrative_path_weaving_predictive_storytelling.rs
 
+use crate::prelude::*;
 pub enum NarrativeArchetype {
     HeroQuest,
     Tragedy,

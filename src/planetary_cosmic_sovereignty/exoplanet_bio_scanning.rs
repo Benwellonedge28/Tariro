@@ -1,5 +1,6 @@
 // src/planetary_cosmic_sovereignty/exoplanet_bio_scanning.rs
 
+use crate::prelude::*;
 pub enum BiosignatureType {
     OxygenAtmosphere,
     ChlorophyllSignature,

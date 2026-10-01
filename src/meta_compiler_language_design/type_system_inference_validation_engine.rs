@@ -1,5 +1,6 @@
 // src/meta_compiler_language_design/type_system_inference_validation_engine.rs
 
+use crate::prelude::*;
 pub enum TypeSystemProperty {
     Soundness,
     Completeness,

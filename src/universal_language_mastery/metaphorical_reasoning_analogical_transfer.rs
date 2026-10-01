@@ -1,5 +1,6 @@
 // src/universal_language_mastery/metaphorical_reasoning_analogical_transfer.rs
 
+use crate::prelude::*;
 pub struct Metaphor {
     pub metaphor_id: String,
     pub source_domain: String,

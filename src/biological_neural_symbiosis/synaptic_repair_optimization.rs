@@ -1,5 +1,6 @@
 // src/biological_neural_symbiosis/synaptic_repair_optimization.rs
 
+use crate::prelude::*;
 pub enum DegradationType {
     NeurotransmitterImbalance,
     DendriticAtrophy,

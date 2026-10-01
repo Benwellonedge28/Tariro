@@ -1,5 +1,6 @@
 // src/multimodal/output_generation/multimodal_content_localization_transcreation.rs
 
+use crate::prelude::*;
 pub struct ContentLocalizer {
     // Adapting multimodal content for cultural nuances across all global languages and sensory preferences.
 }

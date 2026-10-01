@@ -1,5 +1,6 @@
 // src/image_generation/performance_scalability_infrastructure/low_latency_global_image_delivery.rs
 
+use crate::prelude::*;
 pub struct LowLatencyDeliverer;
 
 impl LowLatencyDeliverer {

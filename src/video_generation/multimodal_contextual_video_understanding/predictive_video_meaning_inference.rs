@@ -1,5 +1,6 @@
 // src/video_generation/multimodal_contextual_video_understanding/predictive_video_meaning_inference.rs
 
+use crate::prelude::*;
 pub struct VideoMeaningInferencer;
 
 impl VideoMeaningInferencer {

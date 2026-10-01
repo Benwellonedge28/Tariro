@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/academic_essay_thesis_writing.rs
 
+use crate::prelude::*;
 pub struct AcademicEssayThesisWriting;
 
 impl AcademicEssayThesisWriting {

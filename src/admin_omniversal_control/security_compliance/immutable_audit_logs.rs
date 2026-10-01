@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/security_compliance/immutable_audit_logs.rs
 
+use crate::prelude::*;
 pub struct ImmutableAuditLogger;
 
 impl ImmutableAuditLogger {

@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/cross_agi_multi_tariro_management/autonomous_agi_self_healing_network.rs
 
+use crate::prelude::*;
 pub struct AGISelfHealingNetwork;
 
 impl AGISelfHealingNetwork {

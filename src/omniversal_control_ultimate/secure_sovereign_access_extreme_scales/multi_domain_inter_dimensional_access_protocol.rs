@@ -1,5 +1,6 @@
 // src/omniversal_ultimate/secure_sovereign_access_extreme_scales/multi_domain_inter_dimensional_access_protocol.rs
 
+use crate::prelude::*;
 pub struct InterDimensionalAccessProtocol;
 
 impl InterDimensionalAccessProtocol {

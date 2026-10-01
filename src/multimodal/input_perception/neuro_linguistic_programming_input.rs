@@ -1,5 +1,6 @@
 // src/multimodal/input_perception/neuro_linguistic_programming_input.rs
 
+use crate::prelude::*;
 pub struct NLPCapturer {
     // Directly interpreting human intent and desires from linguistic patterns, body language, and neural signals.
 }

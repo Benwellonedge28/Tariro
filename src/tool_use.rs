@@ -1,6 +1,7 @@
 // Tariro AGI - Tool Use Engine Module
 // Enables AGI to use external tools and APIs
 
+use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
 use std::time::Duration;

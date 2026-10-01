@@ -1,5 +1,6 @@
 // src/voice_generation/advanced_vocal_security_privacy/voice_privacy_shields.rs
 
+use crate::prelude::*;
 pub struct VoicePrivacyShield;
 
 impl VoicePrivacyShield {

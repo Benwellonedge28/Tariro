@@ -1,5 +1,6 @@
 // src/voice_generation/meta_voice_cognitive_integration/self_improving_voice_generation_models.rs
 
+use crate::prelude::*;
 pub struct SelfImprovingVoiceModel;
 
 impl SelfImprovingVoiceModel {

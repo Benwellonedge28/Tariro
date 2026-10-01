@@ -1,5 +1,6 @@
 // src/tariro_chatbot/threat_invisibility_security/ethical_ai_oversight_of_chat_interactions.rs
 
+use crate::prelude::*;
 pub struct EthicalAIOversightOfChatInteractions;
 
 impl EthicalAIOversightOfChatInteractions {

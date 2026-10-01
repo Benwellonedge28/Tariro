@@ -1,5 +1,6 @@
 // src/music/distribution_monetization/predictive_music_market_trend_analysis.rs
 
+use crate::prelude::*;
 pub struct MarketAnalyzer {
     // Forecast future music market trends, popular genres, and artist trajectory to advise on strategic investments.
 }

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/multi_reality_multiverse_versioning/inter_reality_data_consistency_checks.rs
 
+use crate::prelude::*;
 pub struct InterRealityDataConsistencyChecks;
 
 impl InterRealityDataConsistencyChecks {

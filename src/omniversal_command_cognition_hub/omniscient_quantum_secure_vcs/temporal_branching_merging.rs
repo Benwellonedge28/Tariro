@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/temporal_branching_merging.rs
 
+use crate::prelude::*;
 pub struct TemporalBranching;
 
 impl TemporalBranching {

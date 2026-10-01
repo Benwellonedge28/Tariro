@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/meta_administrative_interface_self_evolution/self_healing_admin_interface.rs
 
+use crate::prelude::*;
 pub struct SelfHealingInterface;
 
 impl SelfHealingInterface {

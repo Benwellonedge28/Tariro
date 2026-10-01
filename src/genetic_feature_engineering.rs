@@ -4,6 +4,7 @@
 /// via Genetic Algorithms. This module will continuously evolve and discover optimal features from
 /// raw data for machine learning models (SIMD: genetic algorithm execution).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

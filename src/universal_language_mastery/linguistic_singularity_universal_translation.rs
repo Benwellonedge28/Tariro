@@ -1,5 +1,6 @@
 // src/universal_language_mastery/linguistic_singularity_universal_translation.rs
 
+use crate::prelude::*;
 pub enum LinguisticSource {
     NaturalLanguage(String), // e.g., "English", "Mandarin"
     ArtificialLanguage(String), // e.g., "Rust", "SQL"

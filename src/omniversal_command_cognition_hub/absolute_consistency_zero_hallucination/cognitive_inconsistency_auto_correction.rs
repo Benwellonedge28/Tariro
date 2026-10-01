@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/absolute_consistency_zero_hallucination/cognitive_inconsistency_auto_correction.rs
 
+use crate::prelude::*;
 pub struct CognitiveInconsistencyAutoCorrection;
 
 impl CognitiveInconsistencyAutoCorrection {

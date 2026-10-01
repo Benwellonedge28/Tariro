@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/hierarchical_omni_domain_implementation_panel/risk_propagation_mitigation_hierarchy.rs
 
+use crate::prelude::*;
 pub struct RiskHierarchyManager;
 
 impl RiskHierarchyManager {

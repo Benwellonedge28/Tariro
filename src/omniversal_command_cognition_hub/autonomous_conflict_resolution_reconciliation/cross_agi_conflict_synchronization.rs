@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/autonomous_conflict_resolution_reconciliation/cross_agi_conflict_synchronization.rs
 
+use crate::prelude::*;
 pub struct CrossAGIConflictSynchronization;
 
 impl CrossAGIConflictSynchronization {

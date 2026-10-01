@@ -1,5 +1,6 @@
 // src/tariro_chatbot/core_functionality/permission_aware_interaction.rs
 
+use crate::prelude::*;
 pub struct PermissionAwareInteraction;
 
 impl PermissionAwareInteraction {

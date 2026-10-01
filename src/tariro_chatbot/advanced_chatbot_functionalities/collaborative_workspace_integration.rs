@@ -1,5 +1,6 @@
 // src/tariro_chatbot/advanced_chatbot_functionalities/collaborative_workspace_integration.rs
 
+use crate::prelude::*;
 pub struct CollaborativeWorkspaceIntegration;
 
 impl CollaborativeWorkspaceIntegration {

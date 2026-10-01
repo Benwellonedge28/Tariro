@@ -1,5 +1,6 @@
 // src/music/production_engineering/automated_foley_sound_effect_generation.rs
 
+use crate::prelude::*;
 pub struct FoleyGenerator {
     // Generate realistic and contextually appropriate foley sounds and sound effects for any media.
 }

@@ -1,5 +1,6 @@
 // src/tariro_chatbot/core_functionality/omni_lingual_interaction.rs
 
+use crate::prelude::*;
 pub struct OmniLingualInteraction;
 
 impl OmniLingualInteraction {

@@ -5,6 +5,7 @@
 /// for instant, context-aware retrieval across vast, disparate information silos (RAG: real-time data
 /// ingestion; SIMD: graph traversal optimization).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

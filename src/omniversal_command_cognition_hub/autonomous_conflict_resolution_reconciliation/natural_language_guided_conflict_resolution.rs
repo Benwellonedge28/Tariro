@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/autonomous_conflict_resolution_reconciliation/natural_language_guided_conflict_resolution.rs
 
+use crate::prelude::*;
 pub struct NaturalLanguageGuidedConflictResolution;
 
 impl NaturalLanguageGuidedConflictResolution {

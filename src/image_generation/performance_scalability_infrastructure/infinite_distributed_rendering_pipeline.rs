@@ -1,5 +1,6 @@
 // src/image_generation/performance_scalability_infrastructure/infinite_distributed_rendering_pipeline.rs
 
+use crate::prelude::*;
 pub struct DistributedRenderingPipeline;
 
 impl DistributedRenderingPipeline {

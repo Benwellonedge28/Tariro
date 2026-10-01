@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/admin_interface_invisibility_self_protecting_panel/sub_cognitive_alerting_adaptive.rs
 
+use crate::prelude::*;
 pub struct SubCognitiveAlertingAdaptive;
 
 impl SubCognitiveAlertingAdaptive {

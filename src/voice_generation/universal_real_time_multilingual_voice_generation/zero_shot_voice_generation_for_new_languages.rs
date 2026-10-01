@@ -1,5 +1,6 @@
 // src/voice_generation/universal_real_time_multilingual_voice_generation/zero_shot_voice_generation_for_new_languages.rs
 
+use crate::prelude::*;
 pub struct ZeroShotVoiceGenerator;
 
 impl ZeroShotVoiceGenerator {

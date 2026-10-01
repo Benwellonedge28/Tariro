@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_semantic_versioning_impact_analysis/automated_feature_documentation_from_vcs.rs
 
+use crate::prelude::*;
 pub struct AutomatedFeatureDocumentationFromVCS;
 
 impl AutomatedFeatureDocumentationFromVCS {

@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/hyper_personalized_adaptive_admin_experience/user_journey_mapping_optimization_admin.rs
 
+use crate::prelude::*;
 pub struct UserJourneyOptimizer;
 
 impl UserJourneyOptimizer {

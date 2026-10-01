@@ -1,5 +1,6 @@
 // src/voice_generation/meta_voice_cognitive_integration/philosophical_voice_generation.rs
 
+use crate::prelude::*;
 pub struct PhilosophicalVoiceGenerator;
 
 impl PhilosophicalVoiceGenerator {

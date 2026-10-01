@@ -1,5 +1,6 @@
 // src/video_generation/autonomous_video_generation/bio_generative_cinematography.rs
 
+use crate::prelude::*;
 pub struct BioGenerativeCinematographer;
 
 impl BioGenerativeCinematographer {

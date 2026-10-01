@@ -1,5 +1,6 @@
 //! NIOAM: Genesis Protocol & Ontological Projection for Googol %
 
+use crate::prelude::*;
 pub struct SwarmGenesis {
     pub population: u128,
 }

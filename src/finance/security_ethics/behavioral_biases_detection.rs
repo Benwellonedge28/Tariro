@@ -1,5 +1,6 @@
 // src/finance/security_ethics/behavioral_biases_detection.rs
 
+use crate::prelude::*;
 pub struct BehavioralBiasDetector {
     // Identifies and mitigates cognitive and behavioral biases in both human and AI financial decision-making.
 }

@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/predictive_governance_proactive_intervention/automated_incident_response_plan_generation.rs
 
+use crate::prelude::*;
 pub struct IncidentResponsePlanGenerator;
 
 impl IncidentResponsePlanGenerator {

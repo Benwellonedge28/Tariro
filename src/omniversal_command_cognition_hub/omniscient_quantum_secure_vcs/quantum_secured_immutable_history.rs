@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/quantum_secured_immutable_history.rs
 
+use crate::prelude::*;
 pub struct ImmutableHistory;
 
 impl ImmutableHistory {

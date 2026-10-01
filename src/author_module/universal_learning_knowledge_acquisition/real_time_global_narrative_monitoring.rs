@@ -1,5 +1,6 @@
 // src/author_module/universal_learning_knowledge_acquisition/real_time_global_narrative_monitoring.rs
 
+use crate::prelude::*;
 pub struct RealtimeGlobalNarrativeMonitoring;
 
 impl RealtimeGlobalNarrativeMonitoring {

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/universal_content_concept_traceability/personalized_content_view_vcs.rs
 
+use crate::prelude::*;
 pub struct PersonalizedContentViewVCS;
 
 impl PersonalizedContentViewVCS {

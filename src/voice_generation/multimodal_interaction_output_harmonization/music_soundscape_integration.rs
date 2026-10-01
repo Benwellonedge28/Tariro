@@ -1,5 +1,6 @@
 // src/voice_generation/multimodal_interaction_output_harmonization/music_soundscape_integration.rs
 
+use crate::prelude::*;
 pub struct SoundscapeIntegrator;
 
 impl SoundscapeIntegrator {

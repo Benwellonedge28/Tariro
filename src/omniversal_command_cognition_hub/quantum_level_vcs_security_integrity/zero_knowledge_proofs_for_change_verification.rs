@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/quantum_level_vcs_security_integrity/zero_knowledge_proofs_for_change_verification.rs
 
+use crate::prelude::*;
 pub struct ZeroKnowledgeProofsForChangeVerification;
 
 impl ZeroKnowledgeProofsForChangeVerification {

@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/nl_document_control/conversational_workflow_builder.rs
 
+use crate::prelude::*;
 pub struct ConversationalWorkflowBuilder;
 
 impl ConversationalWorkflowBuilder {

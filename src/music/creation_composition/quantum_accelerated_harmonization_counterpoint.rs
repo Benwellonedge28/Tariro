@@ -1,5 +1,6 @@
 // src/music/creation_composition/quantum_accelerated_harmonization_counterpoint.rs
 
+use crate::prelude::*;
 pub struct QuantumHarmonizer {
     // Generate complex, mathematically perfect harmonic and contrapuntal structures at speeds beyond human capability.
 }

@@ -1,5 +1,6 @@
 // src/voice_generation/multimodal_interaction_output_harmonization/real_time_body_language_gesture_synthesis.rs
 
+use crate::prelude::*;
 pub struct BodyLanguageSynthesizer;
 
 impl BodyLanguageSynthesizer {

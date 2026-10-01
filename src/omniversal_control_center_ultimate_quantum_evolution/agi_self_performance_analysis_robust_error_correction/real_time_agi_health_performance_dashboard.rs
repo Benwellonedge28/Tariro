@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/agi_self_performance_analysis_robust_error_correction/real_time_agi_health_performance_dashboard.rs
 
+use crate::prelude::*;
 pub struct AGIHealthDashboard;
 
 impl AGIHealthDashboard {

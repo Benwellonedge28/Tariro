@@ -1,3 +1,4 @@
+use crate::prelude::*;
 use super::models::IpAsset;
 use uuid::Uuid;
 use chrono::Utc;

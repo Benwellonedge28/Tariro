@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/meta_analytics_predictive_admin_analytics/ethical_admin_behavior_scoring.rs
 
+use crate::prelude::*;
 pub struct EthicalAdminBehaviorScorer;
 
 impl EthicalAdminBehaviorScorer {

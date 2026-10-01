@@ -1,5 +1,6 @@
 // src/admin_voice_interface/real_time_monitoring_diagnostics/emotional_consistency_monitor.rs
 
+use crate::prelude::*;
 pub struct EmotionalConsistencyMonitor;
 
 impl EmotionalConsistencyMonitor {

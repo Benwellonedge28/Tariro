@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/music_lyrics_integration.rs
 
+use crate::prelude::*;
 pub struct MusicLyricsIntegration;
 
 impl MusicLyricsIntegration {

@@ -3,6 +3,7 @@
 //! Provides functionality for personalizing news content for individual users
 //! based on their preferences, past interactions, and inferred interests.
 
+use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use std::collections::HashMap;

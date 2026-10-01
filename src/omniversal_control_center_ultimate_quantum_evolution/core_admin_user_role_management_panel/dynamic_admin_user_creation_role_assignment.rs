@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/core_admin_user_role_management_panel/dynamic_admin_user_creation_role_assignment.rs
 
+use crate::prelude::*;
 pub struct AdminUserCreator;
 
 impl AdminUserCreator {

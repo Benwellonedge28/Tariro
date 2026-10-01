@@ -1,5 +1,6 @@
 // src/nano_technological_omnipresence/nano_medical_surgical_swarms.rs
 
+use crate::prelude::*;
 pub enum SurgicalProcedureType {
     CellularRepair,
     PathogenRemoval,

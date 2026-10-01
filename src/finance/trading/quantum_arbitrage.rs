@@ -1,5 +1,6 @@
 // src/finance/trading/quantum_arbitrage.rs
 
+use crate::prelude::*;
 pub struct QuantumArbitrageur {
     // Spatial, temporal, and cross-asset arbitrage at quantum scales.
 }

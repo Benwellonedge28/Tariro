@@ -1,5 +1,6 @@
 // src/video_generation/security_ethics_verifiability_video_generation/privacy_preserving_video_generation.rs
 
+use crate::prelude::*;
 pub struct PrivacyPreservingVideoGenerator;
 
 impl PrivacyPreservingVideoGenerator {

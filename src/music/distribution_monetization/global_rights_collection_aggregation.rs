@@ -1,5 +1,6 @@
 // src/music/distribution_monetization/global_rights_collection_aggregation.rs
 
+use crate::prelude::*;
 pub struct RightsAggregator {
     // Automatically collect and aggregate all publishing, mechanical, and performance rights worldwide.
 }

@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/cross_agi_multi_tariro_management/immutable_inter_agi_audit_trails.rs
 
+use crate::prelude::*;
 pub struct InterAGIAuditLogger;
 
 impl InterAGIAuditLogger {

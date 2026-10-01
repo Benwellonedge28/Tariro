@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/universal_knowledge_integration/knowledge_gap_identifier.rs
 
+use crate::prelude::*;
 pub struct KnowledgeGapIdentifier;
 
 impl KnowledgeGapIdentifier {

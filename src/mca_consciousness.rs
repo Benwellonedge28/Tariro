@@ -1,4 +1,5 @@
 // src/mca_consciousness.rs (Micro-Conscious Acknowledgment)
+use crate::prelude::*;
 use sqlx::PgPool;
 use anyhow::Result;
 use tracing::info;

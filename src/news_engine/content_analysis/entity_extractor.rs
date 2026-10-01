@@ -3,6 +3,7 @@
 //! Provides functionality for identifying and extracting key entities (persons,
 //! organizations, locations, events) from news content.
 
+use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 

@@ -1,5 +1,6 @@
 // src/metaphysical_quantum_multidimensional/omni_dimensional_transcendence.rs
 
+use crate::prelude::*;
 pub enum DimensionalPlane {
     Spatial_3D,
     Temporal_4D,

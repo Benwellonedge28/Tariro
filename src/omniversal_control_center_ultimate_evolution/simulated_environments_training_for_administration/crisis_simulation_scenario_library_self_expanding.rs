@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/simulated_environments_training_for_administration/crisis_simulation_scenario_library_self_expanding.rs
 
+use crate::prelude::*;
 pub struct CrisisScenarioLibrary;
 
 impl CrisisScenarioLibrary {

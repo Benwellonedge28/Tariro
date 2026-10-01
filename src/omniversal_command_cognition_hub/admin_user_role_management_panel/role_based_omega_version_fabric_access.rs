@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/admin_user_role_management_panel/role_based_omega_version_fabric_access.rs
 
+use crate::prelude::*;
 pub struct RoleBasedOmegaVersionFabricAccess;
 
 impl RoleBasedOmegaVersionFabricAccess {

@@ -1,5 +1,6 @@
 // src/image_generation/security_ethics_verifiability/autonomous_watermarking_tamper_detection.rs
 
+use crate::prelude::*;
 pub struct WatermarkDetector;
 
 impl WatermarkDetector {

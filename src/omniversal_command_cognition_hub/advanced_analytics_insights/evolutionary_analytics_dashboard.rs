@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/advanced_analytics_insights/evolutionary_analytics_dashboard.rs
 
+use crate::prelude::*;
 pub struct EvolutionaryDashboard;
 
 impl EvolutionaryDashboard {

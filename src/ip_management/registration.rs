@@ -1,3 +1,4 @@
+use crate::prelude::*;
 use super::models::{IpAsset, IpType, IpDomain, IpStatus, OwnershipShare, IpSecrecyLevel};
 use uuid::Uuid;
 use chrono::Utc;

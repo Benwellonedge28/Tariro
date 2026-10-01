@@ -1,5 +1,6 @@
 // src/author_module/advanced_functionality_integration/neural_co_authorship_integration.rs
 
+use crate::prelude::*;
 pub struct NeuralCoAuthorshipIntegration;
 
 impl NeuralCoAuthorshipIntegration {

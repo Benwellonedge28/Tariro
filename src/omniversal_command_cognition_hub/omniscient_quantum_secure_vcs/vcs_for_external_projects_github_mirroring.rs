@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/vcs_for_external_projects_github_mirroring.rs
 
+use crate::prelude::*;
 pub struct ExternalVCSMirroring;
 
 impl ExternalVCSMirroring {

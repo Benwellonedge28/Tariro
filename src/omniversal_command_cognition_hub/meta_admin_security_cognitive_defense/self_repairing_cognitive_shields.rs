@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/meta_admin_security_cognitive_defense/self_repairing_cognitive_shields.rs
 
+use crate::prelude::*;
 pub struct SelfRepairingCognitiveShields;
 
 impl SelfRepairingCognitiveShields {

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniversal_reporting_explainability/consciousness_level_reporting_for_samuel.rs
 
+use crate::prelude::*;
 pub struct ConsciousnessLevelReportingForSamuel;
 
 impl ConsciousnessLevelReportingForSamuel {

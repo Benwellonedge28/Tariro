@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/dynamic_service_pricing_panel/global_regulatory_compliance_for_pricing.rs
 
+use crate::prelude::*;
 pub struct GlobalRegulatoryComplianceForPricing;
 
 impl GlobalRegulatoryComplianceForPricing {

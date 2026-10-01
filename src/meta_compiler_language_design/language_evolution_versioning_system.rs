@@ -1,5 +1,6 @@
 // src/meta_compiler_language_design/language_evolution_versioning_system.rs
 
+use crate::prelude::*;
 pub struct LanguageVersion {
     pub version_id: String,
     pub major: u32,

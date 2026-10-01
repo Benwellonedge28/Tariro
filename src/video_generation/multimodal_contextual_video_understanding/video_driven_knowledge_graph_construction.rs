@@ -1,5 +1,6 @@
 // src/video_generation/multimodal_contextual_video_understanding/video_driven_knowledge_graph_construction.rs
 
+use crate::prelude::*;
 pub struct VideoKnowledgeGraphBuilder;
 
 impl VideoKnowledgeGraphBuilder {

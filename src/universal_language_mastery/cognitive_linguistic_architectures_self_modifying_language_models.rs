@@ -1,5 +1,6 @@
 // src/universal_language_mastery/cognitive_linguistic_architectures_self_modifying_language_models.rs
 
+use crate::prelude::*;
 pub struct LanguageModelConfiguration {
     pub config_id: String,
     pub architecture_type: String, // e.g., "Transformer", "Recurrent", "Neuro-Symbolic"

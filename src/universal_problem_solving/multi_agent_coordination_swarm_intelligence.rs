@@ -1,5 +1,6 @@
 // src/universal_problem_solving/multi_agent_coordination_swarm_intelligence.rs
 
+use crate::prelude::*;
 pub enum AgentType {
     SoftwareAI(String), // e.g., "Negotiator", "Pathfinder", "DataAnalyst"
     PhysicalRobot(String), // e.g., "Drone", "Rover", "ManipulatorArm"

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_semantic_versioning_impact_analysis/dynamic_object_relationship_versioning.rs
 
+use crate::prelude::*;
 pub struct DynamicObjectRelationshipVersioning;
 
 impl DynamicObjectRelationshipVersioning {

@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/predictive_reader_engagement_optimization.rs
 
+use crate::prelude::*;
 pub struct PredictiveReaderEngagementOptimization;
 
 impl PredictiveReaderEngagementOptimization {

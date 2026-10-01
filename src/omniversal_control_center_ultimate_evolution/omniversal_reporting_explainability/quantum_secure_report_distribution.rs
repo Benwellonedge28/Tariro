@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/omniversal_reporting_explainability/quantum_secure_report_distribution.rs
 
+use crate::prelude::*;
 pub struct QuantumSecureReporter;
 
 impl QuantumSecureReporter {

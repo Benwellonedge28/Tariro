@@ -1,5 +1,6 @@
 // src/infinity_memory/quantum_entangled_memory_storage.rs
 
+use crate::prelude::*;
 pub struct QuantumEntangledMemoryStorage {
     // Represents a system utilizing quantum entanglement for memory storage.
     // In a real implementation, this would involve interfaces with quantum hardware

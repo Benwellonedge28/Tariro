@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniversal_reporting_explainability/ethical_compliance_reports_automated_verifiable.rs
 
+use crate::prelude::*;
 pub struct EthicalComplianceReportsAutomatedVerifiable;
 
 impl EthicalComplianceReportsAutomatedVerifiable {

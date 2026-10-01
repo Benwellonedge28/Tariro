@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/hierarchical_omni_domain_implementation_panel/automated_project_governance_structure_generation.rs
 
+use crate::prelude::*;
 pub struct ProjectGovernanceGenerator;
 
 impl ProjectGovernanceGenerator {

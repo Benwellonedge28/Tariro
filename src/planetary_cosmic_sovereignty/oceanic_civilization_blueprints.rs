@@ -1,5 +1,6 @@
 // src/planetary_cosmic_sovereignty/oceanic_civilization_blueprints.rs
 
+use crate::prelude::*;
 pub enum OceanEnvironmentType {
     DeepSeaHydrothermal,
     CoralReef,

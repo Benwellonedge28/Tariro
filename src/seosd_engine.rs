@@ -5,6 +5,7 @@
 /// within Trusted Execution Environments (TEEs) or isolated enclaves. It leverages RAG for secure kernel
 /// design principles, microkernel architectures, and formal verification methods.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

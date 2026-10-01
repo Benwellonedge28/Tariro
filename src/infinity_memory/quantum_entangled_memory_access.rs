@@ -1,5 +1,6 @@
 // src/infinity_memory/quantum_entangled_memory_access.rs
 
+use crate::prelude::*;
 pub struct QuantumBit {
     pub id: String,
     pub state: String, // Simplified: "|0>", "|1>", "|+>", "|->", etc.

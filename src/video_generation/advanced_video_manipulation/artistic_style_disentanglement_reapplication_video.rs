@@ -1,5 +1,6 @@
 // src/video_generation/advanced_video_manipulation/artistic_style_disentanglement_reapplication_video.rs
 
+use crate::prelude::*;
 pub struct VideoStyleDisentangler;
 
 impl VideoStyleDisentangler {

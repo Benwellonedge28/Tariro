@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/absolute_consistency_zero_hallucination/automated_contradiction_resolution.rs
 
+use crate::prelude::*;
 pub struct ContradictionResolver;
 
 impl ContradictionResolver {

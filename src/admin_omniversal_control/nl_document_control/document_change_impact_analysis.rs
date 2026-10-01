@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/nl_document_control/document_change_impact_analysis.rs
 
+use crate::prelude::*;
 pub struct PolicyImpactAnalyzer;
 
 impl PolicyImpactAnalyzer {

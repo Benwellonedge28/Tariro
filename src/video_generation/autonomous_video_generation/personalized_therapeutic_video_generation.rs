@@ -1,5 +1,6 @@
 // src/video_generation/autonomous_video_generation/personalized_therapeutic_video_generation.rs
 
+use crate::prelude::*;
 pub struct TherapeuticVideoGenerator;
 
 impl TherapeuticVideoGenerator {

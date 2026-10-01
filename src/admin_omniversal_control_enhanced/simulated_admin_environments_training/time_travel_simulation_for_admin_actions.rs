@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/simulated_admin_environments_training/time_travel_simulation_for_admin_actions.rs
 
+use crate::prelude::*;
 pub struct TimeTravelSimulator;
 
 impl TimeTravelSimulator {

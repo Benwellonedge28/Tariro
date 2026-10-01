@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/omni_channel_universal_access/neural_interface_for_admin_control.rs
 
+use crate::prelude::*;
 pub struct NeuralInterface;
 
 impl NeuralInterface {

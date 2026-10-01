@@ -11,6 +11,7 @@
 /// RAG: causal inference, probabilistic modeling, scenario generation, risk assessment,
 ///      strategic planning, historical context analysis).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/meta_admin_security_cognitive_defense/consciousness_bound_deactivation_protocol.rs
 
+use crate::prelude::*;
 pub struct ConsciousnessBoundDeactivationProtocol;
 
 impl ConsciousnessBoundDeactivationProtocol {

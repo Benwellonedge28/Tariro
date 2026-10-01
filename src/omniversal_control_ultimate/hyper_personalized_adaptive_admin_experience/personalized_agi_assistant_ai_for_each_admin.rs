@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/hyper_personalized_adaptive_admin_experience/personalized_agi_assistant_ai_for_each_admin.rs
 
+use crate::prelude::*;
 pub struct PersonalizedAGIAssistant;
 
 impl PersonalizedAGIAssistant {

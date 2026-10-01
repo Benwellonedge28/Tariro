@@ -5,6 +5,7 @@
 /// insecure channels, providing confidentiality against quantum adversaries. It leverages RAG for PQC KEM standards
 /// (e.g., Kyber, Classic McEliece) and their security proofs.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

@@ -1,5 +1,6 @@
 // src/image_generation/security_ethics_verifiability/secure_image_watermarking_steganography.rs
 
+use crate::prelude::*;
 pub struct SecureWatermarker;
 
 impl SecureWatermarker {

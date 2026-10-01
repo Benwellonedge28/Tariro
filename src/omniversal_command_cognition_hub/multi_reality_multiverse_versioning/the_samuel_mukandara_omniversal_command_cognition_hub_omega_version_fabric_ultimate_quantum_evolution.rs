@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/multi_reality_multiverse_versioning/the_samuel_mukandara_omniversal_command_cognition_hub_omega_version_fabric_ultimate_quantum_evolution.rs
 
+use crate::prelude::*;
 pub struct TheSamuelMukandaraOmniversalCommandCognitionHubOmegaVersionFabricUltimateQuantumEvolution;
 
 impl TheSamuelMukandaraOmniversalCommandCognitionHubOmegaVersionFabricUltimateQuantumEvolution {

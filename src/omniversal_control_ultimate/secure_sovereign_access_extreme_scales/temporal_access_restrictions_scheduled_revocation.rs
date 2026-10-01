@@ -1,5 +1,6 @@
 // src/omniversal_ultimate/secure_sovereign_access_extreme_scales/temporal_access_restrictions_scheduled_revocation.rs
 
+use crate::prelude::*;
 pub struct TemporalAccessControl;
 
 impl TemporalAccessControl {

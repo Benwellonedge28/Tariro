@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/spatiotemporal_memory_indexing_retrieval.rs
 
+use crate::prelude::*;
 pub struct Location {
     pub latitude: f64,
     pub longitude: f64,

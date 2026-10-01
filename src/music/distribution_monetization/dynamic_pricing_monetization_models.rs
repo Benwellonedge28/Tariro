@@ -1,5 +1,6 @@
 // src/music/distribution_monetization/dynamic_pricing_monetization_models.rs
 
+use crate::prelude::*;
 pub struct PricingGenerator {
     // Create novel monetization strategies and dynamically adjust pricing for music based on market demand, region, and listener behavior.
 }

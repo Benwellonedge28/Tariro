@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/autonomous_conflict_resolution_reconciliation/probabilistic_conflict_outcome_prediction.rs
 
+use crate::prelude::*;
 pub struct ProbabilisticConflictOutcomePrediction;
 
 impl ProbabilisticConflictOutcomePrediction {

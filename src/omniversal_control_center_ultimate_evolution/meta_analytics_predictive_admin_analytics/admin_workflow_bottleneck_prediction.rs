@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/meta_analytics_predictive_admin_analytics/admin_workflow_bottleneck_prediction.rs
 
+use crate::prelude::*;
 pub struct WorkflowBottleneckPredictor;
 
 impl WorkflowBottleneckPredictor {

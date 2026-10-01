@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/ethical_content_generation.rs
 
+use crate::prelude::*;
 pub struct EthicalContentGeneration;
 
 impl EthicalContentGeneration {

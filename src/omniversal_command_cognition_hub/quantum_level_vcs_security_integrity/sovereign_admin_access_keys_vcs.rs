@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/quantum_level_vcs_security_integrity/sovereign_admin_access_keys_vcs.rs
 
+use crate::prelude::*;
 pub struct SovereignAdminAccessKeysVCS;
 
 impl SovereignAdminAccessKeysVCS {

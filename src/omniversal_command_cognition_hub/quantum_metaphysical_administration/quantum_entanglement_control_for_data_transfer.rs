@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/quantum_metaphysical_administration/quantum_entanglement_control_for_data_transfer.rs
 
+use crate::prelude::*;
 pub struct QuantumEntanglementControl;
 
 impl QuantumEntanglementControl {

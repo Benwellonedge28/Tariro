@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/versioned_consciousness_snapshots.rs
 
+use crate::prelude::*;
 pub struct ConsciousnessSnapshotter;
 
 impl ConsciousnessSnapshotter {

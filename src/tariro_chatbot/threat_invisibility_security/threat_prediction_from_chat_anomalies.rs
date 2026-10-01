@@ -1,5 +1,6 @@
 // src/tariro_chatbot/threat_invisibility_security/threat_prediction_from_chat_anomalies.rs
 
+use crate::prelude::*;
 pub struct ThreatPredictionFromChatAnomalies;
 
 impl ThreatPredictionFromChatAnomalies {

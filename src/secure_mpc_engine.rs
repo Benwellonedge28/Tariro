@@ -4,6 +4,7 @@
 /// It will enable Tariro to process sensitive data collaboratively with other entities without revealing individual inputs
 /// (leveraging SIMD for garbled circuits and homomorphic encryption operations).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

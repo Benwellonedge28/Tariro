@@ -6,6 +6,7 @@
 /// leader selection in decentralized protocols, and secure sampling
 /// (leveraging RAG for VRF algorithm analysis and SIMD for accelerating proof generation and verification).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

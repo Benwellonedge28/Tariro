@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/omni_dimensional_user_analytics_behavioral_intelligence/user_generated_content_sentiment_trend_analysis.rs
 
+use crate::prelude::*;
 pub struct UGCSentimentAnalysis;
 
 impl UGCSentimentAnalysis {

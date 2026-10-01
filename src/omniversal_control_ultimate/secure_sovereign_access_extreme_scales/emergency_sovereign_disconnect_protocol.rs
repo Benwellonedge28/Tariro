@@ -1,5 +1,6 @@
 // src/omniversal_ultimate/secure_sovereign_access_extreme_scales/emergency_sovereign_disconnect_protocol.rs
 
+use crate::prelude::*;
 pub struct EmergencyDisconnectProtocol;
 
 impl EmergencyDisconnectProtocol {

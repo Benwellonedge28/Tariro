@@ -4,6 +4,7 @@
 /// of RAG and SIMD components and adaptively adjusts their configurations
 /// to optimize for specific metrics (e.g., speed, accuracy, resource usage).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};

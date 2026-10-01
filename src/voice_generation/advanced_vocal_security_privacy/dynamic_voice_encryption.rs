@@ -1,5 +1,6 @@
 // src/voice_generation/advanced_vocal_security_privacy/dynamic_voice_encryption.rs
 
+use crate::prelude::*;
 pub struct DynamicVoiceEncryptor;
 
 impl DynamicVoiceEncryptor {

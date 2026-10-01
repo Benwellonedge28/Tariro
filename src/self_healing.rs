@@ -3,6 +3,7 @@
 /// This module outlines a conceptual system for automatically diagnosing
 /// and resolving system anomalies and failures, enhancing resilience.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

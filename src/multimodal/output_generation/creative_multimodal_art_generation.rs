@@ -1,5 +1,6 @@
 // src/multimodal/output_generation/creative_multimodal_art_generation.rs
 
+use crate::prelude::*;
 pub struct ArtGenerator {
     // Autonomously creating original and innovative art across multiple sensory dimensions.
 }

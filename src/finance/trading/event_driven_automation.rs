@@ -1,5 +1,6 @@
 // src/finance/trading/event_driven_automation.rs
 
+use crate::prelude::*;
 pub struct EventTrader {
     // Reaction to geopolitical, economic, or company events.
 }

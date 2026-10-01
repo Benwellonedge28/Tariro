@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hierarchical_implementation_testing_view/natural_language_driven_hierarchy_modification.rs
 
+use crate::prelude::*;
 pub struct NaturalLanguageDrivenHierarchyModification;
 
 impl NaturalLanguageDrivenHierarchyModification {

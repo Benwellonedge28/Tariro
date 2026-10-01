@@ -8,6 +8,7 @@
 /// of its world (leveraging RAG for knowledge graph schemas and ontologies, and SIMD for high-speed graph traversal
 /// and reasoning).
 
+use crate::prelude::*;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::thread;

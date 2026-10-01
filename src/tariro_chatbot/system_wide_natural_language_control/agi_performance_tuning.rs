@@ -1,5 +1,6 @@
 // src/tariro_chatbot/system_wide_natural_language_control/agi_performance_tuning.rs
 
+use crate::prelude::*;
 pub struct AGIPerformanceTuning;
 
 impl AGIPerformanceTuning {

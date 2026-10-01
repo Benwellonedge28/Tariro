@@ -1,5 +1,6 @@
 // src/image_generation/advanced_image_manipulation/time_series_image_prediction.rs
 
+use crate::prelude::*;
 pub struct TimeSeriesPredictor;
 
 impl TimeSeriesPredictor {

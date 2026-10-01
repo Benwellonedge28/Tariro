@@ -1,5 +1,6 @@
 // src/image_generation/multimodal_contextual_understanding/image_driven_knowledge_graph_construction.rs
 
+use crate::prelude::*;
 pub struct KnowledgeGraphBuilder;
 
 impl KnowledgeGraphBuilder {

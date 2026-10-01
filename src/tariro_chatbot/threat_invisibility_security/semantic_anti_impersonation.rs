@@ -1,5 +1,6 @@
 // src/tariro_chatbot/threat_invisibility_security/semantic_anti_impersonation.rs
 
+use crate::prelude::*;
 pub struct SemanticAntiImpersonation;
 
 impl SemanticAntiImpersonation {

@@ -6,6 +6,7 @@
 /// overarching directives, and internal state, including mechanisms for
 /// conflict resolution between competing goals.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/dynamic_service_pricing_panel/what_if_pricing_scenario_simulator_vcs_integrated.rs
 
+use crate::prelude::*;
 pub struct WhatIfPricingScenarioSimulatorVCSIntegrated;
 
 impl WhatIfPricingScenarioSimulatorVCSIntegrated {

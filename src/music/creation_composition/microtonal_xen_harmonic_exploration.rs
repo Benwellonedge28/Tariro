@@ -1,5 +1,6 @@
 // src/music/creation_composition/microtonal_xen_harmonic_exploration.rs
 
+use crate::prelude::*;
 pub struct MicrotonalExplorer {
     // Compose and perform music using microtonal scales and non-traditional harmonic systems.
 }

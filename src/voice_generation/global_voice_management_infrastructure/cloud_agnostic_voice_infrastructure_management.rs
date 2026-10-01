@@ -1,5 +1,6 @@
 // src/voice_generation/global_voice_management_infrastructure/cloud_agnostic_voice_infrastructure_management.rs
 
+use crate::prelude::*;
 pub struct CloudAgnosticVoiceInfraManager;
 
 impl CloudAgnosticVoiceInfraManager {

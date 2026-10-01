@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/meta_admin_security_cognitive_defense/admin_behavioral_authentication_deep_learning.rs
 
+use crate::prelude::*;
 pub struct AdminBehavioralAuthentication;
 
 impl AdminBehavioralAuthentication {

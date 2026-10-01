@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/root_cause_analysis_from_version_history.rs
 
+use crate::prelude::*;
 pub struct RootCauseAnalyzerVCS;
 
 impl RootCauseAnalyzerVCS {

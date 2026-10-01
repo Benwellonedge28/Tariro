@@ -1,5 +1,6 @@
 // src/meta_compiler_language_design/multi_paradigm_language_blending.rs
 
+use crate::prelude::*;
 pub enum ProgrammingParadigm {
     Functional,
     ObjectOriented,

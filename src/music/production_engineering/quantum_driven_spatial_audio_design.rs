@@ -1,5 +1,6 @@
 // src/music/production_engineering/quantum_driven_spatial_audio_design.rs
 
+use crate::prelude::*;
 pub struct SpatialAudioDesigner {
     // Design and render immersive 3D spatial audio experiences for any playback environment.
 }

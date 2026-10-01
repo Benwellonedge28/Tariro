@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/universal_narrative_synthesis_engine.rs
 
+use crate::prelude::*;
 pub struct UniversalNarrativeSynthesisEngine;
 
 impl UniversalNarrativeSynthesisEngine {

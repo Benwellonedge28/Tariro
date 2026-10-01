@@ -1,5 +1,6 @@
 // src/video_generation/multimodal_contextual_video_understanding/emotional_impact_assessment_video.rs
 
+use crate::prelude::*;
 pub struct EmotionalImpactAssessor;
 
 impl EmotionalImpactAssessor {

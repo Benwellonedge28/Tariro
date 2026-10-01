@@ -1,5 +1,6 @@
 // src/voice_generation/global_voice_management_infrastructure/self_healing_voice_processing_pipelines.rs
 
+use crate::prelude::*;
 pub struct SelfHealingVoicePipeline;
 
 impl SelfHealingVoicePipeline {

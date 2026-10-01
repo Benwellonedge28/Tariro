@@ -1,5 +1,6 @@
 // src/image_generation/advanced_image_manipulation/artistic_style_disentanglement.rs
 
+use crate::prelude::*;
 pub struct StyleDisentangler;
 
 impl StyleDisentangler {

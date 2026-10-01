@@ -1,5 +1,6 @@
 // src/finance/defi/tokenomics_design_simulation.rs
 
+use crate::prelude::*;
 pub struct TokenomicsSimulator {
     // Designs and simulates the economic behavior of novel tokenomics models.
 }

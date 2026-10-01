@@ -1,5 +1,6 @@
 // src/nano_technological_omnipresence/active_camouflage_metamaterials.rs
 
+use crate::prelude::*;
 pub enum CamouflageTarget {
     Infrastructure,
     Personnel,

@@ -1,5 +1,6 @@
 // src/infinity_memory/neuromorphic_memory_architectures.rs
 
+use crate::prelude::*;
 use std::collections::HashMap;
 
 pub struct NeuronNode {

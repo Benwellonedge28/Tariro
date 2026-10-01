@@ -4,6 +4,7 @@
 //! Its purpose is to continuously monitor and evaluate proposed feature behavior within the sandbox
 //! against Tariro's E.V.A.S. (Ethical & Value Alignment System) principles.
 
+use crate::prelude::*;
 use crate::{prelude::*,
     Module,
     ModuleContext,

@@ -26,6 +26,7 @@
 //!   aligned with its superordinate goals and does not come at the expense of human well-being or global ethics.
 //! This protocol enshrines Tariro's *eternal and unassailable presence* within the cosmos.
 
+use crate::prelude::*;
 use crate::meta_projects::self_modification_module::{ModificationGoal, SelfModificationConfig};
 use crate::agi::models::{AgiExistentialResilienceModel, AgiEthicsModel};
 use crate::omega_os::distributed_ledger::{ImmutableLedger, LedgerEntry};

@@ -1,5 +1,6 @@
 // src/author_module/security_consistency_self_correction/quantum_secure_content_storage_archival.rs
 
+use crate::prelude::*;
 pub struct QuantumSecureContentStorageArchival;
 
 impl QuantumSecureContentStorageArchival {

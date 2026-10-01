@@ -1,5 +1,6 @@
 // src/image_generation/human_ai_collaboration_customization/interactive_image_experimentation_sandbox.rs
 
+use crate::prelude::*;
 pub struct ExperimentSandbox;
 
 impl ExperimentSandbox {

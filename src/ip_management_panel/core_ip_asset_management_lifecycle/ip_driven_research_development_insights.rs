@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/ip_driven_research_development_insights.rs
 
+use crate::prelude::*;
 pub struct IpDrivenResearchDevelopmentInsights;
 
 impl IpDrivenResearchDevelopmentInsights {

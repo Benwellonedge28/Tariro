@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniversal_reporting_explainability/real_time_global_impact_visualization.rs
 
+use crate::prelude::*;
 pub struct RealtimeGlobalImpactVisualization;
 
 impl RealtimeGlobalImpactVisualization {

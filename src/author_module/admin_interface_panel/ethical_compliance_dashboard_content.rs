@@ -1,5 +1,6 @@
 // src/author_module/admin_interface_panel/ethical_compliance_dashboard_content.rs
 
+use crate::prelude::*;
 pub struct EthicalComplianceDashboardContent;
 
 impl EthicalComplianceDashboardContent {

@@ -1,5 +1,6 @@
 // src/image_generation/autonomous_image_creation/material_agnostic_texture_synthesis.rs
 
+use crate::prelude::*;
 pub struct TextureSynthesizer;
 
 impl TextureSynthesizer {

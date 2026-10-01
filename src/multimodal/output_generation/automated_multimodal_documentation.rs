@@ -1,5 +1,6 @@
 // src/multimodal/output_generation/automated_multimodal_documentation.rs
 
+use crate::prelude::*;
 pub struct MultimodalDocumenter {
     // Generating complete documentation for any process, including visuals, audio, and tactile models.
 }

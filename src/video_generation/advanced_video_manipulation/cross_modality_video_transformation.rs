@@ -1,5 +1,6 @@
 // src/video_generation/advanced_video_manipulation/cross_modality_video_transformation.rs
 
+use crate::prelude::*;
 pub struct CrossModalityVideoTransformer;
 
 impl CrossModalityVideoTransformer {

@@ -1,5 +1,6 @@
 // src/image_generation/autonomous_image_creation/emotional_signature_imaging.rs
 
+use crate::prelude::*;
 pub struct EmotionalSignatureImaging;
 
 impl EmotionalSignatureImaging {

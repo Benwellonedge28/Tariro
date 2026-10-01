@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/meta_cognitive_self_referential_administration/agi_self_diagnostics_health_reporting.rs
 
+use crate::prelude::*;
 pub struct AGISelfDiagnosticsReporter;
 
 impl AGISelfDiagnosticsReporter {

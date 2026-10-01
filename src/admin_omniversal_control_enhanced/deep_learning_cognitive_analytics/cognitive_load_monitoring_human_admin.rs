@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/deep_learning_cognitive_analytics/cognitive_load_monitoring_human_admin.rs
 
+use crate::prelude::*;
 pub struct CognitiveLoadMonitor;
 
 impl CognitiveLoadMonitor {

@@ -1,5 +1,6 @@
 // src/meta_compiler_language_design/reflective_compiler_design.rs
 
+use crate::prelude::*;
 pub enum CompilerComponent {
     Lexer,
     Parser,

@@ -1,6 +1,7 @@
 // Tariro AGI - Emotional Architecture Module
 // Comprehensive emotional processing system for AGI
 
+use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
 use chrono::{DateTime, Utc};

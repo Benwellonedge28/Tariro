@@ -1,5 +1,6 @@
 // src/video_generation/advanced_video_manipulation/video_de_aging_re_aging.rs
 
+use crate::prelude::*;
 pub struct VideoAgeTransformer;
 
 impl VideoAgeTransformer {

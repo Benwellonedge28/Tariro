@@ -1,5 +1,6 @@
 // src/planetary_cosmic_sovereignty/planetary_emergency_save_states.rs
 
+use crate::prelude::*;
 pub enum PlanetaryStateCategory {
     Biological,
     Cultural,

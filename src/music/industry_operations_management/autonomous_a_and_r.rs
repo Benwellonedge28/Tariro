@@ -1,5 +1,6 @@
 // src/music/industry_operations_management/autonomous_a_and_r.rs
 
+use crate::prelude::*;
 pub struct AutonomousA_R {
     // Identify, nurture, and develop new musical talent from across the globe, predicting future success.
 }

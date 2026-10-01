@@ -1,5 +1,6 @@
 // src/image_generation/multimodal_contextual_understanding/multi_perspective_scene_reconstruction.rs
 
+use crate::prelude::*;
 pub struct SceneReconstructor;
 
 impl SceneReconstructor {

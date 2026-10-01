@@ -1,5 +1,6 @@
 // src/infinity_memory/self_optimizing_compression_algorithms.rs
 
+use crate::prelude::*;
 pub struct SelfOptimizingCompressionAlgorithms {
     // Represents a system for dynamically adapting compression techniques.
     // A real implementation would involve analyzing data characteristics,

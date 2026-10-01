@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/proactive_predictive_versioning/autonomous_pre_commit_validation.rs
 
+use crate::prelude::*;
 pub struct AutonomousPreCommitValidation;
 
 impl AutonomousPreCommitValidation {

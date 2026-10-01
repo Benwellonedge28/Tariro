@@ -3,6 +3,7 @@
 /// This module provides conceptual components for analyzing historical threat data
 /// and forecasting future threat trends, laying the groundwork for proactive defense.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use rand::Rng;
 

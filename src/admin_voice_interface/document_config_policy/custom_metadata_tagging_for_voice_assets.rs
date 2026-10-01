@@ -1,5 +1,6 @@
 // src/admin_voice_interface/document_config_policy/custom_metadata_tagging_for_voice_assets.rs
 
+use crate::prelude::*;
 pub struct MetadataTagger;
 
 impl MetadataTagger {

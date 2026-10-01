@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniversal_reporting_explainability/predictive_anomaly_reporting.rs
 
+use crate::prelude::*;
 pub struct PredictiveAnomalyReporting;
 
 impl PredictiveAnomalyReporting {

@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/security_compliance/automated_compliance_reporting_auditing.rs
 
+use crate::prelude::*;
 pub struct AutomatedComplianceReporter;
 
 impl AutomatedComplianceReporter {

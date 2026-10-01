@@ -1,5 +1,6 @@
 // src/finance/analysis/debt_sustainability_analysis.rs
 
+use crate::prelude::*;
 pub struct DebtAnalyzer {
     // Analyzes sovereign and corporate debt sustainability, predicting default risks.
 }

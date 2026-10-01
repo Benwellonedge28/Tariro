@@ -5,6 +5,7 @@
 /// the most performant versions for target hardware. It leverages RAG for hardware specifications and compiler flags,
 /// and SIMD for parallel code generation and benchmarking.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

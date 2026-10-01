@@ -1,5 +1,6 @@
 // src/admin_voice_interface/real_time_monitoring_diagnostics/error_log_alerting_system.rs
 
+use crate::prelude::*;
 pub struct ErrorLoggerAlerter;
 
 impl ErrorLoggerAlerter {

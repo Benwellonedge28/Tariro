@@ -1,5 +1,6 @@
 // src/music/creation_composition/lyrical_content_poetic_structure_synthesizer.rs
 
+use crate::prelude::*;
 pub struct LyricalSynthesizer {
     // Write compelling, contextually relevant lyrics in any language, adhering to complex poetic forms and narrative arcs.
 }

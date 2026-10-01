@@ -1,5 +1,6 @@
 // src/admin_voice_interface/nl_command_control/predictive_command_suggestions.rs
 
+use crate::prelude::*;
 pub struct PredictiveCommandSuggester;
 
 impl PredictiveCommandSuggester {

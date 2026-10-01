@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/hyper_personalized_adaptive_admin_experience/gamified_skill_progression_certification.rs
 
+use crate::prelude::*;
 pub struct GamifiedSkillProgression;
 
 impl GamifiedSkillProgression {

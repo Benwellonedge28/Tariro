@@ -1,5 +1,6 @@
 // src/video_generation/performance_scalability_infrastructure_video_generation/infinite_distributed_rendering_pipeline_video.rs
 
+use crate::prelude::*;
 pub struct DistributedRenderingPipeline;
 
 impl DistributedRenderingPipeline {

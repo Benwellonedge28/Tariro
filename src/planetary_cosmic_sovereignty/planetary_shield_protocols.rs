@@ -1,5 +1,6 @@
 // src/planetary_cosmic_sovereignty/planetary_shield_protocols.rs
 
+use crate::prelude::*;
 pub enum CosmicEventSeverity {
     Minor,
     Moderate,

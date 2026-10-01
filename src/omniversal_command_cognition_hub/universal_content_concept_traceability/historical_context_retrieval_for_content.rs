@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/universal_content_concept_traceability/historical_context_retrieval_for_content.rs
 
+use crate::prelude::*;
 pub struct HistoricalContextRetrievalForContent;
 
 impl HistoricalContextRetrievalForContent {

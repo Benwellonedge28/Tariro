@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/absolute_consistency_zero_hallucination/contextual_consistency_engine.rs
 
+use crate::prelude::*;
 pub struct ConsistencyEngine;
 
 impl ConsistencyEngine {

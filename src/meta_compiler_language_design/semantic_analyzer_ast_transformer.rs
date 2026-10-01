@@ -1,5 +1,6 @@
 // src/meta_compiler_language_design/semantic_analyzer_ast_transformer.rs
 
+use crate::prelude::*;
 pub enum SemanticAnalysisLevel {
     BasicTypeChecking,
     DataFlowAnalysis,

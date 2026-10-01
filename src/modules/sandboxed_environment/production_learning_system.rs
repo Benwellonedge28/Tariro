@@ -5,6 +5,7 @@
 //! (telemetry, logs, user behavior) to enrich simulations, generate more realistic
 //! test cases, and identify emerging patterns or potential issues before they impact users.
 
+use crate::prelude::*;
 use crate::{prelude::*,
     Module,
     ModuleContext,

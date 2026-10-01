@@ -1,5 +1,6 @@
 // src/multimodal/meta_multimodal_security/universal_multimodal_security_intrusion_detection.rs
 
+use crate::prelude::*;
 pub struct UniversalSecurity {
     // Detecting and neutralizing multimodal threats, from deepfake audio/video to physical sabotage attempts.
 }

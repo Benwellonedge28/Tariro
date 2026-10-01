@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/global_cosmic_orchestration/cosmic_orchestration_command_center.rs
 
+use crate::prelude::*;
 pub struct CosmicCommandCenter;
 
 impl CosmicCommandCenter {

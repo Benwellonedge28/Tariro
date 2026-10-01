@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/gamified_incentivized_administration/admin_of_the_month_agi_recognition.rs
 
+use crate::prelude::*;
 pub struct AdminRecognition;
 
 impl AdminRecognition {

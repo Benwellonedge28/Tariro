@@ -1,5 +1,6 @@
 // src/admin_voice_interface/auditing_explainability/user_interaction_traceability_voice.rs
 
+use crate::prelude::*;
 pub struct UserInteractionTracer;
 
 impl UserInteractionTracer {

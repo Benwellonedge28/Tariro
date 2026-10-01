@@ -1,5 +1,6 @@
 // src/tariro_chatbot/threat_invisibility_security/chat_based_threat_intelligence_sharing.rs
 
+use crate::prelude::*;
 pub struct ChatBasedThreatIntelligenceSharing;
 
 impl ChatBasedThreatIntelligenceSharing {

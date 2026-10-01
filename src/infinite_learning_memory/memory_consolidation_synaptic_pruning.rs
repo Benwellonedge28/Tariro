@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/memory_consolidation_synaptic_pruning.rs
 
+use crate::prelude::*;
 pub enum MemoryType {
     Declarative,
     Procedural,

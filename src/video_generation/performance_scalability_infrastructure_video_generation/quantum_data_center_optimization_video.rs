@@ -1,5 +1,6 @@
 // src/video_generation/performance_scalability_infrastructure_video_generation/quantum_data_center_optimization_video.rs
 
+use crate::prelude::*;
 pub struct QuantumDataCenterOptimizer;
 
 impl QuantumDataCenterOptimizer {

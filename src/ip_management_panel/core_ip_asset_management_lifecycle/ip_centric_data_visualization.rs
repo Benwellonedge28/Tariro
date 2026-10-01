@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/ip_centric_data_visualization.rs
 
+use crate::prelude::*;
 pub struct IpCentricDataVisualization;
 
 impl IpCentricDataVisualization {

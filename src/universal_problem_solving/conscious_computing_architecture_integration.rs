@@ -1,5 +1,6 @@
 // src/universal_problem_solving/conscious_computing_architecture_integration.rs
 
+use crate::prelude::*;
 pub enum ConsciousnessModel {
     GlobalWorkspaceTheory,
     IntegratedInformationTheory,

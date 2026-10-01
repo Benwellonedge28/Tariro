@@ -1,5 +1,6 @@
 // src/voice_generation/global_voice_management_infrastructure/real_time_global_voice_stream_optimization.rs
 
+use crate::prelude::*;
 pub struct GlobalVoiceStreamOptimizer;
 
 impl GlobalVoiceStreamOptimizer {

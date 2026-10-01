@@ -1,5 +1,6 @@
 // src/multimodal/output_generation/tactile_data_visualization.rs
 
+use crate::prelude::*;
 pub struct TactileVisualizer {
     // Converting complex datasets into intuitively understandable haptic patterns or textures.
 }

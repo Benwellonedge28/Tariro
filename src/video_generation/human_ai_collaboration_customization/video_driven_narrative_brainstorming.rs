@@ -1,5 +1,6 @@
 // src/video_generation/human_ai_collaboration_customization/video_driven_narrative_brainstorming.rs
 
+use crate::prelude::*;
 pub struct VideoNarrativeBrainstormer;
 
 impl VideoNarrativeBrainstormer {

@@ -7,6 +7,7 @@
 /// for component failure modes, operational history, and real-time environmental factors
 /// to optimize maintenance schedules and prevent costly downtime.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

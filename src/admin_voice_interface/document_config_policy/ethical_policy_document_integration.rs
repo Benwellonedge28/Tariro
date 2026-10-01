@@ -1,5 +1,6 @@
 // src/admin_voice_interface/document_config_policy/ethical_policy_document_integration.rs
 
+use crate::prelude::*;
 pub struct EthicalPolicyIntegrator;
 
 impl EthicalPolicyIntegrator {

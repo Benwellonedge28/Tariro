@@ -1,5 +1,6 @@
 // src/infinity_memory/cognitive_offloading_integration.rs
 
+use crate::prelude::*;
 use std::collections::HashMap;
 
 pub enum OffloadService {

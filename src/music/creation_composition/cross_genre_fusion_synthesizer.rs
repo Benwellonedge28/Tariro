@@ -1,5 +1,6 @@
 // src/music/creation_composition/cross_genre_fusion_synthesizer.rs
 
+use crate::prelude::*;
 pub struct GenreFusionSynthesizer {
     // Create entirely new music genres by intelligently blending and evolving elements from disparate musical traditions.
 }

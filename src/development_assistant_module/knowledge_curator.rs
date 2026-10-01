@@ -1,3 +1,4 @@
+use crate::prelude::*;
 pub struct KnowledgeCurator;
 
 impl KnowledgeCurator {

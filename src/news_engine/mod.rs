@@ -2,6 +2,7 @@
 
 //! This module orchestrates the entire OMEGA News process, from ingestion to generation and dissemination.
 
+use crate::prelude::*;
 pub mod news_engine;
 pub mod news_ingestion;
 pub mod content_analysis;

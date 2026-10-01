@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/autonomous_pre_deployment_testing_validation_panel/certification_assurance_report_autogeneration.rs
 
+use crate::prelude::*;
 pub struct CertificationReporter;
 
 impl CertificationReporter {

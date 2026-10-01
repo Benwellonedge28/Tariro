@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hierarchical_implementation_testing_view/predictive_deployment_risk_assessment_hierarchical.rs
 
+use crate::prelude::*;
 pub struct PredictiveDeploymentRiskAssessmentHierarchical;
 
 impl PredictiveDeploymentRiskAssessmentHierarchical {

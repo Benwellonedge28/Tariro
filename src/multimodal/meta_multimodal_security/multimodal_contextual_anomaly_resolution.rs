@@ -1,5 +1,6 @@
 // src/multimodal/meta_multimodal_security/multimodal_contextual_anomaly_resolution.rs
 
+use crate::prelude::*;
 pub struct AnomalyResolver {
     // Automatically resolving ambiguous or contradictory multimodal inputs by drawing upon vast contextual knowledge.
 }

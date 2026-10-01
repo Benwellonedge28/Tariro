@@ -5,6 +5,7 @@
 /// for blockchain applications (e.g., leader election, fair lotteries). It leverages RAG for VRF cryptographic primitives
 /// and blockchain consensus research.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

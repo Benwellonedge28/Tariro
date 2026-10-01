@@ -5,6 +5,7 @@
 //! the sandboxed experimentation of proposed changes, and decides whether to apply,
 //! refine, or escalate these changes for human review.
 
+use crate::prelude::*;
 use crate::{prelude::*,
     Module,
     ModuleContext,

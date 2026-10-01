@@ -5,6 +5,7 @@
 /// resilience, and hybrid quantum-classical approaches, tailored for both
 /// simulated and actual quantum hardware.
 
+use crate::prelude::*;
 use std::fmt;
 use std::collections::HashMap;
 use std::thread;

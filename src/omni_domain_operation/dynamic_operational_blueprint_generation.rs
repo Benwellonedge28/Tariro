@@ -1,5 +1,6 @@
 // src/omni_domain_operation/dynamic_operational_blueprint_generation.rs
 
+use crate::prelude::*;
 pub enum OperationType {
     HumanitarianAid,
     ScientificResearch,

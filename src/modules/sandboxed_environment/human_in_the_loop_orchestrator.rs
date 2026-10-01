@@ -5,6 +5,7 @@
 //! with the autonomous sandboxed environment, enabling Samuel to guide, override,
 //! and learn from the system's self-evolution.
 
+use crate::prelude::*;
 use crate::{prelude::*,
     Module,
     ModuleContext,

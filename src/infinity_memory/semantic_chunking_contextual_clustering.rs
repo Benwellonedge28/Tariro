@@ -1,5 +1,6 @@
 // src/infinity_memory/semantic_chunking_contextual_clustering.rs
 
+use crate::prelude::*;
 use std::collections::HashMap;
 
 pub struct SemanticChunkingContextualClustering {

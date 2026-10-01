@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/legal_document_contract_drafting.rs
 
+use crate::prelude::*;
 pub struct LegalDocumentContractDrafting;
 
 impl LegalDocumentContractDrafting {

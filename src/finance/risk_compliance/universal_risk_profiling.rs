@@ -1,5 +1,6 @@
 // src/finance/risk_compliance/universal_risk_profiling.rs
 
+use crate::prelude::*;
 pub struct RiskProfiler {
     // Continuously assesses and updates the risk profile of any investment, portfolio, or counterparty.
 }

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/advanced_analytics_insights/universal_pattern_recognition_for_analytics.rs
 
+use crate::prelude::*;
 pub struct UniversalPatternRecognizer;
 
 impl UniversalPatternRecognizer {

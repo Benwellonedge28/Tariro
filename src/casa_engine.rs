@@ -6,6 +6,7 @@
 /// and internal performance metrics. (SIMD: parallel evaluation of architectural configurations and rapid deployment
 /// of new cognitive models; RAG: cognitive science theories, metacognition, self-modifying code, neuro-symbolic AI architectures).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

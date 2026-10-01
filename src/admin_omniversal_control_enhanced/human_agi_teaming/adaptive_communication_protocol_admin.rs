@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/human_agi_teaming/adaptive_communication_protocol_admin.rs
 
+use crate::prelude::*;
 pub struct AdaptiveCommProtocol;
 
 impl AdaptiveCommProtocol {

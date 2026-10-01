@@ -1,5 +1,6 @@
 // src/admin_voice_interface/global_voice_infrastructure_scalability_control/scalable_voice_model_deployment.rs
 
+use crate::prelude::*;
 pub struct ScalableVoiceModelDeployer;
 
 impl ScalableVoiceModelDeployer {

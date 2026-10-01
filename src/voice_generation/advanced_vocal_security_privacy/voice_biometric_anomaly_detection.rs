@@ -1,5 +1,6 @@
 // src/voice_generation/advanced_vocal_security_privacy/voice_biometric_anomaly_detection.rs
 
+use crate::prelude::*;
 pub struct VoiceAnomalyDetector;
 
 impl VoiceAnomalyDetector {

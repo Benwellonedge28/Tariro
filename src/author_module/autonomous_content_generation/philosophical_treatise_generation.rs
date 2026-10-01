@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/philosophical_treatise_generation.rs
 
+use crate::prelude::*;
 pub struct PhilosophicalTreatiseGeneration;
 
 impl PhilosophicalTreatiseGeneration {

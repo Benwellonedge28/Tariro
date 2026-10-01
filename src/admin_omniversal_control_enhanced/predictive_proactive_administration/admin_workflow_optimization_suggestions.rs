@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/predictive_proactive_administration/admin_workflow_optimization_suggestions.rs
 
+use crate::prelude::*;
 pub struct WorkflowOptimizer;
 
 impl WorkflowOptimizer {

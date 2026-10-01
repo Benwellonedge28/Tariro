@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/advanced_human_agi_teaming_collaboration/explain_your_reasoning_deep_dive.rs
 
+use crate::prelude::*;
 pub struct ReasoningDeepDive;
 
 impl ReasoningDeepDive {

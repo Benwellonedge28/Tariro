@@ -1,5 +1,6 @@
 // src/voice_generation/user_centric_voice_customization_adaptation/adaptive_voice_persona_user_driven.rs
 
+use crate::prelude::*;
 pub struct AdaptiveVoicePersona;
 
 impl AdaptiveVoicePersona {

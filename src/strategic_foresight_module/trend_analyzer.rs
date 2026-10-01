@@ -1,3 +1,4 @@
+use crate::prelude::*;
 pub struct TrendAnalyzer;
 
 impl TrendAnalyzer {

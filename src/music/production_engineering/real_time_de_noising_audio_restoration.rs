@@ -1,5 +1,6 @@
 // src/music/production_engineering/real_time_de_noising_audio_restoration.rs
 
+use crate::prelude::*;
 pub struct AudioRestorer {
     // Flawlessly restore degraded audio recordings, removing noise, clicks, and imperfections in real-time.
 }

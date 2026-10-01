@@ -3,6 +3,7 @@
 /// This module provides structures and functions for enhancing RAG systems
 /// by focusing on advanced contextual information retrieval and re-ranking.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 
 /// Represents an individual piece of retrieved context.

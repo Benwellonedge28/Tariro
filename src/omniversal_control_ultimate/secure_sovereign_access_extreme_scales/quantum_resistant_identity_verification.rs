@@ -1,5 +1,6 @@
 // src/omniversal_ultimate/secure_sovereign_access_extreme_scales/quantum_resistant_identity_verification.rs
 
+use crate::prelude::*;
 pub struct QuantumIdentityVerifier;
 
 impl QuantumIdentityVerifier {

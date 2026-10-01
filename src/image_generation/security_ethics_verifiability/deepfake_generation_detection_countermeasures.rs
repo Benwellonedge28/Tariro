@@ -1,5 +1,6 @@
 // src/image_generation/security_ethics_verifiability/deepfake_generation_detection_countermeasures.rs
 
+use crate::prelude::*;
 pub struct DeepfakeManager;
 
 impl DeepfakeManager {

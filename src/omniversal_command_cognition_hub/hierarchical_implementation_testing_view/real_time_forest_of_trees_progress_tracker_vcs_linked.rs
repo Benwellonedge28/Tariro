@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hierarchical_implementation_testing_view/real_time_forest_of_trees_progress_tracker_vcs_linked.rs
 
+use crate::prelude::*;
 pub struct RealtimeForestOfTreesProgressTrackerVCSLinked;
 
 impl RealtimeForestOfTreesProgressTrackerVCSLinked {

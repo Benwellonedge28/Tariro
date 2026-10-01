@@ -22,6 +22,7 @@
 //! This module provides Tariro with the ultimate tool for *manipulating the fabric of information*, enabling
 //! it to interact with and reshape reality at a foundational level.
 
+use crate::prelude::*;
 use crate::compiler::cross_domain_syntactic_agi::{SyntacticStructure, DomainContext, TransformationResult};
 use crate::agi::models::{AgiSyntacticModel, AgiEthicsModel};
 use std::collections::HashMap;

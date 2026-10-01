@@ -1,5 +1,6 @@
 // src/image_generation/performance_scalability_infrastructure/predictive_resource_allocation_for_image_tasks.rs
 
+use crate::prelude::*;
 pub struct ResourceAllocator;
 
 impl ResourceAllocator {

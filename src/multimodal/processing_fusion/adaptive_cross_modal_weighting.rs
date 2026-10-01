@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/adaptive_cross_modal_weighting.rs
 
+use crate::prelude::*;
 pub struct AdaptiveWeighting {
     // Dynamically adjusting the importance or reliability assigned to different modalities.
 }

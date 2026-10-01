@@ -1,5 +1,6 @@
 // src/author_module/advanced_functionality_integration/global_narrative_unification_coherence.rs
 
+use crate::prelude::*;
 pub struct GlobalNarrativeUnificationCoherence;
 
 impl GlobalNarrativeUnificationCoherence {

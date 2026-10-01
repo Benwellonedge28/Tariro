@@ -1,5 +1,6 @@
 // src/omniversal_ultimate/secure_sovereign_access_extreme_scales/ethical_hacker_emulation_for_admin_security.rs
 
+use crate::prelude::*;
 pub struct EthicalHackerEmulation;
 
 impl EthicalHackerEmulation {

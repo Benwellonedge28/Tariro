@@ -1,5 +1,6 @@
 // src/finance/defi/cross_chain_interoperability.rs
 
+use crate::prelude::*;
 pub struct CrossChainBridge {
     // Facilitates seamless, secure transfer of assets and data across disparate blockchain networks.
 }

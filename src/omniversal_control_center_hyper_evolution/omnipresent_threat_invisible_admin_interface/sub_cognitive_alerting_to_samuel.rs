@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/omnipresent_threat_invisible_admin_interface/sub_cognitive_alerting_to_samuel.rs
 
+use crate::prelude::*;
 pub struct SubCognitiveAlerting;
 
 impl SubCognitiveAlerting {

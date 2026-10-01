@@ -1,5 +1,6 @@
 // src/video_generation/autonomous_video_generation/universal_narrative_grammar_synthesis.rs
 
+use crate::prelude::*;
 pub struct NarrativeGrammarSynthesizer;
 
 impl NarrativeGrammarSynthesizer {

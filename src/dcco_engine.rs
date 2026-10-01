@@ -7,6 +7,7 @@
 /// energy waste without compromising performance. It leverages RAG for thermal models, CFD
 /// simulations, and real-time sensor data analysis.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

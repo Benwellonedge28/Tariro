@@ -1,5 +1,6 @@
 // src/tariro_chatbot/threat_invisibility_security/temporal_chat_session_filtering.rs
 
+use crate::prelude::*;
 pub struct TemporalChatSessionFiltering;
 
 impl TemporalChatSessionFiltering {

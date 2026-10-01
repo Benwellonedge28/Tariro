@@ -1,5 +1,6 @@
 // src/finance/analysis/patent_innovation_trend.rs
 
+use crate::prelude::*;
 pub struct PatentInnovationAnalyzer {
     // Analyzes patent filings, research papers, and innovation trends for equity valuation.
 }

@@ -1,5 +1,6 @@
 // src/image_generation/meta_generative_evolutionary_imaging/self_improving_generative_models.rs
 
+use crate::prelude::*;
 pub struct SelfImprovingGenerativeModel;
 
 impl SelfImprovingGenerativeModel {

@@ -3,6 +3,7 @@
 /// This module provides conceptual components for analyzing real-time event data
 /// to identify potential threats, anomalies, and significant patterns using rules and heuristics.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
 

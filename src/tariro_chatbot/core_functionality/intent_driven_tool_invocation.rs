@@ -1,5 +1,6 @@
 // src/tariro_chatbot/core_functionality/intent_driven_tool_invocation.rs
 
+use crate::prelude::*;
 pub struct IntentDrivenToolInvocation;
 
 impl IntentDrivenToolInvocation {

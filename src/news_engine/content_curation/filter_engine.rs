@@ -3,6 +3,7 @@
 //! Provides functionality for filtering news articles based on predefined rules,
 //! such as keywords, sentiment, source, or factual accuracy.
 
+use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use std::collections::HashMap;

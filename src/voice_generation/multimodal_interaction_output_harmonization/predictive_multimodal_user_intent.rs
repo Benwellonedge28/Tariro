@@ -1,5 +1,6 @@
 // src/voice_generation/multimodal_interaction_output_harmonization/predictive_multimodal_user_intent.rs
 
+use crate::prelude::*;
 pub struct MultimodalUserIntentPredictor;
 
 impl MultimodalUserIntentPredictor {

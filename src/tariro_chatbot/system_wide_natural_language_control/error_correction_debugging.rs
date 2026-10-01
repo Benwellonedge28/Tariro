@@ -1,5 +1,6 @@
 // src/tariro_chatbot/system_wide_natural_language_control/error_correction_debugging.rs
 
+use crate::prelude::*;
 pub struct ErrorCorrectionDebugging;
 
 impl ErrorCorrectionDebugging {

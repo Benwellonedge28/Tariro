@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/hyper_personalized_adaptive_admin_experience/predictive_admin_workflow_automation.rs
 
+use crate::prelude::*;
 pub struct PredictiveWorkflowAutomator;
 
 impl PredictiveWorkflowAutomator {

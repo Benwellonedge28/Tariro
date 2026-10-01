@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/quantum_level_vcs_security_integrity/vcs_as_a_root_of_trust.rs
 
+use crate::prelude::*;
 pub struct VCSAsARootOfTrust;
 
 impl VCSAsARootOfTrust {

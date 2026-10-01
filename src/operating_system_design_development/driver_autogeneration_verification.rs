@@ -1,5 +1,6 @@
 // src/operating_system_design_development/driver_autogeneration_verification.rs
 
+use crate::prelude::*;
 pub enum DriverType {
     Network,
     Storage,

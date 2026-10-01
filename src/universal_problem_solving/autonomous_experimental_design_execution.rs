@@ -1,5 +1,6 @@
 // src/universal_problem_solving/autonomous_experimental_design_execution.rs
 
+use crate::prelude::*;
 pub enum ExperimentType {
     DigitalSimulation,
     PhysicalLabExperiment,

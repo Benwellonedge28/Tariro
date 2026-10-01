@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/genre_fusion_innovation.rs
 
+use crate::prelude::*;
 pub struct GenreFusionInnovation;
 
 impl GenreFusionInnovation {

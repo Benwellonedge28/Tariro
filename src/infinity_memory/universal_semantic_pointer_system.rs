@@ -1,5 +1,6 @@
 // src/infinity_memory/universal_semantic_pointer_system.rs
 
+use crate::prelude::*;
 use std::collections::HashMap;
 
 pub struct SemanticPointer {

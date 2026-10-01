@@ -1,5 +1,6 @@
 // src/admin_voice_interface/document_config_policy/brand_voice_guidelines_document_upload.rs
 
+use crate::prelude::*;
 pub struct BrandVoiceGuidelinesUploader;
 
 impl BrandVoiceGuidelinesUploader {

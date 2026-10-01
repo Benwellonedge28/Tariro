@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/ip_enabled_ai_agi_training_data_management.rs
 
+use crate::prelude::*;
 pub struct IpEnabledAiAgiTrainingDataManagement;
 
 impl IpEnabledAiAgiTrainingDataManagement {

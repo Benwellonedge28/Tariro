@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/hyper_personalized_adaptive_admin_experience/multimodal_feedback_channels.rs
 
+use crate::prelude::*;
 pub struct MultimodalFeedback;
 
 impl MultimodalFeedback {

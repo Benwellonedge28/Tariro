@@ -6,6 +6,7 @@
 /// inferential capabilities, and efficient information retrieval across
 /// various domains.
 
+use crate::prelude::*;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::thread;

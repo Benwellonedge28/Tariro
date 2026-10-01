@@ -5,6 +5,7 @@
 /// explanations for its decisions. While a full WebAssembly frontend is beyond
 /// this conceptual implementation, the Rust code demonstrates the backend logic.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::io::{self, Write};

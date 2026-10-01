@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/predictive_proactive_administration/resource_needs_forecasting_adaptive.rs
 
+use crate::prelude::*;
 pub struct ResourceForecaster;
 
 impl ResourceForecaster {

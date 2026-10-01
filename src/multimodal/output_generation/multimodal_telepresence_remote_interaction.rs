@@ -1,5 +1,6 @@
 // src/multimodal/output_generation/multimodal_telepresence_remote_interaction.rs
 
+use crate::prelude::*;
 pub struct TelepresenceSystem {
     // Facilitating immersive, multi-sensory telepresence experiences for remote collaboration.
 }

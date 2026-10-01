@@ -1,5 +1,6 @@
 // src/nano_technological_omnipresence/quantum_dot_display_overlays.rs
 
+use crate::prelude::*;
 pub enum DisplaySurfaceType {
     AmbientAir,
     TransparentGlass,

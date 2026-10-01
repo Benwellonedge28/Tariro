@@ -1,5 +1,6 @@
 // src/multimodal/output_generation/direct_neural_output_generation.rs
 
+use crate::prelude::*;
 pub struct NeuralOutputGenerator {
     // Directly stimulating human neural pathways to create sensory experiences or communicate ideas.
 }

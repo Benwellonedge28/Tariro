@@ -1,5 +1,6 @@
 // src/video_generation/security_ethics_verifiability_video_generation/bias_mitigation_in_generative_video_models.rs
 
+use crate::prelude::*;
 pub struct VideoBiasMitigator;
 
 impl VideoBiasMitigator {

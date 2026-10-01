@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/agi_self_performance_analysis_robust_error_correction/adaptive_resource_re_allocation_for_recovery.rs
 
+use crate::prelude::*;
 pub struct ResourceReallocator;
 
 impl ResourceReallocator {

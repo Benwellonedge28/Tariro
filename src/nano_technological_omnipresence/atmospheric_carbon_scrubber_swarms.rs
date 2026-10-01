@@ -1,5 +1,6 @@
 // src/nano_technological_omnipresence/atmospheric_carbon_scrubber_swarms.rs
 
+use crate::prelude::*;
 pub enum CarbonConversionProduct {
     CarbonFiber,
     Graphene,

@@ -1,5 +1,6 @@
 // src/meta_compiler_language_design/homomorphic_compiler.rs
 
+use crate::prelude::*;
 pub struct EncryptedSourceCode {
     pub code_id: String,
     pub encrypted_data: Vec<u8>,

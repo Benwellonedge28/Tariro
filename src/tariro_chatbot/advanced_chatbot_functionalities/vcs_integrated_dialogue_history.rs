@@ -1,5 +1,6 @@
 // src/tariro_chatbot/advanced_chatbot_functionalities/vcs_integrated_dialogue_history.rs
 
+use crate::prelude::*;
 pub struct VCSIntegratedDialogueHistory;
 
 impl VCSIntegratedDialogueHistory {

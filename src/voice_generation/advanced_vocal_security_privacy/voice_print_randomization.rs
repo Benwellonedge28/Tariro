@@ -1,5 +1,6 @@
 // src/voice_generation/advanced_vocal_security_privacy/voice_print_randomization.rs
 
+use crate::prelude::*;
 pub struct VoicePrintRandomizer;
 
 impl VoicePrintRandomizer {

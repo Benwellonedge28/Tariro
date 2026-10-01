@@ -4,6 +4,7 @@
 /// It will present an interactive graph of the specific causes and effects leading to any autonomous action
 /// or system state (leveraging RAG for knowledge graph and system logs, and SIMD for real-time trace analysis).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

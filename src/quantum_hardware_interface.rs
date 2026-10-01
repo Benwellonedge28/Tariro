@@ -5,6 +5,7 @@
 /// submission, result retrieval, and error management in quantum computing
 /// environments, abstracting away the complexities of different quantum backends.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

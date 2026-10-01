@@ -1,5 +1,6 @@
 // src/infinity_memory/memory_fabric_omega_os_integration.rs
 
+use crate::prelude::*;
 pub struct MemoryFabricOmegaOSIntegration {
     // Represents the integration layer with the OMEGA Fabric.
     // In a real implementation, this would involve APIs and protocols

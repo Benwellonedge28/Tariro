@@ -1,5 +1,6 @@
 // src/tariro_chatbot/research_development_facilitation/what_if_scenario_exploration_rd.rs
 
+use crate::prelude::*;
 pub struct WhatIfScenarioExplorationRD;
 
 impl WhatIfScenarioExplorationRD {

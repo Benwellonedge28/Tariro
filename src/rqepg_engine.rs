@@ -5,6 +5,7 @@
 /// randomness, complexity, and emergent properties (SIMD: parallel noise generation, fractal computation; RAG:
 /// procedural generation techniques, quantum randomness sources).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

@@ -8,6 +8,7 @@
 /// debugging and improvement of Tariro's cognitive processes (leveraging RAG for XAI methodologies
 /// and best practices, and SIMD for accelerating explanation generation and visualization).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

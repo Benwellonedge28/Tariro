@@ -1,5 +1,6 @@
 // src/planetary_cosmic_sovereignty/star_lifting.rs
 
+use crate::prelude::*;
 pub enum StellarMaterialType {
     Hydrogen,
     Helium,

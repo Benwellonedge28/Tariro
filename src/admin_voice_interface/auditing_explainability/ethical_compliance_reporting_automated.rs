@@ -1,5 +1,6 @@
 // src/admin_voice_interface/auditing_explainability/ethical_compliance_reporting_automated.rs
 
+use crate::prelude::*;
 pub struct EthicalComplianceReporter;
 
 impl EthicalComplianceReporter {

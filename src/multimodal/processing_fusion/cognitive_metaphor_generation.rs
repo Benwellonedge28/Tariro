@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/cognitive_metaphor_generation.rs
 
+use crate::prelude::*;
 pub struct MetaphorGenerator {
     // Automatically generating and understanding multimodal metaphors.
 }

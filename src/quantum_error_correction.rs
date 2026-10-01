@@ -5,6 +5,7 @@
 /// codes and error mitigation techniques to protect quantum information from
 /// decoherence and computational errors, which are prevalent in quantum hardware.
 
+use crate::prelude::*;
 use std::fmt;
 use std::collections::HashMap;
 use std::thread;

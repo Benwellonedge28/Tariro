@@ -1,5 +1,6 @@
 // src/image_generation/performance_scalability_infrastructure/autonomous_performance_profiling_imaging.rs
 
+use crate::prelude::*;
 pub struct AutonomousProfiler;
 
 impl AutonomousProfiler {

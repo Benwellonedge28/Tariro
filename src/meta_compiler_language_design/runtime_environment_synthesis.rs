@@ -1,5 +1,6 @@
 // src/meta_compiler_language_design/runtime_environment_synthesis.rs
 
+use crate::prelude::*;
 pub enum MemoryManagement {
     GarbageCollection,
     ReferenceCounting,

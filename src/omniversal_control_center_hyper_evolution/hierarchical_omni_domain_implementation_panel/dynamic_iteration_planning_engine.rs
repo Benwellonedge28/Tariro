@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/hierarchical_omni_domain_implementation_panel/dynamic_iteration_planning_engine.rs
 
+use crate::prelude::*;
 pub struct DynamicIterationPlanner;
 
 impl DynamicIterationPlanner {

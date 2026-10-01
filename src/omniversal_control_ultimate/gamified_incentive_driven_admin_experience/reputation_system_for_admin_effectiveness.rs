@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/gamified_incentive_driven_admin_experience/reputation_system_for_admin_effectiveness.rs
 
+use crate::prelude::*;
 pub struct AdminReputationSystem;
 
 impl AdminReputationSystem {

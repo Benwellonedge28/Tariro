@@ -3,6 +3,7 @@
 /// This module defines conceptual components for integrating ethical principles
 /// and policy enforcement mechanisms directly into system operations.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 
 /// Enumerates core ethical principles that E.V.A.S. aims to uphold.

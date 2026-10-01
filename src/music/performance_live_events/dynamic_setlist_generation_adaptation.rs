@@ -1,5 +1,6 @@
 // src/music/performance_live_events/dynamic_setlist_generation_adaptation.rs
 
+use crate::prelude::*;
 pub struct SetlistGenerator {
     // Autonomously generate and adapt setlists for live performances based on crowd reaction, time constraints, and artistic flow.
 }

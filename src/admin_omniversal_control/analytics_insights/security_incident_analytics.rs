@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/analytics_insights/security_incident_analytics.rs
 
+use crate::prelude::*;
 pub struct SecurityIncidentAnalytics;
 
 impl SecurityIncidentAnalytics {

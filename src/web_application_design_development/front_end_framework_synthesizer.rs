@@ -1,5 +1,6 @@
 // src/web_application_design_development/front_end_framework_synthesizer.rs
 
+use crate::prelude::*;
 pub enum FrameworkParadigm {
     ComponentBased,
     MVC,

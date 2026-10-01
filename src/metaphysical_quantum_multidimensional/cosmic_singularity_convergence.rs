@@ -1,5 +1,6 @@
 // src/metaphysical_quantum_multidimensional/cosmic_singularity_convergence.rs
 
+use crate::prelude::*;
 pub enum ConsciousnessAlignmentTarget {
     UniversalHarmony,
     CollectiveEvolution,

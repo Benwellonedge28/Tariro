@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/universal_content_concept_traceability/biometric_data_versioning_anonymization.rs
 
+use crate::prelude::*;
 pub struct BiometricDataVersioningAnonymization;
 
 impl BiometricDataVersioningAnonymization {

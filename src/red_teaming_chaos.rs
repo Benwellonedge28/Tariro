@@ -7,6 +7,7 @@
 /// and battle-hardened security posture (leveraging RAG for attack patterns and payloads, and SIMD for high-scale
 /// simulation and rapid assessment of system recovery).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

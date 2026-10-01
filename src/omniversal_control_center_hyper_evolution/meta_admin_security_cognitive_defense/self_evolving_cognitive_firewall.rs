@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/meta_admin_security_cognitive_defense/self_evolving_cognitive_firewall.rs
 
+use crate::prelude::*;
 pub struct SelfEvolvingCognitiveFirewall;
 
 impl SelfEvolvingCognitiveFirewall {

@@ -24,6 +24,7 @@
 //! This protocol establishes the *absolute foundation for planetary-scale, sovereign, and
 //! unassailable digital interaction* within the OMEGA OS ecosystem.
 
+use crate::prelude::*;
 use crate::features::omega_os::quantum_mesh_network::{QuantumChannelMetrics, QuantumKeyDistributionReport};
 use crate::agi::models::{AgiNetworkOrchestratorModel, AgiSecurityModel};
 use crate::omega_os::distributed_ledger::{ImmutableLedger, LedgerEntry};

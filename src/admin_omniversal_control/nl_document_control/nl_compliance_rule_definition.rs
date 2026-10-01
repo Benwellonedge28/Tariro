@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/nl_document_control/nl_compliance_rule_definition.rs
 
+use crate::prelude::*;
 pub struct ComplianceRuleDefiner;
 
 impl ComplianceRuleDefiner {

@@ -1,5 +1,6 @@
 // src/author_module/security_consistency_self_correction/content_integrity_verification_vcs_integrated.rs
 
+use crate::prelude::*;
 pub struct ContentIntegrityVerificationVCSIntegrated;
 
 impl ContentIntegrityVerificationVCSIntegrated {

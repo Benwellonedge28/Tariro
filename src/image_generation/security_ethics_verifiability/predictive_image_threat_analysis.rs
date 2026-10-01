@@ -1,5 +1,6 @@
 // src/image_generation/security_ethics_verifiability/predictive_image_threat_analysis.rs
 
+use crate::prelude::*;
 pub struct ThreatAnalyzer;
 
 impl ThreatAnalyzer {

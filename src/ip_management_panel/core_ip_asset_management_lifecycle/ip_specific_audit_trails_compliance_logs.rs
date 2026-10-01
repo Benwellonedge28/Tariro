@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/ip_specific_audit_trails_compliance_logs.rs
 
+use crate::prelude::*;
 pub struct IpSpecificAuditTrailsComplianceLogs;
 
 impl IpSpecificAuditTrailsComplianceLogs {

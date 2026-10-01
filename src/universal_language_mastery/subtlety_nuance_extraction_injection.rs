@@ -1,5 +1,6 @@
 // src/universal_language_mastery/subtlety_nuance_extraction_injection.rs
 
+use crate::prelude::*;
 pub struct LinguisticNuance {
     pub nuance_id: String,
     pub type_of_nuance: String, // e.g., "Sarcasm", "Irony", "CulturalReference", "UnspokenImplication"

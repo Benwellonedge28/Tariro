@@ -1,5 +1,6 @@
 // src/tariro_chatbot/threat_invisibility_security/adversarial_dialogue_detection.rs
 
+use crate::prelude::*;
 pub struct AdversarialDialogueDetection;
 
 impl AdversarialDialogueDetection {

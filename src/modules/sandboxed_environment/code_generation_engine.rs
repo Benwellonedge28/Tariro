@@ -5,6 +5,7 @@
 //! based on insights from other modules (e.g., performance bottlenecks, ethical concerns)
 //! for iterative self-improvement within the sandbox.
 
+use crate::prelude::*;
 use crate::{prelude::*,
     Module,
     ModuleContext,

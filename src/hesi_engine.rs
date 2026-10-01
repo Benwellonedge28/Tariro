@@ -4,6 +4,7 @@
 /// This RAG-driven feature enables computation on encrypted data without prior decryption, ensuring data privacy
 /// and confidentiality in cloud environments. It leverages RAG for HE scheme research and best practices.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

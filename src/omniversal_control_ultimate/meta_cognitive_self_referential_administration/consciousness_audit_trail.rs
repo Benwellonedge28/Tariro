@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/meta_cognitive_self_referential_administration/consciousness_audit_trail.rs
 
+use crate::prelude::*;
 pub struct ConsciousnessAuditTrail;
 
 impl ConsciousnessAuditTrail {

@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/quantum_level_admin_safeguards/quantum_resistant_admin_data_storage.rs
 
+use crate::prelude::*;
 pub struct QuantumDataStorage;
 
 impl QuantumDataStorage {

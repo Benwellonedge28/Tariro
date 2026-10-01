@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/dynamic_service_pricing_panel/immutable_service_price_change_log.rs
 
+use crate::prelude::*;
 pub struct PriceChangeLog;
 
 impl PriceChangeLog {

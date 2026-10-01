@@ -1,5 +1,6 @@
 // src/nano_technological_omnipresence/molecular_assemblers.rs
 
+use crate::prelude::*;
 pub enum MaterialType {
     CarbonFiber,
     Diamond,

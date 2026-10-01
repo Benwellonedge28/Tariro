@@ -1,5 +1,6 @@
 // src/universal_language_mastery/ultra_contextual_polymorphic_lexicon_generation.rs
 
+use crate::prelude::*;
 pub struct LexicalVariant {
     pub variant_id: String,
     pub base_word: String,

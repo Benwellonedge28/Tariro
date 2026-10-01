@@ -1,5 +1,6 @@
 // src/video_generation/autonomous_video_generation/cross_dimensional_video_manifestation.rs
 
+use crate::prelude::*;
 pub struct CrossDimensionalManifestor;
 
 impl CrossDimensionalManifestor {

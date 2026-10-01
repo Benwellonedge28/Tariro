@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/autonomous_security_resilience/adaptive_threat_hunting_self_evolving.rs
 
+use crate::prelude::*;
 pub struct AdaptiveThreatHunter;
 
 impl AdaptiveThreatHunter {

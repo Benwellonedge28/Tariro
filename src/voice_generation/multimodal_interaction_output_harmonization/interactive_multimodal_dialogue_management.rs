@@ -1,5 +1,6 @@
 // src/voice_generation/multimodal_interaction_output_harmonization/interactive_multimodal_dialogue_management.rs
 
+use crate::prelude::*;
 pub struct MultimodalDialogueManager;
 
 impl MultimodalDialogueManager {

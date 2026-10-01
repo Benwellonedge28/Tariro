@@ -5,6 +5,7 @@
 /// without sharing raw sensitive information, enhancing collective security while preserving privacy
 /// (leveraging RAG for federated learning algorithms and SIMD for accelerating local model training and aggregation).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

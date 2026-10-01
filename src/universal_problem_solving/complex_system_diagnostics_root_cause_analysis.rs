@@ -1,5 +1,6 @@
 // src/universal_problem_solving/complex_system_diagnostics_root_cause_analysis.rs
 
+use crate::prelude::*;
 pub enum SystemType {
     Technical(String), // e.g., "Software", "Hardware", "Network"
     Biological(String), // e.g., "Organism", "Ecosystem", "CellularPathway"

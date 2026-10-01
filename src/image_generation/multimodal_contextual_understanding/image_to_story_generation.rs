@@ -1,5 +1,6 @@
 // src/image_generation/multimodal_contextual_understanding/image_to_story_generation.rs
 
+use crate::prelude::*;
 pub struct StoryGenerator;
 
 impl StoryGenerator {

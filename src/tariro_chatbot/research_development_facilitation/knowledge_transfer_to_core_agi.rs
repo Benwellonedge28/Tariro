@@ -1,5 +1,6 @@
 // src/tariro_chatbot/research_development_facilitation/knowledge_transfer_to_core_agi.rs
 
+use crate::prelude::*;
 pub struct KnowledgeTransferToCoreAGI;
 
 impl KnowledgeTransferToCoreAGI {

@@ -1,5 +1,6 @@
 // src/multimodal/input_perception/atmospheric_environmental_data_interpretation.rs
 
+use crate::prelude::*;
 pub struct EnvironmentalInterpreter {
     // Real-time, fine-grained interpretation of atmospheric and environmental factors.
 }

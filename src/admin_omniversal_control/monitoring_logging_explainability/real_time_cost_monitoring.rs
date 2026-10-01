@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/monitoring_logging_explainability/real_time_cost_monitoring.rs
 
+use crate::prelude::*;
 pub struct CostMonitor;
 
 impl CostMonitor {

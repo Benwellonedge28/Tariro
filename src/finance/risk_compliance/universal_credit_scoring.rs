@@ -1,5 +1,6 @@
 // src/finance/risk_compliance/universal_credit_scoring.rs
 
+use crate::prelude::*;
 pub struct UniversalCreditScorer {
     // Develops highly accurate and unbiased credit scoring models for individuals, corporations, and sovereigns.
 }

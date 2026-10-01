@@ -1,5 +1,6 @@
 // src/tariro_chatbot/research_development_facilitation/real_time_research_query_engine.rs
 
+use crate::prelude::*;
 pub struct RealtimeResearchQueryEngine;
 
 impl RealtimeResearchQueryEngine {

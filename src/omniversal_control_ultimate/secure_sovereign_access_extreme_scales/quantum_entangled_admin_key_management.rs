@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/secure_sovereign_access_extreme_scales/quantum_entangled_admin_key_management.rs
 
+use crate::prelude::*;
 pub struct QuantumKeyManager;
 
 impl QuantumKeyManager {

@@ -1,5 +1,6 @@
 // src/metaphysical_quantum_multidimensional/quantum_immortality_protocols.rs
 
+use crate::prelude::*;
 pub enum ConsciousnessStatePersistence {
     NeuralPatternBackup,
     QuantumStateReconstruction,

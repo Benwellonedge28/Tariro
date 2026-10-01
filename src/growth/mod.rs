@@ -1,5 +1,6 @@
 //! Universal Growth Engine - Orchestrating Parallel Self-Expansion
 
+use crate::prelude::*;
 use async_trait::async_trait;
 use crate::orchestration::SystemFabric;
 use std::sync::Arc;

@@ -1,5 +1,6 @@
 // src/finance/global_economic_orchestration/crisis_response_fund_allocation.rs
 
+use crate::prelude::*;
 pub struct CrisisFundAllocator {
     // Autonomously allocates emergency funds and resources during global crises.
 }

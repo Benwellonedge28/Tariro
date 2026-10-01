@@ -1,5 +1,6 @@
 // src/multimodal/human_ai_interface/human_like_multimodal_social_interaction.rs
 
+use crate::prelude::*;
 pub struct SocialInteraction {
     // Engaging in multimodal social interactions that are indistinguishable from human-to-human communication.
 }

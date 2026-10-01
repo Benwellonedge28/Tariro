@@ -1,5 +1,6 @@
 // src/tariro_chatbot/threat_invisibility_security/silent_command_protocol.rs
 
+use crate::prelude::*;
 pub struct SilentCommandProtocol;
 
 impl SilentCommandProtocol {

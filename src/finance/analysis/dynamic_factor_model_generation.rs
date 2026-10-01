@@ -1,5 +1,6 @@
 // src/finance/analysis/dynamic_factor_model_generation.rs
 
+use crate::prelude::*;
 pub struct FactorModelGenerator {
     // Autonomously identifies and models latent factors driving asset returns.
 }

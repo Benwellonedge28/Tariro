@@ -1,5 +1,6 @@
 // src/image_generation/performance_scalability_infrastructure/quantum_data_center_optimization.rs
 
+use crate::prelude::*;
 pub struct QuantumDataCenterOptimizer;
 
 impl QuantumDataCenterOptimizer {

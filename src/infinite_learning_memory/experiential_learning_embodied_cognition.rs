@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/experiential_learning_embodied_cognition.rs
 
+use crate::prelude::*;
 pub enum ExperienceModality {
     PhysicalInteraction,
     HighFidelitySimulation,

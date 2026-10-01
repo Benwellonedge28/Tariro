@@ -1,5 +1,6 @@
 // src/sovereign_ethics_governance/transparent_governance_dashboards.rs
 
+use crate::prelude::*;
 pub enum ResourceCategory {
     Energy,
     Water,

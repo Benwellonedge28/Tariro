@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/active_learning_curiosity_driven_exploration.rs
 
+use crate::prelude::*;
 pub enum ExplorationStrategy {
     KnowledgeGapMaximization,
     NoveltySeeking,

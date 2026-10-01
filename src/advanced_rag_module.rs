@@ -6,6 +6,7 @@
 /// synthesis of information. This includes dynamic context window management,
 /// semantic chunking, and knowledge graph integration for richer augmentations.
 
+use crate::prelude::*;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::thread;

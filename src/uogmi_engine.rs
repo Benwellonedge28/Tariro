@@ -6,6 +6,7 @@
 /// (SIMD: parallel UI rendering, input processing; RAG: human-computer interaction, adaptive UI/UX design,
 /// player psychology).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

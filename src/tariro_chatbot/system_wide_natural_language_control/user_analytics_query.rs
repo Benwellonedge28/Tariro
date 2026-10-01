@@ -1,5 +1,6 @@
 // src/tariro_chatbot/system_wide_natural_language_control/user_analytics_query.rs
 
+use crate::prelude::*;
 pub struct UserAnalyticsQuery;
 
 impl UserAnalyticsQuery {

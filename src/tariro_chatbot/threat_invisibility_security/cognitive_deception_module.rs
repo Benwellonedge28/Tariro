@@ -1,5 +1,6 @@
 // src/tariro_chatbot/threat_invisibility_security/cognitive_deception_module.rs
 
+use crate::prelude::*;
 pub struct CognitiveDeceptionModule;
 
 impl CognitiveDeceptionModule {

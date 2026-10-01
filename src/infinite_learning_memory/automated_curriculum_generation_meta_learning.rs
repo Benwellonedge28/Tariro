@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/automated_curriculum_generation_meta_learning.rs
 
+use crate::prelude::*;
 pub struct LearningPath {
     pub path_id: String,
     pub target_skill_id: String,

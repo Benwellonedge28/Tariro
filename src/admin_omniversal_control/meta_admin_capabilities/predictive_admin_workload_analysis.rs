@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/meta_admin_capabilities/predictive_admin_workload_analysis.rs
 
+use crate::prelude::*;
 pub struct WorkloadAnalyzer;
 
 impl WorkloadAnalyzer {

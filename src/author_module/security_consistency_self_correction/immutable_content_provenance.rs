@@ -1,5 +1,6 @@
 // src/author_module/security_consistency_self_correction/immutable_content_provenance.rs
 
+use crate::prelude::*;
 pub struct ImmutableContentProvenance;
 
 impl ImmutableContentProvenance {

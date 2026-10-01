@@ -1,5 +1,6 @@
 // src/image_generation/performance_scalability_infrastructure/multi_platform_image_api_generation.rs
 
+use crate::prelude::*;
 pub struct MultiPlatformAPIGenerator;
 
 impl MultiPlatformAPIGenerator {

@@ -5,6 +5,7 @@
 /// and drug-target interaction analyses. It leverages RAG for chemical databases and biological pathways,
 /// and SIMD for parallel force field calculations.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

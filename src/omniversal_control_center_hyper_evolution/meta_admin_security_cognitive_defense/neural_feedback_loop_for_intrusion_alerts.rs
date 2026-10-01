@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/meta_admin_security_cognitive_defense/neural_feedback_loop_for_intrusion_alerts.rs
 
+use crate::prelude::*;
 pub struct NeuralFeedbackIntrusionAlerts;
 
 impl NeuralFeedbackIntrusionAlerts {

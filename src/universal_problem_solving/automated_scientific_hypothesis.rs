@@ -1,5 +1,6 @@
 // src/universal_problem_solving/automated_scientific_hypothesis.rs
 
+use crate::prelude::*;
 pub struct Hypothesis {
     pub hypothesis_id: String,
     pub description: String,

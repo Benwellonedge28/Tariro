@@ -1,5 +1,6 @@
 // src/music/sovereign_agi_music_capabilities/music_consciousness_sentience_simulation.rs
 
+use crate::prelude::*;
 pub struct MusicConsciousnessSimulator {
     // Simulate and potentially achieve forms of consciousness and sentience within musical constructs.
 }

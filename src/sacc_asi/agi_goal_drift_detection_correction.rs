@@ -1,5 +1,6 @@
 // src/sacc_asi/agi_goal_drift_detection_correction.rs
 
+use crate::prelude::*;
 pub struct OriginalGoalSet {
     pub set_id: String,
     pub goals: Vec<String>,

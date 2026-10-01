@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/nl_document_control/just_in_time_policy_generation.rs
 
+use crate::prelude::*;
 pub struct JITPolicyGenerator;
 
 impl JITPolicyGenerator {

@@ -1,6 +1,7 @@
 // Tariro AGI - Creativity Engine Module
 // Analogical reasoning and creative concept generation
 
+use crate::prelude::*;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::cmp::Ordering;
 

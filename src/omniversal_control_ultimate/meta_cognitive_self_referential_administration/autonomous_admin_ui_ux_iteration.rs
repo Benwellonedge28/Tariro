@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/meta_cognitive_self_referential_administration/autonomous_admin_ui_ux_iteration.rs
 
+use crate::prelude::*;
 pub struct AutonomousUIUXIterator;
 
 impl AutonomousUIUXIterator {

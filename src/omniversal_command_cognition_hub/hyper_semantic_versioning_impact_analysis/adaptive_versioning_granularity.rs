@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_semantic_versioning_impact_analysis/adaptive_versioning_granularity.rs
 
+use crate::prelude::*;
 pub struct AdaptiveVersioningGranularity;
 
 impl AdaptiveVersioningGranularity {

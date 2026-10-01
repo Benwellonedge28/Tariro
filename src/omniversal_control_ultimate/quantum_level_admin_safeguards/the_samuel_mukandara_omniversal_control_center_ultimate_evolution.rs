@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/quantum_level_admin_safeguards/the_samuel_mukandara_omniversal_control_center_ultimate_evolution.rs
 
+use crate::prelude::*;
 pub struct OmniversalControlCenterUltimate;
 
 impl OmniversalControlCenterUltimate {

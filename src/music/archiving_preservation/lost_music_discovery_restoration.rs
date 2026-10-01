@@ -1,5 +1,6 @@
 // src/music/archiving_preservation/lost_music_discovery_restoration.rs
 
+use crate::prelude::*;
 pub struct LostMusicDiscoverer {
     // Autonomously discover, analyze, and restore lost or forgotten musical works from historical archives.
 }

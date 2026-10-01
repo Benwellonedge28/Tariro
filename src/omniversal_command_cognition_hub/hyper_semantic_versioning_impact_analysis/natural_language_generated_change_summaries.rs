@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_semantic_versioning_impact_analysis/natural_language_generated_change_summaries.rs
 
+use crate::prelude::*;
 pub struct NaturalLanguageGeneratedChangeSummaries;
 
 impl NaturalLanguageGeneratedChangeSummaries {

@@ -1,5 +1,6 @@
 // src/biological_neural_symbiosis/neuro_encryption.rs
 
+use crate::prelude::*;
 pub enum EncryptionAlgorithm {
     QuantumKeyDistribution,
     HomomorphicEncryption,

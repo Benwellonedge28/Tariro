@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/omnipresent_threat_invisible_admin_interface/ethical_anti_capture_protocol.rs
 
+use crate::prelude::*;
 pub struct EthicalAntiCaptureProtocol;
 
 impl EthicalAntiCaptureProtocol {

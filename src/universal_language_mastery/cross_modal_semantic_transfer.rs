@@ -1,5 +1,6 @@
 // src/universal_language_mastery/cross_modal_semantic_transfer.rs
 
+use crate::prelude::*;
 pub enum Modality {
     Text,
     Image,

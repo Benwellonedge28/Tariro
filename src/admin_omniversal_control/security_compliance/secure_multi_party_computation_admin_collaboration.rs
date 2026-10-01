@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/security_compliance/secure_multi_party_computation_admin_collaboration.rs
 
+use crate::prelude::*;
 pub struct SecureMPCManager;
 
 impl SecureMPCManager {

@@ -1,5 +1,6 @@
 // src/omniversal_ultimate/secure_sovereign_access_extreme_scales/dynamic_privilege_escalation_control.rs
 
+use crate::prelude::*;
 pub struct PrivilegeEscalationControl;
 
 impl PrivilegeEscalationControl {

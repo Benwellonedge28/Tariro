@@ -1,5 +1,6 @@
 // src/biological_neural_symbiosis/direct_neural_memory_injection.rs
 
+use crate::prelude::*;
 pub enum MemoryEncodingType {
     QuantumEntangled,
     BioAcoustic,

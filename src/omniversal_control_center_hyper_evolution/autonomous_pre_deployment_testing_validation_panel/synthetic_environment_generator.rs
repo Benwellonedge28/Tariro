@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/autonomous_pre_deployment_testing_validation_panel/synthetic_environment_generator.rs
 
+use crate::prelude::*;
 pub struct SyntheticEnvironmentGenerator;
 
 impl SyntheticEnvironmentGenerator {

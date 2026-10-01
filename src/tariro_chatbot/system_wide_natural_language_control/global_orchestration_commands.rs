@@ -1,5 +1,6 @@
 // src/tariro_chatbot/system_wide_natural_language_control/global_orchestration_commands.rs
 
+use crate::prelude::*;
 pub struct GlobalOrchestrationCommands;
 
 impl GlobalOrchestrationCommands {

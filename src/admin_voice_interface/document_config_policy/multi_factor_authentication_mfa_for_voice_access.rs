@@ -1,5 +1,6 @@
 // src/admin_voice_interface/document_config_policy/multi_factor_authentication_mfa_for_voice_access.rs
 
+use crate::prelude::*;
 pub struct MFAConfigurator;
 
 impl MFAConfigurator {

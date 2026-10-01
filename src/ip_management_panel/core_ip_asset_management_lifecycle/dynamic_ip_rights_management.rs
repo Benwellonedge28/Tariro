@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/dynamic_ip_rights_management.rs
 
+use crate::prelude::*;
 pub struct DynamicIpRightsManagement;
 
 impl DynamicIpRightsManagement {

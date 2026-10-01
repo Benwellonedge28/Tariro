@@ -1,4 +1,5 @@
 // src/cognitive_arch.rs
+use crate::prelude::*;
 use tracing::{info, warn, error};
 use anyhow::Result;
 use crate::config::CognitiveConfig; // Import CognitiveConfig

@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/stylistic_emulation_innovation.rs
 
+use crate::prelude::*;
 pub struct StylisticEmulationInnovation;
 
 impl StylisticEmulationInnovation {

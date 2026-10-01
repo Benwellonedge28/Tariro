@@ -1,5 +1,6 @@
 // src/video_generation/advanced_video_manipulation/multi_spectral_hyper_spectral_video_transformation.rs
 
+use crate::prelude::*;
 pub struct MultiSpectralVideoTransformer;
 
 impl MultiSpectralVideoTransformer {

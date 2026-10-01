@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/hyper_personalized_adaptive_admin_experience/proactive_information_delivery.rs
 
+use crate::prelude::*;
 pub struct ProactiveInfoDeliverer;
 
 impl ProactiveInfoDeliverer {

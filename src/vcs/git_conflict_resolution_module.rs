@@ -3,6 +3,7 @@
 //! Git Conflict Resolution Module for Tariro AGI
 //! Provides intelligent conflict resolution for version control operations
 
+use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;

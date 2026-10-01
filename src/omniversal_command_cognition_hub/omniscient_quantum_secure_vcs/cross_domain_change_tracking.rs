@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/cross_domain_change_tracking.rs
 
+use crate::prelude::*;
 pub struct ChangeTracker;
 
 impl ChangeTracker {

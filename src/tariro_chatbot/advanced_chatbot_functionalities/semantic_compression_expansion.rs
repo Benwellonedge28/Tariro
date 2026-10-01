@@ -1,5 +1,6 @@
 // src/tariro_chatbot/advanced_chatbot_functionalities/semantic_compression_expansion.rs
 
+use crate::prelude::*;
 pub struct SemanticCompressionExpansion;
 
 impl SemanticCompressionExpansion {

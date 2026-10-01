@@ -1,5 +1,6 @@
 // src/sovereign_ethics_governance/decentralized_resource_ownership.rs
 
+use crate::prelude::*;
 pub enum ResourceCategory {
     Land,
     Water,

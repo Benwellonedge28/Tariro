@@ -1,5 +1,6 @@
 // src/music/performance_live_events/real_time_augmented_reality_concert_experiences.rs
 
+use crate::prelude::*;
 pub struct ARConcertSystem {
     // Overlay dynamic AR content onto live performances for audience members via smart devices or glasses.
 }

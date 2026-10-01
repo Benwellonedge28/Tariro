@@ -1,5 +1,6 @@
 // src/music/distribution_monetization/direct_to_fan_monetization_platform.rs
 
+use crate::prelude::*;
 pub struct DirectToFanPlatform {
     // Enable artists to directly connect with and monetize their fanbase without intermediaries.
 }

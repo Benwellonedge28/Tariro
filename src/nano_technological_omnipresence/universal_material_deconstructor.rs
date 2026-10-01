@@ -1,5 +1,6 @@
 // src/nano_technological_omnipresence/universal_material_deconstructor.rs
 
+use crate::prelude::*;
 pub enum WasteMaterialType {
     Plastic,
     Metal,

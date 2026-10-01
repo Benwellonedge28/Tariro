@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/dynamic_service_pricing_panel/micro_service_costing_valuation_automated.rs
 
+use crate::prelude::*;
 pub struct MicroServiceCostingValuationAutomated;
 
 impl MicroServiceCostingValuationAutomated {

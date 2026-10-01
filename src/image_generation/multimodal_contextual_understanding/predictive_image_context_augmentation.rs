@@ -1,5 +1,6 @@
 // src/image_generation/multimodal_contextual_understanding/predictive_image_context_augmentation.rs
 
+use crate::prelude::*;
 pub struct ContextAugmenter;
 
 impl ContextAugmenter {

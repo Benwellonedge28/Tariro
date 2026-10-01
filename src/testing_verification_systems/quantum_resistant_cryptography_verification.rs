@@ -1,5 +1,6 @@
 // src/testing_verification_systems/quantum_resistant_cryptography_verification.rs
 
+use crate::prelude::*;
 pub enum QuantumAttackVector {
     ShorAlgorithm,
     GroverAlgorithm,

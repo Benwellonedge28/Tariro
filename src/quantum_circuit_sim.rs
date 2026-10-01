@@ -5,6 +5,7 @@
 /// common quantum gates, entanglement, and measurement operations, enabling
 /// initial exploration and verification of quantum algorithms.
 
+use crate::prelude::*;
 use std::fmt;
 use std::ops::{Add, Mul};
 use std::collections::HashMap;

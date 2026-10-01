@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/security_compliance/role_based_access_control_rbac_with_fine_granularity.rs
 
+use crate::prelude::*;
 pub struct RBACManager;
 
 impl RBACManager {

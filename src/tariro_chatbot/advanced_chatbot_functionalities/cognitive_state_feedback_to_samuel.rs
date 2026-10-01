@@ -1,5 +1,6 @@
 // src/tariro_chatbot/advanced_chatbot_functionalities/cognitive_state_feedback_to_samuel.rs
 
+use crate::prelude::*;
 pub struct CognitiveStateFeedbackToSamuel;
 
 impl CognitiveStateFeedbackToSamuel {

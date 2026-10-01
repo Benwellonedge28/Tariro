@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_semantic_versioning_impact_analysis/versioned_user_feedback_sentiment.rs
 
+use crate::prelude::*;
 pub struct VersionedUserFeedbackSentiment;
 
 impl VersionedUserFeedbackSentiment {

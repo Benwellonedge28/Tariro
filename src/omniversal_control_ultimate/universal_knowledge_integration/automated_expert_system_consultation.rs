@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/universal_knowledge_integration/automated_expert_system_consultation.rs
 
+use crate::prelude::*;
 pub struct ExpertSystemConsultant;
 
 impl ExpertSystemConsultant {

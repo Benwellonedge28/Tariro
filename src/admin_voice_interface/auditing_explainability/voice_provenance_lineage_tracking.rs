@@ -1,5 +1,6 @@
 // src/admin_voice_interface/auditing_explainability/voice_provenance_lineage_tracking.rs
 
+use crate::prelude::*;
 pub struct VoiceProvenanceTracker;
 
 impl VoiceProvenanceTracker {

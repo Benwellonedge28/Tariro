@@ -1,5 +1,6 @@
 // src/universal_language_mastery/holographic_linguistic_projection.rs
 
+use crate::prelude::*;
 pub struct HolographicElement {
     pub element_id: String,
     pub visual_representation: String, // e.g., "3D Kanji character", "animated emoji"

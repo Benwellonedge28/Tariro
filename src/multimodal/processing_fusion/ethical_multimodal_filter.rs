@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/ethical_multimodal_filter.rs
 
+use crate::prelude::*;
 pub struct EthicalFilter {
     // Applying ethical and value-aligned filtering to all incoming and outgoing multimodal data streams.
 }

@@ -1,5 +1,6 @@
 // src/finance/risk_compliance/legal_risk_prediction.rs
 
+use crate::prelude::*;
 pub struct LegalRiskPredictor {
     // Analyzes legal documents and case histories to predict legal risks and potential litigation outcomes.
 }

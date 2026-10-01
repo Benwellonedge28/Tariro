@@ -1,5 +1,6 @@
 // src/image_generation/autonomous_image_creation/dream_state_visualization.rs
 
+use crate::prelude::*;
 pub struct DreamStateVisualizer;
 
 impl DreamStateVisualizer {

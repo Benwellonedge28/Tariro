@@ -4,6 +4,7 @@
 /// learning from past actions and feedback to refine its ethical policies
 /// and self-correct AGI behavior over time.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use serde::{Serialize, Deserialize};

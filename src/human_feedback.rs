@@ -4,6 +4,7 @@
 /// provide direct feedback on AGI decisions, explanations, and actions.
 /// This feedback loop is crucial for continuous learning, alignment, and correction.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::io::{self, Write};

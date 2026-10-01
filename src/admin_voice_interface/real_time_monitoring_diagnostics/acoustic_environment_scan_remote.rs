@@ -1,5 +1,6 @@
 // src/admin_voice_interface/real_time_monitoring_diagnostics/acoustic_environment_scan_remote.rs
 
+use crate::prelude::*;
 pub struct RemoteAcousticScanner;
 
 impl RemoteAcousticScanner {

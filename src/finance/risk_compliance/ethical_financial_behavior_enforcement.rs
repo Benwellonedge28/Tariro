@@ -1,5 +1,6 @@
 // src/finance/risk_compliance/ethical_financial_behavior_enforcement.rs
 
+use crate::prelude::*;
 pub struct EVASFinancialEnforcer {
     // Enforces ethical financial behavior, preventing predatory practices, market manipulation, or socially irresponsible investments.
 }

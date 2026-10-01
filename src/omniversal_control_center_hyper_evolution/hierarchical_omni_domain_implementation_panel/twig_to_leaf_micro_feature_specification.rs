@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/hierarchical_omni_domain_implementation_panel/twig_to_leaf_micro_feature_specification.rs
 
+use crate::prelude::*;
 pub struct TwigToLeafSpecifier;
 
 impl TwigToLeafSpecifier {

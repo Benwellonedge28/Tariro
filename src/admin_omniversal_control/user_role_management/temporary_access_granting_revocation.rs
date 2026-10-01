@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/user_role_management/temporary_access_granting_revocation.rs
 
+use crate::prelude::*;
 pub struct TemporaryAccessManager;
 
 impl TemporaryAccessManager {

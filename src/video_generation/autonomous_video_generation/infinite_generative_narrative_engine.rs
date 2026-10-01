@@ -1,5 +1,6 @@
 // src/video_generation/autonomous_video_generation/infinite_generative_narrative_engine.rs
 
+use crate::prelude::*;
 pub struct GenerativeNarrativeEngine;
 
 impl GenerativeNarrativeEngine {

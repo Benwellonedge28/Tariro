@@ -1,5 +1,6 @@
 // src/nano_technological_omnipresence/programmable_matter.rs
 
+use crate::prelude::*;
 pub enum MaterialProperty {
     Shape,
     Texture,

@@ -1,5 +1,6 @@
 // src/voice_generation/universal_real_time_multilingual_voice_generation/historical_voice_reconstruction.rs
 
+use crate::prelude::*;
 pub struct HistoricalVoiceReconstructor;
 
 impl HistoricalVoiceReconstructor {

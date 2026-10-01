@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniversal_reporting_explainability/semantic_search_retrieval_for_all_reports.rs
 
+use crate::prelude::*;
 pub struct SemanticSearchRetrievalForAllReports;
 
 impl SemanticSearchRetrievalForAllReports {

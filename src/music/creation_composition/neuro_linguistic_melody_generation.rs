@@ -1,5 +1,6 @@
 // src/music/creation_composition/neuro_linguistic_melody_generation.rs
 
+use crate::prelude::*;
 pub struct NeuroMelodyGenerator {
     // Compose melodies and lyrical themes directly from abstract concepts, emotions, or human thought patterns.
 }

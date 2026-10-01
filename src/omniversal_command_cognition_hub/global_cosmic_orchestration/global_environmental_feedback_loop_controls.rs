@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/global_cosmic_orchestration/global_environmental_feedback_loop_controls.rs
 
+use crate::prelude::*;
 pub struct EnvironmentalControls;
 
 impl EnvironmentalControls {

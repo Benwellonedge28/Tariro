@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/multi_domain_multimodal_expertise_integration.rs
 
+use crate::prelude::*;
 pub struct ExpertiseIntegrator {
     // Combining multimodal expertise from disparate domains for novel insights.
 }

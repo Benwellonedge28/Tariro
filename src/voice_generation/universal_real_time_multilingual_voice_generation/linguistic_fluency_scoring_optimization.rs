@@ -1,5 +1,6 @@
 // src/voice_generation/universal_real_time_multilingual_voice_generation/linguistic_fluency_scoring_optimization.rs
 
+use crate::prelude::*;
 pub struct LinguisticFluencyOptimizer;
 
 impl LinguisticFluencyOptimizer {

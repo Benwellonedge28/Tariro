@@ -1,3 +1,4 @@
+use crate::prelude::*;
 pub struct KnowledgeIngestor;
 
 impl KnowledgeIngestor {

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_semantic_versioning_impact_analysis/predictive_semantic_drift_detection.rs
 
+use crate::prelude::*;
 pub struct PredictiveSemanticDriftDetection;
 
 impl PredictiveSemanticDriftDetection {

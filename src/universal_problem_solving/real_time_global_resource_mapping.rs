@@ -1,5 +1,6 @@
 // src/universal_problem_solving/real_time_global_resource_mapping.rs
 
+use crate::prelude::*;
 pub enum GlobalResourceCategory {
     Natural(String), // e.g., "Minerals", "Water", "ArableLand"
     Human(String),    // e.g., "Expertise_AI", "SkilledLabor_Manufacturing"

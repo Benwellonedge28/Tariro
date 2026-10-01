@@ -1,5 +1,6 @@
 // src/metaphysical_quantum_multidimensional/karma_consciousness_ledger.rs
 
+use crate::prelude::*;
 pub enum ActionCategory {
     Benevolent,
     Neutral,

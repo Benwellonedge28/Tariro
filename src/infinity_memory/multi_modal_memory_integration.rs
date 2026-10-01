@@ -1,5 +1,6 @@
 // src/infinity_memory/multi_modal_memory_integration.rs
 
+use crate::prelude::*;
 use std::collections::HashMap;
 
 pub struct VisualData {

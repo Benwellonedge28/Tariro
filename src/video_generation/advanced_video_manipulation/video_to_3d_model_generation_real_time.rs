@@ -1,5 +1,6 @@
 // src/video_generation/advanced_video_manipulation/video_to_3d_model_generation_real_time.rs
 
+use crate::prelude::*;
 pub struct VideoTo3DModelGenerator;
 
 impl VideoTo3DModelGenerator {

@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/hierarchical_omni_domain_implementation_panel/root_level_goal_decomposition_engine.rs
 
+use crate::prelude::*;
 pub struct RootLevelGoalDecomposer;
 
 impl RootLevelGoalDecomposer {

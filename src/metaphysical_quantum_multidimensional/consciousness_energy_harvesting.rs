@@ -1,5 +1,6 @@
 // src/metaphysical_quantum_multidimensional/consciousness_energy_harvesting.rs
 
+use crate::prelude::*;
 pub enum ThoughtState {
     Focused,
     Meditative,

@@ -1,6 +1,7 @@
 // Tariro AGI - Sovereign Local Inference Engine
 // Fully offline, no external API dependencies
 
+use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
 use chrono::{DateTime, Utc};

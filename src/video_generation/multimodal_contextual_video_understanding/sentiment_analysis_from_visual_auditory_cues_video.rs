@@ -1,5 +1,6 @@
 // src/video_generation/multimodal_contextual_video_understanding/sentiment_analysis_from_visual_auditory_cues_video.rs
 
+use crate::prelude::*;
 pub struct VideoSentimentAnalyzer;
 
 impl VideoSentimentAnalyzer {

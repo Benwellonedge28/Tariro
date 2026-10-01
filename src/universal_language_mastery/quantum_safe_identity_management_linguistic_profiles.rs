@@ -1,5 +1,6 @@
 // src/universal_language_mastery/quantum_safe_identity_management_linguistic_profiles.rs
 
+use crate::prelude::*;
 pub struct LinguisticProfile {
     pub profile_id: String,
     pub user_id: String,

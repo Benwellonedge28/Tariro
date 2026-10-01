@@ -1,5 +1,6 @@
 // src/admin_voice_interface/voice_profile_persona_management/voice_profile_versioning_rollback.rs
 
+use crate::prelude::*;
 pub struct VoiceProfileVersionControl;
 
 impl VoiceProfileVersionControl {

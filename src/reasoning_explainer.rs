@@ -3,6 +3,7 @@
 /// This module aims to make AGI decisions transparent by capturing its reasoning
 /// steps and generating human-understandable explanations and visual representations.
 
+use crate::prelude::*;
 use std::collections::VecDeque;
 use std::fmt;
 

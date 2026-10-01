@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/proactive_predictive_versioning/vcs_driven_code_synthesis_prediction.rs
 
+use crate::prelude::*;
 pub struct VCSDrivenCodeSynthesisPrediction;
 
 impl VCSDrivenCodeSynthesisPrediction {

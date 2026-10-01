@@ -1,5 +1,6 @@
 // src/omni_domain_operation/universal_interoperability_protocol_generator.rs
 
+use crate::prelude::*;
 pub enum ProtocolType {
     Communication,
     Operational,

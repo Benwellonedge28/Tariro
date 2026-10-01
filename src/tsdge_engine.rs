@@ -5,6 +5,7 @@
 /// incorporating concepts from quantum relativity and warped spacetime (SIMD: parallel physics calculations for
 /// warped fields, relativistic rendering; RAG: quantum gravity theories, advanced rendering algorithms).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

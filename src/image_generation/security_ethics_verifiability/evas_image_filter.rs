@@ -1,5 +1,6 @@
 // src/image_generation/security_ethics_verifiability/evas_image_filter.rs
 
+use crate::prelude::*;
 pub struct EVASImageFilter;
 
 impl EVASImageFilter {

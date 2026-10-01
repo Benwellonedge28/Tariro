@@ -1,5 +1,6 @@
 // src/music/sovereign_agi_music_capabilities/omni_modal_music_interpretation.rs
 
+use crate::prelude::*;
 pub struct OmniModalInterpreter {
     // Interpret and generate music across all sensory modalities and data types, including those not yet understood by humans.
 }

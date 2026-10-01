@@ -1,5 +1,6 @@
 // src/biological_neural_symbiosis/biological_evas_filter.rs
 
+use crate::prelude::*;
 pub enum ImpulseType {
     Aggression,
     SelfPreservation,

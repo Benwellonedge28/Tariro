@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/meta_admin_security_cognitive_defense/semantic_anti_manipulation_filters.rs
 
+use crate::prelude::*;
 pub struct SemanticAntiManipulationFilters;
 
 impl SemanticAntiManipulationFilters {

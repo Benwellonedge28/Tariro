@@ -6,6 +6,7 @@
 /// It leverages RAG for network topology analysis, traffic prediction, and green networking
 /// strategies, incorporating techniques like dynamic link shutdown and power-aware routing.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

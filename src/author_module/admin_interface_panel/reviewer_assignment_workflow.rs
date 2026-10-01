@@ -1,5 +1,6 @@
 // src/author_module/admin_interface_panel/reviewer_assignment_workflow.rs
 
+use crate::prelude::*;
 pub struct ReviewerAssignmentWorkflow;
 
 impl ReviewerAssignmentWorkflow {

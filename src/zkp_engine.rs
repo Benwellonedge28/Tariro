@@ -5,6 +5,7 @@
 /// without revealing any information beyond the validity of the statement itself. It leverages RAG for ZKP research,
 /// protocol design, and efficient proof generation/verification.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

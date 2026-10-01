@@ -1,5 +1,6 @@
 // src/tariro_chatbot/core_functionality/natural_language_report_generation.rs
 
+use crate::prelude::*;
 pub struct NaturalLanguageReportGeneration;
 
 impl NaturalLanguageReportGeneration {

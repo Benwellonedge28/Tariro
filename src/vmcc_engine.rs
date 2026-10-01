@@ -6,6 +6,7 @@
 /// energy consumption in cloud environments. It leverages RAG for workload profiling, resource
 /// dependency mapping, and consolidation algorithms to achieve optimal density and efficiency.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

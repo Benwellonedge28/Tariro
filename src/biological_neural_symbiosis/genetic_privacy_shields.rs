@@ -1,5 +1,6 @@
 // src/biological_neural_symbiosis/genetic_privacy_shields.rs
 
+use crate::prelude::*;
 pub enum GenomicDataSensitivity {
     PersonalIdentification,
     HealthRisks,

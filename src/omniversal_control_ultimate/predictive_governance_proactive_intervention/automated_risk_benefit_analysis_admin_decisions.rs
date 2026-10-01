@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/predictive_governance_proactive_intervention/automated_risk_benefit_analysis_admin_decisions.rs
 
+use crate::prelude::*;
 pub struct RiskBenefitAnalyzer;
 
 impl RiskBenefitAnalyzer {

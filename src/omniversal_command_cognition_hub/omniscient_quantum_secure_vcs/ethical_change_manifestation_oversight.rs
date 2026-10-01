@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/ethical_change_manifestation_oversight.rs
 
+use crate::prelude::*;
 pub struct EthicalChangeOversight;
 
 impl EthicalChangeOversight {

@@ -1,5 +1,6 @@
 // src/author_module/universal_learning_knowledge_acquisition/dynamic_factual_verification_engine.rs
 
+use crate::prelude::*;
 pub struct DynamicFactualVerificationEngine;
 
 impl DynamicFactualVerificationEngine {

@@ -1,5 +1,6 @@
 // src/finance/risk_compliance/conflict_of_interest_detection.rs
 
+use crate::prelude::*;
 pub struct ConflictOfInterestDetector {
     // Automatically detects and flags potential conflicts of interest among financial actors.
 }

@@ -8,6 +8,7 @@
 /// intervention (leveraging RAG for meta-learning on knowledge structures and SIMD for high-speed model updates
 /// and consistency checks).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

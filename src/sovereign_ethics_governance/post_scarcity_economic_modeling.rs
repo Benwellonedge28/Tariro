@@ -1,5 +1,6 @@
 // src/sovereign_ethics_governance/post_scarcity_economic_modeling.rs
 
+use crate::prelude::*;
 pub enum ResourceAvailability {
     Abundant,
     Sufficient,

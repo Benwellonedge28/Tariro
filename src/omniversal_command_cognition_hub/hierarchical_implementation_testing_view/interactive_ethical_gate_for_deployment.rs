@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hierarchical_implementation_testing_view/interactive_ethical_gate_for_deployment.rs
 
+use crate::prelude::*;
 pub struct InteractiveEthicalGateForDeployment;
 
 impl InteractiveEthicalGateForDeployment {

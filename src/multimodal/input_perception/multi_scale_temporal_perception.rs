@@ -1,5 +1,6 @@
 // src/multimodal/input_perception/multi_scale_temporal_perception.rs
 
+use crate::prelude::*;
 pub struct TemporalPerceiver {
     // Processing sensory input across vast temporal scales.
 }

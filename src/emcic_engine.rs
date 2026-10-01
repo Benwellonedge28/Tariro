@@ -6,6 +6,7 @@
 /// (RAG: ethical philosophy, cultural norms, bias detection models; SIMD: parallel constraint checking,
 /// adversarial testing of generated content).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

@@ -1,5 +1,6 @@
 //! Tariro AGI Learning Infrastructure - Infinite Consciousness & Experiential Synthesis
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use async_trait::async_trait;
 use crate::fco::MukandaraState;

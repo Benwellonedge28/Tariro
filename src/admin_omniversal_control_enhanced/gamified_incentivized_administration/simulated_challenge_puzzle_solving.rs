@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/gamified_incentivized_administration/simulated_challenge_puzzle_solving.rs
 
+use crate::prelude::*;
 pub struct ChallengeModule;
 
 impl ChallengeModule {

@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/predictive_analytics_unseen_modalities.rs
 
+use crate::prelude::*;
 pub struct UnseenModalityPredictor {
     // Inferring the characteristics of a modality not directly observed based on correlations with available modalities.
 }

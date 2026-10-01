@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/multi_reality_multiverse_versioning/temporal_paradox_versioning.rs
 
+use crate::prelude::*;
 pub struct TemporalParadoxVersioning;
 
 impl TemporalParadoxVersioning {

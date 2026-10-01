@@ -1,5 +1,6 @@
 // src/finance/global_economic_orchestration/global_financial_education_platform.rs
 
+use crate::prelude::*;
 pub struct FinancialEducator {
     // Provides accessible, personalized financial education to everyone, everywhere.
 }

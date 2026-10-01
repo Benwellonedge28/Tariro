@@ -1,5 +1,6 @@
 // src/voice_generation/universal_real_time_multilingual_voice_generation/on_the_fly_vocabulary_integration.rs
 
+use crate::prelude::*;
 pub struct VocabularyIntegrator;
 
 impl VocabularyIntegrator {

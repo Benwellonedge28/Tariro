@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/omnipresent_threat_invisible_admin_interface/quantum_entanglement_for_command_control.rs
 
+use crate::prelude::*;
 pub struct QuantumEntanglementControl;
 
 impl QuantumEntanglementControl {

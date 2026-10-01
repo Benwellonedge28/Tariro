@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/meta_analytics_predictive_admin_analytics/predictive_admin_error_analysis.rs
 
+use crate::prelude::*;
 pub struct PredictiveAdminErrorAnalyzer;
 
 impl PredictiveAdminErrorAnalyzer {

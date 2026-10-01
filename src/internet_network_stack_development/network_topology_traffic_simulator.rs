@@ -1,5 +1,6 @@
 // src/internet_network_stack_development/network_topology_traffic_simulator.rs
 
+use crate::prelude::*;
 pub struct NetworkNode {
     pub node_id: String,
     pub node_type: String, // e.g., "Router", "Switch", "Host"

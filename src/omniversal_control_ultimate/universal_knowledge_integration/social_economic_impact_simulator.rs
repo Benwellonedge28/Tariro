@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/universal_knowledge_integration/social_economic_impact_simulator.rs
 
+use crate::prelude::*;
 pub struct ImpactSimulator;
 
 impl ImpactSimulator {

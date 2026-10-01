@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/core_admin_user_role_management_panel/role_based_permission_matrix_visualizer.rs
 
+use crate::prelude::*;
 pub struct PermissionMatrixVisualizer;
 
 impl PermissionMatrixVisualizer {

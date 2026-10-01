@@ -1,5 +1,6 @@
 // src/sacc_asi/human_oversight_interface_emergency_override.rs
 
+use crate::prelude::*;
 pub enum OverrideCommand {
     SystemHalt,
     Quarantine(String), // Reason

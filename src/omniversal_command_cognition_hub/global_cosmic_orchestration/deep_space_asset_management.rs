@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/global_cosmic_orchestration/deep_space_asset_management.rs
 
+use crate::prelude::*;
 pub struct DeepSpaceAssetManager;
 
 impl DeepSpaceAssetManager {

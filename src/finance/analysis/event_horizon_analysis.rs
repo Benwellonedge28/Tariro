@@ -1,5 +1,6 @@
 // src/finance/analysis/event_horizon_analysis.rs
 
+use crate::prelude::*;
 pub struct EventHorizonAnalyzer {
     // Predicts and models the probability and impact of "black swan" events.
 }

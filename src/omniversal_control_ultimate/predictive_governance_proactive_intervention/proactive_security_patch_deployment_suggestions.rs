@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/predictive_governance_proactive_intervention/proactive_security_patch_deployment_suggestions.rs
 
+use crate::prelude::*;
 pub struct PatchDeploymentSuggester;
 
 impl PatchDeploymentSuggester {

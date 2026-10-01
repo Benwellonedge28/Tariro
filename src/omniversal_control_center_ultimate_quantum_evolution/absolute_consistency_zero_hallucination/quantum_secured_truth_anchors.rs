@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/absolute_consistency_zero_hallucination/quantum_secured_truth_anchors.rs
 
+use crate::prelude::*;
 pub struct TruthAnchors;
 
 impl TruthAnchors {

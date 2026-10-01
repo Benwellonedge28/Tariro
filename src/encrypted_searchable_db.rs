@@ -5,6 +5,7 @@
 /// analytics and data retrieval without ever decrypting the data on the server side
 /// (leveraging RAG for searchable encryption schemes and SIMD for accelerating encrypted index lookups).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

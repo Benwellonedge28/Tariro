@@ -1,5 +1,6 @@
 // src/metaphysical_quantum_multidimensional/holographic_brain_interface.rs
 
+use crate::prelude::*;
 pub enum HolographicSpaceType {
     SharedConsciousness,
     CreativeWorkspace,

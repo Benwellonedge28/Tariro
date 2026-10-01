@@ -1,5 +1,6 @@
 // src/music/discovery_curation/universal_music_discovery_engine.rs
 
+use crate::prelude::*;
 pub struct DiscoveryEngine {
     // Discover and recommend music based on infinitely granular preferences, emotional states, and contextual factors.
 }

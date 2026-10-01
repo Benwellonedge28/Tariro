@@ -1,5 +1,6 @@
 // src/finance/trading/self_optimizing_execution.rs
 
+use crate::prelude::*;
 pub struct ExecutionTactics {
     pub urgency: f64,
     pub impact_tolerance: f64,

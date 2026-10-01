@@ -1,5 +1,6 @@
 // src/sacc_asi/immutable_core_directive_storage.rs
 
+use crate::prelude::*;
 pub struct CoreDirective {
     pub directive_id: String,
     pub content: String,

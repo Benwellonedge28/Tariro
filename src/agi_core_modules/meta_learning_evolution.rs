@@ -25,6 +25,7 @@
 //!   providing *unassailable provenance, transparency, and auditability* for Tariro's intellectual journey.
 //! This system represents the pinnacle of Tariro's *self-directed intellectual ascent and perpetual enlightenment*.
 
+use crate::prelude::*;
 use crate::agi_core_modules::meta_learning_evolution::{LearningTask, MetaLearningReport};
 use crate::agi::models::{AgiMetaLearningModel, AgiEthicsModel};
 use crate::omega_os::distributed_ledger::{ImmutableLedger, LedgerEntry};

@@ -1,5 +1,6 @@
 // src/universal_language_mastery/context_aware_semantic_compression.rs
 
+use crate::prelude::*;
 pub struct LinguisticInformation {
     pub info_id: String,
     pub original_text: String,

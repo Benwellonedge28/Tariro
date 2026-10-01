@@ -1,5 +1,6 @@
 // src/music/creation_composition/historical_style_emulation_modernization.rs
 
+use crate::prelude::*;
 pub struct StyleEmulation {
     // Compose new pieces indistinguishable from historical masters, or autonomously evolve historical styles into contemporary forms.
 }

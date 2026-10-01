@@ -1,5 +1,6 @@
 // src/tariro_chatbot/advanced_chatbot_functionalities/cognitive_apprenticeship_mode.rs
 
+use crate::prelude::*;
 pub struct CognitiveApprenticeshipMode;
 
 impl CognitiveApprenticeshipMode {

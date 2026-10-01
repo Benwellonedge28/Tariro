@@ -1,5 +1,6 @@
 // src/music/discovery_curation/ethical_music_recommendation_filters_evas.rs
 
+use crate::prelude::*;
 pub struct EVASFilter {
     // Ensure music recommendations are ethically aligned, promoting diversity and avoiding harmful content.
 }

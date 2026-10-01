@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/predictive_governance_proactive_intervention/consequence_prediction_engine_admin_actions.rs
 
+use crate::prelude::*;
 pub struct ConsequencePredictor;
 
 impl ConsequencePredictor {

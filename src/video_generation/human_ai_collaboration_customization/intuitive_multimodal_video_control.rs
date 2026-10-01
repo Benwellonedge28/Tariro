@@ -1,5 +1,6 @@
 // src/video_generation/human_ai_collaboration_customization/intuitive_multimodal_video_control.rs
 
+use crate::prelude::*;
 pub struct MultimodalVideoController;
 
 impl MultimodalVideoController {

@@ -1,5 +1,6 @@
 // src/admin_voice_interface/auditing_explainability/transparency_dashboard_voice.rs
 
+use crate::prelude::*;
 pub struct TransparencyDashboard;
 
 impl TransparencyDashboard {

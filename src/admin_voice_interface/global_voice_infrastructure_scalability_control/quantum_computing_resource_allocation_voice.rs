@@ -1,5 +1,6 @@
 // src/admin_voice_interface/global_voice_infrastructure_scalability_control/quantum_computing_resource_allocation_voice.rs
 
+use crate::prelude::*;
 pub struct QuantumResourceAllocator;
 
 impl QuantumResourceAllocator {

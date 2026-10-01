@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/autonomous_security_resilience/cognitive_firewall_agi_level.rs
 
+use crate::prelude::*;
 pub struct CognitiveFirewall;
 
 impl CognitiveFirewall {

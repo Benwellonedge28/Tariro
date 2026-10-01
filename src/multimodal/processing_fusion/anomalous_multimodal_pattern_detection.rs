@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/anomalous_multimodal_pattern_detection.rs
 
+use crate::prelude::*;
 pub struct AnomalyDetector {
     // Identifying highly unusual or novel patterns that defy existing multimodal models.
 }

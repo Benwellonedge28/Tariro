@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/autonomous_conflict_resolution_reconciliation/human_in_the_loop_conflict_escalation.rs
 
+use crate::prelude::*;
 pub struct HumanInTheLoopConflictEscalation;
 
 impl HumanInTheLoopConflictEscalation {

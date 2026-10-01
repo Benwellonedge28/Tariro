@@ -1,6 +1,7 @@
 // Tariro AGI - Hierarchical Task Network (HTN) Planning Module
 // Decomposition-based planning for complex goals
 
+use crate::prelude::*;
 use std::collections::{HashMap, HashSet, VecDeque, BinaryHeap};
 use chrono::{DateTime, Utc};
 use std::time::Duration;

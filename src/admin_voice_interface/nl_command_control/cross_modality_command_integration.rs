@@ -1,5 +1,6 @@
 // src/admin_voice_interface/nl_command_control/cross_modality_command_integration.rs
 
+use crate::prelude::*;
 pub struct CrossModalityCommander;
 
 impl CrossModalityCommander {

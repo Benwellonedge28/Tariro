@@ -6,6 +6,7 @@
 /// Vector Machines, Quantum PCA) and provide tools for data encoding, quantum
 /// feature mapping, and hybrid quantum-classical model training.
 
+use crate::prelude::*;
 use std::fmt;
 use std::collections::HashMap;
 use std::thread;

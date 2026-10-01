@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/ephemeral_memory_management_knowledge_volatility_control.rs
 
+use crate::prelude::*;
 pub enum EphemeralType {
     SensoryBuffer,
     WorkingMemory,

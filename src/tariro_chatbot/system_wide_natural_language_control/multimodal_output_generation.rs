@@ -1,5 +1,6 @@
 // src/tariro_chatbot/system_wide_natural_language_control/multimodal_output_generation.rs
 
+use crate::prelude::*;
 pub struct MultimodalOutputGeneration;
 
 impl MultimodalOutputGeneration {

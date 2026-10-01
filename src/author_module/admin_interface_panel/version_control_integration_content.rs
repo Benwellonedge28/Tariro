@@ -1,5 +1,6 @@
 // src/author_module/admin_interface_panel/version_control_integration_content.rs
 
+use crate::prelude::*;
 pub struct VersionControlIntegrationContent;
 
 impl VersionControlIntegrationContent {

@@ -1,5 +1,6 @@
 // src/omniversal_ultimate/secure_sovereign_access_extreme_scales/biological_neural_admin_authentication.rs
 
+use crate::prelude::*;
 pub struct BiometricAuth;
 
 impl BiometricAuth {

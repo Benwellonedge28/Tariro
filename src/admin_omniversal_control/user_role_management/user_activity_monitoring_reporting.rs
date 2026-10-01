@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/user_role_management/user_activity_monitoring_reporting.rs
 
+use crate::prelude::*;
 pub struct UserActivityMonitor;
 
 impl UserActivityMonitor {

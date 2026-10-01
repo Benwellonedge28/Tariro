@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/predictive_governance_proactive_intervention/predictive_agi_performance_degradation_alerts.rs
 
+use crate::prelude::*;
 pub struct PerformanceDegradationAlerts;
 
 impl PerformanceDegradationAlerts {

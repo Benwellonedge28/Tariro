@@ -1,5 +1,6 @@
 // src/image_generation/performance_scalability_infrastructure/cloud_agnostic_image_infrastructure_management.rs
 
+use crate::prelude::*;
 pub struct InfrastructureManager;
 
 impl InfrastructureManager {

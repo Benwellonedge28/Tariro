@@ -1,5 +1,6 @@
 // src/tariro_chatbot/threat_invisibility_security/consciousness_bound_chat_access.rs
 
+use crate::prelude::*;
 pub struct ConsciousnessBoundChatAccess;
 
 impl ConsciousnessBoundChatAccess {

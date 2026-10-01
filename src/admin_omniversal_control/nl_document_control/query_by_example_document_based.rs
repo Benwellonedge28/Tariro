@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/nl_document_control/query_by_example_document_based.rs
 
+use crate::prelude::*;
 pub struct QBEReportGenerator;
 
 impl QBEReportGenerator {

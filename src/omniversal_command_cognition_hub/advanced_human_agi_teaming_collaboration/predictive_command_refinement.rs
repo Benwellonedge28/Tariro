@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/advanced_human_agi_teaming_collaboration/predictive_command_refinement.rs
 
+use crate::prelude::*;
 pub struct CommandRefiner;
 
 impl CommandRefiner {

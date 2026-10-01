@@ -1,5 +1,6 @@
 // src/admin_voice_interface/document_config_policy/biometric_voice_signature_policies.rs
 
+use crate::prelude::*;
 pub struct BiometricVoiceSignaturePolicyManager;
 
 impl BiometricVoiceSignaturePolicyManager {

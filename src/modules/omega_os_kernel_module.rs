@@ -4,6 +4,7 @@
 //! It encapsulates the kernel's self-management capabilities, including self-compilation,
 //! self-bootstrapping, and autonomous self-modification of its own code.
 
+use crate::prelude::*;
 use crate::{prelude::*,
     Module,
     ModuleContext,

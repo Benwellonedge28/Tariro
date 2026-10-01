@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/hyper_autonomous_infinite_rbac/autonomous_least_privilege_enforcement.rs
 
+use crate::prelude::*;
 pub struct LeastPrivilegeEnforcement;
 
 impl LeastPrivilegeEnforcement {

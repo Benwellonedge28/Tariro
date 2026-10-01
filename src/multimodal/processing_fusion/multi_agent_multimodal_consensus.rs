@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/multi_agent_multimodal_consensus.rs
 
+use crate::prelude::*;
 pub struct MultiAgentConsensus {
     // Facilitating consensus and shared understanding among multiple AI agents and humans.
 }

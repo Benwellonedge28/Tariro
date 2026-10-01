@@ -1,5 +1,6 @@
 // src/author_module/admin_interface_panel/intellectual_property_copyright_management.rs
 
+use crate::prelude::*;
 pub struct IntellectualPropertyCopyrightManagement;
 
 impl IntellectualPropertyCopyrightManagement {

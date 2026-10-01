@@ -1,5 +1,6 @@
 // src/biological_neural_symbiosis/biological_cpu_integration.rs
 
+use crate::prelude::*;
 pub enum BioCPUType {
     NeuralNetworkCulture,
     OrganoidChip,

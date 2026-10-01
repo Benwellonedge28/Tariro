@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/proactive_predictive_versioning/ethical_policy_violation_prediction_vcs.rs
 
+use crate::prelude::*;
 pub struct EthicalPolicyViolationPredictionVCS;
 
 impl EthicalPolicyViolationPredictionVCS {

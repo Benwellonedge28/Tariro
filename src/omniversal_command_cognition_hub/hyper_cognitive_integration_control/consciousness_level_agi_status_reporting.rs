@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_cognitive_integration_control/consciousness_level_agi_status_reporting.rs
 
+use crate::prelude::*;
 pub struct AGIStatusReporter;
 
 impl AGIStatusReporter {

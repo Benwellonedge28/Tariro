@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_cognitive_integration_control/pre_cognitive_agi_intent_query.rs
 
+use crate::prelude::*;
 pub struct PreCognitiveQuery;
 
 impl PreCognitiveQuery {

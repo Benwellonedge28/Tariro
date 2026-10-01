@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/multi_reality_multiverse_versioning/simulation_reality_versioning.rs
 
+use crate::prelude::*;
 pub struct SimulationRealityVersioning;
 
 impl SimulationRealityVersioning {

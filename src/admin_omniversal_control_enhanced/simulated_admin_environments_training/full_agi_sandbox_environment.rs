@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/simulated_admin_environments_training/full_agi_sandbox_environment.rs
 
+use crate::prelude::*;
 pub struct AGISandbox;
 
 impl AGISandbox {

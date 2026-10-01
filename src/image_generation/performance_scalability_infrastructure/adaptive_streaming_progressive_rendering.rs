@@ -1,5 +1,6 @@
 // src/image_generation/performance_scalability_infrastructure/adaptive_streaming_progressive_rendering.rs
 
+use crate::prelude::*;
 pub struct AdaptiveRenderer;
 
 impl AdaptiveRenderer {

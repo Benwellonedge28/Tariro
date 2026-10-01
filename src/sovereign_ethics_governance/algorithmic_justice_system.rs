@@ -1,5 +1,6 @@
 // src/sovereign_ethics_governance/algorithmic_justice_system.rs
 
+use crate::prelude::*;
 pub enum DisputeType {
     Civil,
     Criminal,

@@ -1,5 +1,6 @@
 // src/voice_generation/universal_real_time_multilingual_voice_generation/language_identification_prediction_multimodal.rs
 
+use crate::prelude::*;
 pub struct MultimodalLanguageIdentifier;
 
 impl MultimodalLanguageIdentifier {

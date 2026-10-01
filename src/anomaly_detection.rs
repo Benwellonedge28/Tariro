@@ -3,6 +3,7 @@
 /// This module conceptually outlines a system for monitoring system health metrics
 /// and detecting anomalies that could indicate potential failures or performance issues.
 
+use crate::prelude::*;
 use std::collections::VecDeque;
 use std::fmt;
 

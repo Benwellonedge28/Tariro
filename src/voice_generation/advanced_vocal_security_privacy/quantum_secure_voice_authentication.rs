@@ -1,5 +1,6 @@
 // src/voice_generation/advanced_vocal_security_privacy/quantum_secure_voice_authentication.rs
 
+use crate::prelude::*;
 pub struct QuantumVoiceAuthenticator;
 
 impl QuantumVoiceAuthenticator {

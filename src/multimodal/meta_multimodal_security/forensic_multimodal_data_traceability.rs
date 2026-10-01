@@ -1,5 +1,6 @@
 // src/multimodal/meta_multimodal_security/forensic_multimodal_data_traceability.rs
 
+use crate::prelude::*;
 pub struct ForensicTraceability {
     // Providing complete, immutable traceability for every piece of multimodal data, from origin to output.
 }

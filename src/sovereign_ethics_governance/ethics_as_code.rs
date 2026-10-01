@@ -1,5 +1,6 @@
 // src/sovereign_ethics_governance/ethics_as_code.rs
 
+use crate::prelude::*;
 pub enum EthicalPrinciple {
     NonHarm,
     Fairness,

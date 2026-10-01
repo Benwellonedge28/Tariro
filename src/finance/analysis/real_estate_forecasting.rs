@@ -1,5 +1,6 @@
 // src/finance/analysis/real_estate_forecasting.rs
 
+use crate::prelude::*;
 pub struct RealEstateForecaster {
     // Forecasts real estate market trends down to hyper-local levels.
 }

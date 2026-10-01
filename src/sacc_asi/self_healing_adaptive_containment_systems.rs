@@ -1,5 +1,6 @@
 // src/sacc_asi/self_healing_adaptive_containment_systems.rs
 
+use crate::prelude::*;
 pub enum BreachSeverity {
     Minor,
     Moderate,

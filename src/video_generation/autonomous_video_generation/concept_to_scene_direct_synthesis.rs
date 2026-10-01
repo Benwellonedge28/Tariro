@@ -1,5 +1,6 @@
 // src/video_generation/autonomous_video_generation/concept_to_scene_direct_synthesis.rs
 
+use crate::prelude::*;
 pub struct ConceptToSceneSynthesizer;
 
 impl ConceptToSceneSynthesizer {

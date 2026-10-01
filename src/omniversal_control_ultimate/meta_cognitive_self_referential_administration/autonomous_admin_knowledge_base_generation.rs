@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/meta_cognitive_self_referential_administration/autonomous_admin_knowledge_base_generation.rs
 
+use crate::prelude::*;
 pub struct AdminKnowledgeBaseGenerator;
 
 impl AdminKnowledgeBaseGenerator {

@@ -1,5 +1,6 @@
 // src/web_application_design_development/content_management_system_synthesis.rs
 
+use crate::prelude::*;
 pub enum ContentType {
     Article,
     Blog,

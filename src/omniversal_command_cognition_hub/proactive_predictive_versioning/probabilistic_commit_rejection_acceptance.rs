@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/proactive_predictive_versioning/probabilistic_commit_rejection_acceptance.rs
 
+use crate::prelude::*;
 pub struct ProbabilisticCommitRejectionAcceptance;
 
 impl ProbabilisticCommitRejectionAcceptance {

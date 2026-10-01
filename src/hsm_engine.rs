@@ -5,6 +5,7 @@
 /// crucial for protecting highly sensitive data and digital assets. It leverages RAG for HSM industry standards
 /// (e.g., FIPS 140-2, Common Criteria) and secure hardware design patterns.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

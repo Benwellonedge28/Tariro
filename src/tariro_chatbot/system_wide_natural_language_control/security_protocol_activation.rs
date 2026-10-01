@@ -1,5 +1,6 @@
 // src/tariro_chatbot/system_wide_natural_language_control/security_protocol_activation.rs
 
+use crate::prelude::*;
 pub struct SecurityProtocolActivation;
 
 impl SecurityProtocolActivation {

@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/absolute_consistency_zero_hallucination/cognitive_integrity_verification_continuous.rs
 
+use crate::prelude::*;
 pub struct CognitiveIntegrityVerifier;
 
 impl CognitiveIntegrityVerifier {

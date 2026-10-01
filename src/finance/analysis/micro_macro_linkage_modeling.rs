@@ -1,5 +1,6 @@
 // src/finance/analysis/micro_macro_linkage_modeling.rs
 
+use crate::prelude::*;
 pub struct MicroMacroLinker {
     // Understands how micro-level actions and events aggregate to macroscopic financial outcomes.
 }

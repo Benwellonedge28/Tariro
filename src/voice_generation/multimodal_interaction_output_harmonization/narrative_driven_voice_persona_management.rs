@@ -1,5 +1,6 @@
 // src/voice_generation/multimodal_interaction_output_harmonization/narrative_driven_voice_persona_management.rs
 
+use crate::prelude::*;
 pub struct NarrativeVoiceManager;
 
 impl NarrativeVoiceManager {

@@ -1,5 +1,6 @@
 // src/video_generation/advanced_video_manipulation/automated_defect_removal_restoration_video.rs
 
+use crate::prelude::*;
 pub struct VideoDefectRestorer;
 
 impl VideoDefectRestorer {

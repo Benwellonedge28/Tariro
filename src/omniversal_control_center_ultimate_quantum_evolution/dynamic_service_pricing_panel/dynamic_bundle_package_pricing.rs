@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/dynamic_service_pricing_panel/dynamic_bundle_package_pricing.rs
 
+use crate::prelude::*;
 pub struct BundlePricingCreator;
 
 impl BundlePricingCreator {

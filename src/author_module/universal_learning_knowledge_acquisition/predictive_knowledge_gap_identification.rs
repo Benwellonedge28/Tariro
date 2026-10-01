@@ -1,5 +1,6 @@
 // src/author_module/universal_learning_knowledge_acquisition/predictive_knowledge_gap_identification.rs
 
+use crate::prelude::*;
 pub struct PredictiveKnowledgeGapIdentification;
 
 impl PredictiveKnowledgeGapIdentification {

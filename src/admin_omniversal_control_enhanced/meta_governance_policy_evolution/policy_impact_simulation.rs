@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/meta_governance_policy_evolution/policy_impact_simulation.rs
 
+use crate::prelude::*;
 pub struct PolicyImpactSimulator;
 
 impl PolicyImpactSimulator {

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniversal_reporting_explainability/narrative_explainability_vcs_integrated.rs
 
+use crate::prelude::*;
 pub struct NarrativeExplainabilityVCSIntegrated;
 
 impl NarrativeExplainabilityVCSIntegrated {

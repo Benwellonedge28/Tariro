@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/predictive_governance_proactive_intervention/resource_contention_forecasting_mitigation.rs
 
+use crate::prelude::*;
 pub struct ResourceContentionManager;
 
 impl ResourceContentionManager {

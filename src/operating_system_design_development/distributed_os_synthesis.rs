@@ -1,5 +1,6 @@
 // src/operating_system_design_development/distributed_os_synthesis.rs
 
+use crate::prelude::*;
 pub enum CommunicationProtocol {
     RPC,
     MessageQueue,

@@ -1,5 +1,6 @@
 // src/finance/security_ethics/quantum_safe_data_protection.rs
 
+use crate::prelude::*;
 pub struct QuantumSafeProtector {
     // Protects all financial data against future quantum decryption threats.
 }

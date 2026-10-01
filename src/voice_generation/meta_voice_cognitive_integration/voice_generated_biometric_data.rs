@@ -1,5 +1,6 @@
 // src/voice_generation/meta_voice_cognitive_integration/voice_generated_biometric_data.rs
 
+use crate::prelude::*;
 pub struct VoiceBiometricGenerator;
 
 impl VoiceBiometricGenerator {

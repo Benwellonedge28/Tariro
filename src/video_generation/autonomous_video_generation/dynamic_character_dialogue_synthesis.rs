@@ -1,5 +1,6 @@
 // src/video_generation/autonomous_video_generation/dynamic_character_dialogue_synthesis.rs
 
+use crate::prelude::*;
 pub struct CharacterDialogueSynthesizer;
 
 impl CharacterDialogueSynthesizer {

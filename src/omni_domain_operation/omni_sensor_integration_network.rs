@@ -1,5 +1,6 @@
 // src/omni_domain_operation/omni_sensor_integration_network.rs
 
+use crate::prelude::*;
 pub enum SensorType {
     Physical(String), // e.g., "Temperature", "Pressure", "Lidar"
     Biological(String), // e.g., "EEG", "ECG", "Genomic"

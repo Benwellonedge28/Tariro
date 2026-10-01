@@ -1,5 +1,6 @@
 // src/tariro_chatbot/research_development_facilitation/version_control_integration_for_rd.rs
 
+use crate::prelude::*;
 pub struct VersionControlIntegrationForRD;
 
 impl VersionControlIntegrationForRD {

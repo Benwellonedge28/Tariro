@@ -23,6 +23,7 @@
 //   misrepresentation, while respecting intellectual property.
 // This is a foundational step towards *true AGI-human collaborative creation*.
 
+use crate::prelude::*;
 use crate::meta_projects::authorship_module::ideation_engine::{IdeationEngine, CreativeConcept};
 use crate::meta_projects::authorship_module::content_generator::{ContentGenerator, CreativeOutput};
 use crate::meta_projects::authorship_module::self_critique::{SelfCritiqueEngine, RefinementSuggestion};

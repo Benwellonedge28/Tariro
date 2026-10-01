@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/non_fiction_book_generation.rs
 
+use crate::prelude::*;
 pub struct NonFictionBookGeneration;
 
 impl NonFictionBookGeneration {

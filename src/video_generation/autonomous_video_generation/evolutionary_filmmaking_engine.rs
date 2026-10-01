@@ -1,5 +1,6 @@
 // src/video_generation/autonomous_video_generation/evolutionary_filmmaking_engine.rs
 
+use crate::prelude::*;
 pub struct EvolutionaryFilmmakingEngine;
 
 impl EvolutionaryFilmmakingEngine {

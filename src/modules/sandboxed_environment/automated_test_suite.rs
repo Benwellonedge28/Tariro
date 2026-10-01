@@ -4,6 +4,7 @@
 //! Its purpose is to define, execute, and analyze comprehensive test cases for functional
 //! correctness, performance, security, and ethical compliance within a sandbox.
 
+use crate::prelude::*;
 use crate::{prelude::*, Module, ModuleContext, AutomatedTestSuiteConfig};
 use async_trait::async_trait;
 use tokio::time::{sleep, Duration};

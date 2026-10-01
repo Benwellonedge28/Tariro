@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/advanced_human_agi_teaming_collaboration/personalized_learning_path_for_samuel.rs
 
+use crate::prelude::*;
 pub struct PersonalizedLearning;
 
 impl PersonalizedLearning {

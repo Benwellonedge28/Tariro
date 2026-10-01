@@ -1,5 +1,6 @@
 // src/tariro_chatbot/advanced_chatbot_functionalities/teach_me_mode.rs
 
+use crate::prelude::*;
 pub struct TeachMeMode;
 
 impl TeachMeMode {

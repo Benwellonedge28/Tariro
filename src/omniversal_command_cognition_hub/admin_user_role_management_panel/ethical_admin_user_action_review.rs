@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/admin_user_role_management_panel/ethical_admin_user_action_review.rs
 
+use crate::prelude::*;
 pub struct EthicalAdminUserActionReview;
 
 impl EthicalAdminUserActionReview {

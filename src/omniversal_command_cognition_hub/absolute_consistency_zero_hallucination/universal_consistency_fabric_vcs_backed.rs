@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/absolute_consistency_zero_hallucination/universal_consistency_fabric_vcs_backed.rs
 
+use crate::prelude::*;
 pub struct UniversalConsistencyFabricVCSBacked;
 
 impl UniversalConsistencyFabricVCSBacked {

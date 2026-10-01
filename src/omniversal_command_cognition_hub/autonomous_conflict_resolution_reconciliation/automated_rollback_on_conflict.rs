@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/autonomous_conflict_resolution_reconciliation/automated_rollback_on_conflict.rs
 
+use crate::prelude::*;
 pub struct AutomatedRollbackOnConflict;
 
 impl AutomatedRollbackOnConflict {

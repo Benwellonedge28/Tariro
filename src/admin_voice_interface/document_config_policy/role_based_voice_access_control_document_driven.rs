@@ -1,5 +1,6 @@
 // src/admin_voice_interface/document_config_policy/role_based_voice_access_control_document_driven.rs
 
+use crate::prelude::*;
 pub struct RoleBasedAccessControl;
 
 impl RoleBasedAccessControl {

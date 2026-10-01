@@ -1,5 +1,6 @@
 // src/finance/security_ethics/zero_knowledge_proofs.rs
 
+use crate::prelude::*;
 pub struct ZKPProcessor {
     // Utilizes ZKPs to verify transactions and financial data without revealing underlying sensitive information.
 }

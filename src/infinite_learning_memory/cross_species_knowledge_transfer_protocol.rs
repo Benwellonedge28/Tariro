@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/cross_species_knowledge_transfer_protocol.rs
 
+use crate::prelude::*;
 pub enum SpeciesID {
     Human,
     Dolphin,

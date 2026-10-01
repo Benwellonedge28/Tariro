@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/core_admin_user_role_management_panel/cross_domain_admin_user_access_control.rs
 
+use crate::prelude::*;
 pub struct CrossDomainAccessControl;
 
 impl CrossDomainAccessControl {

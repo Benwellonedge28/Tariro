@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/deep_learning_cognitive_analytics/personalized_admin_assistant_ai.rs
 
+use crate::prelude::*;
 pub struct PersonalizedAdminAI;
 
 impl PersonalizedAdminAI {

@@ -1,5 +1,6 @@
 // src/video_generation/autonomous_video_generation/concept_blending_hybrid_video_narratives.rs
 
+use crate::prelude::*;
 pub struct ConceptBlender;
 
 impl ConceptBlender {

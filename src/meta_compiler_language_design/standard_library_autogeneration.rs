@@ -1,5 +1,6 @@
 // src/meta_compiler_language_design/standard_library_autogeneration.rs
 
+use crate::prelude::*;
 pub enum LibraryDomain {
     GeneralPurpose,
     Network,

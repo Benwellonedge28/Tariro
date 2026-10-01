@@ -1,5 +1,6 @@
 // src/author_module/admin_interface_panel/hierarchical_content_organization.rs
 
+use crate::prelude::*;
 pub struct HierarchicalContentOrganization;
 
 impl HierarchicalContentOrganization {

@@ -6,6 +6,7 @@
 /// systems and IoT devices. It leverages RAG for environmental energy models, battery management
 /// systems, and energy prediction algorithms to maximize energy independence and efficiency.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/predictive_version_conflict_resolution.rs
 
+use crate::prelude::*;
 pub struct ConflictResolver;
 
 impl ConflictResolver {

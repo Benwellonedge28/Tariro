@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/omniversal_admin_feedback_control/the_samuel_mukandara_omniversal_command_cognition_nexus_ultimate_final_evolution.rs
 
+use crate::prelude::*;
 pub struct CommandCognitionNexus;
 
 impl CommandCognitionNexus {

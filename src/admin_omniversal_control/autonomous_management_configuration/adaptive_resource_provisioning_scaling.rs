@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/autonomous_management_configuration/adaptive_resource_provisioning_scaling.rs
 
+use crate::prelude::*;
 pub struct AdaptiveResourceManager;
 
 impl AdaptiveResourceManager {

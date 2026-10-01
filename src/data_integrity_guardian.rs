@@ -4,6 +4,7 @@
 /// It will continuously scan and correct data inconsistencies or corruptions across all connected systems
 /// (leveraging SIMD for checksum verification and parallel data validation).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

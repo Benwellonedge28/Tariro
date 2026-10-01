@@ -1,5 +1,6 @@
 // src/admin_voice_interface/real_time_monitoring_diagnostics/resource_utilization_heatmap_voice.rs
 
+use crate::prelude::*;
 pub struct ResourceUtilizationHeatmap;
 
 impl ResourceUtilizationHeatmap {

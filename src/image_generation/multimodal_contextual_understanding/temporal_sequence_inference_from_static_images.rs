@@ -1,5 +1,6 @@
 // src/image_generation/multimodal_contextual_understanding/temporal_sequence_inference_from_static_images.rs
 
+use crate::prelude::*;
 pub struct TemporalSequenceInferencer;
 
 impl TemporalSequenceInferencer {

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/advanced_analytics_insights/predictive_governance_effectiveness_analytics.rs
 
+use crate::prelude::*;
 pub struct PredictiveGovernanceAnalytics;
 
 impl PredictiveGovernanceAnalytics {

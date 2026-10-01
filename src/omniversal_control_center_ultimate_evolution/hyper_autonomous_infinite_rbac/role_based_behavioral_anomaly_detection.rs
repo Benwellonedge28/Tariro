@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/hyper_autonomous_infinite_rbac/role_based_behavioral_anomaly_detection.rs
 
+use crate::prelude::*;
 pub struct BehavioralAnomalyDetection;
 
 impl BehavioralAnomalyDetection {

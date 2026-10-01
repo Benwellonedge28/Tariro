@@ -1,5 +1,6 @@
 // src/admin_voice_interface/document_config_policy/dynamic_content_filtering_policies.rs
 
+use crate::prelude::*;
 pub struct DynamicContentFilter;
 
 impl DynamicContentFilter {

@@ -1,5 +1,6 @@
 // src/author_module/universal_learning_knowledge_acquisition/meta_linguistic_pattern_discovery.rs
 
+use crate::prelude::*;
 pub struct MetaLinguisticPatternDiscovery;
 
 impl MetaLinguisticPatternDiscovery {

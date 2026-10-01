@@ -1,5 +1,6 @@
 // src/author_module/security_consistency_self_correction/automated_legal_ethical_review_gateway.rs
 
+use crate::prelude::*;
 pub struct AutomatedLegalEthicalReviewGateway;
 
 impl AutomatedLegalEthicalReviewGateway {

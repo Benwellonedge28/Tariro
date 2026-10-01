@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/hyper_personalized_adaptive_admin_experience/role_based_dynamic_dashboard_generation.rs
 
+use crate::prelude::*;
 pub struct DynamicDashboardGenerator;
 
 impl DynamicDashboardGenerator {

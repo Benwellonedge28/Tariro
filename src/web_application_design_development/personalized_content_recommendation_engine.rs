@@ -1,5 +1,6 @@
 // src/web_application_design_development/personalized_content_recommendation_engine.rs
 
+use crate::prelude::*;
 pub enum RecommendationAlgorithm {
     CollaborativeFiltering,
     ContentBased,

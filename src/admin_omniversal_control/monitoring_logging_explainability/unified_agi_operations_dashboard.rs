@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/monitoring_logging_explainability/unified_agi_operations_dashboard.rs
 
+use crate::prelude::*;
 pub struct AGIOperationsDashboard;
 
 impl AGIOperationsDashboard {

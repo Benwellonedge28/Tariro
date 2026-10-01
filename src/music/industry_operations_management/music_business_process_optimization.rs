@@ -1,5 +1,6 @@
 // src/music/industry_operations_management/music_business_process_optimization.rs
 
+use crate::prelude::*;
 pub struct ProcessOptimizer {
     // Optimize all business processes within the music industry, from tour planning to studio scheduling.
 }

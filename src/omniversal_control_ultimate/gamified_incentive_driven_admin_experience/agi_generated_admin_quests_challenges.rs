@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/gamified_incentive_driven_admin_experience/agi_generated_admin_quests_challenges.rs
 
+use crate::prelude::*;
 pub struct AGIQuestGenerator;
 
 impl AGIQuestGenerator {

@@ -1,5 +1,6 @@
 // src/video_generation/performance_scalability_infrastructure_video_generation/neural_network_hardware_synthesis_for_video.rs
 
+use crate::prelude::*;
 pub struct NeuralHardwareSynthesizerVideo;
 
 impl NeuralHardwareSynthesizerVideo {

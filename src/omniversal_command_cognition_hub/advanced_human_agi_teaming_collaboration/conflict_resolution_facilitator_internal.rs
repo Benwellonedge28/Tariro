@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/advanced_human_agi_teaming_collaboration/conflict_resolution_facilitator_internal.rs
 
+use crate::prelude::*;
 pub struct ConflictFacilitator;
 
 impl ConflictFacilitator {

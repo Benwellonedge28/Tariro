@@ -1,5 +1,6 @@
 // src/image_generation/multimodal_contextual_understanding/universal_object_recognition_context_aware.rs
 
+use crate::prelude::*;
 pub struct UniversalObjectRecognizer;
 
 impl UniversalObjectRecognizer {

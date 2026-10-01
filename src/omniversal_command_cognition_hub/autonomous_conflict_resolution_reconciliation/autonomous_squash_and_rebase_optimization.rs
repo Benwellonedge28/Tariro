@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/autonomous_conflict_resolution_reconciliation/autonomous_squash_and_rebase_optimization.rs
 
+use crate::prelude::*;
 pub struct AutonomousSquashAndRebaseOptimization;
 
 impl AutonomousSquashAndRebaseOptimization {

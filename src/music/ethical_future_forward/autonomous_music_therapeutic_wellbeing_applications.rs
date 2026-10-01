@@ -1,5 +1,6 @@
 // src/music/ethical_future_forward/autonomous_music_therapeutic_wellbeing_applications.rs
 
+use crate::prelude::*;
 pub struct TherapeuticMusic {
     // Generate music specifically designed to enhance mental, emotional, and physical wellbeing.
 }

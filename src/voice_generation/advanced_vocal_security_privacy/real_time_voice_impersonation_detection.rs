@@ -1,5 +1,6 @@
 // src/voice_generation/advanced_vocal_security_privacy/real_time_voice_impersonation_detection.rs
 
+use crate::prelude::*;
 pub struct VoiceImpersonationDetector;
 
 impl VoiceImpersonationDetector {

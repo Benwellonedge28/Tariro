@@ -1,5 +1,6 @@
 // src/omniversal_ultimate/secure_sovereign_access_extreme_scales/automated_insider_threat_detection_admin.rs
 
+use crate::prelude::*;
 pub struct InsiderThreatDetector;
 
 impl InsiderThreatDetector {

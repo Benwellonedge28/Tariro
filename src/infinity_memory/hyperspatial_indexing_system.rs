@@ -1,5 +1,6 @@
 // src/infinity_memory/hyperspatial_indexing_system.rs
 
+use crate::prelude::*;
 use std::collections::HashMap;
 
 pub struct HyperspatialIndexingSystem {

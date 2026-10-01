@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/contextual_semantic_search_retrieval.rs
 
+use crate::prelude::*;
 pub struct SemanticContext {
     pub keywords: Vec<String>,
     pub concepts: Vec<String>,

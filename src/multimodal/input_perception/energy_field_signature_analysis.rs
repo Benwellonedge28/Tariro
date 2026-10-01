@@ -1,5 +1,6 @@
 // src/multimodal/input_perception/energy_field_signature_analysis.rs
 
+use crate::prelude::*;
 pub struct EnergyFieldAnalyzer {
     // Detecting and interpreting subtle energy field signatures.
 }

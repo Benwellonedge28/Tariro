@@ -1,5 +1,6 @@
 // src/video_generation/human_ai_collaboration_customization/collaborative_video_project_management.rs
 
+use crate::prelude::*;
 pub struct CollaborativeVideoManager;
 
 impl CollaborativeVideoManager {

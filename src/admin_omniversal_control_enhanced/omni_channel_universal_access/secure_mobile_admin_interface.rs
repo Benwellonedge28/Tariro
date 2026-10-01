@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/omni_channel_universal_access/secure_mobile_admin_interface.rs
 
+use crate::prelude::*;
 pub struct MobileAdminInterface;
 
 impl MobileAdminInterface {

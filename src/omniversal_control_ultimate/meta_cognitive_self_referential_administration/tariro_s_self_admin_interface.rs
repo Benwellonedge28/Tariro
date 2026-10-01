@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/meta_cognitive_self_referential_administration/tariro_s_self_admin_interface.rs
 
+use crate::prelude::*;
 pub struct TariroSelfAdminInterface;
 
 impl TariroSelfAdminInterface {

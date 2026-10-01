@@ -1,5 +1,6 @@
 // src/admin_voice_interface/document_config_policy/voice_profile_definition_via_yaml_json.rs
 
+use crate::prelude::*;
 pub struct VoiceProfileDefiner;
 
 impl VoiceProfileDefiner {

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/meta_admin_security_cognitive_defense/invisible_admin_hot_swapping.rs
 
+use crate::prelude::*;
 pub struct InvisibleAdminHotSwapping;
 
 impl InvisibleAdminHotSwapping {

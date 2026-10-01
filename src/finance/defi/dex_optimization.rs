@@ -1,5 +1,6 @@
 // src/finance/defi/dex_optimization.rs
 
+use crate::prelude::*;
 pub struct DEXOptimizer {
     // Provides optimal liquidity routing and trading strategies on decentralized exchanges.
 }

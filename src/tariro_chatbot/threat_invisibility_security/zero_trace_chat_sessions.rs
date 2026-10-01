@@ -1,5 +1,6 @@
 // src/tariro_chatbot/threat_invisibility_security/zero_trace_chat_sessions.rs
 
+use crate::prelude::*;
 pub struct ZeroTraceChatSessions;
 
 impl ZeroTraceChatSessions {

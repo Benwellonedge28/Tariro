@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/analytics_insights/explainable_analytics_insights.rs
 
+use crate::prelude::*;
 pub struct ExplainableAnalytics;
 
 impl ExplainableAnalytics {

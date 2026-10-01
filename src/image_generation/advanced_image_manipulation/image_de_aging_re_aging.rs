@@ -1,5 +1,6 @@
 // src/image_generation/advanced_image_manipulation/image_de_aging_re_aging.rs
 
+use crate::prelude::*;
 pub struct AgeManipulator;
 
 impl AgeManipulator {

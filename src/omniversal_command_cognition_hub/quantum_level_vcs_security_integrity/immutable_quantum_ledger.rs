@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/quantum_level_vcs_security_integrity/immutable_quantum_ledger.rs
 
+use crate::prelude::*;
 pub struct ImmutableQuantumLedger;
 
 impl ImmutableQuantumLedger {

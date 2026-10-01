@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_cognitive_integration_control/direct_neural_interface_for_admin_intent.rs
 
+use crate::prelude::*;
 pub struct NeuralInterface;
 
 impl NeuralInterface {

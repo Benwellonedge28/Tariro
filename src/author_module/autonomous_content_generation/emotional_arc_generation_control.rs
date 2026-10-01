@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/emotional_arc_generation_control.rs
 
+use crate::prelude::*;
 pub struct EmotionalArcGenerationControl;
 
 impl EmotionalArcGenerationControl {

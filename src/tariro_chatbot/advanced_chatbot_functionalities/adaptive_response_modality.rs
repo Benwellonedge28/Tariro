@@ -1,5 +1,6 @@
 // src/tariro_chatbot/advanced_chatbot_functionalities/adaptive_response_modality.rs
 
+use crate::prelude::*;
 pub struct AdaptiveResponseModality;
 
 impl AdaptiveResponseModality {

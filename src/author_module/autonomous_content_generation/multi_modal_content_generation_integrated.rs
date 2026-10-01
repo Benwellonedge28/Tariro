@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/multi_modal_content_generation_integrated.rs
 
+use crate::prelude::*;
 pub struct MultiModalContentGenerationIntegrated;
 
 impl MultiModalContentGenerationIntegrated {

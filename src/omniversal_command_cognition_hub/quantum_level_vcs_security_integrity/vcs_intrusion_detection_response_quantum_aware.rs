@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/quantum_level_vcs_security_integrity/vcs_intrusion_detection_response_quantum_aware.rs
 
+use crate::prelude::*;
 pub struct VCSIntrusionDetectionResponseQuantumAware;
 
 impl VCSIntrusionDetectionResponseQuantumAware {

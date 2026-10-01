@@ -1,5 +1,6 @@
 // src/admin_voice_interface/global_voice_infrastructure_scalability_control/real_time_global_network_health_for_voice.rs
 
+use crate::prelude::*;
 pub struct GlobalNetworkHealthMonitor;
 
 impl GlobalNetworkHealthMonitor {

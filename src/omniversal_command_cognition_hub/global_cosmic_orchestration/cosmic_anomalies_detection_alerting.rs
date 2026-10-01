@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/global_cosmic_orchestration/cosmic_anomalies_detection_alerting.rs
 
+use crate::prelude::*;
 pub struct CosmicAnomalyDetector;
 
 impl CosmicAnomalyDetector {

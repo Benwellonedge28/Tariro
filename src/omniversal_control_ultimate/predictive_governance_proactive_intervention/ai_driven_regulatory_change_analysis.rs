@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/predictive_governance_proactive_intervention/ai_driven_regulatory_change_analysis.rs
 
+use crate::prelude::*;
 pub struct RegulatoryChangeAnalyzer;
 
 impl RegulatoryChangeAnalyzer {

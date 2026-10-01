@@ -1,5 +1,6 @@
 // src/finance/trading/automated_options_strategy.rs
 
+use crate::prelude::*;
 pub struct OptionsStrategist {
     // Automated Options & Derivatives Strategy Generation.
 }

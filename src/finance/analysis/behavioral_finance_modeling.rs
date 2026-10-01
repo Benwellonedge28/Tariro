@@ -1,5 +1,6 @@
 // src/finance/analysis/behavioral_finance_modeling.rs
 
+use crate::prelude::*;
 pub struct BehavioralFinanceModeler {
     // Develops sophisticated models of human behavior (investor psychology, herd mentality).
 }

@@ -1,5 +1,6 @@
 // src/universal_problem_solving/integrated_quantum_computing_coprocessor_management.rs
 
+use crate::prelude::*;
 pub enum QuantumBackendType {
     Superconducting,
     TrappedIon,

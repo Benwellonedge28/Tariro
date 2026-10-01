@@ -1,4 +1,5 @@
 /// Represents a node in the Universal Semantic Graph (USG).
+use crate::prelude::*;
 pub struct USGNode {
     pub id: String,
     pub kind: String, // e.g., "Concept", "Operation", "Data", "Constraint", "Actor"

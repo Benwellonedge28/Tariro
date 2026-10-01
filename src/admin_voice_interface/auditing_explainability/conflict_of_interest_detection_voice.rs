@@ -1,5 +1,6 @@
 // src/admin_voice_interface/auditing_explainability/conflict_of_interest_detection_voice.rs
 
+use crate::prelude::*;
 pub struct ConflictOfInterestDetector;
 
 impl ConflictOfInterestDetector {

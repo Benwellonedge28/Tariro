@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/autonomous_management_configuration/dynamic_autonomy_level_adjustment.rs
 
+use crate::prelude::*;
 pub struct AutonomyLevelAdjuster;
 
 impl AutonomyLevelAdjuster {

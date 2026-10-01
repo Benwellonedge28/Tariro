@@ -6,6 +6,7 @@
 /// beyond static defenses, providing dynamic, adaptive security capabilities
 /// including real-time policy adjustments and system hardening.
 
+use crate::prelude::*;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::thread;

@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/user_role_management/identity_provider_idp_integration.rs
 
+use crate::prelude::*;
 pub struct IdPIntegrator;
 
 impl IdPIntegrator {

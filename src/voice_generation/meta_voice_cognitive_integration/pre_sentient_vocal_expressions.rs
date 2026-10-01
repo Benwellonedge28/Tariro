@@ -1,5 +1,6 @@
 // src/voice_generation/meta_voice_cognitive_integration/pre_sentient_vocal_expressions.rs
 
+use crate::prelude::*;
 pub struct PreSentientVocalGenerator;
 
 impl PreSentientVocalGenerator {

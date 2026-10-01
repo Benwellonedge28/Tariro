@@ -1,5 +1,6 @@
 // src/finance/trading/dma_colocation_optimization.rs
 
+use crate::prelude::*;
 pub struct DMATrader {
     // Direct Market Access & Co-location Optimization.
 }

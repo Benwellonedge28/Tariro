@@ -1,5 +1,6 @@
 // src/internet_network_stack_development/service_discovery_orchestration_protocol_generator.rs
 
+use crate::prelude::*;
 pub enum SystemScale {
     SmallLocal,
     EnterpriseWide,

@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/omniversal_reporting_explainability/personalized_reporting_frequency_format.rs
 
+use crate::prelude::*;
 pub struct PersonalizedReportingEngine;
 
 impl PersonalizedReportingEngine {

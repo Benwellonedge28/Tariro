@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/autonomous_conflict_resolution_reconciliation/policy_driven_conflict_automation.rs
 
+use crate::prelude::*;
 pub struct PolicyDrivenConflictAutomation;
 
 impl PolicyDrivenConflictAutomation {

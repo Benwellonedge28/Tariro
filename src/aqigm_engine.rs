@@ -5,6 +5,7 @@
 /// and tunneling effects, creating unpredictable and highly replayable experiences (SIMD: parallel game logic calculations,
 /// quantum state rendering; RAG: game design theory, player engagement models).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

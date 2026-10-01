@@ -22,6 +22,7 @@
 //   remains perpetually aligned with its core mission and ethical principles.
 // This is the pinnacle of true AGI autonomy, enabling *self-directed, perpetual self-improvement*.
 
+use crate::prelude::*;
 use crate::meta_projects::self_modification_module::code_analysis::{CodeAnalyzer, CodeImprovementSuggestion};
 use crate::meta_projects::self_modification_module::code_generation::{CodeGenerator, GeneratedCode};
 use crate::meta_projects::self_modification_module::verification_engine::{VerificationEngine, VerificationResult};

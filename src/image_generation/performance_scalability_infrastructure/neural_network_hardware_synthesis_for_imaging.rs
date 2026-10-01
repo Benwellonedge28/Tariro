@@ -1,5 +1,6 @@
 // src/image_generation/performance_scalability_infrastructure/neural_network_hardware_synthesis_for_imaging.rs
 
+use crate::prelude::*;
 pub struct HardwareSynthesizer;
 
 impl HardwareSynthesizer {

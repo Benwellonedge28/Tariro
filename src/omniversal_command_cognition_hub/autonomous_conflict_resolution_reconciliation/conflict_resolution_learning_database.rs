@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/autonomous_conflict_resolution_reconciliation/conflict_resolution_learning_database.rs
 
+use crate::prelude::*;
 pub struct ConflictResolutionLearningDatabase;
 
 impl ConflictResolutionLearningDatabase {

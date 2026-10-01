@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/multimodal_data_augmentation_synthesis.rs
 
+use crate::prelude::*;
 pub struct DataAugmentor {
     // Generating realistic synthetic multimodal data for training and simulation, filling data gaps.
 }

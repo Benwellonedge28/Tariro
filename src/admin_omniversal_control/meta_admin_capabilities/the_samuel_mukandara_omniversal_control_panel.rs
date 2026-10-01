@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/meta_admin_capabilities/the_samuel_mukandara_omniversal_control_panel.rs
 
+use crate::prelude::*;
 pub struct OmniversalControlPanel;
 
 impl OmniversalControlPanel {

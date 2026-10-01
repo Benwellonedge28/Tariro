@@ -1,5 +1,6 @@
 // src/voice_generation/meta_voice_cognitive_integration/cross_species_vocal_synthesis.rs
 
+use crate::prelude::*;
 pub struct CrossSpeciesVocalSynthesizer;
 
 impl CrossSpeciesVocalSynthesizer {

@@ -1,5 +1,6 @@
 // src/image_generation/human_ai_collaboration_customization/image_driven_narrative_brainstorming.rs
 
+use crate::prelude::*;
 pub struct NarrativeBrainstormer;
 
 impl NarrativeBrainstormer {

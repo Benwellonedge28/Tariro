@@ -1,5 +1,6 @@
 // src/universal_problem_solving/predictive_analytics_forecasting.rs
 
+use crate::prelude::*;
 pub enum ForecastDomain {
     FinancialMarkets,
     GlobalWeather,

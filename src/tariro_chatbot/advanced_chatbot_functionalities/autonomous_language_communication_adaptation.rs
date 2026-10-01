@@ -1,5 +1,6 @@
 // src/tariro_chatbot/advanced_chatbot_functionalities/autonomous_language_communication_adaptation.rs
 
+use crate::prelude::*;
 pub struct AutonomousLanguageCommunicationAdaptation;
 
 impl AutonomousLanguageCommunicationAdaptation {

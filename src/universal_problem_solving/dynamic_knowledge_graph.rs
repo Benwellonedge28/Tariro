@@ -1,5 +1,6 @@
 // src/universal_problem_solving/dynamic_knowledge_graph.rs
 
+use crate::prelude::*;
 pub struct KnowledgeNode {
     pub id: String,
     pub label: String,

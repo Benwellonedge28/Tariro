@@ -1,5 +1,6 @@
 // src/planetary_cosmic_sovereignty/interstellar_communication_quantum_entangled.rs
 
+use crate::prelude::*;
 pub enum MessageEncoding {
     QuantumTeleportation,
     SuperluminalParticleEntanglement,

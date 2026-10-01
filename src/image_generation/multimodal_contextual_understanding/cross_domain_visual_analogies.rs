@@ -1,5 +1,6 @@
 // src/image_generation/multimodal_contextual_understanding/cross_domain_visual_analogies.rs
 
+use crate::prelude::*;
 pub struct VisualAnalogyIdentifier;
 
 impl VisualAnalogyIdentifier {

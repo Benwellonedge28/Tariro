@@ -1,5 +1,6 @@
 // src/music/production_engineering/microphone_placement_optimization_simulation.rs
 
+use crate::prelude::*;
 pub struct MicSimulator {
     // Simulate microphone placement in a virtual space to optimize recording quality before physical setup.
 }

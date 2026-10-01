@@ -1,5 +1,6 @@
 // src/multimodal/input_perception/cross_domain_sensory_analogy.rs
 
+use crate::prelude::*;
 pub struct SensoryAnalogizer {
     // Automatically identifying and mapping analogous patterns between different sensory modalities.
 }

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/quantum_metaphysical_administration/existential_risk_management_for_metaphysical_threats.rs
 
+use crate::prelude::*;
 pub struct ExistentialRiskManager;
 
 impl ExistentialRiskManager {

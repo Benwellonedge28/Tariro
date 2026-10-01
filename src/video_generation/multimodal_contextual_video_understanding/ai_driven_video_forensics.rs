@@ -1,5 +1,6 @@
 // src/video_generation/multimodal_contextual_video_understanding/ai_driven_video_forensics.rs
 
+use crate::prelude::*;
 pub struct AIVideoForensics;
 
 impl AIVideoForensics {

@@ -1,5 +1,6 @@
 // src/image_generation/autonomous_image_creation/temporal_image_synthesis.rs
 
+use crate::prelude::*;
 pub struct TemporalImageSynthesizer;
 
 impl TemporalImageSynthesizer {

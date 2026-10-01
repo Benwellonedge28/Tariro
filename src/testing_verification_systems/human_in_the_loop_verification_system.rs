@@ -1,5 +1,6 @@
 // src/testing_verification_systems/human_in_the_loop_verification_system.rs
 
+use crate::prelude::*;
 pub enum HumanTaskType {
     ReviewProof,
     ValidateModel,

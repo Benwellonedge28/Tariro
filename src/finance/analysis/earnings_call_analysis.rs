@@ -1,5 +1,6 @@
 // src/finance/analysis/earnings_call_analysis.rs
 
+use crate::prelude::*;
 pub struct EarningsCallAnalyzer {
     // Analyzes corporate communications (transcripts, audio, video) for hidden insights.
 }

@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/hyper_autonomous_infinite_rbac/cross_language_role_based_policy_definition.rs
 
+use crate::prelude::*;
 pub struct CrossLanguagePolicyDefinition;
 
 impl CrossLanguagePolicyDefinition {

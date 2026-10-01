@@ -1,5 +1,6 @@
 // src/music/performance_live_events/secure_ticketing_access_control.rs
 
+use crate::prelude::*;
 pub struct TicketingSystem {
     // Implement quantum-secure ticketing and access control systems for live events, eliminating fraud.
 }

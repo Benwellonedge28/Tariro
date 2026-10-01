@@ -1,5 +1,6 @@
 // src/tariro_chatbot/research_development_facilitation/automated_experiment_logging_analysis.rs
 
+use crate::prelude::*;
 pub struct AutomatedExperimentLoggingAnalysis;
 
 impl AutomatedExperimentLoggingAnalysis {

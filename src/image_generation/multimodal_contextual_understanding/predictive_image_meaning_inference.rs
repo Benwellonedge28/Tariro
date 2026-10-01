@@ -1,5 +1,6 @@
 // src/image_generation/multimodal_contextual_understanding/predictive_image_meaning_inference.rs
 
+use crate::prelude::*;
 pub struct MeaningInferencer;
 
 impl MeaningInferencer {

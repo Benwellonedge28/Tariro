@@ -1,5 +1,6 @@
 // src/sovereign_ethics_governance/universal_basic_value.rs
 
+use crate::prelude::*;
 pub enum ResourceType {
     Energy,
     Food,

@@ -1,5 +1,6 @@
 // src/tariro_chatbot/core_functionality/multi_modal_query_input.rs
 
+use crate::prelude::*;
 pub struct MultiModalQueryInput;
 
 impl MultiModalQueryInput {

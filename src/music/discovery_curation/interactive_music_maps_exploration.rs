@@ -1,5 +1,6 @@
 // src/music/discovery_curation/interactive_music_maps_exploration.rs
 
+use crate::prelude::*;
 pub struct MusicMap {
     // Generate interactive visual maps of music genres, artists, and their interconnections for exploration.
 }

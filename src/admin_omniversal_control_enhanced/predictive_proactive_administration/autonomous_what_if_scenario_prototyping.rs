@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/predictive_proactive_administration/autonomous_what_if_scenario_prototyping.rs
 
+use crate::prelude::*;
 pub struct ScenarioPrototyper;
 
 impl ScenarioPrototyper {

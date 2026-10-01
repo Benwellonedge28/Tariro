@@ -1,5 +1,6 @@
 // src/finance/analysis/quantum_price_discovery.rs
 
+use crate::prelude::*;
 pub struct QuantumPriceDiscoverer {
     // Utilizes quantum algorithms for superior price discovery and fair value assessments.
 }

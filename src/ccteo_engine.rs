@@ -4,6 +4,7 @@
 /// This RAG-driven feature enables secure processing of sensitive data within hardware-enforced Trusted Execution Environments (TEEs)
 /// like Intel SGX or AMD SEV. It leverages RAG for TEE attestation protocols and secure enclave development best practices.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

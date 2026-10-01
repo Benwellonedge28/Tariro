@@ -1,5 +1,6 @@
 // src/video_generation/autonomous_video_generation/self_optimizing_direction_cinematography.rs
 
+use crate::prelude::*;
 pub struct SelfOptimizingDirector;
 
 impl SelfOptimizingDirector {

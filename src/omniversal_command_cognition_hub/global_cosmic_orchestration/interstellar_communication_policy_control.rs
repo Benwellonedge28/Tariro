@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/global_cosmic_orchestration/interstellar_communication_policy_control.rs
 
+use crate::prelude::*;
 pub struct InterstellarCommControl;
 
 impl InterstellarCommControl {

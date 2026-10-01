@@ -1,5 +1,6 @@
 // src/music/discovery_curation/music_to_visual_tactile_olfactory_translator.rs
 
+use crate::prelude::*;
 pub struct SensoryTranslator {
     // Translate musical concepts into visual, tactile, or olfactory experiences for cross-sensory art.
 }

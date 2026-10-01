@@ -1,5 +1,6 @@
 // src/universal_problem_solving/universal_data_fusion_semantic_integration.rs
 
+use crate::prelude::*;
 pub enum DataSourceType {
     SensorNetwork,
     Database,

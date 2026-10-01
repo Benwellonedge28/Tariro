@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_cognitive_integration_control/emotional_impact_simulation_on_agi_decisions.rs
 
+use crate::prelude::*;
 pub struct EmotionalImpactSimulator;
 
 impl EmotionalImpactSimulator {

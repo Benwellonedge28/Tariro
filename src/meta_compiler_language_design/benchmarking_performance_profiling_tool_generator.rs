@@ -1,5 +1,6 @@
 // src/meta_compiler_language_design/benchmarking_performance_profiling_tool_generator.rs
 
+use crate::prelude::*;
 pub enum MetricType {
     ExecutionTime,
     MemoryUsage,

@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/meta_admin_capabilities/evolutionary_admin_tooling_design.rs
 
+use crate::prelude::*;
 pub struct EvolutionaryTooling;
 
 impl EvolutionaryTooling {

@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/hyper_autonomous_infinite_rbac/zero_trust_access_model_implementation.rs
 
+use crate::prelude::*;
 pub struct ZeroTrustAccessModel;
 
 impl ZeroTrustAccessModel {

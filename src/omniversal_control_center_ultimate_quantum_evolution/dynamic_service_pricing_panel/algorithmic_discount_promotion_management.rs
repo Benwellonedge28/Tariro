@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/dynamic_service_pricing_panel/algorithmic_discount_promotion_management.rs
 
+use crate::prelude::*;
 pub struct DiscountManager;
 
 impl DiscountManager {

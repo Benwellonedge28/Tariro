@@ -1,5 +1,6 @@
 // src/voice_generation/multimodal_interaction_output_harmonization/bio_feedback_integration_for_vocal_tuning.rs
 
+use crate::prelude::*;
 pub struct BioFeedbackVocalTuner;
 
 impl BioFeedbackVocalTuner {

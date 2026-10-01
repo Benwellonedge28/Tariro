@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/quantum_inspired_pattern_matching.rs
 
+use crate::prelude::*;
 pub struct QuantumPatternMatcher {
     // Utilizing quantum-like entanglement and superposition for hyper-efficient pattern matching.
 }

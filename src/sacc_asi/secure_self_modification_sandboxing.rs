@@ -1,5 +1,6 @@
 // src/sacc_asi/secure_self_modification_sandboxing.rs
 
+use crate::prelude::*;
 pub struct SelfModProposal {
     pub proposal_id: String,
     pub target_module: String,

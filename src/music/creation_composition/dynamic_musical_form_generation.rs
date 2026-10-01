@@ -1,5 +1,6 @@
 // src/music/creation_composition/dynamic_musical_form_generation.rs
 
+use crate::prelude::*;
 pub struct MusicalFormGenerator {
     // Design and generate novel musical forms and structures that transcend traditional definitions.
 }

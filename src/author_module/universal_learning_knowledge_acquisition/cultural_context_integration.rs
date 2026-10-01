@@ -1,5 +1,6 @@
 // src/author_module/universal_learning_knowledge_acquisition/cultural_context_integration.rs
 
+use crate::prelude::*;
 pub struct CulturalContextIntegration;
 
 impl CulturalContextIntegration {

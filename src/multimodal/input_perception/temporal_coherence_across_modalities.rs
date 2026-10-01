@@ -1,5 +1,6 @@
 // src/multimodal/input_perception/temporal_coherence_across_modalities.rs
 
+use crate::prelude::*;
 pub struct TemporalCoherenceManager {
     // Ensuring perfect synchronization and causal ordering across all incoming multimodal data streams.
 }

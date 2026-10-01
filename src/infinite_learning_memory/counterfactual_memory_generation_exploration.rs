@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/counterfactual_memory_generation_exploration.rs
 
+use crate::prelude::*;
 pub struct PastEvent {
     pub event_id: String,
     pub description: String,

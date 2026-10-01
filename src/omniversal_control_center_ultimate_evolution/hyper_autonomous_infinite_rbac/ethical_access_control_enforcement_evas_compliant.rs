@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/hyper_autonomous_infinite_rbac/ethical_access_control_enforcement_evas_compliant.rs
 
+use crate::prelude::*;
 pub struct EthicalAccessControl;
 
 impl EthicalAccessControl {

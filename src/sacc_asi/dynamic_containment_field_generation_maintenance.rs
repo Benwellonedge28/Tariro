@@ -1,5 +1,6 @@
 // src/sacc_asi/dynamic_containment_field_generation_maintenance.rs
 
+use crate::prelude::*;
 pub enum FieldType {
     EnergyBarrier,
     RealityAnchor,

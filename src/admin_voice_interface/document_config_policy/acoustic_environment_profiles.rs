@@ -1,5 +1,6 @@
 // src/admin_voice_interface/document_config_policy/acoustic_environment_profiles.rs
 
+use crate::prelude::*;
 pub struct AcousticEnvironmentProfiler;
 
 impl AcousticEnvironmentProfiler {

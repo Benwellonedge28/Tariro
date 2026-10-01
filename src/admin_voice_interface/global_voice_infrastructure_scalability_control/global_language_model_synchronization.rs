@@ -1,5 +1,6 @@
 // src/admin_voice_interface/global_voice_infrastructure_scalability_control/global_language_model_synchronization.rs
 
+use crate::prelude::*;
 pub struct GlobalLanguageModelSynchronizer;
 
 impl GlobalLanguageModelSynchronizer {

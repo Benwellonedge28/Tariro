@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/autonomous_management_configuration/multi_version_configuration_rollback.rs
 
+use crate::prelude::*;
 pub struct ConfigRollbackManager;
 
 impl ConfigRollbackManager {

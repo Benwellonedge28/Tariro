@@ -1,5 +1,6 @@
 // src/video_generation/meta_generative_evolutionary_video/autonomous_cinematic_language_development.rs
 
+use crate::prelude::*;
 pub struct CinematicLanguageDeveloper;
 
 impl CinematicLanguageDeveloper {

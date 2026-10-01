@@ -1,5 +1,6 @@
 // src/admin_voice_interface/nl_command_control/voice_generation_macro_creation_nl_defined.rs
 
+use crate::prelude::*;
 pub struct VoiceMacroCreator;
 
 impl VoiceMacroCreator {

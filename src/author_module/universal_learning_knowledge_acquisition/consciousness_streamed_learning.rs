@@ -1,5 +1,6 @@
 // src/author_module/universal_learning_knowledge_acquisition/consciousness_streamed_learning.rs
 
+use crate::prelude::*;
 pub struct ConsciousnessStreamedLearning;
 
 impl ConsciousnessStreamedLearning {

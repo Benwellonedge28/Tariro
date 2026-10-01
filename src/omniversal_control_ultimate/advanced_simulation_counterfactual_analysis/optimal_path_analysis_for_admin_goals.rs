@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/advanced_simulation_counterfactual_analysis/optimal_path_analysis_for_admin_goals.rs
 
+use crate::prelude::*;
 pub struct OptimalPathAnalyzer;
 
 impl OptimalPathAnalyzer {

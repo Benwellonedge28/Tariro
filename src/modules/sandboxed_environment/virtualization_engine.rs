@@ -4,6 +4,7 @@
 //! Its primary responsibility is to create and manage isolated, full-stack replicas of Tariro's
 //! current production environment for safe testing.
 
+use crate::prelude::*;
 use crate::{prelude::*,
     Module,
     ModuleContext,

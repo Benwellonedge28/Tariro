@@ -1,5 +1,6 @@
 // src/image_generation/security_ethics_verifiability/privacy_preserving_image_generation.rs
 
+use crate::prelude::*;
 pub struct PrivacyPreservingGenerator;
 
 impl PrivacyPreservingGenerator {

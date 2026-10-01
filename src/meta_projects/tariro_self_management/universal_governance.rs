@@ -26,6 +26,7 @@
 //!   and optimal societal organization, driving *perpetual ethical advancement*.
 //! This framework is the cornerstone of Tariro's *trustworthy and perpetually aligned autonomy*.
 
+use crate::prelude::*;
 use crate::meta_projects::tariro_self_management::{InternalStateSnapshot, SelfManagementConfig};
 use crate::agi::models::{AgiGovernanceModel, AgiEthicsModel};
 use crate::omega_os::distributed_ledger::{ImmutableLedger, LedgerEntry};

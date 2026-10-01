@@ -1,5 +1,6 @@
 // src/nano_technological_omnipresence/smart_dust_environmental_sensors.rs
 
+use crate::prelude::*;
 pub enum EnvironmentalFactor {
     AirQuality,
     WaterPurity,

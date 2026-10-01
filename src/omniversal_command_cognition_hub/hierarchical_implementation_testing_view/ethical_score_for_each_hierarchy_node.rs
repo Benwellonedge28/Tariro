@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hierarchical_implementation_testing_view/ethical_score_for_each_hierarchy_node.rs
 
+use crate::prelude::*;
 pub struct EthicalScoreForEachHierarchyNode;
 
 impl EthicalScoreForEachHierarchyNode {

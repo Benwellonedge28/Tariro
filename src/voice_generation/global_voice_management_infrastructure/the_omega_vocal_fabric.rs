@@ -1,5 +1,6 @@
 // src/voice_generation/global_voice_management_infrastructure/the_omega_vocal_fabric.rs
 
+use crate::prelude::*;
 pub struct OmegaVocalFabric;
 
 impl OmegaVocalFabric {

@@ -1,5 +1,6 @@
 // src/multimodal/human_ai_interface/intuitive_multimodal_human_ai_teaming.rs
 
+use crate::prelude::*;
 pub struct HumanAITeamer {
     // Seamless collaboration where AI understands human intent from gestures, gaze, voice, and subconscious cues.
 }

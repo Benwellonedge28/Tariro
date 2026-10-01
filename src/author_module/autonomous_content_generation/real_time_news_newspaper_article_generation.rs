@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/real_time_news_newspaper_article_generation.rs
 
+use crate::prelude::*;
 pub struct RealtimeNewsNewspaperArticleGeneration;
 
 impl RealtimeNewsNewspaperArticleGeneration {

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/multi_format_document_versioning.rs
 
+use crate::prelude::*;
 pub struct DocumentVersioning;
 
 impl DocumentVersioning {

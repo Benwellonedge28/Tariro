@@ -1,5 +1,6 @@
 // src/voice_generation/universal_real_time_multilingual_voice_generation/dynamic_jargon_domain_specific_terminology_integration.rs
 
+use crate::prelude::*;
 pub struct JargonIntegrator;
 
 impl JargonIntegrator {

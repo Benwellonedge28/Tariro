@@ -1,5 +1,6 @@
 // src/image_generation/performance_scalability_infrastructure/dynamic_image_storage_retrieval.rs
 
+use crate::prelude::*;
 pub struct DynamicImageStorage;
 
 impl DynamicImageStorage {

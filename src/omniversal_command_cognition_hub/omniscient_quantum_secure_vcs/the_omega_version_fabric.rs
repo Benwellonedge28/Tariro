@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/the_omega_version_fabric.rs
 
+use crate::prelude::*;
 pub struct OmegaVersionFabric;
 
 impl OmegaVersionFabric {

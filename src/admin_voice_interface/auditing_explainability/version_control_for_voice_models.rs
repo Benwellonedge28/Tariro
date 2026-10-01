@@ -1,5 +1,6 @@
 // src/admin_voice_interface/auditing_explainability/version_control_for_voice_models.rs
 
+use crate::prelude::*;
 pub struct VoiceModelVersionControl;
 
 impl VoiceModelVersionControl {

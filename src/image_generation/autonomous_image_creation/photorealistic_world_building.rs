@@ -1,5 +1,6 @@
 // src/image_generation/autonomous_image_creation/photorealistic_world_building.rs
 
+use crate::prelude::*;
 pub struct WorldBuilder;
 
 impl WorldBuilder {

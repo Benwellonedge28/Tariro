@@ -1,5 +1,6 @@
 // src/image_generation/autonomous_image_creation/bio_generative_art.rs
 
+use crate::prelude::*;
 pub struct BioArtGenerator;
 
 impl BioArtGenerator {

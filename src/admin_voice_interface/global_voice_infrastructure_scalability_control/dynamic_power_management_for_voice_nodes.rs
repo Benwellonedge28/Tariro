@@ -1,5 +1,6 @@
 // src/admin_voice_interface/global_voice_infrastructure_scalability_control/dynamic_power_management_for_voice_nodes.rs
 
+use crate::prelude::*;
 pub struct DynamicPowerManager;
 
 impl DynamicPowerManager {

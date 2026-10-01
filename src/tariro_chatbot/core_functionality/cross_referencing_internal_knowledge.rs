@@ -1,5 +1,6 @@
 // src/tariro_chatbot/core_functionality/cross_referencing_internal_knowledge.rs
 
+use crate::prelude::*;
 pub struct CrossReferencingInternalKnowledge;
 
 impl CrossReferencingInternalKnowledge {

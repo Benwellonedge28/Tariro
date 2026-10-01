@@ -1,5 +1,6 @@
 // src/web_application_design_development/real_time_user_activity_analytics_dashboard.rs
 
+use crate::prelude::*;
 pub enum UserActivityType {
     PageView,
     Click,

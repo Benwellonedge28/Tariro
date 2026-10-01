@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/meta_administrative_interface_self_evolution/autonomous_admin_tool_generation.rs
 
+use crate::prelude::*;
 pub struct AdminToolGenerator;
 
 impl AdminToolGenerator {

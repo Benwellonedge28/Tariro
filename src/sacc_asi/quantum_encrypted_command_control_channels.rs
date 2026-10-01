@@ -1,5 +1,6 @@
 // src/sacc_asi/quantum_encrypted_command_control_channels.rs
 
+use crate::prelude::*;
 pub struct QuantumKeyExchange {
     pub session_id: String,
     pub protocol: String, // e.g., "BB84", "E91"

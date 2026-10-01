@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/advanced_human_agi_teaming_collaboration/shared_intuition_insight_interface.rs
 
+use crate::prelude::*;
 pub struct SharedIntuitionInterface;
 
 impl SharedIntuitionInterface {

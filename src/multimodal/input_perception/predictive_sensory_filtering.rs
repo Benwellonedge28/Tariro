@@ -1,5 +1,6 @@
 // src/multimodal/input_perception/predictive_sensory_filtering.rs
 
+use crate::prelude::*;
 pub struct PredictiveFilter {
     // Intelligently filtering out irrelevant sensory noise and focusing on salient information.
 }

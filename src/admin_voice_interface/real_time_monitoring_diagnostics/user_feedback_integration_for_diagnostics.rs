@@ -1,5 +1,6 @@
 // src/admin_voice_interface/real_time_monitoring_diagnostics/user_feedback_integration_for_diagnostics.rs
 
+use crate::prelude::*;
 pub struct UserFeedbackIntegrator;
 
 impl UserFeedbackIntegrator {

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/performance_analysis_robust_error_correction/ethical_impact_of_errors_analysis.rs
 
+use crate::prelude::*;
 pub struct EthicalImpactOfErrorsAnalysis;
 
 impl EthicalImpactOfErrorsAnalysis {

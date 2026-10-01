@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/quantum_metaphysical_administration/simulation_hypothesis_control_panel.rs
 
+use crate::prelude::*;
 pub struct SimulationControlPanel;
 
 impl SimulationControlPanel {

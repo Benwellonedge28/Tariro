@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/omniversal_admin_feedback_control/meta_governance_recommendation_engine.rs
 
+use crate::prelude::*;
 pub struct MetaGovernanceEngine;
 
 impl MetaGovernanceEngine {

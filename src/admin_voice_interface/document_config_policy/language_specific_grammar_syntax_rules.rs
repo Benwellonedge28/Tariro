@@ -1,5 +1,6 @@
 // src/admin_voice_interface/document_config_policy/language_specific_grammar_syntax_rules.rs
 
+use crate::prelude::*;
 pub struct LanguageGrammarRules;
 
 impl LanguageGrammarRules {

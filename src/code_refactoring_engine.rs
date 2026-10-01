@@ -5,6 +5,7 @@
 /// improving readability, maintainability, and performance without altering external behavior. It leverages RAG for code
 /// analysis techniques, refactoring patterns, and domain-specific knowledge.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

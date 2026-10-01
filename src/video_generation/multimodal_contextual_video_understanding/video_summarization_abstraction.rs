@@ -1,5 +1,6 @@
 // src/video_generation/multimodal_contextual_video_understanding/video_summarization_abstraction.rs
 
+use crate::prelude::*;
 pub struct VideoSummarizerAbstraction;
 
 impl VideoSummarizerAbstraction {

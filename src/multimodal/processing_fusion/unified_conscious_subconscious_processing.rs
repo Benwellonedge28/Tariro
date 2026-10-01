@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/unified_conscious_subconscious_processing.rs
 
+use crate::prelude::*;
 pub struct UnifiedProcessor {
     // Seamlessly integrating explicit, conscious reasoning with rapid, intuitive subconscious multimodal processing.
 }

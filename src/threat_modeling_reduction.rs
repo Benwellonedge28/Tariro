@@ -7,6 +7,7 @@
 /// (leveraging RAG for threat modeling methodologies like STRIDE and SIMD for high-speed analysis of code paths
 /// and configuration settings).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

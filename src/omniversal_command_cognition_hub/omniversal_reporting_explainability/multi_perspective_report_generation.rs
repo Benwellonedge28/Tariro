@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniversal_reporting_explainability/multi_perspective_report_generation.rs
 
+use crate::prelude::*;
 pub struct MultiPerspectiveReportGeneration;
 
 impl MultiPerspectiveReportGeneration {

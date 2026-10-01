@@ -1,5 +1,6 @@
 // src/tariro_chatbot/research_development_facilitation/data_analysis_visualization_requests.rs
 
+use crate::prelude::*;
 pub struct DataAnalysisVisualizationRequests;
 
 impl DataAnalysisVisualizationRequests {

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/advanced_human_agi_teaming_collaboration/shared_mental_model_construction_kit.rs
 
+use crate::prelude::*;
 pub struct MentalModelKit;
 
 impl MentalModelKit {

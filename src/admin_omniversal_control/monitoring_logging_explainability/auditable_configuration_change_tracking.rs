@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/monitoring_logging_explainability/auditable_configuration_change_tracking.rs
 
+use crate::prelude::*;
 pub struct ConfigChangeTracker;
 
 impl ConfigChangeTracker {

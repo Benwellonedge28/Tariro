@@ -1,5 +1,6 @@
 // src/admin_voice_interface/nl_command_control/voice_generation_status_updates_via_nl.rs
 
+use crate::prelude::*;
 pub struct VoiceStatusUpdater;
 
 impl VoiceStatusUpdater {

@@ -8,6 +8,7 @@
 /// (leveraging RAG for PPML research and best practices, and SIMD for accelerating cryptographic and distributed
 /// training operations).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/universal_content_concept_traceability/inter_system_content_synchronization_vcs_driven.rs
 
+use crate::prelude::*;
 pub struct InterSystemContentSynchronizationVCSDriven;
 
 impl InterSystemContentSynchronizationVCSDriven {

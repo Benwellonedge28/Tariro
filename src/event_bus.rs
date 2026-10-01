@@ -2,6 +2,7 @@
 
 //! Implements an asynchronous event bus for inter-module communication within the Tariro AGI.
 
+use crate::prelude::*;
 use tokio::sync::broadcast;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;

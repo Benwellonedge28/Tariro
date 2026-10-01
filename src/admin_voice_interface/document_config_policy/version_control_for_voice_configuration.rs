@@ -1,5 +1,6 @@
 // src/admin_voice_interface/document_config_policy/version_control_for_voice_configuration.rs
 
+use crate::prelude::*;
 pub struct VoiceConfigVersionControl;
 
 impl VoiceConfigVersionControl {

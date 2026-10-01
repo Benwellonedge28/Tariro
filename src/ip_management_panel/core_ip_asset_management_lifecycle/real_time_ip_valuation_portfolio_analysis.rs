@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/real_time_ip_valuation_portfolio_analysis.rs
 
+use crate::prelude::*;
 pub struct RealtimeIpValuationPortfolioAnalysis;
 
 impl RealtimeIpValuationPortfolioAnalysis {

@@ -1,5 +1,6 @@
 // src/operating_system_design_development/hardware_abstraction_layer_generator.rs
 
+use crate::prelude::*;
 pub enum HardwareInterfaceType {
     MemoryMappedIO,
     PortMappedIO,

@@ -1,5 +1,6 @@
 // src/author_module/admin_interface_panel/automated_content_quality_scoring.rs
 
+use crate::prelude::*;
 pub struct AutomatedContentQualityScoring;
 
 impl AutomatedContentQualityScoring {

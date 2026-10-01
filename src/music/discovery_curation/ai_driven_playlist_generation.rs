@@ -1,5 +1,6 @@
 // src/music/discovery_curation/ai_driven_playlist_generation.rs
 
+use crate::prelude::*;
 pub struct PlaylistGenerator {
     // Create dynamic, infinitely personalized playlists that adapt to listener mood, activity, and environmental context.
 }

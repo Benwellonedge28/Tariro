@@ -1,5 +1,6 @@
 // src/omni_domain_operation/meta_logistics_supply_chain_orchestration.rs
 
+use crate::prelude::*;
 pub enum LogisticsNodeType {
     Manufacturer,
     Warehouse,

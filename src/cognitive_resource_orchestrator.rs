@@ -4,6 +4,7 @@
 /// Tariro will intelligently allocate its own processing power, memory, and attention across tasks based on
 /// real-time priority and complexity (leveraging SIMD for workload balancing and neural network pruning).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

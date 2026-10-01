@@ -5,6 +5,7 @@
 //! (`ManagedFile`, `KnowledgeItem`, `LearningInsight`, etc.) for use within the sandbox,
 //! ensuring realistic testing without data contamination.
 
+use crate::prelude::*;
 use crate::{prelude::*,
     Module,
     ModuleContext,

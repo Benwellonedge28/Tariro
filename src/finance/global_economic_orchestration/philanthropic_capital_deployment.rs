@@ -1,5 +1,6 @@
 // src/finance/global_economic_orchestration/philanthropic_capital_deployment.rs
 
+use crate::prelude::*;
 pub struct PhilanthropyAutomator {
     // Autonomously identifies impactful philanthropic opportunities and deploys capital effectively.
 }

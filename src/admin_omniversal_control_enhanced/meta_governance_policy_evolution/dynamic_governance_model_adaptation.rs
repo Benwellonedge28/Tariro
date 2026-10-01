@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/meta_governance_policy_evolution/dynamic_governance_model_adaptation.rs
 
+use crate::prelude::*;
 pub struct GovernanceModelAdapter;
 
 impl GovernanceModelAdapter {

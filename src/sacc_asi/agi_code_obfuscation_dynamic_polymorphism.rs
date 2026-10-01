@@ -1,5 +1,6 @@
 // src/sacc_asi/agi_code_obfuscation_dynamic_polymorphism.rs
 
+use crate::prelude::*;
 pub enum ObfuscationLevel {
     Light,
     Medium,

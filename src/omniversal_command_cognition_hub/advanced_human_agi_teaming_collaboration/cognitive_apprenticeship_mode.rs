@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/advanced_human_agi_teaming_collaboration/cognitive_apprenticeship_mode.rs
 
+use crate::prelude::*;
 pub struct CognitiveApprenticeship;
 
 impl CognitiveApprenticeship {

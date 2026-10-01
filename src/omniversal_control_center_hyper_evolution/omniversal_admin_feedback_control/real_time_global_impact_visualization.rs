@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/omniversal_admin_feedback_control/real_time_global_impact_visualization.rs
 
+use crate::prelude::*;
 pub struct GlobalImpactVisualizer;
 
 impl GlobalImpactVisualizer {

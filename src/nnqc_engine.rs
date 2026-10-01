@@ -4,6 +4,7 @@
 /// This SIMD-driven feature optimizes deployed neural networks by reducing their size and computational requirements
 /// while maintaining accuracy. It leverages RAG for quantization best practices and SIMD for parallel tensor operations.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

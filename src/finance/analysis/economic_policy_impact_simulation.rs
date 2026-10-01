@@ -1,5 +1,6 @@
 // src/finance/analysis/economic_policy_impact_simulation.rs
 
+use crate::prelude::*;
 pub struct EconomicPolicySimulator {
     // Simulates the economic impact of various fiscal and monetary policy decisions.
 }

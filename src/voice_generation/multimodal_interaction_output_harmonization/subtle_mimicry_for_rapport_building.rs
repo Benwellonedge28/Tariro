@@ -1,5 +1,6 @@
 // src/voice_generation/multimodal_interaction_output_harmonization/subtle_mimicry_for_rapport_building.rs
 
+use crate::prelude::*;
 pub struct RapportMimicryAgent;
 
 impl RapportMimicryAgent {

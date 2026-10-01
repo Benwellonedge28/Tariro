@@ -1,5 +1,6 @@
 // src/image_generation/advanced_image_manipulation/universal_image_format_conversion.rs
 
+use crate::prelude::*;
 pub struct FormatConverter;
 
 impl FormatConverter {

@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/simulated_admin_environments_training/skill_certification_assessment_module_admin.rs
 
+use crate::prelude::*;
 pub struct SkillCertModule;
 
 impl SkillCertModule {

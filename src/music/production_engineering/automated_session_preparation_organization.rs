@@ -1,5 +1,6 @@
 // src/music/production_engineering/automated_session_preparation_organization.rs
 
+use crate::prelude::*;
 pub struct SessionOrganizer {
     // Autonomously prepare recording sessions, organizing tracks, routing audio, and setting up templates.
 }

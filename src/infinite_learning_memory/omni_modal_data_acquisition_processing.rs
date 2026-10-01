@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/omni_modal_data_acquisition_processing.rs
 
+use crate::prelude::*;
 pub enum DataModality {
     Text,
     Audio,

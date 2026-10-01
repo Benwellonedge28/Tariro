@@ -1,5 +1,6 @@
 // src/sovereign_ethics_governance/universal_health_sovereignty.rs
 
+use crate::prelude::*;
 pub enum MedicalConditionCategory {
     Infectious,
     Chronic,

@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/personalized_correspondence_communication.rs
 
+use crate::prelude::*;
 pub struct PersonalizedCorrespondenceCommunication;
 
 impl PersonalizedCorrespondenceCommunication {

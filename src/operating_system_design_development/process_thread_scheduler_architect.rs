@@ -1,5 +1,6 @@
 // src/operating_system_design_development/process_thread_scheduler_architect.rs
 
+use crate::prelude::*;
 pub enum OptimizationGoal {
     RealTimeLatency,
     EnergyEfficiency,

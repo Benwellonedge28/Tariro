@@ -1,5 +1,6 @@
 // src/voice_generation/meta_voice_cognitive_integration/musicality_of_speech_analysis_generation.rs
 
+use crate::prelude::*;
 pub struct MusicalSpeechAnalyzerGenerator;
 
 impl MusicalSpeechAnalyzerGenerator {

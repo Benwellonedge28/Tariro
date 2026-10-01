@@ -1,5 +1,6 @@
 // src/video_generation/human_ai_collaboration_customization/ethical_guidelines_for_human_ai_video_collaboration.rs
 
+use crate::prelude::*;
 pub struct HumanAIVideoEthics;
 
 impl HumanAIVideoEthics {

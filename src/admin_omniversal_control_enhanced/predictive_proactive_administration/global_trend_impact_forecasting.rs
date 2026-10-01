@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/predictive_proactive_administration/global_trend_impact_forecasting.rs
 
+use crate::prelude::*;
 pub struct TrendImpactForecaster;
 
 impl TrendImpactForecaster {

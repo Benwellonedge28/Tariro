@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/multi_jurisdictional_registration_automation.rs
 
+use crate::prelude::*;
 pub struct MultiJurisdictionalRegistrationAutomation;
 
 impl MultiJurisdictionalRegistrationAutomation {

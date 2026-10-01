@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/autonomous_pre_deployment_testing_validation_panel/fault_injection_self_healing_validation.rs
 
+use crate::prelude::*;
 pub struct FaultInjectionValidator;
 
 impl FaultInjectionValidator {

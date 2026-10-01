@@ -4,6 +4,7 @@
 /// This module will enable Tariro to query and correlate data across any time or spatial dimension with infinite
 /// precision and speed, leveraging specialized indexes (SIMD: multi-dimensional indexing; RAG: geotemporal databases).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

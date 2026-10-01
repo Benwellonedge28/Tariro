@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_cognitive_integration_control/conscious_oversight_of_agi_self_modification.rs
 
+use crate::prelude::*;
 pub struct SelfModificationOversight;
 
 impl SelfModificationOversight {

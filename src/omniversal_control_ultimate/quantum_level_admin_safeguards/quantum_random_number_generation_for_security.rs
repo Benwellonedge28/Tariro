@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/quantum_level_admin_safeguards/quantum_random_number_generation_for_security.rs
 
+use crate::prelude::*;
 pub struct QuantumRNG;
 
 impl QuantumRNG {

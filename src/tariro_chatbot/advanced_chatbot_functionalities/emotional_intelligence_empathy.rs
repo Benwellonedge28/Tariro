@@ -1,5 +1,6 @@
 // src/tariro_chatbot/advanced_chatbot_functionalities/emotional_intelligence_empathy.rs
 
+use crate::prelude::*;
 pub struct EmotionalIntelligenceEmpathy;
 
 impl EmotionalIntelligenceEmpathy {

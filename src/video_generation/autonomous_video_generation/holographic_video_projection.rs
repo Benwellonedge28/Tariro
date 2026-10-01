@@ -1,5 +1,6 @@
 // src/video_generation/autonomous_video_generation/holographic_video_projection.rs
 
+use crate::prelude::*;
 pub struct HolographicProjector;
 
 impl HolographicProjector {

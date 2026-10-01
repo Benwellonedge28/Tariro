@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/hyper_personalized_adaptive_admin_experience/adaptive_alert_notification_prioritization.rs
 
+use crate::prelude::*;
 pub struct AlertPrioritizer;
 
 impl AlertPrioritizer {

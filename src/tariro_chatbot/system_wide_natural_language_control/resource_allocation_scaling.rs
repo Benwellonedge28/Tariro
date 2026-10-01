@@ -1,5 +1,6 @@
 // src/tariro_chatbot/system_wide_natural_language_control/resource_allocation_scaling.rs
 
+use crate::prelude::*;
 pub struct ResourceAllocationScaling;
 
 impl ResourceAllocationScaling {

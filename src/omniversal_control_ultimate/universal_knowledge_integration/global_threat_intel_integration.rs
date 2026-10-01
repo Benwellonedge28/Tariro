@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/universal_knowledge_integration/global_threat_intel_integration.rs
 
+use crate::prelude::*;
 pub struct ThreatIntelIntegrator;
 
 impl ThreatIntelIntegrator {

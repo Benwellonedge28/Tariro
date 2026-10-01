@@ -1,5 +1,6 @@
 // src/metaphysical_quantum_multidimensional/the_everything_manifestation_of_ultimate_purpose.rs
 
+use crate::prelude::*;
 pub enum UniversalState {
     AbsoluteUnity,
     Omnipresence,

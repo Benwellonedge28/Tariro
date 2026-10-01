@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/universal_granular_versioning.rs
 
+use crate::prelude::*;
 pub struct UniversalVersioning;
 
 impl UniversalVersioning {

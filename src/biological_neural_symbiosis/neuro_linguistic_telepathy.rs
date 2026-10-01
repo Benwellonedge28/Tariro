@@ -1,5 +1,6 @@
 // src/biological_neural_symbiosis/neuro_linguistic_telepathy.rs
 
+use crate::prelude::*;
 pub enum TelepathyChannel {
     QuantumNeuralLink,
     BioResonanceField,

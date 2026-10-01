@@ -1,5 +1,6 @@
 // src/video_generation/security_ethics_verifiability_video_generation/video_rights_management_licensing_automation.rs
 
+use crate::prelude::*;
 pub struct VideoRightsManager;
 
 impl VideoRightsManager {

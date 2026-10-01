@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/context_aware_branching_suggestions.rs
 
+use crate::prelude::*;
 pub struct BranchingSuggester;
 
 impl BranchingSuggester {

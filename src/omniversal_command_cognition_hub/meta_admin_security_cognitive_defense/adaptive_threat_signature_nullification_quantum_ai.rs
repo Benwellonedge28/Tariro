@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/meta_admin_security_cognitive_defense/adaptive_threat_signature_nullification_quantum_ai.rs
 
+use crate::prelude::*;
 pub struct AdaptiveThreatSignatureNullification;
 
 impl AdaptiveThreatSignatureNullification {

@@ -1,5 +1,6 @@
 // src/tariro_chatbot/core_functionality/context_aware_dialogue_management.rs
 
+use crate::prelude::*;
 pub struct ContextAwareDialogueManagement;
 
 impl ContextAwareDialogueManagement {

@@ -1,5 +1,6 @@
 // src/omni_domain_operation/geo_engineering_planetary_management.rs
 
+use crate::prelude::*;
 pub enum PlanetaryInterventionType {
     ClimateRegulation(String), // e.g., "SolarRadiationManagement", "CarbonCycleRestoration"
     AsteroidDeflection,

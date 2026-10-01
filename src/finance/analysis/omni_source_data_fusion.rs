@@ -1,5 +1,6 @@
 // src/finance/analysis/omni_source_data_fusion.rs
 
+use crate::prelude::*;
 pub struct OmniSourceDataFusion {
     // Integrates and analyzes vast datasets from all conceivable sources for predictive insights.
 }

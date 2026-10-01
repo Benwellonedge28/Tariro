@@ -1,5 +1,6 @@
 // src/meta_compiler_language_design/lexer_parser_generator_adaptive.rs
 
+use crate::prelude::*;
 pub enum PerformanceTarget {
     LowLatency,
     HighThroughput,

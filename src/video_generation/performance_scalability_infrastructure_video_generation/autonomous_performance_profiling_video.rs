@@ -1,5 +1,6 @@
 // src/video_generation/performance_scalability_infrastructure_video_generation/autonomous_performance_profiling_video.rs
 
+use crate::prelude::*;
 pub struct VideoPerformanceProfiler;
 
 impl VideoPerformanceProfiler {

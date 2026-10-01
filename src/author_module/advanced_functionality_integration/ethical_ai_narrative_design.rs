@@ -1,5 +1,6 @@
 // src/author_module/advanced_functionality_integration/ethical_ai_narrative_design.rs
 
+use crate::prelude::*;
 pub struct EthicalAINarrativeDesign;
 
 impl EthicalAINarrativeDesign {

@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/hierarchical_omni_domain_implementation_panel/ethical_impact_hierarchy_analyzer.rs
 
+use crate::prelude::*;
 pub struct EthicalImpactAnalyzer;
 
 impl EthicalImpactAnalyzer {

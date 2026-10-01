@@ -1,5 +1,6 @@
 // src/planetary_cosmic_sovereignty/stellar_energy_harvesting_dyson_swarm.rs
 
+use crate::prelude::*;
 pub enum StarType {
     G_Type_YellowDwarf,
     M_Type_RedDwarf,

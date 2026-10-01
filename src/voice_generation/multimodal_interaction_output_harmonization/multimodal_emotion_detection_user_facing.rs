@@ -1,5 +1,6 @@
 // src/voice_generation/multimodal_interaction_output_harmonization/multimodal_emotion_detection_user_facing.rs
 
+use crate::prelude::*;
 pub struct MultimodalEmotionDetector;
 
 impl MultimodalEmotionDetector {

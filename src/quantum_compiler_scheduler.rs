@@ -6,6 +6,7 @@
 /// optimization to maximize performance and fidelity on diverse quantum
 /// hardware architectures.
 
+use crate::prelude::*;
 use std::fmt;
 use std::collections::{HashMap, HashSet};
 use std::thread;

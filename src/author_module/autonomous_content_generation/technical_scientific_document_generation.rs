@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/technical_scientific_document_generation.rs
 
+use crate::prelude::*;
 pub struct TechnicalScientificDocumentGeneration;
 
 impl TechnicalScientificDocumentGeneration {

@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/advertising_marketing_copy_generation.rs
 
+use crate::prelude::*;
 pub struct AdvertisingMarketingCopyGeneration;
 
 impl AdvertisingMarketingCopyGeneration {

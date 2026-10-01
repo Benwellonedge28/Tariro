@@ -3,6 +3,7 @@
 /// This module provides conceptual components for generating real-time alerts
 /// based on detected threats and simulating a situational awareness dashboard.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};

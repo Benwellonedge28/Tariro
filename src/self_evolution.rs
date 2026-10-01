@@ -1,4 +1,5 @@
 // src/self_evolution.rs (AGI Self-Evolution - Deepening AGI Logic)
+use crate::prelude::*;
 use sqlx::PgPool;
 use anyhow::Result;
 use tracing::{info, warn};

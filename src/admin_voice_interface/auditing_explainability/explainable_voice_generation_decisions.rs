@@ -1,5 +1,6 @@
 // src/admin_voice_interface/auditing_explainability/explainable_voice_generation_decisions.rs
 
+use crate::prelude::*;
 pub struct ExplainableVoiceDecisions;
 
 impl ExplainableVoiceDecisions {

@@ -1,5 +1,6 @@
 // src/infinity_memory/memory_swapping_caching_universal.rs
 
+use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 
 pub enum MemoryLayer {

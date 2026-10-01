@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/admin_user_role_management_panel/role_based_admin_interface_customization.rs
 
+use crate::prelude::*;
 pub struct RoleBasedAdminInterfaceCustomization;
 
 impl RoleBasedAdminInterfaceCustomization {

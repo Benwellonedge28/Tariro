@@ -1,5 +1,6 @@
 // src/voice_generation/meta_voice_cognitive_integration/evolutionary_vocal_aesthetics.rs
 
+use crate::prelude::*;
 pub struct EvolutionaryVocalAesthetics;
 
 impl EvolutionaryVocalAesthetics {

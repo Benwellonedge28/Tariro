@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_cognitive_integration_control/neural_map_of_agi_knowledge.rs
 
+use crate::prelude::*;
 pub struct AGIKnowledgeNeuralMap;
 
 impl AGIKnowledgeNeuralMap {

@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/global_analytics_insights/the_samuel_mukandara_omniversal_control_center_enhanced.rs
 
+use crate::prelude::*;
 pub struct OmniversalControlCenterEnhanced;
 
 impl OmniversalControlCenterEnhanced {

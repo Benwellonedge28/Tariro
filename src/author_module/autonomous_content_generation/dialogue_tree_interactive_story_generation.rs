@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/dialogue_tree_interactive_story_generation.rs
 
+use crate::prelude::*;
 pub struct DialogueTreeInteractiveStoryGeneration;
 
 impl DialogueTreeInteractiveStoryGeneration {

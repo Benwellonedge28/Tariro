@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/nl_document_control/automated_admin_report_generation_nl_driven.rs
 
+use crate::prelude::*;
 pub struct NLReportGenerator;
 
 impl NLReportGenerator {

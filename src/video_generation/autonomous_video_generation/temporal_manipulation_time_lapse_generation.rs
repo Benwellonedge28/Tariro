@@ -1,5 +1,6 @@
 // src/video_generation/autonomous_video_generation/temporal_manipulation_time_lapse_generation.rs
 
+use crate::prelude::*;
 pub struct TemporalManipulator;
 
 impl TemporalManipulator {

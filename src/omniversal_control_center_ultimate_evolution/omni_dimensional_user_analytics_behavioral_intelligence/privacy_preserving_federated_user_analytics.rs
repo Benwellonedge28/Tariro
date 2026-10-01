@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/omni_dimensional_user_analytics_behavioral_intelligence/privacy_preserving_federated_user_analytics.rs
 
+use crate::prelude::*;
 pub struct PrivacyPreservingAnalytics;
 
 impl PrivacyPreservingAnalytics {

@@ -1,5 +1,6 @@
 // src/admin_voice_interface/real_time_monitoring_diagnostics/compliance_monitoring_voice_output.rs
 
+use crate::prelude::*;
 pub struct ComplianceMonitor;
 
 impl ComplianceMonitor {

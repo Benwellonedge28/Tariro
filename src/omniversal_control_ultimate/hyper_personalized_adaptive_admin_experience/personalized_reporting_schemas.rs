@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/hyper_personalized_adaptive_admin_experience/personalized_reporting_schemas.rs
 
+use crate::prelude::*;
 pub struct PersonalizedReporting;
 
 impl PersonalizedReporting {

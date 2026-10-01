@@ -1,5 +1,6 @@
 // src/multimodal/meta_multimodal_security/multimodal_privacy_enhancing_technologies.rs
 
+use crate::prelude::*;
 pub struct PrivacyEnhancer {
     // Developing and deploying techniques like homomorphic encryption for multimodal data to ensure privacy.
 }

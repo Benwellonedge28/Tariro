@@ -1,5 +1,6 @@
 // src/author_module/advanced_functionality_integration/cultural_narrative_adaptation_engine.rs
 
+use crate::prelude::*;
 pub struct CulturalNarrativeAdaptationEngine;
 
 impl CulturalNarrativeAdaptationEngine {

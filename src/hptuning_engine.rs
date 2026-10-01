@@ -6,6 +6,7 @@
 /// reducing manual effort. It leverages RAG for Bayesian optimization strategies, hyperparameter
 /// search spaces, and model performance metrics.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

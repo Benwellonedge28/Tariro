@@ -1,5 +1,6 @@
 // src/image_generation/security_ethics_verifiability/zero_knowledge_proofs_for_image_authenticity.rs
 
+use crate::prelude::*;
 pub struct ZeroKnowledgeAuthenticator;
 
 impl ZeroKnowledgeAuthenticator {

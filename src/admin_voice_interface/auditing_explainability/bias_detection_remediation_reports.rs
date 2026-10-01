@@ -1,5 +1,6 @@
 // src/admin_voice_interface/auditing_explainability/bias_detection_remediation_reports.rs
 
+use crate::prelude::*;
 pub struct BiasReporter;
 
 impl BiasReporter {

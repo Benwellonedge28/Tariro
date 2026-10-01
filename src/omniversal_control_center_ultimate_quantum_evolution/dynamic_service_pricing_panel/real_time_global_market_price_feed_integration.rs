@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/dynamic_service_pricing_panel/real_time_global_market_price_feed_integration.rs
 
+use crate::prelude::*;
 pub struct MarketPriceIntegrator;
 
 impl MarketPriceIntegrator {

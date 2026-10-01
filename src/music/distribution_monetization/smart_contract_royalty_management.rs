@@ -1,5 +1,6 @@
 // src/music/distribution_monetization/smart_contract_royalty_management.rs
 
+use crate::prelude::*;
 pub struct RoyaltyManager {
     // Implement immutable smart contracts for transparent, real-time royalty collection and distribution to all rights holders.
 }

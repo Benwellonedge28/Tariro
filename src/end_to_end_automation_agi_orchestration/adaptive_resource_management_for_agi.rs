@@ -1,5 +1,6 @@
 // src/end_to_end_automation_agi_orchestration/adaptive_resource_management_for_agi.rs
 
+use crate::prelude::*;
 pub enum ResourceType {
     CPU,
     GPU,

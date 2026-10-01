@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/autonomous_security_resilience/self_regenerating_trust_anchors.rs
 
+use crate::prelude::*;
 pub struct TrustAnchorRegenerator;
 
 impl TrustAnchorRegenerator {

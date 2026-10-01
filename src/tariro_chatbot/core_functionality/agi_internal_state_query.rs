@@ -1,5 +1,6 @@
 // src/tariro_chatbot/core_functionality/agi_internal_state_query.rs
 
+use crate::prelude::*;
 pub struct AGIInternalStateQuery;
 
 impl AGIInternalStateQuery {

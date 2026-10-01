@@ -1,5 +1,6 @@
 // src/music/performance_live_events/automated_sound_check_system_calibration.rs
 
+use crate::prelude::*;
 pub struct SoundChecker {
     // Perform comprehensive sound checks and system calibrations for live events autonomously.
 }

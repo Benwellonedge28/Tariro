@@ -1,5 +1,6 @@
 // src/tariro_chatbot/research_development_facilitation/collaborative_rd_sessions.rs
 
+use crate::prelude::*;
 pub struct CollaborativeRDSessions;
 
 impl CollaborativeRDSessions {

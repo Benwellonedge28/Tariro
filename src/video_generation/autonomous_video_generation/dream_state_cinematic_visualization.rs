@@ -1,5 +1,6 @@
 // src/video_generation/autonomous_video_generation/dream_state_cinematic_visualization.rs
 
+use crate::prelude::*;
 pub struct DreamStateVisualizer;
 
 impl DreamStateVisualizer {

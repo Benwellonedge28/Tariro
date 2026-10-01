@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/proactive_predictive_versioning/automated_dependency_version_management.rs
 
+use crate::prelude::*;
 pub struct AutomatedDependencyVersionManagement;
 
 impl AutomatedDependencyVersionManagement {

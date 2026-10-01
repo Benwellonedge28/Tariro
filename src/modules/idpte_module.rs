@@ -5,6 +5,7 @@
 //! code management, file modifications, command execution, and self-deployment within the
 //! development workflow.
 
+use crate::prelude::*;
 use crate::{prelude::*,
     Module,
     ModuleContext,

@@ -1,5 +1,6 @@
 // src/multimodal/output_generation/olfactory_information_conveyance.rs
 
+use crate::prelude::*;
 pub struct OlfactoryConveyor {
     // Generating precise scents and aromas to communicate information, evoke memories, or influence mood.
 }

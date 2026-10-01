@@ -8,6 +8,7 @@
 /// concurrent task partitioning for photonic cores; RAG: photonic computing architectures, quantum optics,
 /// optical signal processing, high-speed data transfer protocols, energy-efficient interconnects).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

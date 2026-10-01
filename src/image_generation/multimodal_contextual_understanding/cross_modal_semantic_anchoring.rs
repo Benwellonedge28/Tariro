@@ -1,5 +1,6 @@
 // src/image_generation/multimodal_contextual_understanding/cross_modal_semantic_anchoring.rs
 
+use crate::prelude::*;
 pub struct CrossModalAnchor;
 
 impl CrossModalAnchor {

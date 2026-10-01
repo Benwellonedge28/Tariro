@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/speechwriting_public_address_generation.rs
 
+use crate::prelude::*;
 pub struct SpeechwritingPublicAddressGeneration;
 
 impl SpeechwritingPublicAddressGeneration {

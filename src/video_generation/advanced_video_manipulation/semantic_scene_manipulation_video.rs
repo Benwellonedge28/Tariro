@@ -1,5 +1,6 @@
 // src/video_generation/advanced_video_manipulation/semantic_scene_manipulation_video.rs
 
+use crate::prelude::*;
 pub struct SemanticSceneManipulatorVideo;
 
 impl SemanticSceneManipulatorVideo {

@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/human_agi_teaming/crisis_co_management_interface.rs
 
+use crate::prelude::*;
 pub struct CrisisCoManager;
 
 impl CrisisCoManager {

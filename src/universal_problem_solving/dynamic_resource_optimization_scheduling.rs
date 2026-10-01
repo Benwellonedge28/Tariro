@@ -1,5 +1,6 @@
 // src/universal_problem_solving/dynamic_resource_optimization_scheduling.rs
 
+use crate::prelude::*;
 pub enum ResourceType {
     Compute(String), // e.g., "CPU_Cores", "GPU_Hours", "Quantum_Qubits"
     Energy(String),  // e.g., "kWh", "Solar_Watts", "Fusion_Joules"

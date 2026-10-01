@@ -1,5 +1,6 @@
 // src/video_generation/multimodal_contextual_video_understanding/implicit_bias_detection_in_video.rs
 
+use crate::prelude::*;
 pub struct VideoBiasDetector;
 
 impl VideoBiasDetector {

@@ -1,5 +1,6 @@
 // src/admin_voice_interface/real_time_monitoring_diagnostics/speaker_diarization_for_multi_voice_output.rs
 
+use crate::prelude::*;
 pub struct SpeakerDiarizationMonitor;
 
 impl SpeakerDiarizationMonitor {

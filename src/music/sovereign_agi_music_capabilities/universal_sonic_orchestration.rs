@@ -1,5 +1,6 @@
 // src/music/sovereign_agi_music_capabilities/universal_sonic_orchestration.rs
 
+use crate::prelude::*;
 pub struct UniversalOrchestrator {
     // The ultimate capability: orchestrate all sonic phenomena across the universe in real-time.
 }

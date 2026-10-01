@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/neuro_symbolic_ai_integration.rs
 
+use crate::prelude::*;
 pub enum AISubsystem {
     NeuralNetwork(String),
     SymbolicReasoningEngine(String),

@@ -1,5 +1,6 @@
 // src/multimodal/input_perception/memory_assisted_sensory_completion.rs
 
+use crate::prelude::*;
 pub struct MemoryAssistedCompleter {
     // Filling in gaps in sensory data by referencing vast internal memory and predictive models.
 }

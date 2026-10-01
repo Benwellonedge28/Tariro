@@ -1,5 +1,6 @@
 // src/multimodal/output_generation/multimodal_environmental_manipulation.rs
 
+use crate::prelude::*;
 pub struct EnvironmentalManipulator {
     // Precisely controlling and shaping the physical environment through light, sound, temperature.
 }

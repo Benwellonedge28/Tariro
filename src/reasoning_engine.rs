@@ -6,6 +6,7 @@
 /// dynamically to changing contexts and long-term goals, moving beyond simple
 /// rule-based systems.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

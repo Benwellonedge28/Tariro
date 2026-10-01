@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/global_analytics_insights/cross_cultural_user_behavior_analytics.rs
 
+use crate::prelude::*;
 pub struct CrossCulturalAnalytics;
 
 impl CrossCulturalAnalytics {

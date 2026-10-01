@@ -1,5 +1,6 @@
 // src/universal_language_mastery/ephemeral_linguistic_constructs_secure_communication.rs
 
+use crate::prelude::*;
 pub struct EphemeralConstruct {
     pub construct_id: String,
     pub original_message_hash: String,

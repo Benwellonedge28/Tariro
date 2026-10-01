@@ -1,5 +1,6 @@
 // src/music/performance_live_events/robotic_instrument_performance_orchestration.rs
 
+use crate::prelude::*;
 pub struct RoboticOrchestrator {
     // Control and coordinate networks of robotic instruments for complex, precise live performances.
 }

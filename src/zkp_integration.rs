@@ -5,6 +5,7 @@
 /// (e.g., verifying user credentials without seeing the password, or data consistency without seeing the data itself).
 /// Leveraging SIMD for accelerating ZKP computations.
 
+use crate::prelude::*;
 use std::fmt;
 use std::thread;
 use std::time::Duration;

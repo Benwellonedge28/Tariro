@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/hierarchical_omni_domain_implementation_panel/adaptive_critical_path_analysis_dynamic.rs
 
+use crate::prelude::*;
 pub struct AdaptiveCriticalPathAnalyzer;
 
 impl AdaptiveCriticalPathAnalyzer {

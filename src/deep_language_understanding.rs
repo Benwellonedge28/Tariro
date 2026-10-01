@@ -1,6 +1,7 @@
 // Tariro AGI - Deep Language Understanding Module
 // Comprehensive natural language processing system for AGI
 
+use crate::prelude::*;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::sync::{Arc, RwLock};
 use chrono::{DateTime, Utc};

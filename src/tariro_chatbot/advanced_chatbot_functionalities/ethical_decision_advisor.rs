@@ -1,5 +1,6 @@
 // src/tariro_chatbot/advanced_chatbot_functionalities/ethical_decision_advisor.rs
 
+use crate::prelude::*;
 pub struct EthicalDecisionAdvisor;
 
 impl EthicalDecisionAdvisor {

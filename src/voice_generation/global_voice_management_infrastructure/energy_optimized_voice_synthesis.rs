@@ -1,5 +1,6 @@
 // src/voice_generation/global_voice_management_infrastructure/energy_optimized_voice_synthesis.rs
 
+use crate::prelude::*;
 pub struct EnergyOptimizedVoiceSynthesizer;
 
 impl EnergyOptimizedVoiceSynthesizer {

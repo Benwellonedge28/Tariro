@@ -8,6 +8,7 @@
 /// streaming to neuromorphic accelerators, concurrent training/inference; RAG: neuromorphic hardware architectures,
 /// spiking neural networks, event-driven computation, brain-inspired AI, energy-efficient AI).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

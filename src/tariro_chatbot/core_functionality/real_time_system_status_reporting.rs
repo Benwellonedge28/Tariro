@@ -1,5 +1,6 @@
 // src/tariro_chatbot/core_functionality/real_time_system_status_reporting.rs
 
+use crate::prelude::*;
 pub struct RealtimeSystemStatusReporting;
 
 impl RealtimeSystemStatusReporting {

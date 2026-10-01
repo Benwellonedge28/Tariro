@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/hyper_autonomous_infinite_rbac/automated_role_lifecycle_management.rs
 
+use crate::prelude::*;
 pub struct RoleLifecycleManager;
 
 impl RoleLifecycleManager {

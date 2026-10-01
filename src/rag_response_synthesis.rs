@@ -3,6 +3,7 @@
 /// This module provides conceptual components for generating high-quality responses
 /// from retrieved contexts in a RAG system, including prompt engineering and context compression.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 
 /// Represents an individual piece of retrieved context.

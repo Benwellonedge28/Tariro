@@ -1,5 +1,6 @@
 // src/voice_generation/advanced_vocal_security_privacy/voice_based_consent_management.rs
 
+use crate::prelude::*;
 pub struct VoiceConsentManager;
 
 impl VoiceConsentManager {

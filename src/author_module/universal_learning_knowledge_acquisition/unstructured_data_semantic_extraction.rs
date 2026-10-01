@@ -1,5 +1,6 @@
 // src/author_module/universal_learning_knowledge_acquisition/unstructured_data_semantic_extraction.rs
 
+use crate::prelude::*;
 pub struct UnstructuredDataSemanticExtraction;
 
 impl UnstructuredDataSemanticExtraction {

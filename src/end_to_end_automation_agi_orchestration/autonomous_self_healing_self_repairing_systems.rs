@@ -1,5 +1,6 @@
 // src/end_to_end_automation_agi_orchestration/autonomous_self_healing_self_repairing_systems.rs
 
+use crate::prelude::*;
 pub enum FailureType {
     SoftwareCrash,
     HardwareFault,

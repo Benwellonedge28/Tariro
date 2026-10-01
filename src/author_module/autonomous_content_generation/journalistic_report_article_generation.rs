@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/journalistic_report_article_generation.rs
 
+use crate::prelude::*;
 pub struct JournalisticReportArticleGeneration;
 
 impl JournalisticReportArticleGeneration {

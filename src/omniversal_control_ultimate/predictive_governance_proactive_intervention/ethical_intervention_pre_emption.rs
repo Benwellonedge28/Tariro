@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/predictive_governance_proactive_intervention/ethical_intervention_pre_emption.rs
 
+use crate::prelude::*;
 pub struct EthicalInterventionManager;
 
 impl EthicalInterventionManager {

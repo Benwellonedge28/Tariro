@@ -1,5 +1,6 @@
 // src/voice_generation/universal_real_time_multilingual_voice_generation/silent_language_modeling_thought_to_speech.rs
 
+use crate::prelude::*;
 pub struct SilentLanguageModeler;
 
 impl SilentLanguageModeler {

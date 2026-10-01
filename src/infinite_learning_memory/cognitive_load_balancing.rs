@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/cognitive_load_balancing.rs
 
+use crate::prelude::*;
 pub struct CognitiveResourceUsage {
     pub compute_usage_pct: f64,
     pub memory_usage_pct: f64,

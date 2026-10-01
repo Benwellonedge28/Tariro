@@ -1,5 +1,6 @@
 // src/omniversal_ultimate/secure_sovereign_access_extreme_scales/secure_multi_party_administrative_computing.rs
 
+use crate::prelude::*;
 pub struct MultiPartyAdminComputing;
 
 impl MultiPartyAdminComputing {

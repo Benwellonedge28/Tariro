@@ -1,5 +1,6 @@
 // src/admin_voice_interface/global_voice_infrastructure_scalability_control/high_availability_disaster_recovery_voice.rs
 
+use crate::prelude::*;
 pub struct HighAvailabilityDRManager;
 
 impl HighAvailabilityDRManager {

@@ -1,5 +1,6 @@
 // src/tariro_chatbot/threat_invisibility_security/cognitive_signature_obfuscation.rs
 
+use crate::prelude::*;
 pub struct CognitiveSignatureObfuscation;
 
 impl CognitiveSignatureObfuscation {

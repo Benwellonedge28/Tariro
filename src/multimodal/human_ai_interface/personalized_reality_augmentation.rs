@@ -1,5 +1,6 @@
 // src/multimodal/human_ai_interface/personalized_reality_augmentation.rs
 
+use crate::prelude::*;
 pub struct RealityAugmenter {
     // Tailoring augmented reality experiences to individual human needs and preferences.
 }

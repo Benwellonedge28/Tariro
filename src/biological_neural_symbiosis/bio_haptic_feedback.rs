@@ -1,5 +1,6 @@
 // src/biological_neural_symbiosis/bio_haptic_feedback.rs
 
+use crate::prelude::*;
 pub enum InternetDataStreamType {
     VisualInformation,
     AudioInformation,

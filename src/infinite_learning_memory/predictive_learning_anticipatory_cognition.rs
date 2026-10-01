@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/predictive_learning_anticipatory_cognition.rs
 
+use crate::prelude::*;
 pub enum AnticipatoryActionType {
     ResourceAllocation,
     DecisionPreparation,

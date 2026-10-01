@@ -1,5 +1,6 @@
 // src/video_generation/performance_scalability_infrastructure_video_generation/dynamic_video_storage_retrieval_petabyte_scale.rs
 
+use crate::prelude::*;
 pub struct DynamicVideoStorageRetrieval;
 
 impl DynamicVideoStorageRetrieval {

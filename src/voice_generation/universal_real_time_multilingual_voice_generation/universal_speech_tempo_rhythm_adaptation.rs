@@ -1,5 +1,6 @@
 // src/voice_generation/universal_real_time_multilingual_voice_generation/universal_speech_tempo_rhythm_adaptation.rs
 
+use crate::prelude::*;
 pub struct SpeechTempoRhythmAdapter;
 
 impl SpeechTempoRhythmAdapter {

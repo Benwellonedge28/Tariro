@@ -1,5 +1,6 @@
 // src/author_module/advanced_functionality_integration/personalized_content_delivery_recommendation.rs
 
+use crate::prelude::*;
 pub struct PersonalizedContentDeliveryRecommendation;
 
 impl PersonalizedContentDeliveryRecommendation {

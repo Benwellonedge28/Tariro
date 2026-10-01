@@ -1,5 +1,6 @@
 // src/web_application_design_development/dynamic_web_performance_optimizer.rs
 
+use crate::prelude::*;
 pub enum PerformanceMetric {
     LoadTime,
     FirstContentfulPaint,

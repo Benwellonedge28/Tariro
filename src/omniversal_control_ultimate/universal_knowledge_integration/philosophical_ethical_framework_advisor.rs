@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/universal_knowledge_integration/philosophical_ethical_framework_advisor.rs
 
+use crate::prelude::*;
 pub struct EthicsAdvisor;
 
 impl EthicsAdvisor {

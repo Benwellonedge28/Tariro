@@ -1,5 +1,6 @@
 // src/finance/defi/smart_contract_development_auditing.rs
 
+use crate::prelude::*;
 pub struct SmartContractManager {
     // Designs, deploys, and formally verifies secure and efficient smart contracts.
 }

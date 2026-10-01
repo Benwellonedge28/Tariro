@@ -1,5 +1,6 @@
 // src/image_generation/human_ai_collaboration_customization/augmented_reality_image_creation.rs
 
+use crate::prelude::*;
 pub struct AugmentedRealityCreator;
 
 impl AugmentedRealityCreator {

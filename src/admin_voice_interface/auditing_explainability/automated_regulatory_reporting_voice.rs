@@ -1,5 +1,6 @@
 // src/admin_voice_interface/auditing_explainability/automated_regulatory_reporting_voice.rs
 
+use crate::prelude::*;
 pub struct RegulatoryReporter;
 
 impl RegulatoryReporter {

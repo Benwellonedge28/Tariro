@@ -1,5 +1,6 @@
 // src/sovereign_ethics_governance/collective_intelligence_ranking.rs
 
+use crate::prelude::*;
 pub enum ProblemComplexity {
     Simple,
     Moderate,

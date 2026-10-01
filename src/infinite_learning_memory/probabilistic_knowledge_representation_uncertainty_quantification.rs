@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/probabilistic_knowledge_representation_uncertainty_quantification.rs
 
+use crate::prelude::*;
 pub struct ProbabilisticFact {
     pub fact_id: String,
     pub statement: String,

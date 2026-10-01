@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/natural_language_driven_version_queries.rs
 
+use crate::prelude::*;
 pub struct NaturalLanguageVersionQueries;
 
 impl NaturalLanguageVersionQueries {

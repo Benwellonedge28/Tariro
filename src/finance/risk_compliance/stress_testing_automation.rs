@@ -1,5 +1,6 @@
 // src/finance/risk_compliance/stress_testing_automation.rs
 
+use crate::prelude::*;
 pub struct StressTester {
     // Performs comprehensive stress tests and scenario analyses on portfolios and institutions.
 }

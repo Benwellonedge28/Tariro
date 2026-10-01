@@ -1,5 +1,6 @@
 // src/admin_voice_interface/voice_profile_persona_management/cross_lingual_voice_persona_consistency_check.rs
 
+use crate::prelude::*;
 pub struct CrossLingualConsistencyChecker;
 
 impl CrossLingualConsistencyChecker {

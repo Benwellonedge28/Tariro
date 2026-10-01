@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/autonomous_pre_deployment_testing_validation_panel/quantum_level_code_audit_verification.rs
 
+use crate::prelude::*;
 pub struct QuantumCodeAuditor;
 
 impl QuantumCodeAuditor {

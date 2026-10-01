@@ -1,5 +1,6 @@
 // src/author_module/advanced_functionality_integration/simulated_reader_response_analysis.rs
 
+use crate::prelude::*;
 pub struct SimulatedReaderResponseAnalysis;
 
 impl SimulatedReaderResponseAnalysis {

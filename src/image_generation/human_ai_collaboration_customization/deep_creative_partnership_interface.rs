@@ -1,5 +1,6 @@
 // src/image_generation/human_ai_collaboration_customization/deep_creative_partnership_interface.rs
 
+use crate::prelude::*;
 pub struct CreativePartnerInterface;
 
 impl CreativePartnerInterface {

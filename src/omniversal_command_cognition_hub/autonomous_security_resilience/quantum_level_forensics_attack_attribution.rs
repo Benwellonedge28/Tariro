@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/autonomous_security_resilience/quantum_level_forensics_attack_attribution.rs
 
+use crate::prelude::*;
 pub struct QuantumForensics;
 
 impl QuantumForensics {

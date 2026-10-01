@@ -1,5 +1,6 @@
 // src/voice_generation/universal_real_time_multilingual_voice_generation/cross_lingual_emotional_transfer.rs
 
+use crate::prelude::*;
 pub struct EmotionalTransferSynthesizer;
 
 impl EmotionalTransferSynthesizer {

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/quantum_metaphysical_administration/temporal_event_scheduling_manipulation.rs
 
+use crate::prelude::*;
 pub struct TemporalScheduler;
 
 impl TemporalScheduler {

@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/system_health_resilience/global_infrastructure_health_map.rs
 
+use crate::prelude::*;
 pub struct InfrastructureHealthMap;
 
 impl InfrastructureHealthMap {

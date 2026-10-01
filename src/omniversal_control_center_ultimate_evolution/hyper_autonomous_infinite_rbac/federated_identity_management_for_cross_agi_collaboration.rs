@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/hyper_autonomous_infinite_rbac/federated_identity_management_for_cross_agi_collaboration.rs
 
+use crate::prelude::*;
 pub struct FederatedIdentityManagement;
 
 impl FederatedIdentityManagement {

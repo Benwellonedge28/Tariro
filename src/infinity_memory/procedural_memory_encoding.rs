@@ -1,5 +1,6 @@
 // src/infinity_memory/procedural_memory_encoding.rs
 
+use crate::prelude::*;
 use std::collections::HashMap;
 
 pub struct ProceduralMemory {

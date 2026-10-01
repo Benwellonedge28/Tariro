@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/global_cosmic_admin_analytics_insight_generation/global_agi_trust_acceptance_metrics.rs
 
+use crate::prelude::*;
 pub struct GlobalAGITrustMetrics;
 
 impl GlobalAGITrustMetrics {

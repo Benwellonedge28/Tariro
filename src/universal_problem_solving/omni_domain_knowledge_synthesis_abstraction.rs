@@ -1,5 +1,6 @@
 // src/universal_problem_solving/omni_domain_knowledge_synthesis_abstraction.rs
 
+use crate::prelude::*;
 pub enum KnowledgeSource {
     SensorData,
     TextCorpus,

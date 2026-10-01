@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/ip_collaboration_workspace.rs
 
+use crate::prelude::*;
 pub struct IpCollaborationWorkspace;
 
 impl IpCollaborationWorkspace {

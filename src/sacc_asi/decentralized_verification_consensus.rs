@@ -1,5 +1,6 @@
 // src/sacc_asi/decentralized_verification_consensus.rs
 
+use crate::prelude::*;
 pub struct ActionProposal {
     pub action_id: String,
     pub description: String,

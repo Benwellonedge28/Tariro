@@ -1,5 +1,6 @@
 // src/tariro_chatbot/threat_invisibility_security/the_samuel_mukandara_omniversal_command_cognition_hub_tariro_chatbot.rs
 
+use crate::prelude::*;
 pub struct TheSamuelMukandaraOmniversalCommandCognitionHubTariroChatbot;
 
 impl TheSamuelMukandaraOmniversalCommandCognitionHubTariroChatbot {

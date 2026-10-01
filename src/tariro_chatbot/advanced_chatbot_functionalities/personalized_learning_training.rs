@@ -1,5 +1,6 @@
 // src/tariro_chatbot/advanced_chatbot_functionalities/personalized_learning_training.rs
 
+use crate::prelude::*;
 pub struct PersonalizedLearningTraining;
 
 impl PersonalizedLearningTraining {

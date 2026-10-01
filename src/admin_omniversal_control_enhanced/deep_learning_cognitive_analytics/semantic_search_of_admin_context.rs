@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/deep_learning_cognitive_analytics/semantic_search_of_admin_context.rs
 
+use crate::prelude::*;
 pub struct SemanticContextSearch;
 
 impl SemanticSearch {

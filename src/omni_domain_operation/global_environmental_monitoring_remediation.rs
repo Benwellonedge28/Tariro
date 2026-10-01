@@ -1,5 +1,6 @@
 // src/omni_domain_operation/global_environmental_monitoring_remediation.rs
 
+use crate::prelude::*;
 pub enum EnvironmentalMetric {
     Temperature,
     CO2Level,

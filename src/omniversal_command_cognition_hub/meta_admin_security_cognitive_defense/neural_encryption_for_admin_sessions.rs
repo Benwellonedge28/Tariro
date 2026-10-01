@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/meta_admin_security_cognitive_defense/neural_encryption_for_admin_sessions.rs
 
+use crate::prelude::*;
 pub struct NeuralEncryptionAdminSessions;
 
 impl NeuralEncryptionAdminSessions {

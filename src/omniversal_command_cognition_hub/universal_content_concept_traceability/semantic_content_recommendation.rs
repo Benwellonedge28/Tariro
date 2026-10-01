@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/universal_content_concept_traceability/semantic_content_recommendation.rs
 
+use crate::prelude::*;
 pub struct SemanticContentRecommendation;
 
 impl SemanticContentRecommendation {

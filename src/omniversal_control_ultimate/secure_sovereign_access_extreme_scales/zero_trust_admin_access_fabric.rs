@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/secure_sovereign_access_extreme_scales/zero_trust_admin_access_fabric.rs
 
+use crate::prelude::*;
 pub struct ZeroTrustFabric;
 
 impl ZeroTrustFabric {

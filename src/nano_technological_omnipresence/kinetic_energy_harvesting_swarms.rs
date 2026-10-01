@@ -1,5 +1,6 @@
 // src/nano_technological_omnipresence/kinetic_energy_harvesting_swarms.rs
 
+use crate::prelude::*;
 pub enum EnergySourceEnvironment {
     AtmosphericWind,
     OceanCurrents,

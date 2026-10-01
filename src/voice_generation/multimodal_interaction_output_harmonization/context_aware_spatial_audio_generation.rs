@@ -1,5 +1,6 @@
 // src/voice_generation/multimodal_interaction_output_harmonization/context_aware_spatial_audio_generation.rs
 
+use crate::prelude::*;
 pub struct SpatialAudioGenerator;
 
 impl SpatialAudioGenerator {

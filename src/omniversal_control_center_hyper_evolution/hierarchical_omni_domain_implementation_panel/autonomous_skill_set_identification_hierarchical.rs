@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/hierarchical_omni_domain_implementation_panel/autonomous_skill_set_identification_hierarchical.rs
 
+use crate::prelude::*;
 pub struct AutonomousSkillSetIdentifier;
 
 impl AutonomousSkillSetIdentifier {

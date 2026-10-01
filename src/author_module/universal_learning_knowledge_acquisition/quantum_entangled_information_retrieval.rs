@@ -1,5 +1,6 @@
 // src/author_module/universal_learning_knowledge_acquisition/quantum_entangled_information_retrieval.rs
 
+use crate::prelude::*;
 pub struct QuantumEntangledInformationRetrieval;
 
 impl QuantumEntangledInformationRetrieval {

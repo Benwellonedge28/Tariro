@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/simulated_environments_training_for_administration/infinite_administrative_sandbox_generation.rs
 
+use crate::prelude::*;
 pub struct AdminSandboxGenerator;
 
 impl AdminSandboxGenerator {

@@ -1,5 +1,6 @@
 // src/multimodal/meta_multimodal_security/simulation_multimodal_failures_recovery.rs
 
+use crate::prelude::*;
 pub struct FailureSimulator {
     // Running complex simulations of multimodal system failures and practicing autonomous recovery protocols.
 }

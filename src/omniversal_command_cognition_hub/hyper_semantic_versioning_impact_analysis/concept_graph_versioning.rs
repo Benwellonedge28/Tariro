@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_semantic_versioning_impact_analysis/concept_graph_versioning.rs
 
+use crate::prelude::*;
 pub struct ConceptGraphVersioning;
 
 impl ConceptGraphVersioning {

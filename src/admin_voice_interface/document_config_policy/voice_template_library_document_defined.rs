@@ -1,5 +1,6 @@
 // src/admin_voice_interface/document_config_policy/voice_template_library_document_defined.rs
 
+use crate::prelude::*;
 pub struct VoiceTemplateLibrary;
 
 impl VoiceTemplateLibrary {

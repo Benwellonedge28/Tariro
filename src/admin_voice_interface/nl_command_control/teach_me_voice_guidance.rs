@@ -1,5 +1,6 @@
 // src/admin_voice_interface/nl_command_control/teach_me_voice_guidance.rs
 
+use crate::prelude::*;
 pub struct VoiceGuidanceProvider;
 
 impl VoiceGuidanceProvider {

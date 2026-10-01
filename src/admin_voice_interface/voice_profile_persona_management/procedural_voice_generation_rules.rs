@@ -1,5 +1,6 @@
 // src/admin_voice_interface/voice_profile_persona_management/procedural_voice_generation_rules.rs
 
+use crate::prelude::*;
 pub struct ProceduralVoiceRules;
 
 impl ProceduralVoiceRules {

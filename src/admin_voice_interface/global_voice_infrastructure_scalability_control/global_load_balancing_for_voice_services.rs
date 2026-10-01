@@ -1,5 +1,6 @@
 // src/admin_voice_interface/global_voice_infrastructure_scalability_control/global_load_balancing_for_voice_services.rs
 
+use crate::prelude::*;
 pub struct GlobalVoiceLoadBalancer;
 
 impl GlobalVoiceLoadBalancer {

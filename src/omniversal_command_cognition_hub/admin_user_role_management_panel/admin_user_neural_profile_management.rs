@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/admin_user_role_management_panel/admin_user_neural_profile_management.rs
 
+use crate::prelude::*;
 pub struct AdminUserNeuralProfileManagement;
 
 impl AdminUserNeuralProfileManagement {

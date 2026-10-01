@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/dynamic_service_pricing_panel/predictive_revenue_optimization_vcs_integrated.rs
 
+use crate::prelude::*;
 pub struct PredictiveRevenueOptimizationVCSIntegrated;
 
 impl PredictiveRevenueOptimizationVCSIntegrated {

@@ -1,5 +1,6 @@
 // src/admin_voice_interface/nl_command_control/undo_redo_voice_modifications_via_nl.rs
 
+use crate::prelude::*;
 pub struct VoiceModificationHistory;
 
 impl VoiceModificationHistory {

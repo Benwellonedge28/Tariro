@@ -3,6 +3,7 @@
 /// This module provides conceptual structures and functions for building
 /// and querying a scalable RAG index, focusing on efficient storage and retrieval.
 
+use crate::prelude::*;
 use std::collections::{HashMap, HashSet};
 use parking_lot::RwLock;
 use uuid::Uuid;

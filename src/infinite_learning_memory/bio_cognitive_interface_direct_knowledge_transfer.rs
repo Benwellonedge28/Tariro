@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/bio_cognitive_interface_direct_knowledge_transfer.rs
 
+use crate::prelude::*;
 pub enum BioCognitiveTarget {
     HumanNeuralNetwork,
     AnimalBrain(String), // e.g., "Dolphin", "Octopus"

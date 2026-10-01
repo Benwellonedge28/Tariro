@@ -1,5 +1,6 @@
 // src/tariro_chatbot/advanced_chatbot_functionalities/narrative_generation_for_complex_reports.rs
 
+use crate::prelude::*;
 pub struct NarrativeGenerationForComplexReports;
 
 impl NarrativeGenerationForComplexReports {

@@ -1,5 +1,6 @@
 // src/video_generation/multimodal_contextual_video_understanding/temporal_sequence_inference_prediction_from_video.rs
 
+use crate::prelude::*;
 pub struct TemporalSequenceInferencer;
 
 impl TemporalSequenceInferencer {

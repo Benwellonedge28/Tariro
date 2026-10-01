@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/creative_writing_prompts_ideation.rs
 
+use crate::prelude::*;
 pub struct CreativeWritingPromptsIdeation;
 
 impl CreativeWritingPromptsIdeation {

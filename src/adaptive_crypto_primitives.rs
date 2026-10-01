@@ -5,6 +5,7 @@
 /// or even structure in response to new cryptanalytic threats or available computing power
 /// (leveraging RAG for real-time threat intelligence and SIMD for rapid re-computation of cryptographic parameters).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

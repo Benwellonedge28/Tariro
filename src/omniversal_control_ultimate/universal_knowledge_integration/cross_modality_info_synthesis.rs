@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/universal_knowledge_integration/cross_modality_info_synthesis.rs
 
+use crate::prelude::*;
 pub struct InfoSynthesizer;
 
 impl InfoSynthesizer {

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/cognitive_version_control_agi_state_management/concept_formation_evolution_versioning.rs
 
+use crate::prelude::*;
 pub struct ConceptFormationEvolutionVersioning;
 
 impl ConceptFormationEvolutionVersioning {

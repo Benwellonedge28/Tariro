@@ -5,6 +5,7 @@
 /// informing Tariro's quantum strategy. It leverages RAG for quantum algorithm papers and SIMD for parallel
 /// matrix operations.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

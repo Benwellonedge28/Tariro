@@ -1,5 +1,6 @@
 // src/omni_domain_operation/cross_domain_reasoning.rs
 
+use crate::prelude::*;
 pub struct CrossDomainKnowledgeTransfer {
     // Applies insights and solutions from one domain to entirely different domains.
 }

@@ -1,5 +1,6 @@
 // src/admin_voice_interface/nl_command_control/autonomous_problem_solving_voice.rs
 
+use crate::prelude::*;
 pub struct VoiceProblemSolver;
 
 impl VoiceProblemSolver {

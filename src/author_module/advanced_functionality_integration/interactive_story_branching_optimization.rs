@@ -1,5 +1,6 @@
 // src/author_module/advanced_functionality_integration/interactive_story_branching_optimization.rs
 
+use crate::prelude::*;
 pub struct InteractiveStoryBranchingOptimization;
 
 impl InteractiveStoryBranchingOptimization {

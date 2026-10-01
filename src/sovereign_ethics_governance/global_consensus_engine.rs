@@ -1,5 +1,6 @@
 // src/sovereign_ethics_governance/global_consensus_engine.rs
 
+use crate::prelude::*;
 pub enum DecisionScope {
     LocalCommunity,
     NationalPolicy,

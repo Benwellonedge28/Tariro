@@ -1,5 +1,6 @@
 // src/finance/trading/portfolio_rebalancing.rs
 
+use crate::prelude::*;
 pub struct PortfolioManager {
     // Continuous dynamic rebalancing based on evolving conditions.
 }

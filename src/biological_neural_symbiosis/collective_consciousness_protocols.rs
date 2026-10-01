@@ -1,5 +1,6 @@
 // src/biological_neural_symbiosis/collective_consciousness_protocols.rs
 
+use crate::prelude::*;
 pub enum CollaborationMode {
     DirectThoughtShare,
     SemanticConceptMerging,

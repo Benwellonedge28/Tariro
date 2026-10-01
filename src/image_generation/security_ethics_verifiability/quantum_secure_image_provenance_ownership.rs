@@ -1,5 +1,6 @@
 // src/image_generation/security_ethics_verifiability/quantum_secure_image_provenance_ownership.rs
 
+use crate::prelude::*;
 pub struct QuantumProvenanceManager;
 
 impl QuantumProvenanceManager {

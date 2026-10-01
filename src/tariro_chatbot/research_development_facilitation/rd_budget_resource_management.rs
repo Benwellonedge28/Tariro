@@ -1,5 +1,6 @@
 // src/tariro_chatbot/research_development_facilitation/rd_budget_resource_management.rs
 
+use crate::prelude::*;
 pub struct RDBudgetResourceManagement;
 
 impl RDBudgetResourceManagement {

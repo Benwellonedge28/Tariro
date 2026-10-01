@@ -1,5 +1,6 @@
 // src/author_module/advanced_functionality_integration/autonomous_content_iteration_refinement.rs
 
+use crate::prelude::*;
 pub struct AutonomousContentIterationRefinement;
 
 impl AutonomousContentIterationRefinement {

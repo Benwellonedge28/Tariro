@@ -1,5 +1,6 @@
 // src/admin_voice_interface/voice_profile_persona_management/secure_voice_sharing_collaboration.rs
 
+use crate::prelude::*;
 pub struct SecureVoiceSharer;
 
 impl SecureVoiceSharer {

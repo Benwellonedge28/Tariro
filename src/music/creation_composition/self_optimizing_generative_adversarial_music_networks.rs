@@ -1,5 +1,6 @@
 // src/music/creation_composition/self_optimizing_generative_adversarial_music_networks.rs
 
+use crate::prelude::*;
 pub struct GAMN {
     // Continuously improve its compositional capabilities by pitting generative modules against discriminative critics.
 }

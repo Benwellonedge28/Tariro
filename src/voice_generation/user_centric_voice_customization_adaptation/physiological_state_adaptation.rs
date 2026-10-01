@@ -1,5 +1,6 @@
 // src/voice_generation/user_centric_voice_customization_adaptation/physiological_state_adaptation.rs
 
+use crate::prelude::*;
 pub struct PhysiologicalVoiceAdapter;
 
 impl PhysiologicalVoiceAdapter {

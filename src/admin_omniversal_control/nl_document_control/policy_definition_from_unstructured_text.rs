@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/nl_document_control/policy_definition_from_unstructured_text.rs
 
+use crate::prelude::*;
 pub struct UnstructuredPolicyExtractor;
 
 impl UnstructuredPolicyExtractor {

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/quantum_metaphysical_administration/trans_temporal_audit_trail_viewer.rs
 
+use crate::prelude::*;
 pub struct TransTemporalAuditViewer;
 
 impl TransTemporalAuditViewer {

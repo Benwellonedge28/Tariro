@@ -5,6 +5,7 @@
 /// optimal AI models for specific tasks. It leverages RAG for prior model performance and SIMD for parallel
 /// model training and evaluation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

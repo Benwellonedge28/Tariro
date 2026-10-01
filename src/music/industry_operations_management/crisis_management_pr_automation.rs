@@ -1,5 +1,6 @@
 // src/music/industry_operations_management/crisis_management_pr_automation.rs
 
+use crate::prelude::*;
 pub struct CrisisPRManager {
     // Autonomously manage public relations and crisis communication for artists or music companies.
 }

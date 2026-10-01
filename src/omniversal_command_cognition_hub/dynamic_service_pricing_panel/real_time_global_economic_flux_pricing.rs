@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/dynamic_service_pricing_panel/real_time_global_economic_flux_pricing.rs
 
+use crate::prelude::*;
 pub struct RealtimeGlobalEconomicFluxPricing;
 
 impl RealtimeGlobalEconomicFluxPricing {

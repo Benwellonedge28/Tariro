@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/meta_admin_security_cognitive_defense/ethical_hacker_ai_for_admin.rs
 
+use crate::prelude::*;
 pub struct EthicalHackerAI;
 
 impl EthicalHackerAI {

@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/universal_cross_modal_semantic_mapping.rs
 
+use crate::prelude::*;
 pub struct CrossModalMapper {
     // Creating a unified semantic representation that flawlessly maps meaning across all sensory modalities.
 }

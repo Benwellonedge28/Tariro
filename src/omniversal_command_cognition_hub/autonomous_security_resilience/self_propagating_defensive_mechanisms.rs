@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/autonomous_security_resilience/self_propagating_defensive_mechanisms.rs
 
+use crate::prelude::*;
 pub struct SelfPropagatingDefenses;
 
 impl SelfPropagatingDefenses {

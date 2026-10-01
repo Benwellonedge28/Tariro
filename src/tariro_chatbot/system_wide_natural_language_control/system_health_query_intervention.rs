@@ -1,5 +1,6 @@
 // src/tariro_chatbot/system_wide_natural_language_control/system_health_query_intervention.rs
 
+use crate::prelude::*;
 pub struct SystemHealthQueryIntervention;
 
 impl SystemHealthQueryIntervention {

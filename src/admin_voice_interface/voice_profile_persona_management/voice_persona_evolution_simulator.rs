@@ -1,5 +1,6 @@
 // src/admin_voice_interface/voice_profile_persona_management/voice_persona_evolution_simulator.rs
 
+use crate::prelude::*;
 pub struct VoicePersonaEvolutionSimulator;
 
 impl VoicePersonaEvolutionSimulator {

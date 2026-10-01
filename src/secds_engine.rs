@@ -8,6 +8,7 @@
 /// RAG: genetic programming, dynamic compilation, adaptive algorithms, data structure optimization techniques,
 /// metaprogramming, self-modifying code).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

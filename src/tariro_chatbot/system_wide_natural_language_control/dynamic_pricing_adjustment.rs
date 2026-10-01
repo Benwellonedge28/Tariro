@@ -1,5 +1,6 @@
 // src/tariro_chatbot/system_wide_natural_language_control/dynamic_pricing_adjustment.rs
 
+use crate::prelude::*;
 pub struct DynamicPricingAdjustment;
 
 impl DynamicPricingAdjustment {

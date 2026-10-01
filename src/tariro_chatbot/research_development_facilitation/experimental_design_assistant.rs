@@ -1,5 +1,6 @@
 // src/tariro_chatbot/research_development_facilitation/experimental_design_assistant.rs
 
+use crate::prelude::*;
 pub struct ExperimentalDesignAssistant;
 
 impl ExperimentalDesignAssistant {

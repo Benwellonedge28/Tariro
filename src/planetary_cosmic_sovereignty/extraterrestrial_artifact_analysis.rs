@@ -1,5 +1,6 @@
 // src/planetary_cosmic_sovereignty/extraterrestrial_artifact_analysis.rs
 
+use crate::prelude::*;
 pub enum ArtifactOrigin {
     Unknown,
     AlienTech,

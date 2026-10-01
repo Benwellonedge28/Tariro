@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/hyper_autonomous_infinite_rbac/intent_based_access_provisioning.rs
 
+use crate::prelude::*;
 pub struct IntentBasedAccessProvisioning;
 
 impl IntentBasedAccessProvisioning {

@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/omni_dimensional_user_analytics_behavioral_intelligence/anomaly_detection_in_user_behavior.rs
 
+use crate::prelude::*;
 pub struct UserBehaviorAnomalyDetection;
 
 impl UserBehaviorAnomalyDetection {

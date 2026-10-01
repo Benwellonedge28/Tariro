@@ -7,6 +7,7 @@
 /// compromising performance. It leverages RAG for workload prediction, power consumption models,
 /// and energy-aware scheduling algorithms.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

@@ -1,5 +1,6 @@
 // src/multimodal/input_perception/bio_acoustic_linguistic_interpretation.rs
 
+use crate::prelude::*;
 pub struct BioAcousticInterpreter {
     // Actively sensing and interpreting biological sounds to understand ecosystems.
 }

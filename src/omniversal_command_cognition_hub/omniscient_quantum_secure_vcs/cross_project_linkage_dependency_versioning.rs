@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/cross_project_linkage_dependency_versioning.rs
 
+use crate::prelude::*;
 pub struct CrossProjectVersioning;
 
 impl CrossProjectVersioning {

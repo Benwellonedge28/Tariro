@@ -1,5 +1,6 @@
 // src/multimodal/input_perception/quantum_enhanced_sensory_fusion.rs
 
+use crate::prelude::*;
 pub struct QuantumSensoryFusion {
     // Integrating quantum sensor data for hyper-accurate, noise-resistant perception.
 }

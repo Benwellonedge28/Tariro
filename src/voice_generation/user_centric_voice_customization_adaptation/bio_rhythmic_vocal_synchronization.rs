@@ -1,5 +1,6 @@
 // src/voice_generation/user_centric_voice_customization_adaptation/bio_rhythmic_vocal_synchronization.rs
 
+use crate::prelude::*;
 pub struct BioRhythmicSynchronizer;
 
 impl BioRhythmicSynchronizer {

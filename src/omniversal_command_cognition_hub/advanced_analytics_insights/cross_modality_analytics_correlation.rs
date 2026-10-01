@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/advanced_analytics_insights/cross_modality_analytics_correlation.rs
 
+use crate::prelude::*;
 pub struct CrossModalityCorrelator;
 
 impl CrossModalityCorrelator {

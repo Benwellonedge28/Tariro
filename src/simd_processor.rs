@@ -8,6 +8,7 @@
 // This example uses the conceptual `std::simd` for clarity of demonstration.
 
 // #[cfg(feature = "std_simd")] // Feature flag to enable if std::simd becomes stable/used
+use crate::prelude::*;
 use std::simd::{f32x4, SimdFloat, SimdPartialOrd, SimdOrd};
 
 /// A simple struct representing a SIMD processor capable of basic operations.

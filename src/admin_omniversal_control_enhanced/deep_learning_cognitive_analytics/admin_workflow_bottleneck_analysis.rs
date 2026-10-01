@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/deep_learning_cognitive_analytics/admin_workflow_bottleneck_analysis.rs
 
+use crate::prelude::*;
 pub struct BottleneckAnalyzer;
 
 impl BottleneckAnalyzer {

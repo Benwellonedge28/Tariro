@@ -1,5 +1,6 @@
 // src/multimodal/meta_multimodal_security/multimodal_self_healing.rs
 
+use crate::prelude::*;
 pub struct SelfHealing {
     // Autonomously diagnosing and repairing faults or inconsistencies within its multimodal processing systems.
 }

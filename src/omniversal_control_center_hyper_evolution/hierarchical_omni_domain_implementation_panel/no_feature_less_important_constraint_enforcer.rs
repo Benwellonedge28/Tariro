@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/hierarchical_omni_domain_implementation_panel/no_feature_less_important_constraint_enforcer.rs
 
+use crate::prelude::*;
 pub struct NoFeatureLessImportantEnforcer;
 
 impl NoFeatureLessImportantEnforcer {

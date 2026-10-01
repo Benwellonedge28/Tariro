@@ -1,5 +1,6 @@
 // src/image_generation/performance_scalability_infrastructure/energy_optimized_image_synthesis.rs
 
+use crate::prelude::*;
 pub struct EnergyOptimizer;
 
 impl EnergyOptimizer {

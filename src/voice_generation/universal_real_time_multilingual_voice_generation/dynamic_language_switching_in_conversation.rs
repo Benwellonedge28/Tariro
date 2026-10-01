@@ -1,5 +1,6 @@
 // src/voice_generation/universal_real_time_multilingual_voice_generation/dynamic_language_switching_in_conversation.rs
 
+use crate::prelude::*;
 pub struct DynamicLanguageSwitcher;
 
 impl DynamicLanguageSwitcher {

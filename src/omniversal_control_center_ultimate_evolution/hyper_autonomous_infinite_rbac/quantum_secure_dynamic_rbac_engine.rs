@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/hyper_autonomous_infinite_rbac/quantum_secure_dynamic_rbac_engine.rs
 
+use crate::prelude::*;
 pub struct QuantumSecureRBACTool;
 
 impl QuantumSecureRBACTool {

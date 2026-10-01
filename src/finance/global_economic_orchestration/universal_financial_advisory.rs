@@ -1,5 +1,6 @@
 // src/finance/global_economic_orchestration/universal_financial_advisory.rs
 
+use crate::prelude::*;
 pub struct FinancialAdvisor {
     // Provides hyper-personalized, objective financial advice to individuals, corporations, and governments.
 }

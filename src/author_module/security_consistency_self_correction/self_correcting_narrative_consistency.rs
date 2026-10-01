@@ -1,5 +1,6 @@
 // src/author_module/security_consistency_self_correction/self_correcting_narrative_consistency.rs
 
+use crate::prelude::*;
 pub struct SelfCorrectingNarrativeConsistency;
 
 impl SelfCorrectingNarrativeConsistency {

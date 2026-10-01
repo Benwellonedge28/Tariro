@@ -1,5 +1,6 @@
 // src/nano_technological_omnipresence/molecular_water_purification.rs
 
+use crate::prelude::*;
 pub enum ContaminantType {
     Microbial,
     Chemical,

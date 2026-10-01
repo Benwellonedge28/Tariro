@@ -1,5 +1,6 @@
 // src/operating_system_design_development/self_modifying_os_kernel.rs
 
+use crate::prelude::*;
 pub enum AnomalyType {
     PerformanceBottleneck,
     SecurityVulnerability,

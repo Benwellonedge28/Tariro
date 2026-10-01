@@ -1,5 +1,6 @@
 // src/image_generation/multimodal_contextual_understanding/truth_authenticity_verification_image.rs
 
+use crate::prelude::*;
 pub struct AuthenticityVerifier;
 
 impl AuthenticityVerifier {

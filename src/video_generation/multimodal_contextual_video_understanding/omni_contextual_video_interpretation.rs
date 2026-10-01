@@ -1,5 +1,6 @@
 // src/video_generation/multimodal_contextual_video_understanding/omni_contextual_video_interpretation.rs
 
+use crate::prelude::*;
 pub struct OmniContextualInterpreter;
 
 impl OmniContextualInterpreter {

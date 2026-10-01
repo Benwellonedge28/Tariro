@@ -1,6 +1,7 @@
 // Tariro AGI - Moral Reasoning Engine Module
 // Ethical decision-making and moral judgment
 
+use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
 use std::time::Duration;

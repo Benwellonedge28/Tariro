@@ -1,5 +1,6 @@
 // src/voice_generation/multimodal_interaction_output_harmonization/dynamic_speech_to_text_text_to_speech_integration.rs
 
+use crate::prelude::*;
 pub struct STT_TTS_Integrator;
 
 impl STT_TTS_Integrator {

@@ -1,5 +1,6 @@
 // src/music/creation_composition/generative_audio_effects_chain.rs
 
+use crate::prelude::*;
 pub struct AudioEffectsChain {
     // Autonomously design and chain complex audio effects for unique sound manipulation.
 }

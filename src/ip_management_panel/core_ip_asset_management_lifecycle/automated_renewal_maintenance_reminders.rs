@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/automated_renewal_maintenance_reminders.rs
 
+use crate::prelude::*;
 pub struct AutomatedRenewalMaintenanceReminders;
 
 impl AutomatedRenewalMaintenanceReminders {

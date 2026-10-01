@@ -1,5 +1,6 @@
 // src/universal_language_mastery/cross_lingual_cross_modal_concept_alignment.rs
 
+use crate::prelude::*;
 pub enum Modality {
     Text,
     Image,

@@ -1,5 +1,6 @@
 // src/music/industry_operations_management/resource_allocation_music_projects.rs
 
+use crate::prelude::*;
 pub struct ResourceAllocator {
     // Optimize the allocation of budgets, personnel, and time for music production, marketing, and touring.
 }

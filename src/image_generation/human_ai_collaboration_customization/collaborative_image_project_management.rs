@@ -1,5 +1,6 @@
 // src/image_generation/human_ai_collaboration_customization/collaborative_image_project_management.rs
 
+use crate::prelude::*;
 pub struct CollaborativeProjectManager;
 
 impl CollaborativeProjectManager {

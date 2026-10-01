@@ -1,5 +1,6 @@
 // src/music/production_engineering/automated_vocal_tuning_pitch_correction.rs
 
+use crate::prelude::*;
 pub struct VocalTuner {
     // Perform natural-sounding vocal tuning and pitch correction that preserves emotional nuance.
 }

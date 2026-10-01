@@ -1,5 +1,6 @@
 // src/omni_domain_operation/universal_physical_actuation_interface.rs
 
+use crate::prelude::*;
 pub enum ActuatorType {
     RoboticArm,
     NanoManipulator,

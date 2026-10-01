@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/omniversal_admin_feedback_control/consciousness_level_feedback_mechanisms.rs
 
+use crate::prelude::*;
 pub struct ConsciousnessLevelFeedback;
 
 impl ConsciousnessLevelFeedback {

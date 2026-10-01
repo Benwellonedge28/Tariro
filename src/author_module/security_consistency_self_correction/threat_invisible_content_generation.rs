@@ -1,5 +1,6 @@
 // src/author_module/security_consistency_self_correction/threat_invisible_content_generation.rs
 
+use crate::prelude::*;
 pub struct ThreatInvisibleContentGeneration;
 
 impl ThreatInvisibleContentGeneration {

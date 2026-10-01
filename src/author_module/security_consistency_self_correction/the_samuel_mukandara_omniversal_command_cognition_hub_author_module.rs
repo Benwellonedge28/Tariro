@@ -1,5 +1,6 @@
 // src/author_module/security_consistency_self_correction/the_samuel_mukandara_omniversal_command_cognition_hub_author_module.rs
 
+use crate::prelude::*;
 pub struct TheSamuelMukandaraOmniversalCommandCognitionHubAuthorModule;
 
 impl TheSamuelMukandaraOmniversalCommandCognitionHubAuthorModule {

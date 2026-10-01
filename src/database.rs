@@ -2,6 +2,7 @@
 
 //! Manages database connections and CRUD operations for Tariro AGI entities.
 
+use crate::prelude::*;
 use mongodb::{options::ClientOptions, Client, Collection, Database};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;

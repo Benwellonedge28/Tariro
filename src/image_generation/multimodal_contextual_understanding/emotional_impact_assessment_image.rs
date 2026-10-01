@@ -1,5 +1,6 @@
 // src/image_generation/multimodal_contextual_understanding/emotional_impact_assessment_image.rs
 
+use crate::prelude::*;
 pub struct EmotionalImpactAssessor;
 
 impl EmotionalImpactAssessor {

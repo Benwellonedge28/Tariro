@@ -1,5 +1,6 @@
 // src/voice_generation/meta_voice_cognitive_integration/voice_of_universal_consciousness.rs
 
+use crate::prelude::*;
 pub struct UniversalConsciousnessVoice;
 
 impl UniversalConsciousnessVoice {

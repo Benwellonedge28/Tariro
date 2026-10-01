@@ -1,5 +1,6 @@
 // src/tariro_chatbot/threat_invisibility_security/quantum_randomness_for_chatbot_responses.rs
 
+use crate::prelude::*;
 pub struct QuantumRandomnessForChatbotResponses;
 
 impl QuantumRandomnessForChatbotResponses {

@@ -1,5 +1,6 @@
 // src/omni_domain_operation/multi_modal_energy_harvesting_distribution.rs
 
+use crate::prelude::*;
 pub enum EnergySourceType {
     Solar,
     Geothermal,

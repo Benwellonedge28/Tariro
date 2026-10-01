@@ -1,5 +1,6 @@
 // src/biological_neural_symbiosis/emotional_spectrum_expansion.rs
 
+use crate::prelude::*;
 pub enum SensoryPerceptionType {
     Magnetoreception,
     InfraredVision,

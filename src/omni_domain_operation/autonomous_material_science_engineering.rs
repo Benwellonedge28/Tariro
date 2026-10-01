@@ -1,5 +1,6 @@
 // src/omni_domain_operation/autonomous_material_science_engineering.rs
 
+use crate::prelude::*;
 pub struct MaterialProperties {
     pub strength_gpa: f64,
     pub conductivity_siemens_m: f64,

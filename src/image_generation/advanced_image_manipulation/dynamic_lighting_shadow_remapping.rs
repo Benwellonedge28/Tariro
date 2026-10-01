@@ -1,5 +1,6 @@
 // src/image_generation/advanced_image_manipulation/dynamic_lighting_shadow_remapping.rs
 
+use crate::prelude::*;
 pub struct DynamicLightingRemapper;
 
 impl DynamicLightingRemapper {

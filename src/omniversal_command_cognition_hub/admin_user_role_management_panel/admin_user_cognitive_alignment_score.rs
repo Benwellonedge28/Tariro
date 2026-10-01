@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/admin_user_role_management_panel/admin_user_cognitive_alignment_score.rs
 
+use crate::prelude::*;
 pub struct AdminUserCognitiveAlignmentScore;
 
 impl AdminUserCognitiveAlignmentScore {

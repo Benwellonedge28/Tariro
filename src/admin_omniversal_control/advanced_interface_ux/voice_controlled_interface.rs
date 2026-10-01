@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/advanced_interface_ux/voice_controlled_interface.rs
 
+use crate::prelude::*;
 pub struct VoiceControlInterface;
 
 impl VoiceControlInterface {

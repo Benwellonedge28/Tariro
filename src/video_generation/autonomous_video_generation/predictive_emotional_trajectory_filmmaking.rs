@@ -1,5 +1,6 @@
 // src/video_generation/autonomous_video_generation/predictive_emotional_trajectory_filmmaking.rs
 
+use crate::prelude::*;
 pub struct EmotionalTrajectoryFilmmaker;
 
 impl EmotionalTrajectoryFilmmaker {

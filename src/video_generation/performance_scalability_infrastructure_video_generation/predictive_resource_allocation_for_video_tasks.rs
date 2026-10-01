@@ -1,5 +1,6 @@
 // src/video_generation/performance_scalability_infrastructure_video_generation/predictive_resource_allocation_for_video_tasks.rs
 
+use crate::prelude::*;
 pub struct VideoResourceAllocator;
 
 impl VideoResourceAllocator {

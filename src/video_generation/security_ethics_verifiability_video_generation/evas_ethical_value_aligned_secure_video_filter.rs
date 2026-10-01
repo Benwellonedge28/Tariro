@@ -1,5 +1,6 @@
 // src/video_generation/security_ethics_verifiability_video_generation/evas_ethical_value_aligned_secure_video_filter.rs
 
+use crate::prelude::*;
 pub struct EVASVideoFilter;
 
 impl EVASVideoFilter {

@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/script_playwriting.rs
 
+use crate::prelude::*;
 pub struct ScriptPlaywriting;
 
 impl ScriptPlaywriting {

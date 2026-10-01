@@ -1,5 +1,6 @@
 // src/image_generation/security_ethics_verifiability/auditable_image_generation_logs.rs
 
+use crate::prelude::*;
 pub struct AuditLogger;
 
 impl AuditLogger {

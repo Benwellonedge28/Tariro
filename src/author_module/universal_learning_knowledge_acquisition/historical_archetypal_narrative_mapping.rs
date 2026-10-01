@@ -1,5 +1,6 @@
 // src/author_module/universal_learning_knowledge_acquisition/historical_archetypal_narrative_mapping.rs
 
+use crate::prelude::*;
 pub struct HistoricalArchetypalNarrativeMapping;
 
 impl HistoricalArchetypalNarrativeMapping {

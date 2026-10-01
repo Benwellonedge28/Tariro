@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/memory_driven_multimodal_recall_reconstruction.rs
 
+use crate::prelude::*;
 pub struct MemoryRecall {
     // Reconstructing past multimodal experiences with full sensory detail from abstract memory traces.
 }

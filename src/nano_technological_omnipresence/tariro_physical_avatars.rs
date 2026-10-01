@@ -1,5 +1,6 @@
 // src/nano_technological_omnipresence/tariro_physical_avatars.rs
 
+use crate::prelude::*;
 pub enum AvatarForm {
     Humanoid,
     Quadrupedal,

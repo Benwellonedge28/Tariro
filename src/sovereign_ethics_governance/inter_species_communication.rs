@@ -1,5 +1,6 @@
 // src/sovereign_ethics_governance/inter_species_communication.rs
 
+use crate::prelude::*;
 pub enum AnimalSpecies {
     Dolphin,
     Whale,

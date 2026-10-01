@@ -1,5 +1,6 @@
 // src/biological_neural_symbiosis/consciousness_uploading_bridge.rs
 
+use crate::prelude::*;
 pub enum UploadIntegrityLevel {
     PerfectFidelity,
     HighFidelity,

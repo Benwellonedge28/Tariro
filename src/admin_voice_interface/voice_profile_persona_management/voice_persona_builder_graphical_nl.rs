@@ -1,5 +1,6 @@
 // src/admin_voice_interface/voice_profile_persona_management/voice_persona_builder_graphical_nl.rs
 
+use crate::prelude::*;
 pub struct VoicePersonaBuilder;
 
 impl VoicePersonaBuilder {

@@ -6,6 +6,7 @@
 /// for high-precision measurements of time, magnetic fields, and other physical
 /// quantities, enhancing Tariro's observational capacities.
 
+use crate::prelude::*;
 use std::fmt;
 use std::thread;
 use std::time::Duration;

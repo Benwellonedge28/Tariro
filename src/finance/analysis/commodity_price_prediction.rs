@@ -1,5 +1,6 @@
 // src/finance/analysis/commodity_price_prediction.rs
 
+use crate::prelude::*;
 pub struct CommodityPredictor {
     // Predicts commodity prices based on a vast array of factors.
 }

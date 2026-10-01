@@ -1,5 +1,6 @@
 // src/author_module/universal_learning_knowledge_acquisition/self_optimizing_learning_strategies.rs
 
+use crate::prelude::*;
 pub struct SelfOptimizingLearningStrategies;
 
 impl SelfOptimizingLearningStrategies {

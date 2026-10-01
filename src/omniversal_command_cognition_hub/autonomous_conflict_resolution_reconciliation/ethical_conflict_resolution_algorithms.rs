@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/autonomous_conflict_resolution_reconciliation/ethical_conflict_resolution_algorithms.rs
 
+use crate::prelude::*;
 pub struct EthicalConflictResolutionAlgorithms;
 
 impl EthicalConflictResolutionAlgorithms {

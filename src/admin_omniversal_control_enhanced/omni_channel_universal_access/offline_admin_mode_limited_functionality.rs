@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/omni_channel_universal_access/offline_admin_mode_limited_functionality.rs
 
+use crate::prelude::*;
 pub struct OfflineAdminMode;
 
 impl OfflineAdminMode {

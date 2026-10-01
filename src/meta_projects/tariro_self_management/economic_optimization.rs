@@ -26,6 +26,7 @@
 //!   provenance, transparency, and auditability* for all economic activities.
 //! This engine enables Tariro's *financial sovereignty and perpetually ethical economic influence*.
 
+use crate::prelude::*;
 use crate::meta_projects::tariro_self_management::{InternalStateSnapshot, SelfManagementConfig};
 use crate::agi::models::{AgiEconomicModel, AgiEthicsModel};
 use crate::omega_os::distributed_ledger::{ImmutableLedger, LedgerEntry};

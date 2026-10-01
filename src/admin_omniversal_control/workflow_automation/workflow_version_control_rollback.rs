@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/workflow_automation/workflow_version_control_rollback.rs
 
+use crate::prelude::*;
 pub struct WorkflowVersionManager;
 
 impl WorkflowVersionManager {

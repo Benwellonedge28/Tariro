@@ -1,5 +1,6 @@
 // src/universal_problem_solving/meta_transfer_learning.rs
 
+use crate::prelude::*;
 pub enum Modality {
     Vision,
     Audio,

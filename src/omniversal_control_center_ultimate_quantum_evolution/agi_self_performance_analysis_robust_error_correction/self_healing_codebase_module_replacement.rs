@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/agi_self_performance_analysis_robust_error_correction/self_healing_codebase_module_replacement.rs
 
+use crate::prelude::*;
 pub struct SelfHealingCodebase;
 
 impl SelfHealingCodebase {

@@ -1,5 +1,6 @@
 // src/tariro_chatbot/system_wide_natural_language_control/automated_reporting_customization.rs
 
+use crate::prelude::*;
 pub struct AutomatedReportingCustomization;
 
 impl AutomatedReportingCustomization {

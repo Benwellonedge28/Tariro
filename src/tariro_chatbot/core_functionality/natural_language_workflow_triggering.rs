@@ -1,5 +1,6 @@
 // src/tariro_chatbot/core_functionality/natural_language_workflow_triggering.rs
 
+use crate::prelude::*;
 pub struct NaturalLanguageWorkflowTriggering;
 
 impl NaturalLanguageWorkflowTriggering {

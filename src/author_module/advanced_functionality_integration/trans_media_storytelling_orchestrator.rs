@@ -1,5 +1,6 @@
 // src/author_module/advanced_functionality_integration/trans_media_storytelling_orchestrator.rs
 
+use crate::prelude::*;
 pub struct TransMediaStorytellingOrchestrator;
 
 impl TransMediaStorytellingOrchestrator {

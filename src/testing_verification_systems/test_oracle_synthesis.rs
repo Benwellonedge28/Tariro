@@ -1,5 +1,6 @@
 // src/testing_verification_systems/test_oracle_synthesis.rs
 
+use crate::prelude::*;
 pub enum OracleType {
     MetamorphicTesting,
     AssertionGeneration,

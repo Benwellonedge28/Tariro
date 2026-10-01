@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/system_health_resilience/resource_contention_detection_resolution.rs
 
+use crate::prelude::*;
 pub struct ContentionResolver;
 
 impl ContentionResolver {

@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/self_correcting_content_generation.rs
 
+use crate::prelude::*;
 pub struct SelfCorrectingContentGeneration;
 
 impl SelfCorrectingContentGeneration {

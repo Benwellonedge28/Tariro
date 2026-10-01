@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/ip_asset_grouping_tagging.rs
 
+use crate::prelude::*;
 pub struct IpAssetGroupingTagging;
 
 impl IpAssetGroupingTagging {

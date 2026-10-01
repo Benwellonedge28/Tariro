@@ -1,5 +1,6 @@
 // src/music/industry_operations_management/smart_contract_collaboration_agreements.rs
 
+use crate::prelude::*;
 pub struct CollaborationAgreements {
     // Automate the creation and execution of legally binding collaboration agreements between artists, producers, and labels.
 }

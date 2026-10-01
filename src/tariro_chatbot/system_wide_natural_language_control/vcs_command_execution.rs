@@ -1,5 +1,6 @@
 // src/tariro_chatbot/system_wide_natural_language_control/vcs_command_execution.rs
 
+use crate::prelude::*;
 pub struct VCSCommandExecution;
 
 impl VCSCommandExecution {

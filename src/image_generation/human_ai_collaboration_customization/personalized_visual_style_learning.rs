@@ -1,5 +1,6 @@
 // src/image_generation/human_ai_collaboration_customization/personalized_visual_style_learning.rs
 
+use crate::prelude::*;
 pub struct StyleLearner;
 
 impl StyleLearner {

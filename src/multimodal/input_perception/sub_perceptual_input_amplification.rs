@@ -1,5 +1,6 @@
 // src/multimodal/input_perception/sub_perceptual_input_amplification.rs
 
+use crate::prelude::*;
 pub struct SubPerceptualAmplifier {
     // Detecting and interpreting stimuli that are below the human or standard sensor threshold.
 }

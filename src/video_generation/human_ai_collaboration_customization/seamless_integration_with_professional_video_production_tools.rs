@@ -1,5 +1,6 @@
 // src/video_generation/human_ai_collaboration_customization/seamless_integration_with_professional_video_production_tools.rs
 
+use crate::prelude::*;
 pub struct ProVideoToolIntegrator;
 
 impl ProVideoToolIntegrator {

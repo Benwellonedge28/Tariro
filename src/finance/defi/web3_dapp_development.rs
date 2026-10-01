@@ -1,5 +1,6 @@
 // src/finance/defi/web3_dapp_development.rs
 
+use crate::prelude::*;
 pub struct Web3Developer {
     // Designs and develops decentralized applications (dApps).
 }

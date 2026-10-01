@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/cross_reference_ip_dependencies.rs
 
+use crate::prelude::*;
 pub struct CrossReferenceIpDependencies;
 
 impl CrossReferenceIpDependencies {

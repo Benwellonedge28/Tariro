@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/proactive_predictive_versioning/projected_system_state_from_vcs_history.rs
 
+use crate::prelude::*;
 pub struct ProjectedSystemStateFromVCSHistory;
 
 impl ProjectedSystemStateFromVCSHistory {

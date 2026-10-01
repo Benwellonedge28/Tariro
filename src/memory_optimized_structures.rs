@@ -4,6 +4,7 @@
 /// minimal overhead, and efficient access patterns crucial for high-performance
 /// RAG context management and SIMD processing.
 
+use crate::prelude::*;
 use std::ops::{Index, IndexMut};
 
 /// A simple packed vector for numerical data, ensuring contiguous memory.

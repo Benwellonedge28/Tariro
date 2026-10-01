@@ -1,5 +1,6 @@
 // src/image_generation/multimodal_contextual_understanding/ai_driven_visual_forensics.rs
 
+use crate::prelude::*;
 pub struct VisualForensicsAnalyzer;
 
 impl VisualForensicsAnalyzer {

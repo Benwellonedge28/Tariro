@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/predictive_memory_allocation_prefetching.rs
 
+use crate::prelude::*;
 pub enum RecallContext {
     TaskSpecific(String),
     LocationBased(String),

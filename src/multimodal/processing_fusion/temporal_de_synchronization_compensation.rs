@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/temporal_de_synchronization_compensation.rs
 
+use crate::prelude::*;
 pub struct TemporalCompensator {
     // Correcting for lags or asynchronous arrival of multimodal data to maintain a coherent perception.
 }

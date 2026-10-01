@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/security_compliance/dynamic_secret_rotation.rs
 
+use crate::prelude::*;
 pub struct SecretRotator;
 
 impl SecretRotator {

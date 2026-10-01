@@ -5,6 +5,7 @@
 //! by analyzing his interactions, identifying learning opportunities, and proactively
 //! suggesting relevant resources and learning paths.
 
+use crate::prelude::*;
 use crate::{prelude::*,
     Module,
     ModuleContext,

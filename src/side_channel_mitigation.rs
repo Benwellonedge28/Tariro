@@ -7,6 +7,7 @@
 /// even against sophisticated adversaries
 /// (leveraging RAG for side-channel attack analysis and mitigation techniques, and SIMD for constant-time cryptographic primitive execution).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

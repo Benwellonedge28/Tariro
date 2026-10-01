@@ -5,6 +5,7 @@
 /// various domains and services. It leverages the CommandBus (from a previous
 /// conceptual module) for inter-component communication.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

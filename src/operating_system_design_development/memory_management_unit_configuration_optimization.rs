@@ -1,5 +1,6 @@
 // src/operating_system_design_development/memory_management_unit_configuration_optimization.rs
 
+use crate::prelude::*;
 pub enum PageReplacementAlgorithm {
     LRU,
     FIFO,

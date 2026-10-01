@@ -1,5 +1,6 @@
 // src/planetary_cosmic_sovereignty/intergalactic_information_bridge.rs
 
+use crate::prelude::*;
 pub enum SignalEncodingType {
     PulsarTiming,
     NeutrinoModulation,

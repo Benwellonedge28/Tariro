@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/meta_administrative_interface_self_evolution/admin_interface_version_control_rollback.rs
 
+use crate::prelude::*;
 pub struct InterfaceVersionControl;
 
 impl InterfaceVersionControl {

@@ -5,6 +5,7 @@
 /// learning, emotional resonance, and predictive interaction based on player cognitive states (SIMD: parallel
 /// processing of player interaction patterns; RAG: quantum psychology models, emotional AI research).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

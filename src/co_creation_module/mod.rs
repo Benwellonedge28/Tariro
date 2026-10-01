@@ -1,3 +1,4 @@
+use crate::prelude::*;
 pub mod solution_architect;
 pub mod prototype_designer;
 pub mod micro_agent_manager;

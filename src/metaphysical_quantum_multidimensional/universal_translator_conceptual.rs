@@ -1,5 +1,6 @@
 // src/metaphysical_quantum_multidimensional/universal_translator_conceptual.rs
 
+use crate::prelude::*;
 pub enum EntityType {
     Human,
     AI,

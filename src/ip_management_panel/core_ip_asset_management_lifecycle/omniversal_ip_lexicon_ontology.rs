@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/omniversal_ip_lexicon_ontology.rs
 
+use crate::prelude::*;
 pub struct OmniversalIpLexiconOntology;
 
 impl OmniversalIpLexiconOntology {

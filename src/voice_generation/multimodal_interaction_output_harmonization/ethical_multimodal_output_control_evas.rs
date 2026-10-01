@@ -1,5 +1,6 @@
 // src/voice_generation/multimodal_interaction_output_harmonization/ethical_multimodal_output_control_evas.rs
 
+use crate::prelude::*;
 pub struct EthicalMultimodalOutputControl;
 
 impl EthicalMultimodalOutputControl {

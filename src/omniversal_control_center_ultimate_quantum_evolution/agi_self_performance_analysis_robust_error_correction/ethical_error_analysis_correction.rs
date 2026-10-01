@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/agi_self_performance_analysis_robust_error_correction/ethical_error_analysis_correction.rs
 
+use crate::prelude::*;
 pub struct EthicalErrorAnalyzer;
 
 impl EthicalErrorAnalyzer {

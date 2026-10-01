@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/proactive_predictive_versioning/anticipatory_version_generation.rs
 
+use crate::prelude::*;
 pub struct AnticipatoryVersionGeneration;
 
 impl AnticipatoryVersionGeneration {

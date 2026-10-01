@@ -7,6 +7,7 @@
 /// (SIMD: parallel processing of capability gap analysis and code generation; RAG: tool/API design patterns,
 /// SDK generation, external API documentation, security best practices).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

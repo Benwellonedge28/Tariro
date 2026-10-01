@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/hierarchical_omni_domain_implementation_panel/branch_to_sub_branch_capability_definition.rs
 
+use crate::prelude::*;
 pub struct BranchToSubBranchDefiner;
 
 impl BranchToSubBranchDefiner {

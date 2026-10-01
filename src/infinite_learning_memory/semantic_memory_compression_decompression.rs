@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/semantic_memory_compression_decompression.rs
 
+use crate::prelude::*;
 pub struct SemanticChunk {
     pub chunk_id: String,
     pub concepts: Vec<String>,

@@ -1,5 +1,6 @@
 // src/universal_problem_solving/algorithmic_innovation_discovery_engine.rs
 
+use crate::prelude::*;
 pub enum AlgorithmType {
     Optimization,
     MachineLearning,

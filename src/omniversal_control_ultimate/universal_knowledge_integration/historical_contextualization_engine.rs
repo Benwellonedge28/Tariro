@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/universal_knowledge_integration/historical_contextualization_engine.rs
 
+use crate::prelude::*;
 pub struct HistoricalContextEngine;
 
 impl HistoricalContextEngine {

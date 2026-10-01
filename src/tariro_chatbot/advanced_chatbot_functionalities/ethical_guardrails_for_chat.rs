@@ -1,5 +1,6 @@
 // src/tariro_chatbot/advanced_chatbot_functionalities/ethical_guardrails_for_chat.rs
 
+use crate::prelude::*;
 pub struct EthicalGuardrailsForChat;
 
 impl EthicalGuardrailsForChat {

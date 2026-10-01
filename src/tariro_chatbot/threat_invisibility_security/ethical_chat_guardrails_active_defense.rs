@@ -1,5 +1,6 @@
 // src/tariro_chatbot/threat_invisibility_security/ethical_chat_guardrails_active_defense.rs
 
+use crate::prelude::*;
 pub struct EthicalChatGuardrailsActiveDefense;
 
 impl EthicalChatGuardrailsActiveDefense {

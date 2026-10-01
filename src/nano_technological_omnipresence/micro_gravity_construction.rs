@@ -1,5 +1,6 @@
 // src/nano_technological_omnipresence/micro_gravity_construction.rs
 
+use crate::prelude::*;
 pub enum OrbitalConstructionMaterial {
     SpaceConcrete,
     CarbonNanotubeLattice,

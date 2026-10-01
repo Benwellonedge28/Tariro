@@ -1,5 +1,6 @@
 // src/video_generation/security_ethics_verifiability_video_generation/autonomous_watermarking_tamper_detection_video.rs
 
+use crate::prelude::*;
 pub struct VideoWatermarkerTamperDetector;
 
 impl VideoWatermarkerTamperDetector {

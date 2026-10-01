@@ -1,5 +1,6 @@
 // src/tariro_chatbot/system_wide_natural_language_control/consistency_hallucination_control.rs
 
+use crate::prelude::*;
 pub struct ConsistencyHallucinationControl;
 
 impl ConsistencyHallucinationControl {

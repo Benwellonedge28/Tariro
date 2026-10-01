@@ -6,6 +6,7 @@
 /// (SIMD: parallel analysis of code segments and application of transformations; RAG: best coding practices, design patterns,
 /// quantum-safe coding guidelines, Rust idioms).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

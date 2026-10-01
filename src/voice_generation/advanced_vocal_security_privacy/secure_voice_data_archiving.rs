@@ -1,5 +1,6 @@
 // src/voice_generation/advanced_vocal_security_privacy/secure_voice_data_archiving.rs
 
+use crate::prelude::*;
 pub struct SecureVoiceArchiver;
 
 impl SecureVoiceArchiver {

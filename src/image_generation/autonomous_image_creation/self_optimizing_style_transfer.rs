@@ -1,5 +1,6 @@
 // src/image_generation/autonomous_image_creation/self_optimizing_style_transfer.rs
 
+use crate::prelude::*;
 pub struct StyleTransferOptimizer;
 
 impl StyleTransferOptimizer {

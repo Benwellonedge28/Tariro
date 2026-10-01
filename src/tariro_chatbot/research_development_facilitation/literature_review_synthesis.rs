@@ -1,5 +1,6 @@
 // src/tariro_chatbot/research_development_facilitation/literature_review_synthesis.rs
 
+use crate::prelude::*;
 pub struct LiteratureReviewSynthesis;
 
 impl LiteratureReviewSynthesis {

@@ -1,5 +1,6 @@
 // src/music/ethical_future_forward/music_as_universal_language_diplomacy.rs
 
+use crate::prelude::*;
 pub struct MusicDiplomat {
     // Leverage music as a tool for international diplomacy, fostering understanding and connection across cultures.
 }

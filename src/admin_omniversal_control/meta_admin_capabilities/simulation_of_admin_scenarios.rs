@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/meta_admin_capabilities/simulation_of_admin_scenarios.rs
 
+use crate::prelude::*;
 pub struct AdminSimulator;
 
 impl AdminSimulator {

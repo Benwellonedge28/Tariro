@@ -1,5 +1,6 @@
 // src/finance/defi/cryptocurrency_portfolio_management.rs
 
+use crate::prelude::*;
 pub struct MultiChainPortfolioManager {
     // Manages diverse cryptocurrency portfolios across multiple blockchain networks and DeFi protocols.
 }

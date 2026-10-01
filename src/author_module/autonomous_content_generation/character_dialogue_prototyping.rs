@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/character_dialogue_prototyping.rs
 
+use crate::prelude::*;
 pub struct CharacterDialoguePrototyping;
 
 impl CharacterDialoguePrototyping {

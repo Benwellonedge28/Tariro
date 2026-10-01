@@ -1,5 +1,6 @@
 // src/video_generation/multimodal_contextual_video_understanding/cross_domain_visual_narrative_analogies_video.rs
 
+use crate::prelude::*;
 pub struct CrossDomainAnalogiesDiscoverer;
 
 impl CrossDomainAnalogiesDiscoverer {

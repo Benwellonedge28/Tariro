@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/omniversal_reporting_explainability/external_reporting_automation_compliance.rs
 
+use crate::prelude::*;
 pub struct ExternalReportingAutomator;
 
 impl ExternalReportingAutomator {

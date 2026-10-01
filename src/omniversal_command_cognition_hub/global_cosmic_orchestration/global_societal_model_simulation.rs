@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/global_cosmic_orchestration/global_societal_model_simulation.rs
 
+use crate::prelude::*;
 pub struct SocietalModelSimulator;
 
 impl SocietalModelSimulator {

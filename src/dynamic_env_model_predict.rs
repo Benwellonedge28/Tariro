@@ -7,6 +7,7 @@
 /// predict future states, potential risks, and emerging opportunities, forming
 /// the basis for proactive decision-making and autonomous action.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

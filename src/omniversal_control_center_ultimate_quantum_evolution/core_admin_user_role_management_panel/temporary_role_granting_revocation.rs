@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/core_admin_user_role_management_panel/temporary_role_granting_revocation.rs
 
+use crate::prelude::*;
 pub struct TemporaryRoleManager;
 
 impl TemporaryRoleManager {

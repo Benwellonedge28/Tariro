@@ -1,5 +1,6 @@
 // src/tariro_chatbot/core_functionality/command_history_search.rs
 
+use crate::prelude::*;
 pub struct CommandHistorySearch;
 
 impl CommandHistorySearch {

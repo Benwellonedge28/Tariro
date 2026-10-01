@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/dynamic_service_pricing_panel/personalized_ethical_pricing.rs
 
+use crate::prelude::*;
 pub struct PersonalizedEthicalPricing;
 
 impl PersonalizedEthicalPricing {

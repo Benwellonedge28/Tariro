@@ -1,5 +1,6 @@
 // src/biological_neural_symbiosis/biological_digital_twins.rs
 
+use crate::prelude::*;
 pub enum DigitalTwinPurpose {
     PredictiveHealth,
     LifeExtensionSimulation,

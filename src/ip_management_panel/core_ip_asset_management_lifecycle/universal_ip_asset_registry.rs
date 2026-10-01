@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/universal_ip_asset_registry.rs
 
+use crate::prelude::*;
 pub struct UniversalIpAssetRegistry;
 
 impl UniversalIpAssetRegistry {

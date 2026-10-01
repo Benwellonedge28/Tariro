@@ -1,5 +1,6 @@
 // src/operating_system_design_development/kernel_synthesis_engine.rs
 
+use crate::prelude::*;
 pub enum KernelType {
     Microkernel,
     Exokernel,

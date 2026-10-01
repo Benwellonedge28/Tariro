@@ -1,5 +1,6 @@
 // src/image_generation/security_ethics_verifiability/dynamic_consent_management_for_personal_imagery.rs
 
+use crate::prelude::*;
 pub struct ConsentManager;
 
 impl ConsentManager {

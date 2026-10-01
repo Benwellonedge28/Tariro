@@ -1,6 +1,7 @@
 // Tariro AGI - Formal Verification Module
 // Mathematical safety guarantees and formal proofs
 
+use crate::prelude::*;
 use std::collections::{HashMap, HashSet, VecDeque};
 use chrono::{DateTime, Utc};
 use std::time::Duration;

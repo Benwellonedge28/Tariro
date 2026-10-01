@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/absolute_consistency_zero_hallucination/explainable_consistency_metrics.rs
 
+use crate::prelude::*;
 pub struct ConsistencyMetricsExplainer;
 
 impl ConsistencyMetricsExplainer {

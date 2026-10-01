@@ -1,5 +1,6 @@
 // src/sovereign_ethics_governance/sovereign_privacy_vaults.rs
 
+use crate::prelude::*;
 pub enum ThoughtCategory {
     PersonalMemory,
     EmotionalState,

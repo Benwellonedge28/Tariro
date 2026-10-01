@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/quantum_safe_distributed_knowledge_storage.rs
 
+use crate::prelude::*;
 pub enum CryptographicMethod {
     LatticeBased,
     CodeBased,

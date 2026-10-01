@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/emotion_affective_state_correlation.rs
 
+use crate::prelude::*;
 pub struct EmotionCorrelator {
     // Accurately correlating complex emotional states with physiological data, vocal inflections, facial expressions.
 }

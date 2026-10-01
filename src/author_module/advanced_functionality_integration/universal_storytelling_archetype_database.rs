@@ -1,5 +1,6 @@
 // src/author_module/advanced_functionality_integration/universal_storytelling_archetype_database.rs
 
+use crate::prelude::*;
 pub struct UniversalStorytellingArchetypeDatabase;
 
 impl UniversalStorytellingArchetypeDatabase {

@@ -1,5 +1,6 @@
 // src/tariro_chatbot/advanced_chatbot_functionalities/pre_cognitive_suggestion_interface.rs
 
+use crate::prelude::*;
 pub struct PreCognitiveSuggestionInterface;
 
 impl PreCognitiveSuggestionInterface {

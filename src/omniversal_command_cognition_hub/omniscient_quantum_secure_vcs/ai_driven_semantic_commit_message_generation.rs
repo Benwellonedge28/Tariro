@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/ai_driven_semantic_commit_message_generation.rs
 
+use crate::prelude::*;
 pub struct SemanticCommitMessageGenerator;
 
 impl SemanticCommitMessageGenerator {

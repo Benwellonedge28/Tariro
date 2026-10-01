@@ -1,5 +1,6 @@
 // src/meta_compiler_language_design/quantum_programming_language_designer.rs
 
+use crate::prelude::*;
 pub enum QuantumBitType {
     Qubit,
     Qutrit,

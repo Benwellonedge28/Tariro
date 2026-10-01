@@ -1,5 +1,6 @@
 // src/tariro_chatbot/system_wide_natural_language_control/agi_self_modification_directives.rs
 
+use crate::prelude::*;
 pub struct AGISelfModificationDirectives;
 
 impl AGISelfModificationDirectives {

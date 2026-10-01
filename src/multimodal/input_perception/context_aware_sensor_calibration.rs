@@ -1,5 +1,6 @@
 // src/multimodal/input_perception/context_aware_sensor_calibration.rs
 
+use crate::prelude::*;
 pub struct SensorCalibrator {
     // Dynamically calibrating and optimizing sensor arrays based on environmental context.
 }

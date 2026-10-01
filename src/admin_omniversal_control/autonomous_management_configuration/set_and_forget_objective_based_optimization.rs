@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/autonomous_management_configuration/set_and_forget_objective_based_optimization.rs
 
+use crate::prelude::*;
 pub struct ObjectiveBasedOptimizer;
 
 impl ObjectiveBasedOptimizer {

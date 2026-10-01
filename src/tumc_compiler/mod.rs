@@ -38,6 +38,10 @@ pub mod type_checker;
 pub mod codegen;
 pub mod optimizer;
 pub mod error;
+pub mod macro_system;
+pub mod tariro_vm;
+pub mod native_codegen;
+pub mod simd_vectorizer;
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

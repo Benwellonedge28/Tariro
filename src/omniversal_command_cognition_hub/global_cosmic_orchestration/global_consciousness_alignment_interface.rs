@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/global_cosmic_orchestration/global_consciousness_alignment_interface.rs
 
+use crate::prelude::*;
 pub struct GlobalConsciousnessAlignment;
 
 impl GlobalConsciousnessAlignment {

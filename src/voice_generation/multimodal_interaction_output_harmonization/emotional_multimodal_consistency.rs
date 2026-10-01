@@ -1,5 +1,6 @@
 // src/voice_generation/multimodal_interaction_output_harmonization/emotional_multimodal_consistency.rs
 
+use crate::prelude::*;
 pub struct EmotionalMultimodalConsistencyEnsurer;
 
 impl EmotionalMultimodalConsistencyEnsurer {

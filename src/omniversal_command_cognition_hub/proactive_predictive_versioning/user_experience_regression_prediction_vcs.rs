@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/proactive_predictive_versioning/user_experience_regression_prediction_vcs.rs
 
+use crate::prelude::*;
 pub struct UserExperienceRegressionPredictionVCS;
 
 impl UserExperienceRegressionPredictionVCS {

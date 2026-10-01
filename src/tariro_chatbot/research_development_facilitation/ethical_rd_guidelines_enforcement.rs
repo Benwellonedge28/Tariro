@@ -1,5 +1,6 @@
 // src/tariro_chatbot/research_development_facilitation/ethical_rd_guidelines_enforcement.rs
 
+use crate::prelude::*;
 pub struct EthicalRDGuidelinesEnforcement;
 
 impl EthicalRDGuidelinesEnforcement {

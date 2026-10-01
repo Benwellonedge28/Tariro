@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_semantic_versioning_impact_analysis/self_optimizing_semantic_search.rs
 
+use crate::prelude::*;
 pub struct SelfOptimizingSemanticSearch;
 
 impl SelfOptimizingSemanticSearch {

@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/hierarchical_omni_domain_implementation_panel/automated_dependency_graph_constructor.rs
 
+use crate::prelude::*;
 pub struct DependencyGraphConstructor;
 
 impl DependencyGraphConstructor {

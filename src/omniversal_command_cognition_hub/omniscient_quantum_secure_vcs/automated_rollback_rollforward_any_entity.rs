@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/automated_rollback_rollforward_any_entity.rs
 
+use crate::prelude::*;
 pub struct AutomatedRollbackRollforward;
 
 impl AutomatedRollbackRollforward {

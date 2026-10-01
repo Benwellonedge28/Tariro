@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/world_building_engine.rs
 
+use crate::prelude::*;
 pub struct WorldBuildingEngine;
 
 impl WorldBuildingEngine {

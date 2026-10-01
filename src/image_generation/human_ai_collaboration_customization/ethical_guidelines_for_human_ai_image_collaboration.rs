@@ -1,5 +1,6 @@
 // src/image_generation/human_ai_collaboration_customization/ethical_guidelines_for_human_ai_image_collaboration.rs
 
+use crate::prelude::*;
 pub struct EthicalGuidelinesManager;
 
 impl EthicalGuidelinesManager {

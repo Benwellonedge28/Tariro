@@ -1,5 +1,6 @@
 // src/image_generation/human_ai_collaboration_customization/intuitive_multimodal_image_control.rs
 
+use crate::prelude::*;
 pub struct MultimodalImageController;
 
 impl MultimodalImageController {

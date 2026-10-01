@@ -1,5 +1,6 @@
 // src/voice_generation/multimodal_interaction_output_harmonization/voice_controlled_environmental_interaction.rs
 
+use crate::prelude::*;
 pub struct VoiceControlledEnvironment;
 
 impl VoiceControlledEnvironment {

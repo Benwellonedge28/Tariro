@@ -1,5 +1,6 @@
 // src/music/performance_live_events/autonomous_stage_design_setup_optimization.rs
 
+use crate::prelude::*;
 pub struct StageDesigner {
     // Design and optimize stage layouts, sound systems, and visual displays for any venue or event.
 }

@@ -1,5 +1,6 @@
 // src/finance/trading/omni_asset_trading.rs
 
+use crate::prelude::*;
 use std::collections::HashMap;
 
 pub enum AssetClass {

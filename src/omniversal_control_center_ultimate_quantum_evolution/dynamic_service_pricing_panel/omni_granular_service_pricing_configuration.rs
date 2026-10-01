@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/dynamic_service_pricing_panel/omni_granular_service_pricing_configuration.rs
 
+use crate::prelude::*;
 pub struct ServicePricingConfigurator;
 
 impl ServicePricingConfigurator {

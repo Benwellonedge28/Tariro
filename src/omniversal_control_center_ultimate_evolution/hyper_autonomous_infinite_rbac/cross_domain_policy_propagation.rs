@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/hyper_autonomous_infinite_rbac/cross_domain_policy_propagation.rs
 
+use crate::prelude::*;
 pub struct CrossDomainPolicyPropagation;
 
 impl CrossDomainPolicyPropagation {

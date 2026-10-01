@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/cognitive_version_control_agi_state_management/agi_self_awareness_metric_versioning.rs
 
+use crate::prelude::*;
 pub struct AGISelfAwarenessMetricVersioning;
 
 impl AGISelfAwarenessMetricVersioning {

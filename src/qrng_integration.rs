@@ -5,6 +5,7 @@
 /// key generation, and secure protocol initiation, enhancing the foundational security of Tariro's systems
 /// (leveraging RAG for QRNG device drivers and SIMD for high-throughput random number extraction).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

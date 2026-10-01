@@ -1,5 +1,6 @@
 // src/finance/defi/did_management.rs
 
+use crate::prelude::*;
 pub struct DIDManager {
     // Manages and leverages decentralized identities for secure interactions.
 }

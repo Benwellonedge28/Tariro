@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/meta_admin_security_cognitive_defense/zero_cognitive_footprint_operation.rs
 
+use crate::prelude::*;
 pub struct ZeroCognitiveFootprintOperation;
 
 impl ZeroCognitiveFootprintOperation {

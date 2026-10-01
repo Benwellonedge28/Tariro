@@ -1,5 +1,6 @@
 // src/voice_generation/user_centric_voice_customization_adaptation/cognitive_load_optimization_voice.rs
 
+use crate::prelude::*;
 pub struct CognitiveLoadOptimizer;
 
 impl CognitiveLoadOptimizer {

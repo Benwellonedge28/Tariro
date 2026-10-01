@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/simulated_environments_training_for_administration/agi_driven_administrative_coaching.rs
 
+use crate::prelude::*;
 pub struct AGIDrivenAdminCoach;
 
 impl AGIDrivenAdminCoach {

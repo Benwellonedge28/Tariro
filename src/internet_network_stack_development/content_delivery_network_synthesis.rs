@@ -1,5 +1,6 @@
 // src/internet_network_stack_development/content_delivery_network_synthesis.rs
 
+use crate::prelude::*;
 pub enum CDN_OptimizationTarget {
     Latency,
     Bandwidth,

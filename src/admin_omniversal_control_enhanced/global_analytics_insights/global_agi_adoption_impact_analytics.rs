@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/global_analytics_insights/global_agi_adoption_impact_analytics.rs
 
+use crate::prelude::*;
 pub struct GlobalImpactAnalytics;
 
 impl GlobalImpactAnalytics {

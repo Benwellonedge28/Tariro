@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/absolute_consistency_zero_hallucination/predictive_hallucination_prevention.rs
 
+use crate::prelude::*;
 pub struct PredictiveHallucinationPrevention;
 
 impl PredictiveHallucinationPrevention {

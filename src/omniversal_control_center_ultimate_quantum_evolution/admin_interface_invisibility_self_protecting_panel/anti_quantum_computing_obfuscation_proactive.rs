@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/admin_interface_invisibility_self_protecting_panel/anti_quantum_computing_obfuscation_proactive.rs
 
+use crate::prelude::*;
 pub struct AntiQuantumObfuscationProactive;
 
 impl AntiQuantumObfuscationProactive {

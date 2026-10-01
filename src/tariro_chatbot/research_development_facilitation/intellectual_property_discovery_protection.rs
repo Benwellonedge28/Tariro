@@ -1,5 +1,6 @@
 // src/tariro_chatbot/research_development_facilitation/intellectual_property_discovery_protection.rs
 
+use crate::prelude::*;
 pub struct IntellectualPropertyDiscoveryProtection;
 
 impl IntellectualPropertyDiscoveryProtection {

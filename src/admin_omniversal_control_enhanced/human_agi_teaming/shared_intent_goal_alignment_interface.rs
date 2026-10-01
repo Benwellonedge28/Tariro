@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/human_agi_teaming/shared_intent_goal_alignment_interface.rs
 
+use crate::prelude::*;
 pub struct SharedIntentInterface;
 
 impl SharedIntentInterface {

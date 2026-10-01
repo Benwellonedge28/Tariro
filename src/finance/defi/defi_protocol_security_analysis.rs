@@ -1,5 +1,6 @@
 // src/finance/defi/defi_protocol_security_analysis.rs
 
+use crate::prelude::*;
 pub struct DeFiProtocolSecurityAnalyzer {
     // Analyzes and audits DeFi protocols for vulnerabilities, rug pulls, or economic exploits.
 }

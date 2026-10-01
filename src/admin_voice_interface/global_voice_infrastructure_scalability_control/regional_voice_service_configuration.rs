@@ -1,5 +1,6 @@
 // src/admin_voice_interface/global_voice_infrastructure_scalability_control/regional_voice_service_configuration.rs
 
+use crate::prelude::*;
 pub struct RegionalVoiceServiceConfigurator;
 
 impl RegionalVoiceServiceConfigurator {

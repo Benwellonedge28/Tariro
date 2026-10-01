@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/childrens_book_educational_content_creation.rs
 
+use crate::prelude::*;
 pub struct ChildrensBookEducationalContentCreation;
 
 impl ChildrensBookEducationalContentCreation {

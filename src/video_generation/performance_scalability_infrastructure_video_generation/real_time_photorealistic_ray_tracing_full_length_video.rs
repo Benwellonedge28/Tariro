@@ -1,5 +1,6 @@
 // src/video_generation/performance_scalability_infrastructure_video_generation/real_time_photorealistic_ray_tracing_full_length_video.rs
 
+use crate::prelude::*;
 pub struct RealtimeRayTracer;
 
 impl RealtimeRayTracer {

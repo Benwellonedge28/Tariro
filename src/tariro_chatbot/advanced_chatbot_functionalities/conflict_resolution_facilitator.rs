@@ -1,5 +1,6 @@
 // src/tariro_chatbot/advanced_chatbot_functionalities/conflict_resolution_facilitator.rs
 
+use crate::prelude::*;
 pub struct ConflictResolutionFacilitator;
 
 impl ConflictResolutionFacilitator {

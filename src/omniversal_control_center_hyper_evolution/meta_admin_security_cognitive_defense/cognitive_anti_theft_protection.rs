@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/meta_admin_security_cognitive_defense/cognitive_anti_theft_protection.rs
 
+use crate::prelude::*;
 pub struct CognitiveAntiTheftProtection;
 
 impl CognitiveAntiTheftProtection {

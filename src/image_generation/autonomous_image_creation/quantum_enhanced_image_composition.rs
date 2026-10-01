@@ -1,5 +1,6 @@
 // src/image_generation/autonomous_image_creation/quantum_enhanced_image_composition.rs
 
+use crate::prelude::*;
 pub struct QuantumImageComposer;
 
 impl QuantumImageComposer {

@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/advanced_admin_interface_security_resilience/cognitive_anti_tampering_for_admin_sessions.rs
 
+use crate::prelude::*;
 pub struct CognitiveAntiTampering;
 
 impl CognitiveAntiTampering {

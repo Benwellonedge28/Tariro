@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/biographical_autobiographical_writing.rs
 
+use crate::prelude::*;
 pub struct BiographicalAutobiographicalWriting;
 
 impl BiographicalAutobiographicalWriting {

@@ -5,6 +5,7 @@
 /// over time, improving its relevance, quality, and impact (RAG: evolutionary algorithms, user feedback analysis,
 /// environmental dynamics; SIMD: parallel evaluation of content variants, adaptive model training).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

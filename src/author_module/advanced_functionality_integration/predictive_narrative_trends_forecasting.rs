@@ -1,5 +1,6 @@
 // src/author_module/advanced_functionality_integration/predictive_narrative_trends_forecasting.rs
 
+use crate::prelude::*;
 pub struct PredictiveNarrativeTrendsForecasting;
 
 impl PredictiveNarrativeTrendsForecasting {

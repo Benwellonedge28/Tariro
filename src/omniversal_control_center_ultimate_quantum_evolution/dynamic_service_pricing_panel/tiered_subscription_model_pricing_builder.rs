@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/dynamic_service_pricing_panel/tiered_subscription_model_pricing_builder.rs
 
+use crate::prelude::*;
 pub struct TieredPricingBuilder;
 
 impl TieredPricingBuilder {

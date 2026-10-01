@@ -1,5 +1,6 @@
 // src/multimodal/human_ai_interface/seamless_transition_between_modalities.rs
 
+use crate::prelude::*;
 pub struct ModalityTransitioner {
     // Effortlessly switching communication from one modality to another based on context or human preference.
 }

@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/monitoring_logging_explainability/contextual_log_aggregation.rs
 
+use crate::prelude::*;
 pub struct ContextualLogAggregator;
 
 impl ContextualLogAggregator {

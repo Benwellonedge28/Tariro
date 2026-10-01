@@ -1,5 +1,6 @@
 // src/tariro_chatbot/threat_invisibility_security/chatbot_self_mutation.rs
 
+use crate::prelude::*;
 pub struct ChatbotSelfMutation;
 
 impl ChatbotSelfMutation {

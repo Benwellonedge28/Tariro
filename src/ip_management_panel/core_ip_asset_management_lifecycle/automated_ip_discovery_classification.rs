@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/automated_ip_discovery_classification.rs
 
+use crate::prelude::*;
 pub struct AutomatedIpDiscoveryClassification;
 
 impl AutomatedIpDiscoveryClassification {

@@ -4,6 +4,7 @@
 //! Its purpose is to measure, analyze, and iteratively improve the efficiency and resource utilization
 //! of sandboxed features and system configurations, aiming for optimal performance.
 
+use crate::prelude::*;
 use crate::{prelude::*,
     Module,
     ModuleContext,

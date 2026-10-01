@@ -6,6 +6,7 @@
 /// outcomes, user feedback, and changes in the environment, reducing the
 /// need for direct human programming of each rule.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

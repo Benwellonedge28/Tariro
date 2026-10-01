@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/meta_admin_security_cognitive_defense/cognitive_integrity_verification_admin.rs
 
+use crate::prelude::*;
 pub struct CognitiveIntegrityVerifier;
 
 impl CognitiveIntegrityVerifier {

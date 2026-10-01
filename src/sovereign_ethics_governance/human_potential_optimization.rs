@@ -1,5 +1,6 @@
 // src/sovereign_ethics_governance/human_potential_optimization.rs
 
+use crate::prelude::*;
 pub enum TalentCategory {
     Artistic,
     Scientific,

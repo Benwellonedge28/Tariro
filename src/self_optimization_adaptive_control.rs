@@ -7,6 +7,7 @@
 /// dynamic resource allocation based on predicted needs, and autonomous
 /// code generation/modification for performance enhancement.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

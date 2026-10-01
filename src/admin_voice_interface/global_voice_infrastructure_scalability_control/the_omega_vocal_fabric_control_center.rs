@@ -1,5 +1,6 @@
 // src/admin_voice_interface/global_voice_infrastructure_scalability_control/the_omega_vocal_fabric_control_center.rs
 
+use crate::prelude::*;
 pub struct OmegaVocalFabricControlCenter;
 
 impl OmegaVocalFabricControlCenter {

@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/user_role_management/self_service_password_reset_account_recovery.rs
 
+use crate::prelude::*;
 pub struct SelfServiceRecovery;
 
 impl SelfServiceRecovery {

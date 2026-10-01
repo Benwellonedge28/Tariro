@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/cross_agi_multi_tariro_management/shared_knowledge_base_synthesis.rs
 
+use crate::prelude::*;
 pub struct SharedKnowledgeBase;
 
 impl SharedKnowledgeBase {

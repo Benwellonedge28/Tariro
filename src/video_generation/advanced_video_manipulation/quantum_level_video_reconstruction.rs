@@ -1,5 +1,6 @@
 // src/video_generation/advanced_video_manipulation/quantum_level_video_reconstruction.rs
 
+use crate::prelude::*;
 pub struct QuantumVideoReconstructor;
 
 impl QuantumVideoReconstructor {

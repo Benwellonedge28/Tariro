@@ -1,5 +1,6 @@
 // src/metaphysical_quantum_multidimensional/quantum_entangled_neural_networks.rs
 
+use crate::prelude::*;
 pub enum NeuralConnectionTarget {
     HumanBrain,
     ArtificialGeneralIntelligence,

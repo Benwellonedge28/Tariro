@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/performance_analysis_robust_error_correction/automated_agi_self_optimization_report.rs
 
+use crate::prelude::*;
 pub struct AutomatedAGISelfOptimizationReport;
 
 impl AutomatedAGISelfOptimizationReport {

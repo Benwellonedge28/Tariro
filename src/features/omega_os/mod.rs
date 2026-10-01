@@ -1,5 +1,6 @@
 //! Contains Omega OS-related features.
 
+use crate::prelude::*;
 pub mod microkernel_api_browser;
 pub mod kernel_debugger;
 pub mod sovereign_identity_management;

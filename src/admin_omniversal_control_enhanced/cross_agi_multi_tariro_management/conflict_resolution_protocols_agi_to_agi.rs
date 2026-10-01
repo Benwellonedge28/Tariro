@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/cross_agi_multi_tariro_management/conflict_resolution_protocols_agi_to_agi.rs
 
+use crate::prelude::*;
 pub struct AGIConflictResolver;
 
 impl AGIConflictResolver {

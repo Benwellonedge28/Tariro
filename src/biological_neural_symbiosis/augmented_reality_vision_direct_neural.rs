@@ -1,5 +1,6 @@
 // src/biological_neural_symbiosis/augmented_reality_vision_direct_neural.rs
 
+use crate::prelude::*;
 pub enum UIElements {
     DataOverlay,
     Notifications,

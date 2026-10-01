@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/integrated_ip_lifecycle_management.rs
 
+use crate::prelude::*;
 pub struct IntegratedIpLifecycleManagement;
 
 impl IntegratedIpLifecycleManagement {

@@ -1,5 +1,6 @@
 // src/finance/defi/autonomous_dao_participation.rs
 
+use crate::prelude::*;
 pub struct DAOParticipant {
     // Intelligently participates in DAO governance, voting on proposals to optimize collective value.
 }

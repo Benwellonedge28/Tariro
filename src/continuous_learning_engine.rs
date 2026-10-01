@@ -3,6 +3,7 @@
 /// This module conceptually outlines a system where RAG and SIMD components
 /// can learn from feedback and adapt their strategies over time for continuous improvement.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 

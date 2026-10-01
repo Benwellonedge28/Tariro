@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/ip_related_document_generation.rs
 
+use crate::prelude::*;
 pub struct IpRelatedDocumentGeneration;
 
 impl IpRelatedDocumentGeneration {

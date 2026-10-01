@@ -1,5 +1,6 @@
 // src/omni_domain_operation/adaptive_resource_acquisition_allocation.rs
 
+use crate::prelude::*;
 pub enum ResourceType {
     Physical(String),    // e.g., "RoboticUnit", "RawMaterial", "Vehicle"
     Computational(String), // e.g., "CPU_Core", "GPU_Farm", "StorageTB"

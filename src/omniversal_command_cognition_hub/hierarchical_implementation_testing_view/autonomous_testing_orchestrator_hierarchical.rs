@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hierarchical_implementation_testing_view/autonomous_testing_orchestrator_hierarchical.rs
 
+use crate::prelude::*;
 pub struct AutonomousTestingOrchestratorHierarchical;
 
 impl AutonomousTestingOrchestratorHierarchical {

@@ -4,6 +4,7 @@
 /// and SIMD (Single Instruction, Multiple Data) processing can be combined
 /// to enhance information retrieval and data processing tasks.
 
+use crate::prelude::*;
 mod rag_contextualization; // Assuming this file exists in the same directory
 mod simd_processor;        // Assuming this file exists in the same directory
 

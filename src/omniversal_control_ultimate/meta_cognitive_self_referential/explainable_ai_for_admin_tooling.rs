@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/meta_cognitive_self_referential/explainable_ai_for_admin_tooling.rs
 
+use crate::prelude::*;
 pub struct ToolingExplainer;
 
 impl ToolingExplainer {

@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/autonomous_pre_deployment_testing_validation_panel/resource_consumption_profiling_pre_deployment.rs
 
+use crate::prelude::*;
 pub struct ResourceProfiler;
 
 impl ResourceProfiler {

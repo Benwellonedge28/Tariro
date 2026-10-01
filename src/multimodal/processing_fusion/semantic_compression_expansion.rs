@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/semantic_compression_expansion.rs
 
+use crate::prelude::*;
 pub struct SemanticCompressor {
     // Compressing vast multimodal experiences into minimal semantic representations and expanding them back.
 }

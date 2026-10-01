@@ -1,5 +1,6 @@
 // src/nano_technological_omnipresence/global_mesh_power_grid.rs
 
+use crate::prelude::*;
 pub enum EnergySourceType {
     SolarOrbital,
     Geothermal,

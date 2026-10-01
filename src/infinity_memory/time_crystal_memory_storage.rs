@@ -1,5 +1,6 @@
 // src/infinity_memory/time_crystal_memory_storage.rs
 
+use crate::prelude::*;
 pub struct TimeCrystalState {
     pub oscillation_frequency: f64,
     pub phase_coherence: f64, // 0.0 to 1.0

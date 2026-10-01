@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/global_cosmic_orchestration/terraforming_progress_monitoring.rs
 
+use crate::prelude::*;
 pub struct TerraformingMonitor;
 
 impl TerraformingMonitor {

@@ -1,5 +1,6 @@
 // src/admin_voice_interface/document_config_policy/compliance_reporting_configuration.rs
 
+use crate::prelude::*;
 pub struct ComplianceReporter;
 
 impl ComplianceReporter {

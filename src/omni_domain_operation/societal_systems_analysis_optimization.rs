@@ -1,5 +1,6 @@
 // src/omni_domain_operation/societal_systems_analysis_optimization.rs
 
+use crate::prelude::*;
 pub enum SocietalSystemType {
     Education,
     Healthcare,

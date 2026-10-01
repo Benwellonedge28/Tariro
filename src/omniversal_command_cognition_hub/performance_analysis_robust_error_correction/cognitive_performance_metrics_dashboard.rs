@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/performance_analysis_robust_error_correction/cognitive_performance_metrics_dashboard.rs
 
+use crate::prelude::*;
 pub struct CognitivePerformanceMetricsDashboard;
 
 impl CognitivePerformanceMetricsDashboard {

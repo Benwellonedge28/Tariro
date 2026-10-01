@@ -1,5 +1,6 @@
 // src/operating_system_design_development/system_call_interface_designer.rs
 
+use crate::prelude::*;
 pub enum SystemCallCategory {
     ProcessManagement,
     MemoryManagement,

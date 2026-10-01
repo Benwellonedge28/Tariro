@@ -1,5 +1,6 @@
 // src/nano_technological_omnipresence/ubiquitous_computing_skin.rs
 
+use crate::prelude::*;
 pub enum SurfaceType {
     Wall,
     Clothing,

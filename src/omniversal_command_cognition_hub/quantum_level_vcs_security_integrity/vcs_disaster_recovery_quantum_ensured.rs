@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/quantum_level_vcs_security_integrity/vcs_disaster_recovery_quantum_ensured.rs
 
+use crate::prelude::*;
 pub struct VCSDisasterRecoveryQuantumEnsured;
 
 impl VCSDisasterRecoveryQuantumEnsured {

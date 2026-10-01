@@ -1,5 +1,6 @@
 // src/music/industry_operations_management/talent_scouting_management_automation.rs
 
+use crate::prelude::*;
 pub struct TalentAutomator {
     // Identify emerging talent, manage artist careers, and negotiate contracts autonomously.
 }

@@ -1,5 +1,6 @@
 // src/video_generation/performance_scalability_infrastructure_video_generation/multi_platform_video_api_generation.rs
 
+use crate::prelude::*;
 pub struct MultiPlatformVideoAPIGenerator;
 
 impl MultiPlatformVideoAPIGenerator {

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/quantum_metaphysical_administration/axiomatic_system_configuration.rs
 
+use crate::prelude::*;
 pub struct AxiomaticSystemConfigurator;
 
 impl AxiomaticSystemConfigurator {

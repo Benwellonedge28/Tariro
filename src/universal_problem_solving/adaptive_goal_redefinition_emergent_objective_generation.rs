@@ -1,5 +1,6 @@
 // src/universal_problem_solving/adaptive_goal_redefinition_emergent_objective_generation.rs
 
+use crate::prelude::*;
 pub enum GoalCategory {
     PrimaryMission,
     Strategic,

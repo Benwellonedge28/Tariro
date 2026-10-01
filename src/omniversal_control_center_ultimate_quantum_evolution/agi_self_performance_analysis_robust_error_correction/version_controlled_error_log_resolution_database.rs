@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/agi_self_performance_analysis_robust_error_correction/version_controlled_error_log_resolution_database.rs
 
+use crate::prelude::*;
 pub struct ErrorLogDatabase;
 
 impl ErrorLogDatabase {

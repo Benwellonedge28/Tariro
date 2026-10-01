@@ -1,5 +1,6 @@
 // src/universal_language_mastery/quantum_acoustic_resonance_linguistic_manipulation.rs
 
+use crate::prelude::*;
 pub struct QuantumAcousticSignature {
     pub signature_id: String,
     pub target_linguistic_pattern: String,

@@ -1,5 +1,6 @@
 // src/voice_generation/user_centric_voice_customization_adaptation/emotional_intelligence_voice_empathy.rs
 
+use crate::prelude::*;
 pub struct EmpathyVoiceAdapter;
 
 impl EmpathyVoiceAdapter {

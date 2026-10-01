@@ -1,5 +1,6 @@
 // src/omniversal_ultimate/secure_sovereign_access_extreme_scales/cognitive_anti_tampering_measures.rs
 
+use crate::prelude::*;
 pub struct CognitiveAntiTampering;
 
 impl CognitiveAntiTampering {

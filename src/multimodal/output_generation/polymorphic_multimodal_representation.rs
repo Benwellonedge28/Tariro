@@ -1,5 +1,6 @@
 // src/multimodal/output_generation/polymorphic_multimodal_representation.rs
 
+use crate::prelude::*;
 pub struct PolymorphicRepresentor {
     // Dynamically adapting output modalities and formats to best suit the recipient's sensory capabilities.
 }

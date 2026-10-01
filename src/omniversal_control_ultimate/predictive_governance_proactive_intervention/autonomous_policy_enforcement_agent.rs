@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/predictive_governance_proactive_intervention/autonomous_policy_enforcement_agent.rs
 
+use crate::prelude::*;
 pub struct PolicyEnforcementAgent;
 
 impl PolicyEnforcementAgent {

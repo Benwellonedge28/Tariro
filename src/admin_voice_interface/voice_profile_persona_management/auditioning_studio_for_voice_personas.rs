@@ -1,5 +1,6 @@
 // src/admin_voice_interface/voice_profile_persona_management/auditioning_studio_for_voice_personas.rs
 
+use crate::prelude::*;
 pub struct AuditioningStudio;
 
 impl AuditioningStudio {

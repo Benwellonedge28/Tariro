@@ -1,5 +1,6 @@
 // src/image_generation/multimodal_contextual_understanding/interactive_image_exploration_semantic.rs
 
+use crate::prelude::*;
 pub struct SemanticImageExplorer;
 
 impl SemanticImageExplorer {

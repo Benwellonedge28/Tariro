@@ -1,5 +1,6 @@
 // src/admin_voice_interface/voice_profile_persona_management/infinite_voice_persona_library.rs
 
+use crate::prelude::*;
 pub struct VoicePersonaLibrary;
 
 impl VoicePersonaLibrary {

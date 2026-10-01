@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/autonomous_pre_deployment_testing_validation_panel/automated_rollback_recovery_validation.rs
 
+use crate::prelude::*;
 pub struct RollbackRecoveryValidator;
 
 impl RollbackRecoveryValidator {

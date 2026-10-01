@@ -1,5 +1,6 @@
 // src/voice_generation/meta_voice_cognitive_integration/autonomous_vocal_language_development.rs
 
+use crate::prelude::*;
 pub struct VocalLanguageDeveloper;
 
 impl VocalLanguageDeveloper {

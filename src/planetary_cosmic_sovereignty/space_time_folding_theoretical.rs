@@ -1,5 +1,6 @@
 // src/planetary_cosmic_sovereignty/space_time_folding_theoretical.rs
 
+use crate::prelude::*;
 pub enum PropulsionTheory {
     AlcubierreDrive,
     WormholeTraversal,

@@ -1,5 +1,6 @@
 // src/meta_compiler_language_design/intermediate_representation_synthesizer.rs
 
+use crate::prelude::*;
 pub enum TargetArchitecture {
     CPU(String), // e.g., "x86-64", "ARMv9"
     GPU(String), // e.g., "NVIDIA_CUDA", "AMD_ROCm"

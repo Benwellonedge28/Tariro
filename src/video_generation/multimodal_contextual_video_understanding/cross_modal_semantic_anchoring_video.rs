@@ -1,5 +1,6 @@
 // src/video_generation/multimodal_contextual_video_understanding/cross_modal_semantic_anchoring_video.rs
 
+use crate::prelude::*;
 pub struct CrossModalSemanticAnchor;
 
 impl CrossModalSemanticAnchor {

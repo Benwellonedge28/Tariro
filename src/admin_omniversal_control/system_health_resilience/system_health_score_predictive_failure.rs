@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/system_health_resilience/system_health_score_predictive_failure.rs
 
+use crate::prelude::*;
 pub struct HealthScorer;
 
 impl HealthScorer {

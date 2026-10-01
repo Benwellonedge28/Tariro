@@ -6,6 +6,7 @@
 /// metrics, and overarching goal requirements by proposing and applying changes
 /// to the service architecture.
 
+use crate::prelude::*;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::thread;

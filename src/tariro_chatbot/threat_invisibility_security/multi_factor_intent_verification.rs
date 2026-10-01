@@ -1,5 +1,6 @@
 // src/tariro_chatbot/threat_invisibility_security/multi_factor_intent_verification.rs
 
+use crate::prelude::*;
 pub struct MultiFactorIntentVerification;
 
 impl MultiFactorIntentVerification {

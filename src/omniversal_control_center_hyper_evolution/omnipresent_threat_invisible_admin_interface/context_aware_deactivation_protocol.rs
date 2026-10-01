@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/omnipresent_threat_invisible_admin_interface/context_aware_deactivation_protocol.rs
 
+use crate::prelude::*;
 pub struct ContextAwareDeactivationProtocol;
 
 impl ContextAwareDeactivationProtocol {

@@ -1,5 +1,6 @@
 // src/image_generation/autonomous_image_creation/concept_to_image_direct_translation.rs
 
+use crate::prelude::*;
 pub struct ConceptToImageTranslator;
 
 impl ConceptToImageTranslator {

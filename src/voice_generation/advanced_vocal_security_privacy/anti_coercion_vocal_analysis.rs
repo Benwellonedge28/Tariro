@@ -1,5 +1,6 @@
 // src/voice_generation/advanced_vocal_security_privacy/anti_coercion_vocal_analysis.rs
 
+use crate::prelude::*;
 pub struct AntiCoercionVocalAnalyzer;
 
 impl AntiCoercionVocalAnalyzer {

@@ -1,5 +1,6 @@
 // src/finance/trading/automated_hedging.rs
 
+use crate::prelude::*;
 pub struct HedgingEngine {
     // Complex hedging using multi-instrument strategies.
 }

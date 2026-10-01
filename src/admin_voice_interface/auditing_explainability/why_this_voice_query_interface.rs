@@ -1,5 +1,6 @@
 // src/admin_voice_interface/auditing_explainability/why_this_voice_query_interface.rs
 
+use crate::prelude::*;
 pub struct VoiceQueryInterface;
 
 impl VoiceQueryInterface {

@@ -4,6 +4,7 @@
 /// It will detect and flag nascent, unintended system behaviors for human oversight or autonomous correction
 /// (leveraging RAG for anomaly patterns and SIMD for real-time behavioral analysis).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

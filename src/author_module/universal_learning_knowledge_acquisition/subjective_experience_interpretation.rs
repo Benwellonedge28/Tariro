@@ -1,5 +1,6 @@
 // src/author_module/universal_learning_knowledge_acquisition/subjective_experience_interpretation.rs
 
+use crate::prelude::*;
 pub struct SubjectiveExperienceInterpretation;
 
 impl SubjectiveExperienceInterpretation {

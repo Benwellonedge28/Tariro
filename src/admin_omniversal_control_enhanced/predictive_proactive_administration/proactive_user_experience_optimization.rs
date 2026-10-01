@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/predictive_proactive_administration/proactive_user_experience_optimization.rs
 
+use crate::prelude::*;
 pub struct UXOptimizer;
 
 impl UXOptimizer {

@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/simulated_admin_environments_training/crisis_scenario_simulation.rs
 
+use crate::prelude::*;
 pub struct CrisisSimulator;
 
 impl CrisisSimulator {

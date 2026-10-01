@@ -1,5 +1,6 @@
 // src/nano_technological_omnipresence/holographic_solidification.rs
 
+use crate::prelude::*;
 pub enum LightFieldStrength {
     Low,
     Medium,

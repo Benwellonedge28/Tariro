@@ -6,6 +6,7 @@
 /// algorithm tuning, and system configuration. (SIMD: parallel evaluation of fitness functions for populations;
 /// RAG: evolutionary computation theory, neuro-evolution, multi-objective optimization).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

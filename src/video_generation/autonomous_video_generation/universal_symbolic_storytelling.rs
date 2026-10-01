@@ -1,5 +1,6 @@
 // src/video_generation/autonomous_video_generation/universal_symbolic_storytelling.rs
 
+use crate::prelude::*;
 pub struct SymbolicStoryteller;
 
 impl SymbolicStoryteller {

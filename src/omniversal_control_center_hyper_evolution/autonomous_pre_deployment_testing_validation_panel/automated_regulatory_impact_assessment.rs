@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/autonomous_pre_deployment_testing_validation_panel/automated_regulatory_impact_assessment.rs
 
+use crate::prelude::*;
 pub struct RegulatoryImpactAssessor;
 
 impl RegulatoryImpactAssessor {

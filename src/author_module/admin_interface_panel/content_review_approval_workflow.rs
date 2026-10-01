@@ -1,5 +1,6 @@
 // src/author_module/admin_interface_panel/content_review_approval_workflow.rs
 
+use crate::prelude::*;
 pub struct ContentReviewApprovalWorkflow;
 
 impl ContentReviewApprovalWorkflow {

@@ -7,6 +7,7 @@
 /// (leveraging RAG for advanced homomorphic encryption schemes and SIMD for accelerating token generation
 /// and homomorphic operations).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

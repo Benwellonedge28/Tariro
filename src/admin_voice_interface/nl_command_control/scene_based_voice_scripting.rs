@@ -1,5 +1,6 @@
 // src/admin_voice_interface/nl_command_control/scene_based_voice_scripting.rs
 
+use crate::prelude::*;
 pub struct SceneBasedVoiceScripter;
 
 impl SceneBasedVoiceScripter {

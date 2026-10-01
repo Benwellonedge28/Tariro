@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/meta_governance_policy_evolution/adaptive_consent_management_framework.rs
 
+use crate::prelude::*;
 pub struct ConsentManager;
 
 impl ConsentManager {

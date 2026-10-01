@@ -1,5 +1,6 @@
 // src/admin_voice_interface/nl_command_control/ethical_constraint_definition_via_nl.rs
 
+use crate::prelude::*;
 pub struct EthicalConstraintDefiner;
 
 impl EthicalConstraintDefiner {

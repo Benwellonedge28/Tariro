@@ -1,5 +1,6 @@
 // src/image_generation/advanced_image_manipulation/neuro_linguistic_image_editing.rs
 
+use crate::prelude::*;
 pub struct NeuroLinguisticEditor;
 
 impl NeuroLinguisticEditor {

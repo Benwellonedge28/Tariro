@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/user_role_management/user_behavior_analytics_uba_for_admin.rs
 
+use crate::prelude::*;
 pub struct AdminUBA;
 
 impl AdminUBA {

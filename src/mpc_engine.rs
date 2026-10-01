@@ -4,6 +4,7 @@
 /// This RAG-driven feature enables multiple parties to jointly compute a function over their private inputs
 /// without revealing those inputs to each other. It leverages RAG for MPC protocol research and cryptographic primitives.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/causal_multimodal_inference_engine.rs
 
+use crate::prelude::*;
 pub struct CausalInferenceEngine {
     // Inferring causal relationships between events observed across different modalities.
 }

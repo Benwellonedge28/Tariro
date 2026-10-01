@@ -1,5 +1,6 @@
 // src/video_generation/meta_generative_evolutionary_video/evolutionary_film_market_simulation.rs
 
+use crate::prelude::*;
 pub struct FilmMarketSimulator;
 
 impl FilmMarketSimulator {

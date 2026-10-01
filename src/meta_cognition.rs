@@ -1,6 +1,7 @@
 // Tariro AGI - Meta-Cognition Module
 // Self-awareness, planning, and reflection systems for AGI
 
+use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
 use chrono::{DateTime, Utc};

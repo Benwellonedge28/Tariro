@@ -1,5 +1,6 @@
 // src/finance/defi/yield_farming_liquidity_mining_automation.rs
 
+use crate::prelude::*;
 pub struct YieldFarmer {
     // Autonomously identifies and participates in profitable yield farming and liquidity mining opportunities.
 }

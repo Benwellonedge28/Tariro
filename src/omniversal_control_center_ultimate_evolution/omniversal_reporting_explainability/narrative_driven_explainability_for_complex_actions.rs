@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/omniversal_reporting_explainability/narrative_driven_explainability_for_complex_actions.rs
 
+use crate::prelude::*;
 pub struct NarrativeExplainabilityEngine;
 
 impl NarrativeExplainabilityEngine {

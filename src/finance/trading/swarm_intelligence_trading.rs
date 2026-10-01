@@ -1,5 +1,6 @@
 // src/finance/trading/swarm_intelligence_trading.rs
 
+use crate::prelude::*;
 pub struct SwarmTrader {
     // Swarm Intelligence Trading.
 }

@@ -1,6 +1,7 @@
 // Tariro AGI - Constitutional AI Module
 // Self-governance through constitutional principles
 
+use crate::prelude::*;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::sync::{Arc, RwLock};
 use chrono::{DateTime, Utc};

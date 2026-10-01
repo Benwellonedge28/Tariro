@@ -1,5 +1,6 @@
 // src/voice_generation/user_centric_voice_customization_adaptation/memory_driven_vocal_recall.rs
 
+use crate::prelude::*;
 pub struct MemoryDrivenVocalRecall;
 
 impl MemoryDrivenVocalRecall {

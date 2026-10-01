@@ -7,6 +7,7 @@
 /// specifications, workload prediction models, and performance-per-watt curves to fine-tune
 /// DVFS settings.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

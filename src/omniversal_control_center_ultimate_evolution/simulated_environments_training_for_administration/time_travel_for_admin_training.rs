@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/simulated_environments_training_for_administration/time_travel_for_admin_training.rs
 
+use crate::prelude::*;
 pub struct AdminTimeTravelTrainer;
 
 impl AdminTimeTravelTrainer {

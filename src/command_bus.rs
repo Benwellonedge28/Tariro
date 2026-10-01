@@ -5,6 +5,7 @@
 /// services, and even external systems within OMEGA OS and beyond. It supports
 /// diverse message types and asynchronous processing.
 
+use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use std::fmt;
 use std::sync::{Arc, Mutex};

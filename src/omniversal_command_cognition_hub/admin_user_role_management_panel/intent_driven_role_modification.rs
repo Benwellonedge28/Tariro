@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/admin_user_role_management_panel/intent_driven_role_modification.rs
 
+use crate::prelude::*;
 pub struct IntentDrivenRoleModification;
 
 impl IntentDrivenRoleModification {

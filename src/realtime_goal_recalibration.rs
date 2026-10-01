@@ -5,6 +5,7 @@
 /// external factors (leveraging RAG for global data feeds and strategic documents, and SIMD for
 /// rapid scenario analysis).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

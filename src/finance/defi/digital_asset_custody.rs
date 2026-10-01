@@ -1,5 +1,6 @@
 // src/finance/defi/digital_asset_custody.rs
 
+use crate::prelude::*;
 pub struct DigitalAssetCustodian {
     // Provides extremely secure, self-sovereign digital asset custody solutions.
 }

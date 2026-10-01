@@ -1,5 +1,6 @@
 // src/voice_generation/meta_voice_cognitive_integration/voice_as_direct_interface_to_omega_os_core.rs
 
+use crate::prelude::*;
 pub struct OmegaCoreVoiceInterface;
 
 impl OmegaCoreVoiceInterface {

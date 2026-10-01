@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/universal_content_concept_traceability/content_ownership_rights_traceability.rs
 
+use crate::prelude::*;
 pub struct ContentOwnershipRightsTraceability;
 
 impl ContentOwnershipRightsTraceability {

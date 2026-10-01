@@ -1,5 +1,6 @@
 // src/multimodal/output_generation/adaptive_output_compression_decompression.rs
 
+use crate::prelude::*;
 pub struct OutputCompressor {
     // Optimizing multimodal output for efficient transmission while preserving perceptual fidelity.
 }

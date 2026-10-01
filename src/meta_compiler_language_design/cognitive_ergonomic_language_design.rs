@@ -1,5 +1,6 @@
 // src/meta_compiler_language_design/cognitive_ergonomic_language_design.rs
 
+use crate::prelude::*;
 pub enum CognitiveMetric {
     LearningCurveSlope,
     ErrorRate,

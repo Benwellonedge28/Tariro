@@ -1,5 +1,6 @@
 // src/planetary_cosmic_sovereignty/galactic_mapping_high_resolution.rs
 
+use crate::prelude::*;
 pub enum CosmicObjectType {
     Star,
     Planet,

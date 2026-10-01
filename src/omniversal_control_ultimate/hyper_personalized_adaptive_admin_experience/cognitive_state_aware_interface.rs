@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/hyper_personalized_adaptive_admin_experience/cognitive_state_aware_interface.rs
 
+use crate::prelude::*;
 pub struct CognitiveStateAwareInterface;
 
 impl CognitiveStateAwareInterface {

@@ -1,5 +1,6 @@
 // src/voice_generation/advanced_vocal_security_privacy/voice_as_a_self_destruct_mechanism.rs
 
+use crate::prelude::*;
 pub struct VoiceSelfDestructMechanism;
 
 impl VoiceSelfDestructMechanism {

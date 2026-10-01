@@ -1,5 +1,6 @@
 // src/finance/analysis/forensic_pattern_recognition.rs
 
+use crate::prelude::*;
 pub struct ForensicPatternRecognizer {
     // Detects complex patterns of fraud, manipulation, or illicit activity.
 }

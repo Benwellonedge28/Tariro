@@ -1,5 +1,6 @@
 // src/finance/security_ethics/immutable_audit_trails.rs
 
+use crate::prelude::*;
 pub struct ImmutableAuditor {
     // Maintains an unalterable, cryptographically verifiable record of all financial activities and decisions.
 }

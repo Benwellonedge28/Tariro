@@ -1,5 +1,6 @@
 // src/author_module/security_consistency_self_correction/hallucination_free_content_generation.rs
 
+use crate::prelude::*;
 pub struct HallucinationFreeContentGeneration;
 
 impl HallucinationFreeContentGeneration {

@@ -1,5 +1,6 @@
 // src/planetary_cosmic_sovereignty/orbital_ring_infrastructure.rs
 
+use crate::prelude::*;
 pub enum RingSegmentType {
     LaunchPlatform,
     HabitationModule,

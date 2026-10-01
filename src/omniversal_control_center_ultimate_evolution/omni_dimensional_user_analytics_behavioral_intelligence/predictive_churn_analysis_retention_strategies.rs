@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/omni_dimensional_user_analytics_behavioral_intelligence/predictive_churn_analysis_retention_strategies.rs
 
+use crate::prelude::*;
 pub struct PredictiveChurnAnalysis;
 
 impl PredictiveChurnAnalysis {

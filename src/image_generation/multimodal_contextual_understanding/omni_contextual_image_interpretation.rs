@@ -1,5 +1,6 @@
 // src/image_generation/multimodal_contextual_understanding/omni_contextual_image_interpretation.rs
 
+use crate::prelude::*;
 pub struct OmniContextualInterpreter;
 
 impl OmniContextualInterpreter {

@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/view_panel_autonomous_manual_testing_deployment/deployment_rollback_recovery_validation_visual.rs
 
+use crate::prelude::*;
 pub struct DeploymentRollbackRecoveryValidationVisual;
 
 impl DeploymentRollbackRecoveryValidationVisual {

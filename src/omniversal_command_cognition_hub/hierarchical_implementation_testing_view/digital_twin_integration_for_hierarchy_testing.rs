@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hierarchical_implementation_testing_view/digital_twin_integration_for_hierarchy_testing.rs
 
+use crate::prelude::*;
 pub struct DigitalTwinIntegrationForHierarchyTesting;
 
 impl DigitalTwinIntegrationForHierarchyTesting {

@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/hyper_autonomous_infinite_rbac/adaptive_multi_factor_authentication_rbac_aware.rs
 
+use crate::prelude::*;
 pub struct AdaptiveMFA;
 
 impl AdaptiveMFA {

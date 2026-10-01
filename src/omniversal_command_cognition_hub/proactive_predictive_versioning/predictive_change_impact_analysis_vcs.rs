@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/proactive_predictive_versioning/predictive_change_impact_analysis_vcs.rs
 
+use crate::prelude::*;
 pub struct PredictiveChangeImpactAnalysisVCS;
 
 impl PredictiveChangeImpactAnalysisVCS {

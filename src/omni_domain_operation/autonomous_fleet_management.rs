@@ -1,5 +1,6 @@
 // src/omni_domain_operation/autonomous_fleet_management.rs
 
+use crate::prelude::*;
 pub enum VehicleType {
     Ground(String), // e.g., "Car", "Truck", "Robot"
     Aerial(String), // e.g., "Drone", "Aircraft", "UAV"

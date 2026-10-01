@@ -1,5 +1,6 @@
 // src/finance/analysis/non_linear_causal_inference.rs
 
+use crate::prelude::*;
 pub struct CausalInferenceEngine {
     // Uncovers complex, non-linear cause-and-effect relationships within financial markets.
 }

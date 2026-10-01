@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/hierarchical_omni_domain_implementation_panel/stem_to_branch_functional_area_mapping.rs
 
+use crate::prelude::*;
 pub struct StemToBranchMapper;
 
 impl StemToBranchMapper {

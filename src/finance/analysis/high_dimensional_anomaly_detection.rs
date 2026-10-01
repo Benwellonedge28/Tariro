@@ -1,5 +1,6 @@
 // src/finance/analysis/high_dimensional_anomaly_detection.rs
 
+use crate::prelude::*;
 pub struct AnomalyDetector {
     // Identifies subtle, high-dimensional anomalies in financial data.
 }

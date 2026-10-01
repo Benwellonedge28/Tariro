@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/security_compliance/quantum_secure_admin_access.rs
 
+use crate::prelude::*;
 pub struct QuantumSecureAccess;
 
 impl QuantumSecureAccess {

@@ -1,5 +1,6 @@
 // src/universal_problem_solving/self_modifying_self_evolving_codebase.rs
 
+use crate::prelude::*;
 pub enum CodebaseSegment {
     CoreKernel,
     Module(String),

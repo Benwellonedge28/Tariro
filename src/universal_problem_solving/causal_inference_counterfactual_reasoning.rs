@@ -1,5 +1,6 @@
 // src/universal_problem_solving/causal_inference_counterfactual_reasoning.rs
 
+use crate::prelude::*;
 pub struct CausalRelationship {
     pub cause: String,
     pub effect: String,

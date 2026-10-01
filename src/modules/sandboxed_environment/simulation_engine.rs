@@ -4,6 +4,7 @@
 //! Its role is to generate realistic workloads, user interactions, and external data feeds
 //! within a sandbox, simulating the operating conditions of the live system.
 
+use crate::prelude::*;
 use crate::{prelude::*,
     Module,
     ModuleContext,

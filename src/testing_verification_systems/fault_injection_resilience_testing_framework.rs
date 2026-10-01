@@ -1,5 +1,6 @@
 // src/testing_verification_systems/fault_injection_resilience_testing_framework.rs
 
+use crate::prelude::*;
 pub enum FaultType {
     ProcessCrash,
     NetworkLatency,

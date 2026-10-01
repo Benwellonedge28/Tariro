@@ -1,5 +1,6 @@
 // src/video_generation/advanced_video_manipulation/neuro_linguistic_video_editing.rs
 
+use crate::prelude::*;
 pub struct NeuroLinguisticVideoEditor;
 
 impl NeuroLinguisticVideoEditor {

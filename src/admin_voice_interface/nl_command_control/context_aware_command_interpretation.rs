@@ -1,5 +1,6 @@
 // src/admin_voice_interface/nl_command_control/context_aware_command_interpretation.rs
 
+use crate::prelude::*;
 pub struct ContextAwareCommandInterpreter;
 
 impl ContextAwareCommandInterpreter {

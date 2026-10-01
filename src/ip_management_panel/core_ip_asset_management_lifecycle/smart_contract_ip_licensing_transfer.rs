@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/smart_contract_ip_licensing_transfer.rs
 
+use crate::prelude::*;
 pub struct SmartContractIpLicensingTransfer;
 
 impl SmartContractIpLicensingTransfer {

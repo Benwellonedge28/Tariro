@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_semantic_versioning_impact_analysis/user_experience_ux_versioning.rs
 
+use crate::prelude::*;
 pub struct UserExperienceVersioning;
 
 impl UserExperienceVersioning {

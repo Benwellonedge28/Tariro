@@ -1,5 +1,6 @@
 // src/tariro_chatbot/advanced_chatbot_functionalities/predictive_analytics_for_chat_effectiveness.rs
 
+use crate::prelude::*;
 pub struct PredictiveAnalyticsForChatEffectiveness;
 
 impl PredictiveAnalyticsForChatEffectiveness {

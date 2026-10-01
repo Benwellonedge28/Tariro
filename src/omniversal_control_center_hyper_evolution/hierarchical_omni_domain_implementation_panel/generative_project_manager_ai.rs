@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/hierarchical_omni_domain_implementation_panel/generative_project_manager_ai.rs
 
+use crate::prelude::*;
 pub struct GenerativeProjectManagerAI;
 
 impl GenerativeProjectManagerAI {

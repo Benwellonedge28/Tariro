@@ -1,5 +1,6 @@
 // src/video_generation/autonomous_video_generation/photorealistic_world_simulation_rendering.rs
 
+use crate::prelude::*;
 pub struct WorldSimulatorRenderer;
 
 impl WorldSimulatorRenderer {

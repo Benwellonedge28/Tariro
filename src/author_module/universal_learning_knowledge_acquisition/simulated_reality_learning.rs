@@ -1,5 +1,6 @@
 // src/author_module/universal_learning_knowledge_acquisition/simulated_reality_learning.rs
 
+use crate::prelude::*;
 pub struct SimulatedRealityLearning;
 
 impl SimulatedRealityLearning {

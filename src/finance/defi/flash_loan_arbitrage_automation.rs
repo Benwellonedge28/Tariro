@@ -1,5 +1,6 @@
 // src/finance/defi/flash_loan_arbitrage_automation.rs
 
+use crate::prelude::*;
 pub struct FlashLoanArbitrageur {
     // Executes complex flash loan arbitrage strategies across DeFi protocols.
 }

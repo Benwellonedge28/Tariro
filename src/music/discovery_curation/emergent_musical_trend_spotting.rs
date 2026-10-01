@@ -1,5 +1,6 @@
 // src/music/discovery_curation/emergent_musical_trend_spotting.rs
 
+use crate::prelude::*;
 pub struct TrendSpotter {
     // Identify and analyze emergent musical trends before they become mainstream, providing early insights.
 }

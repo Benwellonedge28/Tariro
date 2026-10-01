@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/meta_analytics_predictive_admin_analytics/historical_admin_decision_analysis.rs
 
+use crate::prelude::*;
 pub struct HistoricalAdminDecisionAnalyzer;
 
 impl HistoricalAdminDecisionAnalyzer {

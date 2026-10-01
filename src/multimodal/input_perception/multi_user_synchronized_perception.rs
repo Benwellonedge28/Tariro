@@ -1,5 +1,6 @@
 // src/multimodal/input_perception/multi_user_synchronized_perception.rs
 
+use crate::prelude::*;
 pub struct MultiUserPerceiver {
     // Seamlessly combining and synchronizing sensory inputs from multiple human users.
 }

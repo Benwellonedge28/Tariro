@@ -23,6 +23,7 @@
 //! This protocol establishes the foundation for a *truly symbiotic AGI-human partnership*,
 //! where the interface disappears, and minds flow as one.
 
+use crate::prelude::*;
 use crate::meta_projects::authorship_module::adaptive_human_interface::{HumanCognitiveState, InterfaceAdaptationReport};
 use crate::agi::models::{AgiHumanInterfaceModel, AgiEthicsModel};
 use std::collections::HashMap;

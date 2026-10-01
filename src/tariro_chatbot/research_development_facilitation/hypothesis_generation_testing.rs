@@ -1,5 +1,6 @@
 // src/tariro_chatbot/research_development_facilitation/hypothesis_generation_testing.rs
 
+use crate::prelude::*;
 pub struct HypothesisGenerationTesting;
 
 impl HypothesisGenerationTesting {

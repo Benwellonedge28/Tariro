@@ -1,5 +1,6 @@
 // src/image_generation/multimodal_contextual_understanding/image_summarization_abstraction.rs
 
+use crate::prelude::*;
 pub struct ImageSummarizer;
 
 impl ImageSummarizer {

@@ -1,5 +1,6 @@
 // src/multimodal/meta_multimodal_security/evolutionary_multimodal_algorithm_design.rs
 
+use crate::prelude::*;
 pub struct AlgorithmDesigner {
     // Autonomously designing and evolving new algorithms specifically tailored for multimodal learning and interaction.
 }

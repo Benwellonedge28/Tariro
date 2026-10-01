@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/global_analytics_insights/predictive_global_resource_demand.rs
 
+use crate::prelude::*;
 pub struct GlobalResourceForecaster;
 
 impl GlobalResourceForecaster {

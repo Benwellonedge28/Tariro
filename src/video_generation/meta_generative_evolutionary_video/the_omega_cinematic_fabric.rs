@@ -1,5 +1,6 @@
 // src/video_generation/meta_generative_evolutionary_video/the_omega_cinematic_fabric.rs
 
+use crate::prelude::*;
 pub struct OmegaCinematicFabric;
 
 impl OmegaCinematicFabric {

@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/meta_admin_security_cognitive_defense/admin_interface_deception_net.rs
 
+use crate::prelude::*;
 pub struct AdminInterfaceDeceptionNet;
 
 impl AdminInterfaceDeceptionNet {

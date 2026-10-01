@@ -1,5 +1,6 @@
 // src/multimodal/input_perception/omni_sensory_perception_pipeline.rs
 
+use crate::prelude::*;
 pub struct OmniSensoryPipeline {
     // Seamless ingestion and fusion of data from every conceivable sensor modality.
 }

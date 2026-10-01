@@ -1,5 +1,6 @@
 // src/tariro_chatbot/core_functionality/personalized_response_generation.rs
 
+use crate::prelude::*;
 pub struct PersonalizedResponseGeneration;
 
 impl PersonalizedResponseGeneration {

@@ -1,5 +1,6 @@
 // src/video_generation/security_ethics_verifiability_video_generation/quantum_secure_video_provenance_ownership.rs
 
+use crate::prelude::*;
 pub struct QuantumSecureVideoProvenance;
 
 impl QuantumSecureVideoProvenance {

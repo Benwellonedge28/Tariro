@@ -1,5 +1,6 @@
 // src/author_module/advanced_functionality_integration/self_improving_stylistic_analysis.rs
 
+use crate::prelude::*;
 pub struct SelfImprovingStylisticAnalysis;
 
 impl SelfImprovingStylisticAnalysis {

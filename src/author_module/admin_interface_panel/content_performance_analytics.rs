@@ -1,5 +1,6 @@
 // src/author_module/admin_interface_panel/content_performance_analytics.rs
 
+use crate::prelude::*;
 pub struct ContentPerformanceAnalytics;
 
 impl ContentPerformanceAnalytics {

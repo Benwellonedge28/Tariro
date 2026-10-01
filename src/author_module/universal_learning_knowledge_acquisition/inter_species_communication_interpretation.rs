@@ -1,5 +1,6 @@
 // src/author_module/universal_learning_knowledge_acquisition/inter_species_communication_interpretation.rs
 
+use crate::prelude::*;
 pub struct InterSpeciesCommunicationInterpretation;
 
 impl InterSpeciesCommunicationInterpretation {

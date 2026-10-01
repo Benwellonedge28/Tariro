@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/admin_interface_invisibility_self_protecting_panel/energy_signature_randomization.rs
 
+use crate::prelude::*;
 pub struct EnergySignatureRandomizer;
 
 impl EnergySignatureRandomizer {

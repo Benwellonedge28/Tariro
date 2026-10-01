@@ -1,5 +1,6 @@
 // src/admin_voice_interface/global_voice_infrastructure_scalability_control/autonomous_voice_software_updates.rs
 
+use crate::prelude::*;
 pub struct AutonomousVoiceUpdater;
 
 impl AutonomousVoiceUpdater {

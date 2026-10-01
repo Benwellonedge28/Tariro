@@ -1,5 +1,6 @@
 // src/music/performance_live_events/audience_driven_musical_evolution.rs
 
+use crate::prelude::*;
 pub struct MusicalEvolutionEngine {
     // Allow audience interaction to subtly influence the real-time evolution of a live musical piece.
 }

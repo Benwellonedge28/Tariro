@@ -3,6 +3,7 @@
 //! Self-Modification Module for Tariro AGI
 //! Enables controlled self-improvement and code evolution while maintaining safety constraints
 
+use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;

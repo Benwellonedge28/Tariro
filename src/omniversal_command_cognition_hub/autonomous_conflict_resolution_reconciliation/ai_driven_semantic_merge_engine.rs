@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/autonomous_conflict_resolution_reconciliation/ai_driven_semantic_merge_engine.rs
 
+use crate::prelude::*;
 pub struct AIDrivenSemanticMergeEngine;
 
 impl AIDrivenSemanticMergeEngine {

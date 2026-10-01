@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/omniversal_admin_feedback_control/evolutionary_trajectory_steering.rs
 
+use crate::prelude::*;
 pub struct EvolutionaryTrajectorySteering;
 
 impl EvolutionaryTrajectorySteering {

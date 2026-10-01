@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/deep_generative_multimodal_latent_space.rs
 
+use crate::prelude::*;
 pub struct MultimodalLatentSpace {
     // A complex, high-dimensional latent space where concepts, experiences, and potential futures are represented.
 }

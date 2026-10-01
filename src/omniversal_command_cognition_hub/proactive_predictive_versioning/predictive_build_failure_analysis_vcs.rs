@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/proactive_predictive_versioning/predictive_build_failure_analysis_vcs.rs
 
+use crate::prelude::*;
 pub struct PredictiveBuildFailureAnalysisVCS;
 
 impl PredictiveBuildFailureAnalysisVCS {

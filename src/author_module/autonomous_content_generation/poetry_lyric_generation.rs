@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/poetry_lyric_generation.rs
 
+use crate::prelude::*;
 pub struct PoetryLyricGeneration;
 
 impl PoetryLyricGeneration {

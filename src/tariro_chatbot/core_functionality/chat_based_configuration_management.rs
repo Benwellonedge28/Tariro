@@ -1,5 +1,6 @@
 // src/tariro_chatbot/core_functionality/chat_based_configuration_management.rs
 
+use crate::prelude::*;
 pub struct ChatBasedConfigurationManagement;
 
 impl ChatBasedConfigurationManagement {

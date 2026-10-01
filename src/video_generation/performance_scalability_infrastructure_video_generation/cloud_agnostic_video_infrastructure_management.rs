@@ -1,5 +1,6 @@
 // src/video_generation/performance_scalability_infrastructure_video_generation/cloud_agnostic_video_infrastructure_management.rs
 
+use crate::prelude::*;
 pub struct CloudAgnosticVideoInfraManager;
 
 impl CloudAgnosticVideoInfraManager {

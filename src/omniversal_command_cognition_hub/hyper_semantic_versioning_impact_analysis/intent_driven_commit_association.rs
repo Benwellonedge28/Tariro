@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_semantic_versioning_impact_analysis/intent_driven_commit_association.rs
 
+use crate::prelude::*;
 pub struct IntentDrivenCommitAssociation;
 
 impl IntentDrivenCommitAssociation {

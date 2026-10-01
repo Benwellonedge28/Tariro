@@ -1,5 +1,6 @@
 // src/meta_compiler_language_design/universal_grammar_synthesis_engine.rs
 
+use crate::prelude::*;
 pub enum GrammarFormat {
     BNF,
     EBNF,

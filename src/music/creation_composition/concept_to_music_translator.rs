@@ -1,5 +1,6 @@
 // src/music/creation_composition/concept_to_music_translator.rs
 
+use crate::prelude::*;
 pub struct ConceptMusicTranslator {
     // Convert abstract non-musical concepts (e.g., a mathematical equation, a painting) into cohesive musical compositions.
 }

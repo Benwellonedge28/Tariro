@@ -1,5 +1,6 @@
 // src/finance/security_ethics/automated_conflict_of_interest_detection.rs
 
+use crate::prelude::*;
 pub struct COIDetector {
     // Scans research and reports for subtle conflicts of interest and biases.
 }

@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/contextual_gating_attentional_mechanisms.rs
 
+use crate::prelude::*;
 pub struct AttentionalGater {
     // Dynamically focusing processing resources on the most relevant multimodal information.
 }

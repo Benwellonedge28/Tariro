@@ -1,5 +1,6 @@
 // src/video_generation/meta_generative_evolutionary_video/model_agnostic_generative_video_framework.rs
 
+use crate::prelude::*;
 pub struct ModelAgnosticVideoFramework;
 
 impl ModelAgnosticVideoFramework {

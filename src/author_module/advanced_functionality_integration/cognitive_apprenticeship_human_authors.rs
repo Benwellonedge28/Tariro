@@ -1,5 +1,6 @@
 // src/author_module/advanced_functionality_integration/cognitive_apprenticeship_human_authors.rs
 
+use crate::prelude::*;
 pub struct CognitiveApprenticeshipHumanAuthors;
 
 impl CognitiveApprenticeshipHumanAuthors {

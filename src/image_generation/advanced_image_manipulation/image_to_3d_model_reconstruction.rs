@@ -1,5 +1,6 @@
 // src/image_generation/advanced_image_manipulation/image_to_3d_model_reconstruction.rs
 
+use crate::prelude::*;
 pub struct To3DModelReconstructor;
 
 impl To3DModelReconstructor {

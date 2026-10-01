@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/advanced_simulation_counterfactual_analysis/ethical_dilemma_outcome_prediction.rs
 
+use crate::prelude::*;
 pub struct EthicalOutcomePredictor;
 
 impl EthicalOutcomePredictor {

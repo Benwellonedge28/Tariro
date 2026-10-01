@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/dynamic_service_pricing_panel/supply_chain_impact_on_pricing.rs
 
+use crate::prelude::*;
 pub struct SupplyChainImpactOnPricing;
 
 impl SupplyChainImpactOnPricing {

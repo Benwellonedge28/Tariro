@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/absolute_consistency_zero_hallucination/truth_anchoring_protocol_vcs_integrated.rs
 
+use crate::prelude::*;
 pub struct TruthAnchoringProtocolVCSIntegrated;
 
 impl TruthAnchoringProtocolVCSIntegrated {

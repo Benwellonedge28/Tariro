@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/proactive_predictive_versioning/vcs_enabled_chaos_engineering.rs
 
+use crate::prelude::*;
 pub struct VCSEnabledChaosEngineering;
 
 impl VCSEnabledChaosEngineering {

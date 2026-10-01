@@ -1,5 +1,6 @@
 // src/multimodal/input_perception/holographic_data_ingestion.rs
 
+use crate::prelude::*;
 pub struct HolographicIngestor {
     // Receiving and processing complex, 3D holographic data streams as native input.
 }

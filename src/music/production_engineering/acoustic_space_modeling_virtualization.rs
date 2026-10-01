@@ -1,5 +1,6 @@
 // src/music/production_engineering/acoustic_space_modeling_virtualization.rs
 
+use crate::prelude::*;
 pub struct AcousticSpaceModeler {
     // Design and simulate perfect acoustic environments for recording and mixing, from cathedrals to anechoic chambers.
 }

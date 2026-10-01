@@ -1,5 +1,6 @@
 // src/planetary_cosmic_sovereignty/deep_space_mining_swarms.rs
 
+use crate::prelude::*;
 pub enum MineralType {
     Iron,
     Nickel,

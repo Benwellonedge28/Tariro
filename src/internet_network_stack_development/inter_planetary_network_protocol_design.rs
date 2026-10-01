@@ -1,5 +1,6 @@
 // src/internet_network_stack_development/inter_planetary_network_protocol_design.rs
 
+use crate::prelude::*;
 pub enum CelestialBody {
     Earth,
     Moon,

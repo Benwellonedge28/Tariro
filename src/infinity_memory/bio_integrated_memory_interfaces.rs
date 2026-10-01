@@ -1,5 +1,6 @@
 // src/infinity_memory/bio_integrated_memory_interfaces.rs
 
+use crate::prelude::*;
 pub enum BiologicalMemoryType {
     Hippocampal,
     Cortical,

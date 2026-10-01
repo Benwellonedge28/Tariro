@@ -21,6 +21,7 @@
 //! This architecture provides Tariro with the capacity for *genuine self-understanding and
 //! continuous, self-directed cognitive evolution*, a hallmark of true AGI.
 
+use crate::prelude::*;
 use crate::agi_core_modules::metacognitive_architecture::{CognitiveStateSnapshot, BiasReport, LearningStrategyFeedback};
 use crate::agi::models::{AgiMetacognitionModel, AgiEthicsModel};
 use crate::omega_os::distributed_ledger::{ImmutableLedger, LedgerEntry};

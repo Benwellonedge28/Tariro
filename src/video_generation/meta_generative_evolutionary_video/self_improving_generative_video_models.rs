@@ -1,5 +1,6 @@
 // src/video_generation/meta_generative_evolutionary_video/self_improving_generative_video_models.rs
 
+use crate::prelude::*;
 pub struct SelfImprovingVideoModel;
 
 impl SelfImprovingVideoModel {

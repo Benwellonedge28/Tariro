@@ -5,6 +5,7 @@
 /// enhancing test coverage and discovering vulnerabilities or bugs that traditional testing methods might miss.
 /// It leverages RAG for test generation strategies, vulnerability patterns, and input mutation techniques.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_semantic_versioning_impact_analysis/knowledge_graph_evolution_tracking.rs
 
+use crate::prelude::*;
 pub struct KnowledgeGraphEvolutionTracking;
 
 impl KnowledgeGraphEvolutionTracking {

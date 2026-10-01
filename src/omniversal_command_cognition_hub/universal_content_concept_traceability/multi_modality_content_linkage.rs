@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/universal_content_concept_traceability/multi_modality_content_linkage.rs
 
+use crate::prelude::*;
 pub struct MultiModalityContentLinkage;
 
 impl MultiModalityContentLinkage {

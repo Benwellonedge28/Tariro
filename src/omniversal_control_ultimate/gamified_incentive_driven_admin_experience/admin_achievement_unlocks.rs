@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/gamified_incentive_driven_admin_experience/admin_achievement_unlocks.rs
 
+use crate::prelude::*;
 pub struct AdminAchievementUnlocker;
 
 impl AdminAchievementUnlocker {

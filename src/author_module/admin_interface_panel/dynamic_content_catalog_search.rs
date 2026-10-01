@@ -1,5 +1,6 @@
 // src/author_module/admin_interface_panel/dynamic_content_catalog_search.rs
 
+use crate::prelude::*;
 pub struct DynamicContentCatalogSearch;
 
 impl DynamicContentCatalogSearch {

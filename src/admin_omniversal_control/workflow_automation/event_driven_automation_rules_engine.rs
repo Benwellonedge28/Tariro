@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/workflow_automation/event_driven_automation_rules_engine.rs
 
+use crate::prelude::*;
 pub struct RulesEngine;
 
 impl RulesEngine {

@@ -1,5 +1,6 @@
 // src/tariro_chatbot/research_development_facilitation/autonomous_learning_algorithm_development.rs
 
+use crate::prelude::*;
 pub struct AutonomousLearningAlgorithmDevelopment;
 
 impl AutonomousLearningAlgorithmDevelopment {

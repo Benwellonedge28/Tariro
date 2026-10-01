@@ -5,6 +5,7 @@
 /// cryosphere evolution) with unparalleled detail and predictive accuracy. It leverages RAG for historical
 /// climate data and geophysical models, and SIMD for parallel numerical integration of climate equations.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

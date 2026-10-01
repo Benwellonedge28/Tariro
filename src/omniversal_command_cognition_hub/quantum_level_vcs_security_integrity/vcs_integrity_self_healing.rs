@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/quantum_level_vcs_security_integrity/vcs_integrity_self_healing.rs
 
+use crate::prelude::*;
 pub struct VCSIntegritySelfHealing;
 
 impl VCSIntegritySelfHealing {

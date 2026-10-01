@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/absolute_consistency_zero_hallucination/semantic_drift_detection.rs
 
+use crate::prelude::*;
 pub struct SemanticDriftDetector;
 
 impl SemanticDriftDetector {

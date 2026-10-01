@@ -1,5 +1,6 @@
 // src/metaphysical_quantum_multidimensional/reality_compression_expansion.rs
 
+use crate::prelude::*;
 pub enum TemporalManipulationTarget {
     IndividualMind,
     LocalizedSpatialRegion,

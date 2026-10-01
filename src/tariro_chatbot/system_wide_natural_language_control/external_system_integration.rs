@@ -1,5 +1,6 @@
 // src/tariro_chatbot/system_wide_natural_language_control/external_system_integration.rs
 
+use crate::prelude::*;
 pub struct ExternalSystemIntegration;
 
 impl ExternalSystemIntegration {

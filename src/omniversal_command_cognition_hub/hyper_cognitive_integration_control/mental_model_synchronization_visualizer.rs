@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_cognitive_integration_control/mental_model_synchronization_visualizer.rs
 
+use crate::prelude::*;
 pub struct MentalModelVisualizer;
 
 impl MentalModelVisualizer {

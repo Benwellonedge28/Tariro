@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/proactive_predictive_versioning/resource_consumption_prediction_from_versions.rs
 
+use crate::prelude::*;
 pub struct ResourceConsumptionPredictionFromVersions;
 
 impl ResourceConsumptionPredictionFromVersions {

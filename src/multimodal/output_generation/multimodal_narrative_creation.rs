@@ -1,5 +1,6 @@
 // src/multimodal/output_generation/multimodal_narrative_creation.rs
 
+use crate::prelude::*;
 pub struct NarrativeCreator {
     // Generating rich, immersive stories that unfold across visual, auditory, and haptic channels simultaneously.
 }

@@ -1,5 +1,6 @@
 // src/web_application_design_development/progressive_web_app_generator.rs
 
+use crate::prelude::*;
 pub enum PWACapability {
     OfflineAccess,
     PushNotifications,

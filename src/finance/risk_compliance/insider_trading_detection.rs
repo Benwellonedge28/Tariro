@@ -1,5 +1,6 @@
 // src/finance/risk_compliance/insider_trading_detection.rs
 
+use crate::prelude::*;
 pub struct InsiderTradingDetector {
     // Detects patterns indicative of insider trading or other market abuses with high precision.
 }

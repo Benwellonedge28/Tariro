@@ -1,5 +1,6 @@
 // src/image_generation/security_ethics_verifiability/ethical_ai_driven_content_moderation_visual.rs
 
+use crate::prelude::*;
 pub struct VisualContentModerator;
 
 impl VisualContentModerator {

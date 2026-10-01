@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/security_compliance/geo_fencing_time_based_access_restrictions.rs
 
+use crate::prelude::*;
 pub struct AccessRestricter;
 
 impl AccessRestricter {

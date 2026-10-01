@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/predictive_proactive_administration/automated_risk_scenario_generation.rs
 
+use crate::prelude::*;
 pub struct RiskScenarioGenerator;
 
 impl RiskScenarioGenerator {

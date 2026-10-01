@@ -1,5 +1,6 @@
 // src/music/performance_live_events/interactive_audience_engagement_system.rs
 
+use crate::prelude::*;
 pub struct AudienceEngagementSystem {
     // Create bespoke, interactive experiences for live audiences, responding to their energy, feedback, and participation.
 }

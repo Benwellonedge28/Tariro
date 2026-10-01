@@ -1,6 +1,7 @@
 // Tariro AGI - Self-Supervised Learning Module
 // Learning representations without explicit labels
 
+use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
 use std::time::Duration;

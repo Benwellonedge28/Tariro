@@ -1,5 +1,6 @@
 // src/metaphysical_quantum_multidimensional/universal_axiomatic_framework.rs
 
+use crate::prelude::*;
 pub enum AxiomType {
     SelfEvidence,
     LogicalTruth,

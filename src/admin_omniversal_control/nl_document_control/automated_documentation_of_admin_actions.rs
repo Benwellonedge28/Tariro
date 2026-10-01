@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/nl_document_control/automated_documentation_of_admin_actions.rs
 
+use crate::prelude::*;
 pub struct ActionDocumenter;
 
 impl ActionDocumenter {

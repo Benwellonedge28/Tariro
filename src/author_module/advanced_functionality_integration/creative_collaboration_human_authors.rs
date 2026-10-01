@@ -1,5 +1,6 @@
 // src/author_module/advanced_functionality_integration/creative_collaboration_human_authors.rs
 
+use crate::prelude::*;
 pub struct CreativeCollaborationHumanAuthors;
 
 impl CreativeCollaborationHumanAuthors {

@@ -1,5 +1,6 @@
 // src/video_generation/multimodal_contextual_video_understanding/interactive_video_exploration_semantic.rs
 
+use crate::prelude::*;
 pub struct InteractiveVideoExplorer;
 
 impl InteractiveVideoExplorer {

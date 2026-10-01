@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/autonomous_conflict_resolution_reconciliation/versioned_conflict_resolution_strategies.rs
 
+use crate::prelude::*;
 pub struct VersionedConflictResolutionStrategies;
 
 impl VersionedConflictResolutionStrategies {

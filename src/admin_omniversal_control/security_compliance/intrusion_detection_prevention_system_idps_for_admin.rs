@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/security_compliance/intrusion_detection_prevention_system_idps_for_admin.rs
 
+use crate::prelude::*;
 pub struct AdminIDPS;
 
 impl AdminIDPS {

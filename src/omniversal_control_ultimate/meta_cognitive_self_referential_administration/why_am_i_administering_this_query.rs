@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/meta_cognitive_self_referential_administration/why_am_i_administering_this_query.rs
 
+use crate::prelude::*;
 pub struct AdminPurposeQuery;
 
 impl AdminPurposeQuery {

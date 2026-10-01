@@ -1,5 +1,6 @@
 // src/planetary_cosmic_sovereignty/black_hole_energy_extraction.rs
 
+use crate::prelude::*;
 pub enum BlackHoleType {
     StellarMass,
     Supermassive,

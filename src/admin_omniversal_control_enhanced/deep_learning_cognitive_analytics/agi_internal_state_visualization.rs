@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/deep_learning_cognitive_analytics/agi_internal_state_visualization.rs
 
+use crate::prelude::*;
 pub struct AGIInternalStateVisualizer;
 
 impl AGIInternalStateVisualizer {

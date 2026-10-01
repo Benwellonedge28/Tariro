@@ -1,5 +1,6 @@
 // src/universal_problem_solving/dynamic_problem_decomposition.rs
 
+use crate::prelude::*;
 pub struct ProblemDefinition {
     pub problem_id: String,
     pub description: String,

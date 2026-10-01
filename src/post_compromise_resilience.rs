@@ -7,6 +7,7 @@
 /// compromised components
 /// (leveraging RAG for incident response best practices and SIMD for high-speed forensic data analysis and system restoration).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

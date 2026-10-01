@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/long_term_episodic_memory_reconstruction.rs
 
+use crate::prelude::*;
 pub struct EpisodicMemory {
     pub memory_id: String,
     pub event_description: String,

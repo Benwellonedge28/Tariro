@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/multi_lingual_content_generation.rs
 
+use crate::prelude::*;
 pub struct MultiLingualContentGeneration;
 
 impl MultiLingualContentGeneration {

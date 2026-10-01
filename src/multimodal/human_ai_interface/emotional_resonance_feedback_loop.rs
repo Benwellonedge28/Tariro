@@ -1,5 +1,6 @@
 // src/multimodal/human_ai_interface/emotional_resonance_feedback_loop.rs
 
+use crate::prelude::*;
 pub struct EmotionalFeedback {
     // Real-time feedback and adjustment of multimodal communication based on detected human emotional responses.
 }

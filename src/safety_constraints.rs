@@ -1,6 +1,7 @@
 // Tariro AGI - Safety Constraints Module
 // Runtime safety enforcement and constraint checking
 
+use crate::prelude::*;
 use std::collections::{HashMap, HashSet, VecDeque};
 use chrono::{DateTime, Utc};
 use std::time::Duration;

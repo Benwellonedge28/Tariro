@@ -1,5 +1,6 @@
 // src/video_generation/multimodal_contextual_video_understanding/predictive_video_context_augmentation.rs
 
+use crate::prelude::*;
 pub struct VideoContextAugmenter;
 
 impl VideoContextAugmenter {

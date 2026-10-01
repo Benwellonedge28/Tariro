@@ -1,5 +1,6 @@
 // src/image_generation/multimodal_contextual_understanding/implicit_bias_detection_in_images.rs
 
+use crate::prelude::*;
 pub struct BiasDetector;
 
 impl BiasDetector {

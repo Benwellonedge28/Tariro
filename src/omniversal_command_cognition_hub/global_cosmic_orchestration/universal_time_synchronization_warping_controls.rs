@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/global_cosmic_orchestration/universal_time_synchronization_warping_controls.rs
 
+use crate::prelude::*;
 pub struct UniversalTimeControls;
 
 impl UniversalTimeControls {

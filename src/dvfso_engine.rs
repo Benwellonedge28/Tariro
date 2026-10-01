@@ -6,6 +6,7 @@
 /// per watt. It leverages RAG for processor specifications, workload characterization, and
 /// power-performance models to fine-tune DVFS for various applications and hardware architectures.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

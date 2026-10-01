@@ -1,5 +1,6 @@
 // src/image_generation/meta_generative_evolutionary_imaging/model_agnostic_generative_framework.rs
 
+use crate::prelude::*;
 pub struct ModelAgnosticFramework;
 
 impl ModelAgnosticFramework {

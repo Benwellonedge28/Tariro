@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/admin_interface_invisibility_self_protecting_panel/adaptive_threat_signature_nullification_self_learning.rs
 
+use crate::prelude::*;
 pub struct AdaptiveThreatNullificationSelfLearning;
 
 impl AdaptiveThreatNullificationSelfLearning {

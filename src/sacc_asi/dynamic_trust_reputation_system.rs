@@ -1,5 +1,6 @@
 // src/sacc_asi/dynamic_trust_reputation_system.rs
 
+use crate::prelude::*;
 pub struct AgentReputation {
     pub agent_id: String,
     pub trust_score: f64, // 0-1, 1 being fully trusted

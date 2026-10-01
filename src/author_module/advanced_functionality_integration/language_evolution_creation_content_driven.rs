@@ -1,5 +1,6 @@
 // src/author_module/advanced_functionality_integration/language_evolution_creation_content_driven.rs
 
+use crate::prelude::*;
 pub struct LanguageEvolutionCreationContentDriven;
 
 impl LanguageEvolutionCreationContentDriven {

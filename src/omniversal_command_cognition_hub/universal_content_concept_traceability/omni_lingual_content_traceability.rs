@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/universal_content_concept_traceability/omni_lingual_content_traceability.rs
 
+use crate::prelude::*;
 pub struct OmniLingualContentTraceability;
 
 impl OmniLingualContentTraceability {

@@ -1,5 +1,6 @@
 // src/video_generation/advanced_video_manipulation/time_series_video_prediction.rs
 
+use crate::prelude::*;
 pub struct TimeSeriesVideoPredictor;
 
 impl TimeSeriesVideoPredictor {

@@ -1,5 +1,6 @@
 // src/image_generation/human_ai_collaboration_customization/adaptive_user_interface_generation_imaging.rs
 
+use crate::prelude::*;
 pub struct AdaptiveUIGenerator;
 
 impl AdaptiveUIGenerator {

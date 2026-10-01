@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/autonomous_management_configuration/self_healing_configuration_management.rs
 
+use crate::prelude::*;
 pub struct SelfHealingConfigManager;
 
 impl SelfHealingConfigManager {

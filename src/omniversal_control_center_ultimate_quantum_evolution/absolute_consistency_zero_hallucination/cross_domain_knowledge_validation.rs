@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/absolute_consistency_zero_hallucination/cross_domain_knowledge_validation.rs
 
+use crate::prelude::*;
 pub struct CrossDomainKnowledgeValidator;
 
 impl CrossDomainKnowledgeValidator {

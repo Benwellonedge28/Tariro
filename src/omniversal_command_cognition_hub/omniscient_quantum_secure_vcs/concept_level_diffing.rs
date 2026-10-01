@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/concept_level_diffing.rs
 
+use crate::prelude::*;
 pub struct ConceptDiffing;
 
 impl ConceptDiffing {

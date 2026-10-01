@@ -1,5 +1,6 @@
 // src/omni_domain_operation/economic_model_generation_simulation.rs
 
+use crate::prelude::*;
 pub enum EconomicParadigm {
     Classical,
     Keynesian,

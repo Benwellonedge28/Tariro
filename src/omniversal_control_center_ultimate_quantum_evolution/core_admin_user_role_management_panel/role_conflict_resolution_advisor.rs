@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/core_admin_user_role_management_panel/role_conflict_resolution_advisor.rs
 
+use crate::prelude::*;
 pub struct RoleConflictAdvisor;
 
 impl RoleConflictAdvisor {

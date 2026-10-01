@@ -1,5 +1,6 @@
 // src/image_generation/security_ethics_verifiability/image_based_misinformation_propaganda_detection.rs
 
+use crate::prelude::*;
 pub struct MisinformationDetector;
 
 impl MisinformationDetector {

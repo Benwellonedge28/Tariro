@@ -1,5 +1,6 @@
 // src/biological_neural_symbiosis/dna_based_cold_storage.rs
 
+use crate::prelude::*;
 pub enum DNAStorageMedium {
     SyntheticStrands,
     BacterialPlasmid,

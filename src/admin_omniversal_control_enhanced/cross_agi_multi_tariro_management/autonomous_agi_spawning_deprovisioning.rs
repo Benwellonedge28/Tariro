@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/cross_agi_multi_tariro_management/autonomous_agi_spawning_deprovisioning.rs
 
+use crate::prelude::*;
 pub struct AGISpawnDeprovisioner;
 
 impl AGISpawnDeprovisioner {

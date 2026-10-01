@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/predictive_proactive_administration/proactive_ethical_dilemma_anticipation.rs
 
+use crate::prelude::*;
 pub struct EthicalDilemmaAnticipator;
 
 impl EthicalDilemmaAnticipator {

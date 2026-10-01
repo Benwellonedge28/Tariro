@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/simulated_admin_environments_training/admin_training_simulation_module.rs
 
+use crate::prelude::*;
 pub struct AdminTrainingSimulator;
 
 impl AdminTrainingSimulator {

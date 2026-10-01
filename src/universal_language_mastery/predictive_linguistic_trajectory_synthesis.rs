@@ -1,5 +1,6 @@
 // src/universal_language_mastery/predictive_linguistic_trajectory_synthesis.rs
 
+use crate::prelude::*;
 pub struct LinguisticContextSnapshot {
     pub snapshot_id: String,
     pub participant_ids: Vec<String>,

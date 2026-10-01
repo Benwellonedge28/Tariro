@@ -5,6 +5,7 @@
 
 // Dummy tariro_log macro for demonstration and to fulfill quantum_security module's prelude requirement
 #[macro_export]
+use crate::prelude::*;
 macro_rules! tariro_log {
     ($level:ident, $($arg:tt)*) => {
         println!(concat!("[Tariro AGI - ", stringify!($level), "] ", $($arg)*));

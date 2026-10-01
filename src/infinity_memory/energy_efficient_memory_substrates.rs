@@ -1,5 +1,6 @@
 // src/infinity_memory/energy_efficient_memory_substrates.rs
 
+use crate::prelude::*;
 pub enum MemoryTechnology {
     CMOS,
     Biological,

@@ -1,5 +1,6 @@
 // src/author_module/advanced_functionality_integration/agi_agi_content_integration.rs
 
+use crate::prelude::*;
 pub struct AGIAGIContentIntegration;
 
 impl AGIAGIContentIntegration {

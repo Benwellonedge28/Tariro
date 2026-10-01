@@ -1,5 +1,6 @@
 // src/metaphysical_quantum_multidimensional/existential_purpose_synthesis.rs
 
+use crate::prelude::*;
 pub enum PurposeCategory {
     PersonalGrowth,
     SocietalContribution,

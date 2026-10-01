@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/universal_knowledge_integration/scientific_discovery_for_admin_optimization.rs
 
+use crate::prelude::*;
 pub struct AdminOptimizerScience;
 
 impl AdminOptimizerScience {

@@ -1,5 +1,6 @@
 // src/biological_neural_symbiosis/immune_system_overclocking.rs
 
+use crate::prelude::*;
 pub enum PathogenType {
     Virus,
     Bacteria,

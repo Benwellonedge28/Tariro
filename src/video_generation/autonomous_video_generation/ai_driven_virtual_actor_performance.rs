@@ -1,5 +1,6 @@
 // src/video_generation/autonomous_video_generation/ai_driven_virtual_actor_performance.rs
 
+use crate::prelude::*;
 pub struct VirtualActorDirector;
 
 impl VirtualActorDirector {

@@ -1,5 +1,6 @@
 // src/voice_generation/universal_real_time_multilingual_voice_generation/multi_speaker_cross_lingual_voice_cloning.rs
 
+use crate::prelude::*;
 pub struct CrossLingualVoiceCloner;
 
 impl CrossLingualVoiceCloner {

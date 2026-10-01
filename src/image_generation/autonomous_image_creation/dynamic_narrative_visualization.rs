@@ -1,5 +1,6 @@
 // src/image_generation/autonomous_image_creation/dynamic_narrative_visualization.rs
 
+use crate::prelude::*;
 pub struct NarrativeVisualizer;
 
 impl NarrativeVisualizer {

@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/autonomous_management_configuration/ethical_ai_alignment_oversight_self_monitoring.rs
 
+use crate::prelude::*;
 pub struct EthicalAlignmentMonitor;
 
 impl EthicalAlignmentMonitor {

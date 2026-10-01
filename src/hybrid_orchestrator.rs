@@ -6,6 +6,7 @@
 /// compute resources, including dynamic workload distribution, parameter
 /// optimization loops, and result post-processing. A key example is the VQE.
 
+use crate::prelude::*;
 use std::fmt;
 use std::collections::HashMap;
 use std::thread;

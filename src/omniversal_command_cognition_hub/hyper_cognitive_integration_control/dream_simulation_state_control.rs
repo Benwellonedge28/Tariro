@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_cognitive_integration_control/dream_simulation_state_control.rs
 
+use crate::prelude::*;
 pub struct DreamStateControl;
 
 impl DreamStateControl {

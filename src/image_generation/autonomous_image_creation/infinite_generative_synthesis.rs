@@ -1,5 +1,6 @@
 // src/image_generation/autonomous_image_creation/infinite_generative_synthesis.rs
 
+use crate::prelude::*;
 pub struct InfiniteGenerativeSynthesis;
 
 impl InfiniteGenerativeSynthesis {

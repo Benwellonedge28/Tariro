@@ -1,5 +1,6 @@
 // src/tariro_chatbot/advanced_chatbot_functionalities/chat_based_role_playing_simulations.rs
 
+use crate::prelude::*;
 pub struct ChatBasedRolePlayingSimulations;
 
 impl ChatBasedRolePlayingSimulations {

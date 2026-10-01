@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/omnipresent_threat_invisible_admin_interface/self_mutating_codebase_interface.rs
 
+use crate::prelude::*;
 pub struct SelfMutatingCodebase;
 
 impl SelfMutatingCodebase {

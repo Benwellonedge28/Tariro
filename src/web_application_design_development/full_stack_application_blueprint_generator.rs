@@ -1,5 +1,6 @@
 // src/web_application_design_development/full_stack_application_blueprint_generator.rs
 
+use crate::prelude::*;
 pub enum DatabaseType {
     PostgreSQL,
     MongoDB,

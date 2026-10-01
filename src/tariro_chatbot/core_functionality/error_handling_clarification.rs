@@ -1,5 +1,6 @@
 // src/tariro_chatbot/core_functionality/error_handling_clarification.rs
 
+use crate::prelude::*;
 pub struct ErrorHandlingClarification;
 
 impl ErrorHandlingClarification {

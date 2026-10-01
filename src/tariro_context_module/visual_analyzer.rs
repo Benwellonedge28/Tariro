@@ -1,3 +1,4 @@
+use crate::prelude::*;
 pub struct VisualAnalyzer {
     // Configuration for image/video processing models
 }

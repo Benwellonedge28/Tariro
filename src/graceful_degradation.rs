@@ -4,6 +4,7 @@
 /// or partial failures by strategically reducing non-critical functionality,
 /// rather than outright crashing, ensuring continued operation.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::sync::{Arc, RwLock};

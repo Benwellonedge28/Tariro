@@ -1,5 +1,6 @@
 // src/planetary_cosmic_sovereignty/artificial_magnetosphere_generation.rs
 
+use crate::prelude::*;
 pub enum PlanetToProtect {
     Mars,
     Venus,

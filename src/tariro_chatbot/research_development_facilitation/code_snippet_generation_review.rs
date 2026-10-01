@@ -1,5 +1,6 @@
 // src/tariro_chatbot/research_development_facilitation/code_snippet_generation_review.rs
 
+use crate::prelude::*;
 pub struct CodeSnippetGenerationReview;
 
 impl CodeSnippetGenerationReview {

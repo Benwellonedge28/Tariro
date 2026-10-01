@@ -1,5 +1,6 @@
 // src/voice_generation/multimodal_interaction_output_harmonization/tactile_feedback_for_vocal_cues.rs
 
+use crate::prelude::*;
 pub struct TactileFeedbackGenerator;
 
 impl TactileFeedbackGenerator {

@@ -1,5 +1,6 @@
 // src/author_module/advanced_functionality_integration/content_for_scientific_communication.rs
 
+use crate::prelude::*;
 pub struct ContentForScientificCommunication;
 
 impl ContentForScientificCommunication {

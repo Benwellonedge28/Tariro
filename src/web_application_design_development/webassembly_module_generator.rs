@@ -1,5 +1,6 @@
 // src/web_application_design_development/webassembly_module_generator.rs
 
+use crate::prelude::*;
 pub enum SourceLanguage {
     Rust,
     C_C_Plus_Plus,

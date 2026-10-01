@@ -1,5 +1,6 @@
 // src/metaphysical_quantum_multidimensional/universal_consciousness_archive.rs
 
+use crate::prelude::*;
 pub enum ConsciousExperienceType {
     Sensory,
     Emotional,

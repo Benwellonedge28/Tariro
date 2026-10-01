@@ -5,6 +5,7 @@
 /// preserving privacy and confidentiality during AI inference (leveraging RAG for homomorphic encryption
 /// scheme analysis and SIMD for accelerating encrypted matrix multiplications).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

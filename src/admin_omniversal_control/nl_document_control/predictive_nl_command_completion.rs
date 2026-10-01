@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/nl_document_control/predictive_nl_command_completion.rs
 
+use crate::prelude::*;
 pub struct CommandPredictor;
 
 impl CommandPredictor {

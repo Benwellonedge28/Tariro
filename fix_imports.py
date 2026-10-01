@@ -1,38 +1,56 @@
 #!/usr/bin/env python3
-"""Add prelude imports to Rust files that need chrono types."""
+"""Add prelude imports to all Rust files in the Tariro project."""
 import os
 import re
 
-src_dir = "/workspace/Tariro/src"
+src_dir = "/workspace/tariro/src"
 prelude_import = "use crate::prelude::*;"
 
-# Find all .rs files that use DateTime<Utc>
-files_with_datetime = []
-for filename in os.listdir(src_dir):
-    if filename.endswith(".rs"):
-        filepath = os.path.join(src_dir, filename)
-        with open(filepath, 'r') as f:
-            content = f.read()
-            if "DateTime<Utc>" in content or "Utc::now()" in content:
-                files_with_datetime.append(filename)
+# Files to skip (already have prelude or are special)
+SKIP_FILES = {"lib.rs", "main.rs", "prelude.rs"}
 
-print(f"Found {len(files_with_datetime)} files needing chrono imports")
-
-for filename in files_with_datetime:
-    filepath = os.path.join(src_dir, filename)
+def needs_prelude(filepath):
+    """Check if file needs prelude import."""
     with open(filepath, 'r') as f:
         content = f.read()
 
-    # Skip if prelude already imported
-    if "use crate::prelude::" in content:
-        continue
+    # Already has prelude
+    if "use crate::prelude" in content:
+        return False
 
-    # Skip lib.rs (already has prelude)
-    if filename == "lib.rs":
-        continue
+    # Check if it's a normal module file (has pub struct, enum, fn definitions)
+    has_code = any([
+        'pub struct' in content,
+        'pub enum' in content,
+        'pub fn' in content,
+        'pub mod' in content,
+        '#[derive(' in content,
+        'struct ' in content and 'impl ' in content,
+    ])
 
-    # Find where to insert - after the module doc or after existing use statements
-    # Look for the first non-doc, non-comment line after any doc comments
+    return has_code
+
+# Find all .rs files that need prelude
+files_to_fix = []
+for root, dirs, files in os.walk(src_dir):
+    for filename in files:
+        if not filename.endswith(".rs"):
+            continue
+        if filename in SKIP_FILES:
+            continue
+
+        filepath = os.path.join(root, filename)
+        if needs_prelude(filepath):
+            files_to_fix.append(filepath)
+
+print(f"Found {len(files_to_fix)} files needing prelude imports")
+
+modified = 0
+for filepath in files_to_fix:
+    with open(filepath, 'r') as f:
+        content = f.read()
+
+    # Find where to insert
     lines = content.split('\n')
 
     # Find insertion point (after doc comments and attributes)
@@ -54,6 +72,9 @@ for filename in files_with_datetime:
 
     with open(filepath, 'w') as f:
         f.write(new_content)
-    print(f"Added prelude import to {filename}")
 
-print("Done!")
+    modified += 1
+    relpath = os.path.relpath(filepath, src_dir)
+    print(f"Added prelude import to {relpath}")
+
+print(f"\nDone! Modified {modified} files")

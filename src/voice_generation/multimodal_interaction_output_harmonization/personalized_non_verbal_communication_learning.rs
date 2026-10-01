@@ -1,5 +1,6 @@
 // src/voice_generation/multimodal_interaction_output_harmonization/personalized_non_verbal_communication_learning.rs
 
+use crate::prelude::*;
 pub struct NonVerbalLearner;
 
 impl NonVerbalLearner {

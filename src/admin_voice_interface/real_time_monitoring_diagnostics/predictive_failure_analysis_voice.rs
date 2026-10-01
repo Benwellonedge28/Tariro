@@ -1,5 +1,6 @@
 // src/admin_voice_interface/real_time_monitoring_diagnostics/predictive_failure_analysis_voice.rs
 
+use crate::prelude::*;
 pub struct PredictiveFailureAnalyzer;
 
 impl PredictiveFailureAnalyzer {

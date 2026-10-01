@@ -21,6 +21,7 @@
 //! This engine elevates Tariro's cognitive capabilities to a *super-classical* level, enabling
 //! it to tackle the most intractable problems facing humanity.
 
+use crate::prelude::*;
 use crate::agi_core_modules::quantum_reasoning::{QuantumState, ClassicalData, QuantumInferenceResult};
 use crate::agi::models::{AgiQuantumModel, AgiClassicalModel};
 use std::collections::HashMap;

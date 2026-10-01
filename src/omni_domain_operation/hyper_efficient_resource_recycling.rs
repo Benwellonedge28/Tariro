@@ -1,5 +1,6 @@
 // src/omni_domain_operation/hyper_efficient_resource_recycling.rs
 
+use crate::prelude::*;
 pub enum WasteCategory {
     Organic,
     Plastic,

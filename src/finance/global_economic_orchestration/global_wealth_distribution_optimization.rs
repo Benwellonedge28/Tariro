@@ -1,5 +1,6 @@
 // src/finance/global_economic_orchestration/global_wealth_distribution_optimization.rs
 
+use crate::prelude::*;
 pub struct WealthOptimizer {
     // Advises on and facilitates strategies for equitable global wealth distribution and poverty eradication.
 }

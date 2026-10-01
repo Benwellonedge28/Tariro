@@ -1,5 +1,6 @@
 // src/video_generation/multimodal_contextual_video_understanding/multi_perspective_event_reconstruction_from_video.rs
 
+use crate::prelude::*;
 pub struct MultiPerspectiveEventReconstructor;
 
 impl MultiPerspectiveEventReconstructor {

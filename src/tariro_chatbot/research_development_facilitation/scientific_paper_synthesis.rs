@@ -1,5 +1,6 @@
 // src/tariro_chatbot/research_development_facilitation/scientific_paper_synthesis.rs
 
+use crate::prelude::*;
 pub struct ScientificPaperSynthesis;
 
 impl ScientificPaperSynthesis {

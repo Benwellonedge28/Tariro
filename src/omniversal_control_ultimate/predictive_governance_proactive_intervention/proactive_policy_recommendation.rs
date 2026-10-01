@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/predictive_governance_proactive_intervention/proactive_policy_recommendation.rs
 
+use crate::prelude::*;
 pub struct PolicyRecommender;
 
 impl PolicyRecommender {

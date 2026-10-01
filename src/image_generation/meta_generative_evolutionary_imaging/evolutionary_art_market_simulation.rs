@@ -1,5 +1,6 @@
 // src/image_generation/meta_generative_evolutionary_imaging/evolutionary_art_market_simulation.rs
 
+use crate::prelude::*;
 pub struct ArtMarketSimulator;
 
 impl ArtMarketSimulator {

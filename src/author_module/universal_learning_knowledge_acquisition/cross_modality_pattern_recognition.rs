@@ -1,5 +1,6 @@
 // src/author_module/universal_learning_knowledge_acquisition/cross_modality_pattern_recognition.rs
 
+use crate::prelude::*;
 pub struct CrossModalityPatternRecognition;
 
 impl CrossModalityPatternRecognition {

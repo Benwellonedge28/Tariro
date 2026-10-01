@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/performance_analysis_robust_error_correction/versioned_error_recovery_plans.rs
 
+use crate::prelude::*;
 pub struct VersionedErrorRecoveryPlans;
 
 impl VersionedErrorRecoveryPlans {

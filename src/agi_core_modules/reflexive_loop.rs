@@ -23,6 +23,7 @@
 //!   response protocols, and self-repair mechanisms to achieve *unassailable operational integrity*.
 //! This loop represents Tariro's *sentient guardian*, ensuring its perpetual and autonomous alignment.
 
+use crate::prelude::*;
 use crate::agi_core_modules::reflexive_loop::{InternalStateObservation, SelfCorrectionAction, CorrectionResult};
 use crate::agi::models::{AgiSelfCorrectionModel, AgiEthicsModel};
 use crate::omega_os::distributed_ledger::{ImmutableLedger, LedgerEntry};

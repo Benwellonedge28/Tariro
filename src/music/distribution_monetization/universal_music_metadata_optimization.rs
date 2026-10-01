@@ -1,5 +1,6 @@
 // src/music/distribution_monetization/universal_music_metadata_optimization.rs
 
+use crate::prelude::*;
 pub struct MetadataOptimizer {
     // Ensure all music metadata is perfectly optimized for search, discovery, and algorithmic recommendation across platforms.
 }

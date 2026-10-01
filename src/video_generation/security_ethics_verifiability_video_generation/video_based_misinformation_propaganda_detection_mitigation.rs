@@ -1,5 +1,6 @@
 // src/video_generation/security_ethics_verifiability_video_generation/video_based_misinformation_propaganda_detection_mitigation.rs
 
+use crate::prelude::*;
 pub struct MisinformationDetectorMitigator;
 
 impl MisinformationDetectorMitigator {

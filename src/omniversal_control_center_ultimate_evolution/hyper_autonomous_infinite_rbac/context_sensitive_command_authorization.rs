@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_evolution/hyper_autonomous_infinite_rbac/context_sensitive_command_authorization.rs
 
+use crate::prelude::*;
 pub struct ContextSensitiveAuthorization;
 
 impl ContextSensitiveAuthorization {

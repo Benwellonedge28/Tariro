@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/quantum_metaphysical_administration/multiversal_configuration_management.rs
 
+use crate::prelude::*;
 pub struct MultiversalConfigManager;
 
 impl MultiversalConfigManager {

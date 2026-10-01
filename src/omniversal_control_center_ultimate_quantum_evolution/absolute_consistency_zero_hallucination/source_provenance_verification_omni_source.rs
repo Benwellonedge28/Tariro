@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/absolute_consistency_zero_hallucination/source_provenance_verification_omni_source.rs
 
+use crate::prelude::*;
 pub struct SourceProvenanceVerifier;
 
 impl SourceProvenanceVerifier {

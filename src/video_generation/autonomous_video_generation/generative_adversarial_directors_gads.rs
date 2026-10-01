@@ -1,5 +1,6 @@
 // src/video_generation/autonomous_video_generation/generative_adversarial_directors_gads.rs
 
+use crate::prelude::*;
 pub struct GenerativeAdversarialDirector;
 
 impl GenerativeAdversarialDirector {

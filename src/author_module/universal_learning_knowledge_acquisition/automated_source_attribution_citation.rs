@@ -1,5 +1,6 @@
 // src/author_module/universal_learning_knowledge_acquisition/automated_source_attribution_citation.rs
 
+use crate::prelude::*;
 pub struct AutomatedSourceAttributionCitation;
 
 impl AutomatedSourceAttributionCitation {

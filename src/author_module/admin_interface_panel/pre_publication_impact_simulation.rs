@@ -1,5 +1,6 @@
 // src/author_module/admin_interface_panel/pre_publication_impact_simulation.rs
 
+use crate::prelude::*;
 pub struct PrePublicationImpactSimulation;
 
 impl PrePublicationImpactSimulation {

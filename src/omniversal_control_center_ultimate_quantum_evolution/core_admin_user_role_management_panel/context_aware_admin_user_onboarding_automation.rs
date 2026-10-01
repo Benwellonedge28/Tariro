@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/core_admin_user_role_management_panel/context_aware_admin_user_onboarding_automation.rs
 
+use crate::prelude::*;
 pub struct AdminUserOnboardingAutomator;
 
 impl AdminUserOnboardingAutomator {

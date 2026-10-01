@@ -1,5 +1,6 @@
 // src/multimodal/processing_fusion/predictive_multimodal_modeling.rs
 
+use crate::prelude::*;
 pub struct PredictiveModeler {
     // Continuously generating probabilistic predictions about what will be perceived next across all modalities.
 }

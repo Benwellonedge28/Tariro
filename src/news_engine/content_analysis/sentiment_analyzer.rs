@@ -2,6 +2,7 @@
 
 //! Provides functionality for analyzing the emotional tone or sentiment of news content.
 
+use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 

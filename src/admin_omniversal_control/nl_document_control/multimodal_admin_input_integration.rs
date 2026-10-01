@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/nl_document_control/multimodal_admin_input_integration.rs
 
+use crate::prelude::*;
 pub struct MultimodalInputManager;
 
 impl MultimodalInputManager {

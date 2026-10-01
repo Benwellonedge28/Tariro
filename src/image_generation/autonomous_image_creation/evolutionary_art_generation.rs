@@ -1,5 +1,6 @@
 // src/image_generation/autonomous_image_creation/evolutionary_art_generation.rs
 
+use crate::prelude::*;
 pub struct EvolutionaryArtGenerator;
 
 impl EvolutionaryArtGenerator {

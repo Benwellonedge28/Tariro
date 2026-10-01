@@ -5,6 +5,7 @@
 /// of homomorphic encryption, allowing computations to be performed on shared secrets without reconstructing them.
 /// It leverages RAG for advanced cryptographic protocols and distributed computing security.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

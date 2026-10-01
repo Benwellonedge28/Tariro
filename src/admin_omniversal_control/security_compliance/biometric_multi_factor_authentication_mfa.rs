@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/security_compliance/biometric_multi_factor_authentication_mfa.rs
 
+use crate::prelude::*;
 pub struct BiometricMFA;
 
 impl BiometricMFA {

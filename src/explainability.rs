@@ -1,6 +1,7 @@
 // Tariro AGI - Explainable AI (XAI) Engine Module
 // Provides interpretable explanations for AI decisions
 
+use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
 use std::time::Duration;

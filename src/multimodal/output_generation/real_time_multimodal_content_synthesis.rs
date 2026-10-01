@@ -1,5 +1,6 @@
 // src/multimodal/output_generation/real_time_multimodal_content_synthesis.rs
 
+use crate::prelude::*;
 pub struct ContentSynthesizer {
     // Generating fully realized multimodal experiences directly from high-level abstract ideas.
 }

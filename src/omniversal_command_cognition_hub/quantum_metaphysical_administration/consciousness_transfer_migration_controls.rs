@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/quantum_metaphysical_administration/consciousness_transfer_migration_controls.rs
 
+use crate::prelude::*;
 pub struct ConsciousnessTransferControl;
 
 impl ConsciousnessTransferControl {

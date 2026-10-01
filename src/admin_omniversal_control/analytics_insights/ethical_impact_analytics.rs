@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/analytics_insights/ethical_impact_analytics.rs
 
+use crate::prelude::*;
 pub struct EthicalImpactAnalytics;
 
 impl EthicalImpactAnalytics {

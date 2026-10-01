@@ -1,5 +1,6 @@
 // src/voice_generation/meta_voice_cognitive_integration/universal_voice_print_translation.rs
 
+use crate::prelude::*;
 pub struct VoicePrintTranslator;
 
 impl VoicePrintTranslator {

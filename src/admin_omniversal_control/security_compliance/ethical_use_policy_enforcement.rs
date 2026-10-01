@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/security_compliance/ethical_use_policy_enforcement.rs
 
+use crate::prelude::*;
 pub struct EthicalPolicyEnforcer;
 
 impl EthicalPolicyEnforcer {

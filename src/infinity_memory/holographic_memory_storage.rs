@@ -1,5 +1,6 @@
 // src/infinity_memory/holographic_memory_storage.rs
 
+use crate::prelude::*;
 pub struct HologramData {
     pub id: String,
     pub encoding_parameters: String, // Simplified: e.g., "angle_1: 45deg, wavelength: 532nm"

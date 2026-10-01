@@ -1,5 +1,6 @@
 // src/tariro_chatbot/advanced_chatbot_functionalities/role_based_chat_persona.rs
 
+use crate::prelude::*;
 pub struct RoleBasedChatPersona;
 
 impl RoleBasedChatPersona {

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/advanced_analytics_insights/the_samuel_mukandara_omniversal_command_cognition_hub.rs
 
+use crate::prelude::*;
 pub struct OmniversalCommandCognitionHub;
 
 impl OmniversalCommandCognitionHub {

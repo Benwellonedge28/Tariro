@@ -1,5 +1,6 @@
 // src/admin_voice_interface/auditing_explainability/voice_model_fairness_auditing.rs
 
+use crate::prelude::*;
 pub struct FairnessAuditor;
 
 impl FairnessAuditor {

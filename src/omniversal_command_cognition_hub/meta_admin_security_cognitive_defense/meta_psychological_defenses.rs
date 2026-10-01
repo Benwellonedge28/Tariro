@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/meta_admin_security_cognitive_defense/meta_psychological_defenses.rs
 
+use crate::prelude::*;
 pub struct MetaPsychologicalDefenses;
 
 impl MetaPsychologicalDefenses {

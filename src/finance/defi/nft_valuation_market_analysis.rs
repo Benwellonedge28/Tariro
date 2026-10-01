@@ -1,5 +1,6 @@
 // src/finance/defi/nft_valuation_market_analysis.rs
 
+use crate::prelude::*;
 pub struct NFTAnalyzer {
     // Provides advanced valuation models and market insights for non-fungible tokens.
 }

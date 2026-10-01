@@ -1,5 +1,6 @@
 // src/ip_management_panel/core_ip_asset_management_lifecycle/predictive_ip_risk_assessment.rs
 
+use crate::prelude::*;
 pub struct PredictiveIpRiskAssessment;
 
 impl PredictiveIpRiskAssessment {

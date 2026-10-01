@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/meta_administrative_interface_self_evolution/cognitive_load_optimization_for_the_interface_itself.rs
 
+use crate::prelude::*;
 pub struct InterfaceCognitiveOptimizer;
 
 impl InterfaceCognitiveOptimizer {

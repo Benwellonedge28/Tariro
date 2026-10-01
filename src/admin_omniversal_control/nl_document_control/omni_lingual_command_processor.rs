@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/nl_document_control/omni_lingual_command_processor.rs
 
+use crate::prelude::*;
 pub struct OmniLingualProcessor;
 
 impl OmniLingualProcessor {

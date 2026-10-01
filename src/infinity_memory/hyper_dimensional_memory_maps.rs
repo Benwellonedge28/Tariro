@@ -1,5 +1,6 @@
 // src/infinity_memory/hyper_dimensional_memory_maps.rs
 
+use crate::prelude::*;
 use std::collections::HashMap;
 
 pub struct HyperDimension {

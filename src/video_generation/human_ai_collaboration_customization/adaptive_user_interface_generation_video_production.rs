@@ -1,5 +1,6 @@
 // src/video_generation/human_ai_collaboration_customization/adaptive_user_interface_generation_video_production.rs
 
+use crate::prelude::*;
 pub struct AdaptiveUIGenerator;
 
 impl AdaptiveUIGenerator {

@@ -1,5 +1,6 @@
 // src/finance/risk_compliance/quantum_transaction_auditing.rs
 
+use crate::prelude::*;
 pub struct QuantumAuditor {
     // Implements quantum-safe protocols for auditing and verifying financial transaction integrity.
 }

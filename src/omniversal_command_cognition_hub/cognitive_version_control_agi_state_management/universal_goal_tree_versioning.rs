@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/cognitive_version_control_agi_state_management/universal_goal_tree_versioning.rs
 
+use crate::prelude::*;
 pub struct UniversalGoalTreeVersioning;
 
 impl UniversalGoalTreeVersioning {

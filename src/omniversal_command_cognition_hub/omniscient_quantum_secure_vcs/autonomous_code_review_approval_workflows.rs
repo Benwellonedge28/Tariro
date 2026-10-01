@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/autonomous_code_review_approval_workflows.rs
 
+use crate::prelude::*;
 pub struct CodeReviewWorkflows;
 
 impl CodeReviewWorkflows {

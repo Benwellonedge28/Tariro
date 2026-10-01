@@ -6,6 +6,7 @@
 /// integrating privacy-preserving AI models. It leverages RAG for advanced MPC protocols, federated
 /// learning, and multi-modal data security.
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

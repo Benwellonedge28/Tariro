@@ -1,5 +1,6 @@
 // src/meta_compiler_language_design/proof_carrying_code_generator.rs
 
+use crate::prelude::*;
 pub struct FormalProof {
     pub proof_id: String,
     pub theorem_statement: String,

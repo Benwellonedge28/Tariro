@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/omniscient_quantum_secure_vcs/automated_release_management_from_vcs.rs
 
+use crate::prelude::*;
 pub struct ReleaseManager;
 
 impl ReleaseManager {

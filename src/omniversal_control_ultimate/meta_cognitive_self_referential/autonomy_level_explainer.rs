@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/meta_cognitive_self_referential/autonomy_level_explainer.rs
 
+use crate::prelude::*;
 pub struct AutonomyExplainer;
 
 impl AutonomyExplainer {

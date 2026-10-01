@@ -1,5 +1,6 @@
 // src/author_module/admin_interface_panel/natural_language_feedback_refinement.rs
 
+use crate::prelude::*;
 pub struct NaturalLanguageFeedbackRefinement;
 
 impl NaturalLanguageFeedbackRefinement {

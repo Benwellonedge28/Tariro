@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/meta_admin_security_cognitive_defense/ethical_boundary_enforcement_conscious_level.rs
 
+use crate::prelude::*;
 pub struct EthicalBoundaryEnforcement;
 
 impl EthicalBoundaryEnforcement {

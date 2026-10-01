@@ -1,5 +1,6 @@
 // src/video_generation/security_ethics_verifiability_video_generation/secure_video_steganography.rs
 
+use crate::prelude::*;
 pub struct VideoSteganographer;
 
 impl VideoSteganographer {

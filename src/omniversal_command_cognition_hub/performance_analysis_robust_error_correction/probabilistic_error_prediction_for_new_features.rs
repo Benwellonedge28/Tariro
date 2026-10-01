@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/performance_analysis_robust_error_correction/probabilistic_error_prediction_for_new_features.rs
 
+use crate::prelude::*;
 pub struct ProbabilisticErrorPredictionNewFeatures;
 
 impl ProbabilisticErrorPredictionNewFeatures {

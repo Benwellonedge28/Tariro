@@ -1,5 +1,6 @@
 // src/image_generation/advanced_image_manipulation/automated_defect_removal_restoration.rs
 
+use crate::prelude::*;
 pub struct DefectRestorer;
 
 impl DefectRestorer {

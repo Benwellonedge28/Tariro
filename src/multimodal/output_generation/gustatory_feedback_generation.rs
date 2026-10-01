@@ -1,5 +1,6 @@
 // src/multimodal/output_generation/gustatory_feedback_generation.rs
 
+use crate::prelude::*;
 pub struct GustatoryFeedbackGenerator {
     // Synthesizing tastes to convey data or provide feedback.
 }

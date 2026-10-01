@@ -1,5 +1,6 @@
 // src/infinite_learning_memory/self_correcting_memory_bias_mitigation.rs
 
+use crate::prelude::*;
 pub enum BiasType {
     Confirmation,
     Anchoring,

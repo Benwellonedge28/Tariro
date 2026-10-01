@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/advanced_analytics_insights/real_time_global_consciousness_sentiment_mapping.rs
 
+use crate::prelude::*;
 pub struct GlobalConsciousnessMapper;
 
 impl GlobalConsciousnessMapper {

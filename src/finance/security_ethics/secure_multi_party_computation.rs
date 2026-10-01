@@ -1,5 +1,6 @@
 // src/finance/security_ethics/secure_multi_party_computation.rs
 
+use crate::prelude::*;
 pub struct SMPCCollaborator {
     // Enables multiple financial institutions to collaborate on analysis without sharing proprietary data directly.
 }

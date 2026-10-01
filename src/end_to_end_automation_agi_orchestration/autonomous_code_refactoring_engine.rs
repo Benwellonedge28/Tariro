@@ -1,5 +1,6 @@
 // src/end_to_end_automation_agi_orchestration/autonomous_code_refactoring_engine.rs
 
+use crate::prelude::*;
 pub enum RefactoringStrategy {
     ExtractFunction,
     RenameVariable,

@@ -1,5 +1,6 @@
 // src/admin_omniversal_control_enhanced/simulated_admin_environments_training/performance_impact_simulation.rs
 
+use crate::prelude::*;
 pub struct PerformanceImpactSimulator;
 
 impl PerformanceImpactSimulator {

@@ -1,5 +1,6 @@
 // src/finance/trading/dark_pool_integration.rs
 
+use crate::prelude::*;
 pub struct DarkPoolClient {
     // Secure interaction with dark pools and OTC markets.
 }

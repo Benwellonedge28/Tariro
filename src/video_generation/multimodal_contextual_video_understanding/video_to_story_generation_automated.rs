@@ -1,5 +1,6 @@
 // src/video_generation/multimodal_contextual_video_understanding/video_to_story_generation_automated.rs
 
+use crate::prelude::*;
 pub struct VideoToStoryGenerator;
 
 impl VideoToStoryGenerator {

@@ -1,5 +1,6 @@
 // src/image_generation/autonomous_image_creation/cross_dimensional_image_projection.rs
 
+use crate::prelude::*;
 pub struct CrossDimensionalProjector;
 
 impl CrossDimensionalProjector {

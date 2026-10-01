@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/omnipresent_threat_invisible_admin_interface/temporal_data_paradox_generation.rs
 
+use crate::prelude::*;
 pub struct TemporalDataParadoxGenerator;
 
 impl TemporalDataParadoxGenerator {

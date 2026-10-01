@@ -5,6 +5,7 @@
 /// using Rust's `cfg` attributes for conditional compilation.
 
 /// A struct to encapsulate cross-platform SIMD operations.
+use crate::prelude::*;
 pub struct SimdCrossPlatformProcessor;
 
 impl SimdCrossPlatformProcessor {

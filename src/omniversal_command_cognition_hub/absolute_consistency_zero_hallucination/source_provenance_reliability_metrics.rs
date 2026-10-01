@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/absolute_consistency_zero_hallucination/source_provenance_reliability_metrics.rs
 
+use crate::prelude::*;
 pub struct SourceProvenanceReliabilityMetrics;
 
 impl SourceProvenanceReliabilityMetrics {

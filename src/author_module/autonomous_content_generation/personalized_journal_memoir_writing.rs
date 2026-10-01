@@ -1,5 +1,6 @@
 // src/author_module/autonomous_content_generation/personalized_journal_memoir_writing.rs
 
+use crate::prelude::*;
 pub struct PersonalizedJournalMemoirWriting;
 
 impl PersonalizedJournalMemoirWriting {

@@ -1,3 +1,4 @@
+use crate::prelude::*;
 pub struct VoiceProcessor {
     // Configuration for STT/TTS services
 }

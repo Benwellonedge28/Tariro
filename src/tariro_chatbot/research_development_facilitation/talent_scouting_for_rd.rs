@@ -1,5 +1,6 @@
 // src/tariro_chatbot/research_development_facilitation/talent_scouting_for_rd.rs
 
+use crate::prelude::*;
 pub struct TalentScoutingForRD;
 
 impl TalentScoutingForRD {

@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/dynamic_service_pricing_panel/ethical_price_manipulation_prevention.rs
 
+use crate::prelude::*;
 pub struct EthicalPriceManipulationPrevention;
 
 impl EthicalPriceManipulationPrevention {

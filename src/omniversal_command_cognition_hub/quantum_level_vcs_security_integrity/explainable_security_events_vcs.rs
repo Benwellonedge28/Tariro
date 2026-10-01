@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/quantum_level_vcs_security_integrity/explainable_security_events_vcs.rs
 
+use crate::prelude::*;
 pub struct ExplainableSecurityEventsVCS;
 
 impl ExplainableSecurityEventsVCS {

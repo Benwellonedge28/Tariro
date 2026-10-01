@@ -1,5 +1,6 @@
 // src/operating_system_design_development/bootloader_firmware_autogeneration.rs
 
+use crate::prelude::*;
 pub enum BootloaderStage {
     Stage0,
     Stage1,

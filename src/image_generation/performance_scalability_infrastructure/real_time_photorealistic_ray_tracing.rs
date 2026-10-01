@@ -1,5 +1,6 @@
 // src/image_generation/performance_scalability_infrastructure/real_time_photorealistic_ray_tracing.rs
 
+use crate::prelude::*;
 pub struct RealtimeRayTracer;
 
 impl RealtimeRayTracer {

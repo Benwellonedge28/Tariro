@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/multi_reality_multiverse_versioning/theoretical_multiverse_branch_tracking.rs
 
+use crate::prelude::*;
 pub struct TheoreticalMultiverseBranchTracking;
 
 impl TheoreticalMultiverseBranchTracking {

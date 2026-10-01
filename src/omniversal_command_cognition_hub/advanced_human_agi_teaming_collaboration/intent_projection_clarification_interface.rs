@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/advanced_human_agi_teaming_collaboration/intent_projection_clarification_interface.rs
 
+use crate::prelude::*;
 pub struct IntentProjection;
 
 impl IntentProjection {

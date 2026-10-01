@@ -1,5 +1,6 @@
 // src/image_generation/autonomous_image_creation/concept_blending_hybrid_imaging.rs
 
+use crate::prelude::*;
 pub struct ConceptBlender;
 
 impl ConceptBlender {

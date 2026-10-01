@@ -3,6 +3,7 @@
 //! Authorship Module Core for Tariro AGI
 //! Handles attribution, style preservation, and ethical content generation
 
+use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;

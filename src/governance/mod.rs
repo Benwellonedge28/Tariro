@@ -1,5 +1,6 @@
 //! E.V.A.S. - Axiomatic Ethical-Ontological Grounding for Googol %
 
+use crate::prelude::*;
 pub struct EthicsEngine {
     pub ethical_axioms: Vec<String>,
 }

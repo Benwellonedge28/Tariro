@@ -1,5 +1,6 @@
 // src/tariro_chatbot/threat_invisibility_security/adaptive_chatbot_persona_for_adversaries.rs
 
+use crate::prelude::*;
 pub struct AdaptiveChatbotPersonaForAdversaries;
 
 impl AdaptiveChatbotPersonaForAdversaries {

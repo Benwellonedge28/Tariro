@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/analytics_insights/predictive_trend_analysis.rs
 
+use crate::prelude::*;
 pub struct PredictiveTrendAnalyzer;
 
 impl PredictiveTrendAnalyzer {

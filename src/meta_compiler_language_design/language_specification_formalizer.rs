@@ -1,5 +1,6 @@
 // src/meta_compiler_language_design/language_specification_formalizer.rs
 
+use crate::prelude::*;
 pub enum FormalismType {
     OperationalSemantics,
     DenotationalSemantics,

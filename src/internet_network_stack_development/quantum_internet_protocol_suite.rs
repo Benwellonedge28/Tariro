@@ -1,5 +1,6 @@
 // src/internet_network_stack_development/quantum_internet_protocol_suite.rs
 
+use crate::prelude::*;
 pub enum QuantumPhenomenon {
     EntanglementDistribution,
     Superposition,

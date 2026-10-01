@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/hyper_cognitive_integration_control/cognitive_reconfiguration_of_agi_modules.rs
 
+use crate::prelude::*;
 pub struct AGIModuleReconfigurator;
 
 impl AGIModuleReconfigurator {

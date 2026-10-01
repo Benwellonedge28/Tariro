@@ -1,5 +1,6 @@
 // src/metaphysical_quantum_multidimensional/subjective_reality_anchoring.rs
 
+use crate::prelude::*;
 pub enum RealityDeviationLevel {
     MinorSensoryDistortion,
     ModeratePerceptualShift,

@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/meta_admin_security_cognitive_defense/quantum_entangled_admin_shadow.rs
 
+use crate::prelude::*;
 pub struct QuantumEntangledAdminShadow;
 
 impl QuantumEntangledAdminShadow {

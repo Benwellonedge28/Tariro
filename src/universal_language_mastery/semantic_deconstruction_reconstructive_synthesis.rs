@@ -1,5 +1,6 @@
 // src/universal_language_mastery/semantic_deconstruction_reconstructive_synthesis.rs
 
+use crate::prelude::*;
 pub enum LanguageType {
     Natural(String), // e.g., "English", "Mandarin"
     Artificial(String), // e.g., "Python", "Rust", "SQL"

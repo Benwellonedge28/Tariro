@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/omnipresent_threat_invisible_admin_interface/hyper_dimensional_data_mirroring.rs
 
+use crate::prelude::*;
 pub struct HyperDimensionalDataMirroring;
 
 impl HyperDimensionalDataMirroring {

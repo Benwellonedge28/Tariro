@@ -1,5 +1,6 @@
 // src/omniversal_control_center_ultimate_quantum_evolution/core_admin_user_role_management_panel/predictive_admin_user_skill_gap_identification.rs
 
+use crate::prelude::*;
 pub struct AdminUserSkillGapIdentifier;
 
 impl AdminUserSkillGapIdentifier {

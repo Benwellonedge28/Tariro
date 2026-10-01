@@ -1,6 +1,7 @@
 // Tariro AGI - Trusted Execution Environment Module
 // Hardware-backed security for sovereign AI operations
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use chrono::{DateTime, Utc};
 use std::time::Duration;

@@ -5,6 +5,7 @@
 /// and even entire societies, adapting to stylistic constraints or narrative needs (SIMD: parallel noise generation,
 /// fractal algorithms; RAG: ecological models, architectural patterns, sociological data).
 
+use crate::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;

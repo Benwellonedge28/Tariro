@@ -1,5 +1,6 @@
 // src/omniversal_control_center_hyper_evolution/hierarchical_omni_domain_implementation_panel/multi_domain_integration_weaver.rs
 
+use crate::prelude::*;
 pub struct MultiDomainIntegrationWeaver;
 
 impl MultiDomainIntegrationWeaver {

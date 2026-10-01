@@ -1,5 +1,6 @@
 // src/omniversal_command_cognition_hub/absolute_consistency_zero_hallucination/real_time_semantic_coherence_validator.rs
 
+use crate::prelude::*;
 pub struct RealtimeSemanticCoherenceValidator;
 
 impl RealtimeSemanticCoherenceValidator {

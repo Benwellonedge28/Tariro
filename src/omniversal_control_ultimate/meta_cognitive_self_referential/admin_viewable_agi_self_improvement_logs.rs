@@ -1,5 +1,6 @@
 // src/omniversal_control_ultimate/meta_cognitive_self_referential/admin_viewable_agi_self_improvement_logs.rs
 
+use crate::prelude::*;
 pub struct SelfImprovementLogs;
 
 impl SelfImprovementLogs {

@@ -1,5 +1,6 @@
 // src/admin_voice_interface/real_time_monitoring_diagnostics/voice_quality_monitoring_perceptual_objective.rs
 
+use crate::prelude::*;
 pub struct VoiceQualityMonitor;
 
 impl VoiceQualityMonitor {

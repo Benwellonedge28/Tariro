@@ -1,5 +1,6 @@
 // src/finance/security_ethics/financial_evas_enforcement.rs
 
+use crate::prelude::*;
 pub struct EVASEnforcer {
     // Integrates the E.V.A.S. framework into every financial decision, prioritizing societal well-being and ethical conduct.
 }

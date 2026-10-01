@@ -1,5 +1,6 @@
 // src/admin_omniversal_control/analytics_insights/user_behavior_analytics_end_user.rs
 
+use crate::prelude::*;
 pub struct EndUserAnalytics;
 
 impl EndUserAnalytics {
