@@ -42,6 +42,9 @@ pub mod macro_system;
 pub mod tariro_vm;
 pub mod native_codegen;
 pub mod simd_vectorizer;
+pub mod lsp_server;
+pub mod dwarf_debug;
+pub mod derive_system;
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
