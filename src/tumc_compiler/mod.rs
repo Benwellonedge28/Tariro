@@ -49,6 +49,9 @@ pub mod fuzzing;
 pub mod profiler;
 pub mod wasm_engine;
 pub mod docs;
+pub mod testing;
+pub mod package_manager;
+pub mod build_system;
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
