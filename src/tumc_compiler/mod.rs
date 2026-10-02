@@ -45,6 +45,10 @@ pub mod simd_vectorizer;
 pub mod lsp_server;
 pub mod dwarf_debug;
 pub mod derive_system;
+pub mod fuzzing;
+pub mod profiler;
+pub mod wasm_engine;
+pub mod docs;
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
