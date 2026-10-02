@@ -52,6 +52,10 @@ pub mod docs;
 pub mod testing;
 pub mod package_manager;
 pub mod build_system;
+pub mod repl;
+pub mod jit;
+pub mod wasi;
+pub mod hotreload;
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
