@@ -64,6 +64,10 @@ pub mod gc;
 pub mod i18n;
 pub mod metrics;
 pub mod security;
+pub mod target_x86_64;
+pub mod target_arm64;
+pub mod target_jvm;
+pub mod target_llvm;
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
