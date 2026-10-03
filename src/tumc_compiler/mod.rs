@@ -56,6 +56,10 @@ pub mod repl;
 pub mod jit;
 pub mod wasi;
 pub mod hotreload;
+pub mod component;
+pub mod threading;
+pub mod serialization;
+pub mod plugins;
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
