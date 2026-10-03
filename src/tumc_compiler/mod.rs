@@ -60,6 +60,10 @@ pub mod component;
 pub mod threading;
 pub mod serialization;
 pub mod plugins;
+pub mod gc;
+pub mod i18n;
+pub mod metrics;
+pub mod security;
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
