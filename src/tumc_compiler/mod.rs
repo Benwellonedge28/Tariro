@@ -68,6 +68,11 @@ pub mod target_x86_64;
 pub mod target_arm64;
 pub mod target_jvm;
 pub mod target_llvm;
+pub mod lang_python;
+pub mod lang_typescript;
+pub mod lang_go;
+pub mod target_python;
+pub mod target_dotnet;
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
