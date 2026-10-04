@@ -71,6 +71,7 @@ pub mod target_llvm;
 pub mod lang_python;
 pub mod lang_typescript;
 pub mod lang_go;
+pub mod lang_rust;
 pub mod target_python;
 pub mod target_dotnet;
 
