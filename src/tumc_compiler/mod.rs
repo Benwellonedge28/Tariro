@@ -75,6 +75,18 @@ pub mod lang_rust;
 pub mod target_python;
 pub mod target_dotnet;
 
+// TUMC Advanced Modules (Phase 12)
+pub mod ir;
+pub mod optimization;
+pub mod analysis;
+pub mod type_system;
+pub mod gc;
+pub mod runtime;
+pub mod targets;
+pub mod tooling;
+pub mod verification;
+pub mod specialization;
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
