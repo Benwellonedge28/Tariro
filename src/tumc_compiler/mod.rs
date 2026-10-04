@@ -87,6 +87,9 @@ pub mod tooling;
 pub mod verification;
 pub mod specialization;
 
+// TUMC-AGI Integration (Phase 13)
+pub mod agi_integration;
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
