@@ -52,6 +52,11 @@ pub mod tumc_compiler;
 pub mod tumc_core;
 
 // ============================================================================
+// TUMC-AGI Unified System (Full Integration)
+// ============================================================================
+pub mod unified;
+
+// ============================================================================
 // Knowledge-Centric AGI Modules (Symbolic AI - Not Token Prediction)
 // ============================================================================
 pub mod knowledge;
@@ -240,7 +245,7 @@ pub mod zero_trust;
 // ============================================================================
 // Version and Constants
 // ============================================================================
-pub const VERSION: &str = "1.0.12";
+pub const VERSION: &str = "1.0.14";
 pub const TUMC_NAME: &str = "Tariro Universal Meta-Compiler";
 pub const POCO_REAF: &str = "Program-and-Compile-Once-Run-Everywhere-Anywhere-Forever";
 
@@ -337,6 +342,10 @@ impl Ord for Infinitism {
 pub struct TariroAGI {
     /// The Universal Meta-Compiler core
     pub tumc: crate::tumc_core::TariroUniversalMetaCompiler,
+
+    /// The TUMC-AGI Unified Orchestrator (Full System Integration)
+    pub unified_orchestrator: crate::unified::TariroUnifiedOrchestrator,
+
     /// System metadata
     pub metadata: AGISystemMetadata,
 }
@@ -352,8 +361,10 @@ pub struct AGISystemMetadata {
 impl TariroAGI {
     /// Create a new instance of the Tariro AGI system
     pub fn new() -> Self {
+        let config = crate::unified::UnifiedConfig::default();
         TariroAGI {
             tumc: crate::tumc_core::TariroUniversalMetaCompiler::new(),
+            unified_orchestrator: crate::unified::create_tariro_unified(config),
             metadata: AGISystemMetadata {
                 version: VERSION.to_string(),
                 uptime_mts: 0,
@@ -371,6 +382,12 @@ impl TariroAGI {
         self.initialize_runtime();
         self.initialize_learning();
         self.initialize_governance();
+
+        // Initialize the TUMC-AGI Unified Orchestrator
+        if let Err(e) = self.unified_orchestrator.initialize() {
+            eprintln!("Warning: Unified orchestrator initialization failed: {}", e);
+        }
+
         println!("Tariro AGI System initialized successfully.");
     }
 
@@ -396,6 +413,26 @@ impl TariroAGI {
         self.tumc.compile_intent(intent, target_platform)
     }
 
+    /// Process an intent through the unified TUMC-AGI orchestrator (Full Integration)
+    pub fn process_unified(&mut self, intent: crate::unified::Intent) -> Result<crate::unified::UnifiedResult, String> {
+        self.metadata.total_processed_intents += 1;
+        self.unified_orchestrator.process_intent(intent)
+    }
+
+    /// Compile code with AGI intelligence using the unified system
+    pub fn compile_with_agi(&mut self, source: &str, target: &str) -> Result<String, String> {
+        self.metadata.total_processed_intents += 1;
+        let intent = crate::unified::Intent {
+            intent_type: crate::unified::IntentType::Compile,
+            description: format!("Compile: {} -> {}", source, target),
+            context: std::collections::HashMap::new(),
+        };
+        match self.unified_orchestrator.process_intent(intent) {
+            Ok(result) => Ok(result.output),
+            Err(e) => Err(e),
+        }
+    }
+
     /// Get system status
     pub fn get_status(&self) -> String {
         format!(
@@ -404,6 +441,11 @@ impl TariroAGI {
             self.metadata.uptime_mts,
             self.metadata.total_processed_intents
         )
+    }
+
+    /// Get detailed unified system status
+    pub fn get_unified_status(&self) -> crate::unified::UnifiedStatus {
+        self.unified_orchestrator.get_status()
     }
 }
 
@@ -419,3 +461,14 @@ pub use crate::fco::MukandaraState;
 pub use crate::growth::GrowthDynamics;
 pub use crate::atve::TestResult;
 pub use crate::config::AGIConfig;
+
+// TUMC-AGI Unified System Re-exports
+pub use crate::unified::{
+    TariroUnifiedOrchestrator,
+    UnifiedConfig,
+    Intent,
+    IntentType,
+    UnifiedResult,
+    UnifiedStatus,
+    create_tariro_unified,
+};
