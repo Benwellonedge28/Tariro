@@ -36,6 +36,8 @@ pub mod orchestrator;
 pub mod cognitive_core;
 pub mod compiler_integration;
 pub mod unified_memory;
+pub mod engine_registry;
+pub mod tariro_integration;
 
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, RwLock};
@@ -46,6 +48,20 @@ pub use orchestrator::TariroUnifiedOrchestrator;
 pub use cognitive_core::CognitiveCore;
 pub use compiler_integration::CompilerIntegration;
 pub use unified_memory::UnifiedMemory;
+
+// Re-export integration system types
+pub use tariro_integration::{
+    TariroIntegration,
+    EngineRegistry,
+    EngineMetadata,
+    EngineCategory,
+    EngineStatistics,
+    SystemStatus as IntegrationSystemStatus,
+    SystemHealth,
+    CapabilityProfile,
+    CapabilityLevel,
+};
+pub use engine_registry::{EngineMetadata, EngineCategory, EngineStatistics};
 
 use crate::tumc_compiler::ir::Module;
 use crate::tumc_compiler::agi_integration::{AgiInsight, AgiCompilerConfig};
