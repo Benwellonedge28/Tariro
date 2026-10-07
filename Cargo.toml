@@ -1,65 +1,104 @@
 [package]
 name = "tariro"
-version = "1.0.12"
+version = "1.0.15"
 edition = "2021"
-authors = ["Samuel Mukandara <samuel@tariro.dev>"]
-description = "Tariro AGI - The Universal Meta-Compiler System implementing POCO-REAF"
+authors = [
+    "Samuel Mukandara <samuel@tariro.dev>",
+    "Tariro AGI Contributors <contributors@tariro.dev>"
+]
+description = "Tariro AGI - The Most Powerful AGI System with Universal Meta-Compiler implementing POCO-REAF"
 license = "MIT OR Apache-2.0"
-homepage = "https://github.com/Benwellonedge28/Tariro"
+homepage = "https://tariro.dev"
 repository = "https://github.com/Benwellonedge28/Tariro"
 documentation = "https://docs.tariro.dev"
-keywords = ["agi", "compiler", "meta-compiler", "universal", "ai", "quantum", "meta-learning"]
-categories = ["compilers", "artificial-intelligence", "science", "concurrency"]
+keywords = [
+    "agi",
+    "compiler",
+    "meta-compiler",
+    "universal",
+    "artificial-general-intelligence",
+    "cognitive",
+    "quantum",
+    "meta-learning",
+    "self-modifying",
+    "neural-symbolic"
+]
+categories = [
+    "compilers",
+    "artificial-intelligence",
+    "science",
+    "concurrency",
+    "neural-networks",
+    "quantum-computing"
+]
 readme = "README.md"
 rust-version = "1.70"
+include = [
+    "src/**/*.rs",
+    "Cargo.toml",
+    "LICENSE*",
+    "README.md"
+]
+exclude = [
+    "target/**/*",
+    "**/*.md"
+]
 
 [package.metadata]
 cargo-doc = { all-features = true }
 license = { MIT = "https://opensource.org/licenses/MIT", Apache-2.0 = "https://www.apache.org/licenses/LICENSE-2.0" }
+release = { enable = true }
 
 [features]
-default = ["std", "async-runtime"]
-std = []
+default = ["std", "async-runtime", "logging"]
+std = ["alloc"]
+alloc = []
 async-runtime = ["tokio/rt-multi-thread"]
-full = ["async-runtime", "mongodb", "metrics", "profiling"]
-metrics = ["dep:prometheus"]
+logging = ["tracing", "tracing-subscriber"]
+full = [
+    "async-runtime",
+    "logging",
+    "metrics",
+    "profiling",
+    "telemetry"
+]
+metrics = ["dep:prometheus", "dep:metrics"]
 profiling = ["dep:tracing-timing"]
+telemetry = ["dep:opentelemetry", "dep:jaeger"]
 
 [dependencies]
 # Core
-uuid = { version = "1.0", features = ["v4", "fast-rng", "serde"] }
-chrono = { version = "0.4", features = ["serde"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+uuid = { version = "1.8", features = ["v4", "fast-rng", "serde"] }
+chrono = { version = "0.4", features = ["serde", "std"] }
+serde = { version = "1.0", features = ["derive", "std"] }
+serde_json = { version = "1.0", features = ["std"] }
 serde_yaml = "0.9"
 
 # Async Runtime
-tokio = { version = "1.0", features = ["full"], optional = true }
+tokio = { version = "1.36", features = ["full"], optional = true }
 async-trait = "0.1"
-futures = "0.3"
+futures = { version = "0.3", features = ["std", "alloc"] }
 
 # Cryptography & Security
 sha2 = "0.10"
 sha3 = "0.10"
 hmac = "0.12"
 aes-gcm = "0.10"
-ed25519-dalek = { version = "2.0", features = ["rand_core"] }
-rand = "0.8"
+ed25519-dalek = { version = "2.1", features = ["rand_core", "std"] }
+rand = { version = "0.8", features = ["std", "rng_types"] }
+digest = "0.10"
 
 # Numeric & Scientific
-num-complex = "0.4"
+num-complex = { version = "0.4", features = ["serde"] }
 num-traits = "0.2"
 num-derive = "0.4"
+rayon = "1.8"
 
-# Error Handling
+# Error Handling & Logging
 thiserror = "1.0"
-anyhow = "1.0"
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-
-# Database
-mongodb = { version = "2.8", optional = true }
-bson = { version = "2.15", optional = true }
+anyhow = { version = "1.0", features = ["std"] }
+tracing = { version = "0.1", optional = true }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"], optional = true }
 
 # Serialization
 toml = "0.8"
@@ -67,17 +106,30 @@ parse-display = "0.8"
 
 # Metrics & Profiling
 prometheus = { version = "0.13", optional = true }
+metrics = { version = "0.21", optional = true }
 tracing-timing = { version = "0.1", optional = true }
 
+# Telemetry
+opentelemetry = { version = "0.22", optional = true, features = ["trace", "rt-tokio"] }
+jaeger = { version = "0.22", optional = true }
+opentelemetry-otlp = { version = "0.15", optional = true }
+
+# Database (optional)
+mongodb = { version = "2.9", optional = true }
+bson = { version = "2.10", optional = true }
+
 # Workspace member
-tariro_sdk = { path = "tariro_sdk" }
+tariro_sdk = { path = "tariro_sdk", optional = true }
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
-proptest = "1.0"
+proptest = "1.4"
 quickcheck = "1.0"
 tokio-test = "0.4"
 mockall = "0.12"
+tempfile = "3.10"
+assert_cmd = "2.0"
+predicates = "3.1"
 
 [workspace]
 resolver = "2"
@@ -92,9 +144,8 @@ name = "tariro"
 path = "src/main.rs"
 required-features = ["full"]
 
-[[bench]]
-name = "benchmark"
-harness = false
+[build-dependencies]
+rustversion = "1.0"
 
 [profile.dev]
 opt-level = 0
@@ -103,10 +154,23 @@ split-debuginfo = "unpacked"
 
 [profile.release]
 opt-level = 3
-lto = true
+lto = "fat"
 codegen-units = 1
+panic = "abort"
 strip = true
+
+[profile.release.profile.dev]
+inherits = "dev"
 
 [profile.test]
 inherits = "release"
 opt-level = 2
+
+[profile.bench]
+inherits = "release"
+debug = true
+
+[badges]
+maintenance = { status = "actively-developed" }
+travis-ci = { repository = "Benwellonedge28/Tariro", branch = "main" }
+coveralls = { repository = "Benwellonedge28/Tariro", service = "github" }

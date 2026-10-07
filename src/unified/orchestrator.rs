@@ -3,13 +3,13 @@
 //! The central orchestrator that coordinates all TUMC compiler modules
 //! with AGI cognitive systems.
 
-use crate::unified::{UnifiedConfig, SystemStatus, ComponentStatus, SystemMetrics, IntentResult, ProcessingMetrics};
+use crate::unified::{UnifiedConfig, SystemStatus, ComponentStatus, SystemMetrics, IntentResult, ProcessingMetrics, Intent, IntentType, UnifiedResult};
 use crate::unified::cognitive_core::CognitiveCore;
 use crate::unified::compiler_integration::CompilerIntegration;
 use crate::unified::unified_memory::UnifiedMemory;
-use crate::tumc_compiler::agi_integration::{AgiInsight, AgiCompilerConfig};
 use crate::tumc_compiler::optimization::OptLevel;
 use crate::tumc_compiler::ir::Module;
+use crate::tumc_compiler::agi_integration::AgiInsight;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
@@ -118,7 +118,7 @@ impl TariroUnifiedOrchestrator {
         Ok(())
     }
 
-    /// Process an intent through the unified system
+    /// Process an intent through the unified system (legacy string-based method)
     pub fn process_intent(&mut self, intent: &str, target: &str) -> IntentResult {
         let start = Instant::now();
         let mut errors = Vec::new();
@@ -179,6 +179,133 @@ impl TariroUnifiedOrchestrator {
                 confidence: calculate_confidence(&insights),
             },
             errors,
+        }
+    }
+
+    /// Process an Intent struct through the unified system (new unified API)
+    pub fn process_unified_intent(&mut self, intent: Intent) -> Result<UnifiedResult, String> {
+        let start = Instant::now();
+        let mut errors = Vec::new();
+        let mut insights = Vec::new();
+        let mut output = String::new();
+
+        // Extract target from context if available
+        let target = intent.context.get("target")
+            .map(|s| s.as_str())
+            .unwrap_or("wasm");
+
+        // Step 1: Cognitive preprocessing based on intent type
+        if let Some(ref mut cc) = self.cognitive_core {
+            match intent.intent_type {
+                IntentType::Compile | IntentType::Optimize => {
+                    let cog_result = cc.process_intent(&intent.description);
+                    if !cog_result.success {
+                        errors.push(cog_result.error.clone());
+                    }
+                    insights.extend(cog_result.insights);
+                }
+                IntentType::Reason | IntentType::Understand => {
+                    let cog_result = cc.process_intent(&intent.description);
+                    if !cog_result.success {
+                        errors.push(cog_result.error.clone());
+                    }
+                    insights.extend(cog_result.insights);
+                }
+                _ => {
+                    // For other intent types, do basic processing
+                    let cog_result = cc.process_intent(&intent.description);
+                    if !cog_result.success {
+                        errors.push(cog_result.error.clone());
+                    }
+                    insights.extend(cog_result.insights);
+                }
+            }
+        }
+
+        // Step 2: Compile with cognitive augmentation based on intent type
+        let optimizations_applied = match intent.intent_type {
+            IntentType::Compile | IntentType::Optimize => {
+                let compile_result = self.compiler.compile_with_insights(&intent.description, target, &insights);
+                if compile_result.success {
+                    output = compile_result.output;
+                } else {
+                    errors.extend(compile_result.errors);
+                }
+                compile_result.optimizations_applied
+            }
+            IntentType::Analyze => {
+                // Analyze code
+                let compile_result = self.compiler.compile_with_insights(&intent.description, target, &insights);
+                if compile_result.success {
+                    output = format!("Analysis complete:\n{}", compile_result.output);
+                } else {
+                    errors.extend(compile_result.errors);
+                }
+                0
+            }
+            IntentType::Reason | IntentType::Understand => {
+                // Generate reasoning output
+                output = format!("Reasoning result for: {}", intent.description);
+                insights.iter().for_each(|i| {
+                    output.push_str(&format!("\n- {} (confidence: {:.2})", i.description, i.confidence));
+                });
+                0
+            }
+            IntentType::Learn => {
+                output = format!("Learning from: {}", intent.description);
+                0
+            }
+            IntentType::Create | IntentType::Generate => {
+                let spec = &intent.description;
+                output = self.compiler.generate_self_modifying_code(spec);
+                0
+            }
+            _ => {
+                output = format!("Processed intent: {:?} - {}", intent.intent_type, intent.description);
+                0
+            }
+        };
+
+        // Step 3: Post-processing and memory update
+        {
+            let mut mem = match self.memory.write() {
+                Ok(m) => m,
+                Err(_) => {
+                    errors.push("Memory lock error".to_string());
+                    return Err("Memory lock error".to_string());
+                }
+            };
+            mem.store_intent(&intent.description, &output, &insights);
+        }
+
+        // Update metrics
+        self.status.metrics.compilations_completed += 1;
+        self.status.metrics.insights_generated += insights.len() as u64;
+        self.status.metrics.optimizations_applied += optimizations_applied;
+
+        let metrics = ProcessingMetrics {
+            compilation_time_ms: start.elapsed().as_millis() as u64,
+            reasoning_steps: insights.len(),
+            optimizations_applied,
+            confidence: calculate_confidence(&insights),
+        };
+
+        if errors.is_empty() {
+            Ok(UnifiedResult {
+                success: true,
+                output,
+                insights,
+                metrics,
+                errors: Vec::new(),
+            })
+        } else {
+            Ok(UnifiedResult {
+                success: false,
+                output,
+                insights,
+                metrics,
+                errors,
+            })
         }
     }
 

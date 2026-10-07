@@ -448,7 +448,7 @@ impl TariroAGI {
     /// Process an intent through the unified TUMC-AGI orchestrator (Full Integration)
     pub fn process_unified(&mut self, intent: crate::unified::Intent) -> Result<crate::unified::UnifiedResult, String> {
         self.metadata.total_processed_intents += 1;
-        self.unified_orchestrator.process_intent(intent)
+        self.unified_orchestrator.process_unified_intent(intent)
     }
 
     /// Compile code with AGI intelligence using the unified system

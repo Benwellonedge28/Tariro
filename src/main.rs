@@ -1,43 +1,196 @@
-//! This is the main entry point for the Tariro Universal Meta-Compiler (TUMC).
+//! Tariro AGI - Main Entry Point
 //!
-//! This module orchestrates the entire meta-compilation process, from ingesting
-//! diverse intents to generating and deploying highly optimized, platform-independent
-//! executable artifacts.
+//! This is the production entry point for the Tariro AGI system,
+//! implementing "Program-and-Compile-Once-Run-Everywhere-Anywhere-Forever" (POCO-REAF).
 //!
-//! The TUMC embodies the vision of "Program-and-Compile-Once-Run-Everywhere-Anywhere-Forever"
-//! (POCO-REAF) systems, leveraging advanced AI, self-modification, and rigorous testing
-//! to achieve "googol percent" efficiency and performance.
+//! # Features
+//!
+//! - Full AGI capabilities with cognitive reasoning
+//! - TUMC Universal Meta-Compiler integration
+//! - Neural-symbolic pattern recognition
+//! - Meta-learning optimization
+//! - Self-modifying code generation
+//! - Quantum-ready architecture
+//!
+//! # Usage
+//!
+//! ```rust
+//! use tariro_agi_core::TariroAGI;
+//!
+//! let mut agi = TariroAGI::new();
+//! agi.initialize();
+//! let status = agi.get_status();
+//! println!("{}", status);
+//! ```
 
-mod tumc_core;
+use tariro_agi_core::{TariroAGI, VERSION, POCO_REAF, TUMC_NAME};
+use std::process;
+use tracing::{info, error, Level};
+use tracing_subscriber::FmtSubscriber;
 
+/// Initialize logging with tracing
+fn init_logging() {
+    let subscriber = FmtSubscriber::builder()
+        .with_max_level(Level::INFO)
+        .with_target(false)
+        .with_thread_ids(false)
+        .with_file(true)
+        .with_line_number(true)
+        .init();
+}
+
+/// Main entry point for Tariro AGI
 fn main() {
-    println!("Initializing Tariro Universal Meta-Compiler (TUMC)...");
-    let tumc = tumc_core::TariroUniversalMetaCompiler::new();
-    println!("TUMC Initialized. Ready to process intent.");
+    // Initialize logging
+    init_logging();
 
-    // --- Example Usage (Conceptual) ---
+    info!("=================================================");
+    info!("  TARIRO AGI - THE MOST POWERFUL AGI SYSTEM");
+    info!("=================================================");
+    info!("Version: {}", VERSION);
+    info!("Paradigm: {}", POCO_REAF);
+    info!("=================================================");
 
-    // 1. Compile a high-level intent for a microservice
-    let intent_microservice = "Create a highly secure, energy-efficient microservice for real-time sensor data processing on an edge IoT device.";
-    let target_edge_device = "ARM64_IoT_Edge_Linux";
-    let result_microservice = tumc.compile_intent(intent_microservice, target_edge_device);
-    println!("Compilation Result: {}", result_microservice);
+    // Create and initialize the AGI system
+    let mut agi = TariroAGI::new();
 
-    // 2. Translate a semantic concept between domains
-    let semantic_concept = "the feeling of 'joy' in a human mind";
-    let source_domain = "human_cognition";
-    let target_domain = "quantum_neural_network_state";
-    let translated_concept = tumc.translate_semantic_domain(source_domain, target_domain, semantic_concept);
-    println!("Translation Result: {}", translated_concept);
+    // Initialize the complete system
+    if let Err(e) = std::panic::catch_unwind(|| {
+        agi.initialize();
+    }) {
+        error!("Failed to initialize Tariro AGI: {:?}", e);
+        eprintln!("ERROR: Failed to initialize Tariro AGI system");
+        process::exit(1);
+    }
 
-    // 3. Self-modify its own grammar based on a new language specification
-    let new_lang_spec = "Add a new declarative syntax for bio-molecular programming based on DNA sequences.";
-    tumc.self_modify_grammar(new_lang_spec);
-    println!("Meta-compiler's grammar self-modified. It can now understand new paradigms.");
+    // Display system manifest
+    let manifest = agi.get_system_manifest();
+    info!("System Manifest:");
+    info!("  - Total Files: {}", manifest.total_files);
+    info!("  - Total Engines: {}", manifest.total_engines);
+    info!("  - Active Modules: {}", manifest.active_modules);
+    info!("  - Health Score: {:.1}%", manifest.health_score);
+    info!("  - System Ready: {}", manifest.system_ready);
 
-    // 4. Run a comprehensive self-test using the ATVE
-    let self_test_report = tumc.initiate_self_test();
-    println!("Self-Test Report: {}", self_test_report);
+    // Run demonstration
+    run_demonstration(&mut agi);
 
-    println!("TUMC operations complete. Awaiting further intent from Samuel Mukandara.");
+    info!("=================================================");
+    info!("  TARIRO AGI READY FOR PRODUCTION");
+    info!("=================================================");
+}
+
+/// Run demonstration of Tariro AGI capabilities
+fn run_demonstration(agi: &mut TariroAGI) {
+    info!("Running Tariro AGI demonstration...");
+
+    // 1. Standard compilation
+    info!("\n[1] Standard TUMC Compilation:");
+    let result = agi.process_intent(
+        "Create a secure microservice for real-time sensor processing",
+        "wasm32-unknown-unknown"
+    );
+    info!("Result: {}", result);
+
+    // 2. AGI-powered compilation
+    info!("\n[2] AGI-Powered Compilation:");
+    match agi.compile_with_agi("neural network inference", "x86_64-unknown-linux-gnu") {
+        Ok(output) => info!("Compiled: {}", output),
+        Err(e) => error!("Compilation failed: {}", e),
+    }
+
+    // 3. System capabilities
+    info!("\n[3] Available Capabilities:");
+    let capabilities = agi.get_capabilities();
+    let capability_names: Vec<_> = capabilities.iter().map(|c| c.name.as_str()).collect();
+    info!("Found {} capability categories", capability_names.len());
+
+    // 4. Find specific engines
+    info!("\n[4] Reasoning Engines:");
+    let reasoning_engines = agi.find_capable_engines("reasoning");
+    for engine in reasoning_engines.iter().take(5) {
+        info!("  - {}: {}", engine.name, engine.description);
+    }
+
+    // 5. System health
+    info!("\n[5] System Health Check:");
+    let health = agi.get_system_health();
+    info!("  Overall Score: {:.1}%", health.overall_score);
+    info!("  Reasoning Ready: {}", health.reasoning_ready);
+    info!("  Learning Ready: {}", health.learning_ready);
+    info!("  Security Ready: {}", health.security_ready);
+    info!("  Memory Ready: {}", health.memory_ready);
+    info!("  Communication Ready: {}", health.communication_ready);
+    info!("  Creativity Ready: {}", health.creativity_ready);
+
+    // 6. Engine statistics
+    info!("\n[6] Engine Statistics:");
+    let stats = agi.get_engine_stats();
+    info!("  Total Registered Engines: {}", stats.total_engines);
+    info!("  Total Files: {}", stats.total_files);
+    for (category, count) in &stats.category_breakdown {
+        info!("  {}: {}", category, count);
+    }
+
+    // 7. Unified status
+    info!("\n[7] Unified System Status:");
+    let unified_status = agi.get_unified_status();
+    info!("  Intent Queue Size: {}", unified_status.intent_queue_size);
+    info!("  Active Processes: {}", unified_status.active_processes);
+    info!("  Memory Usage: {} MB", unified_status.memory_usage_mb);
+}
+
+/// Display usage information
+fn print_usage() {
+    println!("
+Tariro AGI - Universal Meta-Compiler System
+===========================================
+
+Usage: tariro [OPTIONS]
+
+OPTIONS:
+    -h, --help          Show this help message
+    -v, --version       Show version information
+    -s, --status        Display system status and exit
+    -c, --compile       Run compilation demo
+    -t, --test          Run system tests
+
+For more information, visit: https://github.com/Benwellonedge28/Tariro
+");
+}
+
+#[cfg(test)]
+mod integration_tests {
+    use super::*;
+
+    #[test]
+    fn test_tariro_agi_initialization() {
+        let mut agi = TariroAGI::new();
+        agi.initialize();
+        let manifest = agi.get_system_manifest();
+        assert!(manifest.total_files > 0);
+        assert!(manifest.total_engines > 0);
+    }
+
+    #[test]
+    fn test_system_health() {
+        let agi = TariroAGI::new();
+        let health = agi.get_system_health();
+        assert!(health.overall_score >= 0.0);
+        assert!(health.overall_score <= 100.0);
+    }
+
+    #[test]
+    fn test_capabilities() {
+        let agi = TariroAGI::new();
+        let caps = agi.get_capabilities();
+        assert!(!caps.is_empty());
+    }
+
+    #[test]
+    fn test_engine_search() {
+        let agi = TariroAGI::new();
+        let reasoning = agi.find_capable_engines("reasoning");
+        assert!(!reasoning.is_empty());
+    }
 }
