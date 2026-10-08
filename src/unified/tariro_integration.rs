@@ -38,6 +38,7 @@ pub struct CapabilityProfile {
     pub agency: CapabilityLevel,
     pub quantum: CapabilityLevel,
     pub optimization: CapabilityLevel,
+    pub tools: CapabilityLevel,
 }
 
 impl Default for CapabilityProfile {
@@ -52,6 +53,7 @@ impl Default for CapabilityProfile {
             agency: CapabilityLevel::Advanced,
             quantum: CapabilityLevel::Intermediate,
             optimization: CapabilityLevel::Advanced,
+            tools: CapabilityLevel::Advanced,
         }
     }
 }

@@ -30,6 +30,8 @@ pub enum EngineCategory {
     Agency,
     /// Creativity and generation engines
     Creativity,
+    /// Tools for external system integration
+    Tools,
 }
 
 /// Engine metadata for registry
@@ -625,6 +627,23 @@ impl EngineRegistry {
                 description: "Knowledge management engine".into(),
                 version: "1.0.0".into(),
                 capabilities: vec!["knowledge".into(), "information".into(), "understanding".into()],
+            }),
+
+            // Tools - External System Integration
+            ("ide_tool".into(), EngineMetadata {
+                name: "ide_tool".into(),
+                category: EngineCategory::Tools,
+                description: "IDE integration tool for file management, terminal execution, and LSP features".into(),
+                version: "1.0.0".into(),
+                capabilities: vec![
+                    "file_management".into(),
+                    "terminal_execution".into(),
+                    "lsp_completions".into(),
+                    "lsp_diagnostics".into(),
+                    "lsp_goto_definition".into(),
+                    "lsp_find_references".into(),
+                    "workspace_integration".into(),
+                ],
             }),
         ]
     }
