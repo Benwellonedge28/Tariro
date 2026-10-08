@@ -62,6 +62,11 @@ pub mod unified;
 pub mod tools;
 
 // ============================================================================
+// Authorship Module (Creative Content Generation)
+// ============================================================================
+pub mod authorship;
+
+// ============================================================================
 // Knowledge-Centric AGI Modules (Symbolic AI - Not Token Prediction)
 // ============================================================================
 pub mod knowledge;

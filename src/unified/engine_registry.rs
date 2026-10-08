@@ -645,6 +645,25 @@ impl EngineRegistry {
                     "workspace_integration".into(),
                 ],
             }),
+
+            // Creativity - Authorship Engine
+            ("authorship_engine".into(), EngineMetadata {
+                name: "authorship_engine".into(),
+                category: EngineCategory::Creativity,
+                description: "Autonomous creative content generation with ideation, generation, critique, and attribution".into(),
+                version: "1.0.0".into(),
+                capabilities: vec![
+                    "ideation".into(),
+                    "content_generation".into(),
+                    "self_critique".into(),
+                    "refinement".into(),
+                    "multimodal_generation".into(),
+                    "attribution_management".into(),
+                    "collaboration".into(),
+                    "style_adaptation".into(),
+                    "ethics_filtering".into(),
+                ],
+            }),
         ]
     }
 
