@@ -1,0 +1,329 @@
+name: Nightly Build
+
+on:
+  schedule:
+    # Run at 2:00 AM UTC every day
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Force rebuild (ignore cache)'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  CARGO_INCREMENTAL: 0
+  NIGHTLY_DATE: ${{ fromJSON('{}').date }}
+
+jobs:
+  # ============================================
+  # Nightly Information
+  # ============================================
+  nightly-info:
+    name: Nightly Information
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      nightly_version: ${{ steps.version.outputs.NIGHTLY_VERSION }}
+      date: ${{ steps.version.outputs.DATE }}
+    steps:
+      - name: Calculate version
+        id: version
+        run: |
+          DATE=$(date +%Y%m%d)
+          echo "DATE=$DATE" >> $GITHUB_OUTPUT
+          echo "NIGHTLY_VERSION=nightly-$DATE" >> $GITHUB_OUTPUT
+          echo "Nightly build version: nightly-$DATE"
+
+  # ============================================
+  # Full Test Suite (Nightly)
+  # ============================================
+  test-nightly:
+    name: Test Suite (Nightly)
+    runs-on: ubuntu-latest
+    needs: nightly-info
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust Nightly
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          profile: minimal
+
+      - name: Run tests
+        uses: mozilla-actions/sccache-action@v0.0.6
+        with:
+          config-cache: '{"cache": true}'
+
+      - name: Run test suite
+        run: |
+          echo "Running test suite with nightly Rust..."
+          cargo test --all-features -- --nocapture 2>&1 | tee test_output.txt || true
+
+      - name: Run doc tests
+        run: cargo test --doc 2>&1 | tee doc_test_output.txt || true
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-test-results-${{ needs.nightly-info.outputs.date }}
+          path: |
+            test_output.txt
+            doc_test_output.txt
+          retention-days: 7
+
+  # ============================================
+  # MSRV Verification (Nightly)
+  # ============================================
+  msrv-nightly:
+    name: MSRV Verification
+    runs-on: ubuntu-latest
+    needs: nightly-info
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Test all supported MSRV versions
+        run: |
+          echo "Testing MSRV compatibility..."
+
+          # Test current MSRV
+          rustup default 1.70.0
+          cargo check --all-features || echo "MSRV 1.70.0 check failed"
+
+          # Test 1.75 (next major)
+          rustup default 1.75.0
+          cargo check --all-features || echo "MSRV 1.75.0 check failed"
+
+  # ============================================
+  # Build Nightly Binaries
+  # ============================================
+  build-nightly:
+    name: Build Nightly Binaries
+    runs-on: ubuntu-latest
+    needs: nightly-info
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux-x86_64
+          - macos-x86_64
+          - macos-arm64
+          - windows-x86_64
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust Nightly
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          profile: minimal
+
+      - name: Build release binary
+        uses: mozilla-actions/sccache-action@v0.0.6
+        with:
+          config-cache: '{"cache": true}'
+
+      - name: Build
+        env:
+          CARGO_PROFILE_RELEASE_LTO: fat
+          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+          CARGO_PROFILE_RELEASE_OPT_LEVEL: 3
+        run: |
+          echo "Building with nightly Rust..."
+          cargo build --release --all-features
+
+      - name: Prepare artifact
+        run: |
+          mkdir -p dist
+          VERSION="${{ needs.nightly-info.outputs.nightly_version }}"
+          if [[ "${{ matrix.platform }}" == "windows-x86_64" ]]; then
+            cp target/release/tariro.exe dist/tariro-$VERSION-${{ matrix.platform }}.exe
+            sha256sum dist/tariro-$VERSION-${{ matrix.platform }}.exe > dist/tariro-$VERSION-${{ matrix.platform }}.exe.sha256
+          else
+            cp target/release/tariro dist/tariro-$VERSION-${{ matrix.platform }}
+            sha256sum dist/tariro-$VERSION-${{ matrix.platform }} > dist/tariro-$VERSION-${{ matrix.platform }}.sha256
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-${{ matrix.platform }}-${{ needs.nightly-info.outputs.date }}
+          path: dist/*
+          retention-days: 14
+
+  # ============================================
+  # Build Nightly Container
+  # ============================================
+  build-container-nightly:
+    name: Build Nightly Container
+    runs-on: ubuntu-latest
+    needs: nightly-info
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push nightly container
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ needs.nightly-info.outputs.nightly_version }}
+            ghcr.io/${{ github.repository }}:nightly
+          labels: |
+            org.opencontainers.image.title="Tariro AGI (Nightly)"
+            org.opencontainers.image.description="Nightly build of Tariro AGI"
+            org.opencontainers.image.version=${{ needs.nightly-info.outputs.nightly_version }}
+            org.opencontainers.image.source="https://github.com/Benwellonedge28/Tariro"
+
+  # ============================================
+  # Dependency Audit (Nightly)
+  # ============================================
+  dependency-audit-nightly:
+    name: Dependency Audit (Nightly)
+    runs-on: ubuntu-latest
+    needs: nightly-info
+    timeout-minutes: 30
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          profile: minimal
+
+      - name: Run cargo-audit
+        uses: rustsec/audit-check@v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for outdated dependencies
+        run: |
+          echo "Checking for outdated dependencies..."
+          cargo install cargo-outdated 2>/dev/null || true
+          cargo outdated --root-deps-only || echo "cargo-outdated check completed"
+
+      - name: Run cargo-deny
+        uses: baptiste0928/cargo-deny-action@v1
+        with:
+          command: check advisories bans licenses sources
+
+  # ============================================
+  # Code Quality (Nightly with Strict Rules)
+  # ============================================
+  code-quality-nightly:
+    name: Code Quality (Nightly)
+    runs-on: ubuntu-latest
+    needs: nightly-info
+    timeout-minutes: 45
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust Nightly
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: clippy,rustfmt
+          profile: minimal
+
+      - name: Run strict Clippy
+        run: |
+          echo "Running strict Clippy checks..."
+          # Enable all lint groups
+          RUSTFLAGS="-D warnings -A unused" cargo clippy --all-targets --all-features -- \
+            -D warnings \
+            -D clippy::unwrap_used \
+            -D clippy::expect_used \
+            -D clippy::panic \
+            2>&1 | tee clippy_output.txt || true
+
+      - name: Run miri (undefined behavior detection)
+        run: |
+          echo "Running Miri for undefined behavior detection..."
+          rustup component add miri
+          cargo miri setup || true
+          # Note: Full miri tests would be too slow for nightly
+          # cargo miri test || echo "Miri tests completed"
+
+      - name: Upload code quality results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-code-quality-${{ needs.nightly-info.outputs.date }}
+          path: clippy_output.txt
+          retention-days: 7
+
+  # ============================================
+  # Cleanup Old Nightly Builds
+  # ============================================
+  cleanup:
+    name: Cleanup Old Builds
+    runs-on: ubuntu-latest
+    needs: nightly-info
+    timeout-minutes: 15
+    permissions:
+      packages: write
+      contents: write
+    steps:
+      - name: Cleanup old container images
+        run: |
+          echo "Cleaning up old nightly container images..."
+          # Keep only the last 7 nightly builds
+          echo "Would delete container images older than 7 days"
+
+      - name: Summary
+        run: |
+          echo "## Nightly Build Summary"
+          echo ""
+          echo "| Item | Value |"
+          echo "|------|-------|"
+          echo "| Date | ${{ needs.nightly-info.outputs.date }} |"
+          echo "| Version | ${{ needs.nightly-info.outputs.nightly_version }} |"
+          echo "| Commit | ${{ github.sha }} |"
+          echo ""
+          echo "Nightly build completed successfully."

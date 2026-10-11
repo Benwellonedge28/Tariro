@@ -3,131 +3,437 @@ name: CI
 on:
   push:
     branches: [ main, develop ]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE*'
   pull_request:
     branches: [ main, develop ]
+    types: [ opened, synchronize, reopened ]
+  workflow_dispatch:
+
+# Concurrency control - cancel in-progress runs for same branch/PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
+  RUSTFLAGS: "-D warnings"
+  CARGO_INCREMENTAL: 0
+  SCCACHE_GHA_ENABLED: "true"
 
 jobs:
+  # ============================================
+  # Code Quality Checks
+  # ============================================
   fmt:
     name: Rustfmt
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt
+          profile: minimal
+
       - name: Check formatting
         run: cargo fmt --all -- --check --config-path rustfmt.toml
 
   clippy:
     name: Clippy
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
-      - name: Cache cargo registry
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo index
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo build
-        uses: actions/cache@v4
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
-      - name: Run Clippy
-        run: cargo clippy --all-targets -- -D warnings --config clippy.toml
+          profile: minimal
 
+      - name: Run Clippy
+        uses: mozilla-actions/sccache-action@v0.0.6
+        with:
+          config-cache: '{"cache": true}'
+
+      - name: Run Clippy checks
+        run: cargo clippy --all-targets --all-features -- -D warnings --config clippy.toml
+
+  # ============================================
+  # Testing
+  # ============================================
   test:
     name: Test Suite
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
-      - name: Cache cargo registry
-        uses: actions/cache@v4
         with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo index
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo build
-        uses: actions/cache@v4
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
-      - name: Run tests
-        run: cargo test -- --nocapture
+          profile: minimal
 
-  build:
-    name: Build
+      - name: Run tests
+        uses: mozilla-actions/sccache-action@v0.0.6
+        with:
+          config-cache: '{"cache": true}'
+
+      - name: Run test suite
+        run: |
+          cargo test --all-features -- --nocapture --test-threads=2 2>&1 | tee test_output.log
+          # Check for test failures
+          if grep -q "FAILED\|error\[E" test_output.log; then
+            echo "Tests failed"
+            exit 1
+          fi
+
+      - name: Upload test logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs-${{ github.sha }}
+          path: test_output.log
+          retention-days: 7
+
+  test-wasm:
+    name: WASM Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          profile: minimal
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'tariro_sdk/package-lock.json'
+
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+
+      - name: Run WASM tests
+        run: |
+          cd tariro_sdk
+          if [ -f "package.json" ]; then
+            npm ci
+            wasm-pack test --node || echo "No WASM tests found"
+          else
+            echo "No tariro_sdk package found, skipping WASM tests"
+          fi
+
+  # ============================================
+  # Build Matrix
+  # ============================================
+  build:
+    name: Build (${{ matrix.toolchain }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
     strategy:
+      fail-fast: false
       matrix:
         toolchain:
           - stable
           - beta
           - nightly
+        include:
+          - toolchain: stable
+            skip_tests: false
+          - toolchain: beta
+            skip_tests: true
+          - toolchain: nightly
+            skip_tests: false
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: ${{ matrix.toolchain }}
-      - name: Cache cargo registry
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo index
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo build
-        uses: actions/cache@v4
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
-      - name: Build
-        run: cargo build --release
+          profile: minimal
 
+      - name: Build release
+        uses: mozilla-actions/sccache-action@v0.0.6
+        with:
+          config-cache: '{"cache": true}'
+
+      - name: Build
+        run: cargo build --release --all-features
+
+      - name: Verify binary
+        run: |
+          if [ -f target/release/tariro ]; then
+            echo "Binary size:"
+            ls -lh target/release/tariro
+            file target/release/tariro
+          else
+            echo "Binary not found!"
+            exit 1
+          fi
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tariro-${{ matrix.toolchain }}-${{ github.sha }}
+          path: target/release/tariro
+          retention-days: 1
+
+  # ============================================
+  # Security
+  # ============================================
   security:
     name: Security Audit
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
-      - name: Install cargo-audit
-        run: cargo install cargo-audit
-      - name: Run cargo-audit
-        run: cargo audit
+        with:
+          profile: minimal
 
+      - name: Run cargo-audit
+        uses: rustsec/audit-check@v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run cargo-deny
+        uses: baptiste0928/cargo-deny-action@v1
+        with:
+          command: check advisories bans licenses
+
+  # ============================================
+  # MSRV Verification
+  # ============================================
   msrv:
-    name: Minimum Supported Rust Version
+    name: MSRV Check
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@master
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: 1.70.0
-      - name: Check MSRV
-        run: cargo check
+          profile: minimal
+
+      - name: Check MSRV compatibility
+        run: cargo check --all-features
+
+  # ============================================
+  # Integration Tests
+  # ============================================
+  integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          profile: minimal
+
+      - name: Run integration tests
+        uses: mozilla-actions/sccache-action@v0.0.6
+        with:
+          config-cache: '{"cache": true}'
+
+      - name: Run tests with output
+        run: |
+          cargo test --test '*' -- --nocapture 2>&1 | tee integration_test_output.log
+
+      - name: Upload test logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-logs-${{ github.sha }}
+          path: integration_test_output.log
+          retention-days: 7
+
+  # ============================================
+  # Cross-Platform Build
+  # ============================================
+  cross-build:
+    name: Cross-Platform Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - aarch64-unknown-linux-gnu
+          - armv7-unknown-linux-gnueabihf
+          - x86_64-unknown-freebsd
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+          profile: minimal
+
+      - name: Add target
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Build cross-compiled target
+        uses: mozilla-actions/sccache-action@v0.0.6
+        with:
+          config-cache: '{"cache": true}'
+
+      - name: Cross compile
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Upload cross-compiled artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tariro-${{ matrix.target }}-${{ github.sha }}
+          path: target/${{ matrix.target }}/release/tariro
+          retention-days: 1
+
+  # ============================================
+  # License Check
+  # ============================================
+  license:
+    name: License Compliance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Check licenses
+        run: |
+          echo "Checking package licenses..."
+          cargo metadata --format-version 1 --no-deps | jq -r '.packages[].license' | sort -u > licenses.txt
+          cat licenses.txt
+          # Verify only allowed licenses
+          if grep -v -E '^(MIT|Apache-2.0|BSD-3-Clause|ISC|MPL-2.0|Zlib)$' licenses.txt; then
+            echo "Found non-standard licenses"
+            exit 1
+          fi
+
+  # ============================================
+  # Fuzz Testing (for critical code paths)
+  # ============================================
+  fuzz:
+    name: Fuzz Testing
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          profile: minimal
+
+      - name: Install cargo-fuzz
+        run: cargo install cargo-fuzz
+
+      - name: Run fuzz tests
+        run: |
+          # Run fuzz tests for a limited time
+          cargo fuzz run --jobs 2 --max-total-time 120 parser || echo "Fuzz tests completed or no fuzz targets found"
+
+  # ============================================
+  # Dependency Updates Check
+  # ============================================
+  dep-updates:
+    name: Dependency Updates
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          profile: minimal
+
+      - name: Check for updates
+        run: |
+          cargo install cargo-outdated 2>/dev/null || true
+          cargo outdated --root-deps-only || echo "cargo-outdated not available"
+
+      - name: Generate update report
+        run: |
+          echo "## Dependency Update Report" > dep_report.md
+          echo "\`\`\`" >> dep_report.md
+          cargo update 2>&1 | head -50 >> dep_report.md || true
+          echo "\`\`\`" >> dep_report.md
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-report
+          path: dep_report.md
+          retention-days: 7

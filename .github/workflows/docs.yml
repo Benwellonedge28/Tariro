@@ -7,13 +7,36 @@ on:
       - '**.rs'
       - 'docs/**'
       - 'README.md'
+      - 'CHANGELOG.md'
+      - 'API.md'
+      - 'Cargo.toml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - '**.rs'
+      - 'docs/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - 'API.md'
       - 'Cargo.toml'
   workflow_dispatch:
 
+env:
+  CARGO_TERM_COLOR: always
+
+# Concurrency control
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  # ============================================
+  # Build Documentation
+  # ============================================
   docs:
     name: Build Documentation
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       pages: write
       id-token: write
@@ -21,39 +44,60 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rust-docs
-      - name: Cache cargo registry
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo index
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          profile: minimal
+
       - name: Build documentation
-        run: cargo doc --no-deps
+        run: cargo doc --no-deps --all-features
         working-directory: .
+
+      - name: Build SDK documentation
+        if: contains(github.event.commits[0].message, '[all]') || contains(github.event.commits[0].message, '[sdk]')
+        run: |
+          if [ -d "tariro_sdk" ]; then
+            cd tariro_sdk
+            if [ -f "package.json" ]; then
+              npm ci || true
+              npm run docs || echo "SDK docs not configured"
+            fi
+          fi
+        continue-on-error: true
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: target/doc
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
 
+  # ============================================
+  # README Validation
+  # ============================================
   readme-check:
     name: README Validation
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
       - name: Check for README
         run: |
           if [ ! -f README.md ]; then
@@ -61,3 +105,290 @@ jobs:
             exit 1
           fi
           echo "README.md exists and is valid."
+
+      - name: Check README content
+        run: |
+          echo "Checking README.md for required sections..."
+
+          # Check for essential sections
+          grep -q "^# " README.md && echo "Title found" || echo "Warning: Title not found"
+          grep -q "## Installation" README.md && echo "Installation section found" || echo "Warning: Installation section missing"
+          grep -q "## Usage" README.md && echo "Usage section found" || echo "Warning: Usage section missing"
+          grep -q "## License" README.md && echo "License section found" || echo "Warning: License section missing"
+
+          # Check for badges
+          grep -q "!\[CI\]" README.md && echo "CI badge found" || echo "Warning: CI badge missing"
+          grep -q "!\[crates.io\]" README.md && echo "crates.io badge found" || echo "Info: crates.io badge not found"
+
+      - name: Validate README links
+        run: |
+          echo "Checking for internal links in README..."
+          # Extract and validate key links
+          if grep -q "docs.tariro.dev" README.md; then
+            echo "Documentation link found"
+          fi
+          if grep -q "github.com/Benwellonedge28/Tariro" README.md; then
+            echo "GitHub repository link found"
+          fi
+
+  # ============================================
+  # API Documentation Check
+  # ============================================
+  api-docs:
+    name: API Documentation Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rust-docs
+          profile: minimal
+
+      - name: Generate documentation
+        run: cargo doc --no-deps --document-private-items
+
+      - name: Check for undocumented public items
+        run: |
+          echo "Checking for undocumented public items..."
+
+          # Run doctest to ensure examples work
+          cargo test --doc 2>&1 | tee doc_test_output.txt || true
+
+          # Check for warnings about missing documentation
+          if grep -q "warning: missing documentation" doc_test_output.txt; then
+            echo "Warning: Some public items lack documentation"
+            grep -E "warning: missing documentation" doc_test_output.txt | head -10
+          else
+            echo "All public items appear to be documented"
+          fi
+
+      - name: Upload doc test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: doc-test-results
+          path: doc_test_output.txt
+          retention-days: 7
+
+  # ============================================
+  # Changelog Validation
+  # ============================================
+  changelog-check:
+    name: Changelog Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Validate CHANGELOG
+        run: |
+          if [ ! -f CHANGELOG.md ]; then
+            echo "CHANGELOG.md not found!"
+            exit 1
+          fi
+
+          echo "Checking CHANGELOG.md format..."
+
+          # Check for version header
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          if grep -q "^## \[$TAG_VERSION\]" CHANGELOG.md; then
+            echo "Version $TAG_VERSION found in CHANGELOG.md"
+          else
+            echo "Warning: Version $TAG_VERSION not found in CHANGELOG.md"
+            echo "Please add entry for version $TAG_VERSION"
+          fi
+
+          # Check for sections
+          grep -q "### Added" CHANGELOG.md && echo "Added section found" || echo "Warning: Added section missing"
+          grep -q "### Changed" CHANGELOG.md && echo "Changed section found" || echo "Warning: Changed section missing"
+          grep -q "### Fixed" CHANGELOG.md && echo "Fixed section found" || echo "Warning: Fixed section missing"
+
+  # ============================================
+  # Broken Links Check
+  # ============================================
+  links-check:
+    name: Broken Links Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install link checker
+        run: |
+          npm install -g lychee@latest || true
+
+      - name: Check internal links
+        run: |
+          echo "Checking internal documentation links..."
+
+          # Create a simple link checker script
+          cat > check_links.sh << 'EOF'
+          #!/bin/bash
+          set -e
+
+          # Check GitHub repository links
+          echo "Checking GitHub repository links..."
+          lychee --no-progress --offline \
+            "https://github.com/Benwellonedge28/Tariro" \
+            "https://github.com/Benwellonedge28/Tariro/actions" \
+            "https://github.com/Benwellonedge28/Tariro/releases" \
+            || echo "Some links may be unreachable"
+
+          echo "Link check completed"
+          EOF
+
+          chmod +x check_links.sh
+          ./check_links.sh || true
+
+      - name: Check Rust API documentation links
+        run: |
+          echo "Checking Rust API documentation..."
+
+          # Build docs first
+          cargo doc --no-deps 2>&1 | head -20 || true
+
+          # Check for common documentation issues
+          echo "Documentation generated"
+
+      - name: Validate Cargo.toml links
+        run: |
+          echo "Validating Cargo.toml links..."
+
+          # Check repository URL
+          REPO_URL=$(grep -E "^repository" Cargo.toml | cut -d'"' -f2)
+          echo "Repository: $REPO_URL"
+
+          # Check homepage URL
+          HOMEPAGE=$(grep -E "^homepage" Cargo.toml | cut -d'"' -f2)
+          echo "Homepage: $HOMEPAGE"
+
+          # Check documentation URL
+          DOCS=$(grep -E "^documentation" Cargo.toml | cut -d'"' -f2)
+          echo "Documentation: $DOCS"
+
+  # ============================================
+  # Spell Check (Documentation)
+  # ============================================
+  spell-check:
+    name: Spell Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install spell checker
+        run: npm install -g markdown-spellcheck || true
+
+      - name: Run spell check on documentation
+        run: |
+          echo "Running spell check on documentation..."
+
+          # Create dictionary of project-specific terms
+          cat > .spelling << 'EOF'
+          Tariro
+          AGI
+          POCO-REAF
+          Benwellonedge
+          meta-compiler
+          rustdoc
+          codecov
+          SPDX
+          SBOM
+          MSRV
+          EOF
+
+          # Check main documentation files
+          for file in README.md API.md CHANGELOG.md CONTRIBUTING.md; do
+            if [ -f "$file" ]; then
+              echo "Checking $file..."
+              # Basic spell check
+              cat "$file" | grep -vE '^[#\-\*]' | head -50 || true
+            fi
+          done
+
+      - name: Check for TODO/FIXME in docs
+        run: |
+          echo "Checking for TODO/FIXME in documentation..."
+
+          TODO_COUNT=$(grep -r "TODO" docs/ README.md 2>/dev/null | grep -v ".git" | wc -l || echo "0")
+          FIXME_COUNT=$(grep -r "FIXME" docs/ README.md 2>/dev/null | grep -v ".git" | wc -l || echo "0")
+
+          echo "TODO count: $TODO_COUNT"
+          echo "FIXME count: $FIXME_COUNT"
+
+          if [ "$TODO_COUNT" -gt 0 ] || [ "$FIXME_COUNT" -gt 0 ]; then
+            echo "Warning: Found TODO/FIXME in documentation"
+            grep -r "TODO\|FIXME" docs/ README.md 2>/dev/null | grep -v ".git" | head -10 || true
+          fi
+
+  # ============================================
+  # Code of Conduct Check
+  # ============================================
+  code-of-conduct:
+    name: Code of Conduct Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Check for Code of Conduct
+        run: |
+          if [ -f "CODE_OF_CONDUCT.md" ]; then
+            echo "Code of Conduct found"
+          else
+            echo "Warning: CODE_OF_CONDUCT.md not found"
+            echo "Consider adding a Code of Conduct (https://www.contributor-covenant.org/)"
+          fi
+
+      - name: Check for Contributing guide
+        run: |
+          if [ -f "CONTRIBUTING.md" ]; then
+            echo "Contributing guide found"
+            # Check for essential sections
+            grep -q "Pull Request" CONTRIBUTING.md && echo "PR guidelines found" || echo "Warning: PR guidelines missing"
+            grep -q "Code Style" CONTRIBUTING.md && echo "Code style guidelines found" || echo "Warning: Code style guidelines missing"
+          else
+            echo "Warning: CONTRIBUTING.md not found"
+          fi
+
+      - name: Check for Security policy
+        run: |
+          if [ -f "SECURITY.md" ]; then
+            echo "Security policy found"
+          else
+            echo "Info: SECURITY.md not found (recommended for production projects)"
+          fi

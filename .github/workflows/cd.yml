@@ -6,124 +6,463 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment Environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      skip_tests:
+        description: 'Skip tests (for hotfixes)'
+        required: false
+        default: 'false'
+        type: boolean
 
 env:
   CARGO_TERM_COLOR: always
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  RUST_BACKTRACE: 1
+
+# Concurrency control
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  build-release:
-    name: Build Release
+  # ============================================
+  # Pre-flight Checks
+  # ============================================
+  preflight:
+    name: Pre-flight Checks
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.version.outputs.VERSION }}
+      is_release: ${{ steps.version.outputs.IS_RELEASE }}
+      commit_hash: ${{ steps.commit.outputs.HASH }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          profile: minimal
-          toolchain: stable
-      - name: Get version
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Get version info
         id: version
         run: |
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
-            echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+            VERSION="${GITHUB_REF#refs/tags/v}"
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+            echo "IS_RELEASE=true" >> $GITHUB_OUTPUT
+            echo "Release version: $VERSION"
           else
-            echo "VERSION=dev" >> $GITHUB_OUTPUT
+            # Use commit hash for non-tag builds
+            VERSION="dev-${{ github.sha }}"
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+            echo "IS_RELEASE=false" >> $GITHUB_OUTPUT
+            echo "Development build: $VERSION"
           fi
+
       - name: Get commit hash
         id: commit
         run: echo "HASH=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-      - name: Cache cargo registry
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo index
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo build
-        uses: actions/cache@v4
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-build-${{ github.sha }}
-      - name: Build release binary
-        run: cargo build --release
-      - name: Package binaries
+
+      - name: Validate Cargo.toml version
         run: |
-          mkdir -p release
-          if [ -f target/release/tariro ]; then
-            cp target/release/tariro release/
+          if [[ "${{ steps.version.outputs.IS_RELEASE }}" == "true" ]]; then
+            CARGO_VERSION=$(grep '^version = ' Cargo.toml | head -1 | cut -d'"' -f2)
+            if [[ "$CARGO_VERSION" != "${{ steps.version.outputs.VERSION }}" ]]; then
+              echo "Warning: Cargo.toml version ($CARGO_VERSION) doesn't match tag version (${{ steps.version.outputs.VERSION }})"
+              echo "Please update Cargo.toml before tagging"
+            fi
           fi
-          tar czf tariro-${{ steps.version.outputs.VERSION }}-x86_64-unknown-linux-gnu.tar.gz -C release tariro || true
-          ls -la release/ || true
+
+  # ============================================
+  # Build Binaries (Multi-Platform)
+  # ============================================
+  build-binaries:
+    name: Build Binaries (${{ matrix.platform }})
+    runs-on: ${{ matrix.runner }}
+    needs: preflight
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux-x86_64
+            runner: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact_name: tariro-linux-x86_64
+          - platform: linux-aarch64
+            runner: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            artifact_name: tariro-linux-aarch64
+          - platform: linux-armv7
+            runner: ubuntu-latest
+            target: armv7-unknown-linux-gnueabihf
+            artifact_name: tariro-linux-armv7
+          - platform: macos-x86_64
+            runner: macos-latest
+            target: x86_64-apple-darwin
+            artifact_name: tariro-macos-x86_64
+          - platform: macos-arm64
+            runner: macos-latest
+            target: aarch64-apple-darwin
+            artifact_name: tariro-macos-arm64
+          - platform: windows-x86_64
+            runner: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact_name: tariro-windows-x86_64.exe
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+          profile: minimal
+
+      - name: Add target
+        if: matrix.platform != 'windows-x86_64'
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Setup macOS signing
+        if: matrix.platform == 'macos-*'
+        uses: apple-actions/import-codesign-certs@v2
+        with:
+          p12-file-base64: ${{ secrets.APPLE_SIGNING_CERT }}
+          p12-password: ${{ secrets.APPLE_SIGNING_CERT_PASSWORD }}
+
+      - name: Build release binary
+        uses: mozilla-actions/sccache-action@v0.0.6
+        with:
+          config-cache: '{"cache": true}'
+
+      - name: Build
+        env:
+          CARGO_PROFILE_RELEASE_LTO: fat
+          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+          CARGO_PROFILE_RELEASE_OPT_LEVEL: 3
+        run: |
+          if [[ "${{ matrix.platform }}" == "windows-x86_64" ]]; then
+            cargo build --release --target ${{ matrix.target }} --features full
+          else
+            cargo build --release --target ${{ matrix.target }} --features full
+          fi
+
+      - name: Prepare artifact
+        id: artifact
+        run: |
+          mkdir -p dist
+          if [[ "${{ matrix.platform }}" == "windows-x86_64" ]]; then
+            cp target/${{ matrix.target }}/release/tariro.exe dist/${{ matrix.artifact_name }}.exe
+          else
+            cp target/${{ matrix.target }}/release/tariro dist/${{ matrix.artifact_name }}
+          fi
+          # Create checksums
+          cd dist
+          if [[ "${{ matrix.platform }}" == "windows-x86_64" ]]; then
+            sha256sum ${{ matrix.artifact_name }}.exe > ${{ matrix.artifact_name }}.exe.sha256
+          else
+            sha256sum ${{ matrix.artifact_name }} > ${{ matrix.artifact_name }}.sha256
+          fi
+          ls -la
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: tariro-binaries-${{ github.sha }}
-          path: release/*
+          name: ${{ matrix.artifact_name }}-${{ needs.preflight.outputs.version }}
+          path: |
+            dist/*
+          retention-days: 30
 
+  # ============================================
+  # Build Container (Multi-Arch)
+  # ============================================
   build-container:
-    name: Build Container
+    name: Build Container (Multi-Arch)
     runs-on: ubuntu-latest
-    needs: build-release
+    needs: preflight
+    timeout-minutes: 120
     permissions:
       contents: read
       packages: write
+      id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          version: latest
+
       - name: Log in to Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Extract metadata
+
+      - name: Extract metadata for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=sha,prefix=,suffix=,format=short
+            type=sha,prefix=,suffix=,format=short,enable=${{ github.ref != 'refs/heads/main' }}
             type=ref,event=branch
             type=semver,pattern={{version}}
-      - name: Build and push
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push (multi-arch)
         uses: docker/build-push-action@v6
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          cache-from: type=gha,scope=main
+          cache-to: type=gha,mode=max,scope=main
+          provenance: true
+          sbom: true
 
+      - name: Generate SBOM
+        if: github.event_name != 'pull_request'
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.preflight.outputs.version }}
+          format: spdx-json
+          output-file: sbom.spdx.json
+
+      - name: Upload SBOM
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ needs.preflight.outputs.version }}
+          path: sbom.spdx.json
+          retention-days: 90
+
+  # ============================================
+  # Generate Release Notes
+  # ============================================
+  release-notes:
+    name: Generate Release Notes
+    runs-on: ubuntu-latest
+    needs: preflight
+    if: needs.preflight.outputs.is_release == 'true'
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    outputs:
+      body: ${{ steps.release_notes.outputs.body }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          VERSION="${{ needs.preflight.outputs.version }}"
+          echo "body=$(git log --oneline --format='- %s (%h)' $(git describe --tags --abbrev=0 HEAD^..HEAD)..HEAD 2>/dev/null || echo '- Initial release')" >> $GITHUB_OUTPUT
+
+  # ============================================
+  # Create GitHub Release
+  # ============================================
   create-release:
     name: Create Release
     runs-on: ubuntu-latest
-    needs: build-release
-    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [ preflight, build-binaries, build-container ]
+    if: needs.preflight.outputs.is_release == 'true'
+    timeout-minutes: 20
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      - name: Download artifacts
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: release/
-      - name: Get version
-        id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          path: release
+
       - name: List release files
-        run: ls -la release/
+        run: |
+          echo "Release files:"
+          find release -type f -name '*' | head -20
+
+      - name: Create Checksums
+        run: |
+          cd release
+          # Create checksums for all binaries
+          find . -type f \( -name "*.exe" -o -name "tariro-*" ! -name "*.sha256" \) -exec sh -c '
+            for f in "$@"; do
+              if [ -f "$f" ] && [ ! -f "${f}.sha256" ]; then
+                sha256sum "$f" > "${f}.sha256" 2>/dev/null || true
+              fi
+            done
+          ' _ {} +
+
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          files: release/*
+          tag_name: v${{ needs.preflight.outputs.version }}
+          name: Tariro AGI v${{ needs.preflight.outputs.version }}
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: ${{ needs.preflight.outputs.version == '*-*' }}
+          files: |
+            release/**/*
+            release/**/**
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ============================================
+  # Deploy to Environment
+  # ============================================
+  deploy:
+    name: Deploy to ${{ github.event.inputs.environment || 'staging' }}
+    runs-on: ubuntu-latest
+    needs: [ preflight, build-binaries ]
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && needs.preflight.outputs.is_release == 'true')
+    timeout-minutes: 30
+    environment:
+      name: ${{ github.event.inputs.environment || 'staging' }}
+      url: https://${{ github.event.inputs.environment || 'staging' }}.tariro.dev
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: deploy
+
+      - name: List deployment files
+        run: |
+          echo "Deployment files:"
+          ls -la deploy/
+
+      - name: Deploy to staging
+        if: (github.event.inputs.environment == 'staging') || (github.event_name == 'push' && needs.preflight.outputs.is_release != 'true')
+        run: |
+          echo "Deploying to staging environment..."
+          # Add deployment logic here
+          # Example: rsync, kubectl, terraform, etc.
+
+      - name: Deploy to production
+        if: github.event.inputs.environment == 'production'
+        run: |
+          echo "Deploying to production environment..."
+          echo "Production deployment requires manual approval"
+          # Add production deployment logic here
+
+      - name: Notify deployment
+        if: always()
+        run: |
+          if [[ "${{ job.status }}" == "success" ]]; then
+            echo "Deployment completed successfully"
+          else
+            echo "Deployment failed"
+            exit 1
+          fi
+
+  # ============================================
+  # Security Scan Container Image
+  # ============================================
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: build-container
+    timeout-minutes: 30
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Download SBOM
+        uses: actions/download-artifact@v4
+        with:
+          name: sbom-${{ needs.preflight.outputs.version }}
+          path: .
+
+      - name: Run Grype
+        uses: anchore/actions/grype@v1
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.preflight.outputs.version }}
+          fail-build: false
+          severity-cutoff: medium
+          format: cyclonedx-json
+          output-file: grype-results.json
+
+      - name: Upload scan results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: grype-results.json
+
+  # ============================================
+  # Publish to crates.io
+  # ============================================
+  publish-crates:
+    name: Publish to crates.io
+    runs-on: ubuntu-latest
+    needs: [ preflight, build-binaries ]
+    if: needs.preflight.outputs.is_release == 'true'
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          profile: minimal
+
+      - name: Publish to crates.io
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          if [[ -z "$CARGO_REGISTRY_TOKEN" ]]; then
+            echo "CARGO_REGISTRY_TOKEN not set, skipping crates.io publish"
+          else
+            cargo publish --token "$CARGO_REGISTRY_TOKEN" || echo "Failed to publish to crates.io"
+          fi

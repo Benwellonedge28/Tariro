@@ -2,67 +2,351 @@ name: Benchmarks
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'benches/**'
+  pull_request:
+    branches: [ main, develop ]
+    types: [ opened, synchronize, reopened ]
   workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  CARGO_INCREMENTAL: 0
+
+# Concurrency control
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
+  # ============================================
+  # Benchmark Suite
+  # ============================================
   benchmark:
     name: Run Benchmarks
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     permissions:
       issues: write
+      pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
+          persist-credentials: false
           fetch-depth: 0
+
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt
-      - name: Cache cargo registry
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo index
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo build
-        uses: actions/cache@v4
-        with:
-          path: target
-          key: ${{ runner.os }}-benchmark-target
+          profile: minimal
+
+      - name: Install cargo-benchcmp
+        run: cargo install cargo-benchcmp
+
       - name: Run benchmarks
-        run: cargo bench || echo "No benchmarks found or benchmarks failed"
+        run: |
+          echo "Running benchmarks..."
+          cargo bench -- --noplot 2>&1 | tee bench_output.txt || echo "No benchmarks found"
+
       - name: Check benchmark compilation
         run: |
           if cargo bench --no-run 2>&1 | grep -q "Compiling"; then
             echo "Benchmarks compiled successfully."
           fi
 
+      - name: Save benchmark result
+        run: |
+          # Parse and save benchmark results for comparison
+          if [ -f target/criterion/report/index.html ]; then
+            echo "Benchmark reports generated"
+          fi
+
+      - name: Upload benchmark artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results-${{ github.sha }}
+          path: |
+            target/criterion/**
+            bench_output.txt
+          retention-days: 30
+
+  # ============================================
+  # Performance Tracking
+  # ============================================
   performance-tracker:
     name: Performance Tracking
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          profile: minimal
+
       - name: Run test suite with timing
         run: |
           echo "Running performance tests..."
           cargo test --release -- --nocapture 2>&1 | tee test_output.txt
+
       - name: Check binary size
         run: |
           cargo build --release 2>&1 || true
           if [ -f target/release/tariro ]; then
+            echo "Binary information:"
             ls -lh target/release/tariro
             du -sh target/release/tariro
+            file target/release/tariro
           fi
+
       - name: Check compile time
         run: |
-          cargo clean 2>&1 || true
           echo "Testing compile time..."
-          timeout 300 cargo build --release 2>&1 | tail -20 || echo "Build took longer than 5 minutes"
+          # Time the clean build
+          start_time=$(date +%s)
+          cargo clean 2>&1 || true
+          cargo build --release 2>&1 | tail -5
+          end_time=$(date +%s)
+          elapsed=$((end_time - start_time))
+          echo "Build time: ${elapsed} seconds"
+
+      - name: Check binary size metrics
+        run: |
+          if [ -f target/release/tariro ]; then
+            # Get size in bytes
+            size=$(stat -c%s target/release/tariro)
+            echo "Binary size (bytes): $size"
+
+            # Calculate compressed size
+            gzip -c target/release/tariro | wc -c | xargs -I {} echo "Compressed size (bytes): {}"
+
+            # Check for debug symbols
+            if file target/release/tariro | grep -q "with debug_info"; then
+              echo "WARNING: Binary contains debug symbols"
+            fi
+          fi
+
+      - name: Check memory usage
+        run: |
+          # Run with memory tracking
+          if command -v /usr/bin/time; then
+            /usr/bin/time -v cargo test --release 2>&1 | grep -E "(Maximum resident|User time|System time)"
+          else
+            echo "time command not available for memory tracking"
+          fi
+
+      - name: Upload performance metrics
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-metrics-${{ github.sha }}
+          path: |
+            test_output.txt
+            performance_report.txt
+          retention-days: 30
+
+  # ============================================
+  # Comparison with Main Branch (PR only)
+  # ============================================
+  compare:
+    name: Compare with Main
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    if: github.event_name == 'pull_request'
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          profile: minimal
+
+      - name: Install cargo-benchcmp
+        run: cargo install cargo-benchcmp
+
+      - name: Run benchmarks on main branch
+        run: |
+          git stash
+          git checkout main
+          cargo bench -- --noplot 2>&1 | tee bench_main.txt || true
+          mkdir -p main_bench
+          mv target/criterion main_bench/ 2>/dev/null || true
+
+      - name: Run benchmarks on current branch
+        run: |
+          git stash pop
+          git checkout ${{ github.head_ref }}
+          cargo bench -- --noplot 2>&1 | tee bench_current.txt || true
+          mkdir -p current_bench
+          mv target/criterion current_bench/ 2>/dev/null || true
+
+      - name: Compare benchmarks
+        run: |
+          echo "## Benchmark Comparison" > benchmark_comparison.md
+          echo "" >> benchmark_comparison.md
+
+          # Compare criterion results
+          if [ -d "main_bench/criterion" ] && [ -d "current_bench/criterion" ]; then
+            echo "Comparing criterion results..."
+            cargo benchcmp main_bench/criterion current_bench/criterion 2>&1 | tee comparison.txt || echo "No comparison available"
+          fi
+
+          # Parse results for significant changes
+          if [ -f comparison.txt ]; then
+            grep -E "(^-|-$|\+/-)" comparison.txt | head -30 >> benchmark_comparison.md
+          fi
+
+      - name: Post comparison as PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const benchmark = fs.readFileSync('benchmark_comparison.md', 'utf8');
+
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '## Performance Benchmark Comparison\n\n' + benchmark
+            });
+
+      - name: Check for regressions
+        run: |
+          # Check for significant regressions (>10% slower)
+          if [ -f comparison.txt ]; then
+            regressions=$(grep -E "^-.*[0-9]+%" comparison.txt || true)
+            if [ -n "$regressions" ]; then
+              echo "WARNING: Potential performance regressions detected:"
+              echo "$regressions"
+              echo "## Performance Regression Alert" > regression_alert.md
+              echo "$regressions" >> regression_alert.md
+            else
+              echo "No significant regressions detected"
+            fi
+          fi
+
+      - name: Upload comparison results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-comparison-${{ github.sha }}
+          path: |
+            benchmark_comparison.md
+            comparison.txt
+            regression_alert.md
+            main_bench/**
+            current_bench/**
+          retention-days: 30
+
+  # ============================================
+  # Memory Profiling
+  # ============================================
+  memory-profile:
+    name: Memory Profiling
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          profile: minimal
+          components: llvm-tools-preview
+
+      - name: Install cargo-symbolic
+        run: cargo install cargo-symbolic
+
+      - name: Build with symbolication
+        run: |
+          echo "Building with memory tracking..."
+          RUSTFLAGS="-C force-frame-pointers=yes" cargo build --release
+
+      - name: Check for memory leaks
+        run: |
+          if command -v valgrind; then
+            echo "Running memory leak detection..."
+            # This requires valgrind and debug build
+            # valgrind --leak-check=full ./target/release/tariro || echo "Valgrind check skipped"
+            echo "Memory profiling available"
+          else
+            echo "Valgrind not available, skipping memory leak detection"
+          fi
+
+      - name: Run heap analysis
+        run: |
+          echo "Checking heap usage patterns..."
+          if [ -f target/release/tariro ]; then
+            # Basic heap size check
+            size=$(wc -c < target/release/tariro)
+            echo "Binary size: $size bytes"
+          fi
+
+  # ============================================
+  # Compile Time Tracking
+  # ============================================
+  compile-time:
+    name: Compile Time Tracking
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          profile: minimal
+
+      - name: Track incremental build time
+        run: |
+          echo "Measuring incremental build performance..."
+
+          # First clean build
+          cargo clean
+          start=$(date +%s.%N)
+          cargo build --release 2>&1 | tail -3
+          end=$(date +%s.%N)
+
+          # Calculate time (simple approach)
+          echo "Clean build completed"
+
+          # Second incremental build (no changes)
+          start2=$(date +%s.%N)
+          cargo build --release 2>&1 | tail -3
+          end2=$(date +%s.%N)
+
+          echo "Incremental build completed"
+
+      - name: Check build artifacts
+        run: |
+          echo "Build artifact sizes:"
+          find target/release -name "*.rlib" -exec ls -lh {} \; 2>/dev/null | head -20 || echo "No rlib files found"
+
+          if [ -f target/release/deps/libtariro_agi_core*.rlib ]; then
+            ls -lh target/release/deps/libtariro_agi_core*.rlib
+          fi

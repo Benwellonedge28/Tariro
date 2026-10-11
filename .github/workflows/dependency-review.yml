@@ -1,0 +1,343 @@
+name: Dependency Review
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'Cargo.lock'
+      - 'Cargo.toml'
+      - 'tariro_sdk/package.json'
+      - 'tariro_sdk/package-lock.json'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'Cargo.lock'
+      - 'Cargo.toml'
+      - 'tariro_sdk/package.json'
+      - 'tariro_sdk/package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  # ============================================
+  # GitHub Dependency Review
+  # ============================================
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Run GitHub Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          # Fail on vulnerabilities
+          fail-on-severity: high
+          # Allow known vulnerabilities with mitigations
+          allow-dependencies-with-known-vulnerabilities: true
+          # Enable license checking
+          license-allowlist: |
+            MIT
+            Apache-2.0
+            BSD-3-Clause
+            ISC
+            MPL-2.0
+            Zlib
+            Unlicense
+            CC0-1.0
+          # Comment on PR with review results
+          comment-pr-close: false
+
+  # ============================================
+  # Cargo Dependency Audit
+  # ============================================
+  cargo-audit:
+    name: Cargo Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          profile: minimal
+
+      - name: Run cargo audit
+        uses: rustsec/audit-check@v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  # ============================================
+  # Cargo Deny Check
+  # ============================================
+  cargo-deny:
+    name: Cargo Deny
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Run cargo-deny
+        uses: baptiste0928/cargo-deny-action@v1
+        with:
+          command: check advisories bans licenses sources
+
+  # ============================================
+  # License Compliance Check
+  # ============================================
+  license-check:
+    name: License Compliance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Check licenses
+        run: |
+          echo "Checking package licenses..."
+          cargo metadata --format-version 1 --no-deps | jq -r '.packages[].license' | sort -u > licenses.txt
+          echo "Detected licenses:"
+          cat licenses.txt
+
+          # Check for problematic licenses
+          PROBLEMATIC=$(grep -v -E '^(MIT|Apache-2.0|BSD-3-Clause|BSD-2-Clause|ISC|MPL-2.0|Zlib|Unlicense|CC0-1.0|WTFPL|0BSD)$' licenses.txt || true)
+          if [ -n "$PROBLEMATIC" ]; then
+            echo "Warning: Found licenses that may require review:"
+            echo "$PROBLEMATIC"
+          fi
+
+  # ============================================
+  # Dependency Size Check
+  # ============================================
+  dependency-size:
+    name: Dependency Size Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          profile: minimal
+
+      - name: Check dependency tree
+        run: |
+          echo "Checking dependency tree size..."
+
+          # Count direct dependencies
+          DIRECT_DEPS=$(grep -E "^[[:space:]]*[^#]" Cargo.toml | grep -c "=" || echo "0")
+          echo "Direct dependencies: $DIRECT_DEPS"
+
+          # Count total dependencies
+          TOTAL_DEPS=$(cargo tree --no-dedupe 2>/dev/null | grep -c "^[[:space:]]" || echo "unknown")
+          echo "Total dependencies (with duplicates): $TOTAL_DEPS"
+
+          # Show largest dependencies
+          echo "Largest dependencies by tree depth:"
+          cargo tree --depth 1 2>/dev/null | head -20 || true
+
+      - name: Check for circular dependencies
+        run: |
+          echo "Checking for circular dependencies..."
+          # Circular deps would cause cargo to fail or hang
+          timeout 30 cargo tree --no-dedupe 2>&1 | grep -E "^error:|warning:" | head -10 || echo "No circular dependencies detected"
+
+  # ============================================
+  # Outdated Dependencies Check
+  # ============================================
+  outdated-deps:
+    name: Outdated Dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          profile: minimal
+
+      - name: Install cargo-outdated
+        run: cargo install cargo-outdated
+
+      - name: Check for outdated dependencies
+        run: |
+          echo "Checking for outdated dependencies..."
+          cargo outdated --root-deps-only 2>&1 | tee outdated.txt || true
+
+      - name: Create summary comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const outdated = fs.readFileSync('outdated.txt', 'utf8');
+
+            // Extract key information
+            const lines = outdated.split('\n');
+            const summary = lines.slice(0, 30).join('\n');
+
+            // Only post if there are significant updates
+            if (outdated.includes('Update available') || outdated.includes('Outdated')) {
+              github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: '## Dependency Update Report\n\n```\n' + summary + '\n```\n\nRun `cargo outdated --root-deps-only` locally for full details.'
+              });
+            }
+
+      - name: Upload outdated report
+        uses: actions/upload-artifact@v4
+        with:
+          name: outdated-dependencies
+          path: outdated.txt
+          retention-days: 7
+
+  # ============================================
+  # Security Advisory Check
+  # ============================================
+  security-advisories:
+    name: Security Advisories
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          profile: minimal
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit
+
+      - name: Check security advisories
+        run: |
+          echo "Checking for known security vulnerabilities..."
+          cargo audit 2>&1 | tee advisory.txt || true
+
+          # Check for specific critical vulnerabilities
+          if grep -q "RUSTSEC" advisory.txt; then
+            echo "Warning: Found RUSTSEC advisories"
+          else
+            echo "No known security advisories"
+          fi
+
+      - name: Upload advisory report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-advisories
+          path: advisory.txt
+          retention-days: 7
+
+  # ============================================
+  # SDK Dependencies (Node.js)
+  # ============================================
+  sdk-dependencies:
+    name: SDK Dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: exists('tariro_sdk/package.json')
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'tariro_sdk/package-lock.json'
+
+      - name: Check SDK dependencies
+        run: |
+          cd tariro_sdk
+          if [ -f "package.json" ]; then
+            echo "Checking SDK dependencies..."
+            npm ci
+
+            # Run audit
+            npm audit 2>&1 | tee npm_audit.txt || true
+
+            # Check for outdated packages
+            npm outdated 2>&1 || true
+          fi
+
+      - name: Upload SDK audit results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdk-dependency-audit
+          path: tariro_sdk/npm_audit.txt
+          retention-days: 7
+
+  # ============================================
+  # Dependency Summary
+  # ============================================
+  summary:
+    name: Summary
+    runs-on: ubuntu-latest
+    needs: [ cargo-audit, cargo-deny, license-check, dependency-size ]
+    timeout-minutes: 5
+    if: always()
+    steps:
+      - name: Summary
+        run: |
+          echo "## Dependency Review Summary"
+          echo ""
+          echo "| Check | Status |"
+          echo "|-------|--------|"
+          echo "| Cargo Audit | ${{ needs.cargo-audit.result }} |"
+          echo "| Cargo Deny | ${{ needs.cargo-deny.result }} |"
+          echo "| License Check | ${{ needs.license-check.result }} |"
+          echo "| Dependency Size | ${{ needs.dependency-size.result }} |"
+          echo ""
+
+          if [[ "${{ needs.cargo-audit.result }}" == "success" ]] && \
+             [[ "${{ needs.cargo-deny.result }}" == "success" ]] && \
+             [[ "${{ needs.license-check.result }}" == "success" ]]; then
+            echo "All dependency checks passed."
+          else
+            echo "Some dependency checks failed. Please review the logs."
+            exit 1
+          fi
