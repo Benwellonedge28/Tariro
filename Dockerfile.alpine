@@ -1,0 +1,122 @@
+# Tariro AGI Dockerfile - Alpine Linux (musl)
+# Minimal image using Alpine Linux with musl libc
+# Ideal for containers and edge devices
+
+# ============================================
+# Stage 1: Build
+# ============================================
+FROM rust:1.75-alpine as builder
+
+# Install build dependencies
+RUN apk add --no-cache \
+    cmake \
+    pkgconfig \
+    openssl-dev \
+    musl-dev \
+    protoc
+
+# Create app directory
+WORKDIR /build
+
+# Set environment variables for optimized build
+ENV CARGO_PROFILE_RELEASE_LTO=fat \
+    CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
+    CARGO_PROFILE_RELEASE_OPT_LEVEL=3 \
+    RUST_BACKTRACE=1 \
+    OPENSSL_LIB_DIR=/usr/lib \
+    OPENSSL_INCLUDE_DIR=/usr/include \
+    OPENSSL_DIR=/usr
+
+# Copy manifests
+COPY Cargo.toml Cargo.lock* ./
+
+# Create dummy source for dependency caching
+RUN mkdir -p src benches && \
+    echo "fn main() {}" > src/main.rs && \
+    echo "mod lib;" > src/lib.rs
+
+# Build dependencies first
+RUN cargo build --release --target x86_64-unknown-linux-musl && rm -rf src benches
+
+# Copy actual source
+COPY src ./src
+COPY benches ./benches
+COPY rustfmt.toml clippy.toml ./
+
+# Touch source files to invalidate cache
+RUN find src -name "*.rs" -exec touch {} \;
+
+# Build release binary
+RUN cargo build --release --target x86_64-unknown-linux-musl --features full
+
+# ============================================
+# Stage 2: Runtime (Alpine)
+# ============================================
+FROM alpine:3.19
+
+# Install runtime dependencies
+RUN apk add --no-cache \
+    ca-certificates \
+    openssl \
+    tini
+
+# Create non-root user and group
+RUN addgroup -g 1000 tariro && \
+    adduser -u 1000 -G tariro -D -h /app tariro
+
+# Create app directory
+WORKDIR /app
+
+# Copy binary from builder
+COPY --from=builder /build/target/x86_64-unknown-linux-musl/release/tariro /app/
+
+# Copy entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Create directories for runtime data
+RUN mkdir -p /app/data /app/logs /app/config && \
+    chown -R tariro:tariro /app
+
+# Set ownership
+RUN chown -R tariro:tariro /app
+
+# Use tini as init system
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+
+# Default command
+CMD ["--help"]
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD /app/tariro health || exit 1
+
+# Environment variables
+ENV TARIRO_CONFIG_PATH=/app/config \
+    RUST_LOG=info \
+    RUST_BACKTRACE=1
+
+# Labels
+LABEL org.opencontainers.image.title="Tariro AGI (Alpine)"
+LABEL org.opencontainers.image.description="Alpine Linux build of Tariro AGI with musl libc"
+LABEL org.opencontainers.image.source="https://github.com/Benwellonedge28/Tariro"
+LABEL org.opencontainers.image.version="1.0.15"
+LABEL org.opencontainers.image.licenses="MIT OR Apache-2.0"
+
+# Expose default ports
+EXPOSE 8080 8081
+
+# Switch to non-root user
+USER tariro
+
+# ============================================
+# Build Notes
+# ============================================
+# Build for multiple architectures:
+#   docker buildx build --platform linux/amd64,linux/arm64/v8 -f Dockerfile.alpine -t tariro:alpine .
+#
+# The Alpine image is:
+#   - Smaller than Debian-based images (~5-10MB base)
+#   - Uses musl libc for better static linking
+#   - Ideal for containerized environments
+#   - Compatible with most cloud providers

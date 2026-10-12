@@ -93,6 +93,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Standard platforms
           - platform: linux-x86_64
             runner: ubuntu-latest
             target: x86_64-unknown-linux-gnu
@@ -117,6 +118,24 @@ jobs:
             runner: windows-latest
             target: x86_64-pc-windows-msvc
             artifact_name: tariro-windows-x86_64.exe
+          # Static/musl platforms
+          - platform: linux-x86_64-musl
+            runner: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            artifact_name: tariro-linux-x86_64-musl
+          - platform: linux-aarch64-musl
+            runner: ubuntu-latest
+            target: aarch64-unknown-linux-musl
+            artifact_name: tariro-linux-aarch64-musl
+          - platform: linux-armv7-musl
+            runner: ubuntu-latest
+            target: armv7-unknown-linux-musleabihf
+            artifact_name: tariro-linux-armv7-musl
+          # Other Unix
+          - platform: freebsd-x86_64
+            runner: ubuntu-latest
+            target: x86_64-unknown-freebsd
+            artifact_name: tariro-freebsd-x86_64
 
     steps:
       - name: Checkout repository
@@ -134,6 +153,12 @@ jobs:
       - name: Add target
         if: matrix.platform != 'windows-x86_64'
         run: rustup target add ${{ matrix.target }}
+
+      - name: Install cross-compilation tools
+        if: matrix.platform == 'linux-*-musl'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y musl-tools gcc-multilib || true
 
       - name: Setup macOS signing
         if: matrix.platform == 'macos-*'
@@ -175,7 +200,24 @@ jobs:
           else
             sha256sum ${{ matrix.artifact_name }} > ${{ matrix.artifact_name }}.sha256
           fi
+          # Create compressed archive
+          if [[ "${{ matrix.platform }}" == "windows-x86_64" ]]; then
+            tar czf ${{ matrix.artifact_name }}.tar.gz ${{ matrix.artifact_name }}.exe ${{ matrix.artifact_name }}.exe.sha256
+          else
+            tar czf ${{ matrix.artifact_name }}.tar.gz ${{ matrix.artifact_name }} ${{ matrix.artifact_name }}.sha256
+          fi
           ls -la
+
+      - name: Verify static linking
+        if: matrix.platform == 'linux-*-musl'
+        run: |
+          if command -v file >/dev/null && [ -f "dist/${{ matrix.artifact_name }}" ]; then
+            file_info=$(file dist/${{ matrix.artifact_name }})
+            echo "File info: $file_info"
+            if echo "$file_info" | grep -q "statically linked"; then
+              echo "✓ Binary is statically linked"
+            fi
+          fi
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

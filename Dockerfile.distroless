@@ -1,0 +1,103 @@
+# Tariro AGI Dockerfile - Distroless
+# Minimal image based on Google's distroless static base
+# Ideal for production containers with minimal attack surface
+
+# ============================================
+# Stage 1: Build
+# ============================================
+FROM rust:1.75 as builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    cmake \
+    pkg-config \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create app directory
+WORKDIR /build
+
+# Set environment variables for optimized build
+ENV CARGO_PROFILE_RELEASE_LTO=fat \
+    CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
+    CARGO_PROFILE_RELEASE_OPT_LEVEL=3 \
+    RUST_BACKTRACE=1
+
+# Copy manifests
+COPY Cargo.toml Cargo.lock* ./
+
+# Create dummy source for dependency caching
+RUN mkdir -p src benches && \
+    echo "fn main() {}" > src/main.rs && \
+    echo "mod lib;" > src/lib.rs
+
+# Build dependencies first
+RUN cargo build --release && rm -rf src benches
+
+# Copy actual source
+COPY src ./src
+COPY benches ./benches
+COPY rustfmt.toml clippy.toml ./
+
+# Touch source files to invalidate cache
+RUN find src -name "*.rs" -exec touch {} \;
+
+# Build release binary with static linking
+RUN cargo build --release --features full
+
+# ============================================
+# Stage 2: Runtime (Distroless)
+# ============================================
+# Use distroless/cc for C runtime or distroless/base for no runtime
+FROM gcr.io/distroless/cc:nonroot
+
+# Copy binary from builder
+COPY --from=builder /build/target/release/tariro /tariro
+
+# Copy entrypoint script
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# Set ownership
+RUN chown -R nonroot:nonroot /tariro /docker-entrypoint.sh
+
+# Use tini as init system
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
+# Default command
+CMD ["/tariro", "--help"]
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD /tariro health || exit 1
+
+# Environment variables
+ENV TARIRO_CONFIG_PATH=/app/config \
+    RUST_LOG=info \
+    RUST_BACKTRACE=1
+
+# Labels
+LABEL org.opencontainers.image.title="Tariro AGI (Distroless)"
+LABEL org.opencontainers.image.description="Distroless build of Tariro AGI - minimal attack surface"
+LABEL org.opencontainers.image.source="https://github.com/Benwellonedge28/Tariro"
+LABEL org.opencontainers.image.version="1.0.15"
+LABEL org.opencontainers.image.licenses="MIT OR Apache-2.0"
+
+# Expose default ports
+EXPOSE 8080 8081
+
+# Non-root user
+USER nonroot
+
+# ============================================
+# Build Notes
+# ============================================
+# Build for multiple architectures:
+#   docker buildx build --platform linux/amd64,linux/arm64/v8 -f Dockerfile.distroless -t tariro:distroless .
+#
+# The Distroless image provides:
+#   - Minimal attack surface (no shell, package manager)
+#   - CVE-resistant base image
+#   - Non-root by default
+#   - SBOM support via Cosign
+#   - Perfect for production Kubernetes deployments

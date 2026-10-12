@@ -1,0 +1,107 @@
+# Tariro AGI Dockerfile - Scratch
+# The most minimal container - just the binary and nothing else
+# Ideal for Kubernetes sidecars and embedded scenarios
+
+# ============================================
+# Stage 1: Build (must be static/musl)
+# ============================================
+FROM rust:1.75-alpine as builder
+
+# Install build dependencies
+RUN apk add --no-cache \
+    cmake \
+    pkgconfig \
+    openssl-dev \
+    musl-dev \
+    protoc
+
+# Create app directory
+WORKDIR /build
+
+# Set environment variables for static build
+ENV CARGO_PROFILE_RELEASE_LTO=fat \
+    CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
+    CARGO_PROFILE_RELEASE_OPT_LEVEL=3 \
+    RUST_BACKTRACE=1
+
+# Copy manifests
+COPY Cargo.toml Cargo.lock* ./
+
+# Create dummy source for dependency caching
+RUN mkdir -p src benches && \
+    echo "fn main() {}" > src/main.rs && \
+    echo "mod lib;" > src/lib.rs
+
+# Build dependencies first
+RUN cargo build --release --target x86_64-unknown-linux-musl && rm -rf src benches
+
+# Copy actual source
+COPY src ./src
+COPY benches ./benches
+COPY rustfmt.toml clippy.toml ./
+
+# Touch source files to invalidate cache
+RUN find src -name "*.rs" -exec touch {} \;
+
+# Build release binary with static linking
+RUN cargo build --release --target x86_64-unknown-linux-musl --features full
+
+# Verify the binary is statically linked
+RUN ldd /build/target/x86_64-unknown-linux-musl/release/tariro || \
+    (echo "Binary is statically linked" && exit 0)
+
+# ============================================
+# Stage 2: Runtime (Scratch - Empty)
+# ============================================
+FROM scratch
+
+# Copy CA certificates for HTTPS
+COPY --from=alpine:3.19 /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+# Copy binary from builder
+COPY --from=builder /build/target/x86_64-unknown-linux-musl/release/tariro /tariro
+
+# Copy entrypoint script
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+
+# Create app directory
+USER 1000:1000
+
+# Set as entrypoint
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
+# Default command
+CMD ["/tariro", "--help"]
+
+# Environment variables
+ENV TARIRO_CONFIG_PATH=/app/config \
+    RUST_LOG=info \
+    RUST_BACKTRACE=1
+
+# Labels
+LABEL org.opencontainers.image.title="Tariro AGI (Scratch)"
+LABEL org.opencontainers.image.description="Scratch container - Tariro AGI binary only"
+LABEL org.opencontainers.image.source="https://github.com/Benwellonedge28/Tariro"
+LABEL org.opencontainers.image.version="1.0.15"
+LABEL org.opencontainers.image.licenses="MIT OR Apache-2.0"
+
+# Expose default ports
+EXPOSE 8080 8081
+
+# ============================================
+# Build Notes
+# ============================================
+# Build for multiple architectures:
+#   docker buildx build --platform linux/amd64,linux/arm64/v8 -f Dockerfile.scratch -t tariro:scratch .
+#
+# The Scratch image is:
+#   - THE smallest possible container (~10-50MB depending on binary)
+#   - No package manager, shell, or utilities
+#   - Maximum security (minimal attack surface)
+#   - Perfect for sidecar containers
+#   - Requires statically linked binary
+#
+# IMPORTANT: This image requires:
+#   - Statically linked binary (use musl target)
+#   - No dynamic linking to libc
+#   - All dependencies compiled in

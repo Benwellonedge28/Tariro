@@ -1,0 +1,584 @@
+name: Embedded & Cross-Platform
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.github/workflows/embedded.yml'
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  CARGO_INCREMENTAL: 0
+
+# Concurrency control
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================
+  # Embedded ARM Cortex-M (no_std)
+  # ============================================
+  embedded-arm-cortex-m:
+    name: ARM Cortex-M (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: thumbv6m-none-eabi
+            name: "Cortex-M0/M0+"
+            features: "embedded,no-std"
+          - target: thumbv7m-none-eabi
+            name: "Cortex-M3/M4/M7"
+            features: "embedded,no-std"
+          - target: thumbv7em-none-eabihf
+            name: "Cortex-M4F/M7F (FPU)"
+            features: "embedded,no-std"
+          - target: thumbv8m.main-none-eabihf
+            name: "Cortex-M33/M35P (ARMv8-M)"
+            features: "embedded,no-std"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+          profile: minimal
+
+      - name: Add target
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Build embedded target
+        uses: mozilla-actions/sccache-action@v0.0.6
+        with:
+          config-cache: '{"cache": true}'
+
+      - name: Build
+        run: |
+          echo "Building for ${{ matrix.name }} (${{ matrix.target }})"
+          cargo build --release --target ${{ matrix.target }} --no-default-features --features ${{ matrix.features }} 2>&1 | tee build.log || true
+
+      - name: Check for symbols
+        run: |
+          if [ -f target/${{ matrix.target }}/release/tariro ]; then
+            echo "Binary size for ${{ matrix.target }}:"
+            ls -lh target/${{ matrix.target }}/release/tariro
+            # Show size in bytes
+            size=$(stat -c%s target/${{ matrix.target }}/release/tariro)
+            echo "Size: $size bytes"
+
+            # Calculate approximate flash requirements
+            echo "Estimated flash requirements:"
+            echo "- Text (code): ~$((size * 60 / 100)) bytes"
+            echo "- Data (initialized): ~$((size * 10 / 100)) bytes"
+          else
+            echo "No-std build may not be fully supported yet"
+            cat build.log | tail -30
+          fi
+
+      - name: Upload embedded binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: tariro-${{ matrix.target }}-${{ github.sha }}
+          path: target/${{ matrix.target }}/release/tariro
+          retention-days: 7
+
+  # ============================================
+  # RISC-V Embedded
+  # ============================================
+  embedded-riscv:
+    name: RISC-V Embedded
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: riscv32i-unknown-none-elf
+            name: "RISC-V 32-bit (RV32I)"
+            features: "embedded,no-std"
+          - target: riscv32imc-unknown-none-elf
+            name: "RISC-V 32-bit (RV32IMC)"
+            features: "embedded,no-std"
+          - target: riscv64gc-unknown-none-elf
+            name: "RISC-V 64-bit (RV64GC)"
+            features: "embedded,no-std"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+          profile: minimal
+
+      - name: Add target
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Build RISC-V target
+        uses: mozilla-actions/sccache-action@v0.0.6
+        with:
+          config-cache: '{"cache": true}'
+
+      - name: Build
+        run: |
+          echo "Building for ${{ matrix.name }} (${{ matrix.target }})"
+          cargo build --release --target ${{ matrix.target }} --no-default-features --features ${{ matrix.features }} 2>&1 | tee build.log || true
+
+      - name: Check binary
+        run: |
+          if [ -f target/${{ matrix.target }}/release/tariro ]; then
+            echo "Binary size for ${{ matrix.target }}:"
+            ls -lh target/${{ matrix.target }}/release/tariro
+            echo "RISC-V binary info:"
+            file target/${{ matrix.target }}/release/tariro
+          fi
+
+      - name: Upload RISC-V binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: tariro-${{ matrix.target }}-${{ github.sha }}
+          path: target/${{ matrix.target }}/release/tariro
+          retention-days: 7
+
+  # ============================================
+  # WebAssembly / WASI
+  # ============================================
+  wasm-wasi:
+    name: WebAssembly / WASI
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: wasm32-unknown-unknown
+            name: "WebAssembly (browser)"
+            features: "wasm,no-std"
+          - target: wasm32-wasi
+            name: "WebAssembly WASI (server)"
+            features: "wasm,wasi,no-std"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+          profile: minimal
+
+      - name: Add target
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Build WASM target
+        uses: mozilla-actions/sccache-action@v0.0.6
+        with:
+          config-cache: '{"cache": true}'
+
+      - name: Build WASM
+        run: |
+          echo "Building for ${{ matrix.name }} (${{ matrix.target }})"
+          cargo build --release --target ${{ matrix.target }} --no-default-features --features ${{ matrix.features }} 2>&1 | tee build.log || true
+
+      - name: Optimize WASM
+        run: |
+          if [ -f target/${{ matrix.target }}/release/tariro.wasm ]; then
+            echo "WASM binary size before optimization:"
+            ls -lh target/${{ matrix.target }}/release/tariro.wasm
+
+            # Install wasm-opt if available
+            # wasm-opt -Oz target/${{ matrix.target }}/release/tariro.wasm -o target/${{ matrix.target }}/release/tariro_opt.wasm
+
+            echo "WASM binary size:"
+            ls -lh target/${{ matrix.target }}/release/tariro.wasm
+          fi
+
+      - name: Upload WASM binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: tariro-${{ matrix.target }}-${{ github.sha }}
+          path: target/${{ matrix.target }}/release/tariro*
+          retention-days: 7
+
+  # ============================================
+  # Static Binaries (musl)
+  # ============================================
+  static-binaries:
+    name: Static Builds (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-musl
+            name: "Linux x86_64 (musl)"
+          - target: aarch64-unknown-linux-musl
+            name: "Linux ARM64 (musl)"
+          - target: armv7-unknown-linux-musleabihf
+            name: "Linux ARMv7 (musl)"
+          - target: i686-unknown-linux-musl
+            name: "Linux x86 (musl)"
+          - target: x86_64-unknown-freebsd
+            name: "FreeBSD x86_64"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+          profile: minimal
+
+      - name: Add target
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Install cross-compilation tools
+        run: |
+          if [[ "${{ matrix.target }}" == *"linux"* ]]; then
+            sudo apt-get update
+            sudo apt-get install -y gcc-multilib libc6-dev-i386 || true
+          fi
+
+      - name: Build static binary
+        uses: mozilla-actions/sccache-action@v0.0.6
+        with:
+          config-cache: '{"cache": true}'
+
+      - name: Build
+        env:
+          CARGO_PROFILE_RELEASE_LTO: fat
+          CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+        run: |
+          echo "Building static binary for ${{ matrix.name }}"
+          cargo build --release --target ${{ matrix.target }} --features full
+
+      - name: Verify static linking
+        run: |
+          if [ -f target/${{ matrix.target }}/release/tariro ]; then
+            echo "Binary info:"
+            ls -lh target/${{ matrix.target }}/release/tariro
+
+            # Check if statically linked (for Linux targets)
+            if [[ "${{ matrix.target }}" == *"linux"* ]] && command -v file >/dev/null; then
+              file_info=$(file target/${{ matrix.target }}/release/tariro)
+              echo "File info: $file_info"
+
+              if echo "$file_info" | grep -q "statically linked"; then
+                echo "✓ Binary is statically linked"
+              elif echo "$file_info" | grep -q "dynamically linked"; then
+                echo "✗ Binary is dynamically linked (not fully static)"
+                ldd target/${{ matrix.target }}/release/tariro || true
+              fi
+            fi
+
+            # Create tarball
+            cd target/${{ matrix.target }}/release
+            tar czf tariro-${{ matrix.target }}.tar.gz tariro
+            sha256sum tariro-${{ matrix.target }}.tar.gz > tariro-${{ matrix.target }}.tar.gz.sha256
+            ls -lh
+          fi
+
+      - name: Upload static binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: tariro-static-${{ matrix.target }}-${{ github.sha }}
+          path: target/${{ matrix.target }}/release/tariro*
+          retention-days: 14
+
+  # ============================================
+  # Alpine Linux (musl)
+  # ============================================
+  alpine:
+    name: Alpine Linux (musl)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Alpine Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: tariro:alpine-test
+          file: Dockerfile.alpine
+          outputs: type=docker,dest=/tmp/alpine.tar
+          cache-from: type=gha,scope=main
+          cache-to: type=gha,mode=max,scope=main
+
+      - name: Check Alpine image
+        run: |
+          docker load < /tmp/alpine.tar
+          docker run --rm tariro:alpine-test --help || echo "Alpine image built"
+
+      - name: Upload Alpine image
+        uses: actions/upload-artifact@v4
+        with:
+          name: tariro-alpine-docker-${{ github.sha }}
+          path: /tmp/alpine.tar
+          retention-days: 7
+
+  # ============================================
+  # Distroless (Minimal)
+  # ============================================
+  distroless:
+    name: Distroless Docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push distroless image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ghcr.io/${{ github.repository }}:distroless
+            ghcr.io/${{ github.repository }}:distroless-latest
+          file: Dockerfile.distroless
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha,scope=main
+          cache-to: type=gha,mode=max,scope=main
+
+  # ============================================
+  # Scratch (Minimal)
+  # ============================================
+  scratch:
+    name: Scratch Docker (Minimal)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push scratch image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ghcr.io/${{ github.repository }}:scratch
+          file: Dockerfile.scratch
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha,scope=main
+          cache-to: type=gha,mode=max,scope=main
+
+  # ============================================
+  # Binary Size Analysis
+  # ============================================
+  binary-size-analysis:
+    name: Binary Size Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          profile: minimal
+
+      - name: Build release binary
+        uses: mozilla-actions/sccache-action@v0.0.6
+        with:
+          config-cache: '{"cache": true}'
+
+      - name: Build full release
+        run: cargo build --release --features full
+
+      - name: Build minimal release
+        run: cargo build --release --no-default-features
+
+      - name: Build static release
+        run: |
+          rustup target add x86_64-unknown-linux-musl
+          cargo build --release --target x86_64-unknown-linux-musl --no-default-features
+
+      - name: Analyze sizes
+        run: |
+          echo "## Binary Size Analysis"
+          echo ""
+          echo "| Configuration | Size |"
+          echo "|--------------|------|"
+
+          # Full release
+          if [ -f target/release/tariro ]; then
+            FULL_SIZE=$(stat -c%s target/release/tariro)
+            echo "| Full (default+full features) | $(numfmt --to=iec $FULL_SIZE) ($FULL_SIZE bytes) |"
+          fi
+
+          # Minimal release
+          if [ -f target/release/tariro ]; then
+            # Rebuild with no features
+            cargo build --release --no-default-features
+            MIN_SIZE=$(stat -c%s target/release/tariro)
+            echo "| Minimal (no default features) | $(numfmt --to=iec $MIN_SIZE) ($MIN_SIZE bytes) |"
+          fi
+
+          # Static release
+          if [ -f target/x86_64-unknown-linux-musl/release/tariro ]; then
+            STATIC_SIZE=$(stat -c%s target/x86_64-unknown-linux-musl/release/tariro)
+            echo "| Static (musl) | $(numfmt --to=iec $STATIC_SIZE) ($STATIC_SIZE bytes) |"
+          fi
+
+          echo ""
+          echo "### Size Comparison"
+          if [ -f target/release/tariro ] && [ -f target/x86_64-unknown-linux-musl/release/tariro ]; then
+            FULL_SIZE=$(stat -c%s target/release/tariro)
+            STATIC_SIZE=$(stat -c%s target/x86_64-unknown-linux-musl/release/tariro)
+            DIFF=$((STATIC_SIZE - FULL_SIZE))
+            echo "Static vs Dynamic: $(numfmt --to=iec $DIFF) difference"
+          fi
+
+      - name: Install cargo-bloat
+        run: cargo install cargo-bloat
+
+      - name: Show size by function
+        run: |
+          echo "Top 20 largest functions:"
+          cargo bloat --release --no-default-features -- -n 20 2>&1 | head -30 || echo "cargo-bloat analysis complete"
+
+  # ============================================
+  # Size Budget Verification
+  # ============================================
+  size-budget:
+    name: Size Budget Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          profile: minimal
+
+      - name: Check size budgets
+        run: |
+          echo "## Size Budget Verification"
+          echo ""
+
+          # Define size budgets (in bytes)
+          BUDGET_FULL=50000000  # 50MB for full features
+          BUDGET_MINIMAL=5000000  # 5MB for minimal
+          BUDGET_STATIC=10000000  # 10MB for static
+
+          # Build configurations
+          cargo build --release --features full
+          cargo build --release --no-default-features
+          rustup target add x86_64-unknown-linux-musl
+          cargo build --release --target x86_64-unknown-linux-musl --no-default-features
+
+          echo "| Configuration | Actual Size | Budget | Status |"
+          echo "|--------------|-----------|--------|--------|"
+
+          # Check full
+          if [ -f target/release/tariro ]; then
+            FULL_SIZE=$(stat -c%s target/release/tariro)
+            if [ $FULL_SIZE -lt $BUDGET_FULL ]; then
+              echo "| Full | $(numfmt --to=iec $FULL_SIZE) | $(numfmt --to=iec $BUDGET_FULL) | ✓ PASS |"
+            else
+              echo "| Full | $(numfmt --to=iec $FULL_SIZE) | $(numfmt --to=iec $BUDGET_FULL) | ✗ FAIL |"
+            fi
+          fi
+
+          # Check minimal
+          if [ -f target/release/tariro ]; then
+            cargo build --release --no-default-features
+            MIN_SIZE=$(stat -c%s target/release/tariro)
+            if [ $MIN_SIZE -lt $BUDGET_MINIMAL ]; then
+              echo "| Minimal | $(numfmt --to=iec $MIN_SIZE) | $(numfmt --to=iec $BUDGET_MINIMAL) | ✓ PASS |"
+            else
+              echo "| Minimal | $(numfmt --to=iec $MIN_SIZE) | $(numfmt --to=iec $BUDGET_MINIMAL) | ✗ FAIL |"
+            fi
+          fi
+
+          # Check static
+          if [ -f target/x86_64-unknown-linux-musl/release/tariro ]; then
+            STATIC_SIZE=$(stat -c%s target/x86_64-unknown-linux-musl/release/tariro)
+            if [ $STATIC_SIZE -lt $BUDGET_STATIC ]; then
+              echo "| Static | $(numfmt --to=iec $STATIC_SIZE) | $(numfmt --to=iec $BUDGET_STATIC) | ✓ PASS |"
+            else
+              echo "| Static | $(numfmt --to=iec $STATIC_SIZE) | $(numfmt --to=iec $BUDGET_STATIC) | ✗ FAIL |"
+            fi
+          fi

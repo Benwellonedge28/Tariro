@@ -1,0 +1,302 @@
+# Tariro AGI Edge Deployment Configuration
+# Multi-planetary distributed edge computing configuration
+# Supports edge devices, IoT gateways, and planetary-scale deployment
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tariro-edge-config
+  namespace: tariro
+  labels:
+    app: tariro
+    component: edge
+    version: "1.0.15"
+data:
+  # Edge-specific configuration
+  tariro-edge.toml: |
+    # Tariro AGI Edge Configuration
+    # Optimized for distributed edge computing
+
+    [server]
+    # Edge server configuration
+    host = "0.0.0.0"
+    port = 8080
+    workers = 2  # Conservative for edge devices
+    max_connections = 1000
+
+    [server.limits]
+    # Resource limits for edge devices
+    max_request_size = "1MB"
+    request_timeout = "30s"
+    keepalive_timeout = "60s"
+
+    [logging]
+    # Reduced logging for edge
+    level = "info"
+    format = "json"
+    output = "stdout"
+
+    [distributed]
+    # Distributed computing settings
+    enabled = true
+    node_id = "${NODE_ID}"
+    region = "${REGION:-unknown}"
+
+    [distributed.mesh]
+    # Peer-to-peer mesh configuration
+    discovery_enabled = true
+    discovery_interval = "30s"
+    relay_enabled = true
+    relay_max_hops = 3
+
+    [distributed.sync]
+    # State synchronization
+    sync_enabled = true
+    sync_interval = "5s"
+    sync_retry_attempts = 3
+    conflict_resolution = "last-write-wins"
+
+    [distributed.resilience]
+    # Multi-planetary resilience
+    offline_mode = true
+    offline_queue_size = 1000
+    auto_reconnect = true
+    reconnect_interval = "10s"
+    max_reconnect_attempts = 10
+
+    [storage]
+    # Local storage for offline capability
+    backend = "sqlite"
+    path = "/data/tariro.db"
+    cache_size = "100MB"
+    wal_mode = true
+
+    [metrics]
+    # Edge metrics collection
+    enabled = true
+    endpoint = "${METRICS_ENDPOINT:-}"
+    interval = "60s"
+    batch_size = 100
+
+    [features]
+    # Feature flags for edge
+    ai_processing = true
+    caching = true
+    compression = true
+    encryption = true
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tariro-edge
+  namespace: tariro
+  labels:
+    app: tariro
+    component: edge
+    version: "1.0.15"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: tariro
+      component: edge
+  template:
+    metadata:
+      labels:
+        app: tariro
+        component: edge
+        version: "1.0.15"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      # Service account
+      serviceAccountName: tariro-edge
+
+      # Security context for edge
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+
+      # Anti-affinity for distributed deployment
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: component
+                  operator: In
+                  values:
+                  - edge
+              topologyKey: topology.kubernetes.io/zone
+
+      # Tolerations for edge nodes
+      tolerations:
+      - key: "node-type"
+        operator: "Equal"
+        value: "edge"
+        effect: "NoSchedule"
+      - key: "planetary-region"
+        operator: "Exists"
+        effect: "NoExecute"
+
+      containers:
+      - name: tariro
+        image: ghcr.io/benwellonedge28/tariro:1.0.15
+        imagePullPolicy: Always
+
+        # Resource limits for edge
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+        # Startup probe
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          failureThreshold: 30
+
+        # Liveness probe
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          failureThreshold: 3
+          successThreshold: 1
+
+        # Readiness probe
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          failureThreshold: 3
+
+        # Environment variables
+        env:
+        - name: NODE_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: REGION
+          value: "$(PLANETARY_REGION)"
+        - name: RUST_LOG
+          value: "info"
+        - name: RUST_BACKTRACE
+          value: "1"
+        - name: TARIRO_CONFIG_PATH
+          value: "/config"
+
+        # Volume mounts
+        volumeMounts:
+        - name: config
+          mountPath: /config
+          readOnly: true
+        - name: data
+          mountPath: /data
+        - name: cache
+          mountPath: /cache
+        - name: certificates
+          mountPath: /etc/certs
+          readOnly: true
+
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        - name: metrics
+          containerPort: 8081
+          protocol: TCP
+        - name: p2p
+          containerPort: 9090
+          protocol: UDP
+
+      volumes:
+      - name: config
+        configMap:
+          name: tariro-edge-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: tariro-edge-data
+      - name: cache
+        emptyDir:
+          medium: Memory
+          sizeLimit: 100Mi
+      - name: certificates
+        secret:
+          secretName: tariro-certs
+          optional: true
+
+      # Graceful shutdown
+      terminationGracePeriodSeconds: 60
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tariro-edge
+  namespace: tariro
+  labels:
+    app: tariro
+    component: edge
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+  - name: metrics
+    port: 8081
+    targetPort: 8081
+    protocol: TCP
+  selector:
+    app: tariro
+    component: edge
+
+---
+# Planetary-scale service mesh configuration
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceResolver
+metadata:
+  name: tariro-edge
+  namespace: tariro
+spec:
+  defaultSubset: primary
+  subsets:
+    primary:
+      filter: "Meta.planet == meta.planet"
+    backup:
+      filter: "Meta.planet != meta.planet"
+---
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceSplitter
+metadata:
+  name: tariro-edge
+  namespace: tariro
+spec:
+  splits:
+  - weight: 80
+    serviceSubset: primary
+  - weight: 20
+    serviceSubset: backup
