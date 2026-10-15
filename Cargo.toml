@@ -7,7 +7,8 @@ authors = [
     "Tariro AGI Contributors <contributors@tariro.dev>"
 ]
 description = "Tariro AGI - The Most Powerful AGI System with Universal Meta-Compiler implementing POCO-REAF"
-license = "MIT OR Apache-2.0"
+license = "BSL-1.01"
+license_file = "LICENSE"
 homepage = "https://tariro.dev"
 repository = "https://github.com/Benwellonedge28/Tariro"
 documentation = "https://docs.tariro.dev"
@@ -46,7 +47,7 @@ exclude = [
 
 [package.metadata]
 cargo-doc = { all-features = true }
-license = { MIT = "https://opensource.org/licenses/MIT", Apache-2.0 = "https://www.apache.org/licenses/LICENSE-2.0" }
+license = { BSL = "https://www.tariro.dev/bcl" }
 release = { enable = true }
 
 [features]
@@ -177,3 +178,4 @@ debug = true
 maintenance = { status = "actively-developed" }
 travis-ci = { repository = "Benwellonedge28/Tariro", branch = "main" }
 coveralls = { repository = "Benwellonedge28/Tariro", service = "github" }
+license = { SPDX = "BSL-1.01" }

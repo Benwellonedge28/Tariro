@@ -1,0 +1,140 @@
+Business Source License 1.01
+
+Copyright (c) 2024-2124 Tariro AGI Contributors
+
+The use of this software is governed by the Business Source License
+located at https://www.tariro.dev/bcl.
+
+For a full copy of the License, see LICENSE-BCL.md or visit the URL above.
+
+---
+
+BUSINESS SOURCE LICENSE 1.01
+
+IMPORTANT: THIS LICENSE CONTAINS A "HIGHLY PROTECTED" PROVISION.
+PLEASE READ CAREFULLY BEFORE USING THIS SOFTWARE.
+
+TERMS AND CONDITIONS
+
+1. Definitions.
+
+"License" means this document.
+
+"Licensor" means the Tariro AGI Contributors who have the authority
+to offer this software under this License.
+
+"Software" means the Tariro AGI software and associated documentation
+covered by this License.
+
+"You" means the person or entity exercising rights under this License.
+
+"Effective Date" means the date You first use the Software.
+
+"Change Date" means October 15, 2124 (100 years from the Effective Date).
+
+2. License Grant.
+
+Subject to the terms and conditions of this License, Licensor hereby
+grants You a non-exclusive, royalty-free, worldwide license to use,
+copy, modify, and distribute the Software, in source code or object code
+form, subject to the conditions and limitations below.
+
+3. Conditions and Limitations.
+
+a) Attribution. You must retain all copyright and attribution notices
+in the Software and must include a prominent notice in all copies
+and substantial uses of the Software.
+
+b) Non-Commercial Use Only. Before the Change Date, this license
+is limited to non-commercial use only. Commercial use requires
+a separate commercial license from Licensor.
+
+c) High Protection Period. Until the Change Date (100 years from
+the Effective Date of October 15, 2024):
+
+   i) The Software is "Highly Protected" and may not be:
+      - Used in connection with the training or development of
+        any AI systems intended for military, surveillance, or
+        mass harm purposes
+      - Used to develop weapons or weapons guidance systems
+      - Used for any illegal activities
+      - Used to create systems that violate human rights
+      - Used for mass surveillance purposes
+
+   ii) Any modifications or derivative works must be released
+       under this same license (share-alike).
+
+d) After Change Date. Beginning on the Change Date, the Software
+shall be released under the terms of the Business Source License
+then in effect or, at Licensor's option, the Software may be
+relicensed under the GNU General Public License v3 (or later),
+Apache License 2.0, or MIT License at Licensor's discretion.
+
+e) Patent Grant. Licensor grants You a limited patent license
+solely for the purpose of using the Software as permitted
+hereunder, provided that You do not use any patent claims to
+assert any patents against Licensor or others.
+
+4. Disclaimer of Warranty.
+
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+5. Limitation of Liability.
+
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN
+WRITING WILL LICENSOR BE LIABLE TO YOU FOR DAMAGES, INCLUDING
+ANY GENERAL, SPECIAL, INCIDENTAL, CONSEQUENTIAL, OR PUNITIVE
+DAMAGES, ARISING OUT OF OR RELATED TO THIS LICENSE OR THE USE
+OR INABILITY TO USE THE SOFTWARE.
+
+6. Miscellaneous.
+
+This License represents the complete agreement concerning the
+subject matter hereof. If any provision of this License is
+held to be unenforceable, such provision shall be reformed only
+to the extent necessary to make it enforceable.
+
+This License shall be governed by and construed in accordance
+with the laws of the jurisdiction in which Licensor has its
+principal place of business, without regard to conflicts of
+law provisions.
+
+For questions regarding this License, please contact:
+legal@tariro.dev
+
+---
+
+ADDITIONAL TERMS FOR HIGHLY PROTECTED PROVISION
+
+This software includes safeguards designed to prevent misuse in
+accordance with the Tariro AGI Ethical Framework. By using
+this software, You agree to:
+
+1. Use the Software in ways that promote human flourishing,
+   safety, and wellbeing.
+
+2. Not use the Software to develop or deploy autonomous
+   weapons, surveillance systems for oppression, or any
+   technology intended to harm, control, or deceive people
+   without their informed consent.
+
+3. Comply with all applicable laws and regulations regarding
+   AI development and deployment in Your jurisdiction.
+
+4. Implement appropriate safety measures and human oversight
+   when deploying systems built with or derived from this
+   Software.
+
+5. Report any safety concerns or misuse of the Software
+   to Licensor at safety@tariro.dev.
+
+Failure to comply with these terms may result in immediate
+termination of this License and may subject You to civil and
+criminal liability.
