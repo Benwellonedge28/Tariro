@@ -37,7 +37,7 @@ pub struct OldGeneration {
 }
 
 impl YoungGeneration {
-    pub fn neweden_size: usize, survivor_size: usize) -> Option<Self> {
+    pub fn new(eden_size: usize, survivor_size: usize) -> Option<Self> {
         Some(Self {
             eden: HeapRegion::new(eden_size)?,
             survivor_from: HeapRegion::new(survivor_size)?,

@@ -9,7 +9,7 @@ pub trait GcVisitor {
 }
 
 /// Marker trait for GC-managed types
-pub traitGcManaged {
+pub trait GcManaged {
     fn get_object_size(&self) -> usize;
     fn get_field_ptrs(&self) -> Vec<*mut u8>;
 }

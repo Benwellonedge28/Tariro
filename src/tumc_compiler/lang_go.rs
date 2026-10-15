@@ -1211,7 +1211,7 @@ impl GoParser {
                         function: Box::new(Expression::Identifier("select_case".to_string()).into()),
                         arguments: vec![],
                     }
-                )]));
+                ))]));
             } else if self.check(&GoToken::Default) {
                 self.advance();
                 self.expect(&GoToken::Colon)?;

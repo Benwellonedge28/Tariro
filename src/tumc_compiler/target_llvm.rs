@@ -935,13 +935,13 @@ impl LlvmPrinter {
     fn print_global(&mut self, global: &LlvmGlobal) {
         let linkage = global.linkage.to_string();
         let vis = global.visibility.to_string();
-        let const = if global.constant { "constant" } else { "global" };
+        let linkage_type = if global.constant { "constant" } else { "global" };
         self.line(&format!(
             "@{} = {} {} {} {}",
             global.name,
             linkage,
             vis,
-            const,
+            linkage_type,
             global.ty.to_string()
         ));
     }

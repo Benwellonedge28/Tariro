@@ -238,7 +238,7 @@ impl SimdCodeGenerator {
                 vec![]
             }
             SimdTarget::NEON => {
-                vec![format!("addp v0.4s, v0.4s",))]
+                vec![format!("addp v0.4s, v0.4s")]
             }
         }
     }

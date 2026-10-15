@@ -64,7 +64,7 @@ full = [
 ]
 metrics = ["dep:prometheus", "dep:metrics"]
 profiling = ["dep:tracing-timing"]
-telemetry = ["dep:opentelemetry", "dep:jaeger"]
+telemetry = ["dep:opentelemetry", "dep:opentelemetry-jaeger"]
 
 [dependencies]
 # Core
@@ -85,7 +85,7 @@ sha3 = "0.10"
 hmac = "0.12"
 aes-gcm = "0.10"
 ed25519-dalek = { version = "2.1", features = ["rand_core", "std"] }
-rand = { version = "0.8", features = ["std", "rng_types"] }
+rand = { version = "0.8", features = ["std", "std_rng"] }
 digest = "0.10"
 
 # Numeric & Scientific
@@ -93,6 +93,7 @@ num-complex = { version = "0.4", features = ["serde"] }
 num-traits = "0.2"
 num-derive = "0.4"
 rayon = "1.8"
+num_cpus = "1.20"
 
 # Error Handling & Logging
 thiserror = "1.0"
@@ -110,12 +111,14 @@ metrics = { version = "0.21", optional = true }
 tracing-timing = { version = "0.1", optional = true }
 
 # Telemetry
-opentelemetry = { version = "0.22", optional = true, features = ["trace", "rt-tokio"] }
-jaeger = { version = "0.22", optional = true }
+opentelemetry = { version = "0.22", optional = true, features = ["trace"] }
+opentelemetry-jaeger = { version = "0.22", optional = true }
 opentelemetry-otlp = { version = "0.15", optional = true }
+opentelemetry_sdk = { version = "0.22", optional = true }
+tracing-opentelemetry = { version = "0.24", optional = true }
 
 # Database (optional)
-mongodb = { version = "2.9", optional = true }
+mongodb = { version = "3.1", optional = true }
 bson = { version = "2.10", optional = true }
 
 # Workspace member

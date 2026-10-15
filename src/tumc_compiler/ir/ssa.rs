@@ -228,7 +228,7 @@ impl SsaConverter {
 
 /// Converts SSA form back to regular code with register allocation
 pub struct SsaDestructor {
-    pub register allocator: Option<Box<dyn RegisterAllocator>>,
+    pub register: Option<Box<dyn RegisterAllocator>>,
 }
 
 pub trait RegisterAllocator {
@@ -359,14 +359,14 @@ impl InductionVariableAnalysis {
 
     pub fn analyze(&mut self, function: &Function, loops: &[NaturalLoop]) {
         for loop_ in loops {
-            self.find_induction_variables(function, loop_);
+            self.find_induction_variables(function, r#loop);
         }
     }
 
-    fn find_induction_variables(&mut self, function: &Function, loop: &NaturalLoop) {
+    fn find_induction_variables(&mut self, function: &Function, r#loop: &NaturalLoop) {
         // Simple induction variable detection
         for block in &function.body {
-            if loop.contains(block.id) {
+            if r#loop.contains(block.id) {
                 for inst in &block.instructions {
                     if let Operation::Binary(op, lhs, rhs) = &inst.op {
                         match op {
