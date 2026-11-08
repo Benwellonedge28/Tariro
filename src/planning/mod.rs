@@ -34,7 +34,7 @@ impl Default for PlanId {
 }
 
 /// World state representation
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct WorldState {
     pub facts: HashSet<Fact>,
     pub values: HashMap<String, f64>,

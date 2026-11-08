@@ -366,6 +366,8 @@ impl SuiteReport {
 
 /// Assertion helpers
 pub mod assertions {
+    use super::TestError;
+
     /// Assert equal
     pub fn assert_eq<T: PartialEq + std::fmt::Debug>(
         expected: T,

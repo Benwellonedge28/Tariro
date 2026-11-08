@@ -18,12 +18,12 @@
 //! | Quantization | Medium | Low | Good |
 //! | Sparsification | High | Very Low | Moderate |
 
-use crate::scaling::capability::NodeId;
+use crate::tumc_compiler::ir::NodeId;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 
 /// Aggregation strategy for federated learning
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum AggregationStrategy {
     /// FedAvg: Weighted average by sample count
     FedAvg,
@@ -77,7 +77,7 @@ impl Default for PrivacyConfig {
 }
 
 /// Privacy technique
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum PrivacyTechnique {
     /// No privacy
     None,

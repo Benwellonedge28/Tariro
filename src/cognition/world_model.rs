@@ -5,10 +5,64 @@
 
 use crate::prelude::*;
 use std::collections::{HashMap, HashSet};
+use std::sync::atomic::{AtomicU64, Ordering};
 
 // ============================================================================
 // World Entities
 // ============================================================================
+
+/// Unique identifier for entities in the world model.
+///
+/// Identifiers are monotonically increasing counters so that entities can be
+/// created cheaply and compared cheaply inside hash maps and sets.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct EntityId(pub u64);
+
+impl EntityId {
+    /// Allocate a fresh, globally unique entity identifier.
+    pub fn new() -> Self {
+        static COUNTER: AtomicU64 = AtomicU64::new(1);
+        EntityId(COUNTER.fetch_add(1, Ordering::Relaxed))
+    }
+}
+
+impl Default for EntityId {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl std::fmt::Display for EntityId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "entity#{}", self.0)
+    }
+}
+
+/// The kind of relationship that can hold between two world entities.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum RelationshipType {
+    /// The target is a part of this entity.
+    PartOf,
+    /// The target is the whole this entity belongs to.
+    HasPart,
+    /// The target is located within this entity.
+    LocatedIn,
+    /// The target is used by this entity.
+    Uses,
+    /// The target is responsible for this entity.
+    ResponsibleFor,
+    /// The target causes this entity.
+    Causes,
+    /// This entity causes the target.
+    CausedBy,
+    /// The target is similar to this entity.
+    SimilarTo,
+    /// The target is opposed to this entity.
+    Opposes,
+    /// Any relationship that does not fit the categories above.
+    Custom(String),
+}
+
 
 /// An entity in the world model
 #[derive(Debug, Clone)]

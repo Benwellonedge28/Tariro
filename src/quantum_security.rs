@@ -272,6 +272,67 @@ use std::time::Duration;
         Critical,
     }
 
+    /// A quantum-computing threat that endangers a cryptographic algorithm.
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    pub struct QuantumThreat {
+        /// Unique threat identifier
+        pub threat_id: String,
+        /// Name of the cryptographic algorithm under threat
+        pub algorithm: String,
+        /// The key size (in bits) that is considered breakable by the attacker
+        pub breakable_key_size: usize,
+        /// Estimated years until the threat becomes practically exploitable
+        pub estimated_years_to_crypt: u32,
+        /// Severity of the threat
+        pub severity: ThreatSeverity,
+        /// Whether a harvest-now-decrypt-later attack is feasible today
+        pub harvest_now_decrypt_later: bool,
+        /// Human readable description of the threat
+        pub description: String,
+        /// Timestamp when the threat was recorded
+        pub detected_at: DateTime<Utc>,
+    }
+
+    impl QuantumThreat {
+        /// Create a new quantum threat record.
+        pub fn new(
+            threat_id: impl Into<String>,
+            algorithm: impl Into<String>,
+            breakable_key_size: usize,
+            severity: ThreatSeverity,
+        ) -> Self {
+            Self {
+                threat_id: threat_id.into(),
+                algorithm: algorithm.into(),
+                breakable_key_size,
+                estimated_years_to_crypt: 10,
+                severity,
+                harvest_now_decrypt_later: false,
+                description: String::new(),
+                detected_at: Utc::now(),
+            }
+        }
+
+        /// Returns true when the affected algorithm should be migrated to
+        /// post-quantum cryptography as a matter of urgency.
+        pub fn requires_urgent_migration(&self) -> bool {
+            matches!(self.severity, ThreatSeverity::High | ThreatSeverity::Critical)
+                || self.harvest_now_decrypt_later
+        }
+
+        /// Build a post-quantum migration recommendation for this threat.
+        pub fn to_migration_recommendation(&self) -> PqcMigrationRecommendation {
+            PqcMigrationRecommendation {
+                threat_id: self.threat_id.clone(),
+                affected_algorithms: vec![self.algorithm.clone()],
+                recommended_algorithm_suite: "Kyber-768".to_string(),
+                urgency: self.severity.clone(),
+                details: self.description.clone(),
+                timestamp: self.detected_at,
+            }
+        }
+    }
+
     /// PQC Migration Recommendation for quantum-resistant cryptography upgrades
     #[derive(Debug, Clone, Serialize, Deserialize)]
     pub struct PqcMigrationRecommendation {

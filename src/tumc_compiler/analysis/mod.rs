@@ -6,6 +6,7 @@ pub mod escape;
 pub mod alias;
 pub mod call_graph;
 
+use std::collections::HashMap;
 pub use dataflow::*;
 pub use points_to::*;
 pub use escape::*;

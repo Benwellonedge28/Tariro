@@ -383,7 +383,7 @@ impl PartialEq for Probability {
 }
 
 /// Source of knowledge
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Evidence {
     /// Direct observation
     Observation,

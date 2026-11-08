@@ -123,11 +123,10 @@ impl DocRenderer for HtmlRenderer {
 
         // Header
         html.push_str(&format!(
-            r#"<h{level} id="{}"><a href="#{}">{}</a></h{level}>"#,
-            2,
+            "<h2 id=\"{}\"><a href=\"#{}\">{}</a></h2>",
             item.name.to_lowercase().replace(' ', "-"),
-            item.name,
-            2
+            item.name.to_lowercase().replace(' ', "-"),
+            item.name
         ));
 
         // Documentation

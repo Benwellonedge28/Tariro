@@ -7,8 +7,7 @@ authors = [
     "Tariro AGI Contributors <contributors@tariro.dev>"
 ]
 description = "Tariro AGI - The Most Powerful AGI System with Universal Meta-Compiler implementing POCO-REAF"
-license = "BSL-1.01"
-license_file = "LICENSE"
+license = "LicenseRef-Tariro-BSL-1.01"
 homepage = "https://tariro.dev"
 repository = "https://github.com/Benwellonedge28/Tariro"
 documentation = "https://docs.tariro.dev"
@@ -33,16 +32,16 @@ categories = [
     "quantum-computing"
 ]
 readme = "README.md"
-rust-version = "1.70"
+rust-version = "1.88"
 include = [
     "src/**/*.rs",
+    "examples/**/*.rs",
+    "tests/**/*.rs",
+    "benches/**/*.rs",
     "Cargo.toml",
     "LICENSE*",
-    "README.md"
-]
-exclude = [
-    "target/**/*",
-    "**/*.md"
+    "README.md",
+    "CHANGELOG.md"
 ]
 
 [package.metadata]
@@ -51,17 +50,20 @@ license = { BSL = "https://www.tariro.dev/bcl" }
 release = { enable = true }
 
 [features]
-default = ["std", "async-runtime", "logging"]
+default = ["std", "async-runtime", "logging", "database"]
 std = ["alloc"]
 alloc = []
 async-runtime = ["tokio/rt-multi-thread"]
 logging = ["tracing", "tracing-subscriber"]
+# Persistent storage backend (MongoDB) and the SDK entity types it stores.
+database = ["dep:mongodb", "tariro_sdk"]
 full = [
     "async-runtime",
     "logging",
     "metrics",
     "profiling",
-    "telemetry"
+    "telemetry",
+    "database"
 ]
 metrics = ["dep:prometheus", "dep:metrics"]
 profiling = ["dep:tracing-timing"]
@@ -94,7 +96,7 @@ num-complex = { version = "0.4", features = ["serde"] }
 num-traits = "0.2"
 num-derive = "0.4"
 rayon = "1.8"
-num_cpus = "1.20"
+num_cpus = "1.17"
 
 # Error Handling & Logging
 thiserror = "1.0"
@@ -120,10 +122,9 @@ tracing-opentelemetry = { version = "0.24", optional = true }
 
 # Database (optional)
 mongodb = { version = "3.1", optional = true }
-bson = { version = "2.10", optional = true }
 
 # Workspace member
-tariro_sdk = { path = "tariro_sdk", optional = true }
+tariro_sdk = { path = "tariro_sdk", version = "0.1.0", optional = true }
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
@@ -163,9 +164,6 @@ codegen-units = 1
 panic = "abort"
 strip = true
 
-[profile.release.profile.dev]
-inherits = "dev"
-
 [profile.test]
 inherits = "release"
 opt-level = 2
@@ -173,9 +171,3 @@ opt-level = 2
 [profile.bench]
 inherits = "release"
 debug = true
-
-[badges]
-maintenance = { status = "actively-developed" }
-travis-ci = { repository = "Benwellonedge28/Tariro", branch = "main" }
-coveralls = { repository = "Benwellonedge28/Tariro", service = "github" }
-license = { SPDX = "BSL-1.01" }

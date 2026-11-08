@@ -2,6 +2,7 @@
 //!
 //! Explicit common sense knowledge and reasoning about everyday situations.
 
+use std::sync::RwLock;
 use crate::prelude::*;
 use crate::knowledge::knowledge_graph::{KnowledgeGraph, EntityId, Entity, Probability};
 use std::collections::{HashMap, HashSet};

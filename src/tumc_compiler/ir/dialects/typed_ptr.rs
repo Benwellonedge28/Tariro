@@ -1,5 +1,6 @@
 // Typed Pointer Dialect
 
+use crate::tumc_compiler::ir::*;
 use super::*;
 
 /// Typed pointer operations

@@ -5,7 +5,7 @@
 # ============================================
 # Stage 1: Build
 # ============================================
-FROM rust:1.75 as builder
+FROM rust:1.88 as builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
@@ -25,11 +25,12 @@ ENV CARGO_PROFILE_RELEASE_LTO=fat \
 
 # Copy manifests
 COPY Cargo.toml Cargo.lock* ./
+COPY tariro_sdk ./tariro_sdk
 
 # Create dummy source for dependency caching
 RUN mkdir -p src benches && \
     echo "fn main() {}" > src/main.rs && \
-    echo "mod lib;" > src/lib.rs
+    : > src/lib.rs
 
 # Build dependencies first
 RUN cargo build --release && rm -rf src benches
@@ -81,7 +82,7 @@ LABEL org.opencontainers.image.title="Tariro AGI (Distroless)"
 LABEL org.opencontainers.image.description="Distroless build of Tariro AGI - minimal attack surface"
 LABEL org.opencontainers.image.source="https://github.com/Benwellonedge28/Tariro"
 LABEL org.opencontainers.image.version="1.0.15"
-LABEL org.opencontainers.image.licenses="MIT OR Apache-2.0"
+LABEL org.opencontainers.image.licenses="LicenseRef-Tariro-BSL-1.01"
 
 # Expose default ports
 EXPOSE 8080 8081

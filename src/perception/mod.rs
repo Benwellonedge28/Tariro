@@ -302,45 +302,51 @@ impl Tokenizer {
         let mut chars = text.char_indices().peekable();
 
         while let Some((start, ch)) = chars.next() {
+            let end;
             let token_text = if ch.is_whitespace() {
                 // Collect whitespace
-                let mut end = start;
+                let mut scan_end = start;
                 while let Some(&(idx, c)) = chars.peek() {
                     if c.is_whitespace() {
                         chars.next();
-                        end = idx + c.len_utf8();
+                        scan_end = idx + c.len_utf8();
                     } else {
                         break;
                     }
                 }
+                end = scan_end;
                 TokenType::Whitespace
             } else if ch.is_alphabetic() {
                 // Collect word
-                let mut end = start + ch.len_utf8();
+                let mut scan_end = start + ch.len_utf8();
                 while let Some(&(idx, c)) = chars.peek() {
                     if c.is_alphanumeric() || c == '\'' || c == '-' {
                         chars.next();
-                        end = idx + c.len_utf8();
+                        scan_end = idx + c.len_utf8();
                     } else {
                         break;
                     }
                 }
+                end = scan_end;
                 TokenType::Word
             } else if ch.is_numeric() {
                 // Collect number
-                let mut end = start + ch.len_utf8();
+                let mut scan_end = start + ch.len_utf8();
                 while let Some(&(idx, c)) = chars.peek() {
                     if c.is_numeric() || c == '.' || c == ',' {
                         chars.next();
-                        end = idx + c.len_utf8();
+                        scan_end = idx + c.len_utf8();
                     } else {
                         break;
                     }
                 }
+                end = scan_end;
                 TokenType::Number
             } else if ch.is_ascii_punctuation() {
+                end = start + ch.len_utf8();
                 TokenType::Punctuation
             } else {
+                end = start + ch.len_utf8();
                 TokenType::Symbol
             };
 

@@ -2,6 +2,11 @@
 name = "tariro_sdk"
 version = "0.1.0"
 edition = "2021"
+license = "LicenseRef-Tariro-BSL-1.01"
+description = "Tariro AGI SDK — shared entities and helpers for the Tariro universal meta-compiler"
+homepage = "https://tariro.dev"
+repository = "https://github.com/Benwellonedge28/Tariro"
+include = ["src/**/*.rs", "Cargo.toml", "LICENSE"]
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }

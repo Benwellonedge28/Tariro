@@ -6,6 +6,7 @@ pub mod cfg;
 pub mod sea_of_nodes;
 pub mod dialects;
 
+use std::collections::HashMap;
 pub use ssa::*;
 pub use cfg::*;
 pub use sea_of_nodes::*;
@@ -123,6 +124,9 @@ pub enum BinOp {
     FEq, FNe, FLt, FLe, FGt, FGe,
 }
 
+/// Type alias for BinaryOp (for compatibility)
+pub type BinaryOp = BinOp;
+
 /// Unary operators
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum UnOp {
@@ -130,6 +134,9 @@ pub enum UnOp {
     // Floating point
     FNeg, FAbs, FSqrt, FCeil, FFloor, FRound, FTrunc, FExp, FLog, FPow,
 }
+
+/// Type alias for UnaryOp (for compatibility)
+pub type UnaryOp = UnOp;
 
 /// Memory operations
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -330,6 +337,24 @@ pub struct Function {
     pub metadata: HashMap<String, Metadata>,
 }
 
+impl Default for Function {
+    /// An empty, externally visible function.
+    fn default() -> Self {
+        Function {
+            id: FunctionId(0),
+            name: String::new(),
+            params: Vec::new(),
+            ret_type: IrType::Void,
+            body: Vec::new(),
+            attributes: FunctionAttributes::default(),
+            linkage: Linkage::External,
+            visibility: Visibility::Default,
+            calling_conv: CallConv::C,
+            metadata: HashMap::new(),
+        }
+    }
+}
+
 impl Function {
     pub fn new(id: FunctionId, name: impl Into<String>, ret_type: IrType) -> Self {
         Self {
@@ -402,6 +427,11 @@ pub struct Instruction {
     pub id: InstId,
     pub op: Operation,
     pub result_type: IrType,
+    /// Optional name of the value this instruction defines.
+    ///
+    /// Analysis passes key their results by name, so an instruction may carry
+    /// one even when the surrounding IR is fully SSA.
+    pub result_name: Option<String>,
     pub comments: Vec<String>,
 }
 
@@ -411,6 +441,20 @@ impl Instruction {
             id: InstId(0), // Set by basic block
             op,
             result_type,
+            result_name: None,
+            comments: Vec::new(),
+        }
+    }
+}
+
+impl Default for Instruction {
+    /// A neutral instruction: it defines the constant `0` and has no name.
+    fn default() -> Self {
+        Instruction {
+            id: InstId(0),
+            op: Operation::Const(Box::new(Const::Int(0)), IrType::Int64),
+            result_type: IrType::Void,
+            result_name: None,
             comments: Vec::new(),
         }
     }
@@ -482,6 +526,34 @@ pub enum Operation {
 
     // Intrinsic calls
     Intrinsic(String, Vec<ValueId>),
+
+    // Constant materialisation
+    Const(Box<Const>, IrType),
+}
+
+/// Compile-time constant value materialised into the IR
+#[derive(Debug, Clone, PartialEq)]
+pub enum Const {
+    /// Boolean constant
+    Bool(bool),
+    /// Signed integer constant
+    Int(i64),
+    /// Unsigned integer constant
+    Uint(u64),
+    /// Floating point constant
+    Float(f64),
+    /// String constant
+    String(String),
+    /// Character constant
+    Char(char),
+    /// Null / unit constant
+    Null,
+    /// Array of constants
+    Array(Vec<Const>),
+    /// Struct constant with named fields
+    Struct(Vec<(String, Const)>),
+    /// Tuple constant
+    Tuple(Vec<Const>),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -578,6 +650,21 @@ pub struct Module {
     pub globals: Vec<GlobalVar>,
     pub functions: Vec<Function>,
     pub metadata: HashMap<String, Metadata>,
+}
+
+impl Default for Module {
+    /// An empty module targeting the host triple.
+    fn default() -> Self {
+        Module {
+            name: String::new(),
+            source_language: "TUMC".to_string(),
+            target_triple: "x86_64-unknown-unknown".to_string(),
+            data_layout: DataLayout::default(),
+            globals: Vec::new(),
+            functions: Vec::new(),
+            metadata: HashMap::new(),
+        }
+    }
 }
 
 impl Module {

@@ -146,17 +146,17 @@ impl CognitiveReasoningEngine {
 
         if instruction_count < 10 && instruction_count > 0 {
             insights.push(AgiInsight {
-                insight_type: crate::agi_integration::InsightType::Performance,
+                insight_type: crate::tumc_compiler::agi_integration::InsightType::Performance,
                 confidence: 0.85,
                 description: format!(
                     "Deductive: Small function '{}' with {} instructions should be inlined",
                     function.name, instruction_count
                 ),
-                suggestion: crate::agi_integration::AgiSuggestion {
-                    transform_type: crate::agi_integration::TransformType::Inline,
+                suggestion: crate::tumc_compiler::agi_integration::AgiSuggestion {
+                    transform_type: crate::tumc_compiler::agi_integration::TransformType::Inline,
                     target_location: function.name.clone(),
                     expected_improvement: 0.15,
-                    risk_level: crate::agi_integration::RiskLevel::Low,
+                    risk_level: crate::tumc_compiler::agi_integration::RiskLevel::Low,
                 },
                 reasoning_chain: vec![
                     "Rule: Functions with <10 instructions benefit from inlining".to_string(),
@@ -170,17 +170,17 @@ impl CognitiveReasoningEngine {
         for block in &function.body {
             if block.instructions.len() > 20 {
                 insights.push(AgiInsight {
-                    insight_type: crate::agi_integration::InsightType::Performance,
+                    insight_type: crate::tumc_compiler::agi_integration::InsightType::Performance,
                     confidence: 0.75,
                     description: format!(
                         "Deductive: Large block '{}' in function '{}' should be analyzed for unrolling",
                         block.name, function.name
                     ),
-                    suggestion: crate::agi_integration::AgiSuggestion {
-                        transform_type: crate::agi_integration::TransformType::Unroll,
+                    suggestion: crate::tumc_compiler::agi_integration::AgiSuggestion {
+                        transform_type: crate::tumc_compiler::agi_integration::TransformType::Unroll,
                         target_location: format!("{}.{}", function.name, block.name),
                         expected_improvement: 0.1,
-                        risk_level: crate::agi_integration::RiskLevel::Medium,
+                        risk_level: crate::tumc_compiler::agi_integration::RiskLevel::Medium,
                     },
                     reasoning_chain: vec![
                         "Rule: Blocks with >20 instructions may benefit from unrolling".to_string(),
@@ -235,17 +235,17 @@ impl CognitiveReasoningEngine {
             let arithmetic_density = arithmetic_count as f64 / total as f64;
             if arithmetic_density > 0.6 {
                 insights.push(AgiInsight {
-                    insight_type: crate::agi_integration::InsightType::Parallelization,
+                    insight_type: crate::tumc_compiler::agi_integration::InsightType::Parallelization,
                     confidence: arithmetic_density * 0.9,
                     description: format!(
                         "Inductive: Function '{}' has high arithmetic density ({:.1}%), good for vectorization",
                         function.name, arithmetic_density * 100.0
                     ),
-                    suggestion: crate::agi_integration::AgiSuggestion {
-                        transform_type: crate::agi_integration::TransformType::Vectorize,
+                    suggestion: crate::tumc_compiler::agi_integration::AgiSuggestion {
+                        transform_type: crate::tumc_compiler::agi_integration::TransformType::Vectorize,
                         target_location: function.name.clone(),
                         expected_improvement: arithmetic_density * 0.3,
-                        risk_level: crate::agi_integration::RiskLevel::Medium,
+                        risk_level: crate::tumc_compiler::agi_integration::RiskLevel::Medium,
                     },
                     reasoning_chain: vec![
                         format!("Observed: {} arithmetic ops, {} memory ops, {} branches",
@@ -260,17 +260,17 @@ impl CognitiveReasoningEngine {
             let memory_density = memory_count as f64 / total as f64;
             if memory_density > 0.4 {
                 insights.push(AgiInsight {
-                    insight_type: crate::agi_integration::InsightType::Memory,
+                    insight_type: crate::tumc_compiler::agi_integration::InsightType::Memory,
                     confidence: memory_density * 0.85,
                     description: format!(
                         "Inductive: Function '{}' has high memory density ({:.1}%), consider memory optimizations",
                         function.name, memory_density * 100.0
                     ),
-                    suggestion: crate::agi_integration::AgiSuggestion {
-                        transform_type: crate::agi_integration::TransformType::MemoryOptimize,
+                    suggestion: crate::tumc_compiler::agi_integration::AgiSuggestion {
+                        transform_type: crate::tumc_compiler::agi_integration::TransformType::MemoryOptimize,
                         target_location: function.name.clone(),
                         expected_improvement: memory_density * 0.2,
-                        risk_level: crate::agi_integration::RiskLevel::Medium,
+                        risk_level: crate::tumc_compiler::agi_integration::RiskLevel::Medium,
                     },
                     reasoning_chain: vec![
                         format!("Memory density: {:.1}%", memory_density * 100.0),
@@ -296,17 +296,17 @@ impl CognitiveReasoningEngine {
         if branch_count > 5 {
             // Best explanation: branch misprediction causing performance issues
             insights.push(AgiInsight {
-                insight_type: crate::agi_integration::InsightType::Performance,
+                insight_type: crate::tumc_compiler::agi_integration::InsightType::Performance,
                 confidence: 0.7,
                 description: format!(
                     "Abductive: Function '{}' has {} branches - possible branch misprediction",
                     function.name, branch_count
                 ),
-                suggestion: crate::agi_integration::AgiSuggestion {
-                    transform_type: crate::agi_integration::TransformType::CacheOptimize,
+                suggestion: crate::tumc_compiler::agi_integration::AgiSuggestion {
+                    transform_type: crate::tumc_compiler::agi_integration::TransformType::CacheOptimize,
                     target_location: function.name.clone(),
                     expected_improvement: 0.08,
-                    risk_level: crate::agi_integration::RiskLevel::Low,
+                    risk_level: crate::tumc_compiler::agi_integration::RiskLevel::Low,
                 },
                 reasoning_chain: vec![
                     format!("Observation: {} branches in function", branch_count),
@@ -406,7 +406,7 @@ impl CognitiveReasoningEngine {
     }
 
     /// Integrate feedback from execution
-    pub fn integrate_feedback(&mut self, _compilation_id: &str, _success: bool, _metrics: &crate::agi_integration::PerformanceMetrics) {
+    pub fn integrate_feedback(&mut self, _compilation_id: &str, _success: bool, _metrics: &crate::tumc_compiler::agi_integration::PerformanceMetrics) {
         // Update causal graph with new information
         // Adjust reasoning confidence based on outcomes
     }

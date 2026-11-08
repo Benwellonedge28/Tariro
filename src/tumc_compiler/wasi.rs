@@ -568,7 +568,7 @@ mod tests {
 
     #[test]
     fn test_preview2_table() {
-        use preview2::WasiTable;
+        use preview2::{ResourceKind, WasiTable};
         let table = WasiTable::new();
         let id = table.insert(ResourceKind::StdioStdout);
         assert_eq!(id, 0);

@@ -4,8 +4,11 @@
 use crate::prelude::*;
 use super::ast::{self, *};
 use super::lexer::{Lexer, Token, TokenKind};
+// The punctuation kinds now live with the lexer that produces them.
+pub use super::lexer::PunctKind;
 use super::parser::Parser;
 use std::collections::{HashMap, HashSet};
+use std::fmt;
 
 /// Macro expansion environment
 #[derive(Debug, Clone)]
@@ -719,9 +722,9 @@ impl MacroEngine {
                 },
                 expander: MacroExpander {
                     template: vec![
-                        TemplateToken::Literal(TokenKind::Ident("print".to_string())),
+                        TemplateToken::Literal(TokenKind::Identifier("print".to_string())),
                         TemplateToken::Expr("fmt".to_string()),
-                        TemplateToken::Literal(TokenKind::Literal("\n".to_string())),
+                        TemplateToken::Literal(TokenKind::String("\n".to_string())),
                     ],
                     delimiter: Delimiter::Parenthesis,
                 },
@@ -747,14 +750,14 @@ impl MacroEngine {
                 },
                 expander: MacroExpander {
                     template: vec![
-                        TemplateToken::Literal(TokenKind::Ident("Vec".to_string())),
+                        TemplateToken::Literal(TokenKind::Identifier("Vec".to_string())),
                         TemplateToken::Literal(TokenKind::Punct(PunctKind::Bang)),
                         TemplateToken::Literal(TokenKind::Punct(PunctKind::Lt)),
                         TemplateToken::Expr("elem".to_string()),
                         TemplateToken::Literal(TokenKind::Punct(PunctKind::Gt)),
                         TemplateToken::Literal(TokenKind::Punct(PunctKind::Colon)),
                         TemplateToken::Literal(TokenKind::Punct(PunctKind::Colon)),
-                        TemplateToken::Literal(TokenKind::Ident("new".to_string())),
+                        TemplateToken::Literal(TokenKind::Identifier("new".to_string())),
                         TemplateToken::Literal(TokenKind::Punct(PunctKind::LParen)),
                         TemplateToken::Literal(TokenKind::Punct(PunctKind::RParen)),
                     ],
@@ -779,7 +782,7 @@ impl MacroEngine {
                 },
                 expander: MacroExpander {
                     template: vec![
-                        TemplateToken::Literal(TokenKind::Ident("assert".to_string())),
+                        TemplateToken::Literal(TokenKind::Identifier("assert".to_string())),
                         TemplateToken::Literal(TokenKind::Punct(PunctKind::Bang)),
                         TemplateToken::Literal(TokenKind::Punct(PunctKind::LParen)),
                         TemplateToken::Expr("left".to_string()),
@@ -887,59 +890,6 @@ impl Default for MacroEngine {
 }
 
 /// Token kinds for macros
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum PunctKind {
-    Plus,
-    Minus,
-    Star,
-    Slash,
-    Percent,
-    Caret,
-    Not,
-    And,
-    Or,
-    AndAnd,
-    OrOr,
-    EqEq,
-    Eq,
-    Ne,
-    Lt,
-    Le,
-    Gt,
-    Ge,
-    Shl,
-    Shr,
-    AddEq,
-    SubEq,
-    MulEq,
-    DivEq,
-    RemEq,
-    XorEq,
-    AndEq,
-    OrEq,
-    ShlEq,
-    ShrEq,
-    At,
-    Dot,
-    DotDot,
-    DotDotEq,
-    DotDotDot,
-    DotDotDotDot,
-    Colon,
-    ColonColon,
-    Semi,
-    Comma,
-    LParen,
-    RParen,
-    LBrace,
-    RBrace,
-    LBracket,
-    RBracket,
-    Bang,
-    Question,
-    Tilde,
-    ColonEq,
-}
 
 impl MatcherToken {
     /// Check if this pattern matches an expression
@@ -968,7 +918,7 @@ impl MatcherToken {
                 // Check if expression matches the token kind
                 match tk {
                     TokenKind::Identifier(_) => matches!(expr.kind, ExprKind::Identifier(_)),
-                    TokenKind::Literal(_) => matches!(expr.kind, ExprKind::Literal(_)),
+                    TokenKind::String(_) => matches!(expr.kind, ExprKind::Literal(_)),
                     _ => false,
                 }
             }
@@ -985,8 +935,8 @@ impl TemplateToken {
                 Ok(vec![Stmt {
                     kind: StmtKind::Expr(Expr {
                         kind: ExprKind::Identifier(match tk {
-                            TokenKind::Ident(s) => s.clone(),
-                            TokenKind::Literal(Literal::String(s)) => s.clone(),
+                            TokenKind::Identifier(s) => s.clone(),
+                            TokenKind::String(Literal::String(s)) => s.clone(),
                             _ => "()".to_string(),
                         }),
                         span: Span::default(),
@@ -1044,7 +994,7 @@ impl TemplateToken {
                             result.push(Stmt {
                                 kind: StmtKind::Expr(Expr {
                                     kind: ExprKind::Identifier(match sep {
-                                        TokenKind::Ident(s) => s.clone(),
+                                        TokenKind::Identifier(s) => s.clone(),
                                         _ => "()".to_string(),
                                     }),
                                     span: Span::default(),

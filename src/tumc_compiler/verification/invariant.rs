@@ -1,6 +1,6 @@
 // Invariant Detection and Checking
 
-use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation};
+use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation, BinOp};
 use std::collections::HashMap;
 
 /// Invariant types
@@ -162,7 +162,7 @@ impl InvariantDetector {
             // Detect constant propagation opportunities
             for inst in &block.instructions {
                 if let Operation::Const(val, _) = &inst.op {
-                    if let crate::tumc_compiler::ir::Const::Int(i) = val {
+                    if let crate::tumc_compiler::ir::Const::Int(i) = &**val {
                         invariants.push(Invariant::Range(RangeInvariant {
                             variable: inst.result_name.clone().unwrap_or_default(),
                             lower_bound: Some(*i),
@@ -205,9 +205,9 @@ impl InvariantDetector {
                 extract: |inst: &Instruction| {
                     if let Operation::Binary(BinOp::Lt, lhs, rhs) = &inst.op {
                         Some(Invariant::Relational(RelationalInvariant {
-                            left: lhs.clone(),
+                            left: format!("v{}", lhs.0),
                             op: "<".to_string(),
-                            right: rhs.clone(),
+                            right: format!("v{}", rhs.0),
                             always_holds: false,
                         }))
                     } else {
@@ -220,7 +220,7 @@ impl InvariantDetector {
                 extract: |inst: &Instruction| {
                     if let Operation::Binary(BinOp::Ge, lhs, _) = &inst.op {
                         Some(Invariant::Arithmetic(ArithmeticInvariant {
-                            variable: lhs.clone(),
+                            variable: format!("v{}", lhs.0),
                             property: ArithmeticProperty::NonNegative,
                             always_holds: false,
                         }))

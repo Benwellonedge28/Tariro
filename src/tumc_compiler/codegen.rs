@@ -1372,3 +1372,62 @@ mod tests {
         assert!(wat.contains("i32.add"));
     }
 }
+
+// ============================================================================
+// Target-aware code generator
+// ============================================================================
+
+/// Target-aware code generator used by the TUMC compiler driver.
+///
+/// The driver hands a lowered [`Program`] to this type and receives the byte
+/// stream for the selected target platform:
+///
+/// * `Wasm` is produced by the WebAssembly backend in this module,
+/// * every other target is produced by the native backend in
+///   [`native_codegen`](super::native_codegen).
+pub struct CodeGenerator {
+    /// Target the output is generated for.
+    platform: super::TargetPlatform,
+    /// WebAssembly backend.
+    wasm: CodeGen,
+    /// Native backend.
+    native: super::native_codegen::NativeCodegen,
+}
+
+impl CodeGenerator {
+    /// Create a generator for the given target platform.
+    pub fn new(platform: super::TargetPlatform) -> Self {
+        CodeGenerator {
+            platform,
+            wasm: CodeGen::new(OptimizationLevel::O2),
+            native: super::native_codegen::NativeCodegen::new(
+                super::native_codegen::Target::x86_64_linux_gnu(),
+            ),
+        }
+    }
+
+    /// Generate the output bytes for the given program.
+    pub fn generate(
+        &mut self,
+        program: &Program,
+    ) -> Result<Vec<u8>, super::native_codegen::CodegenError> {
+        match self.platform {
+            super::TargetPlatform::Wasm => {
+                self.wasm
+                    .generate(program)
+                    .map_err(super::native_codegen::CodegenError::GenerationFailed)?;
+                Ok(self.wasm.emit_binary())
+            }
+            _ => {
+                let mut output = Vec::new();
+                for item in &program.items {
+                    if let Item::Function(function) = item {
+                        let native = self.native.compile_function(function)?;
+                        output.extend_from_slice(&self.native.emit_bytes(&native));
+                    }
+                }
+                Ok(output)
+            }
+        }
+    }
+}

@@ -100,7 +100,7 @@ impl GenerationEngine {
         output.push_str("## Structure\n\n");
         for section in &concept.structure {
             output.push_str(&format!("### {}\n\n", section));
-            output.push_str(&self.generate_section_content(section, style));
+            output.push_str(&self.generate_section_content(section, style, concept));
             output.push_str("\n\n");
         }
 
@@ -124,7 +124,12 @@ impl GenerationEngine {
         output
     }
 
-    fn generate_section_content(&self, section: &str, style: &WritingStyle) -> String {
+    fn generate_section_content(
+        &self,
+        section: &str,
+        style: &WritingStyle,
+        concept: &CreativeConcept,
+    ) -> String {
         match section {
             "Introduction" => format!(
                 "The story begins with {}, drawing the reader into a world of {}. \

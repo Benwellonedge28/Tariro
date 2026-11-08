@@ -53,7 +53,8 @@ jobs:
       - name: Run benchmarks
         run: |
           echo "Running benchmarks..."
-          cargo bench -- --noplot 2>&1 | tee bench_output.txt || echo "No benchmarks found"
+          set -o pipefail
+          cargo bench -- --noplot 2>&1 | tee bench_output.txt
 
       - name: Check benchmark compilation
         run: |
@@ -186,7 +187,8 @@ jobs:
         run: |
           git stash
           git checkout main
-          cargo bench -- --noplot 2>&1 | tee bench_main.txt || true
+          set -o pipefail
+          cargo bench -- --noplot 2>&1 | tee bench_main.txt
           mkdir -p main_bench
           mv target/criterion main_bench/ 2>/dev/null || true
 

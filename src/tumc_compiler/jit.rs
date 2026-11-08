@@ -5,6 +5,9 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use super::ast;
+use crate::tumc_compiler::OptimizationLevel;
+
 /// JIT configuration
 #[derive(Debug, Clone)]
 pub struct JitConfig {

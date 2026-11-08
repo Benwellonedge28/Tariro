@@ -5,6 +5,7 @@
 
 use std::collections::HashMap;
 use std::time::{Duration, Instant};
+use crate::tumc_compiler::{lexer, parser};
 
 /// Compiler phase timing
 #[derive(Debug, Clone)]

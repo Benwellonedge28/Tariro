@@ -10,7 +10,7 @@ use crate::cognition::{
     world_model::{WorldModel, WorldEntity, WorldEntityType},
     motivation::{MotivationSystem, Goal, GoalType, Emotion, ValueAlignment},
 };
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 
 // ============================================================================
 // Cognitive State

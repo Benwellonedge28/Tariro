@@ -138,9 +138,9 @@ impl Interpreter {
                 let result = self.apply_unary_op(op, val)?;
                 self.stack.push(result);
             }
-            Operation::Const => {
-                // Would extract constant value from metadata
-                self.stack.push(Value::Int(0));
+            Operation::Const(c, _) => {
+                // Push the actual constant value onto the stack.
+                self.stack.push(Self::const_to_value(c));
             }
             Operation::Alloca(_, _) => {
                 // Allocate on interpreter heap
@@ -190,6 +190,28 @@ impl Interpreter {
     fn get_value(&self, value: ValueId) -> Result<Value, RuntimeError> {
         // Would look up value from stack/registers
         Ok(Value::Int(0))
+    }
+
+    /// Lower an IR constant into the runtime value representation.
+    fn const_to_value(c: &Const) -> Value {
+        match c {
+            Const::Bool(b) => Value::Bool(*b),
+            Const::Int(i) => Value::Int(*i),
+            Const::Uint(u) => Value::Int(*u as i64),
+            Const::Float(f) => Value::Float(*f),
+            Const::String(s) => Value::String(s.clone()),
+            Const::Char(ch) => Value::Int(*ch as i64),
+            Const::Unit => Value::Unit,
+            Const::Tuple(values) | Const::Array(values) => {
+                Value::Tuple(values.iter().map(Self::const_to_value).collect())
+            }
+            Const::Struct(_, fields) => Value::Tuple(
+                fields
+                    .iter()
+                    .map(|(_, value)| Self::const_to_value(value))
+                    .collect(),
+            ),
+        }
     }
 
     fn apply_binary_op(&self, op: &BinOp, lhs: Value, rhs: Value) -> Result<Value, RuntimeError> {

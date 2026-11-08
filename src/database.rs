@@ -9,32 +9,92 @@ use std::fmt::Debug;
 use async_trait::async_trait;
 
 // Re-export entity types from the SDK
-pub use tariro_sdk::entities::{AGICategory, AGIControlSetting, AdminUser, AutonomyPolicy, CapabilityStatus, CompilerProject, CompilerSnapshot, Conversation, DeploymentRecord, ExplainabilityLog, FeatureProposal, GitHubProfile, GitHubProjectContext, Goal, IDEProfile, KnowledgeItem, LearningInsight, ManagedFile, MetaProject, NanoAgent, NotificationRecord, PerformanceLog, ProjectTask, ServicePrice, SystemHealthLog, WellbeingLog, WorkflowLog, WorkflowRule};
+pub use tariro_sdk::entities::{AGICategory, AGIControlSetting, AutonomyPolicy, CapabilityStatus, CompilerProject, Conversation, DeploymentRecord, ExplainabilityLog, FeatureProposal, GitHubProfile, GitHubProjectContext, Goal, IDEProfile, KnowledgeItem, LearningInsight, ManagedFile, MetaProject, NanoAgent, NotificationRecord, PerformanceLog, ProjectTask, ServicePrice, SystemHealthLog, WellbeingLog, WorkflowRule};
 
-/// A trait for any entity that can be stored in the database.
+// A trait for any entity that can be stored in the database.
 pub trait DbEntity: Serialize + for<'de> Deserialize<'de> + Debug + Unpin + Send + Sync {
     const COLLECTION_NAME: &'static str;
     fn id_as_string(&self) -> Option<String>;
+
+    /// Mutable access to the entity's identifier.
+    ///
+    /// Used to assign a generated id the first time an entity is stored.
+    fn id_as_string_mut(&mut self) -> Option<&mut Option<String>>;
 }
 
-// Macro to implement DbEntity for SDK types
+/// Access to an entity identifier that is stored in more than one shape.
+///
+/// The SDK entities use three different identifier layouts: most store a
+/// mandatory `String`, `AGIControlSetting` stores an `Option<String>`, and a
+/// couple of entities have no identifier of their own. These helpers let the
+/// `DbEntity` implementation work for all of them.
+trait EntityId {
+    /// The identifier, if the entity has one.
+    fn id_option(&self) -> Option<String>;
+
+    /// Mutable access to the identifier, if the entity has an assignable one.
+    fn id_option_mut(&mut self) -> Option<&mut Option<String>>;
+}
+
+impl EntityId for String {
+    fn id_option(&self) -> Option<String> {
+        Some(self.clone())
+    }
+
+    fn id_option_mut(&mut self) -> Option<&mut Option<String>> {
+        // A mandatory identifier cannot be filled in by the storage layer.
+        None
+    }
+}
+
+impl EntityId for Option<String> {
+    fn id_option(&self) -> Option<String> {
+        self.clone()
+    }
+
+    fn id_option_mut(&mut self) -> Option<&mut Option<String>> {
+        Some(self)
+    }
+}
+
+/// Implements [`DbEntity`] for SDK types that carry an identifier.
 macro_rules! impl_db_entity {
-    ($($struct_name:ident),*) => {
+    ($($struct_name:ident),* $(,)?) => {
         $(impl DbEntity for $struct_name {
             const COLLECTION_NAME: &'static str = stringify!($struct_name);
             fn id_as_string(&self) -> Option<String> {
-                self.id.clone()
+                EntityId::id_option(&self.id)
+            }
+            fn id_as_string_mut(&mut self) -> Option<&mut Option<String>> {
+                EntityId::id_option_mut(&mut self.id)
+            }
+        })*
+    };
+}
+
+/// Implements [`DbEntity`] for SDK types that have no identifier field.
+macro_rules! impl_db_entity_without_id {
+    ($($struct_name:ident),* $(,)?) => {
+        $(impl DbEntity for $struct_name {
+            const COLLECTION_NAME: &'static str = stringify!($struct_name);
+            fn id_as_string(&self) -> Option<String> {
+                None
+            }
+            fn id_as_string_mut(&mut self) -> Option<&mut Option<String>> {
+                None
             }
         })*
     };
 }
 
 impl_db_entity!(
-    AGICategory, AGIControlSetting, AdminUser, AutonomyPolicy, CapabilityStatus, CompilerProject, CompilerSnapshot,
-    Conversation, DeploymentRecord, ExplainabilityLog, FeatureProposal, GitHubProfile, GitHubProjectContext,
-    Goal, IDEProfile, KnowledgeItem, LearningInsight, ManagedFile, MetaProject, NanoAgent, NotificationRecord,
-    PerformanceLog, ProjectTask, ServicePrice, SystemHealthLog, WellbeingLog, WorkflowLog, WorkflowRule
+    AGIControlSetting, AutonomyPolicy, CompilerProject, Conversation, DeploymentRecord,
+    ExplainabilityLog, FeatureProposal, GitHubProfile, Goal, IDEProfile, KnowledgeItem,
+    LearningInsight, ManagedFile, MetaProject, NanoAgent, NotificationRecord, PerformanceLog,
+    ProjectTask, SystemHealthLog, WellbeingLog, WorkflowRule
 );
+
+impl_db_entity_without_id!(GitHubProjectContext, ServicePrice);
 
 /// `DatabaseService` manages the connection to MongoDB and provides CRUD operations.
 pub struct DatabaseService {
@@ -133,7 +193,7 @@ impl DatabaseService {
             .map_err(|e| format!("Failed to list {}: {:?}", T::COLLECTION_NAME, e))?;
         
         let mut entities = Vec::new();
-        while let Some(result) = cursor.next().await {
+        while let Some(result) = cursor.try_next().await {
             entities.push(result.map_err(|e| format!("Failed to parse {} document: {:?}", T::COLLECTION_NAME, e))?);
         }
         Ok(entities)
@@ -141,53 +201,10 @@ impl DatabaseService {
 
     // Helper to get a mutable reference to the 'id' field, if it exists and is Option<String>
     fn get_id_field_mut<T: DbEntity>(entity: &mut T) -> Option<&mut Option<String>> {
-        // This part needs to be manually implemented for each struct or use a more advanced macro
-        // For the SDK types, we know they have `id: Option<String>`
-        let doc = mongodb::bson::to_document(entity).ok()?;
-        if let Ok(mut map) = mongodb::bson::from_document::<std::collections::BTreeMap<String, Option<String>>>(doc) {
-            map.get_mut("id").and_then(|id_option| Some(id_option))
-        }
-        else {
-            None
-        }
-        
-        // The above is a hack. A cleaner way would require the SDK to expose `id` as public `&mut Option<String>`
-        // or to have a `set_id` method on the trait. Since it doesn't, this relies on re-serializing/deserializing
-        // which is inefficient and error-prone. For a real system, the SDK entities would need to be designed
-        // for mutable ID assignment if auto-generation by the DB layer is desired.
-
-        // For now, assume a direct access via pattern matching if possible, or leave ID generation to the caller
-        // The current implementation is a placeholder for how it *could* be done with reflection/serde magic
-        // but is not directly achievable with `tariro_sdk::entities` as-is due to field privacy.
-        
-        // So, for now, we will rely on the SDK entities having an `id: Option<String>` field and the macro
-        // `impl_db_entity` to ensure `id_as_string` works.
-        
-        // If auto-generating IDs, the `create` method in `DatabaseService` should be modified
-        // to take `entity: T` and return `T` with the ID set, or to set the ID in a `struct` wrapper
-        // that has mutable access to `id` field.
-        None // Returning None for now, as direct mutable access to `id` field of SDK entity is not straightforward
+        entity.id_as_string_mut()
     }
 }
 
-// Temporary fix: Manually implement get_id_field_mut for each entity that needs auto-ID generation
-// This is usually handled by a custom derive macro in a real project.
-
-impl_get_id_field_mut!(AGICategory, AGIControlSetting, AdminUser, AutonomyPolicy, CapabilityStatus, CompilerProject, CompilerSnapshot,
-    Conversation, DeploymentRecord, ExplainabilityLog, FeatureProposal, GitHubProfile, GitHubProjectContext,
-    Goal, IDEProfile, KnowledgeItem, LearningInsight, ManagedFile, MetaProject, NanoAgent, NotificationRecord,
-    PerformanceLog, ProjectTask, ServicePrice, SystemHealthLog, WellbeingLog, WorkflowLog, WorkflowRule
-);
-
-macro_rules! impl_get_id_field_mut {
-    ($($struct_name:ident),*) => {
-        $(impl DatabaseService {
-            fn get_id_field_mut(entity: &mut $struct_name) -> Option<&mut Option<String>> {
-                Some(&mut entity.id)
-            }
-        })*
-    };
-}
 
 
 #[cfg(test)]

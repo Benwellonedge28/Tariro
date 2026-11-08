@@ -1,7 +1,8 @@
 
 // Auto-Differentiation for Machine Learning and Scientific Computing
 
-use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation, IrType, Const, BinOp, UnaryOp};
+use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation, IrType, BinOp, UnaryOp};
+use crate::tumc_compiler::derive_system::Const;
 use std::collections::HashMap;
 
 /// Differentiation mode

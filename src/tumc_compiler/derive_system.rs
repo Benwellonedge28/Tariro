@@ -4,9 +4,114 @@
 use crate::prelude::*;
 use super::ast::*;
 use std::collections::HashMap;
+use std::fmt;
+
+// ============================================================================
+// Missing Type Definitions (for compatibility)
+// ============================================================================
+
+/// Annotation type for type representations
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum AnnType {
+    /// Unit type ()
+    Unit,
+    /// Named type reference
+    Named(String),
+    /// Pointer type
+    Pointer(Box<AnnType>),
+    /// Reference type
+    Reference(Box<AnnType>),
+    /// Array type
+    Array(Box<AnnType>, usize),
+    /// Slice type
+    Slice(Box<AnnType>),
+    /// Tuple type
+    Tuple(Vec<AnnType>),
+    /// Function type
+    Func(Vec<AnnType>, Box<AnnType>),
+    /// Generic type
+    Generic(String, Vec<AnnType>),
+}
+
+/// Statement kind for code generation
+#[derive(Debug, Clone)]
+pub enum StmtKind {
+    /// Let statement
+    Let { pattern: Pattern, initializer: Option<Expr> },
+    /// Expression statement
+    Expr { expr: Expr },
+    /// Assignment
+    Assign { target: Expr, value: Expr },
+    /// If statement
+    If { condition: Expr, then_block: Block, else_block: Option<Block> },
+    /// While loop
+    While { condition: Expr, body: Block },
+    /// For loop
+    For { pattern: Pattern, iterator: Expr, body: Block },
+    /// Return statement
+    Return { value: Option<Expr> },
+    /// Block statement
+    Block { block: Block },
+    /// Empty statement
+    Empty,
+}
+
+/// Statement wrapper
+#[derive(Debug, Clone)]
+pub struct Stmt {
+    pub kind: StmtKind,
+    pub span: SourceSpan,
+}
+
+impl Stmt {
+    pub fn new(kind: StmtKind) -> Self {
+        Self {
+            kind,
+            span: SourceSpan {
+                start: SourceLocation { line: 0, column: 0, file: 0 },
+                end: SourceLocation { line: 0, column: 0, file: 0 },
+            },
+        }
+    }
+
+    /// An expression statement.
+    pub fn new_expr(expr: Expr) -> Self {
+        Stmt::new(StmtKind::Expr { expr })
+    }
+
+    /// A `return` statement.
+    pub fn new_return(expr: Option<Expr>) -> Self {
+        Stmt::new(StmtKind::Return { value: expr })
+    }
+}
+
+/// Constant value representation
+#[derive(Debug, Clone)]
+pub enum Const {
+    /// Boolean constant
+    Bool(bool),
+    /// Integer constant
+    Int(i64),
+    /// Unsigned integer
+    Uint(u64),
+    /// Float constant
+    Float(f64),
+    /// String constant
+    String(String),
+    /// Character constant
+    Char(char),
+    /// Unit constant
+    Unit,
+    /// Tuple constant
+    Tuple(Vec<Const>),
+    /// Array constant
+    Array(Vec<Const>),
+    /// Struct constant
+    Struct(String, Vec<(String, Const)>),
+}
 
 /// Built-in derive macros
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum DeriveMacro {
     /// Clone trait
     Clone,

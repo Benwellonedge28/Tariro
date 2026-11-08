@@ -81,6 +81,21 @@ pub struct TraitType {
     pub super_traits: Vec<String>,
 }
 
+/// Safety guarantees attached to a function type.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Safety {
+    /// The function is safe to call in all contexts.
+    Safe,
+    /// The function requires an `unsafe` context to call.
+    Unsafe,
+}
+
+impl Default for Safety {
+    fn default() -> Self {
+        Safety::Safe
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct FunctionType {
     pub params: Vec<MonoType>,

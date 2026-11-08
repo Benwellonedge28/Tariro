@@ -100,6 +100,7 @@ jobs:
 
       - name: Run test suite
         run: |
+          set -o pipefail
           cargo test --all-features -- --nocapture --test-threads=2 2>&1 | tee test_output.log
           # Check for test failures
           if grep -q "FAILED\|error\[E" test_output.log; then
@@ -240,7 +241,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run cargo-deny
-        uses: baptiste0928/cargo-deny-action@v1
+        uses: baptiste0928/cargo-deny-action@v2
         with:
           command: check advisories bans licenses
 
@@ -261,11 +262,12 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: 1.70.0
+          # Keep in sync with `rust-version` in Cargo.toml.
+          toolchain: 1.88.0
           profile: minimal
 
       - name: Check MSRV compatibility
-        run: cargo check --all-features
+        run: cargo check --all-features --locked
 
   # ============================================
   # Integration Tests
@@ -364,11 +366,15 @@ jobs:
 
       - name: Check licenses
         run: |
+          set -euo pipefail
           echo "Checking package licenses..."
-          cargo metadata --format-version 1 --no-deps | jq -r '.packages[].license' | sort -u > licenses.txt
+          cargo metadata --format-version 1 --no-deps \
+            | jq -r '.packages[].license // "LicenseRef-Tariro-BSL-1.01"' \
+            | sort -u > licenses.txt
           cat licenses.txt
-          # Verify only allowed licenses
-          if grep -v -E '^(MIT|Apache-2.0|BSD-3-Clause|ISC|MPL-2.0|Zlib)$' licenses.txt; then
+          # Workspace crates carry the project license; everything else must be a
+          # recognised permissive dependency licence.
+          if grep -v -E '^(MIT|Apache-2.0|BSD-2-Clause|BSD-3-Clause|ISC|MPL-2.0|Zlib|LicenseRef-Tariro-BSL-1\.01)$' licenses.txt; then
             echo "Found non-standard licenses"
             exit 1
           fi
@@ -390,15 +396,20 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
+          # cargo-fuzz needs the nightly compiler for the sanitiser runtime.
+          toolchain: nightly
           profile: minimal
 
       - name: Install cargo-fuzz
-        run: cargo install cargo-fuzz
+        run: cargo install cargo-fuzz --locked
 
       - name: Run fuzz tests
         run: |
-          # Run fuzz tests for a limited time
-          cargo fuzz run --jobs 2 --max-total-time 120 parser || echo "Fuzz tests completed or no fuzz targets found"
+          set -euo pipefail
+          # Run each fuzz target for a limited time. A crash (libFuzzer finding
+          # a bug) fails the job — there is no error suppression here.
+          cargo fuzz run --jobs 2 --max-total-time 120 parser
+          cargo fuzz run --jobs 2 --max-total-time 120 frontend
 
   # ============================================
   # Dependency Updates Check

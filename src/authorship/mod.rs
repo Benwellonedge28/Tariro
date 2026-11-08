@@ -30,15 +30,15 @@ pub mod collaboration;
 pub mod style;
 pub mod ethics;
 
-pub use core::{AuthorshipEngine, AuthorshipConfig, AuthorshipResult};
+pub use core::{AuthorshipEngine, AuthorshipConfig, AuthorshipResult, AuthorshipError};
 pub use ideation::{IdeationEngine, CreativeConcept, IdeationResult};
-pub use generation::{GenerationEngine, CreativeContent, ContentType};
-pub use critique::{CritiqueEngine, CritiqueReport, RefinementSuggestion};
+pub use generation::{GenerationEngine, ContentType};
+pub use critique::{CritiqueEngine, CritiqueReport};
 pub use multimodal::{MultimodalEngine, ModalOutput};
 pub use attribution::{AttributionManager, ProvenanceRecord};
 pub use collaboration::{CollaborationEngine, HumanFeedback};
 pub use style::{StyleEngine, WritingStyle};
-pub use ethics::{AuthorshipEthics, EthicsFilter};
+pub use ethics::{AuthorshipEthics, EthicsFilter, EthicsConfig, EthicalViolation};
 
 use serde::{Deserialize, Serialize};
 
@@ -114,7 +114,7 @@ impl Default for CreativeContent {
 }
 
 /// Multi-modal content container
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreativeContent {
     /// Text content
     pub text: String,
@@ -158,4 +158,13 @@ impl Default for CreativePrompt {
             constraints: Vec::new(),
         }
     }
+}
+
+/// Refinement suggestion from critique
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RefinementSuggestion {
+    pub aspect: String,
+    pub description: String,
+    pub priority: u8,
+    pub example: Option<String>,
 }

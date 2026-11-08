@@ -1,6 +1,7 @@
 // Type Inference - Hindley-Milner
 
 use super::*;
+use crate::tumc_compiler::ast::{Expr, ExprKind};
 
 /// Type inference engine
 pub struct TypeInference {

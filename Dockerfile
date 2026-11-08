@@ -5,7 +5,7 @@
 # ============================================
 # Stage 1: Build
 # ============================================
-FROM rust:1.75-slim as builder
+FROM rust:1.88-slim as builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
@@ -26,11 +26,12 @@ ENV CARGO_PROFILE_RELEASE_LTO=fat \
 
 # Copy manifests first for better layer caching
 COPY Cargo.toml Cargo.lock* ./
+COPY tariro_sdk ./tariro_sdk
 
 # Create dummy source for dependency caching
 RUN mkdir -p src benches && \
     echo "fn main() {}" > src/main.rs && \
-    echo "mod lib;" > src/lib.rs
+    : > src/lib.rs
 
 # Build dependencies first (important for layer caching)
 RUN cargo build --release && rm -rf src benches
@@ -45,7 +46,7 @@ COPY Tariro_ide_idpte ./Tariro_ide_idpte
 RUN find src -name "*.rs" -exec touch {} \;
 
 # Build release binary with all features
-RUN cargo build --release --features full --target x86_64-unknown-linux-gnu
+RUN cargo build --release --features full
 
 # ============================================
 # Stage 2: Runtime (Production)
@@ -68,7 +69,7 @@ RUN groupadd --system --gid 1000 tariro && \
 WORKDIR /app
 
 # Copy binary from builder
-COPY --from=builder /build/target/x86_64-unknown-linux-gnu/release/tariro /app/
+COPY --from=builder /build/target/release/tariro /app/
 
 # Copy entrypoint script
 COPY docker-entrypoint.sh /usr/local/bin/
@@ -101,7 +102,7 @@ LABEL org.opencontainers.image.title="Tariro AGI"
 LABEL org.opencontainers.image.description="Universal Meta-Compiler System implementing POCO-REAF"
 LABEL org.opencontainers.image.source="https://github.com/Benwellonedge28/Tariro"
 LABEL org.opencontainers.image.version="1.0.15"
-LABEL org.opencontainers.image.licenses="MIT OR Apache-2.0"
+LABEL org.opencontainers.image.licenses="LicenseRef-Tariro-BSL-1.01"
 LABEL org.opencontainers.image.maintainer="Tariro AGI Contributors <contributors@tariro.dev>"
 LABEL org.opencontainers.image.vendor="Tariro AGI"
 

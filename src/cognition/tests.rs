@@ -2,9 +2,11 @@
 //!
 //! Comprehensive tests for consciousness, working memory, world model, motivation, and the cognition engine.
 
+use std::collections::HashMap;
 #[cfg(test)]
 mod consciousness_tests {
     use super::super::*;
+    use super::super::consciousness::*;
 
     // ==========================================================================
     // Thought Tests
@@ -229,6 +231,7 @@ mod consciousness_tests {
 #[cfg(test)]
 mod working_memory_tests {
     use super::super::*;
+    use super::super::working_memory::*;
 
     // ==========================================================================
     // Mental Item Tests
@@ -486,6 +489,7 @@ mod working_memory_tests {
 #[cfg(test)]
 mod world_model_tests {
     use super::super::*;
+    use super::super::world_model::*;
 
     // ==========================================================================
     // World Entity Tests
@@ -780,6 +784,7 @@ mod world_model_tests {
 #[cfg(test)]
 mod motivation_tests {
     use super::super::*;
+    use super::super::motivation::*;
 
     // ==========================================================================
     // Drive Tests
@@ -1006,6 +1011,7 @@ mod motivation_tests {
 #[cfg(test)]
 mod cognition_engine_tests {
     use super::super::*;
+    use super::super::cognition_engine::*;
 
     // ==========================================================================
     // Engine Creation Tests

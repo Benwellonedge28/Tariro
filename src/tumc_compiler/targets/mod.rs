@@ -16,6 +16,7 @@ pub use vm::*;
 // ============================================================================
 
 use crate::tumc_compiler::ir::*;
+use crate::tumc_compiler::optimization::OptLevel;
 
 /// Compilation target trait
 pub trait Target {

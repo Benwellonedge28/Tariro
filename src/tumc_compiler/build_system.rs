@@ -7,8 +7,11 @@ use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::{Arc, RwLock};
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, SystemTime};
 use serde::{Deserialize, Serialize};
+
+use crate::tumc_compiler::package_manager::{PackageManifest, Version};
+use crate::tumc_compiler::{OptimizationLevel, TargetPlatform};
 
 /// Build configuration
 #[derive(Debug, Clone)]
@@ -329,8 +332,9 @@ impl BuildDriver {
         // Filter units that need building
         let mut to_build: Vec<BuildUnit> = plan
             .units
-            .into_iter()
+            .iter()
             .filter(|u| plan.needs_rebuild(u, &self.cache))
+            .cloned()
             .collect();
 
         let total = to_build.len();
@@ -359,7 +363,7 @@ impl BuildDriver {
     /// Build units sequentially
     fn build_sequential(&mut self, units: &mut [BuildUnit]) {
         for unit in units {
-            let result = self.compile_unit(unit);
+            let result = Self::compile_unit(unit);
             if result.success {
                 self.cache.insert(&unit.fingerprint, &unit.output);
             }
@@ -367,7 +371,7 @@ impl BuildDriver {
     }
 
     /// Build units in parallel
-    fn build_parallel(&mut self, units: &mut [BuildUnit]) {
+    fn build_parallel(&mut self, units: &mut Vec<BuildUnit>) {
         use std::thread;
 
         let (tx, rx) = std::sync::mpsc::channel();
@@ -392,9 +396,7 @@ impl BuildDriver {
 
         for (unit, result) in rx {
             if result.success {
-                if let Ok(mut c) = self.cache.write() {
-                    c.insert(&unit.fingerprint, &unit.output);
-                }
+                self.cache.insert(&unit.fingerprint, &unit.output);
             }
         }
     }
@@ -576,7 +578,7 @@ impl Watcher {
     }
 
     /// Add path to watch
-    pub fn watch(mut self, path: impl Into<PathBuf>) -> Self {
+    pub fn add_path(mut self, path: impl Into<PathBuf>) -> Self {
         self.paths.push(path.into());
         self
     }
@@ -605,10 +607,11 @@ impl Watcher {
     /// Check for changes
     fn check_changes(&self) -> Vec<PathBuf> {
         let mut changes = Vec::new();
+        let now = SystemTime::now();
 
         for path in &self.paths {
             if let Ok(meta) = std::fs::metadata(path) {
-                if meta.modified().unwrap_or(Instant::now().into()) > Instant::now().into() {
+                if meta.modified().unwrap_or(now) > now {
                     changes.push(path.clone());
                 }
             }

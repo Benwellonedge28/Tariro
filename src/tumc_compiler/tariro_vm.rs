@@ -2,7 +2,9 @@
 //! A register-based VM for executing TUMC bytecode
 
 use crate::prelude::*;
+use crate::tumc_compiler::ast::Span;
 use std::collections::{HashMap, VecDeque};
+use std::fmt;
 
 /// Maximum number of registers
 pub const MAX_REGISTERS: usize = 256;
@@ -404,7 +406,7 @@ impl<T> GcPtr<T> {
         GcPtr(ptr)
     }
 
-    pub fn as_ref(&self) -> &'a T {
+    pub fn as_ref(&self) -> &T {
         unsafe { &*self.0 }
     }
 }

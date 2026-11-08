@@ -4,7 +4,7 @@
 //! versioning, publishing, and caching.
 
 use std::collections::{HashMap, HashSet};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 
 /// Package identifier
@@ -69,6 +69,43 @@ impl Version {
     /// Check if satisfies requirement
     pub fn satisfies(&self, req: &VersionRequirement) -> bool {
         req.matches(self)
+    }
+}
+
+impl std::fmt::Display for Version {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}.{}.{}", self.major, self.minor, self.patch)?;
+        if let Some(pre) = &self.pre {
+            write!(f, "-{}", pre)?;
+        }
+        if let Some(build) = &self.build {
+            write!(f, "+{}", build)?;
+        }
+        Ok(())
+    }
+}
+
+/// Semver ordering: `major.minor.patch` first, then the pre-release segment.
+/// A release version always sorts above the same version with a pre-release
+/// tag, and build metadata is ignored for ordering (as per semver).
+impl Ord for Version {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.major
+            .cmp(&other.major)
+            .then_with(|| self.minor.cmp(&other.minor))
+            .then_with(|| self.patch.cmp(&other.patch))
+            .then_with(|| match (&self.pre, &other.pre) {
+                (None, None) => std::cmp::Ordering::Equal,
+                (None, Some(_)) => std::cmp::Ordering::Greater,
+                (Some(_), None) => std::cmp::Ordering::Less,
+                (Some(a), Some(b)) => a.cmp(b),
+            })
+    }
+}
+
+impl PartialOrd for Version {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
     }
 }
 

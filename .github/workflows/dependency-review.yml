@@ -6,15 +6,15 @@ on:
     paths:
       - 'Cargo.lock'
       - 'Cargo.toml'
-      - 'tariro_sdk/package.json'
-      - 'tariro_sdk/package-lock.json'
+      - 'tariro_sdk/Cargo.toml'
+      - 'deny.toml'
   pull_request:
     branches: [ main, develop ]
     paths:
       - 'Cargo.lock'
       - 'Cargo.toml'
-      - 'tariro_sdk/package.json'
-      - 'tariro_sdk/package-lock.json'
+      - 'tariro_sdk/Cargo.toml'
+      - 'deny.toml'
   workflow_dispatch:
 
 permissions:
@@ -95,7 +95,7 @@ jobs:
           fetch-depth: 1
 
       - name: Run cargo-deny
-        uses: baptiste0928/cargo-deny-action@v1
+        uses: baptiste0928/cargo-deny-action@v2
         with:
           command: check advisories bans licenses sources
 
@@ -115,16 +115,19 @@ jobs:
 
       - name: Check licenses
         run: |
+          set -euo pipefail
           echo "Checking package licenses..."
-          cargo metadata --format-version 1 --no-deps | jq -r '.packages[].license' | sort -u > licenses.txt
+          cargo metadata --format-version 1 --no-deps \
+            | jq -r '.packages[].license // "LicenseRef-Tariro-BSL-1.01"' \
+            | sort -u > licenses.txt
           echo "Detected licenses:"
           cat licenses.txt
 
-          # Check for problematic licenses
-          PROBLEMATIC=$(grep -v -E '^(MIT|Apache-2.0|BSD-3-Clause|BSD-2-Clause|ISC|MPL-2.0|Zlib|Unlicense|CC0-1.0|WTFPL|0BSD)$' licenses.txt || true)
-          if [ -n "$PROBLEMATIC" ]; then
-            echo "Warning: Found licenses that may require review:"
-            echo "$PROBLEMATIC"
+          # Only recognised permissive licences (plus the project licence) are
+          # acceptable. Anything else fails the job.
+          if grep -v -E '^(MIT|Apache-2.0|BSD-3-Clause|BSD-2-Clause|ISC|MPL-2.0|Zlib|Unlicense|CC0-1.0|0BSD|LicenseRef-Tariro-BSL-1\.01)$' licenses.txt; then
+            echo "Found licenses that require review:"
+            exit 1
           fi
 
   # ============================================
@@ -268,13 +271,12 @@ jobs:
           retention-days: 7
 
   # ============================================
-  # SDK Dependencies (Node.js)
+  # SDK Dependencies (Rust workspace member)
   # ============================================
   sdk-dependencies:
     name: SDK Dependencies
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: exists('tariro_sdk/package.json')
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -282,34 +284,22 @@ jobs:
           persist-credentials: false
           fetch-depth: 1
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: 'tariro_sdk/package-lock.json'
+          profile: minimal
 
-      - name: Check SDK dependencies
+      - name: Check SDK dependency tree
         run: |
-          cd tariro_sdk
-          if [ -f "package.json" ]; then
-            echo "Checking SDK dependencies..."
-            npm ci
+          set -euo pipefail
+          echo "Checking tariro_sdk dependency tree..."
+          cargo tree -p tariro_sdk --depth 1
 
-            # Run audit
-            npm audit 2>&1 | tee npm_audit.txt || true
-
-            # Check for outdated packages
-            npm outdated 2>&1 || true
-          fi
-
-      - name: Upload SDK audit results
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: sdk-dependency-audit
-          path: tariro_sdk/npm_audit.txt
-          retention-days: 7
+      - name: Audit SDK dependencies
+        run: |
+          set -euo pipefail
+          cargo install cargo-audit --locked
+          cargo audit
 
   # ============================================
   # Dependency Summary

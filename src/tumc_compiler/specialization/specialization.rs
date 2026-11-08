@@ -1,7 +1,11 @@
 // Advanced Specialization Techniques
 
-use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation, IrType, Const};
-use crate::tumc_compiler::specialization::partial_eval::{PartialEvaluator, StaticValue};
+use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation, IrType};
+use crate::tumc_compiler::derive_system::Const;
+use crate::tumc_compiler::specialization::partial_eval::PartialEvaluator;
+// Re-exported so that sibling modules can name the constant type through
+// `specialization::StaticValue`.
+pub use crate::tumc_compiler::specialization::partial_eval::StaticValue;
 use std::collections::{HashMap, HashSet};
 
 /// Supercompiler configuration

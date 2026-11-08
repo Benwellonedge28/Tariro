@@ -1,5 +1,6 @@
 // SSA (Static Single Assignment) Form Construction and Manipulation
 
+use std::collections::HashMap;
 use super::*;
 
 /// SSA form builder and utilities
@@ -359,7 +360,7 @@ impl InductionVariableAnalysis {
 
     pub fn analyze(&mut self, function: &Function, loops: &[NaturalLoop]) {
         for loop_ in loops {
-            self.find_induction_variables(function, r#loop);
+            self.find_induction_variables(function, loop_);
         }
     }
 
@@ -376,7 +377,7 @@ impl InductionVariableAnalysis {
                                     base: *lhs,
                                     step: *rhs,
                                     initial: *lhs,
-                                    loop_header: loop.header,
+                                    loop_header: r#loop.header,
                                 });
                             }
                             _ => {}

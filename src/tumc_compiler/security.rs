@@ -440,6 +440,8 @@ pub mod crypto {
 
 /// Input validation
 pub mod validation {
+    use super::ValidationError;
+
     /// Validate file path
     pub fn validate_path(path: &str) -> Result<(), ValidationError> {
         if path.contains("..") {

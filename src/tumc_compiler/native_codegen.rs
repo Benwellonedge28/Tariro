@@ -4,6 +4,7 @@
 use crate::prelude::*;
 use super::ast::*;
 use std::collections::HashMap;
+use std::fmt;
 
 /// Target architecture
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -153,7 +154,7 @@ pub enum X86Inst {
     And { dest: R8, src: Operand },
     Or { dest: R8, src: Operand },
     Xor { dest: R8, src: Operand },
-    Not { dest: R8 },
+    LogicalNot { dest: R8 },
     Test { a: Operand, b: Operand },
 
     // Shifts
@@ -165,7 +166,6 @@ pub enum X86Inst {
 
     // Comparison
     Cmp { a: Operand, b: Operand },
-    Test { a: Operand, b: Operand },
 
     // Control flow
     Jmp { target: String },
@@ -259,7 +259,6 @@ pub enum A64Inst {
     Eor { dest: A64, a: A64, b: Operand },
     Bic { dest: A64, a: A64, b: Operand },
     Tst { a: A64, b: Operand },
-    Mvn { dest: A64, src: Operand },
 
     // Shifts
     Lsl { dest: A64, src: A64, shift: Operand },
@@ -862,6 +861,8 @@ pub enum CodegenError {
     RegisterAllocationFailed,
     OutOfRegisters,
     InvalidOperand,
+    /// The backend rejected the program it was given.
+    GenerationFailed(String),
 }
 
 impl fmt::Display for CodegenError {
@@ -872,6 +873,7 @@ impl fmt::Display for CodegenError {
             CodegenError::RegisterAllocationFailed => write!(f, "Register allocation failed"),
             CodegenError::OutOfRegisters => write!(f, "Out of registers"),
             CodegenError::InvalidOperand => write!(f, "Invalid operand"),
+            CodegenError::GenerationFailed(msg) => write!(f, "Code generation failed: {}", msg),
         }
     }
 }

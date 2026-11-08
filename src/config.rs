@@ -8,15 +8,115 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 
-// Re-export specific types from the SDK
+// Re-export specific types from the SDK (stub types if SDK not available)
+#[cfg(feature = "tariro_sdk")]
 pub use tariro_sdk::entities::{AGIControlSetting, AGICategory, AutonomyPolicy, CapabilityStatus, WorkflowRule, ServicePrice};
+
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AGIControlSetting;
+
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AGICategory;
+
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AutonomyPolicy;
+
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CapabilityStatus;
+
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WorkflowRule;
+
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ServicePrice;
+
 // Type alias for backward compatibility
+#[cfg(feature = "tariro_sdk")]
 pub type AGIControl = AGIControlSetting;
+
+#[cfg(not(feature = "tariro_sdk"))]
+pub type AGIControl = AGIControlSetting;
+
+#[cfg(feature = "tariro_sdk")]
 pub use tariro_sdk::entities::{Goal, WellbeingLog, ExplainabilityLog, PerformanceLog, LearningInsight, FeatureProposal, SystemHealthLog};
+
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Goal;
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WellbeingLog;
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExplainabilityLog;
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PerformanceLog;
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LearningInsight;
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FeatureProposal;
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SystemHealthLog;
+
+#[cfg(feature = "tariro_sdk")]
 pub use tariro_sdk::entities::{Conversation, KnowledgeItem, ManagedFile};
+
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Conversation;
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct KnowledgeItem;
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ManagedFile;
+
+#[cfg(feature = "tariro_sdk")]
 pub use tariro_sdk::entities::{GitHubProfile, GitHubProjectContext, IDEProfile};
+
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GitHubProfile;
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GitHubProjectContext;
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct IDEProfile;
+
+#[cfg(feature = "tariro_sdk")]
 pub use tariro_sdk::entities::{ProjectTask, NotificationRecord};
+
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProjectTask;
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NotificationRecord;
+
+#[cfg(feature = "tariro_sdk")]
 pub use tariro_sdk::entities::{NanoAgent, MetaProject, DeploymentRecord};
+
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NanoAgent;
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MetaProject;
+#[cfg(not(feature = "tariro_sdk"))]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DeploymentRecord;
+
 pub use crate::compiler::{CompilerSnapshot, MetaProjectStatus, CompilationMetrics};
 
 /// Represents the overall configuration for the Tariro AGI.

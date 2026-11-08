@@ -1,0 +1,44 @@
+# cargo-deny configuration for the Tariro workspace.
+# Docs: https://embarkstudios.github.io/cargo-deny/
+
+[graph]
+all-features = true
+no-default-features = false
+
+[advisories]
+version = 2
+yanked = "deny"
+ignore = []
+
+[licenses]
+version = 2
+# The workspace crates are published under the project licence; dependencies must
+# be permissive or a recognised weak copyleft licence.
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "MPL-2.0",
+    "Zlib",
+    "Unicode-DFS-2016",
+    "CC0-1.0",
+]
+confidence-threshold = 0.8
+exceptions = []
+
+[bans]
+# Multiple versions of a crate are allowed while the workspace is being
+# restructured, but the list is explicit so that new duplicates are caught.
+multiple-versions = "warn"
+wildcards = "deny"
+highlight = "all"
+deny = []
+skip = []
+skip-tree = {}
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

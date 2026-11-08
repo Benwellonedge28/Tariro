@@ -2,7 +2,8 @@
 //!
 //! Transpiles Go source code to TUMC IR for compilation to any target.
 
-use crate::tumc_compiler::ast::{AstNode, Program, Function, Statement, Expression, Type};
+use crate::tumc_compiler::frontend::{AstNode, Expression, Function, Param, Program, Statement};
+use crate::tumc_compiler::{FunctionType, Type};
 use std::collections::HashMap;
 
 /// Go-specific AST nodes
@@ -71,6 +72,41 @@ pub enum GoAstNode {
     RecvOnly,
     /// Send-only channel
     SendOnly,
+}
+
+/// A single case of a Go type switch.
+///
+/// This is the payload of [`GoAstNode::TypeSwitch::cases`]; the variant
+/// [`GoAstNode::TypeCase`] carries the same shape inline.
+#[derive(Debug, Clone)]
+pub struct TypeCase {
+    /// The type the case matches, `None` for the `default` case.
+    pub type_: Option<String>,
+    /// Statements executed when the type matches.
+    pub body: Vec<AstNode>,
+}
+
+/// A single case of a Go `select` statement.
+///
+/// This is the payload of [`GoAstNode::Select::cases`]; the variant
+/// [`GoAstNode::SelectCase`] carries the same shape inline.
+#[derive(Debug, Clone)]
+pub struct SelectCase {
+    /// The send or receive operation the case waits on, `None` for `default`.
+    pub comm: Option<SendOrRecv>,
+    /// Statements executed when the case is chosen.
+    pub body: Vec<AstNode>,
+}
+
+/// A channel send or receive operation inside a `select` case.
+#[derive(Debug, Clone)]
+pub struct SendOrRecv {
+    /// `true` for a send, `false` for a receive.
+    pub is_send: bool,
+    /// The channel the operation applies to.
+    pub channel: Expression,
+    /// The value sent, `None` for a receive.
+    pub value: Option<Expression>,
 }
 
 /// Channel direction
@@ -617,13 +653,17 @@ impl GoParser {
                 return_type = Some(self.parse_type()?);
             }
             self.expect(&GoToken::RightParen)?;
-        } else if self.check(&GoToken::Ident(_)) {
+        } else if matches!(self.current(), GoToken::Ident(_)) {
             return_type = Some(self.parse_type()?);
         }
 
         // Parse body
-        let body = if self.check(&GoToken::LeftBrace) {
-            self.parse_block()?
+        let body: Vec<Statement> = if self.check(&GoToken::LeftBrace) {
+            match self.parse_block()? {
+                Some(AstNode::Block(stmts)) => stmts,
+                Some(node) => vec![node],
+                None => Vec::new(),
+            }
         } else {
             Vec::new()
         };
@@ -638,7 +678,7 @@ impl GoParser {
         })))
     }
 
-    fn parse_param_list(&mut self) -> Result<Vec<crate::tumc_compiler::ast::Param>, GoParseError> {
+    fn parse_param_list(&mut self) -> Result<Vec<Param>, GoParseError> {
         let mut params = Vec::new();
 
         while !self.check(&GoToken::RightParen) && !self.is_at_end() {
@@ -661,7 +701,7 @@ impl GoParser {
             let param_type = self.parse_type()?;
 
             for name in names {
-                params.push(crate::tumc_compiler::ast::Param {
+                params.push(Param {
                     name,
                     param_type: Some(param_type.clone()),
                     default: None,
@@ -699,7 +739,11 @@ impl GoParser {
 
                 // Check if it's a function type
                 if self.check(&GoToken::LeftParen) {
-                    return Ok(Type::Function(Box::new(Type::Unknown), Vec::new()));
+                    return Ok(Type::Function(Box::new(FunctionType {
+                        parameters: Vec::new(),
+                        return_type: Box::new(Type::Unknown),
+                        variadic: false,
+                    })));
                 }
 
                 Ok(self.go_type_to_tumc(&name))
@@ -752,10 +796,18 @@ impl GoParser {
                         return_type = self.parse_type()?;
                     }
                     self.expect(&GoToken::RightParen)?;
-                } else if self.check(&GoToken::Ident(_)) {
+                } else if matches!(self.current(), GoToken::Ident(_)) {
                     return_type = self.parse_type()?;
                 }
-                Ok(Type::Function(Box::new(return_type), Vec::new()))
+                let parameters: Vec<Type> = params
+                    .iter()
+                    .map(|param| param.param_type.clone().unwrap_or(Type::Unknown))
+                    .collect();
+                Ok(Type::Function(Box::new(FunctionType {
+                    parameters,
+                    return_type: Box::new(return_type),
+                    variadic: false,
+                })))
             }
             GoToken::Struct => {
                 self.advance();
@@ -861,7 +913,7 @@ impl GoParser {
             return Err(GoParseError::new("Expected variable name", self.pos));
         };
 
-        let var_type = if self.check(&GoToken::Ident(_)) && !self.check(&GoToken::Equal) &&
+        let var_type = if matches!(self.current(), GoToken::Ident(_)) && !self.check(&GoToken::Equal) &&
                         !self.check(&GoToken::ColonEqual) {
             Some(self.parse_type()?)
         } else {
@@ -1048,7 +1100,7 @@ impl GoParser {
         self.skip_newlines();
 
         // Check for range loop
-        if self.check(&GoToken::Ident(_)) {
+        if matches!(self.current(), GoToken::Ident(_)) {
             let first_expr = self.parse_expression()?;
 
             if self.check(&GoToken::Range) {
@@ -1124,7 +1176,7 @@ impl GoParser {
         self.advance(); // skip switch
         self.skip_newlines();
 
-        let init = if self.check(&GoToken::Ident(_)) && !self.check(&GoToken::Ident("".to_string())) {
+        let init = if matches!(self.current(), GoToken::Ident(_)) && !self.check(&GoToken::Ident("".to_string())) {
             Some(Box::new(self.parse_simple_statement()?))
         } else {
             None
@@ -1249,11 +1301,16 @@ impl GoParser {
         Ok(Some(AstNode::Block(stmts)))
     }
 
-    fn parse_block_stmts(&mut self) -> Result<Vec<AstNode>, GoParseError> {
+    fn parse_block_stmts(&mut self) -> Result<Vec<Statement>, GoParseError> {
         let mut stmts = Vec::new();
 
-        while !self.check(&GoToken::RightBrace) && !self.is_at_end() {
+        while !self.is_at_end() {
             self.skip_newlines();
+            // The closing brace belongs to the enclosing block: stop here so
+            // that the statement parser never consumes it.
+            if self.check(&GoToken::RightBrace) {
+                break;
+            }
             if let Some(stmt) = self.parse_statement()? {
                 stmts.push(stmt);
             }
@@ -1280,9 +1337,7 @@ impl GoParser {
                     let mut args = Vec::new();
 
                     while !self.check(&GoToken::RightParen) && !self.is_at_end() {
-                        args.push(crate::tumc_compiler::ast::Arg::Positional(
-                            Box::new(self.parse_expression()?)
-                        ));
+                        args.push(self.parse_expression()?);
 
                         if !self.check(&GoToken::RightParen) {
                             self.expect(&GoToken::Comma)?;
@@ -1337,7 +1392,7 @@ impl GoParser {
                 self.advance();
                 let operand = Box::new(self.parse_unary()?);
                 Ok(Expression::UnaryOp {
-                    op: crate::tumc_compiler::ast::UnaryOp::Plus,
+                    op: crate::tumc_compiler::frontend::UnaryOp::Plus,
                     operand,
                 })
             }
@@ -1345,7 +1400,7 @@ impl GoParser {
                 self.advance();
                 let operand = Box::new(self.parse_unary()?);
                 Ok(Expression::UnaryOp {
-                    op: crate::tumc_compiler::ast::UnaryOp::Negate,
+                    op: crate::tumc_compiler::frontend::UnaryOp::Negate,
                     operand,
                 })
             }
@@ -1353,7 +1408,7 @@ impl GoParser {
                 self.advance();
                 let operand = Box::new(self.parse_unary()?);
                 Ok(Expression::UnaryOp {
-                    op: crate::tumc_compiler::ast::UnaryOp::Not,
+                    op: crate::tumc_compiler::frontend::UnaryOp::Not,
                     operand,
                 })
             }
@@ -1361,7 +1416,7 @@ impl GoParser {
                 self.advance();
                 let operand = Box::new(self.parse_unary()?);
                 Ok(Expression::UnaryOp {
-                    op: crate::tumc_compiler::ast::UnaryOp::BitNot,
+                    op: crate::tumc_compiler::frontend::UnaryOp::BitNot,
                     operand,
                 })
             }
@@ -1369,7 +1424,7 @@ impl GoParser {
                 self.advance();
                 let operand = Box::new(self.parse_unary()?);
                 Ok(Expression::UnaryOp {
-                    op: crate::tumc_compiler::ast::UnaryOp::Deref,
+                    op: crate::tumc_compiler::frontend::UnaryOp::Deref,
                     operand,
                 })
             }
@@ -1377,7 +1432,7 @@ impl GoParser {
                 self.advance();
                 let operand = Box::new(self.parse_unary()?);
                 Ok(Expression::UnaryOp {
-                    op: crate::tumc_compiler::ast::UnaryOp::AddressOf,
+                    op: crate::tumc_compiler::frontend::UnaryOp::AddressOf,
                     operand,
                 })
             }
@@ -1386,7 +1441,7 @@ impl GoParser {
                 self.advance();
                 let operand = Box::new(self.parse_unary()?);
                 Ok(Expression::UnaryOp {
-                    op: crate::tumc_compiler::ast::UnaryOp::Deref,
+                    op: crate::tumc_compiler::frontend::UnaryOp::Deref,
                     operand,
                 })
             }
@@ -1399,8 +1454,8 @@ impl GoParser {
 
         loop {
             let op = match self.current() {
-                GoToken::Plus => Some(crate::tumc_compiler::ast::BinaryOp::Add),
-                GoToken::Minus => Some(crate::tumc_compiler::ast::BinaryOp::Sub),
+                GoToken::Plus => Some(crate::tumc_compiler::frontend::BinaryOp::Add),
+                GoToken::Minus => Some(crate::tumc_compiler::frontend::BinaryOp::Sub),
                 _ => None,
             };
 
@@ -1425,12 +1480,12 @@ impl GoParser {
 
         loop {
             let op = match self.current() {
-                GoToken::Star => Some(crate::tumc_compiler::ast::BinaryOp::Mul),
-                GoToken::Slash => Some(crate::tumc_compiler::ast::BinaryOp::Div),
-                GoToken::Percent => Some(crate::tumc_compiler::ast::BinaryOp::Rem),
-                GoToken::LeftShift => Some(crate::tumc_compiler::ast::BinaryOp::Shl),
-                GoToken::RightShift => Some(crate::tumc_compiler::ast::BinaryOp::Shr),
-                GoToken::Ampersand => Some(crate::tumc_compiler::ast::BinaryOp::BitAnd),
+                GoToken::Star => Some(crate::tumc_compiler::frontend::BinaryOp::Mul),
+                GoToken::Slash => Some(crate::tumc_compiler::frontend::BinaryOp::Div),
+                GoToken::Percent => Some(crate::tumc_compiler::frontend::BinaryOp::Rem),
+                GoToken::LeftShift => Some(crate::tumc_compiler::frontend::BinaryOp::Shl),
+                GoToken::RightShift => Some(crate::tumc_compiler::frontend::BinaryOp::Shr),
+                GoToken::Ampersand => Some(crate::tumc_compiler::frontend::BinaryOp::BitAnd),
                 _ => None,
             };
 
@@ -1455,12 +1510,12 @@ impl GoParser {
 
         loop {
             let op = match self.current() {
-                GoToken::EqualEqual => Some(crate::tumc_compiler::ast::BinaryOp::Eq),
-                GoToken::NotEqual => Some(crate::tumc_compiler::ast::BinaryOp::Ne),
-                GoToken::Less => Some(crate::tumc_compiler::ast::BinaryOp::Lt),
-                GoToken::LessEqual => Some(crate::tumc_compiler::ast::BinaryOp::Le),
-                GoToken::Greater => Some(crate::tumc_compiler::ast::BinaryOp::Gt),
-                GoToken::GreaterEqual => Some(crate::tumc_compiler::ast::BinaryOp::Ge),
+                GoToken::EqualEqual => Some(crate::tumc_compiler::frontend::BinaryOp::Eq),
+                GoToken::NotEqual => Some(crate::tumc_compiler::frontend::BinaryOp::Ne),
+                GoToken::Less => Some(crate::tumc_compiler::frontend::BinaryOp::Lt),
+                GoToken::LessEqual => Some(crate::tumc_compiler::frontend::BinaryOp::Le),
+                GoToken::Greater => Some(crate::tumc_compiler::frontend::BinaryOp::Gt),
+                GoToken::GreaterEqual => Some(crate::tumc_compiler::frontend::BinaryOp::Ge),
                 _ => None,
             };
 
@@ -1488,7 +1543,7 @@ impl GoParser {
             let right = Box::new(self.parse_and()?);
             expr = Expression::BinaryOp {
                 left: Box::new(expr.into()),
-                op: crate::tumc_compiler::ast::BinaryOp::BitOr,
+                op: crate::tumc_compiler::frontend::BinaryOp::BitOr,
                 right,
             };
         }
@@ -1504,7 +1559,7 @@ impl GoParser {
             let right = Box::new(self.parse_primary_expr()?);
             expr = Expression::BinaryOp {
                 left: Box::new(expr.into()),
-                op: crate::tumc_compiler::ast::BinaryOp::BitAnd,
+                op: crate::tumc_compiler::frontend::BinaryOp::BitAnd,
                 right,
             };
         }
@@ -1516,6 +1571,43 @@ impl GoParser {
         let token = self.current().clone();
 
         match token {
+            // `true`, `false`, `nil`, `make` and `new` are predeclared
+            // identifiers in Go, not reserved words, so the lexer hands them
+            // over as `GoToken::Ident`. They have to be matched before the
+            // catch-all identifier arm below.
+            GoToken::Ident(ref s) if s == "true" => {
+                self.advance();
+                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Bool(true)))
+            }
+            GoToken::Ident(ref s) if s == "false" => {
+                self.advance();
+                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Bool(false)))
+            }
+            GoToken::Ident(ref s) if s == "nil" => {
+                self.advance();
+                // The canonical literal set has no null variant; the literal is
+                // kept verbatim so that a lowering pass can still recognise it.
+                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Verbatim(
+                    "nil".to_string(),
+                )))
+            }
+            GoToken::Ident(ref s) if s == "make" => {
+                self.advance();
+                let _type_info = self.parse_type()?;
+                // Simplified make() handling
+                Ok(Expression::Call {
+                    function: Box::new(Expression::Identifier("make".to_string()).into()),
+                    arguments: vec![],
+                })
+            }
+            GoToken::Ident(ref s) if s == "new" => {
+                self.advance();
+                let _type_info = self.parse_type()?;
+                Ok(Expression::Call {
+                    function: Box::new(Expression::Identifier("new".to_string()).into()),
+                    arguments: vec![],
+                })
+            }
             GoToken::Ident(n) => {
                 self.advance();
                 Ok(Expression::Identifier(n))
@@ -1589,7 +1681,7 @@ impl GoParser {
                 let params = self.parse_param_list()?;
                 self.expect(&GoToken::RightParen)?;
 
-                let return_type = if self.check(&GoToken::Ident(_)) {
+                let return_type = if matches!(self.current(), GoToken::Ident(_)) {
                     Some(self.parse_type()?)
                 } else {
                     None

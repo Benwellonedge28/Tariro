@@ -7,6 +7,7 @@ use std::sync::{Arc, Mutex, RwLock};
 use std::task::{Context, Poll, RawWaker, RawWakerVTable, Waker};
 use std::pin::Pin;
 use std::future::Future;
+use std::thread::JoinHandle;
 
 /// Task scheduler
 pub struct Scheduler {

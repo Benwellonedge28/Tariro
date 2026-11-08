@@ -7,6 +7,8 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
 
+use serde::{Deserialize, Serialize};
+
 /// Hot reload configuration
 #[derive(Debug, Clone)]
 pub struct HotReloadConfig {
@@ -140,7 +142,7 @@ impl HotReloadManager {
     }
 
     /// Check for changes
-    pub fn check_changes(&self) -> Vec<ChangeRecord> {
+    pub fn check_changes(&mut self) -> Vec<ChangeRecord> {
         let events = self.watcher.get_events();
 
         let mut records = Vec::new();
@@ -186,7 +188,7 @@ impl HotReloadManager {
 
         // Trigger callbacks
         for callback in &self.callbacks {
-            callback(&changes);
+            callback.call(&changes);
         }
 
         // Increment reload count
@@ -254,7 +256,7 @@ where
 }
 
 /// Reload result
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReloadResult {
     pub success: bool,
     pub changed_files: Vec<PathBuf>,
@@ -306,7 +308,7 @@ impl FileWatcher {
     }
 
     /// Get events
-    pub fn get_events(&self) -> Vec<FileEvent> {
+    pub fn get_events(&mut self) -> Vec<FileEvent> {
         let mut events = Vec::new();
 
         for path in &self.paths {
@@ -328,7 +330,7 @@ impl FileWatcher {
     }
 
     /// Check single file
-    fn check_file(&self, path: &Path) -> Option<FileEvent> {
+    fn check_file(&mut self, path: &Path) -> Option<FileEvent> {
         let metadata = std::fs::metadata(path).ok()?;
         let modified = metadata.modified().ok()?;
         let hash = self.compute_hash(path);

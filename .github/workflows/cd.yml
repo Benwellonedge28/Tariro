@@ -503,8 +503,31 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
+          set -euo pipefail
           if [[ -z "$CARGO_REGISTRY_TOKEN" ]]; then
             echo "CARGO_REGISTRY_TOKEN not set, skipping crates.io publish"
-          else
-            cargo publish --token "$CARGO_REGISTRY_TOKEN" || echo "Failed to publish to crates.io"
+            exit 0
           fi
+
+          SDK_VERSION=$(cargo metadata --no-deps --format-version 1 \
+            | jq -r '.packages[] | select(.name == "tariro_sdk") | .version')
+
+          # The SDK is a published dependency of the main crate, so it has to
+          # exist on crates.io before the main crate can be published.
+          if ! cargo info tariro_sdk 2>/dev/null | grep -q "$SDK_VERSION"; then
+            echo "Publishing tariro_sdk $SDK_VERSION..."
+            cargo publish -p tariro_sdk --token "$CARGO_REGISTRY_TOKEN"
+
+            # Wait for crates.io to index the new version, otherwise the
+            # dependent publish below cannot resolve it.
+            for _ in $(seq 1 30); do
+              if cargo info tariro_sdk 2>/dev/null | grep -q "$SDK_VERSION"; then
+                break
+              fi
+              echo "Waiting for crates.io to index tariro_sdk $SDK_VERSION..."
+              sleep 10
+            done
+          fi
+
+          echo "Publishing tariro..."
+          cargo publish --token "$CARGO_REGISTRY_TOKEN"

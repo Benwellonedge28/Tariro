@@ -34,8 +34,9 @@ pub mod reasoning_engine;
 pub mod cognitive_compiler;
 
 use crate::tumc_compiler::ir::{Module, Function, Operation};
-use crate::tumc_compiler::optimization::{Optimizer, OptLevel};
-use crate::tumc_compiler::analysis::dataflow::DataflowAnalysis;
+use crate::tumc_compiler::optimizer::Optimizer;
+use crate::tumc_compiler::optimization::OptLevel;
+use crate::tumc_compiler::analysis::dataflow;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 

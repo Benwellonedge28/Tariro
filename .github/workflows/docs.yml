@@ -159,7 +159,8 @@ jobs:
           echo "Checking for undocumented public items..."
 
           # Run doctest to ensure examples work
-          cargo test --doc 2>&1 | tee doc_test_output.txt || true
+          set -o pipefail
+          cargo test --doc 2>&1 | tee doc_test_output.txt
 
           # Check for warnings about missing documentation
           if grep -q "warning: missing documentation" doc_test_output.txt; then

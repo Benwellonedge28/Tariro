@@ -53,9 +53,6 @@ pub use unified_memory::UnifiedMemory;
 pub use tariro_integration::{
     TariroIntegration,
     EngineRegistry,
-    EngineMetadata,
-    EngineCategory,
-    EngineStatistics,
     SystemStatus as IntegrationSystemStatus,
     SystemHealth,
     CapabilityProfile,

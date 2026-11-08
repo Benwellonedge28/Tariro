@@ -2,9 +2,11 @@
 //!
 //! Comprehensive tests for the knowledge graph, reasoning, and reasoning engines.
 
+use std::collections::HashMap;
 #[cfg(test)]
 mod knowledge_graph_tests {
     use super::super::*;
+    use super::super::knowledge_graph::*;
 
     // ==========================================================================
     // Entity Tests
@@ -186,6 +188,7 @@ mod knowledge_graph_tests {
 #[cfg(test)]
 mod reasoning_tests {
     use super::super::*;
+    use super::super::reasoning::*;
 
     #[test]
     fn test_reasoning_engine_creation() {
@@ -242,6 +245,7 @@ mod reasoning_tests {
 #[cfg(test)]
 mod logic_tests {
     use super::super::*;
+    use super::super::logic::*;
 
     #[test]
     fn test_term_creation() {
@@ -344,6 +348,7 @@ mod logic_tests {
 #[cfg(test)]
 mod causal_tests {
     use super::super::*;
+    use super::super::causal::*;
 
     #[test]
     fn test_causal_graph_creation() {
@@ -435,6 +440,7 @@ mod causal_tests {
 #[cfg(test)]
 mod commonsense_tests {
     use super::super::*;
+    use super::super::commonsense::*;
 
     #[test]
     fn test_commonsense_engine_creation() {
@@ -498,6 +504,7 @@ mod commonsense_tests {
 #[cfg(test)]
 mod formal_tests {
     use super::super::*;
+    use super::super::formal::*;
 
     #[test]
     fn test_type_definition() {
@@ -543,6 +550,7 @@ mod formal_tests {
 #[cfg(test)]
 mod mind_tests {
     use super::super::*;
+    use super::super::mind::*;
 
     #[test]
     fn test_mind_creation() {

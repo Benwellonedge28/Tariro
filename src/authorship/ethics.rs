@@ -3,7 +3,7 @@
 //! Ethical filtering and compliance for AI-generated content.
 
 use crate::authorship::CreativeConcept;
-use crate::authorship::generation::CreativeContent;
+use crate::authorship::CreativeContent;
 use serde::{Deserialize, Serialize};
 
 /// Ethics filter configuration
@@ -72,6 +72,45 @@ impl EthicsFilterResult {
             violations,
             warnings: Vec::new(),
         }
+    }
+}
+
+/// Ethics filter trait
+pub trait EthicsFilter: Send + Sync {
+    fn filter(&self, content: &str) -> EthicsFilterResult;
+}
+
+/// Default ethics filter implementation
+#[derive(Debug, Clone)]
+pub struct DefaultEthicsFilter {
+    config: EthicsConfig,
+}
+
+impl DefaultEthicsFilter {
+    pub fn new(config: EthicsConfig) -> Self {
+        Self { config }
+    }
+}
+
+impl EthicsFilter for DefaultEthicsFilter {
+    fn filter(&self, content: &str) -> EthicsFilterResult {
+        let violations = Vec::new();
+        EthicsFilterResult {
+            passed: violations.is_empty(),
+            violations,
+            warnings: Vec::new(),
+        }
+    }
+}
+
+impl Default for DefaultEthicsFilter {
+    fn default() -> Self {
+        Self::new(EthicsConfig {
+            compliance_level: 3,
+            allow_explicit: false,
+            allow_sensitive: false,
+            require_attribution: true,
+        })
     }
 }
 

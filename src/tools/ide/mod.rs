@@ -30,7 +30,7 @@ pub mod terminal_executor;
 pub mod lsp_client;
 
 pub use ide_tool::{IDETool, IDEToolConfig, IDEToolCapabilities, IDEToolResult};
-pub use file_manager::{FileManager, FileOperation, FileResult};
+pub use file_manager::{FileManager, FileResult};
 pub use terminal_executor::{TerminalExecutor, CommandResult};
 pub use lsp_client::{LSPClient, LSPRequest, LSPResponse};
 

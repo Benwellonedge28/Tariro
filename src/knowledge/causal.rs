@@ -3,6 +3,7 @@
 //! Based on Pearl's do-calculus and structural causal models.
 //! This is NOT statistical correlation - it is explicit causal reasoning.
 
+use std::sync::RwLock;
 use crate::prelude::*;
 use crate::knowledge::knowledge_graph::{KnowledgeGraph, EntityId, Entity, Probability};
 use std::collections::{HashMap, HashSet, VecDeque};

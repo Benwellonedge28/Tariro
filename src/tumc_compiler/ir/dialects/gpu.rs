@@ -1,5 +1,6 @@
 // GPU Dialect - GPU Kernel Operations
 
+use crate::tumc_compiler::ir::*;
 use super::*;
 
 /// GPU dialect operations
@@ -30,7 +31,7 @@ pub enum GpuOp {
     /// GPU barrier
     Barrier(Option<u32>),
     /// Read/Write lane operations
-    Shuffle(Bool, ValueId, ValueId, ValueId), // width, mask, src_lane
+    Shuffle(IrType, ValueId, ValueId, ValueId), // width, mask, src_lane
 }
 
 /// GPU kernel definition

@@ -101,6 +101,22 @@ pub enum ModuleCategory {
     Utility,
 }
 
+impl std::fmt::Display for ModuleCategory {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let name = match self {
+            ModuleCategory::Kernel => "kernel",
+            ModuleCategory::Knowledge => "knowledge",
+            ModuleCategory::Cognition => "cognition",
+            ModuleCategory::Learning => "learning",
+            ModuleCategory::Safety => "safety",
+            ModuleCategory::Network => "network",
+            ModuleCategory::Storage => "storage",
+            ModuleCategory::Utility => "utility",
+        };
+        write!(f, "{}", name)
+    }
+}
+
 /// Module initialization function type
 pub type ModuleInitFn = fn(&CapabilityProfile) -> Result<ScalingModuleHandle, ScalingError>;
 

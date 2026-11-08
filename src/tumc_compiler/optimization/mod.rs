@@ -1,4 +1,5 @@
 // Optimization Module - Local, Loop, and Global Optimizations
+use crate::tumc_compiler::ir::*;
 
 pub mod local;
 pub mod loop_opt;
@@ -90,14 +91,14 @@ impl OptimizationManager {
 
         if level.numeric() >= 2 {
             self.passes.push(Box::new(LoopInvariantCodeMotion));
-            self.passes.push(Box::new(LoopUnrolling));
+            self.passes.push(Box::new(LoopUnrolling::default()));
             self.passes.push(Box::new(GlobalValueNumbering));
-            self.passes.push(Box::new(CopyPropagation));
+            self.passes.push(Box::new(global::CopyPropagation));
             self.passes.push(Box::new(DeadStoreElimination));
         }
 
         if level.numeric() >= 3 {
-            self.passes.push(Box::new(LoopVectorization));
+            self.passes.push(Box::new(LoopVectorization::default()));
             self.passes.push(Box::new(AggressiveDeadCodeElimination));
             self.passes.push(Box::new(InstructionCombining));
             self.passes.push(Box::new(Reassociation));

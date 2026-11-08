@@ -7,6 +7,7 @@ use super::lexer::{Lexer, Token, TokenKind};
 use super::parser::Parser;
 use super::type_checker::TypeChecker;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use std::collections::{HashMap, HashSet};
 
 /// LSP Server instance
@@ -51,7 +52,7 @@ impl LspServer {
             "textDocument/formatting" => self.handle_formatting(params),
             "textDocument/codeAction" => self.handle_code_action(params),
             "shutdown" => self.handle_shutdown(),
-            _ => Err(LspError::MethodNotFound(method.to_string())),
+            _ => Err(LspError::method_not_found(method.to_string())),
         }
     }
 
@@ -70,7 +71,7 @@ impl LspServer {
     /// Handle text document open
     fn handle_did_open(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
         let params: DidOpenTextDocumentParams = serde_json::from_value(params)
-            .map_err(|e| LspError::InvalidParams(e.to_string()))?;
+            .map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
         let text = params.text_document.text;
@@ -93,7 +94,7 @@ impl LspServer {
     /// Handle text document change
     fn handle_did_change(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
         let params: DidChangeTextDocumentParams = serde_json::from_value(params)
-            .map_err(|e| LspError::InvalidParams(e.to_string()))?;
+            .map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
 
@@ -130,7 +131,7 @@ impl LspServer {
     /// Handle text document close
     fn handle_did_close(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
         let params: DidCloseTextDocumentParams = serde_json::from_value(params)
-            .map_err(|e| LspError::InvalidParams(e.to_string()))?;
+            .map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         self.documents.remove(&params.text_document.uri);
         self.cache.remove(&params.text_document.uri);
@@ -141,7 +142,7 @@ impl LspServer {
     /// Handle completion request
     fn handle_completion(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
         let params: CompletionParams = serde_json::from_value(params)
-            .map_err(|e| LspError::InvalidParams(e.to_string()))?;
+            .map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
         let position = params.position;
@@ -157,7 +158,7 @@ impl LspServer {
     /// Handle hover request
     fn handle_hover(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
         let params: HoverParams = serde_json::from_value(params)
-            .map_err(|e| LspError::InvalidParams(e.to_string()))?;
+            .map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
         let position = params.position;
@@ -174,7 +175,7 @@ impl LspServer {
     /// Handle go-to-definition request
     fn handle_definition(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
         let params: DefinitionParams = serde_json::from_value(params)
-            .map_err(|e| LspError::InvalidParams(e.to_string()))?;
+            .map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
         let position = params.position;
@@ -191,7 +192,7 @@ impl LspServer {
     /// Handle find-references request
     fn handle_references(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
         let params: ReferenceParams = serde_json::from_value(params)
-            .map_err(|e| LspError::InvalidParams(e.to_string()))?;
+            .map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
         let position = params.position;
@@ -207,7 +208,7 @@ impl LspServer {
     /// Handle document symbols request
     fn handle_document_symbol(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
         let params: DocumentSymbolParams = serde_json::from_value(params)
-            .map_err(|e| LspError::InvalidParams(e.to_string()))?;
+            .map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
 
@@ -222,7 +223,7 @@ impl LspServer {
     /// Handle diagnostics request
     fn handle_diagnostics(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
         let params: DiagnosticsParams = serde_json::from_value(params)
-            .map_err(|e| LspError::InvalidParams(e.to_string()))?;
+            .map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
 
@@ -237,7 +238,7 @@ impl LspServer {
     /// Handle formatting request
     fn handle_formatting(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
         let params: FormattingParams = serde_json::from_value(params)
-            .map_err(|e| LspError::InvalidParams(e.to_string()))?;
+            .map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
 
@@ -262,7 +263,7 @@ impl LspServer {
     /// Handle code action request
     fn handle_code_action(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
         let params: CodeActionParams = serde_json::from_value(params)
-            .map_err(|e| LspError::InvalidParams(e.to_string()))?;
+            .map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
 
@@ -292,7 +293,7 @@ impl LspServer {
         let mut checker = TypeChecker::new();
         let _ = checker.check_program(&ast);
 
-        let diagnostics = checker.errors.iter().map(|e| Diagnostic {
+        let diagnostics = checker.errors().iter().map(|e| Diagnostic {
             range: Range::default(),
             severity: Some(DiagnosticSeverity::Error),
             code: Some(NumberOrString::Number(1)),

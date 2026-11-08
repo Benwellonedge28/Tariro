@@ -2,7 +2,10 @@
 //!
 //! Transpiles TypeScript source code to TUMC IR for compilation to any target.
 
-use crate::tumc_compiler::ast::{AstNode, Program, Function, Statement, Expression, Type};
+use crate::tumc_compiler::frontend::{
+    AstNode, Class, Expression, Function, Param, Program, Statement,
+};
+use crate::tumc_compiler::Type;
 use std::collections::HashMap;
 
 /// TypeScript-specific AST nodes
@@ -94,40 +97,19 @@ pub enum TsAstNode {
     },
 }
 
-/// Type member for interfaces
-#[derive(Debug, Clone)]
-pub enum TsTypeMember {
-    Property {
-        name: String,
-        type_annotation: Type,
-        optional: bool,
-        readonly: bool,
-    },
-    Method {
-        name: String,
-        type_params: Vec<String>,
-        params: Vec<(String, Type)>,
-        return_type: Type,
-    },
-    GetAccessor {
-        name: String,
-        type_annotation: Type,
-    },
-    SetAccessor {
-        name: String,
-        param_type: Type,
-    },
-    Index(IndexSignature),
-    CallSignature(CallSignature),
-    ConstructSignature(ConstructSignature),
-}
+/// Type member for interfaces.
+///
+/// The canonical definition is owned by the shared frontend CST; this alias
+/// keeps the historical public name of this module available.
+pub use crate::tumc_compiler::frontend::TypeMember as TsTypeMember;
 
-/// Enum member
-#[derive(Debug, Clone)]
-pub struct EnumMember {
-    pub name: String,
-    pub value: Option<Expression>,
-}
+/// Index signature, call signature, construct signature and enum member.
+///
+/// These types are owned by the shared frontend CST; re-exporting them keeps
+/// the public names of this module unchanged.
+pub use crate::tumc_compiler::frontend::{
+    CallSignature, ConstructSignature, EnumMember, IndexSignature,
+};
 
 /// TypeScript parser
 pub struct TypeScriptParser {
@@ -161,10 +143,11 @@ pub enum TsToken {
     Break, Do, Instanceof, TypeOf, Case, Else, Var, Catch, Finally, Void,
     Continue, For, New, Switch, While, Debugger, Function, Return, With,
     Default, If, Throw, Delete, In, Try, Async, Await, Of, From, As,
-    Class, Enum, Extends, Super, Const, Export, Import, Implements,
+    Class, Enum, Extends, Const, Export, Import, Implements,
     Interface, Let, Package, Private, Protected, Public, Static, Yield,
-    Abstract, As, Any, Boolean, Number, String, Symbol, Type, Void,
-    Never, Unknown, Readonly, Keyof, Infer, Require,
+    Abstract, Any, Boolean, Number, String, Symbol, Type,
+    Never, Readonly, Keyof, Infer, Require,
+    Get, Set, Namespace, Module,
 
     // Operators
     Plus, Minus, Star, Slash, Percent, PlusPlus, MinusMinus,
@@ -175,7 +158,18 @@ pub enum TsToken {
     LeftShift, RightShift, ZeroFillRightShift,
     LeftShiftEqual, RightShiftEqual, ZeroFillRightShiftEqual,
     AmpersandAmpersand, PipePipe, Question, QuestionQuestion,
-    Colon, Semicolon, Comma, Dot, DotDotDot, Hash,
+    Semicolon, Comma, Dot, DotDotDot, Hash,
+
+    // Punctuation
+    OpenBrace, CloseBrace,
+    LeftParen, RightParen,
+    LeftBracket, RightBracket,
+    Colon, Arrow,
+
+    /// Opening bracket of the reserved index-signature type syntax.
+    LsRo,
+    /// Closing bracket of the reserved index-signature type syntax.
+    RsRo,
 
     // Template
     TemplateHead(String),
@@ -366,6 +360,8 @@ impl TypeScriptLexer {
             "import" => TsToken::Import,
             "implements" => TsToken::Implements,
             "interface" => TsToken::Interface,
+            "namespace" => TsToken::Namespace,
+            "module" => TsToken::Module,
             "let" => TsToken::Let,
             "package" => TsToken::Package,
             "private" => TsToken::Private,
@@ -382,7 +378,7 @@ impl TypeScriptLexer {
             "type" => TsToken::Type,
             "void" => TsToken::Void,
             "never" => TsToken::Never,
-            "unknown" => TsToken::Unknown,
+            "unknown" => TsToken::Unknown("unknown".to_string()),
             "readonly" => TsToken::Readonly,
             "keyof" => TsToken::Keyof,
             "infer" => TsToken::Infer,
@@ -611,7 +607,7 @@ impl TypeScriptLexer {
             b'=' => {
                 if self.source[*pos..].starts_with("===") { *pos += 3; (Some(TsToken::EqualEqualEqual), *pos) }
                 else if self.source[*pos..].starts_with("==") { *pos += 2; (Some(TsToken::EqualEqual), *pos) }
-                else if self.source[*pos..].starts_with("=>") { *pos += 2; (Some(TsToken::Equal), *pos) }
+                else if self.source[*pos..].starts_with("=>") { *pos += 2; (Some(TsToken::Arrow), *pos) }
                 else { *pos += 1; (Some(TsToken::Equal), *pos) }
             }
             b'!' => {
@@ -662,6 +658,12 @@ impl TypeScriptLexer {
                 if self.source[*pos..].starts_with("...") { *pos += 3; (Some(TsToken::DotDotDot), *pos) }
                 else { *pos += 1; (Some(TsToken::Dot), *pos) }
             }
+            b'{' => { *pos += 1; (Some(TsToken::OpenBrace), *pos) }
+            b'}' => { *pos += 1; (Some(TsToken::CloseBrace), *pos) }
+            b'(' => { *pos += 1; (Some(TsToken::LeftParen), *pos) }
+            b')' => { *pos += 1; (Some(TsToken::RightParen), *pos) }
+            b'[' => { *pos += 1; (Some(TsToken::LeftBracket), *pos) }
+            b']' => { *pos += 1; (Some(TsToken::RightBracket), *pos) }
             b'#' => { *pos += 1; (Some(TsToken::Hash), *pos) }
             _ => { *pos += 1; (None, *pos) }
         }
@@ -785,7 +787,7 @@ impl TypeScriptParser {
                 None
             };
 
-            params.push(crate::tumc_compiler::ast::Param {
+            params.push(Param {
                 name: param_name,
                 param_type,
                 default,
@@ -808,7 +810,7 @@ impl TypeScriptParser {
         };
 
         let body = if self.check(&TsToken::OpenBrace) {
-            self.parse_block()?
+            self.block_statements(self.parse_block()?)
         } else {
             Vec::new()
         };
@@ -845,7 +847,7 @@ impl TypeScriptParser {
             self.expect(&TsToken::RightParen)?;
 
             let body = if self.check(&TsToken::OpenBrace) {
-                self.parse_block()?
+                self.block_statements(self.parse_block()?)
             } else {
                 Vec::new()
             };
@@ -911,7 +913,7 @@ impl TypeScriptParser {
         let mut body = Vec::new();
         while !self.check(&TsToken::CloseBrace) && !self.is_at_end() {
             // Parse class member
-            if self.check(&TsToken::Identifier(_)) {
+            if self.at_identifier() {
                 // Property or method
                 let member_name = match self.current() {
                     TsToken::Identifier(n) => n.clone(),
@@ -928,7 +930,7 @@ impl TypeScriptParser {
                     self.expect(&TsToken::RightParen)?;
 
                     if self.check(&TsToken::OpenBrace) {
-                        let constructor_body = self.parse_block()?;
+                        let constructor_body = self.block_statements(self.parse_block()?);
                         body.push(AstNode::Function(Function {
                             name: "constructor".to_string(),
                             params: Vec::new(),
@@ -949,7 +951,7 @@ impl TypeScriptParser {
 
         self.expect(&TsToken::CloseBrace)?;
 
-        Ok(Some(AstNode::Class(crate::tumc_compiler::ast::Class {
+        Ok(Some(AstNode::Class(Class {
             name,
             bases: Vec::new(), // Would convert extends here
             body,
@@ -1125,7 +1127,7 @@ impl TypeScriptParser {
 
         self.expect(&TsToken::LeftParen)?;
         let discriminant = self.parse_expression()?;
-        self.expect(&TsToken::RightParen);
+        self.expect(&TsToken::RightParen)?;
 
         self.expect(&TsToken::OpenBrace)?;
 
@@ -1225,8 +1227,8 @@ impl TypeScriptParser {
                 (None, Vec::new())
             };
 
-            handlers.push(crate::tumc_compiler::ast::ExceptHandler {
-                exception_type: None,
+            handlers.push(AstNode::ExceptHandler {
+                type_: None,
                 name: param,
                 body: handler_body,
             });
@@ -1376,7 +1378,7 @@ impl TypeScriptParser {
                 }
             }
             self.expect(&TsToken::CloseBrace)?;
-        } else if self.check(&TsToken::Identifier(_)) {
+        } else if self.at_identifier() {
             self.advance();
             if self.check(&TsToken::Comma) {
                 self.advance();
@@ -1448,6 +1450,8 @@ impl TypeScriptParser {
             };
             self.advance();
 
+            let optional = self.check(&TsToken::Question);
+
             if self.check(&TsToken::LeftParen) {
                 // Method signature
                 self.advance();
@@ -1464,7 +1468,6 @@ impl TypeScriptParser {
                 self.expect(&TsToken::Semicolon)?;
             } else {
                 // Property
-                let optional = self.check(&TsToken::Question);
                 if optional {
                     self.advance();
                 }
@@ -1487,12 +1490,12 @@ impl TypeScriptParser {
 
         self.expect(&TsToken::CloseBrace)?;
 
-        Ok(Some(AstNode::Extension(TsAstNode::Interface {
+        Ok(Some(AstNode::Interface {
             name,
             type_params: Vec::new(),
             extends,
             body: members,
-        }.into())))
+        }))
     }
 
     fn parse_type_alias(&mut self) -> Result<Option<AstNode>, TsParseError> {
@@ -1515,11 +1518,11 @@ impl TypeScriptParser {
 
         self.expect(&TsToken::Semicolon)?;
 
-        Ok(Some(AstNode::Extension(TsAstNode::TypeAlias {
+        Ok(Some(AstNode::TypeAlias {
             name,
             type_params: Vec::new(),
             type_annotation,
-        }.into())))
+        }))
     }
 
     fn parse_enum(&mut self) -> Result<Option<AstNode>, TsParseError> {
@@ -1572,11 +1575,11 @@ impl TypeScriptParser {
 
         self.expect(&TsToken::CloseBrace)?;
 
-        Ok(Some(AstNode::Extension(TsAstNode::Enum {
+        Ok(Some(AstNode::Enum {
             name,
             members,
             is_const: false,
-        }.into())))
+        }))
     }
 
     fn parse_namespace(&mut self) -> Result<Option<AstNode>, TsParseError> {
@@ -1600,10 +1603,7 @@ impl TypeScriptParser {
 
         self.expect(&TsToken::CloseBrace)?;
 
-        Ok(Some(AstNode::Extension(TsAstNode::Namespace {
-            name,
-            body,
-        }.into())))
+        Ok(Some(AstNode::Namespace { name, body }))
     }
 
     fn parse_type_parameters(&mut self) -> Result<Vec<String>, TsParseError> {
@@ -1678,7 +1678,7 @@ impl TypeScriptParser {
                 self.advance();
                 Ok(Type::Unknown)
             }
-            TsToken::Unknown => {
+            TsToken::Unknown(_) => {
                 self.advance();
                 Ok(Type::Unknown)
             }
@@ -1740,7 +1740,11 @@ impl TypeScriptParser {
                     self.advance();
                     let _ = self.parse_type()?;
                 }
-                Ok(Type::Function(Box::new(Type::Unknown), Vec::new()))
+                Ok(Type::Function(Box::new(crate::tumc_compiler::FunctionType {
+                    parameters: Vec::new(),
+                    return_type: Box::new(Type::Unknown),
+                    variadic: false,
+                })))
             }
             TsToken::Readonly => {
                 self.advance();
@@ -1811,7 +1815,7 @@ impl TypeScriptParser {
                 let value = Box::new(self.parse_assignment()?);
                 Ok(Expression::BinaryOp {
                     left: Box::new(expr.into()),
-                    op: crate::tumc_compiler::ast::BinaryOp::NullishCoalesce,
+                    op: crate::tumc_compiler::frontend::BinaryOp::NullishCoalesce,
                     right: value,
                 })
             }
@@ -1845,7 +1849,7 @@ impl TypeScriptParser {
             let right = Box::new(self.parse_coalesce()?);
             return Ok(Expression::BinaryOp {
                 left: Box::new(expr.into()),
-                op: crate::tumc_compiler::ast::BinaryOp::Or,
+                op: crate::tumc_compiler::frontend::BinaryOp::Or,
                 right,
             });
         }
@@ -1861,7 +1865,7 @@ impl TypeScriptParser {
             let right = Box::new(self.parse_or()?);
             return Ok(Expression::BinaryOp {
                 left: Box::new(expr.into()),
-                op: crate::tumc_compiler::ast::BinaryOp::And,
+                op: crate::tumc_compiler::frontend::BinaryOp::And,
                 right,
             });
         }
@@ -1877,7 +1881,7 @@ impl TypeScriptParser {
             let right = Box::new(self.parse_and()?);
             return Ok(Expression::BinaryOp {
                 left: Box::new(expr.into()),
-                op: crate::tumc_compiler::ast::BinaryOp::BitAnd,
+                op: crate::tumc_compiler::frontend::BinaryOp::BitAnd,
                 right,
             });
         }
@@ -1893,7 +1897,7 @@ impl TypeScriptParser {
             let right = Box::new(self.parse_bitwise_or()?);
             return Ok(Expression::BinaryOp {
                 left: Box::new(expr.into()),
-                op: crate::tumc_compiler::ast::BinaryOp::BitOr,
+                op: crate::tumc_compiler::frontend::BinaryOp::BitOr,
                 right,
             });
         }
@@ -1909,7 +1913,7 @@ impl TypeScriptParser {
             let right = Box::new(self.parse_bitwise_xor()?);
             return Ok(Expression::BinaryOp {
                 left: Box::new(expr.into()),
-                op: crate::tumc_compiler::ast::BinaryOp::BitXor,
+                op: crate::tumc_compiler::frontend::BinaryOp::BitXor,
                 right,
             });
         }
@@ -1925,7 +1929,7 @@ impl TypeScriptParser {
             let right = Box::new(self.parse_bitwise_and()?);
             return Ok(Expression::BinaryOp {
                 left: Box::new(expr.into()),
-                op: crate::tumc_compiler::ast::BinaryOp::BitAnd,
+                op: crate::tumc_compiler::frontend::BinaryOp::BitAnd,
                 right,
             });
         }
@@ -1942,7 +1946,7 @@ impl TypeScriptParser {
                 let right = Box::new(self.parse_equality()?);
                 Ok(Expression::BinaryOp {
                     left: Box::new(expr.into()),
-                    op: crate::tumc_compiler::ast::BinaryOp::Eq,
+                    op: crate::tumc_compiler::frontend::BinaryOp::Eq,
                     right,
                 })
             }
@@ -1951,7 +1955,7 @@ impl TypeScriptParser {
                 let right = Box::new(self.parse_equality()?);
                 Ok(Expression::BinaryOp {
                     left: Box::new(expr.into()),
-                    op: crate::tumc_compiler::ast::BinaryOp::Ne,
+                    op: crate::tumc_compiler::frontend::BinaryOp::Ne,
                     right,
                 })
             }
@@ -1965,10 +1969,10 @@ impl TypeScriptParser {
         match self.current() {
             TsToken::Less | TsToken::LessEqual | TsToken::Greater | TsToken::GreaterEqual => {
                 let op = match self.current() {
-                    TsToken::Less => crate::tumc_compiler::ast::BinaryOp::Lt,
-                    TsToken::LessEqual => crate::tumc_compiler::ast::BinaryOp::Le,
-                    TsToken::Greater => crate::tumc_compiler::ast::BinaryOp::Gt,
-                    TsToken::GreaterEqual => crate::tumc_compiler::ast::BinaryOp::Ge,
+                    TsToken::Less => crate::tumc_compiler::frontend::BinaryOp::Lt,
+                    TsToken::LessEqual => crate::tumc_compiler::frontend::BinaryOp::Le,
+                    TsToken::Greater => crate::tumc_compiler::frontend::BinaryOp::Gt,
+                    TsToken::GreaterEqual => crate::tumc_compiler::frontend::BinaryOp::Ge,
                     _ => return Ok(expr),
                 };
                 self.advance();
@@ -1984,7 +1988,7 @@ impl TypeScriptParser {
                 let right = Box::new(self.parse_comparison()?);
                 Ok(Expression::BinaryOp {
                     left: Box::new(expr.into()),
-                    op: crate::tumc_compiler::ast::BinaryOp::Is,
+                    op: crate::tumc_compiler::frontend::BinaryOp::Is,
                     right,
                 })
             }
@@ -1993,7 +1997,7 @@ impl TypeScriptParser {
                 let right = Box::new(self.parse_comparison()?);
                 Ok(Expression::BinaryOp {
                     left: Box::new(expr.into()),
-                    op: crate::tumc_compiler::ast::BinaryOp::In,
+                    op: crate::tumc_compiler::frontend::BinaryOp::In,
                     right,
                 })
             }
@@ -2009,7 +2013,7 @@ impl TypeScriptParser {
             let right = Box::new(self.parse_shift()?);
             return Ok(Expression::BinaryOp {
                 left: Box::new(expr.into()),
-                op: crate::tumc_compiler::ast::BinaryOp::Shl,
+                op: crate::tumc_compiler::frontend::BinaryOp::Shl,
                 right,
             });
         }
@@ -2019,7 +2023,7 @@ impl TypeScriptParser {
             let right = Box::new(self.parse_shift()?);
             return Ok(Expression::BinaryOp {
                 left: Box::new(expr.into()),
-                op: crate::tumc_compiler::ast::BinaryOp::Shr,
+                op: crate::tumc_compiler::frontend::BinaryOp::Shr,
                 right,
             });
         }
@@ -2032,8 +2036,8 @@ impl TypeScriptParser {
 
         loop {
             let op = match self.current() {
-                TsToken::Plus => crate::tumc_compiler::ast::BinaryOp::Add,
-                TsToken::Minus => crate::tumc_compiler::ast::BinaryOp::Sub,
+                TsToken::Plus => crate::tumc_compiler::frontend::BinaryOp::Add,
+                TsToken::Minus => crate::tumc_compiler::frontend::BinaryOp::Sub,
                 _ => break,
             };
             self.advance();
@@ -2053,9 +2057,9 @@ impl TypeScriptParser {
 
         loop {
             let op = match self.current() {
-                TsToken::Star => crate::tumc_compiler::ast::BinaryOp::Mul,
-                TsToken::Slash => crate::tumc_compiler::ast::BinaryOp::Div,
-                TsToken::Percent => crate::tumc_compiler::ast::BinaryOp::Rem,
+                TsToken::Star => crate::tumc_compiler::frontend::BinaryOp::Mul,
+                TsToken::Slash => crate::tumc_compiler::frontend::BinaryOp::Div,
+                TsToken::Percent => crate::tumc_compiler::frontend::BinaryOp::Rem,
                 _ => break,
             };
             self.advance();
@@ -2083,7 +2087,7 @@ impl TypeScriptParser {
                 self.advance();
                 let operand = Box::new(self.parse_unary()?);
                 Ok(Expression::UnaryOp {
-                    op: crate::tumc_compiler::ast::UnaryOp::Not,
+                    op: crate::tumc_compiler::frontend::UnaryOp::Not,
                     operand,
                 })
             }
@@ -2091,7 +2095,7 @@ impl TypeScriptParser {
                 self.advance();
                 let operand = Box::new(self.parse_unary()?);
                 Ok(Expression::UnaryOp {
-                    op: crate::tumc_compiler::ast::UnaryOp::Negate,
+                    op: crate::tumc_compiler::frontend::UnaryOp::Negate,
                     operand,
                 })
             }
@@ -2099,7 +2103,7 @@ impl TypeScriptParser {
                 self.advance();
                 let operand = Box::new(self.parse_unary()?);
                 Ok(Expression::UnaryOp {
-                    op: crate::tumc_compiler::ast::UnaryOp::Plus,
+                    op: crate::tumc_compiler::frontend::UnaryOp::Plus,
                     operand,
                 })
             }
@@ -2107,7 +2111,7 @@ impl TypeScriptParser {
                 self.advance();
                 let operand = Box::new(self.parse_unary()?);
                 Ok(Expression::UnaryOp {
-                    op: crate::tumc_compiler::ast::UnaryOp::Increment,
+                    op: crate::tumc_compiler::frontend::UnaryOp::Increment,
                     operand,
                 })
             }
@@ -2115,7 +2119,7 @@ impl TypeScriptParser {
                 self.advance();
                 let operand = Box::new(self.parse_unary()?);
                 Ok(Expression::UnaryOp {
-                    op: crate::tumc_compiler::ast::UnaryOp::Decrement,
+                    op: crate::tumc_compiler::frontend::UnaryOp::Decrement,
                     operand,
                 })
             }
@@ -2123,7 +2127,7 @@ impl TypeScriptParser {
                 self.advance();
                 let operand = Box::new(self.parse_unary()?);
                 Ok(Expression::UnaryOp {
-                    op: crate::tumc_compiler::ast::UnaryOp::TypeOf,
+                    op: crate::tumc_compiler::frontend::UnaryOp::TypeOf,
                     operand,
                 })
             }
@@ -2131,7 +2135,7 @@ impl TypeScriptParser {
                 self.advance();
                 let operand = Box::new(self.parse_unary()?);
                 Ok(Expression::UnaryOp {
-                    op: crate::tumc_compiler::ast::UnaryOp::Void,
+                    op: crate::tumc_compiler::frontend::UnaryOp::Void,
                     operand,
                 })
             }
@@ -2139,14 +2143,14 @@ impl TypeScriptParser {
                 self.advance();
                 let operand = Box::new(self.parse_unary()?);
                 Ok(Expression::UnaryOp {
-                    op: crate::tumc_compiler::ast::UnaryOp::Delete,
+                    op: crate::tumc_compiler::frontend::UnaryOp::Delete,
                     operand,
                 })
             }
             TsToken::Await => {
                 self.advance();
                 let operand = Box::new(self.parse_unary()?);
-                Ok(Expression::Await(Box::new(operand.into())))
+                Ok(Expression::Await(operand))
             }
             TsToken::Async => {
                 self.advance();
@@ -2166,16 +2170,13 @@ impl TypeScriptParser {
                     let mut args = Vec::new();
 
                     while !self.check(&TsToken::RightParen) {
+                        // The shared CST has no variadic marker for call
+                        // arguments, so a spread argument is recorded as the
+                        // expression it spreads.
                         if self.check(&TsToken::DotDotDot) {
                             self.advance();
-                            args.push(crate::tumc_compiler::ast::Arg::Variadic(
-                                Box::new(self.parse_expression()?)
-                            ));
-                        } else {
-                            args.push(crate::tumc_compiler::ast::Arg::Positional(
-                                Box::new(self.parse_expression()?)
-                            ));
                         }
+                        args.push(self.parse_expression()?);
 
                         if !self.check(&TsToken::RightParen) {
                             self.expect(&TsToken::Comma)?;
@@ -2222,7 +2223,7 @@ impl TypeScriptParser {
                         self.expect(&TsToken::RightBracket)?;
                         expr = Expression::OptionalChain {
                             base: Box::new(expr.into()),
-                            path: vec![crate::tumc_compiler::ast::ChainElement::Index(index)],
+                            path: vec![crate::tumc_compiler::frontend::ChainElement::Index(index)],
                         };
                     } else {
                         // Optional call
@@ -2299,16 +2300,16 @@ impl TypeScriptParser {
                     // Non-null assertion
                     self.advance();
                     expr = Expression::UnaryOp {
-                        op: crate::tumc_compiler::ast::UnaryOp::NonNull,
+                        op: crate::tumc_compiler::frontend::UnaryOp::NonNull,
                         operand: Box::new(expr.into()),
                     };
                 }
                 TsToken::As => {
                     // As expression
                     self.advance();
-                    let type_annotation = self.parse_type()?;
+                    let _type_annotation = self.parse_type()?;
                     expr = Expression::UnaryOp {
-                        op: crate::tumc_compiler::ast::UnaryOp::Cast,
+                        op: crate::tumc_compiler::frontend::UnaryOp::Cast,
                         operand: Box::new(expr.into()),
                     };
                 }
@@ -2341,11 +2342,15 @@ impl TypeScriptParser {
             }
             TsToken::Null => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Null))
+                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Verbatim(
+                    "null".to_string(),
+                )))
             }
             TsToken::Undefined => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Undefined))
+                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Verbatim(
+                    "undefined".to_string(),
+                )))
             }
             TsToken::This => {
                 self.advance();
@@ -2367,6 +2372,17 @@ impl TypeScriptParser {
                 if self.check(&TsToken::CloseParen) {
                     self.advance();
                     return Ok(Expression::Tuple(Vec::new()));
+                }
+
+                // A parenthesised group that holds parameters is an arrow
+                // function; anything else stays a tuple or a plain
+                // parenthesised expression.
+                if self.at_param_list() {
+                    let start = self.pos;
+                    match self.parse_arrow_function() {
+                        Ok(Some(arrow)) => return Ok(arrow),
+                        Ok(None) | Err(_) => self.pos = start,
+                    }
                 }
 
                 let expr = self.parse_expression()?;
@@ -2427,7 +2443,7 @@ impl TypeScriptParser {
                         Expression::Identifier(key.clone())
                     };
 
-                    properties.push((Expression::Identifier(key).into(), value.into()));
+                    properties.push((Expression::Identifier(key), value));
 
                     if !self.check(&TsToken::CloseBrace) {
                         self.expect(&TsToken::Comma)?;
@@ -2454,7 +2470,7 @@ impl TypeScriptParser {
                 }
                 self.expect(&TsToken::RightParen)?;
 
-                let return_type = if self.check(&TsToken::Colon) {
+                let _return_type = if self.check(&TsToken::Colon) {
                     self.advance();
                     let _ = self.parse_type();
                 } else {
@@ -2505,7 +2521,7 @@ impl TypeScriptParser {
                             _ => vec![b],
                         }).unwrap_or_default()).into()
                     )))
-                } else if self.check(&TsToken::OpenParen) || self.check(&TsToken::Identifier(_)) {
+                } else if self.check(&TsToken::OpenParen) || self.at_identifier() {
                     self.parse_expression()
                 } else {
                     Err(TsParseError::new("Unexpected token", self.pos))
@@ -2533,9 +2549,7 @@ impl TypeScriptParser {
                 let mut args = Vec::new();
 
                 while !self.check(&TsToken::RightParen) {
-                    args.push(crate::tumc_compiler::ast::Arg::Positional(
-                        Box::new(self.parse_expression()?)
-                    ));
+                    args.push(self.parse_expression()?);
                     if !self.check(&TsToken::RightParen) {
                         self.expect(&TsToken::Comma)?;
                     }
@@ -2601,6 +2615,112 @@ impl TypeScriptParser {
 
     fn check(&self, token: &TsToken) -> bool {
         std::mem::discriminant(self.current()) == std::mem::discriminant(token)
+    }
+
+    /// Whether the current token is an identifier.
+    fn at_identifier(&self) -> bool {
+        matches!(self.current(), TsToken::Identifier(_))
+    }
+
+    /// The token `n` positions ahead of the cursor, without consuming it.
+    fn peek(&self, n: usize) -> Option<&TsToken> {
+        self.tokens.get(self.pos + n)
+    }
+
+    /// Whether the parenthesised group at the cursor can be a parameter
+    /// list, i.e. it starts with `name` followed by `:` or `,`.
+    fn at_param_list(&self) -> bool {
+        self.at_identifier()
+            && matches!(self.peek(1), Some(TsToken::Colon) | Some(TsToken::Comma))
+    }
+
+    /// The statements of a parsed block.
+    fn block_statements(&self, block: Option<AstNode>) -> Vec<Statement> {
+        match block {
+            Some(AstNode::Block(stmts)) => stmts,
+            Some(other) => vec![other],
+            None => Vec::new(),
+        }
+    }
+
+    /// Parse an arrow function. The opening parenthesis has already been
+    /// consumed. Returns `Ok(None)` when the group is not an arrow function.
+    fn parse_arrow_function(&mut self) -> Result<Option<Expression>, TsParseError> {
+        let mut params = Vec::new();
+
+        while !self.check(&TsToken::RightParen) {
+            let param_name = match self.current() {
+                TsToken::Identifier(n) => {
+                    let n = n.clone();
+                    self.advance();
+                    n
+                }
+                TsToken::DotDotDot => {
+                    self.advance();
+                    match self.current() {
+                        TsToken::Identifier(n) => {
+                            let n = format!("...{}", n);
+                            self.advance();
+                            n
+                        }
+                        _ => return Err(TsParseError::new("Expected parameter name", self.pos)),
+                    }
+                }
+                _ => return Err(TsParseError::new("Expected parameter name", self.pos)),
+            };
+
+            let param_type = if self.check(&TsToken::Colon) {
+                self.advance();
+                Some(self.parse_type()?)
+            } else {
+                None
+            };
+
+            let default = if self.check(&TsToken::Equal) {
+                self.advance();
+                Some(self.parse_expression()?)
+            } else {
+                None
+            };
+
+            params.push(Param {
+                name: param_name,
+                param_type,
+                default,
+                is_variadic: false,
+                is_kwargs: false,
+            });
+
+            if !self.check(&TsToken::RightParen) {
+                self.expect(&TsToken::Comma)?;
+            }
+        }
+
+        self.expect(&TsToken::RightParen)?;
+
+        let _return_type = if self.check(&TsToken::Colon) {
+            self.advance();
+            Some(self.parse_type()?)
+        } else {
+            None
+        };
+
+        if !self.check(&TsToken::Arrow) {
+            return Ok(None);
+        }
+        self.advance();
+
+        let body = if self.check(&TsToken::OpenBrace) {
+            self.block_statements(self.parse_block()?)
+        } else {
+            let expr = self.parse_expression()?;
+            vec![AstNode::Return(Some(Box::new(expr)))]
+        };
+
+        Ok(Some(Expression::Lambda {
+            params,
+            body: Box::new(Expression::Block(body)),
+        }))
     }
 
     fn check_next(&self, token: &TsToken) -> bool {

@@ -5,6 +5,22 @@ use crate::prelude::*;
 use super::ast::{self, *};
 use super::type_checker::TypeEnv;
 
+/// Errors that can occur during optimization.
+///
+/// The current optimization passes are infallible, so this type has no
+/// variants yet. It exists so that the compiler error enum can carry
+/// optimizer failures without changing shape once fallible passes are added.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OptimizerError {}
+
+impl std::fmt::Display for OptimizerError {
+    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        Ok(())
+    }
+}
+
+impl std::error::Error for OptimizerError {}
+
 /// Optimization level
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum OptimizationLevel {
@@ -48,6 +64,8 @@ pub struct OptimizationStats {
 }
 
 impl std::ops::Add for OptimizationStats {
+    type Output = OptimizationStats;
+
     fn add(self, other: OptimizationStats) -> OptimizationStats {
         OptimizationStats {
             constant_folds: self.constant_folds + other.constant_folds,

@@ -1,8 +1,9 @@
 // src/autonomy/policy_engine.rs
-use crate::prelude::*;
 
 //! Implements the core Autonomy Policy Engine for Tariro AGI, responsible for evaluating
 //! and enforcing rules that govern Tariro's operational independence and decision-making.
+
+use crate::prelude::*;
 
 use chrono::{DateTime, Utc};
 use std::time::Duration;
@@ -11,6 +12,7 @@ use std::collections::HashMap;
 use uuid::Uuid;
 use async_trait::async_trait;
 use std::sync::Arc;
+use std::sync::Mutex as StdMutex;
 
 use crate::config::AGIConfig;
 use crate::telemetry::{TelemetryEvent, TelemetryLogger};
@@ -33,6 +35,9 @@ impl DbEntity for AutonomyPolicy {
     const COLLECTION_NAME: &'static str = "AutonomyPolicy";
     fn id_as_string(&self) -> Option<String> {
         self.id.clone()
+    }
+    fn id_as_string_mut(&mut self) -> Option<&mut Option<String>> {
+        Some(&mut self.id)
     }
 }
 
@@ -64,236 +69,33 @@ pub enum PolicyDecision {
 
 #[async_trait]
 pub trait AutonomyPolicyEngineTrait: Send + Sync {
+    /// Creates a new `AutonomyPolicyEngine` instance.
     fn new(config: AGIConfig, telemetry_logger: TelemetryLogger, db_service: Arc<DatabaseService>) -> Self;
+    /// Loads the persisted policies and prepares the engine for use.
     async fn initialize(&self) -> Result<(), String>;
+    /// Releases the resources held by the engine.
     async fn shutdown(&self) -> Result<(), String>;
+    /// Evaluates a proposed action against relevant autonomy policies.
     async fn evaluate_action(&self, action: &str, context: &HashMap<String, String>) -> Result<PolicyDecision, String>;
+    /// Adds a new autonomy policy.
     async fn add_policy(&mut self, policy: AutonomyPolicy) -> Result<String, String>;
+    /// Updates an existing autonomy policy.
     async fn update_policy(&mut self, policy: AutonomyPolicy) -> Result<(), String>;
+    /// Removes an autonomy policy.
     async fn remove_policy(&mut self, policy_id: &str) -> Result<(), String>;
-    async fn get_policy(&self, policy_id: &str) -> Option<&AutonomyPolicy>;
-    async fn get_policy_by_domain(&self, domain: &str) -> Option<&AutonomyPolicy>;
-    async fn list_policies(&self) -> Vec<&AutonomyPolicy>;
+    /// Retrieves a policy by its ID.
+    ///
+    /// The policy is returned by value: the engine keeps its policies behind
+    /// an interior lock, so a borrow cannot outlive the lock guard.
+    async fn get_policy(&self, policy_id: &str) -> Option<AutonomyPolicy>;
+    /// Retrieves a policy by its domain.
+    async fn get_policy_by_domain(&self, domain: &str) -> Option<AutonomyPolicy>;
+    /// Lists all currently active policies.
+    async fn list_policies(&self) -> Vec<AutonomyPolicy>;
+    /// Sets the autonomy level for a specific domain. Creates a new policy if none exists.
     async fn set_autonomy_level(&mut self, domain: &str, level: AutonomyLevel) -> Result<(), String>;
 }
 
-/// The `AutonomyPolicyEngine` evaluates proposed actions against defined policies.
-pub struct AutonomyPolicyEngine {
-    config: AGIConfig,
-    telemetry_logger: TelemetryLogger,
-    db_service: Arc<DatabaseService>,
-    policies: HashMap<String, AutonomyPolicy>,
-}
-
-#[async_trait]
-impl AutonomyPolicyEngineTrait for AutonomyPolicyEngine {
-    /// Creates a new `AutonomyPolicyEngine` instance.
-    fn new(config: AGIConfig, telemetry_logger: TelemetryLogger, db_service: Arc<DatabaseService>) -> Self {
-        AutonomyPolicyEngine {
-            config,
-            telemetry_logger,
-            db_service,
-            policies: HashMap::new(),
-        }
-    }
-
-    async fn initialize(&self) -> Result<(), String> {
-        println!("[AutonomyPolicyEngine] Initializing...");
-        self.telemetry_logger.log_event(
-            TelemetryEvent::ServiceInitialized { service_name: "AutonomyPolicyEngine".to_string() }
-        ).await;
-        // Load policies from DB
-        match self.db_service.list::<AutonomyPolicy>().await {
-            Ok(loaded_policies) => {
-                let mut s_policies = self.policies.lock().unwrap(); // Access inner HashMap mutably
-                for policy in loaded_policies {
-                    if let Some(id) = &policy.id {
-                        s_policies.insert(id.clone(), policy);
-                    }
-                }
-                println!("[AutonomyPolicyEngine] Loaded {} policies from DB.", s_policies.len());
-            },
-            Err(e) => eprintln!("[AutonomyPolicyEngine] Failed to load policies from DB: {}", e),
-        }
-        Ok(())
-    }
-
-    async fn shutdown(&self) -> Result<(), String> {
-        println!("[AutonomyPolicyEngine] Shutting down...");
-        self.telemetry_logger.log_event(
-            TelemetryEvent::ServiceShutdown { service_name: "AutonomyPolicyEngine".to_string() }
-        ).await;
-        Ok(()) // No explicit save needed here if changes are persisted immediately.
-    }
-
-    /// Evaluates a proposed action against relevant autonomy policies.
-    async fn evaluate_action(&self, action: &str, context: &HashMap<String, String>) -> Result<PolicyDecision, String> {
-        let action_domain = context.get("domain").cloned().unwrap_or_else(|| "default".to_string());
-        let policy = self.get_policy_by_domain(&action_domain)
-            .cloned()
-            .unwrap_or_else(|| {
-                // Default policy if none specific for the domain
-                AutonomyPolicy {
-                    id: None,
-                    label: format!("Default Policy for {}", action_domain),
-                    domain: action_domain.clone(),
-                    autonomy_level: AutonomyLevel::SuggestOnly, // Default to cautious
-                    evas_filter: true,
-                    notes: Some("Automatically generated default policy.".to_string()),
-                    created_at: Utc::now(),
-                    last_updated: Utc::now(),
-                }
-            });
-
-        self.telemetry_logger.log_event(TelemetryEvent::AGIAction {
-            action_type: "EvaluateAction".to_string(),
-            details: Some(format!("Action: {}, Domain: {}, Policy: {:?}", action, action_domain, policy.autonomy_level)),
-        }).await;
-
-        // 1. Evaluate EVAS filter (Ethical, Values-aligned, Secure)
-        if policy.evas_filter {
-            if let Some(ethical_concern) = context.get("ethical_concern") {
-                if ethical_concern == "true" {
-                    return Ok(PolicyDecision::Block { reason: format!("EVAS filter blocked action due to ethical concern: {}", action) });
-                }
-            }
-        }
-
-        // 2. Evaluate Autonomy Level
-        match policy.autonomy_level {
-            AutonomyLevel::FullAuto => Ok(PolicyDecision::Approve),
-            AutonomyLevel::SuggestOnly => Ok(PolicyDecision::RequireHumanApproval {
-                reason: format!("Policy for domain '{}' requires human approval for action: {}", action_domain, action),
-            }),
-            AutonomyLevel::HumanRequired => Ok(PolicyDecision::RequireHumanApproval {
-                reason: format!("Policy for domain '{}' requires human to perform action: {}", action_domain, action),
-            }),
-        }
-    }
-
-    /// Adds a new autonomy policy.
-    async fn add_policy(&mut self, mut policy: AutonomyPolicy) -> Result<String, String> {
-        if policy.id.is_none() {
-            policy.id = Some(Uuid::new_v4().to_string());
-        }
-        policy.created_at = Utc::now();
-        policy.last_updated = Utc::now();
-
-        if self.policies.lock().unwrap().contains_key(policy.id.as_ref().unwrap()) {
-            return Err(format!("Policy with ID {} already exists.", policy.id.unwrap()));
-        }
-        println!("[AutonomyPolicyEngine] Adding new policy: {}", policy.label);
-        let policy_id = self.db_service.create(&mut policy).await?;
-        policy.id = Some(policy_id.clone());
-        self.policies.lock().unwrap().insert(policy_id.clone(), policy);
-        Ok(policy_id)
-    }
-
-    /// Updates an existing autonomy policy.
-    async fn update_policy(&mut self, mut policy: AutonomyPolicy) -> Result<(), String> {
-        if let Some(id) = &policy.id {
-            if let Some(existing_policy) = self.policies.lock().unwrap().get_mut(id) {
-                policy.last_updated = Utc::now();
-                *existing_policy = policy.clone();
-                self.db_service.update(id, &policy).await?;
-                println!("[AutonomyPolicyEngine] Updated policy: {}", existing_policy.label);
-                self.telemetry_logger.log_event(TelemetryEvent::PolicyUpdated {
-                    policy_id: id.clone(),
-                    action: "update".to_string(),
-                }).await;
-                Ok(())
-            } else {
-                Err(format!("Policy with ID {} not found.", id))
-            }
-        } else {
-            Err("Policy to update must have an ID.".to_string())
-        }
-    }
-
-    /// Removes an autonomy policy.
-    async fn remove_policy(&mut self, policy_id: &str) -> Result<(), String> {
-        if self.policies.lock().unwrap().remove(policy_id).is_some() {
-            self.db_service.delete::<AutonomyPolicy>(policy_id).await?;
-            println!("[AutonomyPolicyEngine] Removed policy: {}", policy_id);
-            self.telemetry_logger.log_event(TelemetryEvent::PolicyUpdated {
-                policy_id: policy_id.to_string(),
-                action: "remove".to_string(),
-            }).await;
-            Ok(())
-        } else {
-            Err(format!("Policy with ID {} not found.", policy_id))
-        }
-    }
-
-    /// Retrieves a policy by its ID.
-    async fn get_policy(&self, policy_id: &str) -> Option<&AutonomyPolicy> {
-        let policies = self.policies.lock().unwrap();
-        policies.get(policy_id)
-    }
-
-    /// Retrieves a policy by its domain.
-    async fn get_policy_by_domain(&self, domain: &str) -> Option<&AutonomyPolicy> {
-        let policies = self.policies.lock().unwrap();
-        policies.values().find(|p| p.domain == domain)
-    }
-
-    /// Lists all currently active policies.
-    async fn list_policies(&self) -> Vec<&AutonomyPolicy> {
-        let policies = self.policies.lock().unwrap();
-        policies.values().collect()
-    }
-
-    /// Sets the autonomy level for a specific domain. Creates a new policy if none exists.
-    async fn set_autonomy_level(&mut self, domain: &str, level: AutonomyLevel) -> Result<(), String> {
-        let mut policies_guard = self.policies.lock().unwrap();
-        if let Some(policy) = policies_guard.values_mut().find(|p| p.domain == domain) {
-            let old_level = policy.autonomy_level.to_string();
-            policy.autonomy_level = level.clone();
-            policy.last_updated = Utc::now();
-            let updated_policy = policy.clone(); // Clone for DB update after releasing lock
-            drop(policies_guard);
-            self.db_service.update(updated_policy.id.as_ref().unwrap(), &updated_policy).await?;
-            println!("[AutonomyPolicyEngine] Autonomy level for domain '{}' updated to {:?}", domain, level);
-            self.telemetry_logger.log_event(TelemetryEvent::AutonomyLevelChanged {
-                affected_domain: domain.to_string(),
-                old_autonomy_level: old_level,
-                new_autonomy_level: level.to_string(),
-                reason: "Admin/Self-governance command.".to_string(),
-                triggered_by_action_id: Uuid::new_v4().to_string(), // Placeholder
-            }).await;
-            Ok(())
-        } else {
-            // Create a new policy for this domain
-            let mut new_policy = AutonomyPolicy {
-                id: None,
-                label: format!("Autonomy Policy for {}", domain),
-                domain: domain.to_string(),
-                autonomy_level: level.clone(),
-                evas_filter: true, // Default to active
-                notes: Some("Automatically created by set_autonomy_level.".to_string()),
-                created_at: Utc::now(),
-                last_updated: Utc::now(),
-            };
-            drop(policies_guard); // Release lock before calling async add_policy
-            let new_policy_id = self.add_policy(new_policy.clone()).await?;
-            new_policy.id = Some(new_policy_id);
-            println!("[AutonomyPolicyEngine] New autonomy policy created for domain '{}' with level {:?}", domain, level);
-            self.telemetry_logger.log_event(TelemetryEvent::AutonomyLevelChanged {
-                affected_domain: domain.to_string(),
-                old_autonomy_level: "None".to_string(),
-                new_autonomy_level: level.to_string(),
-                reason: "New policy created.".to_string(),
-                triggered_by_action_id: Uuid::new_v4().to_string(), // Placeholder
-            }).await;
-            Ok(())
-        }
-    }
-}
-
-// To make `policies` mutable within `initialize`, `get_policy`, etc. without `&mut self`,
-// we need to wrap it in a `Mutex` or `RwLock`.
-// Let's modify `AutonomyPolicyEngine` to use a `Mutex` for `policies`.
-use std::sync::Mutex as StdMutex;
 
 pub struct AutonomyPolicyEngine {
     config: AGIConfig,
@@ -441,19 +243,19 @@ impl AutonomyPolicyEngineTrait for AutonomyPolicyEngine {
         }
     }
 
-    async fn get_policy(&self, policy_id: &str) -> Option<&AutonomyPolicy> {
+    async fn get_policy(&self, policy_id: &str) -> Option<AutonomyPolicy> {
         let policies = self.policies.lock().unwrap();
-        policies.get(policy_id)
+        policies.get(policy_id).cloned()
     }
 
-    async fn get_policy_by_domain(&self, domain: &str) -> Option<&AutonomyPolicy> {
+    async fn get_policy_by_domain(&self, domain: &str) -> Option<AutonomyPolicy> {
         let policies = self.policies.lock().unwrap();
-        policies.values().find(|p| p.domain == domain)
+        policies.values().find(|p| p.domain == domain).cloned()
     }
 
-    async fn list_policies(&self) -> Vec<&AutonomyPolicy> {
+    async fn list_policies(&self) -> Vec<AutonomyPolicy> {
         let policies = self.policies.lock().unwrap();
-        policies.values().collect()
+        policies.values().cloned().collect()
     }
 
     async fn set_autonomy_level(&mut self, domain: &str, level: AutonomyLevel) -> Result<(), String> {

@@ -3,7 +3,6 @@
 //! The central orchestrator for the Tariro AGI authorship system.
 
 use crate::authorship::{
-    AuthorshipEngine, AuthorshipConfig, AuthorshipResult, AuthorshipError,
     CreativeWork, CreativePrompt, CreativeWorkType, CreativeContent,
     ideation::IdeationEngine,
     generation::GenerationEngine,

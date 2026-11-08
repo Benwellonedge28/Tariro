@@ -5,7 +5,7 @@
 # ============================================
 # Stage 1: Build
 # ============================================
-FROM rust:1.75-alpine as builder
+FROM rust:1.88-alpine as builder
 
 # Install build dependencies
 RUN apk add --no-cache \
@@ -29,11 +29,12 @@ ENV CARGO_PROFILE_RELEASE_LTO=fat \
 
 # Copy manifests
 COPY Cargo.toml Cargo.lock* ./
+COPY tariro_sdk ./tariro_sdk
 
 # Create dummy source for dependency caching
 RUN mkdir -p src benches && \
     echo "fn main() {}" > src/main.rs && \
-    echo "mod lib;" > src/lib.rs
+    : > src/lib.rs
 
 # Build dependencies first
 RUN cargo build --release --target x86_64-unknown-linux-musl && rm -rf src benches
@@ -101,7 +102,7 @@ LABEL org.opencontainers.image.title="Tariro AGI (Alpine)"
 LABEL org.opencontainers.image.description="Alpine Linux build of Tariro AGI with musl libc"
 LABEL org.opencontainers.image.source="https://github.com/Benwellonedge28/Tariro"
 LABEL org.opencontainers.image.version="1.0.15"
-LABEL org.opencontainers.image.licenses="MIT OR Apache-2.0"
+LABEL org.opencontainers.image.licenses="LicenseRef-Tariro-BSL-1.01"
 
 # Expose default ports
 EXPOSE 8080 8081

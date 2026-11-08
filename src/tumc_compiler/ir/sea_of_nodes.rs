@@ -1,6 +1,8 @@
 // Sea of Nodes IR Implementation
 // Based on the HotSpot/C2 compiler approach
 
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use super::*;
 use std::collections::VecDeque;
 
@@ -14,7 +16,7 @@ pub struct SeaOfNodes {
     pub end: NodeId,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct NodeId(pub usize);
 
 impl NodeId {

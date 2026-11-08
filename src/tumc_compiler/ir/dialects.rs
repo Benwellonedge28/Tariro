@@ -1,4 +1,5 @@
 // IR Dialects Module - Domain-specific IR levels
+use crate::tumc_compiler::ir::*;
 
 pub mod typed_ptr;
 pub mod linalg;

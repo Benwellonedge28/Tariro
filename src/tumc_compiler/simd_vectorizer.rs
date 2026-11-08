@@ -3,7 +3,9 @@
 
 use crate::prelude::*;
 use super::ast::*;
+use super::tariro_vm::Value;
 use std::collections::HashMap;
+use std::fmt;
 
 /// SIMD instruction set
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

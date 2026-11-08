@@ -1,6 +1,7 @@
 // Partial Evaluation for Program Specialization
 
-use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation, IrType, Const, Terminator};
+use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation, IrType, Terminator, Const};
+use crate::tumc_compiler::ast::Literal;
 use std::collections::HashMap;
 
 /// Static value (known at specialization time)

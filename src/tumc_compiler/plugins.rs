@@ -2,6 +2,7 @@
 //!
 //! Extensible plugin architecture for extending TUMC compiler functionality.
 
+use std::collections::HashSet;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;

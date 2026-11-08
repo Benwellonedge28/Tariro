@@ -68,6 +68,7 @@ pub mod target_x86_64;
 pub mod target_arm64;
 pub mod target_jvm;
 pub mod target_llvm;
+pub mod frontend;
 pub mod lang_python;
 pub mod lang_typescript;
 pub mod lang_go;
@@ -80,7 +81,6 @@ pub mod ir;
 pub mod optimization;
 pub mod analysis;
 pub mod type_system;
-pub mod gc;
 pub mod runtime;
 pub mod targets;
 pub mod tooling;
@@ -237,7 +237,7 @@ pub enum DiagnosticSeverity {
 }
 
 /// Source location
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub struct SourceLocation {
     pub line: usize,
     pub column: usize,
@@ -387,7 +387,7 @@ impl Compiler {
 
         // 4. Optimization
         let optimized = if self.optimization_level != OptimizationLevel::None {
-            optimizer::Optimizer::new(self.optimization_level).optimize(typed_ast)
+            optimizer::Optimizer::new(self.optimizer_level()).optimize(typed_ast)
         } else {
             typed_ast
         };
@@ -423,6 +423,16 @@ impl Compiler {
                 output_size: output.len(),
             },
             errors,
+        }
+    }
+
+    /// Map the public optimization level onto the optimizer's internal levels.
+    fn optimizer_level(&self) -> optimizer::OptimizationLevel {
+        match self.optimization_level {
+            OptimizationLevel::None => optimizer::OptimizationLevel::None,
+            OptimizationLevel::Basic => optimizer::OptimizationLevel::O1,
+            OptimizationLevel::Standard => optimizer::OptimizationLevel::O2,
+            OptimizationLevel::Aggressive => optimizer::OptimizationLevel::O3,
         }
     }
 
@@ -467,7 +477,7 @@ impl Compiler {
 
         // Optimize
         let optimized = if self.optimization_level != OptimizationLevel::None {
-            optimizer::Optimizer::new(self.optimization_level).optimize(typed_ast)
+            optimizer::Optimizer::new(self.optimizer_level()).optimize(typed_ast)
         } else {
             typed_ast
         };
@@ -512,7 +522,7 @@ pub enum CompilerError {
     LexerError(lexer::LexerError),
     ParserError(parser::ParserError),
     TypeError(type_checker::TypeError),
-    CodegenError(codegen::CodegenError),
+    CodegenError(native_codegen::CodegenError),
     OptimizerError(optimizer::OptimizerError),
 }
 

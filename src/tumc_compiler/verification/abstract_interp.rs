@@ -1,10 +1,10 @@
 // Abstract Interpretation for Static Analysis
 
 use crate::tumc_compiler::ir::{Instruction, IrType, Operation, BinOp};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 /// Abstract domain type
-#[derive(Debug, Clone, Clone)]
+#[derive(Debug, Clone)]
 pub enum AbstractDomainType {
     /// Interval domain for numeric values
     Interval(Interval),
@@ -15,14 +15,14 @@ pub enum AbstractDomainType {
     /// Pointer domain
     Pointer(PointerInfo),
     /// Set of possible values
-    Set(HashMap<i64>),
+    Set(HashSet<i64>),
     /// Top (unknown)
     Top,
     /// Bottom (unreachable)
     Bottom,
 }
 
-#[derive(Debug, Clone, Clone)]
+#[derive(Debug, Clone)]
 pub struct Interval {
     pub lower: i64,
     pub upper: i64,
@@ -415,7 +415,7 @@ impl AbstractInterpreter {
                 new_state.set(inst.result_name.clone().unwrap_or_default(), result);
             }
             Operation::Const(val, ty) => {
-                let result = match val {
+                let result = match &**val {
                     crate::tumc_compiler::ir::Const::Int(i) => AbstractValue::constant(*i),
                     _ => AbstractValue::top(),
                 };

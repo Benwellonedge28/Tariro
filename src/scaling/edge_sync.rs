@@ -24,7 +24,7 @@
 //! | Bidirectional | Medium | Medium | Strong |
 //! | Gossip | High | Medium | Probabilistic |
 
-use crate::scaling::capability::NodeId;
+use crate::tumc_compiler::ir::NodeId;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, VecDeque};
 
@@ -238,7 +238,7 @@ pub struct KnowledgeModification {
 }
 
 /// Value type for facts
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Value {
     /// String value
     String(String),

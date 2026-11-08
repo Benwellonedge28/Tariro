@@ -3,6 +3,7 @@
 //! Reasoning is symbolic manipulation, NOT token prediction.
 //! Uses formal logic, inference rules, and deduction.
 
+use std::sync::RwLock;
 use crate::prelude::*;
 use crate::knowledge::knowledge_graph::{
     KnowledgeGraph, EntityId, Entity, Relation, Fact, Predicate, Probability,

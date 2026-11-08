@@ -1,8 +1,11 @@
 // Rust Language Frontend for TUMC
 // Parses Rust source code into TUMC's intermediate representation
 
-use crate::tumc_compiler::ir::{AstNode, Type, Literal, Operator, Visibility};
-use std::collections::HashMap;
+// The Rust frontend keeps its own source-level AST (`Type`, `Literal`, `Expr`,
+// `Stmt`, `Item`, ...). Those names all clash with the canonical IR types in
+// [`crate::tumc_compiler::ast`], so the IR is always referred to through the
+// `ast::` prefix instead of being imported unqualified.
+use crate::tumc_compiler::ast;
 
 // ============================================================================
 // Token Types
@@ -745,7 +748,7 @@ pub enum ExprKind {
     Closure(Vec<ClosureArg>, Box<Expr>, Option<Box<Type>>),
     Async(Vec<ClosureArg>, Box<Expr>),
     Await(Box<Expr>),
-    Try(Block<Expr>),
+    Try(Box<Expr>),
     TryBlock(Vec<Stmt>),
 
     // Objects
@@ -759,7 +762,7 @@ pub enum ExprKind {
     Enum(Path, String, Vec<Expr>),
 
     // Patterns
-    Path(Path),
+    PathPat(Path),
     Wildcard,
     Rest,
     Bind(String, Box<Pat>),
@@ -817,7 +820,7 @@ pub struct MatchArm {
 #[derive(Debug, Clone)]
 pub enum Pat {
     Wild,
-    Bind(String, Mutability, Option<Pat>),
+    Bind(String, Mutability, Option<Box<Pat>>),
     Literal(Literal),
     Range(Box<Pat>, Box<Pat>),
     Enum(Path, Option<Box<Pat>>),
@@ -1215,7 +1218,15 @@ impl RustParser {
         // Attributes
         let mut attrs = Vec::new();
         while self.check(&RustTokenType::Pound) {
-            attrs.push(self.parse_attribute().unwrap());
+            match self.parse_attribute() {
+                Some(attr) => attrs.push(attr),
+                None => {
+                    // Malformed attribute: skip to the end of the attribute
+                    // list so that parsing can continue.
+                    self.skip_until(&[RustTokenType::RBracket]);
+                    self.match_token(&[RustTokenType::RBracket]);
+                }
+            }
         }
 
         // Check for keywords
@@ -1580,22 +1591,20 @@ impl RustParser {
     }
 
     fn parse_type(&mut self) -> Option<Type> {
-        let ty = match &self.current().token_type {
-            RustTokenType::Never => {
+        // The token is cloned up-front so the parser can advance while the
+        // matched token type is still in scope.
+        let token = self.current().clone();
+        let ty = match &token.token_type {
+            // `!` — the never type. The lexer produces `Bang` for `!`.
+            RustTokenType::Bang => {
                 self.advance();
                 Type::Never
             }
-            RustTokenType::Bool => {
-                self.advance();
-                Type::Bool
-            }
-            RustTokenType::Char => {
+            // A character literal token. The `char` *type* is lexed as an
+            // identifier and handled by the `Ident` arm below.
+            RustTokenType::Char(_) => {
                 self.advance();
                 Type::Char
-            }
-            RustTokenType::Str => {
-                self.advance();
-                Type::Str
             }
             RustTokenType::SelfType => {
                 self.advance();
@@ -1670,9 +1679,27 @@ impl RustParser {
                     abi: None,
                 }))
             }
-            RustTokenType::Ident(_) => {
-                let path = self.parse_path().unwrap_or(Path { segments: vec![], is_absolute: false });
-                Type::Path(path)
+            RustTokenType::Ident(id) => {
+                // `bool`, `char` and `str` are not Rust keywords: the lexer
+                // emits them as identifiers, so they are recognised by name.
+                match id.as_str() {
+                    "bool" => {
+                        self.advance();
+                        Type::Bool
+                    }
+                    "char" => {
+                        self.advance();
+                        Type::Char
+                    }
+                    "str" => {
+                        self.advance();
+                        Type::Str
+                    }
+                    _ => {
+                        let path = self.parse_path().unwrap_or(Path { segments: vec![], is_absolute: false });
+                        Type::Path(path)
+                    }
+                }
             }
             _ => Type::Infer,
         };
@@ -1744,23 +1771,23 @@ impl RustParser {
     }
 
     fn parse_pattern(&mut self) -> Option<Pat> {
-        let pat = match &self.current().token_type {
-            RustTokenType::Underscore => {
-                self.advance();
-                Pat::Wild
-            }
+        // The token is cloned up-front so the parser can advance while the
+        // matched token type is still in scope.
+        let token = self.current().clone();
+        let pat = match &token.token_type {
             RustTokenType::DotDot => {
                 self.advance();
                 Pat::Rest
             }
-            RustTokenType::Ident(_) => {
-                let name = if let RustTokenType::Ident(id) = &self.current().token_type {
-                    id.clone()
-                } else {
-                    String::new()
-                };
+            RustTokenType::Ident(id) => {
+                let name = id.clone();
                 self.advance();
-                Pat::Bind(name, Mutability::Not, None)
+                // `_` is not a keyword: the lexer emits it as an identifier.
+                if name == "_" {
+                    Pat::Wild
+                } else {
+                    Pat::Bind(name, Mutability::Not, None)
+                }
             }
             RustTokenType::LParen => {
                 self.advance();
@@ -2338,6 +2365,13 @@ impl RustParser {
 // Rust AST to TUMC IR Converter
 // ============================================================================
 
+/// Lowers the Rust source AST into the canonical TUMC IR
+/// ([`crate::tumc_compiler::ast`]).
+///
+/// The IR is deliberately structural: items become [`ast::Item`]s, expressions
+/// become [`ast::Expr`]s, statements become [`ast::Stmt`]s and declared types
+/// become [`ast::AnnType`]s. Rust constructs the IR cannot express are lowered
+/// to the closest IR equivalent instead of being dropped silently.
 pub struct RustAstConverter;
 
 impl RustAstConverter {
@@ -2345,235 +2379,853 @@ impl RustAstConverter {
         Self
     }
 
-    pub fn convert_item(&self, item: &Item) -> Option<AstNode> {
+    /// Convert a Rust item into the canonical IR item.
+    ///
+    /// Returns `None` for the item kinds the IR has no counterpart for
+    /// (imports, `extern crate` declarations, unions, foreign modules and
+    /// `macro_rules!` definitions).
+    pub fn convert_item(&self, item: &Item) -> Option<ast::Item> {
         match &item.kind {
-            ItemKind::Function(func) => Some(self.convert_function(func, &item.attrs)),
-            ItemKind::Struct(s) => Some(self.convert_struct(s)),
-            ItemKind::Enum(e) => Some(self.convert_enum(e)),
-            ItemKind::Trait(t) => Some(self.convert_trait(t)),
-            ItemKind::Impl(i) => Some(self.convert_impl(i)),
-            ItemKind::Global(name, ty, val) => Some(AstNode::Global {
+            ItemKind::Function(func) => Some(ast::Item::Function(
+                self.convert_function(func, &item.vis, &item.attrs),
+            )),
+            ItemKind::Struct(s) => {
+                Some(ast::Item::Struct(self.convert_struct(s, &item.vis, &item.attrs)))
+            }
+            ItemKind::Enum(e) => Some(ast::Item::Enum(self.convert_enum(e, &item.vis, &item.attrs))),
+            ItemKind::Trait(t) => Some(ast::Item::Trait(self.convert_trait(t, &item.attrs))),
+            ItemKind::Impl(i) => Some(ast::Item::Impl(self.convert_impl(i))),
+            ItemKind::Global(name, ty, val) => Some(ast::Item::Constant(ast::Constant {
                 name: name.clone(),
-                ty: self.convert_type(ty),
+                ann_type: self.convert_type(ty),
                 value: self.convert_expr(val),
-            }),
-            _ => None,
+                span: ast::Span::default(),
+                doc: self.doc_of(&item.attrs),
+                visibility: self.convert_visibility(&item.vis),
+            })),
+            ItemKind::Import(_)
+            | ItemKind::Module(_)
+            | ItemKind::ExternCrate(_, _)
+            | ItemKind::Union(_)
+            | ItemKind::TypeAlias(_, _, _, _)
+            | ItemKind::ForeignMod(_, _)
+            | ItemKind::MacroRules(_, _) => None,
         }
     }
 
-    fn convert_function(&self, func: &Function, attrs: &[Attribute]) -> AstNode {
-        AstNode::FunctionDef {
+    /// Convert a Rust function into the IR function declaration.
+    fn convert_function(
+        &self,
+        func: &Function,
+        vis: &RustVisibility,
+        attrs: &[Attribute],
+    ) -> ast::Function {
+        ast::Function {
             name: func.name.clone(),
-            params: func.params.iter().map(|p| p.name.clone()).collect(),
-            ret_ty: func.ret.clone().map(|t| self.convert_type(&t)),
-            body: func.body.as_ref().map(|e| self.convert_expr(e)),
+            params: func
+                .params
+                .iter()
+                .map(|p| ast::FunctionParam {
+                    name: p.name.clone(),
+                    ann_type: self.convert_type(&p.ty),
+                })
+                .collect(),
+            return_type: func
+                .ret
+                .as_ref()
+                .map(|t| self.convert_type(t))
+                .unwrap_or(ast::AnnType::Unit),
+            body: func
+                .body
+                .as_ref()
+                .map(|b| self.convert_block_expr(b))
+                .unwrap_or_default(),
+            span: ast::Span::default(),
+            doc: self.doc_of(attrs),
+            visibility: self.convert_visibility(vis),
+            is_async: false,
+            ternary: false,
+            generics: func.generics.iter().map(|g| self.convert_generic(g)).collect(),
         }
     }
 
-    fn convert_struct(&self, s: &Struct) -> AstNode {
-        AstNode::StructDef {
+    /// Convert a Rust struct into the IR struct declaration.
+    fn convert_struct(&self, s: &Struct, vis: &RustVisibility, attrs: &[Attribute]) -> ast::Struct {
+        ast::Struct {
             name: s.name.clone(),
-            fields: s.fields.iter().map(|f| (f.name.clone(), self.convert_type(&f.ty))).collect(),
+            ty_params: s.generics.iter().map(|g| g.name.clone()).collect(),
+            generics: s.generics.iter().map(|g| self.convert_generic(g)).collect(),
+            fields: s
+                .fields
+                .iter()
+                .map(|f| ast::Field {
+                    name: f.name.clone(),
+                    ann_type: self.convert_type(&f.ty),
+                    span: ast::Span::default(),
+                    doc: None,
+                    visibility: ast::Visibility::Public,
+                })
+                .collect(),
+            span: ast::Span::default(),
+            doc: self.doc_of(attrs),
+            visibility: self.convert_visibility(vis),
         }
     }
 
-    fn convert_enum(&self, e: &Enum) -> AstNode {
-        AstNode::EnumDef {
+    /// Convert a Rust enum into the IR enum declaration.
+    fn convert_enum(&self, e: &Enum, vis: &RustVisibility, attrs: &[Attribute]) -> ast::Enum {
+        ast::Enum {
             name: e.name.clone(),
-            variants: e.variants.iter().map(|v| v.name.clone()).collect(),
+            ty_params: e.generics.iter().map(|g| g.name.clone()).collect(),
+            generics: e.generics.iter().map(|g| self.convert_generic(g)).collect(),
+            variants: e
+                .variants
+                .iter()
+                .map(|v| ast::EnumVariant {
+                    name: v.name.clone(),
+                    fields: self.convert_variant_data(&e.name, v),
+                    span: ast::Span::default(),
+                    doc: None,
+                })
+                .collect(),
+            span: ast::Span::default(),
+            doc: self.doc_of(attrs),
+            visibility: self.convert_visibility(vis),
         }
     }
 
-    fn convert_trait(&self, t: &Trait) -> AstNode {
-        AstNode::TraitDef {
+    /// The payload type of an enum variant.
+    fn convert_variant_data(&self, enum_name: &str, variant: &Variant) -> Option<ast::AnnType> {
+        match &variant.data {
+            VariantData::Unit => None,
+            VariantData::Tuple(types) => Some(ast::AnnType::Tuple(
+                types.iter().map(|(t, _)| self.convert_type(t)).collect(),
+            )),
+            VariantData::Struct(fields) => Some(ast::AnnType::Named(format!(
+                "{}::{} {{ {} }}",
+                enum_name,
+                variant.name,
+                fields
+                    .iter()
+                    .map(|f| f.name.clone())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ))),
+        }
+    }
+
+    /// Convert a Rust trait into the IR trait declaration.
+    fn convert_trait(&self, t: &Trait, attrs: &[Attribute]) -> ast::Trait {
+        ast::Trait {
             name: t.name.clone(),
-            methods: t.items.iter().filter_map(|i| {
-                if let TraitItem::Function(f) = i {
-                    Some(f.name.clone())
-                } else {
-                    None
-                }
-            }).collect(),
+            generics: t.generics.iter().map(|g| self.convert_generic(g)).collect(),
+            items: t
+                .items
+                .iter()
+                .filter_map(|i| match i {
+                    TraitItem::Function(f) | TraitItem::Method(f) => {
+                        Some(ast::TraitItem::Function {
+                            name: f.name.clone(),
+                            sig: ast::FunctionSig {
+                                generics: f.generics.iter().map(|g| self.convert_generic(g)).collect(),
+                                parameters: f
+                                    .params
+                                    .iter()
+                                    .map(|p| (p.name.clone(), self.convert_type(&p.ty)))
+                                    .collect(),
+                                return_type: f.ret.as_ref().map(|r| self.convert_type(r)),
+                            },
+                        })
+                    }
+                    TraitItem::Type(name, _, _) => {
+                        Some(ast::TraitItem::Type { name: name.clone() })
+                    }
+                    // The IR has no representation for associated constants.
+                    TraitItem::Const(_, _) => None,
+                })
+                .collect(),
+            span: ast::Span::default(),
+            doc: self.doc_of(attrs),
         }
     }
 
-    fn convert_impl(&self, i: &Impl) -> AstNode {
-        AstNode::ImplBlock {
-            trait_name: None,
-            self_ty: self.convert_type(&i.self_ty),
-            methods: i.items.iter().filter_map(|item| {
-                if let ImplItem::Function(f) = item {
-                    Some(AstNode::FunctionDef {
-                        name: f.name.clone(),
-                        params: f.params.iter().map(|p| p.name.clone()).collect(),
-                        ret_ty: f.ret.clone().map(|t| self.convert_type(&t)),
-                        body: f.body.as_ref().map(|e| self.convert_expr(e)),
-                    })
-                } else {
-                    None
-                }
-            }).collect(),
+    /// Convert a Rust impl block into the IR impl block.
+    fn convert_impl(&self, i: &Impl) -> ast::ImplBlock {
+        ast::ImplBlock {
+            trait_name: i.trait_ty.as_ref().map(|(path, _)| self.path_to_string(path)),
+            type_name: self.type_to_string(&i.self_ty),
+            ty_params: i.generics.iter().map(|g| g.name.clone()).collect(),
+            functions: i
+                .items
+                .iter()
+                .filter_map(|item| match item {
+                    ImplItem::Function(f) => Some(self.convert_function(
+                        f,
+                        &RustVisibility::Public,
+                        &[],
+                    )),
+                    _ => None,
+                })
+                .collect(),
+            constants: i
+                .items
+                .iter()
+                .filter_map(|item| match item {
+                    ImplItem::Const(name, ty, value) | ImplItem::Static(name, ty, value) => {
+                        Some(ast::Constant {
+                            name: name.clone(),
+                            ann_type: self.convert_type(ty),
+                            value: self.convert_expr(value),
+                            span: ast::Span::default(),
+                            doc: None,
+                            visibility: ast::Visibility::Public,
+                        })
+                    }
+                    ImplItem::Type(_, _) => None,
+                })
+                .collect(),
+            span: ast::Span::default(),
         }
     }
 
-    fn convert_type(&self, ty: &Type) -> Type {
+    /// Convert a Rust generic parameter into the IR generic parameter.
+    fn convert_generic(&self, g: &GenericParam) -> ast::GenericParam {
+        let bounds = match &g.kind {
+            GenericParamKind::Lifetime => vec![ast::TypeBound::Lifetime(g.name.clone())],
+            GenericParamKind::Type { bounds, .. } => bounds
+                .iter()
+                .map(|b| ast::TypeBound::Trait(self.type_to_string(b)))
+                .collect(),
+            // The IR does not model const generic parameters.
+            GenericParamKind::Const { .. } => Vec::new(),
+        };
+        ast::GenericParam {
+            name: g.name.clone(),
+            bounds,
+        }
+    }
+
+    /// Convert Rust visibility into the IR visibility.
+    fn convert_visibility(&self, vis: &RustVisibility) -> ast::Visibility {
+        match vis {
+            RustVisibility::Public => ast::Visibility::Public,
+            RustVisibility::PubCrate => ast::Visibility::Crate,
+            RustVisibility::PubSuper | RustVisibility::PubIn(_) | RustVisibility::Private => {
+                ast::Visibility::Private
+            }
+        }
+    }
+
+    /// Extract the documentation text from a `#[doc = "..."]` attribute.
+    fn doc_of(&self, attrs: &[Attribute]) -> Option<String> {
+        for attr in attrs {
+            let is_doc = attr
+                .path
+                .segments
+                .last()
+                .map(|s| s.ident == "doc")
+                .unwrap_or(false);
+            if !is_doc {
+                continue;
+            }
+            let mut parts = Vec::new();
+            for tree in &attr.tokens {
+                if let TokenTree::Token(token) = tree {
+                    if let RustTokenType::String(value) = &token.token_type {
+                        parts.push(value.clone());
+                    }
+                }
+            }
+            if !parts.is_empty() {
+                return Some(parts.join(""));
+            }
+        }
+        None
+    }
+
+    /// Convert a Rust type into the IR's declared-type lattice.
+    fn convert_type(&self, ty: &Type) -> ast::AnnType {
         match ty {
-            Type::Bool => Type::Bool,
-            Type::Int(_) => Type::Int64,
-            Type::Uint(_) => Type::UInt64,
-            Type::Float(_) => Type::Float64,
-            Type::Str => Type::String,
-            Type::Char => Type::Char,
-            Type::SelfType => Type::SelfType,
-            Type::Never => Type::Never,
-            Type::Unit => Type::Unit,
-            Type::Tuple(types) => Type::Tuple(types.iter().map(|t| self.convert_type(t)).collect()),
-            Type::Array(arr) => Type::Array(Box::new(self.convert_type(&arr.elem))),
-            Type::Slice(s) => Type::Slice(Box::new(self.convert_type(&s.elem))),
-            Type::Pointer(p) => Type::Pointer(Box::new(self.convert_type(&p.inner))),
-            Type::Reference(r) => Type::Reference(Box::new(self.convert_type(&r.inner))),
-            Type::Function(f) => Type::Function {
-                params: f.params.iter().map(|t| self.convert_type(t)).collect(),
-                ret: Box::new(self.convert_type(&f.ret)),
-            },
-            Type::Path(path) => Type::Named(path.segments.last().map(|s| s.ident.clone()).unwrap_or_default()),
-            _ => Type::Unknown,
+            Type::Never => ast::AnnType::Named("!".to_string()),
+            Type::Unit => ast::AnnType::Unit,
+            Type::Bool => ast::AnnType::Bool,
+            Type::Char => ast::AnnType::Char,
+            Type::Int(_) => ast::AnnType::Int,
+            Type::Uint(_) => ast::AnnType::Int,
+            Type::Float(_) => ast::AnnType::Float,
+            Type::Str => ast::AnnType::String,
+            Type::Bytes => ast::AnnType::Named("[u8]".to_string()),
+            Type::SelfType => ast::AnnType::Named("Self".to_string()),
+            Type::Path(path) => ast::AnnType::Named(self.path_to_string(path)),
+            Type::Pointer(pointer) => {
+                ast::AnnType::Ptr(Box::new(self.convert_type(&pointer.inner)))
+            }
+            Type::Reference(reference) => {
+                let inner = Box::new(self.convert_type(&reference.inner));
+                if reference.mutable {
+                    ast::AnnType::MutRef(inner)
+                } else {
+                    ast::AnnType::Ref(inner)
+                }
+            }
+            Type::Array(array) => ast::AnnType::Array(Box::new(self.convert_type(&array.elem))),
+            Type::Slice(slice) => ast::AnnType::Array(Box::new(self.convert_type(&slice.elem))),
+            Type::Tuple(types) => {
+                ast::AnnType::Tuple(types.iter().map(|t| self.convert_type(t)).collect())
+            }
+            Type::Function(function) => ast::AnnType::Func(
+                function.params.iter().map(|t| self.convert_type(t)).collect(),
+                Box::new(self.convert_type(&function.ret)),
+            ),
+            Type::TraitObject(bounds, _) => ast::AnnType::Named(self.paths_to_string(bounds)),
+            Type::ImplTrait(bounds) => ast::AnnType::Named(self.paths_to_string(bounds)),
+            Type::DynTrait(dyn_trait) => ast::AnnType::Named(
+                dyn_trait
+                    .bounds
+                    .iter()
+                    .map(|t| self.type_to_string(t))
+                    .collect::<Vec<_>>()
+                    .join(" + "),
+            ),
+            Type::Infer => ast::AnnType::Error,
+            Type::Wildcard => ast::AnnType::Named("_".to_string()),
         }
     }
 
-    fn convert_expr(&self, expr: &Expr) -> AstNode {
-        match &expr.kind {
-            ExprKind::Unit => AstNode::Literal(Literal::Unit),
-            ExprKind::Bool(b) => AstNode::Literal(Literal::Boolean(*b)),
-            ExprKind::Char(c) => AstNode::Literal(Literal::Char(*c)),
-            ExprKind::Int(i) => AstNode::Literal(Literal::Integer(*i)),
-            ExprKind::Float(f) => AstNode::Literal(Literal::Float(*f)),
-            ExprKind::String(s) => AstNode::Literal(Literal::String(s.clone())),
-            ExprKind::Ident(id) => AstNode::Variable(id.clone()),
-            ExprKind::Path(path) => AstNode::Variable(path.segments.last().map(|s| s.ident.clone()).unwrap_or_default()),
-            ExprKind::Binary(op, lhs, rhs) => AstNode::BinaryOp {
-                op: self.convert_operator(op),
-                left: Box::new(self.convert_expr(lhs)),
-                right: Box::new(self.convert_expr(rhs)),
+    /// Convert a Rust expression into the IR expression.
+    fn convert_expr(&self, expr: &Expr) -> ast::Expr {
+        ast::Expr::new_at(self.convert_expr_kind(&expr.kind))
+    }
+
+    /// Convert the kind of a Rust expression into the IR expression kind.
+    fn convert_expr_kind(&self, expr: &ExprKind) -> ast::ExprKind {
+        match expr {
+            ExprKind::Unit => ast::ExprKind::Literal(ast::Literal::Unit),
+            ExprKind::Bool(b) => ast::ExprKind::Literal(ast::Literal::Bool(*b)),
+            ExprKind::Char(c) => ast::ExprKind::Literal(ast::Literal::Char(*c)),
+            ExprKind::Int(i) => ast::ExprKind::Literal(ast::Literal::Int(*i)),
+            ExprKind::Float(f) => ast::ExprKind::Literal(ast::Literal::Float(*f)),
+            ExprKind::String(s) => ast::ExprKind::Literal(ast::Literal::String(s.clone())),
+            ExprKind::Byte(b) => ast::ExprKind::Literal(ast::Literal::Byte(*b)),
+            ExprKind::ByteString(bytes) => {
+                ast::ExprKind::Literal(ast::Literal::ByteString(bytes.clone()))
+            }
+            ExprKind::Ident(id) => ast::ExprKind::Identifier(id.clone()),
+            ExprKind::Path(path) => ast::ExprKind::Path(self.path_segments(path)),
+            ExprKind::SelfValue => ast::ExprKind::Identifier("self".to_string()),
+            ExprKind::SelfDeref => ast::ExprKind::Unary {
+                op: ast::UnOp::Deref,
+                operand: Box::new(ast::Expr::new_at(ast::ExprKind::Identifier(
+                    "self".to_string(),
+                ))),
             },
-            ExprKind::Unary(op, operand) => AstNode::UnaryOp {
-                op: self.convert_operator(op),
+            ExprKind::SelfAddr => ast::ExprKind::Ref {
+                mutable: false,
+                expr: Box::new(ast::Expr::new_at(ast::ExprKind::Identifier(
+                    "self".to_string(),
+                ))),
+            },
+            ExprKind::Literal(value, suffix) => ast::ExprKind::Literal(ast::Literal::Verbatim(
+                match suffix {
+                    Some(suffix) => format!("{}{}", value, suffix),
+                    None => value.clone(),
+                },
+            )),
+
+            // Operators
+            ExprKind::Unary(op, operand) => ast::ExprKind::Unary {
+                op: self.convert_unop(op),
                 operand: Box::new(self.convert_expr(operand)),
             },
-            ExprKind::Call(callee, args) => AstNode::Call {
-                func: Box::new(self.convert_expr(callee)),
-                args: args.iter().map(|a| self.convert_expr(a)).collect(),
+            ExprKind::Binary(op, lhs, rhs) => ast::ExprKind::Binary {
+                op: self.convert_binop(op),
+                lhs: Box::new(self.convert_expr(lhs)),
+                rhs: Box::new(self.convert_expr(rhs)),
             },
-            ExprKind::MethodCall(method, args, _) => AstNode::MethodCall {
-                object: Box::new(AstNode::Unit),
+            ExprKind::Logical(op, lhs, rhs) => ast::ExprKind::Binary {
+                op: match op {
+                    LogicalOp::And => ast::BinOp::BitAnd,
+                    LogicalOp::Or => ast::BinOp::BitOr,
+                },
+                lhs: Box::new(self.convert_expr(lhs)),
+                rhs: Box::new(self.convert_expr(rhs)),
+            },
+            ExprKind::Cast(expr, ty) => ast::ExprKind::Cast(
+                Box::new(self.convert_expr(expr)),
+                Box::new(self.convert_type(ty)),
+            ),
+            ExprKind::TypeCast(expr, ty) => ast::ExprKind::Cast(
+                Box::new(self.convert_expr(expr)),
+                Box::new(self.convert_type(ty)),
+            ),
+            ExprKind::AsmCast(expr, ty, _) => ast::ExprKind::Cast(
+                Box::new(self.convert_expr(expr)),
+                Box::new(self.convert_type(ty)),
+            ),
+
+            // Control flow
+            ExprKind::Block(stmts, tail) => ast::ExprKind::Block(self.convert_block(stmts, tail)),
+            ExprKind::If(cond, then, else_part) => ast::ExprKind::If {
+                condition: Box::new(self.convert_expr(cond)),
+                then_block: vec![(ast::Pattern::Wildcard, self.convert_block_expr(then))],
+                else_expr: else_part
+                    .as_ref()
+                    .map(|e| (ast::Pattern::Wildcard, self.convert_block_expr(e))),
+            },
+            ExprKind::IfLet(pat, cond, then, else_part) => ast::ExprKind::If {
+                condition: Box::new(self.convert_expr(cond)),
+                then_block: vec![(self.convert_pattern(pat), self.convert_block_expr(then))],
+                else_expr: else_part
+                    .as_ref()
+                    .map(|e| (ast::Pattern::Wildcard, self.convert_block_expr(e))),
+            },
+            ExprKind::Match(expr, arms) => ast::ExprKind::Match {
+                discriminant: Box::new(self.convert_expr(expr)),
+                arms: arms
+                    .iter()
+                    .map(|arm| ast::MatchArm {
+                        pattern: self.convert_pattern(&arm.pat),
+                        guard: arm.guard.as_ref().map(|g| self.convert_expr(g)),
+                        body: self.convert_expr(&arm.body),
+                    })
+                    .collect(),
+            },
+            ExprKind::Loop(body) => ast::ExprKind::Loop(self.convert_block_expr(body)),
+            ExprKind::While(cond, body) => ast::ExprKind::While {
+                condition: Box::new(self.convert_expr(cond)),
+                body: self.convert_block_expr(body),
+            },
+            ExprKind::WhileLet(pat, cond, body) => ast::ExprKind::While {
+                condition: Box::new(self.convert_expr(cond)),
+                body: self.convert_block_expr(body),
+            },
+            ExprKind::For(pat, iter, body) => ast::ExprKind::For(
+                self.pattern_name(pat),
+                Box::new(self.convert_expr(iter)),
+                self.convert_block_expr(body),
+            ),
+            ExprKind::Continue(_) => ast::ExprKind::Continue { label: None },
+            ExprKind::Break(value, _) => ast::ExprKind::Break {
+                label: None,
+                value: value.as_ref().map(|v| Box::new(self.convert_expr(v))),
+            },
+            ExprKind::Return(value) => {
+                ast::ExprKind::Return(value.as_ref().map(|v| self.convert_expr(v)))
+            }
+
+            // Functions
+            ExprKind::Call(callee, args) => ast::ExprKind::Call {
+                function: Box::new(self.convert_expr(callee)),
+                arguments: args.iter().map(|a| self.convert_expr(a)).collect(),
+            },
+            ExprKind::MethodCall(method, args, _) => ast::ExprKind::MethodCall {
+                // The Rust AST does not record the receiver of a method call.
+                object: Box::new(ast::Expr::new_at(ast::ExprKind::Literal(ast::Literal::Unit))),
                 method: method.clone(),
-                args: args.iter().map(|a| self.convert_expr(a)).collect(),
+                arguments: args.iter().map(|a| self.convert_expr(a)).collect(),
             },
-            ExprKind::If(cond, then, else_part) => AstNode::If {
-                condition: Box::new(self.convert_expr(cond)),
-                then_branch: Box::new(self.convert_expr(then)),
-                else_branch: else_part.as_ref().map(|e| Box::new(self.convert_expr(e))),
-            },
-            ExprKind::Match(expr, arms) => AstNode::Match {
-                expr: Box::new(self.convert_expr(expr)),
-                arms: arms.iter().map(|arm| {
-                    let pat_str = match &arm.pat {
-                        Pat::Bind(name, _, _) => name.clone(),
-                        Pat::Wild => "_".to_string(),
-                        _ => "_".to_string(),
-                    };
-                    (pat_str, Box::new(self.convert_expr(&arm.body)))
-                }).collect(),
-            },
-            ExprKind::Loop(body) => AstNode::Loop(Box::new(self.convert_expr(body))),
-            ExprKind::While(cond, body) => AstNode::While {
-                condition: Box::new(self.convert_expr(cond)),
+            ExprKind::Closure(args, body, ret) => ast::ExprKind::Closure(
+                args.iter()
+                    .map(|a| ast::FunctionParam {
+                        name: self.pattern_name(&a.pat),
+                        ann_type: a
+                            .ty
+                            .as_ref()
+                            .map(|t| self.convert_type(t))
+                            .unwrap_or(ast::AnnType::Error),
+                    })
+                    .collect(),
+                self.convert_block_expr(body),
+                ret.as_ref().map(|t| Box::new(self.convert_type(t))),
+            ),
+            ExprKind::Async(_, body) => ast::ExprKind::Async {
                 body: Box::new(self.convert_expr(body)),
             },
-            ExprKind::For(pat, iter, body) => {
-                let pat_str = match pat {
-                    Pat::Bind(name, _, _) => name.clone(),
-                    _ => "_".to_string(),
-                };
-                AstNode::For {
-                    var: pat_str,
-                    iter: Box::new(self.convert_expr(iter)),
-                    body: Box::new(self.convert_expr(body)),
-                }
+            ExprKind::Await(expr) => ast::ExprKind::Await(Box::new(self.convert_expr(expr))),
+            ExprKind::Try(expr) => ast::ExprKind::Try(Box::new(self.convert_expr(expr))),
+            ExprKind::TryBlock(stmts) => ast::ExprKind::Block(self.convert_block(stmts, &None)),
+
+            // Objects
+            ExprKind::Tuple(items) => {
+                ast::ExprKind::Tuple(items.iter().map(|e| self.convert_expr(e)).collect())
             }
-            ExprKind::Return(val) => AstNode::Return(val.as_ref().map(|e| Box::new(self.convert_expr(e)))),
-            ExprKind::Block(stmts, expr) => {
-                let mut nodes: Vec<AstNode> = stmts.iter().map(|s| self.convert_stmt(s)).collect();
-                if let Some(e) = expr {
-                    nodes.push(self.convert_expr(e));
-                }
-                AstNode::Block(nodes)
+            ExprKind::Array(items) => {
+                ast::ExprKind::Array(items.iter().map(|e| self.convert_expr(e)).collect())
             }
-            ExprKind::Tuple(items) => AstNode::Tuple(items.iter().map(|e| self.convert_expr(e)).collect()),
-            ExprKind::Array(items) => AstNode::Array(items.iter().map(|e| self.convert_expr(e)).collect()),
-            ExprKind::Field(expr, name) => AstNode::FieldAccess {
-                object: Box::new(self.convert_expr(expr)),
-                field: name.clone(),
+            ExprKind::Index(base, index) => ast::ExprKind::Index(
+                Box::new(self.convert_expr(base)),
+                Box::new(self.convert_expr(index)),
+            ),
+            ExprKind::Range(start, end, inclusive) => ast::ExprKind::Range(
+                start.as_ref().map(|s| Box::new(self.convert_expr(s))),
+                end.as_ref().map(|e| Box::new(self.convert_expr(e))),
+                *inclusive,
+            ),
+            ExprKind::Field(base, name) => {
+                ast::ExprKind::FieldAccess(Box::new(self.convert_expr(base)), name.clone())
+            }
+            ExprKind::TupleField(base, index) => ast::ExprKind::TupleField {
+                object: Box::new(self.convert_expr(base)),
+                index: *index,
             },
-            ExprKind::Index(expr, idx) => AstNode::Index {
-                array: Box::new(self.convert_expr(expr)),
-                index: Box::new(self.convert_expr(idx)),
+            ExprKind::Struct(path, fields) => ast::ExprKind::Struct {
+                name: self.path_to_string(path),
+                fields: fields
+                    .iter()
+                    .map(|f| (f.name.clone(), self.convert_expr(&f.value)))
+                    .collect(),
             },
-            ExprKind::Struct(_, fields) => AstNode::StructInit {
-                name: String::new(),
-                fields: fields.iter().map(|f| (f.name.clone(), self.convert_expr(&f.value))).collect(),
+            ExprKind::Enum(path, variant, args) => ast::ExprKind::Call {
+                function: Box::new(ast::Expr::new_at(ast::ExprKind::Identifier(format!(
+                    "{}::{}",
+                    self.path_to_string(path),
+                    variant
+                )))),
+                arguments: args.iter().map(|a| self.convert_expr(a)).collect(),
             },
-            ExprKind::Break(_, _) => AstNode::Break,
-            ExprKind::Continue(_) => AstNode::Continue,
-            ExprKind::Try(expr) => AstNode::Try(Box::new(self.convert_expr(expr))),
-            ExprKind::QuestionMark(expr) => AstNode::QuestionMark(Box::new(self.convert_expr(expr))),
-            ExprKind::Cast(expr, ty) => AstNode::Cast {
-                expr: Box::new(self.convert_expr(expr)),
-                target_type: self.convert_type(ty),
+
+            // Patterns used in expression position
+            ExprKind::PathPat(path) => ast::ExprKind::Path(self.path_segments(path)),
+            ExprKind::Wildcard => ast::ExprKind::Identifier("_".to_string()),
+            ExprKind::Rest => ast::ExprKind::Identifier("..".to_string()),
+            ExprKind::Bind(name, _) => ast::ExprKind::Identifier(name.clone()),
+            ExprKind::LitPat(literal) => ast::ExprKind::Literal(self.convert_literal(literal)),
+            ExprKind::OrPat(lhs, rhs) => ast::ExprKind::Binary {
+                op: ast::BinOp::BitOr,
+                lhs: Box::new(self.convert_expr(lhs)),
+                rhs: Box::new(self.convert_expr(rhs)),
             },
-            ExprKind::AsmCast(expr, ty, _) => AstNode::Cast {
-                expr: Box::new(self.convert_expr(expr)),
-                target_type: self.convert_type(ty),
+            ExprKind::RangePat(start, end) => ast::ExprKind::Range(
+                Some(Box::new(ast::Expr::new_at(ast::ExprKind::Literal(
+                    self.convert_literal(start),
+                )))),
+                Some(Box::new(ast::Expr::new_at(ast::ExprKind::Literal(
+                    self.convert_literal(end),
+                )))),
+                false,
+            ),
+            ExprKind::SlicePat(pats) => {
+                ast::ExprKind::Array(pats.iter().map(|p| self.pattern_expr(p)).collect())
+            }
+            ExprKind::TuplePat(pats) => {
+                ast::ExprKind::Tuple(pats.iter().map(|p| self.pattern_expr(p)).collect())
+            }
+            ExprKind::StructPat(path, fields, _) => ast::ExprKind::Struct {
+                name: self.path_to_string(path),
+                fields: fields
+                    .iter()
+                    .map(|f| (f.name.clone(), self.pattern_expr(&f.pat)))
+                    .collect(),
             },
-            ExprKind::Macro(invoke) => AstNode::MacroInvoke {
-                name: invoke.path.segments.last().map(|s| s.ident.clone()).unwrap_or_default(),
-                args: vec![],
+
+            // Macros
+            ExprKind::Macro(invoke) => ast::ExprKind::Call {
+                function: Box::new(ast::Expr::new_at(ast::ExprKind::Identifier(
+                    invoke
+                        .path
+                        .segments
+                        .last()
+                        .map(|s| s.ident.clone())
+                        .unwrap_or_default(),
+                ))),
+                arguments: Vec::new(),
             },
-            _ => AstNode::Unit,
+            ExprKind::MacroRules(name, _) => ast::ExprKind::Identifier(name.clone()),
+
+            // Error propagation
+            ExprKind::QuestionMark(expr) => ast::ExprKind::Try(Box::new(self.convert_expr(expr))),
+
+            // Inline assembly
+            ExprKind::Asm(_, operands, _) => ast::ExprKind::Call {
+                function: Box::new(ast::Expr::new_at(ast::ExprKind::Identifier(
+                    "asm".to_string(),
+                ))),
+                arguments: operands.iter().map(|o| self.convert_expr(&o.expr)).collect(),
+            },
+
+            // Types
+            ExprKind::TypeAlias(ty) => ast::ExprKind::Identifier(self.type_to_string(ty)),
+            ExprKind::ExprBlock(inner) => ast::ExprKind::Block(self.convert_block_expr(inner)),
         }
     }
 
-    fn convert_stmt(&self, stmt: &Stmt) -> AstNode {
+    /// Convert a Rust statement into the IR statement.
+    fn convert_stmt(&self, stmt: &Stmt) -> ast::Stmt {
         match stmt {
-            Stmt::Let(pat, ty, _, init) => AstNode::Let {
-                name: match pat {
-                    Pat::Bind(name, _, _) => name.clone(),
-                    _ => "_".to_string(),
-                },
-                ty: ty.clone().map(|t| self.convert_type(&t)),
-                value: init.as_ref().map(|e| Box::new(self.convert_expr(e))),
-            },
-            Stmt::Item(item) => self.convert_item(item).unwrap_or(AstNode::Unit),
-            Stmt::Expr(expr) => self.convert_expr(expr),
-            Stmt::Semi(expr) => self.convert_expr(expr),
+            Stmt::Let(pat, ty, _, init) => ast::Stmt::new_at(ast::StmtKind::Let(
+                self.convert_pattern(pat),
+                ty.as_ref().map(|t| self.convert_type(t)),
+                init.as_ref().map(|e| self.convert_expr(e)),
+                Vec::new(),
+            )),
+            Stmt::Item(item) => self.convert_nested_item(item),
+            Stmt::Expr(expr) => ast::Stmt::new_at(ast::StmtKind::Expr(self.convert_expr(expr))),
+            Stmt::Semi(expr) => ast::Stmt::new_at(ast::StmtKind::Expr(self.convert_expr(expr))),
         }
     }
 
-    fn convert_operator(&self, op: &Operator) -> Operator {
-        match op {
-            Operator::Add => Operator::Add,
-            Operator::Sub => Operator::Sub,
-            Operator::Mul => Operator::Mul,
-            Operator::Div => Operator::Div,
-            Operator::Rem => Operator::Rem,
-            Operator::BitAnd => Operator::BitAnd,
-            Operator::BitOr => Operator::BitOr,
-            Operator::BitXor => Operator::BitXor,
-            Operator::Shl => Operator::Shl,
-            Operator::Shr => Operator::Shr,
-            Operator::Neg => Operator::Neg,
-            Operator::Not => Operator::Not,
+    /// Lower an item nested inside a block.
+    ///
+    /// The IR has no notion of an item nested in a block: constants become
+    /// `let` statements and every other nested item is preserved as a verbatim
+    /// expression naming it.
+    fn convert_nested_item(&self, item: &Item) -> ast::Stmt {
+        match &item.kind {
+            ItemKind::Global(name, ty, val) => ast::Stmt::new_at(ast::StmtKind::Let(
+                ast::Pattern::Binding(name.clone()),
+                Some(self.convert_type(ty)),
+                Some(self.convert_expr(val)),
+                Vec::new(),
+            )),
+            _ => ast::Stmt::new_at(ast::StmtKind::Expr(ast::Expr::new_at(
+                ast::ExprKind::Literal(ast::Literal::Verbatim(self.item_label(item))),
+            ))),
         }
+    }
+
+    /// A short label describing an item, used when the IR cannot hold it.
+    fn item_label(&self, item: &Item) -> String {
+        match &item.kind {
+            ItemKind::Function(f) => format!("fn {}", f.name),
+            ItemKind::Struct(s) => format!("struct {}", s.name),
+            ItemKind::Enum(e) => format!("enum {}", e.name),
+            ItemKind::Trait(t) => format!("trait {}", t.name),
+            ItemKind::Impl(_) => "impl".to_string(),
+            ItemKind::Global(name, _, _) => format!("const {}", name),
+            ItemKind::Import(_) => "use".to_string(),
+            ItemKind::Module(name) => format!("mod {}", name),
+            ItemKind::ExternCrate(name, _) => format!("extern crate {}", name),
+            ItemKind::Union(u) => format!("union {}", u.name),
+            ItemKind::TypeAlias(name, _, _, _) => format!("type {}", name),
+            ItemKind::ForeignMod(abi, _) => format!("extern {}", abi),
+            ItemKind::MacroRules(name, _) => format!("macro_rules! {}", name),
+        }
+    }
+
+    /// Convert a block of Rust statements into IR statements.
+    fn convert_block(&self, stmts: &[Stmt], tail: &Option<Box<Expr>>) -> Vec<ast::Stmt> {
+        let mut out: Vec<ast::Stmt> = stmts.iter().map(|s| self.convert_stmt(s)).collect();
+        if let Some(tail) = tail {
+            out.push(ast::Stmt::new_at(ast::StmtKind::Expr(self.convert_expr(tail))));
+        }
+        out
+    }
+
+    /// Convert a Rust block expression into IR statements.
+    fn convert_block_expr(&self, body: &Expr) -> Vec<ast::Stmt> {
+        match &body.kind {
+            ExprKind::Block(stmts, tail) => self.convert_block(stmts, tail),
+            _ => vec![ast::Stmt::new_at(ast::StmtKind::Expr(self.convert_expr(body)))],
+        }
+    }
+
+    /// Convert a Rust pattern into the IR pattern.
+    fn convert_pattern(&self, pat: &Pat) -> ast::Pattern {
+        match pat {
+            Pat::Wild | Pat::Rest => ast::Pattern::Wildcard,
+            Pat::Bind(name, _, None) => ast::Pattern::Binding(name.clone()),
+            Pat::Bind(name, _, Some(inner)) => {
+                ast::Pattern::As(Box::new(self.convert_pattern(inner)), name.clone())
+            }
+            Pat::Literal(literal) => ast::Pattern::Literal(self.convert_literal(literal)),
+            Pat::Range(start, end) => {
+                ast::Pattern::Range(self.convert_literal(start), self.convert_literal(end))
+            }
+            Pat::RangeLit(start, end) => {
+                ast::Pattern::Range(self.convert_literal(start), self.convert_literal(end))
+            }
+            Pat::Enum(path, inner) => ast::Pattern::Constructor {
+                name: self.path_to_string(path),
+                args: inner
+                    .as_ref()
+                    .map(|p| vec![self.convert_pattern(p)])
+                    .unwrap_or_default(),
+            },
+            Pat::TupleStruct(path, pats) => ast::Pattern::Constructor {
+                name: self.path_to_string(path),
+                args: pats.iter().map(|p| self.convert_pattern(p)).collect(),
+            },
+            Pat::Struct(path, fields, _) => ast::Pattern::Constructor {
+                name: self.path_to_string(path),
+                args: fields.iter().map(|f| self.convert_pattern(&f.pat)).collect(),
+            },
+            Pat::Tuple(pats) => ast::Pattern::Tuple(pats.iter().map(|p| self.convert_pattern(p)).collect()),
+            Pat::Slice(pats) => ast::Pattern::Slice(pats.iter().map(|p| self.convert_pattern(p)).collect()),
+            Pat::Or(pats) => ast::Pattern::Or(pats.iter().map(|p| self.convert_pattern(p)).collect()),
+        }
+    }
+
+    /// Convert a Rust literal into the IR literal.
+    fn convert_literal(&self, literal: &Literal) -> ast::Literal {
+        match literal {
+            Literal::Int(value, _) => ast::Literal::Int(*value),
+            Literal::Float(value, _) => ast::Literal::Float(*value),
+            Literal::Char(value) => ast::Literal::Char(*value),
+            Literal::String(value) => ast::Literal::String(value.clone()),
+            Literal::Byte(value) => ast::Literal::Byte(*value),
+            Literal::ByteString(value) => ast::Literal::ByteString(value.clone()),
+            Literal::Bool(value) => ast::Literal::Bool(*value),
+        }
+    }
+
+    /// The name bound by a pattern, or `_` when it binds no name.
+    fn pattern_name(&self, pat: &Pat) -> String {
+        match pat {
+            Pat::Bind(name, _, _) => name.clone(),
+            _ => "_".to_string(),
+        }
+    }
+
+    /// An expression standing for a pattern, used where the IR expects a value.
+    fn pattern_expr(&self, pat: &Pat) -> ast::Expr {
+        match pat {
+            Pat::Bind(name, _, _) => ast::Expr::new_at(ast::ExprKind::Identifier(name.clone())),
+            Pat::Wild | Pat::Rest => {
+                ast::Expr::new_at(ast::ExprKind::Identifier("_".to_string()))
+            }
+            Pat::Literal(literal) => {
+                ast::Expr::new_at(ast::ExprKind::Literal(self.convert_literal(literal)))
+            }
+            _ => ast::Expr::new_at(ast::ExprKind::Identifier(self.pattern_name(pat))),
+        }
+    }
+
+    /// Lower a binary operator.
+    ///
+    /// The Rust operator enum also carries the unary operators `Neg` and `Not`;
+    /// those are lowered by [`Self::convert_unop`] and never reach this
+    /// function.
+    fn convert_binop(&self, op: &Operator) -> ast::BinOp {
+        match op {
+            Operator::Add => ast::BinOp::Add,
+            Operator::Sub => ast::BinOp::Sub,
+            Operator::Mul => ast::BinOp::Mul,
+            Operator::Div => ast::BinOp::Div,
+            Operator::Rem => ast::BinOp::Mod,
+            Operator::BitAnd => ast::BinOp::BitAnd,
+            Operator::BitOr => ast::BinOp::BitOr,
+            Operator::BitXor => ast::BinOp::BitXor,
+            Operator::Shl => ast::BinOp::Shl,
+            Operator::Shr => ast::BinOp::Shr,
+            Operator::Neg | Operator::Not => ast::BinOp::Add,
+        }
+    }
+
+    /// Lower a unary operator.
+    fn convert_unop(&self, op: &Operator) -> ast::UnOp {
+        match op {
+            Operator::Neg => ast::UnOp::Neg,
+            Operator::Not => ast::UnOp::BitNot,
+            // The remaining operators are binary and have no unary form in the
+            // IR.
+            _ => ast::UnOp::Not,
+        }
+    }
+
+    /// The segments of a path, in the shape the IR expects.
+    fn path_segments(&self, path: &Path) -> Vec<String> {
+        path.segments.iter().map(|s| s.ident.clone()).collect()
+    }
+
+    /// Render a path the way it would be written in Rust source.
+    fn path_to_string(&self, path: &Path) -> String {
+        let mut out = String::new();
+        if path.is_absolute {
+            out.push_str("::");
+        }
+        let segments: Vec<String> = path
+            .segments
+            .iter()
+            .map(|segment| {
+                let mut text = segment.ident.clone();
+                if let Some(args) = &segment.generic_args {
+                    if !args.is_empty() {
+                        text.push('<');
+                        text.push_str(
+                            &args
+                                .iter()
+                                .map(|a| self.generic_arg_to_string(a))
+                                .collect::<Vec<_>>()
+                                .join(", "),
+                        );
+                        text.push('>');
+                    }
+                }
+                text
+            })
+            .collect();
+        out.push_str(&segments.join("::"));
+        out
+    }
+
+    /// Render a generic argument the way it would be written in Rust source.
+    fn generic_arg_to_string(&self, arg: &GenericArg) -> String {
+        match arg {
+            GenericArg::Type(ty) => self.type_to_string(ty),
+            GenericArg::Lifetime(lifetime) => format!("'{}", lifetime),
+            GenericArg::Const(expr) => format!("{:?}", expr.kind),
+        }
+    }
+
+    /// Render a Rust type the way it would be written in Rust source.
+    fn type_to_string(&self, ty: &Type) -> String {
+        match ty {
+            Type::Never => "!".to_string(),
+            Type::Unit => "()".to_string(),
+            Type::Bool => "bool".to_string(),
+            Type::Char => "char".to_string(),
+            Type::Int(bits) => format!("i{}", bits),
+            Type::Uint(bits) => format!("u{}", bits),
+            Type::Float(bits) => format!("f{}", bits),
+            Type::Str => "str".to_string(),
+            Type::Bytes => "[u8]".to_string(),
+            Type::SelfType => "Self".to_string(),
+            Type::Path(path) => self.path_to_string(path),
+            Type::Pointer(pointer) => format!("*{}", self.type_to_string(&pointer.inner)),
+            Type::Reference(reference) => format!(
+                "&{}{}",
+                if reference.mutable { "mut " } else { "" },
+                self.type_to_string(&reference.inner)
+            ),
+            Type::Array(array) => format!("[{}]", self.type_to_string(&array.elem)),
+            Type::Slice(slice) => format!("[{}]", self.type_to_string(&slice.elem)),
+            Type::Tuple(types) => format!(
+                "({})",
+                types
+                    .iter()
+                    .map(|t| self.type_to_string(t))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ),
+            Type::Function(function) => format!(
+                "fn({})",
+                function
+                    .params
+                    .iter()
+                    .map(|t| self.type_to_string(t))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ),
+            Type::TraitObject(bounds, _) => self.paths_to_string(bounds),
+            Type::ImplTrait(bounds) => self.paths_to_string(bounds),
+            Type::DynTrait(dyn_trait) => dyn_trait
+                .bounds
+                .iter()
+                .map(|t| self.type_to_string(t))
+                .collect::<Vec<_>>()
+                .join(" + "),
+            Type::Infer => "_".to_string(),
+            Type::Wildcard => "_".to_string(),
+        }
+    }
+
+    /// Render a list of paths the way they would be written in Rust source.
+    fn paths_to_string(&self, paths: &[Path]) -> String {
+        paths
+            .iter()
+            .map(|p| self.path_to_string(p))
+            .collect::<Vec<_>>()
+            .join(" + ")
     }
 }
 
@@ -2596,7 +3248,7 @@ impl RustFrontend {
         }
     }
 
-    pub fn parse(&mut self, source: &str) -> Result<Vec<AstNode>, Vec<ParseError>> {
+    pub fn parse(&mut self, source: &str) -> Result<Vec<ast::Item>, Vec<ParseError>> {
         self.lexer = RustLexer::new(source);
         let tokens = self.lexer.tokenize();
 
@@ -2607,7 +3259,7 @@ impl RustFrontend {
             return Err(errors);
         }
 
-        let ast: Vec<AstNode> = items
+        let ast: Vec<ast::Item> = items
             .iter()
             .filter_map(|item| self.converter.convert_item(item))
             .collect();
@@ -2690,8 +3342,8 @@ mod tests {
         let ast = frontend.parse(source).unwrap();
 
         assert!(!ast.is_empty());
-        if let AstNode::FunctionDef { name, .. } = &ast[0] {
-            assert_eq!(name, "add");
+        if let ast::Item::Function(f) = &ast[0] {
+            assert_eq!(f.name, "add");
         }
     }
 
@@ -2708,8 +3360,8 @@ mod tests {
         let ast = frontend.parse(source).unwrap();
 
         assert!(!ast.is_empty());
-        if let AstNode::StructDef { name, .. } = &ast[0] {
-            assert_eq!(name, "Point");
+        if let ast::Item::Struct(s) = &ast[0] {
+            assert_eq!(s.name, "Point");
         }
     }
 
@@ -2727,8 +3379,8 @@ mod tests {
         let ast = frontend.parse(source).unwrap();
 
         assert!(!ast.is_empty());
-        if let AstNode::EnumDef { name, .. } = &ast[0] {
-            assert_eq!(name, "Color");
+        if let ast::Item::Enum(e) = &ast[0] {
+            assert_eq!(e.name, "Color");
         }
     }
 

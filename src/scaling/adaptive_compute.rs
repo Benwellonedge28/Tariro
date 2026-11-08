@@ -17,7 +17,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BinaryHeap, HashMap, VecDeque};
 
 /// Computation path selection
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ComputationPath {
     /// Minimal reasoning: O(n) simple rules
     /// For microcontrollers and battery-critical operations

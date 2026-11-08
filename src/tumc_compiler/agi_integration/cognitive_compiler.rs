@@ -4,7 +4,8 @@
 //! for intelligent, self-improving compilation.
 
 use crate::tumc_compiler::ir::{Module, Function, Operation};
-use crate::tumc_compiler::optimization::{Optimizer, OptLevel};
+use crate::tumc_compiler::optimizer::Optimizer;
+use crate::tumc_compiler::optimization::OptLevel;
 use crate::tumc_compiler::verification::Verifier;
 use crate::tumc_compiler::agi_integration::{
     AgiCompilerConfig, AgiCompilerBridge, AgiInsight, AgiCompilerMetrics,

@@ -3,8 +3,8 @@
 
 use crate::prelude::*;
 use super::ast::{self, *};
-use super::parser::SourceLocation;
 use std::collections::{HashMap, HashSet};
+use std::fmt;
 
 /// Represents a type variable for inference
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -573,6 +573,11 @@ pub struct TypeChecker {
 }
 
 impl TypeChecker {
+    /// The errors collected so far.
+    pub fn errors(&self) -> &[TypeError] {
+        &self.errors
+    }
+
     /// Create new type checker
     pub fn new() -> Self {
         TypeChecker {
@@ -1042,6 +1047,83 @@ impl TypeChecker {
             ExprKind::Path(_) => {
                 Ok(self.env.fresh_var())
             }
+
+            ExprKind::Assign { target, value } => {
+                let target_type = self.check_expr(target)?;
+                let value_type = self.check_expr(value)?;
+                self.env.unify(&target_type, &value_type)?;
+                Ok(Type::Unit)
+            }
+
+            ExprKind::CompoundAssign { target, value, .. } => {
+                let target_type = self.check_expr(target)?;
+                let value_type = self.check_expr(value)?;
+                self.env.unify(&target_type, &value_type)?;
+                Ok(Type::Unit)
+            }
+
+            ExprKind::Loop(statements) => {
+                for stmt in statements {
+                    self.check_stmt(stmt)?;
+                }
+                Ok(self.env.fresh_var())
+            }
+
+            ExprKind::While { condition, body } => {
+                let cond_type = self.check_expr(condition)?;
+                self.env.unify(&Type::Bool, &cond_type)?;
+                for stmt in body {
+                    self.check_stmt(stmt)?;
+                }
+                Ok(Type::Unit)
+            }
+
+            ExprKind::Return(value) => {
+                if let Some(expr) = value {
+                    self.check_expr(expr)?;
+                }
+                Ok(Type::Unit)
+            }
+
+            ExprKind::Break { value, .. } => {
+                if let Some(expr) = value {
+                    self.check_expr(expr)?;
+                }
+                Ok(Type::Unit)
+            }
+
+            ExprKind::Continue { .. } => Ok(Type::Unit),
+
+            ExprKind::Async { body } => self.check_expr(body),
+
+            ExprKind::Struct { fields, .. } => {
+                let mut field_types = Vec::with_capacity(fields.len());
+                for (name, value) in fields {
+                    let value_type = self.check_expr(value)?;
+                    field_types.push((name.clone(), value_type));
+                }
+                Ok(Type::Struct {
+                    name: String::from("__anon_struct"),
+                    fields: field_types,
+                })
+            }
+
+            ExprKind::TupleField { object, .. } => {
+                let object_type = self.check_expr(object)?;
+                match &self.env.apply(&object_type) {
+                    Type::Tuple(elems) => Ok(elems.first().cloned().unwrap_or(Type::Unit)),
+                    _ => Ok(self.env.fresh_var()),
+                }
+            }
+
+            ExprKind::Ref { mutable, expr } => {
+                let inner = self.check_expr(expr)?;
+                if *mutable {
+                    Ok(Type::MutRef(Box::new(inner)))
+                } else {
+                    Ok(Type::Ref(Box::new(inner)))
+                }
+            }
         }
     }
 
@@ -1135,6 +1217,24 @@ impl TypeChecker {
 
             // Pipeline operator
             BinOp::Pipe => Ok(rhs_type),
+
+            // Exponentiation
+            BinOp::Pow => {
+                match &lhs_type {
+                    Type::Int => {
+                        self.env.unify(&Type::Int, &rhs_type)?;
+                        Ok(Type::Int)
+                    }
+                    Type::Float => {
+                        self.env.unify(&Type::Float, &rhs_type)?;
+                        Ok(Type::Float)
+                    }
+                    _ => Err(TypeError::TypeMismatch {
+                        expected: Type::Int,
+                        found: lhs_type,
+                    }),
+                }
+            }
         }
     }
 
@@ -1307,6 +1407,14 @@ impl TypeChecker {
                 let pattern_type = self.check_pattern(pattern)?;
                 self.env.add_binding(name.clone(), pattern_type.clone());
                 Ok(pattern_type)
+            }
+            Pattern::Ref(pattern) => {
+                let inner = self.check_pattern(pattern)?;
+                Ok(Type::Ref(Box::new(inner)))
+            }
+            Pattern::MutRef(pattern) => {
+                let inner = self.check_pattern(pattern)?;
+                Ok(Type::MutRef(Box::new(inner)))
             }
         }
     }

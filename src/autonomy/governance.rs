@@ -1,8 +1,9 @@
 // src/autonomy/governance.rs
-use crate::prelude::*;
 
 //! Implements the governance mechanisms for Tariro AGI's autonomy, ensuring ethical alignment
 //! and controlled self-modification within defined policy boundaries.
+
+use crate::prelude::*;
 
 use chrono::{DateTime, Utc};
 use std::time::Duration;
@@ -147,7 +148,7 @@ impl GovernanceService {
             GovernanceActionType::UpdatePolicy => {
                 if let Some(policy_id) = &action.target_policy_id {
                     let mut current_policy = self.policy_engine.get_policy(policy_id)
-                        .ok_or(format!("Policy {} not found.", policy_id))?.clone();
+                        .ok_or(format!("Policy {} not found.", policy_id))?;
 
                     for (key, value) in &action.proposed_changes {
                         match key.as_str() {
@@ -241,8 +242,8 @@ mod tests {
             if let Some(p) = self.policies.get_mut(policy.id.as_ref().unwrap()) { *p = policy; Ok(()) } else { Err("Policy not found".to_string()) }
         }
         async fn remove_policy(&mut self, _policy_id: &str) -> Result<(), String> { Ok(()) }
-        async fn get_policy(&self, policy_id: &str) -> Option<&AutonomyPolicy> { self.policies.get(policy_id) }
-        async fn list_policies(&self) -> Vec<&AutonomyPolicy> { self.policies.values().collect() }
+        async fn get_policy(&self, policy_id: &str) -> Option<AutonomyPolicy> { self.policies.get(policy_id).cloned() }
+        async fn list_policies(&self) -> Vec<AutonomyPolicy> { self.policies.values().cloned().collect() }
         async fn set_autonomy_level(&mut self, domain: &str, level: AutonomyLevel) -> Result<(), String> {
             if let Some(policy) = self.policies.values_mut().find(|p| p.domain == domain) {
                 policy.autonomy_level = level;
@@ -251,7 +252,7 @@ mod tests {
                 Err("Policy for domain not found".to_string())
             }
         }
-        async fn get_policy_by_domain(&self, domain: &str) -> Option<&AutonomyPolicy> { self.policies.values().find(|p| p.domain == domain) }
+        async fn get_policy_by_domain(&self, domain: &str) -> Option<AutonomyPolicy> { self.policies.values().find(|p| p.domain == domain).cloned() }
     }
 
     fn setup_services() -> (GovernanceService, mpsc::Receiver<TelemetryEvent>) {

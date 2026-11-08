@@ -1,5 +1,6 @@
 // Control Flow Graph Implementation
 
+use std::collections::HashMap;
 use super::*;
 
 /// Control Flow Graph representation

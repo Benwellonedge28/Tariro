@@ -90,12 +90,13 @@ impl Runtime {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Value {
     Unit,
     Bool(bool),
     Int(i64),
     Float(f64),
+    String(String),
     Pointer(*mut u8),
     Tuple(Vec<Value>),
     Function(FunctionId),

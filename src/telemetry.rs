@@ -36,7 +36,13 @@ pub enum TelemetryEvent {
     // Admin & Control
     AdminCommandIssued { command_id: String, command_type: String, initiator: String },
     AdminCommandCompleted { command_id: String, status: String, message: String },
-    AutonomyLevelChanged { new_level: String, domain: String },
+    AutonomyLevelChanged {
+        affected_domain: String,
+        old_autonomy_level: String,
+        new_autonomy_level: String,
+        reason: String,
+        triggered_by_action_id: String,
+    },
 
     // Project & Task Management
     ProjectCreated { project_id: String, project_name: String },

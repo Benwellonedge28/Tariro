@@ -41,6 +41,12 @@ pub enum TokenKind {
     /// Identifier (e.g., foo, my_var)
     Identifier(String),
 
+    /// The wildcard pattern `_`.
+    Underscore,
+
+    /// A punctuation token.
+    Punct(PunctKind),
+
     // Keywords
     /// fn, function, def
     Fn,
@@ -248,6 +254,118 @@ pub enum TokenKind {
 
     /// Unknown token
     Unknown(char),
+}
+
+/// The punctuation the lexer can produce.
+///
+/// Keeping the punctuation kinds in one place lets the macro expander emit
+/// exactly the same tokens the lexer does.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum PunctKind {
+    Plus,
+    Minus,
+    Star,
+    Slash,
+    Percent,
+    Caret,
+    Not,
+    And,
+    Or,
+    AndAnd,
+    OrOr,
+    EqEq,
+    Eq,
+    Ne,
+    Lt,
+    Le,
+    Gt,
+    Ge,
+    Shl,
+    Shr,
+    AddEq,
+    SubEq,
+    MulEq,
+    DivEq,
+    RemEq,
+    XorEq,
+    AndEq,
+    OrEq,
+    ShlEq,
+    ShrEq,
+    At,
+    Dot,
+    DotDot,
+    DotDotEq,
+    DotDotDot,
+    DotDotDotDot,
+    Colon,
+    ColonColon,
+    Semi,
+    Comma,
+    LParen,
+    RParen,
+    LBrace,
+    RBrace,
+    LBracket,
+    RBracket,
+    Bang,
+    Question,
+}
+
+impl PunctKind {
+    /// The character this punctuation stands for.
+    pub fn as_char(self) -> char {
+        match self {
+            PunctKind::Plus => '+',
+            PunctKind::Minus => '-',
+            PunctKind::Star => '*',
+            PunctKind::Slash => '/',
+            PunctKind::Percent => '%',
+            PunctKind::Caret => '^',
+            PunctKind::Not => '!',
+            PunctKind::And => '&',
+            PunctKind::Or => '|',
+            PunctKind::AndAnd => '&',
+            PunctKind::OrOr => '|',
+            PunctKind::EqEq => '=',
+            PunctKind::Eq => '=',
+            PunctKind::Ne => '!',
+            PunctKind::Lt => '<',
+            PunctKind::Le => '<',
+            PunctKind::Gt => '>',
+            PunctKind::Ge => '>',
+            PunctKind::Shl => '<',
+            PunctKind::Shr => '>',
+            PunctKind::AddEq => '+',
+            PunctKind::SubEq => '-',
+            PunctKind::MulEq => '*',
+            PunctKind::DivEq => '/',
+            PunctKind::RemEq => '%',
+            PunctKind::XorEq => '^',
+            PunctKind::AndEq => '&',
+            PunctKind::OrEq => '|',
+            PunctKind::ShlEq => '<',
+            PunctKind::ShrEq => '>',
+            PunctKind::At => '@',
+            PunctKind::Dot => '.',
+            PunctKind::DotDot => '.',
+            PunctKind::DotDotEq => '.',
+            PunctKind::DotDotDot => '.',
+            PunctKind::DotDotDotDot => '.',
+            PunctKind::Colon => ':',
+            PunctKind::ColonColon => ':',
+            PunctKind::Semi => ';',
+            PunctKind::Comma => ',',
+            PunctKind::LParen => '(',
+            PunctKind::RParen => ')',
+            PunctKind::LBrace => '{',
+            PunctKind::RBrace => '}',
+            PunctKind::LBracket => '[',
+            PunctKind::RBracket => ']',
+            PunctKind::Bang => '!',
+            PunctKind::Question => '?',
+        }
+    }
 }
 
 /// Token with position information
@@ -971,6 +1089,12 @@ impl<'a> Lexer<'a> {
             } else {
                 break;
             }
+        }
+
+        // A lone underscore is the wildcard pattern, not an identifier.
+        if value == "_" {
+            self.push_token(TokenKind::Underscore, start, None);
+            return Ok(());
         }
 
         // Check for keywords

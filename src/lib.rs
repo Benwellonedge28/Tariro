@@ -37,8 +37,14 @@ pub mod sandbox;
 pub mod config;
 pub mod telemetry;
 pub mod event_bus;
+pub mod database;
 pub mod deployment;
 pub mod quantum_security;
+
+// ============================================================================
+// Autonomy & Self-Modification
+// ============================================================================
+pub mod autonomy;
 
 // ============================================================================
 // Scaling Infrastructure (Embedded to Distributed)

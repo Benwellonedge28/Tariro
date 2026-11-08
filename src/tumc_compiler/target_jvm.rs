@@ -70,7 +70,7 @@ impl JvmType {
 }
 
 /// JVM opcode
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum JvmOp {
     // Constants
     AconstNull,
@@ -288,9 +288,6 @@ pub enum JvmOp {
     IfIcmpge(i16),
     IfIcmpgt(i16),
     IfIcmple(i16),
-
-    // Load from array
-    Iconst0,
 }
 
 impl JvmOp {

@@ -2,9 +2,10 @@
 //!
 //! Transpiles Python source code to TUMC IR for compilation to any target.
 
-use crate::tumc_compiler::lexer::Lexer;
-use crate::tumc_compiler::ast::{AstNode, Program, Function, Statement, Expression, Type};
-use crate::tumc_compiler::parser::Parser;
+use crate::tumc_compiler::frontend::{
+    AstNode, Class, Expression, Function, Param, Program, Statement,
+};
+use crate::tumc_compiler::Type;
 use std::collections::HashMap;
 
 /// Python-specific AST nodes
@@ -66,6 +67,21 @@ pub enum PyAstNode {
         value: Option<Box<Expression>>,
         simple: bool,
     },
+}
+
+/// A single `except` clause of a Python `try` statement.
+///
+/// The shared frontend CST models the same payload as the
+/// [`AstNode::ExceptHandler`] variant; this type is the local, standalone
+/// equivalent used by [`PyAstNode::Try`].
+#[derive(Debug, Clone)]
+pub struct ExceptHandler {
+    /// The caught exception type, when one is given.
+    pub type_: Option<Box<Expression>>,
+    /// The name the exception is bound to, when one is given.
+    pub name: Option<String>,
+    /// The handler body.
+    pub body: Vec<Statement>,
 }
 
 /// Comprehension clause
@@ -163,7 +179,14 @@ pub enum Token {
     Comma,
     Dot,
     Semicolon,
-    Colon,
+
+    /// `->` return-type arrow.
+    ///
+    /// The lexer currently folds `->` into [`Token::Colon`] (see
+    /// [`PythonLexer::lex_operator`]), so this variant is only produced once
+    /// the lexer grows a dedicated arrow token. It exists because the parser
+    /// checks for it when reading a function's return-type annotation.
+    Arrow,
 
     // Special
     Newline,
@@ -344,7 +367,7 @@ impl PythonParser {
                         break;
                     }
                 }
-                AstNode::Global(names)
+                AstNode::Global { names }
             }
             Token::Nonlocal => {
                 self.advance();
@@ -357,12 +380,12 @@ impl PythonParser {
                         break;
                     }
                 }
-                AstNode::Nonlocal(names)
+                AstNode::Nonlocal { names }
             }
             Token::Del => {
                 self.advance();
                 let target = Box::new(self.parse_expression()?);
-                AstNode::Delete(target)
+                AstNode::Delete { target }
             }
             Token::Import | Token::From => {
                 self.parse_import()?
@@ -381,9 +404,9 @@ impl PythonParser {
                     let right = Box::new(self.parse_expression()?);
                     AstNode::Assignment {
                         target: Box::new(expr.clone()),
-                        value: Box::new(AstNode::BinaryOp {
+                        value: Box::new(Expression::BinaryOp {
                             left: Box::new(expr),
-                            op: op,
+                            op,
                             right,
                         }),
                     }
@@ -443,7 +466,6 @@ impl PythonParser {
         self.expect(&Token::LeftParen)?;
 
         let mut params = Vec::new();
-        let mut defaults = Vec::new();
 
         while !self.check(&Token::RightParen) {
             if let Token::Star = self.current() {
@@ -453,7 +475,7 @@ impl PythonParser {
                     name = n.clone();
                     self.advance();
                 }
-                params.push(crate::tumc_compiler::ast::Param {
+                params.push(Param {
                     name,
                     param_type: None,
                     default: None,
@@ -467,7 +489,7 @@ impl PythonParser {
                     name = n.clone();
                     self.advance();
                 }
-                params.push(crate::tumc_compiler::ast::Param {
+                params.push(Param {
                     name,
                     param_type: None,
                     default: None,
@@ -490,10 +512,10 @@ impl PythonParser {
                     None
                 };
 
-                params.push(crate::tumc_compiler::ast::Param {
+                params.push(Param {
                     name: param_name,
                     param_type: None,
-                    default: default.clone(),
+                    default,
                     is_variadic: false,
                     is_kwargs: false,
                 });
@@ -554,7 +576,7 @@ impl PythonParser {
         self.expect(&Token::Colon)?;
         let body = self.parse_block()?;
 
-        Ok(AstNode::Class(crate::tumc_compiler::ast::Class {
+        Ok(AstNode::Class(Class {
             name,
             bases,
             body,
@@ -675,8 +697,8 @@ impl PythonParser {
             self.expect(&Token::Colon)?;
             let handler_body = self.parse_block()?;
 
-            handlers.push(crate::tumc_compiler::ast::ExceptHandler {
-                exception_type: exc_type,
+            handlers.push(AstNode::ExceptHandler {
+                type_: exc_type,
                 name,
                 body: handler_body,
             });
@@ -715,7 +737,7 @@ impl PythonParser {
                 None
             };
 
-            items.push((context, as_var));
+            items.push((*context, as_var.map(|value| *value)));
 
             if !self.check(&Token::Comma) {
                 break;
@@ -757,10 +779,10 @@ impl PythonParser {
             self.advance();
         }
 
-        let mut names = Vec::new();
+        let mut names: Vec<String> = Vec::new();
 
         if self.check(&Token::Star) {
-            names.push(("__all__".to_string(), None));
+            names.push("__all__".to_string());
             self.advance();
         } else {
             while !self.check(&Token::Newline) && !self.is_at_end() {
@@ -778,7 +800,11 @@ impl PythonParser {
                         None
                     };
 
-                    names.push((n.clone(), alias));
+                    // The shared CST records imported names as plain strings
+                    // and has no slot for an alias, so the name bound in the
+                    // enclosing scope is recorded: the alias when the source
+                    // provides one, the imported name otherwise.
+                    names.push(alias.unwrap_or_else(|| n.clone()));
                     self.advance();
                 }
 
@@ -853,7 +879,7 @@ impl PythonParser {
             let right = Box::new(self.parse_and()?);
             left = Expression::BinaryOp {
                 left: Box::new(left.into()),
-                op: crate::tumc_compiler::ast::BinaryOp::Or,
+                op: crate::tumc_compiler::frontend::BinaryOp::Or,
                 right,
             };
         }
@@ -870,7 +896,7 @@ impl PythonParser {
             let right = Box::new(self.parse_not()?);
             left = Expression::BinaryOp {
                 left: Box::new(left.into()),
-                op: crate::tumc_compiler::ast::BinaryOp::And,
+                op: crate::tumc_compiler::frontend::BinaryOp::And,
                 right,
             };
         }
@@ -884,7 +910,7 @@ impl PythonParser {
             self.advance();
             let operand = Box::new(self.parse_not()?);
             return Ok(Expression::UnaryOp {
-                op: crate::tumc_compiler::ast::UnaryOp::Not,
+                op: crate::tumc_compiler::frontend::UnaryOp::Not,
                 operand,
             });
         }
@@ -910,16 +936,16 @@ impl PythonParser {
     }
 
     /// Get comparison operator
-    fn get_comparison_op(&mut self) -> Option<crate::tumc_compiler::ast::BinaryOp> {
+    fn get_comparison_op(&mut self) -> Option<crate::tumc_compiler::frontend::BinaryOp> {
         match self.current() {
-            Token::Less => Some(crate::tumc_compiler::ast::BinaryOp::Lt),
-            Token::Greater => Some(crate::tumc_compiler::ast::BinaryOp::Gt),
-            Token::LessEqual => Some(crate::tumc_compiler::ast::BinaryOp::Le),
-            Token::GreaterEqual => Some(crate::tumc_compiler::ast::BinaryOp::Ge),
-            Token::EqEqual => Some(crate::tumc_compiler::ast::BinaryOp::Eq),
-            Token::NotEqual => Some(crate::tumc_compiler::ast::BinaryOp::Ne),
-            Token::In => Some(crate::tumc_compiler::ast::BinaryOp::In),
-            Token::Ident(ref n) if n == "is" => Some(crate::tumc_compiler::ast::BinaryOp::Is),
+            Token::Less => Some(crate::tumc_compiler::frontend::BinaryOp::Lt),
+            Token::Greater => Some(crate::tumc_compiler::frontend::BinaryOp::Gt),
+            Token::LessEqual => Some(crate::tumc_compiler::frontend::BinaryOp::Le),
+            Token::GreaterEqual => Some(crate::tumc_compiler::frontend::BinaryOp::Ge),
+            Token::EqEqual => Some(crate::tumc_compiler::frontend::BinaryOp::Eq),
+            Token::NotEqual => Some(crate::tumc_compiler::frontend::BinaryOp::Ne),
+            Token::In => Some(crate::tumc_compiler::frontend::BinaryOp::In),
+            Token::Ident(ref n) if n == "is" => Some(crate::tumc_compiler::frontend::BinaryOp::Is),
             _ => None,
         }
     }
@@ -933,7 +959,7 @@ impl PythonParser {
             let right = Box::new(self.parse_bitwise_xor()?);
             left = Expression::BinaryOp {
                 left: Box::new(left.into()),
-                op: crate::tumc_compiler::ast::BinaryOp::BitOr,
+                op: crate::tumc_compiler::frontend::BinaryOp::BitOr,
                 right,
             };
         }
@@ -950,7 +976,7 @@ impl PythonParser {
             let right = Box::new(self.parse_bitwise_and()?);
             left = Expression::BinaryOp {
                 left: Box::new(left.into()),
-                op: crate::tumc_compiler::ast::BinaryOp::BitXor,
+                op: crate::tumc_compiler::frontend::BinaryOp::BitXor,
                 right,
             };
         }
@@ -967,7 +993,7 @@ impl PythonParser {
             let right = Box::new(self.parse_shift()?);
             left = Expression::BinaryOp {
                 left: Box::new(left.into()),
-                op: crate::tumc_compiler::ast::BinaryOp::BitAnd,
+                op: crate::tumc_compiler::frontend::BinaryOp::BitAnd,
                 right,
             };
         }
@@ -984,7 +1010,7 @@ impl PythonParser {
             let right = Box::new(self.parse_additive()?);
             left = Expression::BinaryOp {
                 left: Box::new(left.into()),
-                op: crate::tumc_compiler::ast::BinaryOp::Shl,
+                op: crate::tumc_compiler::frontend::BinaryOp::Shl,
                 right,
             };
         }
@@ -994,7 +1020,7 @@ impl PythonParser {
             let right = Box::new(self.parse_additive()?);
             left = Expression::BinaryOp {
                 left: Box::new(left.into()),
-                op: crate::tumc_compiler::ast::BinaryOp::Shr,
+                op: crate::tumc_compiler::frontend::BinaryOp::Shr,
                 right,
             };
         }
@@ -1008,9 +1034,9 @@ impl PythonParser {
 
         while self.check(&Token::Plus) || self.check(&Token::Minus) {
             let op = if self.check(&Token::Plus) {
-                crate::tumc_compiler::ast::BinaryOp::Add
+                crate::tumc_compiler::frontend::BinaryOp::Add
             } else {
-                crate::tumc_compiler::ast::BinaryOp::Sub
+                crate::tumc_compiler::frontend::BinaryOp::Sub
             };
             self.advance();
             let right = Box::new(self.parse_multiplicative()?);
@@ -1031,13 +1057,13 @@ impl PythonParser {
         while self.check(&Token::Star) || self.check(&Token::Slash) ||
               self.check(&Token::DoubleSlash) || self.check(&Token::Percent) {
             let op = if self.check(&Token::Star) {
-                crate::tumc_compiler::ast::BinaryOp::Mul
+                crate::tumc_compiler::frontend::BinaryOp::Mul
             } else if self.check(&Token::DoubleSlash) {
-                crate::tumc_compiler::ast::BinaryOp::FloorDiv
+                crate::tumc_compiler::frontend::BinaryOp::FloorDiv
             } else if self.check(&Token::Percent) {
-                crate::tumc_compiler::ast::BinaryOp::Rem
+                crate::tumc_compiler::frontend::BinaryOp::Rem
             } else {
-                crate::tumc_compiler::ast::BinaryOp::Div
+                crate::tumc_compiler::frontend::BinaryOp::Div
             };
             self.advance();
             let right = Box::new(self.parse_power()?);
@@ -1060,7 +1086,7 @@ impl PythonParser {
             let exp = Box::new(self.parse_power()?);
             return Ok(Expression::BinaryOp {
                 left: Box::new(base.into()),
-                op: crate::tumc_compiler::ast::BinaryOp::Pow,
+                op: crate::tumc_compiler::frontend::BinaryOp::Pow,
                 right: exp,
             });
         }
@@ -1073,7 +1099,7 @@ impl PythonParser {
         if self.check(&Token::Plus) {
             self.advance();
             return Ok(Expression::UnaryOp {
-                op: crate::tumc_compiler::ast::UnaryOp::Plus,
+                op: crate::tumc_compiler::frontend::UnaryOp::Plus,
                 operand: Box::new(self.parse_unary()?),
             });
         }
@@ -1081,7 +1107,7 @@ impl PythonParser {
         if self.check(&Token::Minus) {
             self.advance();
             return Ok(Expression::UnaryOp {
-                op: crate::tumc_compiler::ast::UnaryOp::Negate,
+                op: crate::tumc_compiler::frontend::UnaryOp::Negate,
                 operand: Box::new(self.parse_unary()?),
             });
         }
@@ -1089,7 +1115,7 @@ impl PythonParser {
         if self.check(&Token::Tilde) {
             self.advance();
             return Ok(Expression::UnaryOp {
-                op: crate::tumc_compiler::ast::UnaryOp::BitNot,
+                op: crate::tumc_compiler::frontend::UnaryOp::BitNot,
                 operand: Box::new(self.parse_unary()?),
             });
         }
@@ -1107,15 +1133,14 @@ impl PythonParser {
                 let mut args = Vec::new();
 
                 while !self.check(&Token::RightParen) {
-                    // Check for *args and **kwargs
-                    if self.check(&Token::Star) {
+                    // Check for *args and **kwargs. The shared CST models call
+                    // arguments as plain expressions, so the unpacking marker is
+                    // consumed but not recorded.
+                    if self.check(&Token::Star) || self.check(&Token::DoubleStar) {
                         self.advance();
-                        args.push(crate::tumc_compiler::ast::Arg::Variadic(Box::new(self.parse_expression()?)));
-                    } else if self.check(&Token::DoubleStar) {
-                        self.advance();
-                        args.push(crate::tumc_compiler::ast::Arg::KwVariadic(Box::new(self.parse_expression()?)));
+                        args.push(self.parse_expression()?);
                     } else if !self.check(&Token::RightParen) {
-                        args.push(crate::tumc_compiler::ast::Arg::Positional(Box::new(self.parse_expression()?)));
+                        args.push(self.parse_expression()?);
                     }
 
                     if !self.check(&Token::RightParen) {
@@ -1179,7 +1204,9 @@ impl PythonParser {
             }
             Token::None => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Null))
+                // The IR literal set has no dedicated null literal; `Unit` is the
+                // crate's representation of a value-less literal.
+                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Unit))
             }
             Token::Ident(name) => {
                 self.advance();
@@ -1280,7 +1307,7 @@ impl PythonParser {
             if let Token::Ident(name) = self.current() {
                 let name = name.clone();
                 self.advance();
-                params.push(crate::tumc_compiler::ast::Param {
+                params.push(Param {
                     name,
                     param_type: None,
                     default: None,
@@ -1348,20 +1375,20 @@ impl PythonParser {
         }
     }
 
-    fn get_compound_assign(&self) -> Option<crate::tumc_compiler::ast::BinaryOp> {
+    fn get_compound_assign(&self) -> Option<crate::tumc_compiler::frontend::BinaryOp> {
         match self.current() {
-            Token::PlusEqual => Some(crate::tumc_compiler::ast::BinaryOp::Add),
-            Token::MinusEqual => Some(crate::tumc_compiler::ast::BinaryOp::Sub),
-            Token::StarEqual => Some(crate::tumc_compiler::ast::BinaryOp::Mul),
-            Token::SlashEqual => Some(crate::tumc_compiler::ast::BinaryOp::Div),
-            Token::PercentEqual => Some(crate::tumc_compiler::ast::BinaryOp::Rem),
-            Token::DoubleStarEqual => Some(crate::tumc_compiler::ast::BinaryOp::Pow),
-            Token::DoubleSlashEqual => Some(crate::tumc_compiler::ast::BinaryOp::FloorDiv),
-            Token::AmpersandEqual => Some(crate::tumc_compiler::ast::BinaryOp::BitAnd),
-            Token::PipeEqual => Some(crate::tumc_compiler::ast::BinaryOp::BitOr),
-            Token::CaretEqual => Some(crate::tumc_compiler::ast::BinaryOp::BitXor),
-            Token::LeftShiftEqual => Some(crate::tumc_compiler::ast::BinaryOp::Shl),
-            Token::RightShiftEqual => Some(crate::tumc_compiler::ast::BinaryOp::Shr),
+            Token::PlusEqual => Some(crate::tumc_compiler::frontend::BinaryOp::Add),
+            Token::MinusEqual => Some(crate::tumc_compiler::frontend::BinaryOp::Sub),
+            Token::StarEqual => Some(crate::tumc_compiler::frontend::BinaryOp::Mul),
+            Token::SlashEqual => Some(crate::tumc_compiler::frontend::BinaryOp::Div),
+            Token::PercentEqual => Some(crate::tumc_compiler::frontend::BinaryOp::Rem),
+            Token::DoubleStarEqual => Some(crate::tumc_compiler::frontend::BinaryOp::Pow),
+            Token::DoubleSlashEqual => Some(crate::tumc_compiler::frontend::BinaryOp::FloorDiv),
+            Token::AmpersandEqual => Some(crate::tumc_compiler::frontend::BinaryOp::BitAnd),
+            Token::PipeEqual => Some(crate::tumc_compiler::frontend::BinaryOp::BitOr),
+            Token::CaretEqual => Some(crate::tumc_compiler::frontend::BinaryOp::BitXor),
+            Token::LeftShiftEqual => Some(crate::tumc_compiler::frontend::BinaryOp::Shl),
+            Token::RightShiftEqual => Some(crate::tumc_compiler::frontend::BinaryOp::Shr),
             _ => None,
         }
     }

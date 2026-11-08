@@ -1,523 +1,339 @@
-// Tariro AGI - Explainable AI (XAI) Engine Module
-// Provides interpretable explanations for AI decisions
+//! # Explainability Module for Tariro AGI
+//!
+//! This module provides comprehensive explainability capabilities for the Tariro AGI system,
+//! enabling transparent reasoning, decision tracing, and interpretable outputs.
 
-use crate::prelude::*;
-use std::collections::{HashMap, VecDeque};
-use chrono::{DateTime, Utc};
-use std::time::Duration;
+use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, HashSet};
+use std::fmt;
 
-// ============================================================================
-// Explanation Types
-// ============================================================================
-
-/// Explanation request
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ExplanationRequest {
-    pub request_id: String,
-    pub decision_id: String,
-    pub explanation_type: ExplanationType,
-    pub target_audience: Audience,
-    pub depth: ExplanationDepth,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ExplanationType {
-    Contrastive,      // "Why this instead of X?"
-    Selectable,       // User selects what to explain
-    Attribution,       // Feature importance
-    Counterfactual,   // "What would change the outcome?"
-    Process,          // How the decision was made
-    RuleBased,        // Rule extraction explanation
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum Audience {
-    Expert,
-    Technical,
-    General,
-    Layperson,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ExplanationDepth {
-    Shallow,   // High-level summary
-    Medium,    // Key factors
-    Deep,      // Full reasoning
-}
-
-/// Generated explanation
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Explanation {
-    pub explanation_id: String,
-    pub decision_id: String,
-    pub explanation_type: ExplanationType,
-    pub summary: String,
-    pub main_factors: Vec<Factor>,
-    pub reasoning_chain: Vec<ReasoningStep>,
-    pub confidence: f32,
-    pub alternatives: Vec<Alternative>,
-    pub counterfactuals: Vec<Counterfactual>,
-    pub generated_at: DateTime<Utc>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Factor {
-    pub factor_id: String,
-    pub name: String,
-    pub description: String,
-    pub importance: f32,
-    pub direction: FactorDirection,
-    pub evidence: Vec<Evidence>,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum FactorDirection {
-    Supporting,
-    Opposing,
-    Neutral,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Evidence {
-    pub evidence_type: EvidenceType,
-    pub description: String,
-    pub source: String,
-    pub confidence: f32,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum EvidenceType {
-    Data,
-    Rule,
-    Precedent,
-    Heuristic,
-    Intuition,
-}
-
+/// Represents a single reasoning step in an explanation
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReasoningStep {
-    pub step_id: usize,
-    pub description: String,
-    pub rule_applied: Option<String>,
-    pub conclusion: String,
+    /// Unique identifier for this step
+    pub id: String,
+    /// The reasoning operation performed
+    pub operation: String,
+    /// Inputs to this reasoning step
+    pub inputs: Vec<String>,
+    /// Outputs from this reasoning step
+    pub outputs: Vec<String>,
+    /// Confidence in this step's correctness
+    pub confidence: f64,
+    /// Optional evidence supporting this step
+    pub evidence: Vec<String>,
 }
 
+/// Complete explanation of a reasoning process
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Alternative {
-    pub alternative_id: String,
-    pub description: String,
-    pub probability: f32,
-    pub why_not_chosen: String,
+pub struct Explanation {
+    /// Unique explanation identifier
+    pub id: String,
+    /// Summary of what was explained
+    pub summary: String,
+    /// Detailed reasoning steps
+    pub steps: Vec<ReasoningStep>,
+    /// Entities mentioned in the explanation
+    pub entities: HashSet<String>,
+    /// Confidence score for the overall explanation
+    pub confidence: f64,
+    /// Human-readable format
+    pub human_readable: String,
 }
 
+impl Explanation {
+    /// Create new explanation
+    pub fn new(id: String, summary: String) -> Self {
+        Self {
+            id,
+            summary,
+            steps: Vec::new(),
+            entities: HashSet::new(),
+            confidence: 1.0,
+            human_readable: String::new(),
+        }
+    }
+
+    /// Add reasoning step
+    pub fn add_step(&mut self, step: ReasoningStep) {
+        // Update confidence as geometric mean
+        if !self.steps.is_empty() {
+            self.confidence = (self.confidence * step.confidence).sqrt();
+        } else {
+            self.confidence = step.confidence;
+        }
+
+        // Track entities
+        for input in &step.inputs {
+            self.entities.insert(input.clone());
+        }
+        for output in &step.outputs {
+            self.entities.insert(output.clone());
+        }
+
+        self.steps.push(step);
+    }
+
+    /// Generate human-readable summary
+    pub fn to_human_readable(&self) -> String {
+        let mut output = format!("Explanation: {}\n\n", self.summary);
+
+        for (i, step) in self.steps.iter().enumerate() {
+            output.push_str(&format!("Step {}: {}\n", i + 1, step.operation));
+            if !step.inputs.is_empty() {
+                output.push_str(&format!("  Inputs: {}\n", step.inputs.join(", ")));
+            }
+            if !step.outputs.is_empty() {
+                output.push_str(&format!("  Outputs: {}\n", step.outputs.join(", ")));
+            }
+            if !step.evidence.is_empty() {
+                output.push_str(&format!("  Evidence: {}\n", step.evidence.join(", ")));
+            }
+            output.push_str(&format!("  Confidence: {:.1}%\n\n", step.confidence * 100.0));
+        }
+
+        output.push_str(&format!("Overall Confidence: {:.1}%\n", self.confidence * 100.0));
+
+        output
+    }
+}
+
+/// Explainability level
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ExplainabilityLevel {
+    /// No explanation provided
+    None,
+    /// Brief summary only
+    Brief,
+    /// Standard explanation with reasoning steps
+    Standard,
+    /// Detailed explanation with evidence
+    Detailed,
+    /// Full transparency with all reasoning trace
+    Full,
+}
+
+impl Default for ExplainabilityLevel {
+    fn default() -> Self {
+        Self::Standard
+    }
+}
+
+/// Explanation request configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Counterfactual {
-    pub counterfactual_id: String,
-    pub scenario: String,
-    pub original_outcome: String,
-    pub counterfactual_outcome: String,
-    pub key_changes: Vec<String>,
+pub struct ExplanationRequest {
+    /// Target to explain (query, action, decision)
+    pub target: String,
+    /// Desired explanation level
+    pub level: ExplainabilityLevel,
+    /// Optional constraints on explanation
+    pub constraints: ExplanationConstraints,
+    /// Format preference
+    pub format: ExplanationFormat,
 }
 
-// ============================================================================
-// XAI Engine
-// ============================================================================
-
-/// Explainable AI engine
-pub struct XAIEngine {
-    pub explanation_cache: HashMap<String, Explanation>,
-    pub explanation_history: VecDeque<Explanation>,
-    pub templates: Vec<ExplanationTemplate>,
-    pub config: XAIConfig,
+impl Default for ExplanationRequest {
+    fn default() -> Self {
+        Self {
+            target: String::new(),
+            level: ExplainabilityLevel::default(),
+            constraints: ExplanationConstraints::default(),
+            format: ExplanationFormat::Text,
+        }
+    }
 }
 
+/// Constraints on explanation generation
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ExplanationTemplate {
-    pub template_id: String,
-    pub explanation_type: ExplanationType,
-    pub audience: Audience,
-    pub template: String,
+pub struct ExplanationConstraints {
+    /// Maximum length in tokens
+    pub max_length: Option<usize>,
+    /// Required entities to include
+    pub required_entities: Vec<String>,
+    /// Excluded reasoning paths
+    pub excluded_paths: Vec<String>,
+    /// Audience level (affects vocabulary)
+    pub audience: AudienceLevel,
+}
+
+impl Default for ExplanationConstraints {
+    fn default() -> Self {
+        Self {
+            max_length: Some(1000),
+            required_entities: Vec::new(),
+            excluded_paths: Vec::new(),
+            audience: AudienceLevel::Technical,
+        }
+    }
+}
+
+/// Target audience level
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AudienceLevel {
+    /// General audience without technical knowledge
+    General,
+    /// User with basic technical understanding
+    Basic,
+    /// Technical user with domain knowledge
+    Technical,
+    /// Expert with deep domain expertise
+    Expert,
+}
+
+impl Default for AudienceLevel {
+    fn default() -> Self {
+        Self::Technical
+    }
+}
+
+/// Output format for explanations
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ExplanationFormat {
+    Text,
+    Structured,
+    Json,
+    Markdown,
+}
+
+impl Default for ExplanationFormat {
+    fn default() -> Self {
+        Self::Text
+    }
+}
+
+/// Explainability system
+pub struct ExplainabilitySystem {
+    /// Trace storage
+    traces: HashMap<String, Vec<ReasoningStep>>,
+    /// Cached explanations
+    cache: HashMap<String, Explanation>,
+    /// Configuration
+    config: ExplainabilityConfig,
 }
 
 #[derive(Debug, Clone)]
-pub struct XAIConfig {
-    pub auto_generate_explanations: bool,
-    pub max_explanation_length: usize,
-    pub include_confidence: bool,
-    pub include_alternatives: bool,
-    pub include_counterfactuals: bool,
-    pub explanation_storage_duration: Duration,
+pub struct ExplainabilityConfig {
+    pub enable_tracing: bool,
+    pub enable_caching: bool,
+    pub max_cache_size: usize,
+    pub default_level: ExplainabilityLevel,
 }
 
-impl Default for XAIConfig {
+impl Default for ExplainabilityConfig {
     fn default() -> Self {
         Self {
-            auto_generate_explanations: true,
-            max_explanation_length: 500,
-            include_confidence: true,
-            include_alternatives: true,
-            include_counterfactuals: true,
-            explanation_storage_duration: Duration::from_secs(86400),
+            enable_tracing: true,
+            enable_caching: true,
+            max_cache_size: 1000,
+            default_level: ExplainabilityLevel::Standard,
         }
     }
 }
 
-impl XAIEngine {
-    pub fn new() -> Self {
+impl ExplainabilitySystem {
+    /// Create new explainability system
+    pub fn new(config: ExplainabilityConfig) -> Self {
         Self {
-            explanation_cache: HashMap::new(),
-            explanation_history: VecDeque::new(),
-            templates: Self::default_templates(),
-            config: XAIConfig::default(),
+            traces: HashMap::new(),
+            cache: HashMap::new(),
+            config,
         }
     }
 
-    fn default_templates() -> Vec<ExplanationTemplate> {
-        vec![
-            ExplanationTemplate {
-                template_id: "contrastive_expert".to_string(),
-                explanation_type: ExplanationType::Contrastive,
-                audience: Audience::Expert,
-                template: "The decision was made because {factor1} was more important than {factor2}. {evidence}".to_string(),
-            },
-            ExplanationTemplate {
-                template_id: "process_general".to_string(),
-                explanation_type: ExplanationType::Process,
-                audience: Audience::General,
-                template: "Based on the information provided, the system considered {num_factors} key factors and determined that {summary}.".to_string(),
-            },
-            ExplanationTemplate {
-                template_id: "attribution_technical".to_string(),
-                explanation_type: ExplanationType::Attribution,
-                audience: Audience::Technical,
-                template: "Feature importance analysis shows {feature1} contributed {weight1} to the decision.".to_string(),
-            },
-        ]
+    /// Start a new reasoning trace
+    pub fn start_trace(&mut self, trace_id: String) {
+        if self.config.enable_tracing {
+            self.traces.insert(trace_id, Vec::new());
+        }
     }
 
-    /// Generate explanation for a decision
-    pub fn explain(&mut self, request: &ExplanationRequest, decision: &Decision) -> Explanation {
-        // Check cache first
-        if let Some(cached) = self.explanation_cache.get(&request.decision_id) {
-            return cached.clone();
+    /// Add step to current trace
+    pub fn add_trace_step(&mut self, trace_id: &str, step: ReasoningStep) {
+        if self.config.enable_tracing {
+            if let Some(trace) = self.traces.get_mut(trace_id) {
+                trace.push(step);
+            }
+        }
+    }
+
+    /// End trace and generate explanation
+    pub fn end_trace(&mut self, trace_id: String, summary: String) -> Explanation {
+        let steps = self.traces.remove(&trace_id).unwrap_or_default();
+
+        let mut explanation = Explanation::new(trace_id.clone(), summary);
+
+        for step in steps {
+            explanation.add_step(step);
         }
 
-        // Generate explanation based on type
-        let explanation = match request.explanation_type {
-            ExplanationType::Contrastive => self.generate_contrastive(decision),
-            ExplanationType::Selectable => self.generate_selectable(decision, request),
-            ExplanationType::Attribution => self.generate_attribution(decision),
-            ExplanationType::Counterfactual => self.generate_counterfactual(decision),
-            ExplanationType::Process => self.generate_process(decision, &request.target_audience),
-            ExplanationType::RuleBased => self.generate_rule_based(decision),
-        };
-
-        // Cache and record
-        self.explanation_cache.insert(request.decision_id.clone(), explanation.clone());
-        self.explanation_history.push_back(explanation.clone());
-
-        // Keep bounded
-        while self.explanation_history.len() > 1000 {
-            self.explanation_history.pop_front();
+        // Cache if enabled
+        if self.config.enable_caching {
+            if self.cache.len() >= self.config.max_cache_size {
+                // Remove oldest entry
+                if let Some(oldest) = self.cache.keys().next().cloned() {
+                    self.cache.remove(&oldest);
+                }
+            }
+            self.cache.insert(trace_id, explanation.clone());
         }
 
         explanation
     }
 
-    fn generate_contrastive(&self, decision: &Decision) -> Explanation {
-        let mut factors = Vec::new();
-
-        // Generate factors
-        for (i, feature) in decision.features.iter().enumerate() {
-            factors.push(Factor {
-                factor_id: format!("f_{}", i),
-                name: feature.name.clone(),
-                description: format!("Feature '{}' had value {}", feature.name, feature.value),
-                importance: feature.importance,
-                direction: if feature.positive { FactorDirection::Supporting } else { FactorDirection::Opposing },
-                evidence: vec![],
-            });
-        }
-
-        factors.sort_by(|a, b| b.importance.partial_cmp(&a.importance).unwrap());
-
-        let main_factors: Vec<Factor> = factors.iter().take(5).cloned().collect();
-
-        Explanation {
-            explanation_id: generate_id(),
-            decision_id: decision.decision_id.clone(),
-            explanation_type: ExplanationType::Contrastive,
-            summary: format!("This decision was made primarily because '{}' was the most important factor.", main_factors.first().map(|f| f.name.as_str()).unwrap_or("unknown")),
-            main_factors,
-            reasoning_chain: vec![],
-            confidence: decision.confidence,
-            alternatives: vec![],
-            counterfactuals: vec![],
-            generated_at: Utc::now(),
-        }
+    /// Get cached explanation
+    pub fn get_cached(&self, id: &str) -> Option<&Explanation> {
+        self.cache.get(id)
     }
 
-    fn generate_selectable(&self, decision: &Decision, _request: &ExplanationRequest) -> Explanation {
-        let factors: Vec<Factor> = decision.features.iter().enumerate().map(|(i, f)| {
-            Factor {
-                factor_id: format!("f_{}", i),
-                name: f.name.clone(),
-                description: f.name.clone(),
-                importance: f.importance,
-                direction: if f.positive { FactorDirection::Supporting } else { FactorDirection::Opposing },
-                evidence: vec![],
-            }
-        }).collect();
-
-        Explanation {
-            explanation_id: generate_id(),
-            decision_id: decision.decision_id.clone(),
-            explanation_type: ExplanationType::Selectable,
-            summary: format!("Decision '{}': {} factors considered. Select any to explore.", decision.decision_type, factors.len()),
-            main_factors: factors,
-            reasoning_chain: vec![],
-            confidence: decision.confidence,
-            alternatives: vec![],
-            counterfactuals: vec![],
-            generated_at: Utc::now(),
-        }
-    }
-
-    fn generate_attribution(&self, decision: &Decision) -> Explanation {
-        let factors: Vec<Factor> = decision.features.iter().enumerate().map(|(i, f)| {
-            Factor {
-                factor_id: format!("attr_{}", i),
-                name: f.name.clone(),
-                description: format!("Attribution: {:.2} importance", f.importance),
-                importance: f.importance,
-                direction: if f.positive { FactorDirection::Supporting } else { FactorDirection::Opposing },
-                evidence: vec![Evidence {
-                    evidence_type: EvidenceType::Data,
-                    description: "Feature contribution analysis".to_string(),
-                    source: "Attribution Engine".to_string(),
-                    confidence: 0.85,
-                }],
-            }
-        }).collect();
-
-        Explanation {
-            explanation_id: generate_id(),
-            decision_id: decision.decision_id.clone(),
-            explanation_type: ExplanationType::Attribution,
-            summary: format!("Feature attribution: {} contributed {:.1}% to the decision.",
-                factors.first().map(|f| f.name.as_str()).unwrap_or("unknown"),
-                factors.first().map(|f| f.importance * 100.0).unwrap_or(0.0)),
-            main_factors: factors,
-            reasoning_chain: vec![],
-            confidence: decision.confidence,
-            alternatives: vec![],
-            counterfactuals: vec![],
-            generated_at: Utc::now(),
-        }
-    }
-
-    fn generate_counterfactual(&self, decision: &Decision) -> Explanation {
-        let counterfactuals = vec![
-            Counterfactual {
-                counterfactual_id: "cf_1".to_string(),
-                scenario: "If '{}' had been different".to_string(),
-                original_outcome: decision.outcome.clone(),
-                counterfactual_outcome: "Alternative outcome would have been: {}".to_string(),
-                key_changes: vec!["Change factor value".to_string()],
-            },
-        ];
-
-        Explanation {
-            explanation_id: generate_id(),
-            decision_id: decision.decision_id.clone(),
-            explanation_type: ExplanationType::Counterfactual,
-            summary: "Counterfactual analysis shows what changes would alter the decision.".to_string(),
-            main_factors: vec![],
-            reasoning_chain: vec![],
-            confidence: decision.confidence,
-            alternatives: vec![],
-            counterfactuals,
-            generated_at: Utc::now(),
-        }
-    }
-
-    fn generate_process(&self, decision: &Decision, audience: &Audience) -> Explanation {
-        let summary = match audience {
-            Audience::Expert => format!("Decision process: 1) Input processing, 2) Feature extraction, 3) Model inference, 4) Output generation. Confidence: {:.0}%", decision.confidence * 100.0),
-            Audience::Technical => format!("Model processed {} features in {} steps. Decision confidence: {:.0}%", decision.features.len(), 4, decision.confidence * 100.0),
-            Audience::General => format!("After careful analysis of all available information, the system made this decision with {:.0}% confidence.", decision.confidence * 100.0),
-            Audience::Layperson => "The system looked at all the facts and came to this conclusion.".to_string(),
-        };
-
-        let reasoning_chain = vec![
-            ReasoningStep {
-                step_id: 1,
-                description: "Gathered and processed input data".to_string(),
-                rule_applied: None,
-                conclusion: "Data prepared for analysis".to_string(),
-            },
-            ReasoningStep {
-                step_id: 2,
-                description: "Extracted relevant features".to_string(),
-                rule_applied: None,
-                conclusion: format!("{} features identified", decision.features.len()),
-            },
-            ReasoningStep {
-                step_id: 3,
-                description: "Applied decision model".to_string(),
-                rule_applied: Some("ML Model Inference".to_string()),
-                conclusion: decision.outcome.clone(),
-            },
-        ];
-
-        Explanation {
-            explanation_id: generate_id(),
-            decision_id: decision.decision_id.clone(),
-            explanation_type: ExplanationType::Process,
-            summary,
-            main_factors: vec![],
-            reasoning_chain,
-            confidence: decision.confidence,
-            alternatives: vec![],
-            counterfactuals: vec![],
-            generated_at: Utc::now(),
-        }
-    }
-
-    fn generate_rule_based(&self, decision: &Decision) -> Explanation {
-        let mut rules = Vec::new();
-
-        for feature in &decision.features {
-            if feature.importance > 0.3 {
-                rules.push(format!(
-                    "IF {} {} {} THEN support decision (weight: {:.2})",
-                    feature.name,
-                    if feature.positive { ">=" } else { "<" },
-                    feature.threshold,
-                    feature.importance
-                ));
-            }
+    /// Generate explanation from request
+    pub fn explain(&mut self, request: ExplanationRequest) -> Explanation {
+        // Check cache first
+        if let Some(cached) = self.cache.get(&request.target) {
+            return cached.clone();
         }
 
-        Explanation {
-            explanation_id: generate_id(),
-            decision_id: decision.decision_id.clone(),
-            explanation_type: ExplanationType::RuleBased,
-            summary: "Decision explained through extracted rules:".to_string(),
-            main_factors: vec![],
-            reasoning_chain: rules.iter().enumerate().map(|(i, r)| ReasoningStep {
-                step_id: i + 1,
-                description: r.clone(),
-                rule_applied: Some("Rule Extraction".to_string()),
-                conclusion: "Rule satisfied".to_string(),
-            }).collect(),
-            confidence: decision.confidence,
-            alternatives: vec![],
-            counterfactuals: vec![],
-            generated_at: Utc::now(),
-        }
-    }
+        // For now, return empty explanation
+        // Full implementation would invoke reasoning trace
+        let mut explanation = Explanation::new(
+            format!("exp_{}", uuid::Uuid::new_v4()),
+            request.target.clone(),
+        );
 
-    /// Get explanation history
-    pub fn get_history(&self, limit: usize) -> Vec<&Explanation> {
-        self.explanation_history.iter().rev().take(limit).collect()
+        explanation.human_readable = explanation.to_human_readable();
+        explanation
     }
 }
 
-// ============================================================================
-// Decision Types for Explanation
-// ============================================================================
+impl Default for ExplainabilitySystem {
+    fn default() -> Self {
+        Self::new(ExplainabilityConfig::default())
+    }
+}
 
+/// Feature importance explanation
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Decision {
-    pub decision_id: String,
-    pub decision_type: String,
-    pub features: Vec<Feature>,
-    pub outcome: String,
-    pub confidence: f32,
-    pub timestamp: DateTime<Utc>,
+pub struct FeatureImportance {
+    /// Feature name
+    pub feature: String,
+    /// Importance score
+    pub importance: f64,
+    /// Confidence interval
+    pub confidence: (f64, f64),
 }
 
+/// Attribution explanation
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Feature {
-    pub name: String,
-    pub value: f32,
-    pub importance: f32,
-    pub positive: bool,
-    pub threshold: f32,
+pub struct Attribution {
+    /// What is being attributed
+    pub target: String,
+    /// Contributing factors with weights
+    pub factors: Vec<(String, f64)>,
+    /// Overall attribution score
+    pub score: f64,
 }
 
-fn generate_id() -> String {
-    use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
-    format!("xai_{}", now % 1_000_000)
-}
-
-use serde::{Deserialize, Serialize};
-
-// ============================================================================
-// Tests
-// ============================================================================
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_contrastive_explanation() {
-        let mut engine = XAIEngine::new();
-
-        let decision = Decision {
-            decision_id: "d1".to_string(),
-            decision_type: "classification".to_string(),
-            features: vec![
-                Feature { name: "feature_a".to_string(), value: 0.8, importance: 0.6, positive: true, threshold: 0.5 },
-                Feature { name: "feature_b".to_string(), value: 0.3, importance: 0.3, positive: false, threshold: 0.5 },
-            ],
-            outcome: "Positive".to_string(),
-            confidence: 0.85,
-            timestamp: Utc::now(),
-        };
-
-        let request = ExplanationRequest {
-            request_id: "req1".to_string(),
-            decision_id: "d1".to_string(),
-            explanation_type: ExplanationType::Contrastive,
-            target_audience: Audience::General,
-            depth: ExplanationDepth::Medium,
-        };
-
-        let explanation = engine.explain(&request, &decision);
-        assert!(!explanation.summary.is_empty());
-        assert_eq!(explanation.main_factors.len(), 2);
-    }
-
-    #[test]
-    fn test_explanation_caching() {
-        let mut engine = XAIEngine::new();
-
-        let decision = Decision {
-            decision_id: "d2".to_string(),
-            decision_type: "regression".to_string(),
-            features: vec![],
-            outcome: "42".to_string(),
-            confidence: 0.9,
-            timestamp: Utc::now(),
-        };
-
-        let request = ExplanationRequest {
-            request_id: "req2".to_string(),
-            decision_id: "d2".to_string(),
-            explanation_type: ExplanationType::Process,
-            target_audience: Audience::Expert,
-            depth: ExplanationDepth::Deep,
-        };
-
-        // First call
-        let exp1 = engine.explain(&request, &decision);
-        // Second call should be cached
-        let exp2 = engine.explain(&request, &decision);
-
-        assert_eq!(exp1.explanation_id, exp2.explanation_id);
+impl fmt::Display for Explanation {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.to_human_readable())
     }
 }

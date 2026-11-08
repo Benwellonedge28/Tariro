@@ -3,7 +3,8 @@
 //! Integrates the TUMC compiler with the unified AGI system.
 
 use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation, IrType};
-use crate::tumc_compiler::optimization::{Optimizer, OptLevel};
+use crate::tumc_compiler::optimizer::Optimizer;
+use crate::tumc_compiler::optimization::OptLevel;
 use crate::tumc_compiler::agi_integration::AgiInsight;
 use crate::unified::orchestrator::CompilationResult;
 use serde::{Deserialize, Serialize};

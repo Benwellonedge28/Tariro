@@ -1,5 +1,6 @@
 // Quantum Dialect - Quantum Circuit Operations
 
+use crate::tumc_compiler::ir::*;
 use super::*;
 
 /// Quantum dialect operations
@@ -362,22 +363,16 @@ impl Default for QuantumDialect {
     }
 }
 
-// Random for measurement
-mod rand {
-    pub fn random<T: Default>() -> T {
-        // Simplified - would use actual random
-        T::default()
-    }
-}
-
-impl Default for rand::Random {
-    fn default() -> Self {
-        Self
-    }
-}
-
+// Random for quantum measurement
 mod rand {
     pub struct Random;
+
+    impl Default for Random {
+        fn default() -> Self {
+            Self
+        }
+    }
+
     pub fn random<T: Default>() -> T {
         T::default()
     }

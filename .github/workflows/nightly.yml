@@ -66,7 +66,8 @@ jobs:
       - name: Run test suite
         run: |
           echo "Running test suite with nightly Rust..."
-          cargo test --all-features -- --nocapture 2>&1 | tee test_output.txt || true
+          set -o pipefail
+          cargo test --all-features -- --nocapture 2>&1 | tee test_output.txt
 
       - name: Run doc tests
         run: cargo test --doc 2>&1 | tee doc_test_output.txt || true
@@ -96,17 +97,18 @@ jobs:
           persist-credentials: false
           fetch-depth: 1
 
-      - name: Test all supported MSRV versions
+      - name: Test the minimum supported Rust version
         run: |
+          set -euo pipefail
           echo "Testing MSRV compatibility..."
 
-          # Test current MSRV
-          rustup default 1.70.0
-          cargo check --all-features || echo "MSRV 1.70.0 check failed"
+          # Keep in sync with `rust-version` in Cargo.toml.
+          MSRV=$(cargo metadata --no-deps --format-version 1 \
+            | jq -r '.packages[] | select(.name == "tariro") | .rust_version')
+          echo "Declared MSRV: $MSRV"
 
-          # Test 1.75 (next major)
-          rustup default 1.75.0
-          cargo check --all-features || echo "MSRV 1.75.0 check failed"
+          rustup toolchain install "$MSRV" --profile minimal
+          cargo +"$MSRV" check --all-features --locked
 
   # ============================================
   # Build Nightly Binaries

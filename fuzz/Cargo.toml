@@ -1,0 +1,31 @@
+[package]
+name = "tariro-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+tariro = { path = ".." }
+
+# The fuzz targets are compiled as binaries, never as tests or benches.
+[[bin]]
+name = "parser"
+path = "fuzz_targets/parser.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "frontend"
+path = "fuzz_targets/frontend.rs"
+test = false
+doc = false
+bench = false
+
+# Keep the fuzz crate out of the parent workspace so that `cargo build` at the
+# repository root does not try to build the fuzzing harness.
+[workspace]

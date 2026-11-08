@@ -140,11 +140,17 @@ impl SemanticParser {
             grammar: Arc::new(RwLock::new(SemanticGrammar::new())),
             stats: LanguageStats::default(),
         };
-        parser.initialize_default_lexicon();
+        let lexicon = parser.initialize_default_lexicon();
+        parser.lexicon = Arc::new(RwLock::new(lexicon));
         parser
     }
 
-    fn initialize_default_lexicon(&mut self) {
+    /// Build the default lexicon.
+    ///
+    /// The lexicon is returned rather than installed in place: the parser is
+    /// constructed synchronously, so the shared `RwLock` cannot be written
+    /// to at that point.
+    fn initialize_default_lexicon(&mut self) -> Lexicon {
         // Common verbs
         let verbs = vec![
             ("is", "be", 1),           // is(X)
@@ -197,8 +203,7 @@ impl SemanticParser {
         let determiners = vec![
             ("a", Quantifier::Existential),
             ("an", Quantifier::Existential),
-            ("the", Quantifier::Existential),
-            ("every", Quantifier::Universal),
+            ("the", Quantifier::Existential),            ("every", Quantifier::Universal),
             ("all", Quantifier::Universal),
             ("some", Quantifier::Existential),
             ("no", Quantifier::None),
@@ -227,8 +232,9 @@ impl SemanticParser {
             lexicon.add_determiner(surface, quant);
         }
 
-        // Store in shared state
-        std::mem::swap(&mut *self.lexicon.write().await, &mut lexicon);
+        // Hand the populated lexicon back to the caller, which installs it
+        // into the shared state.
+        lexicon
     }
 
     /// Parse text into semantic representation
@@ -578,6 +584,23 @@ pub struct AdjectiveEntry {
     pub sense: Option<String>,
 }
 
+/// A single semantic grammar rule.
+///
+/// Rules are the symbolic counterpart of a learned model: each rule maps a
+/// surface pattern onto the intent it expresses, together with the slots it
+/// fills in.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GrammarRule {
+    /// Surface form the rule matches.
+    pub pattern: String,
+
+    /// Intent the rule resolves to.
+    pub intent: IntentType,
+
+    /// Slot name mapped to the pattern that fills it.
+    pub slots: HashMap<String, String>,
+}
+
 /// Semantic grammar
 #[derive(Debug, Clone)]
 pub struct SemanticGrammar {
@@ -743,7 +766,7 @@ impl DialogueManager {
         );
     }
 
-    pub fn process(&mut self, utterance: &str, parser: &mut SemanticParser) -> DialogueResponse {
+    pub async fn process(&mut self, utterance: &str, parser: &mut SemanticParser) -> DialogueResponse {
         self.state.turn += 1;
 
         // Parse utterance

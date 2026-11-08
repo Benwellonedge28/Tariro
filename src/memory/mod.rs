@@ -724,7 +724,7 @@ impl EpisodicMemory {
     /// Apply decay to all episodes
     pub fn decay_all(&mut self, rate: f64) {
         for episode in &mut self.episodes {
-            episode.decay(ray);
+            episode.decay(rate);
         }
         self.stats.decay_operations += 1;
     }
@@ -1351,7 +1351,7 @@ impl Default for MemoryConfig {
 }
 
 /// Memory statistics
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Default)]
 pub struct MemoryStats {
     pub total_episodes: usize,
     pub total_knowledge: usize,

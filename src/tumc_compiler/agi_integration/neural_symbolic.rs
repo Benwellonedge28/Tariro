@@ -295,7 +295,7 @@ impl NeuralSymbolicEngine {
     }
 
     /// Analyze a module for optimization opportunities
-    pub fn analyze_module(&mut self, module: &Module) -> Vec<crate::agi_integration::AgiInsight> {
+    pub fn analyze_module(&mut self, module: &Module) -> Vec<crate::tumc_compiler::agi_integration::AgiInsight> {
         let mut insights = Vec::new();
 
         // Step 1: Neural pattern recognition
@@ -413,21 +413,21 @@ impl NeuralSymbolicEngine {
         &self,
         pattern: &RecognizedPattern,
         _module: &Module,
-    ) -> Option<crate::agi_integration::AgiInsight> {
+    ) -> Option<crate::tumc_compiler::agi_integration::AgiInsight> {
         // Match against symbolic rules
         for rule in &self.symbolic_rules {
             if self.rule_matches(pattern, rule) {
-                return Some(crate::agi_integration::AgiInsight {
+                return Some(crate::tumc_compiler::agi_integration::AgiInsight {
                     insight_type: Self::pattern_to_insight_type(&pattern.pattern_type),
                     confidence: pattern.confidence,
                     description: format!("{}: {}", rule.name, rule.action),
-                    suggestion: crate::agi_integration::AgiSuggestion {
+                    suggestion: crate::tumc_compiler::agi_integration::AgiSuggestion {
                         transform_type: Self::rule_to_transform(&rule.action),
                         target_location: format!("{}.{:?}",
                             pattern.location.function,
                             pattern.location.block),
                         expected_improvement: 0.1 + pattern.confidence * 0.3,
-                        risk_level: crate::agi_integration::RiskLevel::Low,
+                        risk_level: crate::tumc_compiler::agi_integration::RiskLevel::Low,
                     },
                     reasoning_chain: vec![
                         format!("Neural pattern: {:?}", pattern.pattern_type),
@@ -452,36 +452,36 @@ impl NeuralSymbolicEngine {
         }
     }
 
-    fn rule_to_transform(action: &str) -> crate::agi_integration::TransformType {
+    fn rule_to_transform(action: &str) -> crate::tumc_compiler::agi_integration::TransformType {
         if action.contains("inline") {
-            crate::agi_integration::TransformType::Inline
+            crate::tumc_compiler::agi_integration::TransformType::Inline
         } else if action.contains("loop") || action.contains("unroll") {
-            crate::agi_integration::TransformType::Unroll
+            crate::tumc_compiler::agi_integration::TransformType::Unroll
         } else if action.contains("vector") || action.contains("parallel") {
-            crate::agi_integration::TransformType::Vectorize
+            crate::tumc_compiler::agi_integration::TransformType::Vectorize
         } else if action.contains("specialize") {
-            crate::agi_integration::TransformType::Specialize
+            crate::tumc_compiler::agi_integration::TransformType::Specialize
         } else if action.contains("memory") {
-            crate::agi_integration::TransformType::MemoryOptimize
+            crate::tumc_compiler::agi_integration::TransformType::MemoryOptimize
         } else {
-            crate::agi_integration::TransformType::Specialize
+            crate::tumc_compiler::agi_integration::TransformType::Specialize
         }
     }
 
-    fn pattern_to_insight_type(pattern: &PatternType) -> crate::agi_integration::InsightType {
+    fn pattern_to_insight_type(pattern: &PatternType) -> crate::tumc_compiler::agi_integration::InsightType {
         match pattern {
-            PatternType::LoopInvariant => crate::agi_integration::InsightType::Performance,
-            PatternType::RedundantComputation => crate::agi_integration::InsightType::Performance,
-            PatternType::MemoryBottleneck => crate::agi_integration::InsightType::Memory,
-            PatternType::ParallelizableSection => crate::agi_integration::InsightType::Parallelization,
-            PatternType::TypeSpecificOptimization => crate::agi_integration::InsightType::Specialization,
-            PatternType::CacheUnfriendlyAccess => crate::agi_integration::InsightType::Performance,
-            PatternType::BranchMisprediction => crate::agi_integration::InsightType::Performance,
+            PatternType::LoopInvariant => crate::tumc_compiler::agi_integration::InsightType::Performance,
+            PatternType::RedundantComputation => crate::tumc_compiler::agi_integration::InsightType::Performance,
+            PatternType::MemoryBottleneck => crate::tumc_compiler::agi_integration::InsightType::Memory,
+            PatternType::ParallelizableSection => crate::tumc_compiler::agi_integration::InsightType::Parallelization,
+            PatternType::TypeSpecificOptimization => crate::tumc_compiler::agi_integration::InsightType::Specialization,
+            PatternType::CacheUnfriendlyAccess => crate::tumc_compiler::agi_integration::InsightType::Performance,
+            PatternType::BranchMisprediction => crate::tumc_compiler::agi_integration::InsightType::Performance,
         }
     }
 
     /// Hybrid neural-symbolic reasoning
-    fn hybrid_reasoning(&self, function: &Function) -> Vec<crate::agi_integration::AgiInsight> {
+    fn hybrid_reasoning(&self, function: &Function) -> Vec<crate::tumc_compiler::agi_integration::AgiInsight> {
         let mut insights = Vec::new();
 
         // Combine neural pattern confidence with symbolic rule priority
@@ -491,7 +491,7 @@ impl NeuralSymbolicEngine {
                     let combined_confidence = pattern.confidence * (rule.priority as f64 / 10.0);
 
                     if combined_confidence > 0.5 {
-                        insights.push(crate::agi_integration::AgiInsight {
+                        insights.push(crate::tumc_compiler::agi_integration::AgiInsight {
                             insight_type: Self::pattern_to_insight_type(&pattern.pattern_type),
                             confidence: combined_confidence,
                             description: format!(
@@ -500,11 +500,11 @@ impl NeuralSymbolicEngine {
                                 rule.name,
                                 combined_confidence
                             ),
-                            suggestion: crate::agi_integration::AgiSuggestion {
+                            suggestion: crate::tumc_compiler::agi_integration::AgiSuggestion {
                                 transform_type: Self::rule_to_transform(&rule.action),
                                 target_location: pattern.location.function.clone(),
                                 expected_improvement: combined_confidence * 0.5,
-                                risk_level: crate::agi_integration::RiskLevel::Low,
+                                risk_level: crate::tumc_compiler::agi_integration::RiskLevel::Low,
                             },
                             reasoning_chain: vec![
                                 "Neural pattern detected".to_string(),

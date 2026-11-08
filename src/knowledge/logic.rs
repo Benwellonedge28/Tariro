@@ -2,6 +2,7 @@
 //!
 //! Datalog/Prolog-style logic programming with explicit rules and facts.
 
+use std::sync::RwLock;
 use crate::prelude::*;
 use crate::knowledge::knowledge_graph::{KnowledgeGraph, EntityId, Predicate, Probability};
 use std::collections::{HashMap, HashSet};

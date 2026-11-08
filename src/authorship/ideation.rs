@@ -2,7 +2,7 @@
 //!
 //! Generates creative concepts and ideas from prompts.
 
-use crate::authorship::{CreativePrompt, CreativeConcept};
+use crate::authorship::CreativePrompt;
 use serde::{Deserialize, Serialize};
 
 /// Result from ideation

@@ -109,7 +109,7 @@ impl ClrType {
 }
 
 /// IL instruction opcodes
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum IlOpcode {
     // Stack operations
     Nop,

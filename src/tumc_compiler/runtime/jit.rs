@@ -1,6 +1,14 @@
 // JIT Compilation
 
 use super::*;
+use crate::tumc_compiler::optimization::{OptLevel, OptimizationManager};
+
+/// Identifier of a runtime class.
+///
+/// Used to key inline caches: a monomorphic call site caches a single
+/// receiver class, a polymorphic one keeps an entry per class.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct ClassId(pub usize);
 
 /// JIT compiler
 pub struct JitCompiler {
