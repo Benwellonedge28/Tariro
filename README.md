@@ -1,8 +1,8 @@
 # Tariro AGI - The Universal Meta-Compiler System
 
-[![Version](https://img.shields.io/badge/version-1.0.12-blue.svg)](https://github.com/Benwellonedge28/Tariro)
-[![Rust](https://img.shields.io/badge/rust-1.70+-orange.svg)](https://www.rust-lang.org)
-[![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-green.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.0.15-blue.svg)](https://github.com/Benwellonedge28/Tariro)
+[![Rust](https://img.shields.io/badge/rust-1.88+-orange.svg)](https://www.rust-lang.org)
+[![License](https://img.shields.io/badge/license-BSL--1.01-blue.svg)](LICENSE)
 [![Build Status](https://github.com/Benwellonedge28/Tariro/actions/workflows/ci.yml/badge.svg)](https://github.com/Benwellonedge28/Tariro/actions)
 
 **Tariro AGI** is a sovereign, self-modifying, and continually learning AGI system implementing the POCO-REAF (Program-and-Compile-Once-Run-Everywhere-Anywhere-Forever) paradigm. It serves as a Universal Meta-Compiler capable of compiling high-level specifications into optimized code for any computational substrate.
@@ -171,11 +171,17 @@ Contributions are welcome! Please read our [CONTRIBUTING](./CONTRIBUTING.md) gui
 
 ## License
 
-Licensed under either of:
-- Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
-- MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+Licensed under the **Business Source License 1.01** with Tariro's "Highly
+Protected" provisions. The full text is in [LICENSE](LICENSE).
 
-at your option.
+Before the Change Date (15 October 2124) the licence is non-commercial: use
+that is not covered by a separate commercial agreement from the Licensor is
+not permitted. On and after the Change Date the software is released under
+the terms of the Business Source License then in effect, or — at the
+Licensor's option — the GPL v3 (or later), Apache-2.0 or MIT.
+
+The additional safety and responsible-use terms that apply to this
+distribution are stated at the end of [LICENSE](LICENSE).
 
 ## Support
 
