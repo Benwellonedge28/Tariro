@@ -1601,11 +1601,16 @@ impl Parser {
     }
 
     /// Advance to next token
-    fn advance(&mut self) -> &Token {
+    ///
+    /// The consumed token is returned by value. Handing out a borrow of `self`
+    /// would keep the parser mutably borrowed for as long as the caller held
+    /// the token, which a recursive descent parser does at nearly every call
+    /// site.
+    fn advance(&mut self) -> Token {
         if !self.is_at_end() {
             self.current += 1;
         }
-        self.previous()
+        self.previous().clone()
     }
 
     /// Check token kind

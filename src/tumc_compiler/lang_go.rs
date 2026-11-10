@@ -139,6 +139,18 @@ pub struct GoParser {
 pub enum GoToken {
     // Identifiers and literals
     Ident(String),
+
+    /// The `true` literal.
+    True,
+
+    /// The `false` literal.
+    False,
+
+    /// The `make` builtin.
+    Make,
+
+    /// The `new` builtin.
+    New,
     Int(i64),
     Float(f64),
     Imag(f64),
@@ -288,6 +300,10 @@ impl GoLexer {
         let s = &self.source[start..*pos];
 
         let token = match s {
+            "true" => GoToken::True,
+            "false" => GoToken::False,
+            "make" => GoToken::Make,
+            "new" => GoToken::New,
             "break" => GoToken::Break,
             "case" => GoToken::Case,
             "chan" => GoToken::Chan,

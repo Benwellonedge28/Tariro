@@ -1702,9 +1702,9 @@ impl TypeScriptParser {
                 self.advance();
                 Ok(Type::Unknown) // Would resolve type name
             }
-            TsToken::OpenBracket => {
+            TsToken::LeftBracket => {
                 self.advance();
-                if self.check(&TsToken::CloseBracket) {
+                if self.check(&TsToken::RightBracket) {
                     self.advance();
                     // Array type []
                     self.expect(&TsToken::Less)?;
@@ -1713,7 +1713,7 @@ impl TypeScriptParser {
                     Ok(Type::Array(Box::new(elem_type), None))
                 } else {
                     let elem_type = self.parse_type()?;
-                    self.expect(&TsToken::CloseBracket)?;
+                    self.expect(&TsToken::RightBracket)?;
                     Ok(Type::Array(Box::new(elem_type), None))
                 }
             }
@@ -2366,10 +2366,10 @@ impl TypeScriptParser {
 
                 Ok(Expression::Identifier(n))
             }
-            TsToken::OpenParen => {
+            TsToken::LeftParen => {
                 self.advance();
 
-                if self.check(&TsToken::CloseParen) {
+                if self.check(&TsToken::RightParen) {
                     self.advance();
                     return Ok(Expression::Tuple(Vec::new()));
                 }
@@ -2390,31 +2390,31 @@ impl TypeScriptParser {
                 if self.check(&TsToken::Comma) {
                     self.advance();
                     let mut elements = vec![expr];
-                    while !self.check(&TsToken::CloseParen) {
+                    while !self.check(&TsToken::RightParen) {
                         elements.push(self.parse_expression()?);
-                        if !self.check(&TsToken::CloseParen) {
+                        if !self.check(&TsToken::RightParen) {
                             self.expect(&TsToken::Comma)?;
                         }
                     }
-                    self.expect(&TsToken::CloseParen)?;
+                    self.expect(&TsToken::RightParen)?;
                     Ok(Expression::Tuple(elements))
                 } else {
-                    self.expect(&TsToken::CloseParen)?;
+                    self.expect(&TsToken::RightParen)?;
                     Ok(expr)
                 }
             }
-            TsToken::OpenBracket => {
+            TsToken::LeftBracket => {
                 self.advance();
                 let mut elements = Vec::new();
 
-                while !self.check(&TsToken::CloseBracket) {
+                while !self.check(&TsToken::RightBracket) {
                     elements.push(self.parse_expression()?);
-                    if !self.check(&TsToken::CloseBracket) {
+                    if !self.check(&TsToken::RightBracket) {
                         self.expect(&TsToken::Comma)?;
                     }
                 }
 
-                self.expect(&TsToken::CloseBracket)?;
+                self.expect(&TsToken::RightBracket)?;
                 Ok(Expression::Array(elements))
             }
             TsToken::OpenBrace => {
@@ -2436,7 +2436,7 @@ impl TypeScriptParser {
                     let value = if self.check(&TsToken::Colon) {
                         self.advance();
                         self.parse_expression()?
-                    } else if self.check(&TsToken::OpenParen) {
+                    } else if self.check(&TsToken::LeftParen) {
                         // Method
                         self.parse_expression()?
                     } else {
@@ -2521,7 +2521,7 @@ impl TypeScriptParser {
                             _ => vec![b],
                         }).unwrap_or_default()).into()
                     )))
-                } else if self.check(&TsToken::OpenParen) || self.at_identifier() {
+                } else if self.check(&TsToken::LeftParen) || self.at_identifier() {
                     self.parse_expression()
                 } else {
                     Err(TsParseError::new("Unexpected token", self.pos))
@@ -2586,7 +2586,7 @@ impl TypeScriptParser {
             }
             TsToken::Yield => {
                 self.advance();
-                if self.check(&TsToken::Semicolon) || self.check(&TsToken::CloseParen) {
+                if self.check(&TsToken::Semicolon) || self.check(&TsToken::RightParen) {
                     Ok(Expression::Yield(None))
                 } else {
                     let value = self.parse_expression()?;

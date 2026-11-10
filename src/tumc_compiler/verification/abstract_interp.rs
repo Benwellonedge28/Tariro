@@ -430,7 +430,7 @@ impl AbstractInterpreter {
                 let val_val = state.get(val);
                 new_state.set(ptr.clone(), val_val);
             }
-            Operation::Alloc(ty, size) => {
+            Operation::Alloca(ty, size) => {
                 // Allocation returns non-null pointer
                 new_state.set(
                     inst.result_name.clone().unwrap_or_default(),
