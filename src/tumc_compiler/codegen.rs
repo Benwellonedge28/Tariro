@@ -51,6 +51,10 @@ impl WasmType {
 #[derive(Debug, Clone)]
 pub enum WasmInstruction {
     // Control flow
+
+    /// `end` — terminates a block or a function body.
+    End,
+
     Unreachable,
     Nop,
     Block(WasmType, Vec<WasmInstruction>),

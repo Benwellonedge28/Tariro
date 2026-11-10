@@ -497,8 +497,11 @@ impl EdgeCloudSync {
         let mut bytes_sent = 0u64;
         let mut bytes_received = 0u64;
 
-        // Aggregate from all children
-        for (_, child) in &mut self.children {
+        // Aggregate from all children. The children are taken out of `self`
+        // for the duration of the loop: the sync helpers below need `&mut
+        // self`, which cannot coexist with a borrow of `self.children`.
+        let mut children = std::mem::take(&mut self.children);
+        for (_, child) in children.iter_mut() {
             if child.connected {
                 // Pull from child
                 if let Some(delta) = self.pull_from(child.id).await? {
@@ -518,9 +521,10 @@ impl EdgeCloudSync {
         }
 
         // Update child sync times
-        for child in self.children.values_mut() {
+        for child in children.values_mut() {
             child.last_sync_ms = 0; // Would be timestamp
         }
+        self.children = children;
 
         Ok(SyncResult {
             success: true,

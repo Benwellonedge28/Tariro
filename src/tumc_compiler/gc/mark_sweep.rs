@@ -5,7 +5,7 @@ use super::*;
 /// Mark-sweep GC implementation
 pub struct MarkSweepGc {
     config: HeapConfig,
-    heap: Option<HeapRegion>,
+    pub heap: Option<HeapRegion>,
     roots: RootSet,
     stats: GcStats,
     enabled: bool,

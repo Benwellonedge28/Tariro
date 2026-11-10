@@ -845,7 +845,7 @@ impl Parser {
 
     /// Parse a pattern
     fn parse_pattern(&mut self) -> Result<Pattern, ParserError> {
-        let token = self.peek();
+        let token = self.peek().clone();
 
         match &token.kind {
             TokenKind::Underscore => {
@@ -1062,12 +1062,13 @@ impl Parser {
         if self.check(&TokenKind::Assign) {
             self.advance();
             let value = Box::new(self.parse_assignment()?);
+            let span = expr.span;
             return Ok(Expr::new(
                 ExprKind::Assign {
                     target: Box::new(expr),
                     value,
                 },
-                expr.span,
+                span,
             ));
         }
 
@@ -1083,13 +1084,14 @@ impl Parser {
         if let Some(op) = compound_op {
             self.advance();
             let value = Box::new(self.parse_assignment()?);
+            let span = expr.span;
             return Ok(Expr::new(
                 ExprKind::CompoundAssign {
                     target: Box::new(expr),
                     op,
                     value,
                 },
-                expr.span,
+                span,
             ));
         }
 
@@ -1103,13 +1105,14 @@ impl Parser {
         while self.check(&TokenKind::Or) || self.check(&TokenKind::Or) {
             let op = self.advance();
             let rhs = Box::new(self.parse_and()?);
+            let span = SourceSpan::new(expr.span.start, rhs.span.end);
             expr = Expr::new(
                 ExprKind::Binary {
                     op: BinOp::Or,
                     lhs: Box::new(expr),
                     rhs,
                 },
-                SourceSpan::new(expr.span.start, rhs.span.end),
+                span,
             );
         }
 
@@ -1123,13 +1126,14 @@ impl Parser {
         while self.check(&TokenKind::And) || self.check(&TokenKind::And) {
             self.advance();
             let rhs = Box::new(self.parse_equality()?);
+            let span = SourceSpan::new(expr.span.start, rhs.span.end);
             expr = Expr::new(
                 ExprKind::Binary {
                     op: BinOp::And,
                     lhs: Box::new(expr),
                     rhs,
                 },
-                SourceSpan::new(expr.span.start, rhs.span.end),
+                span,
             );
         }
 
@@ -1148,13 +1152,14 @@ impl Parser {
             };
             self.advance();
             let rhs = Box::new(self.parse_comparison()?);
+            let span = SourceSpan::new(expr.span.start, rhs.span.end);
             expr = Expr::new(
                 ExprKind::Binary {
                     op,
                     lhs: Box::new(expr),
                     rhs,
                 },
-                SourceSpan::new(expr.span.start, rhs.span.end),
+                span,
             );
         }
 
@@ -1176,13 +1181,14 @@ impl Parser {
             };
             self.advance();
             let rhs = Box::new(self.parse_term()?);
+            let span = SourceSpan::new(expr.span.start, rhs.span.end);
             expr = Expr::new(
                 ExprKind::Binary {
                     op,
                     lhs: Box::new(expr),
                     rhs,
                 },
-                SourceSpan::new(expr.span.start, rhs.span.end),
+                span,
             );
         }
 
@@ -1201,13 +1207,14 @@ impl Parser {
             };
             self.advance();
             let rhs = Box::new(self.parse_factor()?);
+            let span = SourceSpan::new(expr.span.start, rhs.span.end);
             expr = Expr::new(
                 ExprKind::Binary {
                     op,
                     lhs: Box::new(expr),
                     rhs,
                 },
-                SourceSpan::new(expr.span.start, rhs.span.end),
+                span,
             );
         }
 
@@ -1227,13 +1234,14 @@ impl Parser {
             };
             self.advance();
             let rhs = Box::new(self.parse_unary()?);
+            let span = SourceSpan::new(expr.span.start, rhs.span.end);
             expr = Expr::new(
                 ExprKind::Binary {
                     op,
                     lhs: Box::new(expr),
                     rhs,
                 },
-                SourceSpan::new(expr.span.start, rhs.span.end),
+                span,
             );
         }
 
@@ -1317,10 +1325,7 @@ impl Parser {
                 let index = self.parse_expression()?;
                 self.expect(&TokenKind::RBracket, "']' expected")?;
                 expr = Expr::new(
-                    ExprKind::Index {
-                        base: Box::new(expr),
-                        index: Box::new(index),
-                    },
+                    ExprKind::Index(Box::new(expr), Box::new(index)),
                     SourceSpan::at(self.previous().location),
                 );
             } else {
@@ -1333,7 +1338,7 @@ impl Parser {
 
     /// Parse primary
     fn parse_primary(&mut self) -> Result<Expr, ParserError> {
-        let token = self.peek();
+        let token = self.peek().clone();
 
         match &token.kind {
             // Literals

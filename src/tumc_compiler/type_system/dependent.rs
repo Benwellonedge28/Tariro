@@ -19,7 +19,7 @@ pub enum DepTypeExpr {
     Mul(Box<DepTypeExpr>, Box<DepTypeExpr>),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub enum Const {
     Int(i64),
     Float(f64),

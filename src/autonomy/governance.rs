@@ -13,7 +13,9 @@ use uuid::Uuid;
 
 use crate::config::AGIConfig;
 use crate::telemetry::{TelemetryEvent, TelemetryLogger};
-use crate::autonomy::policy_engine::{AutonomyPolicy, AutonomyPolicyEngine, PolicyDecision};
+use crate::autonomy::policy_engine::{
+    AutonomyPolicy, AutonomyPolicyEngine, AutonomyPolicyEngineTrait, PolicyDecision,
+};
 
 /// Represents an action taken by the governance system to change Tariro's autonomy or policies.
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -114,7 +116,13 @@ impl GovernanceService {
 
     /// Approves and executes a pending governance action.
     pub async fn approve_and_execute_action(&mut self, action_id: &str, approver: &str) -> Result<(), String> {
-        if let Some(action) = self.active_actions.get_mut(action_id) {
+        // Work on an owned copy: the map borrow cannot be held across the
+        // awaits below, which need `&mut self`.
+        let mut action = match self.active_actions.get(action_id).cloned() {
+            Some(action) => action,
+            None => return Err(format!("Governance action with ID {} not found.", action_id)),
+        };
+        {
             if action.status != GovernanceActionStatus::PendingApproval {
                 return Err(format!("Action {} is not pending approval.", action_id));
             }
@@ -126,7 +134,7 @@ impl GovernanceService {
                 message: format!("Governance action {} approved.", action_id),
             }).await;
 
-            match self.execute_action(action).await {
+            match self.execute_action(&action).await {
                 Ok(_) => {
                     action.status = GovernanceActionStatus::Executed;
                     println!("[GovernanceService] Action {} executed successfully.", action_id);
@@ -138,16 +146,20 @@ impl GovernanceService {
                     Err(format!("Execution failed: {}", e))
                 },
             }
-        } else {
-            Err(format!("Governance action with ID {} not found.", action_id))
         }
+        // Record the outcome in the registry.
+        self.active_actions.insert(action_id.to_string(), action);
+        Ok(())
     }
 
     async fn execute_action(&mut self, action: &GovernanceAction) -> Result<(), String> {
         match action.action_type {
             GovernanceActionType::UpdatePolicy => {
                 if let Some(policy_id) = &action.target_policy_id {
-                    let mut current_policy = self.policy_engine.get_policy(policy_id)
+                    let mut current_policy = self
+                        .policy_engine
+                        .get_policy(policy_id)
+                        .await
                         .ok_or(format!("Policy {} not found.", policy_id))?;
 
                     for (key, value) in &action.proposed_changes {
@@ -166,7 +178,10 @@ impl GovernanceService {
             },
             GovernanceActionType::ChangeAutonomyLevel => {
                 if let (Some(domain), Some(new_level)) = (action.proposed_changes.get("domain"), action.proposed_changes.get("new_level")) {
-                    let old_level = self.policy_engine.get_policy_by_domain(domain)
+                    let old_level = self
+                        .policy_engine
+                        .get_policy_by_domain(domain)
+                        .await
                         .map(|p| p.autonomy_level.to_string())
                         .unwrap_or_else(|| "unknown".to_string());
 

@@ -7,6 +7,7 @@ use mongodb::{options::ClientOptions, Client, Collection, Database};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use async_trait::async_trait;
+use futures::StreamExt;
 
 // Re-export entity types from the SDK
 pub use tariro_sdk::entities::{AGICategory, AGIControlSetting, AutonomyPolicy, CapabilityStatus, CompilerProject, Conversation, DeploymentRecord, ExplainabilityLog, FeatureProposal, GitHubProfile, GitHubProjectContext, Goal, IDEProfile, KnowledgeItem, LearningInsight, ManagedFile, MetaProject, NanoAgent, NotificationRecord, PerformanceLog, ProjectTask, ServicePrice, SystemHealthLog, WellbeingLog, WorkflowRule};
@@ -130,7 +131,7 @@ impl DatabaseService {
             }
         }
 
-        let result = collection.insert_one(entity, None).await
+        let result = collection.insert_one(entity).await
             .map_err(|e| format!("Failed to create {}: {:?}", T::COLLECTION_NAME, e))?;
         
         let inserted_id = result.inserted_id.as_str().map(|s| s.to_string())
@@ -145,7 +146,7 @@ impl DatabaseService {
         use mongodb::bson::doc;
         let collection = self.collection::<T>();
         let filter = doc! { "id": id };
-        let entity = collection.find_one(filter, None).await
+        let entity = collection.find_one(filter).await
             .map_err(|e| format!("Failed to read {}: {:?}", T::COLLECTION_NAME, e))?;
         Ok(entity)
     }
@@ -158,7 +159,7 @@ impl DatabaseService {
         let update = mongodb::bson::to_document(new_data)
             .map_err(|e| format!("Failed to convert new_data to BSON document: {}", e))?;
 
-        let result = collection.update_one(filter, doc! { "$set": update }, None).await
+        let result = collection.update_one(filter, doc! { "$set": update }).await
             .map_err(|e| format!("Failed to update {}: {:?}", T::COLLECTION_NAME, e))?;
         
         if result.matched_count == 0 {
@@ -174,7 +175,7 @@ impl DatabaseService {
         use mongodb::bson::doc;
         let collection = self.collection::<T>();
         let filter = doc! { "id": id };
-        let result = collection.delete_one(filter, None).await
+        let result = collection.delete_one(filter).await
             .map_err(|e| format!("Failed to delete {}: {:?}", T::COLLECTION_NAME, e))?;
         
         if result.deleted_count == 0 {
@@ -189,11 +190,11 @@ impl DatabaseService {
     pub async fn list<T: DbEntity + Debug>(&self) -> Result<Vec<T>, String> {
         use mongodb::bson::doc;
         let collection = self.collection::<T>();
-        let mut cursor = collection.find(doc! {}, None).await
+        let mut cursor = collection.find(doc! {}).await
             .map_err(|e| format!("Failed to list {}: {:?}", T::COLLECTION_NAME, e))?;
         
         let mut entities = Vec::new();
-        while let Some(result) = cursor.try_next().await {
+        while let Some(result) = cursor.next().await {
             entities.push(result.map_err(|e| format!("Failed to parse {} document: {:?}", T::COLLECTION_NAME, e))?);
         }
         Ok(entities)

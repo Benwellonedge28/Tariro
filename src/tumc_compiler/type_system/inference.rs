@@ -1,7 +1,7 @@
 // Type Inference - Hindley-Milner
 
 use super::*;
-use crate::tumc_compiler::ast::{Expr, ExprKind};
+use crate::tumc_compiler::ast::{Expr, ExprKind, Literal, Pattern, Stmt, StmtKind};
 
 /// Type inference engine
 pub struct TypeInference {
@@ -38,17 +38,20 @@ impl TypeInference {
     /// Infer type of an expression
     pub fn infer_expr(&mut self, expr: &Expr) -> Result<MonoType, TypeError> {
         match &expr.kind {
-            ExprKind::Unit => Ok(MonoType::Unit),
-            ExprKind::Bool(_) => Ok(MonoType::Bool),
-            ExprKind::Char(_) => Ok(MonoType::Char),
-            ExprKind::Int(_) => Ok(MonoType::Int(IntSize::I64)),
-            ExprKind::Float(_) => Ok(MonoType::Float(FloatSize::F64)),
-            ExprKind::String(_) => Ok(MonoType::String),
-            ExprKind::Ident(name) => {
+            ExprKind::Literal(literal) => match literal {
+                Literal::Unit => Ok(MonoType::Unit),
+                Literal::Bool(_) => Ok(MonoType::Bool),
+                Literal::Char(_) => Ok(MonoType::Char),
+                Literal::Int(_) => Ok(MonoType::Int(IntSize::I64)),
+                Literal::Float(_) => Ok(MonoType::Float(FloatSize::F64)),
+                Literal::String(_) | Literal::RawString(_) => Ok(MonoType::String),
+                _ => Ok(MonoType::Wildcard),
+            },
+            ExprKind::Identifier(name) => {
                 self.context.get(name).cloned()
                     .ok_or_else(|| TypeError::UndefinedVariable(name.clone()))
             }
-            ExprKind::Binary(op, lhs, rhs) => {
+            ExprKind::Binary { lhs, rhs, .. } => {
                 let lhs_ty = self.infer_expr(lhs)?;
                 let rhs_ty = self.infer_expr(rhs)?;
                 let result_ty = self.fresh_var();
@@ -58,13 +61,13 @@ impl TypeInference {
 
                 Ok(result_ty)
             }
-            ExprKind::Unary(_, operand) => {
+            ExprKind::Unary { operand, .. } => {
                 self.infer_expr(operand)
             }
-            ExprKind::Call(callee, args) => {
-                let callee_ty = self.infer_expr(callee)?;
+            ExprKind::Call { function, arguments } => {
+                let callee_ty = self.infer_expr(function)?;
 
-                let param_tys: Vec<_> = args.iter()
+                let param_tys: Vec<_> = arguments.iter()
                     .map(|a| self.infer_expr(a))
                     .collect::<Result<Vec<_>, _>>()?;
 
@@ -81,12 +84,15 @@ impl TypeInference {
 
                 Ok(ret_ty)
             }
-            ExprKind::If(cond, then, else_) => {
-                let cond_ty = self.infer_expr(cond)?;
+            ExprKind::If { condition, then_block, else_expr } => {
+                let cond_ty = self.infer_expr(condition)?;
                 self.constraints.push(Constraint::Equal(cond_ty, MonoType::Bool));
 
-                let then_ty = self.infer_expr(then)?;
-                let else_ty = self.infer_expr(else_)?;
+                let then_ty = self.infer_pattern_blocks(then_block)?;
+                let else_ty = match else_expr {
+                    Some((_, block)) => self.infer_block(block)?,
+                    None => MonoType::Unit,
+                };
 
                 let result_ty = self.fresh_var();
                 self.constraints.push(Constraint::Equal(then_ty, result_ty.clone()));
@@ -94,16 +100,16 @@ impl TypeInference {
 
                 Ok(result_ty)
             }
-            ExprKind::Lambda(params, body) => {
+            ExprKind::Closure(params, body, _) => {
                 let param_tys: Vec<_> = params.iter()
                     .map(|_| self.fresh_var())
                     .collect();
 
                 for (param, ty) in params.iter().zip(param_tys.iter()) {
-                    self.context.insert(param.clone(), ty.clone());
+                    self.context.insert(param.name.clone(), ty.clone());
                 }
 
-                let body_ty = self.infer_expr(body)?;
+                let body_ty = self.infer_block(body)?;
 
                 Ok(MonoType::Function(Box::new(FunctionType {
                     params: param_tys,
@@ -112,19 +118,56 @@ impl TypeInference {
                     abi: None,
                 })))
             }
-            ExprKind::Let(name, ty, value, body) => {
-                let value_ty = self.infer_expr(value)?;
-
-                if let Some(expected_ty) = ty {
-                    self.constraints.push(Constraint::Equal(value_ty, expected_ty.clone()));
-                }
-
-                self.context.insert(name.clone(), value_ty);
-
-                self.infer_expr(body)
-            }
             _ => Ok(MonoType::Wildcard),
         }
+    }
+
+    /// Infer the type of a statement.
+    pub fn infer_stmt(&mut self, stmt: &Stmt) -> Result<MonoType, TypeError> {
+        match &stmt.kind {
+            StmtKind::Expr(expr) => self.infer_expr(expr),
+
+            StmtKind::Let(pattern, annotation, initializer, body) => {
+                let value_ty = match initializer {
+                    Some(init) => self.infer_expr(init)?,
+                    None => MonoType::Unit,
+                };
+
+                if let Some(expected_ty) = annotation {
+                    let expected_ty = MonoType::from_ann_type(expected_ty);
+                    self.constraints.push(Constraint::Equal(value_ty.clone(), expected_ty));
+                }
+
+                if let Pattern::Binding(name) = pattern {
+                    self.context.insert(name.clone(), value_ty);
+                }
+
+                self.infer_block(body)
+            }
+
+            _ => Ok(MonoType::Wildcard),
+        }
+    }
+
+    /// Infer the type of a set of pattern-guarded blocks.
+    pub fn infer_pattern_blocks(
+        &mut self,
+        blocks: &[(Pattern, Vec<Stmt>)],
+    ) -> Result<MonoType, TypeError> {
+        let mut last = MonoType::Unit;
+        for (_, stmts) in blocks {
+            last = self.infer_block(stmts)?;
+        }
+        Ok(last)
+    }
+
+    /// Infer the type of a block of statements.
+    pub fn infer_block(&mut self, stmts: &[Stmt]) -> Result<MonoType, TypeError> {
+        let mut last = MonoType::Unit;
+        for stmt in stmts {
+            last = self.infer_stmt(stmt)?;
+        }
+        Ok(last)
     }
 
     /// Solve constraints and produce substitution
@@ -235,29 +278,6 @@ impl Substitution {
             self.map.insert(*var, applied);
         }
     }
-}
-
-/// MonoType with variables
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum MonoType {
-    Unit,
-    Bool,
-    Int(IntSize),
-    Float(FloatSize),
-    Char,
-    String,
-    Array(Box<MonoType>),
-    Slice(Box<MonoType>),
-    Tuple(Vec<MonoType>),
-    Function(Box<FunctionType>),
-    Struct(StructType),
-    Enum(EnumType),
-    Trait(TraitType),
-    Pointer(Box<MonoType>),
-    Reference(Box<MonoType>),
-    Never,
-    Wildcard,
-    Var(TypeVar),
 }
 
 impl MonoType {

@@ -20,7 +20,7 @@ use std::str::Chars;
 // ============================================================================
 
 /// Token type
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum TokenKind {
     // Literals
     /// Integer literal (e.g., 42, 0xFF)
@@ -512,6 +512,7 @@ impl<'a> Lexer<'a> {
             column: 1,
             tokens: VecDeque::new(),
             state: LexerState::Normal,
+            language: SourceLanguage::default(),
         }
     }
 

@@ -696,7 +696,7 @@ impl ResourceAwareLoader {
         }
         visited.insert(module);
 
-        for dep in entry.dependencies {
+        for dep in entry.descriptor.dependencies {
             if let Some(dep_entry) = self.modules.get(dep) {
                 if self.has_circular_dependency(dep, dep_entry, visited) {
                     return true;

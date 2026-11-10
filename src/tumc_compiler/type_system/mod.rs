@@ -1,6 +1,8 @@
 // Type System Module
 
 pub mod inference;
+
+use crate::tumc_compiler::ast::AnnType;
 pub mod gradual;
 pub mod dependent;
 
@@ -24,7 +26,7 @@ pub struct TypeSchema {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TypeVar(pub usize);
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum MonoType {
     Unit,
     Bool,
@@ -43,6 +45,41 @@ pub enum MonoType {
     Reference(Box<MonoType>),
     Never,
     Wildcard,
+    /// A unification variable, introduced by the inference engine.
+    Var(TypeVar),
+}
+
+impl MonoType {
+    /// Lower a declared annotation into a monomorphic type.
+    pub fn from_ann_type(ann: &AnnType) -> MonoType {
+        match ann {
+            AnnType::Unit => MonoType::Unit,
+            AnnType::Bool => MonoType::Bool,
+            AnnType::Int => MonoType::Int(IntSize::I64),
+            AnnType::Float => MonoType::Float(FloatSize::F64),
+            AnnType::Char => MonoType::Char,
+            AnnType::String => MonoType::String,
+            AnnType::Ref(inner) | AnnType::MutRef(inner) => {
+                MonoType::Reference(Box::new(MonoType::from_ann_type(inner)))
+            }
+            AnnType::Ptr(inner) => MonoType::Pointer(Box::new(MonoType::from_ann_type(inner))),
+            AnnType::Array(inner) => MonoType::Array(Box::new(MonoType::from_ann_type(inner))),
+            AnnType::Tuple(items) => {
+                MonoType::Tuple(items.iter().map(MonoType::from_ann_type).collect())
+            }
+            AnnType::Func(params, ret) => MonoType::Function(Box::new(FunctionType {
+                params: params.iter().map(MonoType::from_ann_type).collect(),
+                ret: Box::new(MonoType::from_ann_type(ret)),
+                safety: Safety::Safe,
+                abi: None,
+            })),
+            AnnType::Named(name) => MonoType::Struct(StructType {
+                name: name.clone(),
+                fields: Vec::new(),
+            }),
+            AnnType::Error | AnnType::Optional(_) | AnnType::Result(_, _) => MonoType::Wildcard,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
@@ -56,13 +93,13 @@ pub enum FloatSize {
     F16, F32, F64,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct StructType {
     pub name: String,
     pub fields: Vec<(String, MonoType)>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct EnumType {
     pub name: String,
     pub variants: Vec<EnumVariant>,
@@ -74,7 +111,7 @@ pub struct EnumVariant {
     pub data: Vec<MonoType>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct TraitType {
     pub name: String,
     pub methods: Vec<String>,
@@ -96,7 +133,7 @@ impl Default for Safety {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct FunctionType {
     pub params: Vec<MonoType>,
     pub ret: Box<MonoType>,

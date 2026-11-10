@@ -10,81 +10,6 @@ use std::fmt;
 // Missing Type Definitions (for compatibility)
 // ============================================================================
 
-/// Annotation type for type representations
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum AnnType {
-    /// Unit type ()
-    Unit,
-    /// Named type reference
-    Named(String),
-    /// Pointer type
-    Pointer(Box<AnnType>),
-    /// Reference type
-    Reference(Box<AnnType>),
-    /// Array type
-    Array(Box<AnnType>, usize),
-    /// Slice type
-    Slice(Box<AnnType>),
-    /// Tuple type
-    Tuple(Vec<AnnType>),
-    /// Function type
-    Func(Vec<AnnType>, Box<AnnType>),
-    /// Generic type
-    Generic(String, Vec<AnnType>),
-}
-
-/// Statement kind for code generation
-#[derive(Debug, Clone)]
-pub enum StmtKind {
-    /// Let statement
-    Let { pattern: Pattern, initializer: Option<Expr> },
-    /// Expression statement
-    Expr { expr: Expr },
-    /// Assignment
-    Assign { target: Expr, value: Expr },
-    /// If statement
-    If { condition: Expr, then_block: Block, else_block: Option<Block> },
-    /// While loop
-    While { condition: Expr, body: Block },
-    /// For loop
-    For { pattern: Pattern, iterator: Expr, body: Block },
-    /// Return statement
-    Return { value: Option<Expr> },
-    /// Block statement
-    Block { block: Block },
-    /// Empty statement
-    Empty,
-}
-
-/// Statement wrapper
-#[derive(Debug, Clone)]
-pub struct Stmt {
-    pub kind: StmtKind,
-    pub span: SourceSpan,
-}
-
-impl Stmt {
-    pub fn new(kind: StmtKind) -> Self {
-        Self {
-            kind,
-            span: SourceSpan {
-                start: SourceLocation { line: 0, column: 0, file: 0 },
-                end: SourceLocation { line: 0, column: 0, file: 0 },
-            },
-        }
-    }
-
-    /// An expression statement.
-    pub fn new_expr(expr: Expr) -> Self {
-        Stmt::new(StmtKind::Expr { expr })
-    }
-
-    /// A `return` statement.
-    pub fn new_return(expr: Option<Expr>) -> Self {
-        Stmt::new(StmtKind::Return { value: expr })
-    }
-}
-
 /// Constant value representation
 #[derive(Debug, Clone)]
 pub enum Const {
@@ -273,7 +198,8 @@ impl DeriveGenerator {
                         return_type: AnnType::Named(struct_.name.clone()),
                         body: vec![Stmt::new_expr(Expr::new_identifier(struct_.name.to_lowercase()))],
                         span: Span::default(),
-                    }
+..Default::default()
+}
                 ],
                 span: Span::default(),
             })])
@@ -343,7 +269,8 @@ impl DeriveGenerator {
                 return_type: AnnType::Named(struct_.name.clone()),
                 body: stmts,
                 span: Span::default(),
-            }],
+..Default::default()
+}],
             span: Span::default(),
         })])
     }
@@ -393,7 +320,8 @@ impl DeriveGenerator {
                 return_type: AnnType::Named("Result".to_string()),
                 body: vec![Stmt::new_expr(Expr::new_identifier("builder"))],
                 span: Span::default(),
-            }],
+..Default::default()
+}],
             span: Span::default(),
         })])
     }
@@ -421,7 +349,8 @@ impl DeriveGenerator {
                 return_type: AnnType::Named(struct_.name.clone()),
                 body: vec![Stmt::new_expr(Expr::new_identifier(struct_.name.to_lowercase()))],
                 span: Span::default(),
-            }],
+..Default::default()
+}],
             span: Span::default(),
         })])
     }
@@ -432,17 +361,22 @@ impl DeriveGenerator {
 
         // Compare each field
         for field in &struct_.fields {
-            stmts.push(Stmt::new(StmtKind::If(
-                Expr::new_binary(
-                    BinOp::Ne,
-                    Expr::new_identifier(format!("self.{}", field.name)),
-                    Expr::new_identifier(format!("other.{}", field.name)),
-                    Span::default(),
+            stmts.push(Stmt::new(
+                StmtKind::If(
+                    Box::new(Expr::new_binary(
+                        BinOp::Ne,
+                        Expr::new_identifier(format!("self.{}", field.name)),
+                        Expr::new_identifier(format!("other.{}", field.name)),
+                        Span::default(),
+                    )),
+                    vec![Stmt::new_return(Some(Expr::new_literal(
+                        Literal::Bool(false),
+                        Span::default(),
+                    )))],
+                    None,
                 ),
-                vec![Stmt::new_return(Some(Expr::new_literal(Literal::Bool(false), Span::default())))],
-                None,
                 Span::default(),
-            )));
+            ));
         }
 
         stmts.push(Stmt::new_return(Some(Expr::new_literal(Literal::Bool(true), Span::default()))));
@@ -462,7 +396,8 @@ impl DeriveGenerator {
                 return_type: AnnType::Named("bool".to_string()),
                 body: stmts,
                 span: Span::default(),
-            }],
+..Default::default()
+}],
             span: Span::default(),
         })])
     }
@@ -476,7 +411,8 @@ impl DeriveGenerator {
             ty_params: vec![],
             functions: vec![],
             span: Span::default(),
-        })])
+..Default::default()
+})])
     }
 
     /// Derive Hash implementation
@@ -507,7 +443,8 @@ impl DeriveGenerator {
                 return_type: AnnType::Unit,
                 body: stmts,
                 span: Span::default(),
-            }],
+..Default::default()
+}],
             span: Span::default(),
         })])
     }
@@ -555,7 +492,8 @@ impl DeriveGenerator {
                 return_type: AnnType::Named("Result<S::Ok, S::Error>".to_string()),
                 body: stmts,
                 span: Span::default(),
-            }],
+..Default::default()
+}],
             span: Span::default(),
         })])
     }
@@ -587,7 +525,8 @@ impl DeriveGenerator {
                 return_type: AnnType::Named("Result<Self, D::Error>".to_string()),
                 body: stmts,
                 span: Span::default(),
-            }],
+..Default::default()
+}],
             span: Span::default(),
         })])
     }
@@ -622,7 +561,8 @@ impl DeriveGenerator {
                     ))
                 ],
                 span: Span::default(),
-            }],
+..Default::default()
+}],
             span: Span::default(),
         })])
     }

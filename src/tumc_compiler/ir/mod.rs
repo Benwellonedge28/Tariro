@@ -21,6 +21,10 @@ pub use dialects::*;
 pub enum IrType {
     /// Void/no value type
     Void,
+    /// A character value
+    Char,
+    /// A value that never produces a result
+    Never,
     /// Boolean
     Bool,
     /// 8-bit integer
