@@ -10,30 +10,11 @@ use std::fmt;
 // Missing Type Definitions (for compatibility)
 // ============================================================================
 
-/// Constant value representation
-#[derive(Debug, Clone)]
-pub enum Const {
-    /// Boolean constant
-    Bool(bool),
-    /// Integer constant
-    Int(i64),
-    /// Unsigned integer
-    Uint(u64),
-    /// Float constant
-    Float(f64),
-    /// String constant
-    String(String),
-    /// Character constant
-    Char(char),
-    /// Unit constant
-    Unit,
-    /// Tuple constant
-    Tuple(Vec<Const>),
-    /// Array constant
-    Array(Vec<Const>),
-    /// Struct constant
-    Struct(String, Vec<(String, Const)>),
-}
+/// Constant value representation.
+///
+/// Re-exported from the IR so that both the compiler and the derive system
+/// speak about the same constants.
+pub use crate::tumc_compiler::ir::Const;
 
 /// Built-in derive macros
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -161,6 +142,25 @@ pub enum AttributeValue {
     List(Vec<AttributeArg>),
 }
 
+impl std::fmt::Display for AttributeValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AttributeValue::String(s) => write!(f, "\"{}\"", s),
+            AttributeValue::Int(i) => write!(f, "{}", i),
+            AttributeValue::Bool(b) => write!(f, "{}", b),
+            AttributeValue::Path(p) => write!(f, "{}", p),
+            AttributeValue::List(items) => {
+                let rendered: Vec<String> = items
+                    .iter()
+                    .map(|item| item.value.to_string())
+                    .collect();
+                write!(f, "[{}]", rendered.join(", "))
+            }
+        }
+    }
+}
+
+
 /// Derive implementation generator
 pub struct DeriveGenerator {
     /// Custom derive handlers
@@ -188,6 +188,7 @@ impl DeriveGenerator {
         // Clone
         self.custom_derives.insert("Clone".to_string(), |struct_, _| {
             Ok(vec![Item::Impl(ImplBlock {
+                constants: Vec::new(),
                 trait_name: None,
                 type_name: struct_.name.clone(),
                 ty_params: struct_.ty_params.clone(),
@@ -260,6 +261,7 @@ impl DeriveGenerator {
         }
 
         Ok(vec![Item::Impl(ImplBlock {
+            constants: Vec::new(),
             trait_name: Some("Clone".to_string()),
             type_name: struct_.name.clone(),
             ty_params: struct_.ty_params.clone(),
@@ -309,6 +311,7 @@ impl DeriveGenerator {
         )));
 
         Ok(vec![Item::Impl(ImplBlock {
+            constants: Vec::new(),
             trait_name: Some("Debug".to_string()),
             type_name: struct_.name.clone(),
             ty_params: struct_.ty_params.clone(),
@@ -340,6 +343,7 @@ impl DeriveGenerator {
         }
 
         Ok(vec![Item::Impl(ImplBlock {
+            constants: Vec::new(),
             trait_name: Some("Default".to_string()),
             type_name: struct_.name.clone(),
             ty_params: struct_.ty_params.clone(),
@@ -382,6 +386,7 @@ impl DeriveGenerator {
         stmts.push(Stmt::new_return(Some(Expr::new_literal(Literal::Bool(true), Span::default()))));
 
         Ok(vec![Item::Impl(ImplBlock {
+            constants: Vec::new(),
             trait_name: Some("PartialEq".to_string()),
             type_name: struct_.name.clone(),
             ty_params: struct_.ty_params.clone(),
@@ -406,6 +411,7 @@ impl DeriveGenerator {
     fn derive_eq(&self, _struct_: &Struct) -> Result<Vec<Item>, DeriveError> {
         // Eq is marker trait, no methods needed
         Ok(vec![Item::Impl(ImplBlock {
+            constants: Vec::new(),
             trait_name: Some("Eq".to_string()),
             type_name: "Self".to_string(),
             ty_params: vec![],
@@ -429,6 +435,7 @@ impl DeriveGenerator {
         }
 
         Ok(vec![Item::Impl(ImplBlock {
+            constants: Vec::new(),
             trait_name: Some("Hash".to_string()),
             type_name: struct_.name.clone(),
             ty_params: struct_.ty_params.clone(),
@@ -478,6 +485,7 @@ impl DeriveGenerator {
         stmts.push(Stmt::new_expr(Expr::new_identifier("state")));
 
         Ok(vec![Item::Impl(ImplBlock {
+            constants: Vec::new(),
             trait_name: Some("Serialize".to_string()),
             type_name: struct_.name.clone(),
             ty_params: struct_.ty_params.clone(),
@@ -511,6 +519,7 @@ impl DeriveGenerator {
         )));
 
         Ok(vec![Item::Impl(ImplBlock {
+            constants: Vec::new(),
             trait_name: Some("Deserialize".to_string()),
             type_name: struct_.name.clone(),
             ty_params: struct_.ty_params.clone(),
@@ -540,6 +549,7 @@ impl DeriveGenerator {
     /// Derive Display via Debug
     fn derive_display_via_debug(&self, struct_: &Struct) -> Result<Vec<Item>, DeriveError> {
         Ok(vec![Item::Impl(ImplBlock {
+            constants: Vec::new(),
             trait_name: Some("Display".to_string()),
             type_name: struct_.name.clone(),
             ty_params: struct_.ty_params.clone(),
@@ -614,6 +624,8 @@ impl std::error::Error for DeriveError {}
 /// Processed derive attribute
 #[derive(Debug, Clone)]
 pub struct Attribute {
+    /// The attribute name (`inline`, `cold`, `derive`, ...)
+    pub name: String,
     /// The derives to apply
     pub derives: Vec<DeriveMacro>,
     /// Additional arguments
@@ -635,24 +647,14 @@ impl Attribute {
             }
         }
 
-        Ok(Attribute { derives, args })
+        let name = attr
+            .identifiers()
+            .first()
+            .map(|id| id.to_string())
+            .unwrap_or_default();
+
+        Ok(Attribute { name, derives, args })
     }
-}
-
-/// Token kinds for attribute parsing
-#[derive(Debug, Clone)]
-pub struct Token {
-    pub kind: TokenKind,
-    pub span: Span,
-}
-
-#[derive(Debug, Clone)]
-pub enum TokenKind {
-    Identifier(String),
-    String(String),
-    Integer(i64),
-    Punct(char),
-    EOF,
 }
 
 /// Attribute transformer for processing attributes

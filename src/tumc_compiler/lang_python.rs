@@ -1188,11 +1188,11 @@ impl PythonParser {
         match token {
             Token::Int(n) => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Int(*n)))
+                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Int(n)))
             }
             Token::Float(n) => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Float(*n)))
+                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Float(n)))
             }
             Token::String(s) => {
                 self.advance();
@@ -1200,7 +1200,7 @@ impl PythonParser {
             }
             Token::Bool(b) => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Bool(*b)))
+                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Bool(b)))
             }
             Token::None => {
                 self.advance();
@@ -1449,23 +1449,23 @@ impl PythonLexer {
             return Ok((None, p));
         }
 
-        let ch = source[p];
+        let ch = source.as_bytes()[p];
 
         // Newlines
-        if ch == '\n' {
+        if ch == b'\n' {
             return Ok((Some(Token::Newline), p + 1));
         }
 
         // Comments
         if source[p..].starts_with('#') {
-            while p < source.len() && source[p] != '\n' {
+            while p < source.len() && source.as_bytes()[p] != b'\n' {
                 p += 1;
             }
             return Ok((Some(Token::Comment(source[pos..p].to_string())), p));
         }
 
         // String literals
-        if ch == '"' || ch == '\'' || source[p..].starts_with("'''") || source[p..].starts_with("\"\"\"") {
+        if ch == b'"' || ch == b'\'' || source[p..].starts_with("'''") || source[p..].starts_with("\"\"\"") {
             return self.lex_string(source, pos);
         }
 
@@ -1482,12 +1482,12 @@ impl PythonLexer {
         }
 
         // Numbers
-        if ch.is_ascii_digit() || (ch == '.' && p + 1 < source.len() && source[p + 1].is_ascii_digit()) {
+        if ch.is_ascii_digit() || (ch == b'.' && p + 1 < source.len() && source.as_bytes()[p + 1].is_ascii_digit()) {
             return self.lex_number(source, pos);
         }
 
         // Identifiers and keywords
-        if ch.is_alphabetic() || ch == '_' {
+        if ch.is_ascii_alphabetic() || ch == b'_' {
             return self.lex_identifier(source, pos);
         }
 
@@ -1499,7 +1499,7 @@ impl PythonLexer {
     /// Lex string literal
     fn lex_string(&self, source: &str, pos: usize) -> Result<(Option<Token>, usize), LexerError> {
         let p = pos;
-        let ch = source[p];
+        let ch = source.as_bytes()[p];
 
         // Determine quote type
         let is_triple = if source[p..].starts_with("'''") || source[p..].starts_with("\"\"\"") {
@@ -1522,11 +1522,11 @@ impl PythonLexer {
                 end += is_triple;
                 break;
             }
-            if source[end] == '\\' && end + 1 < source.len() {
+            if source.as_bytes()[end] == b'\\' && end + 1 < source.len() {
                 end += 2;
                 continue;
             }
-            if source[end] == '\n' && is_triple == 1 {
+            if source.as_bytes()[end] == b'\n' && is_triple == 1 {
                 break;
             }
             end += 1;
@@ -1539,7 +1539,7 @@ impl PythonLexer {
     /// Lex bytes literal
     fn lex_bytes(&self, source: &str, pos: usize) -> Result<(Option<Token>, usize), LexerError> {
         let p = pos + 2;
-        let ch = source[p];
+        let ch = source.as_bytes()[p];
         let quote = &source[pos + 1..pos + 2];
 
         let mut end = p + 1;
@@ -1549,7 +1549,7 @@ impl PythonLexer {
                 end += 1;
                 break;
             }
-            if source[end] == '\\' && end + 1 < source.len() {
+            if source.as_bytes()[end] == b'\\' && end + 1 < source.len() {
                 end += 2;
                 continue;
             }
@@ -1569,7 +1569,7 @@ impl PythonLexer {
         // Hex, octal, binary
         if source[p..].starts_with("0x") || source[p..].starts_with("0X") {
             p += 2;
-            while p < source.len() && (source[p].is_ascii_hexdigit() || source[p] == '_') {
+            while p < source.len() && (source.as_bytes()[p].is_ascii_hexdigit() || source.as_bytes()[p] == b'_') {
                 p += 1;
             }
             let s = &source[pos..p];
@@ -1579,7 +1579,7 @@ impl PythonLexer {
 
         if source[p..].starts_with("0o") || source[p..].starts_with("0O") {
             p += 2;
-            while p < source.len() && (source[p].is_ascii_digit() || source[p] == '_') {
+            while p < source.len() && (source.as_bytes()[p].is_ascii_digit() || source.as_bytes()[p] == b'_') {
                 p += 1;
             }
             let s = &source[pos..p];
@@ -1589,7 +1589,7 @@ impl PythonLexer {
 
         if source[p..].starts_with("0b") || source[p..].starts_with("0B") {
             p += 2;
-            while p < source.len() && (source[p] == '0' || source[p] == '1' || source[p] == '_') {
+            while p < source.len() && (source.as_bytes()[p] == b'0' || source.as_bytes()[p] == b'1' || source.as_bytes()[p] == b'_') {
                 p += 1;
             }
             let s = &source[pos..p];
@@ -1598,27 +1598,27 @@ impl PythonLexer {
         }
 
         // Decimal
-        while p < source.len() && (source[p].is_ascii_digit() || source[p] == '_') {
+        while p < source.len() && (source.as_bytes()[p].is_ascii_digit() || source.as_bytes()[p] == b'_') {
             p += 1;
         }
 
         // Float
-        if p < source.len() && source[p] == '.' && p + 1 < source.len() && source[p + 1].is_ascii_digit() {
+        if p < source.len() && source.as_bytes()[p] == b'.' && p + 1 < source.len() && source.as_bytes()[p + 1].is_ascii_digit() {
             is_float = true;
             p += 1;
-            while p < source.len() && (source[p].is_ascii_digit() || source[p] == '_') {
+            while p < source.len() && (source.as_bytes()[p].is_ascii_digit() || source.as_bytes()[p] == b'_') {
                 p += 1;
             }
         }
 
         // Exponent
-        if p < source.len() && (source[p] == 'e' || source[p] == 'E') {
+        if p < source.len() && (source.as_bytes()[p] == b'e' || source.as_bytes()[p] == b'E') {
             is_float = true;
             p += 1;
-            if p < source.len() && (source[p] == '+' || source[p] == '-') {
+            if p < source.len() && (source.as_bytes()[p] == b'+' || source.as_bytes()[p] == b'-') {
                 p += 1;
             }
-            while p < source.len() && source[p].is_ascii_digit() {
+            while p < source.len() && source.as_bytes()[p].is_ascii_digit() {
                 p += 1;
             }
         }
@@ -1638,7 +1638,7 @@ impl PythonLexer {
     fn lex_identifier(&self, source: &str, pos: usize) -> Result<(Option<Token>, usize), LexerError> {
         let mut p = pos;
 
-        while p < source.len() && (source[p].is_alphanumeric() || source[p] == '_') {
+        while p < source.len() && (source.as_bytes()[p].is_ascii_alphanumeric() || source.as_bytes()[p] == b'_') {
             p += 1;
         }
 
@@ -1689,49 +1689,49 @@ impl PythonLexer {
     /// Lex operator
     fn lex_operator(&self, source: &str, pos: usize) -> Result<(Token, usize), LexerError> {
         let p = pos;
-        let ch = source[p];
+        let ch = source.as_bytes()[p];
 
         let token = match ch {
-            '+' => {
+            b'+' => {
                 if source[p..].starts_with("+=") { Token::PlusEqual }
                 else { Token::Plus }
             }
-            '-' => {
+            b'-' => {
                 if source[p..].starts_with("-=") { Token::MinusEqual }
                 else if source[p..].starts_with("->") { Token::Colon } // Simplified
                 else { Token::Minus }
             }
-            '*' => {
+            b'*' => {
                 if source[p..].starts_with("**") {
                     if source[p..].starts_with("**=") { Token::DoubleStarEqual }
                     else { Token::DoubleStar }
                 } else if source[p..].starts_with("*=") { Token::StarEqual }
                 else { Token::Star }
             }
-            '/' => {
+            b'/' => {
                 if source[p..].starts_with("//") {
                     if source[p..].starts_with("//=") { Token::DoubleSlashEqual }
                     else { Token::DoubleSlash }
                 } else if source[p..].starts_with("/=") { Token::SlashEqual }
                 else { Token::Slash }
             }
-            '%' => {
+            b'%' => {
                 if source[p..].starts_with("%=") { Token::PercentEqual }
                 else { Token::Percent }
             }
-            '@' => {
+            b'@' => {
                 if source[p..].starts_with("@=") { Token::AtEqual }
                 else { Token::At }
             }
-            '=' => {
+            b'=' => {
                 if source[p..].starts_with("==") { Token::EqEqual }
                 else { Token::Equal }
             }
-            '!' => {
+            b'!' => {
                 if source[p..].starts_with("!=") { Token::NotEqual }
                 else { return Err(LexerError::new("Invalid character '!'", pos)); }
             }
-            '<' => {
+            b'<' => {
                 if source[p..].starts_with("<=") { Token::LessEqual }
                 else if source[p..].starts_with("<<") {
                     if source[p..].starts_with("<<=") { Token::LeftShiftEqual }
@@ -1739,7 +1739,7 @@ impl PythonLexer {
                 }
                 else { Token::Less }
             }
-            '>' => {
+            b'>' => {
                 if source[p..].starts_with(">=") { Token::GreaterEqual }
                 else if source[p..].starts_with(">>") {
                     if source[p..].starts_with(">>=") { Token::RightShiftEqual }
@@ -1747,29 +1747,29 @@ impl PythonLexer {
                 }
                 else { Token::Greater }
             }
-            '&' => {
+            b'&' => {
                 if source[p..].starts_with("&=") { Token::AmpersandEqual }
                 else { Token::Ampersand }
             }
-            '|' => {
+            b'|' => {
                 if source[p..].starts_with("|=") { Token::PipeEqual }
                 else { Token::Pipe }
             }
-            '^' => {
+            b'^' => {
                 if source[p..].starts_with("^=") { Token::CaretEqual }
                 else { Token::Caret }
             }
-            '~' => Token::Tilde,
-            ':' => Token::Colon,
-            '(' => Token::LeftParen,
-            ')' => Token::RightParen,
-            '[' => Token::LeftBracket,
-            ']' => Token::RightBracket,
-            '{' => Token::LeftBrace,
-            '}' => Token::RightBrace,
-            ',' => Token::Comma,
-            '.' => Token::Dot,
-            ';' => Token::Semicolon,
+            b'~' => Token::Tilde,
+            b':' => Token::Colon,
+            b'(' => Token::LeftParen,
+            b')' => Token::RightParen,
+            b'[' => Token::LeftBracket,
+            b']' => Token::RightBracket,
+            b'{' => Token::LeftBrace,
+            b'}' => Token::RightBrace,
+            b',' => Token::Comma,
+            b'.' => Token::Dot,
+            b';' => Token::Semicolon,
             _ => return Err(LexerError::new(&format!("Unknown character '{}'", ch), pos)),
         };
 

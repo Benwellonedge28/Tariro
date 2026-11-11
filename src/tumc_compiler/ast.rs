@@ -796,13 +796,13 @@ impl Expr {
     }
 
     /// Create an identifier expression
-    pub fn new_identifier(name: String) -> Self {
-        Self::new_at(ExprKind::Identifier(name))
+    pub fn new_identifier(name: impl Into<String>) -> Self {
+        Self::new_at(ExprKind::Identifier(name.into()))
     }
 
     /// Create an identifier expression at the given location
-    pub fn new_identifier_at(name: String, span: Span) -> Self {
-        Self::new(ExprKind::Identifier(name), span)
+    pub fn new_identifier_at(name: impl Into<String>, span: Span) -> Self {
+        Self::new(ExprKind::Identifier(name.into()), span)
     }
 
     /// Create a literal expression
