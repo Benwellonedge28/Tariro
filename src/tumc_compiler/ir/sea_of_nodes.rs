@@ -19,6 +19,18 @@ pub struct SeaOfNodes {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct NodeId(pub usize);
 
+impl std::fmt::Display for NodeId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl From<NodeId> for u64 {
+    fn from(id: NodeId) -> u64 {
+        id.0 as u64
+    }
+}
+
 impl NodeId {
     pub fn new(id: usize) -> Self {
         NodeId(id)

@@ -41,7 +41,7 @@ pub type Span = SourceSpan;
 // ============================================================================
 
 /// Root node of the AST
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct Program {
     /// Items (top-level declarations)
     pub items: Vec<Item>,
@@ -100,7 +100,7 @@ impl Program {
 // ============================================================================
 
 /// Top-level item
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum Item {
     /// Function declaration
     Function(Function),
@@ -172,7 +172,7 @@ impl Item {
 }
 
 /// Function declaration
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct Function {
     /// Function name
     pub name: String,
@@ -221,7 +221,7 @@ impl Function {
 }
 
 /// Function parameter
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct FunctionParam {
     /// Parameter name
     pub name: String,
@@ -238,14 +238,14 @@ impl FunctionParam {
 }
 
 /// Generic parameter
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct GenericParam {
     pub name: String,
     pub bounds: Vec<TypeBound>,
 }
 
 /// Type bound
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum TypeBound {
     /// Implements a trait
     Trait(String),
@@ -263,7 +263,7 @@ pub enum Visibility {
 }
 
 /// Struct declaration
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct Struct {
     pub name: String,
     pub ty_params: Vec<String>,
@@ -284,7 +284,7 @@ impl Struct {
 }
 
 /// Field declaration
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct Field {
     pub name: String,
     pub ann_type: AnnType,
@@ -301,7 +301,7 @@ impl Field {
 }
 
 /// Enum declaration
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct Enum {
     pub name: String,
     pub ty_params: Vec<String>,
@@ -320,7 +320,7 @@ impl Enum {
 }
 
 /// Enum variant
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct EnumVariant {
     pub name: String,
     /// Optional payload type of the variant
@@ -330,7 +330,7 @@ pub struct EnumVariant {
 }
 
 /// Trait declaration
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct Trait {
     pub name: String,
     pub generics: Vec<GenericParam>,
@@ -347,14 +347,14 @@ impl Trait {
 }
 
 /// Trait item
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum TraitItem {
     Function { name: String, sig: FunctionSig },
     Type { name: String },
 }
 
 /// Function signature (without body)
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct FunctionSig {
     pub generics: Vec<GenericParam>,
     pub parameters: Vec<(String, AnnType)>,
@@ -362,7 +362,7 @@ pub struct FunctionSig {
 }
 
 /// Impl block
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct ImplBlock {
     /// Trait being implemented, if any
     pub trait_name: Option<String>,
@@ -388,14 +388,14 @@ impl ImplBlock {
 }
 
 /// Impl item
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum ImplItem {
     Function(Function),
     Constant(Constant),
 }
 
 /// Type alias
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct TypeAlias {
     pub name: String,
     pub ty_params: Vec<String>,
@@ -414,7 +414,7 @@ impl TypeAlias {
 }
 
 /// Constant declaration
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct Constant {
     pub name: String,
     /// Declared type of the constant
@@ -434,7 +434,7 @@ impl Constant {
 }
 
 /// Module declaration
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct Module {
     pub name: String,
     pub items: Vec<Item>,
@@ -458,7 +458,7 @@ impl Module {
 ///
 /// Attributes are stored as a flat token stream; higher level consumers
 /// (such as the derive system) interpret the tokens.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct Attribute {
     /// Tokens making up the attribute
     pub tokens: Vec<Token>,
@@ -483,14 +483,14 @@ impl Attribute {
 }
 
 /// A token captured inside an [`Attribute`].
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct Token {
     pub kind: TokenKind,
     pub span: Span,
 }
 
 /// Token kinds understood inside attributes.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub enum TokenKind {
     #[default]
     EOF,
@@ -505,7 +505,7 @@ pub enum TokenKind {
 // ============================================================================
 
 /// Statement wrapper: a [`StmtKind`] together with its source span.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct Stmt {
     /// Statement kind
     pub kind: StmtKind,
@@ -550,7 +550,7 @@ impl Stmt {
 }
 
 /// Statement kinds.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum StmtKind {
     /// Expression statement
     Expr(Expr),
@@ -640,7 +640,7 @@ impl StmtKind {
 // ============================================================================
 
 /// Pattern matching node.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum Pattern {
     /// Wildcard pattern (`_`)
     Wildcard,
@@ -761,7 +761,7 @@ impl fmt::Display for Pattern {
 // ============================================================================
 
 /// Expression wrapper: an [`ExprKind`] with its span and annotations.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct Expr {
     /// Expression kind
     pub kind: ExprKind,
@@ -863,7 +863,7 @@ impl Expr {
 }
 
 /// Annotation attached to an expression or item.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct Annotation {
     /// Kind of annotation
     pub kind: AnnotationKind,
@@ -888,7 +888,7 @@ pub enum AnnotationKind {
 }
 
 /// Expression kinds.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum ExprKind {
     /// Literal value
     Literal(Literal),
@@ -1109,7 +1109,7 @@ impl ExprKind {
 }
 
 /// Match arm
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct MatchArm {
     /// Pattern matched against the discriminant
     pub pattern: Pattern,
@@ -1178,7 +1178,7 @@ pub enum BinOp {
 }
 
 /// A sequence of statements forming a block scope.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct Block {
     /// Statements in the block
     pub statements: Vec<Stmt>,
@@ -1216,8 +1216,11 @@ pub enum UnOp {
 // ============================================================================
 
 /// Literal value
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum Literal {
+    /// The null value.
+    Null,
+
     /// Unit literal `()`
     Unit,
     /// Boolean

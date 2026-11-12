@@ -572,7 +572,7 @@ impl CodeGen {
                     self.next_local += 1;
                     func.locals.push(WasmType::I32);
 
-                    if let ExprKind::Identifier(name) = &pattern.kind {
+                    if let Pattern::Binding(name) = pattern {
                         self.locals.insert(name.clone(), local_idx);
                     }
 
@@ -1065,7 +1065,7 @@ impl CodeGen {
         // Type section
         bytes.push(0x01); // Section 1: Type
         let type_bytes = self.emit_type_section();
-        bytes.extend_from_slice(&type_bytes.to_le_bytes()[..4]); // Size
+        bytes.extend_from_slice(&(type_bytes.len() as u32).to_le_bytes()); // Size
         bytes.extend_from_slice(&type_bytes);
 
         // Function section

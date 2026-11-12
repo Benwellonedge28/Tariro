@@ -385,7 +385,7 @@ pub struct SyncStats {
 
 impl Default for EdgeCloudSync {
     fn default() -> Self {
-        Self::new(0, SyncRole::Device, SyncPolicy::default())
+        Self::new(NodeId(0), SyncRole::Device, SyncPolicy::default())
     }
 }
 
@@ -542,8 +542,11 @@ impl EdgeCloudSync {
         let mut bytes_sent = 0u64;
         let mut bytes_received = 0u64;
 
-        // Pull from parent (cloud)
-        if let Some(ref mut parent) = self.parent {
+        // Pull from parent (cloud). The parent is taken out of `self` for the
+        // duration: the sync helpers below need `&mut self`, which cannot
+        // coexist with a borrow of `self.parent`.
+        let mut parent = self.parent.take();
+        if let Some(ref mut parent) = parent {
             if parent.connected {
                 // First, aggregate local changes
                 let local_delta = self.generate_delta(parent.last_sync_ms);
@@ -562,7 +565,8 @@ impl EdgeCloudSync {
         }
 
         // Push to children
-        for (_, child) in &mut self.children {
+        let mut children = std::mem::take(&mut self.children);
+        for (_, child) in children.iter_mut() {
             if child.connected {
                 let delta = self.generate_delta(child.last_sync_ms);
                 if let Some(delta) = delta {
@@ -572,6 +576,8 @@ impl EdgeCloudSync {
                 }
             }
         }
+        self.children = children;
+        self.parent = parent;
 
         // Aggregate local knowledge
         self.aggregate_local()?;
@@ -594,10 +600,14 @@ impl EdgeCloudSync {
 
     /// Sync as device
     async fn sync_as_device(&mut self) -> Result<SyncResult, SyncError> {
-        let bytes_sent: u64;
-        let bytes_received: u64;
+        let mut bytes_sent: u64 = 0;
+        let mut bytes_received: u64 = 0;
 
-        if let Some(ref mut parent) = self.parent {
+        // The parent is taken out of `self` for the duration: the sync helpers
+        // below need `&mut self`, which cannot coexist with a borrow of
+        // `self.parent`.
+        let mut parent = self.parent.take();
+        if let Some(ref mut parent) = parent {
             if parent.connected {
                 // Push local changes
                 let local_delta = self.generate_delta(parent.last_sync_ms);
@@ -606,25 +616,16 @@ impl EdgeCloudSync {
                     self.push_to(parent.id, delta).await?;
 
                     // Pull parent changes
-                    bytes_received = 0;
                     if let Some(delta) = self.pull_from(parent.id).await? {
                         bytes_received = self.estimate_delta_size(&delta);
                         self.apply_delta(&delta)?;
                     }
-                } else {
-                    bytes_sent = 0;
-                    bytes_received = 0;
                 }
 
                 parent.last_sync_ms = 0;
-            } else {
-                bytes_sent = 0;
-                bytes_received = 0;
             }
-        } else {
-            bytes_sent = 0;
-            bytes_received = 0;
         }
+        self.parent = parent;
 
         Ok(SyncResult {
             success: true,
@@ -797,7 +798,7 @@ impl EdgeCloudSync {
             .duration_since(SystemTime::UNIX_EPOCH)
             .unwrap()
             .subsec_nanos();
-        (self.node_id as u64) << 32 | nanos as u64
+        (u64::from(self.node_id) << 32) | nanos as u64
     }
 
     /// Get local knowledge count

@@ -4,6 +4,7 @@
 //! unit tests, integration tests, snapshot testing, and test harnesses.
 
 use crate::tumc_compiler::*;
+use std::sync::Arc;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
@@ -59,21 +60,54 @@ pub struct TestResult {
     pub panic_info: Option<String>,
 }
 
+
+impl std::fmt::Debug for TestSuite {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("TestSuite")
+            .field("name", &self.name)
+            .field("tests", &self.tests.len())
+            .field("has_setup", &self.setup.is_some())
+            .field("has_teardown", &self.teardown.is_some())
+            .finish()
+    }
+}
+
+impl std::fmt::Debug for TestCase {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("TestCase")
+            .field("name", &self.name)
+            .field("tags", &self.tags)
+            .field("ignore", &self.ignore)
+            .field("should_fail", &self.should_fail)
+            .finish()
+    }
+}
+
+impl std::fmt::Debug for BenchmarkTest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("BenchmarkTest")
+            .field("name", &self.name)
+            .field("warmup", &self.warmup)
+            .field("iterations", &self.iterations)
+            .finish()
+    }
+}
+
 /// Test suite
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct TestSuite {
     /// Suite name
     pub name: String,
     /// Tests in suite
     pub tests: Vec<TestCase>,
     /// Setup function
-    pub setup: Option<Box<dyn Fn() + Send + Sync>>,
+    pub setup: Option<Arc<dyn Fn() + Send + Sync>>,
     /// Teardown function
-    pub teardown: Option<Box<dyn Fn() + Send + Sync>>,
+    pub teardown: Option<Arc<dyn Fn() + Send + Sync>>,
 }
 
 /// Test case
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct TestCase {
     /// Test name
     pub name: String,
@@ -88,7 +122,7 @@ pub struct TestCase {
 }
 
 /// Test function signature
-pub type TestFn = Box<dyn Fn() -> Result<(), TestError> + Send + Sync>;
+pub type TestFn = Arc<dyn Fn() -> Result<(), TestError> + Send + Sync>;
 
 /// Test error
 #[derive(Debug)]
@@ -605,11 +639,11 @@ pub struct BenchmarkTest {
     /// Name
     name: String,
     /// Setup
-    setup: Option<Box<dyn Fn()>>,
+    setup: Option<Arc<dyn Fn() + Send + Sync>>,
     /// Benchmark function
-    func: Box<dyn FnMut()>,
+    func: Arc<dyn FnMut() + Send + Sync>,
     /// Teardown
-    teardown: Option<Box<dyn Fn()>>,
+    teardown: Option<Arc<dyn Fn() + Send + Sync>>,
     /// Warmup iterations
     warmup: usize,
     /// Benchmark iterations
@@ -618,11 +652,11 @@ pub struct BenchmarkTest {
 
 impl BenchmarkTest {
     /// Create new benchmark
-    pub fn new(name: &str, f: impl FnMut() + 'static) -> Self {
+    pub fn new(name: &str, f: impl FnMut() + Send + Sync + 'static) -> Self {
         Self {
             name: name.to_string(),
             setup: None,
-            func: Box::new(f),
+            func: Arc::new(f),
             teardown: None,
             warmup: 3,
             iterations: 10,
@@ -630,14 +664,14 @@ impl BenchmarkTest {
     }
 
     /// Set setup
-    pub fn setup(mut self, f: impl Fn() + 'static) -> Self {
-        self.setup = Some(Box::new(f));
+    pub fn setup(mut self, f: impl Fn() + Send + Sync + 'static) -> Self {
+        self.setup = Some(Arc::new(f));
         self
     }
 
     /// Set teardown
-    pub fn teardown(mut self, f: impl Fn() + 'static) -> Self {
-        self.teardown = Some(Box::new(f));
+    pub fn teardown(mut self, f: impl Fn() + Send + Sync + 'static) -> Self {
+        self.teardown = Some(Arc::new(f));
         self
     }
 
@@ -778,7 +812,7 @@ impl TestBuilder {
     {
         TestCase {
             name: self.name,
-            func: Box::new(func),
+            func: Arc::new(func),
             tags: self.tags,
             ignore: self.ignore,
             should_fail: self.should_fail,
@@ -790,8 +824,8 @@ impl TestBuilder {
 pub struct SuiteBuilder {
     name: String,
     tests: Vec<TestCase>,
-    setup: Option<Box<dyn Fn() + Send + Sync>>,
-    teardown: Option<Box<dyn Fn() + Send + Sync>>,
+    setup: Option<Arc<dyn Fn() + Send + Sync>>,
+    teardown: Option<Arc<dyn Fn() + Send + Sync>>,
 }
 
 impl SuiteBuilder {
@@ -815,13 +849,13 @@ impl SuiteBuilder {
 
     /// Add setup
     pub fn setup(mut self, f: impl Fn() + Send + Sync + 'static) -> Self {
-        self.setup = Some(Box::new(f));
+        self.setup = Some(Arc::new(f));
         self
     }
 
     /// Add teardown
     pub fn teardown(mut self, f: impl Fn() + Send + Sync + 'static) -> Self {
-        self.teardown = Some(Box::new(f));
+        self.teardown = Some(Arc::new(f));
         self
     }
 
@@ -847,7 +881,7 @@ impl TestCaseBuilder {
     pub fn tag(mut self, tag: &str) -> Self {
         self.suite.tests.push(TestCase {
             name: self.test_name.clone(),
-            func: Box::new(|| Ok(())),
+            func: Arc::new(|| Ok(())),
             tags: vec![tag.to_string()],
             ignore: false,
             should_fail: false,
@@ -859,7 +893,7 @@ impl TestCaseBuilder {
     pub fn ignore(self) -> Self {
         self.suite.tests.push(TestCase {
             name: self.test_name.clone(),
-            func: Box::new(|| Ok(())),
+            func: Arc::new(|| Ok(())),
             tags: Vec::new(),
             ignore: true,
             should_fail: false,
@@ -874,7 +908,7 @@ impl TestCaseBuilder {
     {
         self.suite.tests.push(TestCase {
             name: self.test_name,
-            func: Box::new(func),
+            func: Arc::new(func),
             tags: Vec::new(),
             ignore: false,
             should_fail: false,

@@ -372,7 +372,7 @@ impl AdaptiveComputation {
         // Conservative mode uses simpler paths
         let safety_margin = if self.config.conservative { 0.2 } else { 0.0 };
 
-        if score < 0.2 - safety_margin || !profile.supports_dynamic_memory() {
+        if score < 0.2 - safety_margin || !profile.tier.supports_dynamic_memory() {
             ComputationPath::Minimal {
                 max_depth: 3,
                 beam_width: 2,
