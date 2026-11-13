@@ -21,20 +21,11 @@ impl std::fmt::Display for OptimizerError {
 
 impl std::error::Error for OptimizerError {}
 
-/// Optimization level
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub enum OptimizationLevel {
-    /// No optimizations
-    None = 0,
-    /// Basic optimizations (fast compilation)
-    O1 = 1,
-    /// Standard optimizations
-    O2 = 2,
-    /// Aggressive optimizations
-    O3 = 3,
-    /// Maximum optimizations (slow compilation)
-    Os = 4,
-}
+/// Optimization level.
+///
+/// This is the same level type the pass manager uses, so a level can be handed
+/// from the compiler to the optimizer without translating it.
+pub use super::optimization::OptLevel as OptimizationLevel;
 
 impl Default for OptimizationLevel {
     fn default() -> Self {
@@ -96,7 +87,7 @@ impl Optimizer {
     /// Create new optimizer
     pub fn new(level: OptimizationLevel) -> Self {
         let inline_threshold = match level {
-            OptimizationLevel::None => 0,
+            OptimizationLevel::O0 => 0,
             OptimizationLevel::Os => 50,
             OptimizationLevel::O1 => 20,
             OptimizationLevel::O2 => 40,
@@ -104,7 +95,7 @@ impl Optimizer {
         };
 
         let max_unroll_factor = match level {
-            OptimizationLevel::None => 0,
+            OptimizationLevel::O0 => 0,
             OptimizationLevel::Os => 2,
             OptimizationLevel::O1 => 2,
             OptimizationLevel::O2 => 4,
@@ -121,7 +112,7 @@ impl Optimizer {
 
     /// Run all optimization passes on a program
     pub fn optimize(&mut self, program: &mut Program) {
-        if self.level == OptimizationLevel::None {
+        if self.level == OptimizationLevel::O0 {
             return;
         }
 

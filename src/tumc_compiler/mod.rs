@@ -429,7 +429,7 @@ impl Compiler {
     /// Map the public optimization level onto the optimizer's internal levels.
     fn optimizer_level(&self) -> optimizer::OptimizationLevel {
         match self.optimization_level {
-            OptimizationLevel::None => optimizer::OptimizationLevel::None,
+            OptimizationLevel::None => optimizer::OptimizationLevel::O0,
             OptimizationLevel::Basic => optimizer::OptimizationLevel::O1,
             OptimizationLevel::Standard => optimizer::OptimizationLevel::O2,
             OptimizationLevel::Aggressive => optimizer::OptimizationLevel::O3,

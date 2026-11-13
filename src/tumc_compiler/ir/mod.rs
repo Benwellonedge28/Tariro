@@ -271,6 +271,18 @@ impl Value {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ValueId(pub usize);
 
+impl std::fmt::Display for ValueId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl From<ValueId> for u64 {
+    fn from(id: ValueId) -> u64 {
+        id.0 as u64
+    }
+}
+
 /// Extended SSA value that can represent constants, instructions, etc.
 #[derive(Debug, Clone)]
 pub enum ValueDef {

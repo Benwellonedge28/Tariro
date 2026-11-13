@@ -28,6 +28,13 @@ pub enum OptLevel {
     Oz,  // Aggressive size optimization
 }
 
+impl Default for OptLevel {
+    /// The standard optimisation level.
+    fn default() -> Self {
+        OptLevel::O2
+    }
+}
+
 impl OptLevel {
     pub fn numeric(&self) -> u32 {
         match self {

@@ -1,7 +1,9 @@
 
 // Auto-Differentiation for Machine Learning and Scientific Computing
 
-use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation, IrType, BinOp, UnaryOp};
+use crate::tumc_compiler::ir::{
+    Module, Function, BasicBlock, Instruction, Operation, IrType, BinOp, UnaryOp, ValueId,
+};
 use crate::tumc_compiler::derive_system::Const;
 use std::collections::HashMap;
 
@@ -12,6 +14,30 @@ pub enum DiffMode {
     Reverse,
     Jacobian,
     Hessian,
+}
+
+/// Resolves the value names the differentiation rules work with to IR value ids.
+///
+/// The IR refers to values by id, while the differentiation rules are far easier
+/// to express in terms of names, so the two are bridged here: a name is given
+/// an id the first time it is used and keeps it afterwards.
+#[derive(Debug, Default)]
+struct ValueScope {
+    ids: HashMap<String, ValueId>,
+    next: usize,
+}
+
+impl ValueScope {
+    /// The id of a named value, allocating a fresh one the first time.
+    fn id_of(&mut self, name: &str) -> ValueId {
+        if let Some(id) = self.ids.get(name) {
+            return *id;
+        }
+        let id = ValueId(self.next);
+        self.next += 1;
+        self.ids.insert(name.to_string(), id);
+        id
+    }
 }
 
 /// Tape entry for reverse mode
@@ -61,9 +87,10 @@ impl AutoDifferentiator {
         diff_function.params = new_params;
 
         // Generate derivative computation
+        let mut scope = ValueScope::default();
         let mut new_body = Vec::new();
         for block in &function.body {
-            let mut new_block = self.forward_diff_block(block);
+            let mut new_block = self.forward_diff_block(block, &mut scope);
             new_body.push(new_block);
         }
         diff_function.body = new_body;
@@ -72,12 +99,12 @@ impl AutoDifferentiator {
     }
 
     /// Forward differentiate a block
-    fn forward_diff_block(&self, block: &BasicBlock) -> BasicBlock {
+    fn forward_diff_block(&self, block: &BasicBlock, scope: &mut ValueScope) -> BasicBlock {
         let mut new_block = block.clone();
         let mut new_instructions = Vec::new();
 
         for inst in &block.instructions {
-            let diff_insts = self.forward_diff_instruction(inst);
+            let diff_insts = self.forward_diff_instruction(inst, scope);
             new_instructions.extend(diff_insts);
         }
 
@@ -86,13 +113,17 @@ impl AutoDifferentiator {
     }
 
     /// Forward differentiate an instruction
-    fn forward_diff_instruction(&self, inst: &Instruction) -> Vec<Instruction> {
+    fn forward_diff_instruction(
+        &self,
+        inst: &Instruction,
+        scope: &mut ValueScope,
+    ) -> Vec<Instruction> {
         let mut results = Vec::new();
 
         match &inst.op {
             Operation::Binary(op, lhs, rhs) => {
-                let lhs_dot = format!("{}_dot", lhs);
-                let rhs_dot = format!("{}_dot", rhs);
+                let lhs_dot = scope.id_of(&format!("{}_dot", lhs));
+                let rhs_dot = scope.id_of(&format!("{}_dot", rhs));
 
                 match op {
                     BinOp::Add => {
@@ -115,19 +146,21 @@ impl AutoDifferentiator {
                     }
                     BinOp::Mul => {
                         // d(x * y)/dt = x * dy/dt + y * dx/dt
-                        let temp1 = format!("{}_temp1", inst.result_name.clone().unwrap_or_default());
-                        let temp2 = format!("{}_temp2", inst.result_name.clone().unwrap_or_default());
+                        let temp1_name = format!("{}_temp1", inst.result_name.clone().unwrap_or_default());
+                        let temp2_name = format!("{}_temp2", inst.result_name.clone().unwrap_or_default());
+                        let temp1 = scope.id_of(&temp1_name);
+                        let temp2 = scope.id_of(&temp2_name);
 
                         results.push(Instruction {
-                            op: Operation::Binary(BinOp::Mul, lhs.clone(), rhs_dot.clone()),
+                            op: Operation::Binary(BinOp::Mul, lhs.clone(), rhs_dot),
                             result_type: inst.result_type.clone(),
-                            result_name: Some(temp1.clone()),
+                            result_name: Some(temp1_name),
                             ..Default::default()
                         });
                         results.push(Instruction {
-                            op: Operation::Binary(BinOp::Mul, rhs, rhs_dot.clone()),
+                            op: Operation::Binary(BinOp::Mul, rhs.clone(), rhs_dot),
                             result_type: inst.result_type.clone(),
-                            result_name: Some(temp2.clone()),
+                            result_name: Some(temp2_name),
                             ..Default::default()
                         });
                         results.push(Instruction {
@@ -139,32 +172,35 @@ impl AutoDifferentiator {
                     }
                     BinOp::Div => {
                         // d(x / y)/dt = (y * dx/dt - x * dy/dt) / y^2
-                        let temp1 = format!("{}_temp1", inst.result_name.clone().unwrap_or_default());
-                        let temp2 = format!("{}_temp2", inst.result_name.clone().unwrap_or_default());
-                        let temp3 = format!("{}_temp3", inst.result_name.clone().unwrap_or_default());
+                        let temp1_name = format!("{}_temp1", inst.result_name.clone().unwrap_or_default());
+                        let temp2_name = format!("{}_temp2", inst.result_name.clone().unwrap_or_default());
+                        let temp3_name = format!("{}_temp3", inst.result_name.clone().unwrap_or_default());
+                        let temp1 = scope.id_of(&temp1_name);
+                        let temp2 = scope.id_of(&temp2_name);
+                        let temp3 = scope.id_of(&temp3_name);
 
                         results.push(Instruction {
-                            op: Operation::Binary(BinOp::Mul, lhs.clone(), rhs_dot.clone()),
+                            op: Operation::Binary(BinOp::Mul, lhs.clone(), rhs_dot),
                             result_type: inst.result_type.clone(),
-                            result_name: Some(temp1.clone()),
+                            result_name: Some(temp1_name),
                             ..Default::default()
                         });
                         results.push(Instruction {
-                            op: Operation::Binary(BinOp::Mul, rhs.clone(), rhs_dot.clone()),
+                            op: Operation::Binary(BinOp::Mul, rhs.clone(), rhs_dot),
                             result_type: inst.result_type.clone(),
-                            result_name: Some(temp2.clone()),
+                            result_name: Some(temp2_name),
                             ..Default::default()
                         });
                         results.push(Instruction {
                             op: Operation::Binary(BinOp::Sub, temp1, temp2),
                             result_type: inst.result_type.clone(),
-                            result_name: Some(temp3.clone()),
+                            result_name: Some(temp3_name),
                             ..Default::default()
                         });
                         results.push(Instruction {
                             op: Operation::Binary(BinOp::Mul, rhs.clone(), rhs.clone()),
                             result_type: inst.result_type.clone(),
-                            result_name: Some(temp1.clone()),
+                            result_name: Some(temp1_name.clone()),
                             ..Default::default()
                         });
                         results.push(Instruction {
@@ -178,7 +214,7 @@ impl AutoDifferentiator {
                 }
             }
             Operation::Unary(op, operand) => {
-                let operand_dot = format!("{}_dot", operand);
+                let operand_dot = scope.id_of(&format!("{}_dot", operand));
 
                 match op {
                     UnaryOp::Neg => {
@@ -208,9 +244,10 @@ impl AutoDifferentiator {
         let tape = self.build_tape(function);
 
         // Generate gradient computation
+        let mut scope = ValueScope::default();
         let mut new_body = Vec::new();
         for block in &function.body {
-            let mut new_block = self.reverse_diff_block(block, &tape);
+            let mut new_block = self.reverse_diff_block(block, &tape, &mut scope);
             new_body.push(new_block);
         }
         diff_function.body = new_body;
@@ -228,7 +265,7 @@ impl AutoDifferentiator {
                     Operation::Binary(op, lhs, rhs) => {
                         TapeEntry {
                             operation: format!("{:?}", op),
-                            inputs: vec![lhs.clone(), rhs.clone()],
+                            inputs: vec![lhs.to_string(), rhs.to_string()],
                             output: inst.result_name.clone().unwrap_or_default(),
                             adjoint_input: None,
                         }
@@ -236,7 +273,7 @@ impl AutoDifferentiator {
                     Operation::Unary(op, operand) => {
                         TapeEntry {
                             operation: format!("{:?}", op),
-                            inputs: vec![operand.clone()],
+                            inputs: vec![operand.to_string()],
                             output: inst.result_name.clone().unwrap_or_default(),
                             adjoint_input: None,
                         }
@@ -251,7 +288,12 @@ impl AutoDifferentiator {
     }
 
     /// Reverse differentiate a block
-    fn reverse_diff_block(&self, block: &BasicBlock, tape: &[TapeEntry]) -> BasicBlock {
+    fn reverse_diff_block(
+        &self,
+        block: &BasicBlock,
+        tape: &[TapeEntry],
+        scope: &mut ValueScope,
+    ) -> BasicBlock {
         let mut new_block = block.clone();
 
         // Add gradient variables initialization
@@ -270,7 +312,7 @@ impl AutoDifferentiator {
         // Generate adjoint computations in reverse order
         let mut adjoint_instructions = Vec::new();
         for entry in tape.iter().rev() {
-            adjoint_instructions.extend(self.compute_adjoint(entry, tape));
+            adjoint_instructions.extend(self.compute_adjoint(entry, tape, scope));
         }
 
         // Set output gradient to 1
@@ -292,17 +334,23 @@ impl AutoDifferentiator {
     }
 
     /// Compute adjoint for a tape entry
-    fn compute_adjoint(&self, entry: &TapeEntry, _tape: &[TapeEntry]) -> Vec<Instruction> {
+    fn compute_adjoint(
+        &self,
+        entry: &TapeEntry,
+        _tape: &[TapeEntry],
+        scope: &mut ValueScope,
+    ) -> Vec<Instruction> {
         let mut instructions = Vec::new();
 
         match entry.operation.as_str() {
             "Add" => {
                 // grad_a += grad_out, grad_b += grad_out
                 if entry.inputs.len() >= 2 {
-                    let grad_out = format!("{}_grad", entry.output);
+                    let grad_out = scope.id_of(&format!("{}_grad", entry.output));
                     for input in &entry.inputs {
+                        let grad_in = scope.id_of(&format!("{}_grad", input));
                         instructions.push(Instruction {
-                            op: Operation::Binary(BinOp::Add, grad_out.clone(), format!("{}_grad", input)),
+                            op: Operation::Binary(BinOp::Add, grad_out, grad_in),
                             result_type: IrType::Int64,
                             result_name: Some(format!("{}_grad", input)),
                             ..Default::default()
@@ -313,18 +361,20 @@ impl AutoDifferentiator {
             "Mul" => {
                 // grad_a += grad_out * b, grad_b += grad_out * a
                 if entry.inputs.len() >= 2 {
-                    let grad_out = format!("{}_grad", entry.output);
+                    let grad_out = scope.id_of(&format!("{}_grad", entry.output));
                     let a = &entry.inputs[0];
                     let b = &entry.inputs[1];
+                    let grad_a = scope.id_of(&format!("{}_grad", a));
+                    let grad_b = scope.id_of(&format!("{}_grad", b));
 
                     instructions.push(Instruction {
-                        op: Operation::Binary(BinOp::Mul, grad_out.clone(), b.clone()),
+                        op: Operation::Binary(BinOp::Mul, grad_out, grad_b),
                         result_type: IrType::Int64,
                         result_name: Some(format!("{}_grad", a)),
                         ..Default::default()
                     });
                     instructions.push(Instruction {
-                        op: Operation::Binary(BinOp::Mul, grad_out, a.clone()),
+                        op: Operation::Binary(BinOp::Mul, grad_out, grad_a),
                         result_type: IrType::Int64,
                         result_name: Some(format!("{}_grad", b)),
                         ..Default::default()

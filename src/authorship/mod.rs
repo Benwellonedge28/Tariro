@@ -163,8 +163,10 @@ impl Default for CreativePrompt {
 /// Refinement suggestion from critique
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RefinementSuggestion {
+    /// The aspect of the content the suggestion addresses
     pub aspect: String,
-    pub description: String,
-    pub priority: u8,
-    pub example: Option<String>,
+    /// The change that is proposed
+    pub proposed_change: String,
+    /// How strongly the change is recommended, from 0.0 to 1.0
+    pub intensity: f64,
 }
