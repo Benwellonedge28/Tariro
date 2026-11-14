@@ -3,6 +3,7 @@
 //! Property-based testing and fuzzing for the TUMC compiler to ensure
 //! correctness and robustness.
 
+use crate::tumc_compiler::optimization::OptLevel;
 use crate::tumc_compiler::*;
 use std::collections::HashSet;
 use rand::rngs::ThreadRng;
@@ -111,10 +112,10 @@ impl ParserPropertyTest {
                     7 => lexer::TokenKind::Return,
                     8 => lexer::TokenKind::Struct,
                     9 => lexer::TokenKind::Enum,
-                    10 => lexer::TokenKind::Integer,
-                    11 => lexer::TokenKind::Float,
-                    12 => lexer::TokenKind::String,
-                    13 => lexer::TokenKind::Identifier,
+                    10 => lexer::TokenKind::Integer(0),
+                    11 => lexer::TokenKind::Float(0.0),
+                    12 => lexer::TokenKind::String(String::new()),
+                    13 => lexer::TokenKind::Identifier(String::new()),
                     14 => lexer::TokenKind::Plus,
                     15 => lexer::TokenKind::Minus,
                     16 => lexer::TokenKind::Star,
@@ -123,10 +124,13 @@ impl ParserPropertyTest {
                     _ => lexer::TokenKind::LBrace,
                 };
 
-                tokens.push(lexer::Token::new(kind, "", i, 0));
+                tokens.push(lexer::Token::new(
+                    kind,
+                    SourceLocation { line: i, column: 0, offset: 0 },
+                ));
             }
 
-            let parser = parser::Parser::new(tokens);
+            let mut parser = parser::Parser::new(tokens);
             match parser.parse() {
                 Ok(_) => {}
                 Err(_) => {
@@ -196,7 +200,7 @@ impl TypeInferencePropertyTest {
                 let result1 = t1.unify(t2);
                 let result2 = t2.unify(t1);
 
-                match (result1, result2) {
+                match (&result1, &result2) {
                     (Some(r1), Some(r2)) => {
                         if r1 != r2 {
                             failures.push(PropertyFailure {
@@ -277,14 +281,12 @@ impl OptimizerPropertyTest {
             for source in &sources {
                 let tokens = lexer::Lexer::new(source).tokenize().unwrap();
                 let ast = parser::Parser::new(tokens).parse().unwrap();
-                let mut type_context = TypeContext::default();
-                let typed = type_checker::TypeChecker::new(&mut type_context)
-                    .check(&ast)
-                    .unwrap();
+                let mut type_checker = type_checker::TypeChecker::new();
+                let _ = type_checker.check_program(&ast).unwrap();
 
                 // Just verify optimization doesn't crash
-                let _optimized = optimizer::Optimizer::new(OptimizationLevel::Standard)
-                    .optimize(typed);
+                let mut ast = ast;
+                let _optimized = optimizer::Optimizer::new(OptLevel::O2).optimize(&mut ast);
             }
         }
 
@@ -304,11 +306,18 @@ impl CodegenPropertyTest {
             let source = format!("fn test_{}() -> i32 {{ {} }}", i, i);
 
             let result = (|| -> Result<(), Vec<CompilerError>> {
-                let tokens = lexer::Lexer::new(&source).tokenize()?;
-                let ast = parser::Parser::new(tokens).parse()?;
-                let mut type_context = TypeContext::default();
-                let _typed = type_checker::TypeChecker::new(&mut type_context).check(&ast)?;
-                let _optimized = optimizer::Optimizer::new(OptimizationLevel::Standard).optimize(ast);
+                let tokens = lexer::Lexer::new(&source)
+                    .tokenize()
+                    .map_err(|e| vec![CompilerError::LexerError(e)])?;
+                let ast = parser::Parser::new(tokens)
+                    .parse()
+                    .map_err(|e| vec![CompilerError::ParserError(e)])?;
+                let mut type_checker = type_checker::TypeChecker::new();
+                type_checker.check_program(&ast).map_err(|errors| {
+                    errors.into_iter().map(CompilerError::TypeError).collect::<Vec<_>>()
+                })?;
+                let mut ast = ast;
+                let _optimized = optimizer::Optimizer::new(OptLevel::O2).optimize(&mut ast);
                 // Code generation not yet implemented in this stub
                 Ok(())
             })();
@@ -445,10 +454,10 @@ impl MutationTester {
 
                 // Try to compile mutated source
                 let result = (|| -> Result<(), ()> {
-                    let tokens = lexer::Lexer::new(&mutated).tokenize()?;
-                    let ast = parser::Parser::new(tokens).parse()?;
-                    let mut type_context = TypeContext::default();
-                    type_checker::TypeChecker::new(&mut type_context).check(&ast)?;
+                    let tokens = lexer::Lexer::new(&mutated).tokenize().map_err(|_| ())?;
+                    let ast = parser::Parser::new(tokens).parse().map_err(|_| ())?;
+                    let mut type_checker = type_checker::TypeChecker::new();
+                    type_checker.check_program(&ast).map_err(|_| ())?;
                     Ok(())
                 })();
 
@@ -643,10 +652,11 @@ impl CoverageGuidedFuzzer {
             }
         }
 
+        let success = failures.is_empty();
         FuzzResult {
             total_iterations: iterations,
             failures,
-            success: failures.is_empty(),
+            success,
         }
     }
 }
