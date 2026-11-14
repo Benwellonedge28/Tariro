@@ -46,6 +46,7 @@ impl Scheduler {
         let id = {
             let mut counter = self.task_counter.lock().unwrap();
             *counter += 1;
+            *counter
         };
 
         let handle = TaskHandle {
@@ -68,16 +69,21 @@ impl Scheduler {
                 let waker = self.create_waker(&handle);
                 let mut cx = Context::from_waker(&waker);
 
-                let mut future = handle.future.lock().unwrap();
-                if let Some(fut) = future.as_mut() {
-                    match Pin::new(fut).poll(&mut cx) {
-                        Poll::Ready(()) => {
-                            self.completed.lock().unwrap().push(handle.id);
-                        }
-                        Poll::Pending => {
-                            self.ready_queue.lock().unwrap().push_back(handle);
-                        }
+                let polled = {
+                    let mut future = handle.future.lock().unwrap();
+                    match future.as_mut() {
+                        Some(fut) => Some(Pin::new(fut).poll(&mut cx)),
+                        None => None,
                     }
+                };
+                match polled {
+                    Some(Poll::Ready(())) => {
+                        self.completed.lock().unwrap().push(handle.id);
+                    }
+                    Some(Poll::Pending) => {
+                        self.ready_queue.lock().unwrap().push_back(handle);
+                    }
+                    None => {}
                 }
             } else {
                 // No more tasks
@@ -108,7 +114,7 @@ impl Scheduler {
         )));
 
         let raw = Arc::into_raw(handle.future.clone()) as *const ();
-        unsafe { Waker::from_raw(RawWaker::new(raw, Box::leak(vtable))) }
+        unsafe { Waker::from_raw(RawWaker::new(raw, Box::leak(Box::new(*vtable)))) }
     }
 }
 
@@ -117,7 +123,7 @@ impl Scheduler {
 pub struct TaskId(u64);
 
 /// Task handle
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct TaskHandle {
     id: TaskId,
     future: Arc<Mutex<Option<Pin<Box<dyn Future<Output = ()> + Send>>>>>,
@@ -125,6 +131,14 @@ pub struct TaskHandle {
 
 /// Internal task future type
 type _TaskFuture = Mutex<Option<Pin<Box<dyn Future<Output = ()> + Send>>>>;
+
+impl std::fmt::Debug for TaskHandle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("TaskHandle")
+            .field("id", &self.id)
+            .finish_non_exhaustive()
+    }
+}
 
 /// Raw waker vtable
 static VTABLE: RawWakerVTable = RawWakerVTable::new(
@@ -217,9 +231,26 @@ impl<T> Channel<T> {
 }
 
 /// Sender end of channel
-#[derive(Debug)]
 pub struct Sender<T> {
     state: Arc<ChannelState<T>>,
+}
+
+impl<T> std::fmt::Debug for Sender<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Sender").finish_non_exhaustive()
+    }
+}
+
+impl<T> Clone for Receiver<T> {
+    fn clone(&self) -> Self {
+        Self { state: self.state.clone() }
+    }
+}
+
+impl<T> std::fmt::Debug for Receiver<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Receiver").finish_non_exhaustive()
+    }
 }
 
 impl<T> Sender<T> {
@@ -252,7 +283,6 @@ impl<T> std::fmt::Debug for SendError<T> {
 }
 
 /// Receiver end of channel
-#[derive(Debug)]
 pub struct Receiver<T> {
     state: Arc<ChannelState<T>>,
 }
@@ -382,9 +412,14 @@ impl ThreadId {
 }
 
 fn rand_u64() -> u64 {
+    use std::sync::atomic::{AtomicU64, Ordering};
     use std::time::{SystemTime, UNIX_EPOCH};
+
+    static COUNTER: AtomicU64 = AtomicU64::new(0);
+
     let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
-    (now.as_nanos() as u64) ^ (std::thread::current().id().as_u64() << 16)
+    let sequence = COUNTER.fetch_add(1, Ordering::Relaxed);
+    (now.as_nanos() as u64) ^ (sequence << 16)
 }
 
 /// Mutex with async support
@@ -406,13 +441,18 @@ impl<T> AsyncMutex<T> {
 
     /// Lock the mutex
     pub async fn lock(&self) -> AsyncMutexGuard<'_, T> {
-        AsyncMutexGuard { mutex: self }
+        AsyncMutexGuard {
+            mutex: self,
+            guard: self.inner.lock().unwrap(),
+        }
     }
 }
 
 /// Async mutex guard
 pub struct AsyncMutexGuard<'a, T> {
     mutex: &'a AsyncMutex<T>,
+    /// The lock this guard holds
+    guard: std::sync::MutexGuard<'a, T>,
 }
 
 impl<T> Drop for AsyncMutexGuard<'_, T> {
@@ -425,13 +465,13 @@ impl<T> std::ops::Deref for AsyncMutexGuard<'_, T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
-        self.mutex.inner.lock().unwrap().deref()
+        &self.guard
     }
 }
 
 impl<T> std::ops::DerefMut for AsyncMutexGuard<'_, T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        self.mutex.inner.lock().unwrap().deref_mut()
+        &mut self.guard
     }
 }
 
@@ -460,28 +500,35 @@ impl<T> OnceCell<T> {
             state: Arc::new(RwLock::new(OnceCellState::New)),
         }
     }
+}
 
+impl<T: Clone> OnceCell<T> {
     /// Get value or initialize
-    pub fn get_or_init<F>(&self, f: F) -> &T
+    ///
+    /// The value is returned by value: it lives behind a lock, so handing out
+    /// a reference to it would not outlive the lock guard.
+    pub fn get_or_init<F>(&self, f: F) -> T
     where
         F: FnOnce() -> T,
     {
         // Fast path: already initialized
-        if let OnceCellState::Initialized(value) = &*self.state.read() {
-            return value;
+        {
+            let state = self.state.read().unwrap();
+            if let OnceCellState::Initialized(value) = &*state {
+                return value.clone();
+            }
         }
 
         // Slow path: need to initialize
         let mut state = self.state.write().unwrap();
         match &*state {
-            OnceCellState::Initialized(value) => value,
+            OnceCellState::Initialized(value) => value.clone(),
             _ => {
                 *state = OnceCellState::Processing;
                 let value = f();
                 *state = OnceCellState::Initialized(value);
                 if let OnceCellState::Initialized(value) = &*state {
-                    // Safety: we just set it
-                    unsafe { &*(value as *const T) }
+                    value.clone()
                 } else {
                     unreachable!()
                 }
@@ -490,11 +537,11 @@ impl<T> OnceCell<T> {
     }
 
     /// Try to get value
-    pub fn get(&self) -> Option<&T> {
-        if let OnceCellState::Initialized(value) = &*self.state.read() {
-            Some(value)
-        } else {
-            None
+    pub fn get(&self) -> Option<T> {
+        let state = self.state.read().unwrap();
+        match &*state {
+            OnceCellState::Initialized(value) => Some(value.clone()),
+            _ => None,
         }
     }
 }
@@ -520,44 +567,54 @@ impl<T> AsyncRwLock<T> {
 
     /// Read lock
     pub async fn read(&self) -> AsyncRwLockReadGuard<'_, T> {
-        AsyncRwLockReadGuard { lock: self }
+        AsyncRwLockReadGuard {
+            lock: self,
+            guard: self.inner.read().unwrap(),
+        }
     }
 
     /// Write lock
     pub async fn write(&self) -> AsyncRwLockWriteGuard<'_, T> {
-        AsyncRwLockWriteGuard { lock: self }
+        AsyncRwLockWriteGuard {
+            lock: self,
+            guard: self.inner.write().unwrap(),
+        }
     }
 }
 
 /// Read guard
 pub struct AsyncRwLockReadGuard<'a, T> {
     lock: &'a AsyncRwLock<T>,
+    /// The lock this guard holds
+    guard: std::sync::RwLockReadGuard<'a, T>,
 }
 
 impl<T> std::ops::Deref for AsyncRwLockReadGuard<'_, T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
-        self.lock.inner.read().unwrap().deref()
+        &self.guard
     }
 }
 
 /// Write guard
 pub struct AsyncRwLockWriteGuard<'a, T> {
     lock: &'a AsyncRwLock<T>,
+    /// The lock this guard holds
+    guard: std::sync::RwLockWriteGuard<'a, T>,
 }
 
 impl<T> std::ops::Deref for AsyncRwLockWriteGuard<'_, T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
-        self.lock.inner.write().unwrap().deref()
+        &self.guard
     }
 }
 
 impl<T> std::ops::DerefMut for AsyncRwLockWriteGuard<'_, T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        self.lock.inner.write().unwrap().deref_mut()
+        &mut self.guard
     }
 }
 
@@ -582,7 +639,7 @@ mod tests {
     #[test]
     fn test_once_cell() {
         let cell: OnceCell<i32> = OnceCell::new();
-        assert_eq!(cell.get_or_init(|| 42), &42);
-        assert_eq!(cell.get_or_init(|| 100), &42);
+        assert_eq!(cell.get_or_init(|| 42), 42);
+        assert_eq!(cell.get_or_init(|| 100), 42);
     }
 }
