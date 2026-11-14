@@ -472,12 +472,13 @@ impl CodeGen {
             self.next_func_idx += 1;
 
             // Add to module
+            let func_name = func.name.clone();
             self.module.functions.push(func);
 
             // Add export if needed
-            if func.name == "main" || func.name == "_start" {
+            if func_name == "main" || func_name == "_start" {
                 self.module.exports.push((
-                    func.name.clone(),
+                    func_name.clone(),
                     WasmExportKind::Function,
                     func_idx,
                 ));
@@ -555,54 +556,71 @@ impl CodeGen {
 
     /// Generate statement
     fn generate_statement(&mut self, stmt: &Stmt) -> Result<(), String> {
-        let func = self.current_func.as_mut().ok_or("No current function")?;
+        // The statements are generated into local buffers first: the current
+        // function cannot stay borrowed while the generator itself is borrowed.
+        let mut instrs = Vec::new();
+        let mut local_types = Vec::new();
+        self.generate_statement_body(stmt, &mut instrs, &mut local_types)?;
 
+        let func = self.current_func.as_mut().ok_or("No current function")?;
+        func.body.extend(instrs);
+        func.locals.extend(local_types);
+        Ok(())
+    }
+
+    /// Generate the body of a statement into an instruction list.
+    fn generate_statement_body(
+        &mut self,
+        stmt: &Stmt,
+        instrs: &mut Vec<WasmInstruction>,
+        local_types: &mut Vec<WasmType>,
+    ) -> Result<(), String> {
         match &stmt.kind {
             StmtKind::Expr(expr) => {
-                self.generate_expression(expr, &mut func.body)?;
-                func.body.push(WasmInstruction::Drop); // Discard result
+                self.generate_expression(expr, instrs)?;
+                instrs.push(WasmInstruction::Drop); // Discard result
             }
 
             StmtKind::Let(pattern, _, value, body) => {
                 if let Some(val) = value {
-                    self.generate_expression(val, &mut func.body)?;
+                    self.generate_expression(val, instrs)?;
 
                     // Store in local
                     let local_idx = self.next_local;
                     self.next_local += 1;
-                    func.locals.push(WasmType::I32);
+                    local_types.push(WasmType::I32);
 
                     if let Pattern::Binding(name) = pattern {
                         self.locals.insert(name.clone(), local_idx);
                     }
 
-                    func.body.push(WasmInstruction::LocalSet(local_idx));
+                    instrs.push(WasmInstruction::LocalSet(local_idx));
                 }
 
                 for s in body {
-                    self.generate_statement(s)?;
+                    self.generate_statement_body(s, instrs, local_types)?;
                 }
             }
 
             StmtKind::If(condition, then_block, else_block) => {
                 // Generate condition
-                self.generate_expression(condition, &mut func.body)?;
+                self.generate_expression(condition, instrs)?;
 
                 // Create if-else block
                 let mut then_instrs = vec![];
                 let mut else_instrs = vec![];
 
                 for s in then_block {
-                    self.generate_statement_to(&s, &mut then_instrs)?;
+                    self.generate_statement_to(s, &mut then_instrs)?;
                 }
 
                 if let Some((_, else_stmts)) = else_block {
                     for s in else_stmts {
-                        self.generate_statement_to(&s, &mut else_instrs)?;
+                        self.generate_statement_to(s, &mut else_instrs)?;
                     }
                 }
 
-                func.body.push(WasmInstruction::If(
+                instrs.push(WasmInstruction::If(
                     WasmType::Empty,
                     then_instrs,
                     else_instrs,
@@ -614,20 +632,20 @@ impl CodeGen {
                 self.next_label += 1;
 
                 // Generate loop header
-                func.body.push(WasmInstruction::Block(WasmType::Empty, vec![
+                instrs.push(WasmInstruction::Block(WasmType::Empty, vec![
                     // Check condition
-                    self.generate_expression_to(condition, &mut func.body.clone())?,
+                    self.generate_expression_to(condition, &mut Vec::new())?,
                     WasmInstruction::BrIf(loop_label), // Exit if false
                 ]));
 
                 // Generate body
                 for s in body {
-                    self.generate_statement(s)?;
+                    self.generate_statement_body(s, instrs, local_types)?;
                 }
 
                 // Jump back to condition
-                func.body.push(WasmInstruction::Br(0));
-                func.body.push(WasmInstruction::End);
+                instrs.push(WasmInstruction::Br(0));
+                instrs.push(WasmInstruction::End);
             }
 
             StmtKind::For(_, _, _) => {
@@ -639,45 +657,45 @@ impl CodeGen {
                 let loop_label = self.next_label;
                 self.next_label += 1;
 
-                func.body.push(WasmInstruction::Loop(WasmType::Empty, vec![]));
+                instrs.push(WasmInstruction::Loop(WasmType::Empty, vec![]));
 
                 for s in body {
-                    self.generate_statement(s)?;
+                    self.generate_statement_body(s, instrs, local_types)?;
                 }
 
-                func.body.push(WasmInstruction::Br(0));
-                func.body.push(WasmInstruction::End);
+                instrs.push(WasmInstruction::Br(0));
+                instrs.push(WasmInstruction::End);
             }
 
             StmtKind::Break => {
-                func.body.push(WasmInstruction::Br(1));
+                instrs.push(WasmInstruction::Br(1));
             }
 
             StmtKind::Continue => {
-                func.body.push(WasmInstruction::Br(0));
+                instrs.push(WasmInstruction::Br(0));
             }
 
             StmtKind::Return(expr) => {
                 if let Some(e) = expr {
-                    self.generate_expression(e, &mut func.body)?;
+                    self.generate_expression(e, instrs)?;
                 }
-                func.body.push(WasmInstruction::Return);
+                instrs.push(WasmInstruction::Return);
             }
 
             StmtKind::Assignment(lhs, rhs) => {
                 // Generate RHS first
-                self.generate_expression(rhs, &mut func.body)?;
+                self.generate_expression(rhs, instrs)?;
 
                 // Store to LHS
                 if let ExprKind::Identifier(name) = &lhs.kind {
                     if let Some(local_idx) = self.locals.get(name) {
-                        func.body.push(WasmInstruction::LocalSet(*local_idx));
+                        instrs.push(WasmInstruction::LocalSet(*local_idx));
                     }
                 }
             }
 
             StmtKind::Assert(expr) => {
-                self.generate_expression(expr, &mut func.body)?;
+                self.generate_expression(expr, instrs)?;
                 // Could add runtime assertion handling here
             }
 
@@ -721,7 +739,7 @@ impl CodeGen {
     }
 
     /// Generate expression
-    fn generate_expression(&self, expr: &Expr, instrs: &mut Vec<WasmInstruction>) -> Result<(), String> {
+    fn generate_expression(&mut self, expr: &Expr, instrs: &mut Vec<WasmInstruction>) -> Result<(), String> {
         match &expr.kind {
             ExprKind::Literal(lit) => {
                 self.generate_literal(lit, instrs);
@@ -1071,21 +1089,21 @@ impl CodeGen {
         // Function section
         bytes.push(0x03); // Section 3: Function
         let func_bytes = self.emit_function_section();
-        bytes.extend_from_slice(&func_bytes.to_le_bytes()[..4]);
+        bytes.extend_from_slice(&(func_bytes.len() as u32).to_le_bytes());
         bytes.extend_from_slice(&func_bytes);
 
         // Export section
         if !self.module.exports.is_empty() {
             bytes.push(0x07); // Section 7: Export
             let export_bytes = self.emit_export_section();
-            bytes.extend_from_slice(&export_bytes.to_le_bytes()[..4]);
+            bytes.extend_from_slice(&(export_bytes.len() as u32).to_le_bytes());
             bytes.extend_from_slice(&export_bytes);
         }
 
         // Code section
         bytes.push(0x0a); // Section 10: Code
         let code_bytes = self.emit_code_section();
-        bytes.extend_from_slice(&code_bytes.to_le_bytes()[..4]);
+        bytes.extend_from_slice(&(code_bytes.len() as u32).to_le_bytes());
         bytes.extend_from_slice(&code_bytes);
 
         bytes

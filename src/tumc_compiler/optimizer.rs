@@ -27,11 +27,6 @@ impl std::error::Error for OptimizerError {}
 /// from the compiler to the optimizer without translating it.
 pub use super::optimization::OptLevel as OptimizationLevel;
 
-impl Default for OptimizationLevel {
-    fn default() -> Self {
-        OptimizationLevel::O2
-    }
-}
 
 /// Statistics about optimizations applied
 #[derive(Debug, Clone, Default)]

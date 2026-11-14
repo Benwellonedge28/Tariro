@@ -154,6 +154,13 @@ pub enum LoadingStrategy {
     Distributed,
 }
 
+impl Default for LoadingStrategy {
+    /// The standard loading strategy.
+    fn default() -> Self {
+        LoadingStrategy::Standard
+    }
+}
+
 /// Storage type enumeration
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum StorageType {
@@ -545,7 +552,7 @@ impl CapabilityProfile {
         }
     }
 
-    #[cfg(feature = "std")]
+    #[cfg(all(feature = "std", not(feature = "sys-info")))]
     fn detect_memory() -> u64 {
         // Try sys_info crate or default
         #[cfg(feature = "sys-info")]
@@ -558,12 +565,12 @@ impl CapabilityProfile {
         4 * 1024 * 1024 * 1024
     }
 
-    #[cfg(not(feature = "sys-info"))]
+    #[cfg(not(feature = "std"))]
     const fn detect_memory() -> u64 {
         4 * 1024 * 1024 * 1024 // Default 4GB
     }
 
-    #[cfg(feature = "std")]
+    #[cfg(all(feature = "std", not(feature = "sys-info")))]
     fn detect_cpu_count() -> usize {
         // Use num_cpus crate or standard library
         #[cfg(feature = "num-cpus")]

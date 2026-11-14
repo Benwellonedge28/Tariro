@@ -1094,7 +1094,7 @@ impl<'a> Lexer<'a> {
 
         // A lone underscore is the wildcard pattern, not an identifier.
         if value == "_" {
-            self.push_token(TokenKind::Underscore, start, None);
+            self.tokens.push_back(Token::new(TokenKind::Underscore, start));
             return Ok(());
         }
 

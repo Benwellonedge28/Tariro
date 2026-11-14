@@ -744,7 +744,7 @@ impl NativeCodegen {
                 bytes.push(0x50 + self.x86_reg_num(src));
             }
             X86Inst::Pop { dest } => {
-                bytes.push(0x58 + self.x86_reg_num(dest));
+                bytes.push(0x58 + self.x86_reg_num(&Operand::Reg(Register::X86_64(*dest))));
             }
             X86Inst::Call { target } => {
                 bytes.push(0xE8);
@@ -778,28 +778,32 @@ impl NativeCodegen {
                     // movz
                     let enc = 0xD2800000u32
                         | ((*imm as u32) << 5)
-                        | (*dest as u32);
+                        | (Self::a64_reg_num(dest));
                     bytes.extend_from_slice(&enc.to_le_bytes());
                 } else {
                     // orr xd, xzr, xs
+                    let src_reg = match src {
+                        Operand::Reg(Register::AArch64(r)) => Self::a64_reg_num(r),
+                        _ => 0,
+                    };
                     let enc = 0xAA2003E0u32
-                        | (*dest as u32)
-                        | ((src as u32) << 5);
+                        | (Self::a64_reg_num(dest))
+                        | (src_reg << 5);
                     bytes.extend_from_slice(&enc.to_le_bytes());
                 }
             }
             A64Inst::Add { dest, a, b } => {
                 if let Operand::Imm(imm) = b {
                     let enc = 0x91000000u32
-                        | ((*dest as u32) << 0)
-                        | ((*a as u32) << 5)
+                        | (Self::a64_reg_num(dest) << 0)
+                        | (Self::a64_reg_num(a) << 5)
                         | ((*imm as u32 & 0xFFF) << 10);
                     bytes.extend_from_slice(&enc.to_le_bytes());
                 } else {
                     let enc = 0x8B000000u32
-                        | ((*dest as u32) << 0)
-                        | ((*a as u32) << 5)
-                        | ((*b as u32) << 16);
+                        | (Self::a64_reg_num(dest) << 0)
+                        | (Self::a64_reg_num(a) << 5)
+                        | (Self::a64_operand_num(b) << 16);
                     bytes.extend_from_slice(&enc.to_le_bytes());
                 }
             }
@@ -830,6 +834,59 @@ impl NativeCodegen {
                 R8::R12 => 12, R8::R13 => 13, R8::R14 => 14, R8::R15 => 15,
             },
             _ => 0,
+        }
+    }
+
+
+    /// The encoding number of an AArch64 register held in an operand.
+    ///
+    /// Operands that are not a register encode as zero.
+    fn a64_operand_num(op: &Operand) -> u32 {
+        match op {
+            Operand::Reg(Register::AArch64(r)) => Self::a64_reg_num(r),
+            _ => 0,
+        }
+    }
+
+    /// The encoding number of an AArch64 register.
+    ///
+    /// `XZR`, `SP` and `WZR` all encode as register 31.
+    fn a64_reg_num(reg: &A64) -> u32 {
+        match reg {
+            A64::X0 => 0,
+            A64::X1 => 1,
+            A64::X2 => 2,
+            A64::X3 => 3,
+            A64::X4 => 4,
+            A64::X5 => 5,
+            A64::X6 => 6,
+            A64::X7 => 7,
+            A64::X8 => 8,
+            A64::X9 => 9,
+            A64::X10 => 10,
+            A64::X11 => 11,
+            A64::X12 => 12,
+            A64::X13 => 13,
+            A64::X14 => 14,
+            A64::X15 => 15,
+            A64::X16 => 16,
+            A64::X17 => 17,
+            A64::X18 => 18,
+            A64::X19 => 19,
+            A64::X20 => 20,
+            A64::X21 => 21,
+            A64::X22 => 22,
+            A64::X23 => 23,
+            A64::X24 => 24,
+            A64::X25 => 25,
+            A64::X26 => 26,
+            A64::X27 => 27,
+            A64::X28 => 28,
+            A64::X29 => 29,
+            A64::X30 => 30,
+            A64::XZR => 31,
+            A64::Sp => 31,
+            A64::Wzr => 31,
         }
     }
 

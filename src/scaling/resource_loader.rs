@@ -11,7 +11,7 @@
 //! - Conditional compilation support
 //! - Module dependency resolution
 
-use crate::scaling::capability::{CapabilityProfile, DeviceTier, FeatureFlags};
+use crate::scaling::capability::{CapabilityProfile, DeviceTier, FeatureFlags, LoadingStrategy};
 use crate::scaling::{ScalingError, ScalingModuleHandle, SCALING_VERSION};
 use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, RwLock};
@@ -213,30 +213,6 @@ pub struct ResourceAwareLoader {
     strict: bool,
 }
 
-/// Loading strategy
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum LoadingStrategy {
-    /// Load only essential modules
-    Minimal,
-
-    /// Load essential + requested modules
-    Selective,
-
-    /// Load standard modules
-    Standard,
-
-    /// Load all modules
-    Full,
-
-    /// Load distributed modules
-    Distributed,
-}
-
-impl Default for LoadingStrategy {
-    fn default() -> Self {
-        LoadingStrategy::Standard
-    }
-}
 
 impl ResourceAwareLoader {
     /// Create a new loader with the given profile
