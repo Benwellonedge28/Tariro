@@ -57,6 +57,15 @@ pub struct RustToken {
 // Lexer
 // ============================================================================
 
+/// The token handed out once the source is exhausted.
+static EOF_TOKEN: RustToken = RustToken {
+    token_type: RustTokenType::Eof,
+    lexeme: String::new(),
+    line: 0,
+    column: 0,
+    span: (0, 0),
+};
+
 pub struct RustLexer {
     source: Vec<char>,
     pos: usize,
@@ -168,7 +177,7 @@ impl RustLexer {
         if raw {
             // Skip until closing hashes + quote
             while self.current_char().is_some() {
-                if self.source.get(self.pos..).unwrap_or_default().starts_with(&format!("\"{}", "#".repeat(hashes as usize))) {
+                if self.source.get(self.pos..).unwrap_or_default().starts_with(&format!("\"{}", "#".repeat(hashes as usize)).chars().collect::<Vec<char>>()) {
                     // Skip closing
                     for _ in 0..(hashes + 1) {
                         self.advance();
@@ -1138,23 +1147,11 @@ impl RustParser {
     }
 
     fn current(&self) -> &RustToken {
-        self.tokens.get(self.pos).unwrap_or(&RustToken {
-            token_type: RustTokenType::Eof,
-            lexeme: String::new(),
-            line: 0,
-            column: 0,
-            span: (0, 0),
-        })
+        self.tokens.get(self.pos).unwrap_or(&EOF_TOKEN)
     }
 
     fn peek(&self, offset: usize) -> &RustToken {
-        self.tokens.get(self.pos + offset).unwrap_or(&RustToken {
-            token_type: RustTokenType::Eof,
-            lexeme: String::new(),
-            line: 0,
-            column: 0,
-            span: (0, 0),
-        })
+        self.tokens.get(self.pos + offset).unwrap_or(&EOF_TOKEN)
     }
 
     fn advance(&mut self) -> RustToken {
@@ -1244,7 +1241,7 @@ impl RustParser {
             }
             RustTokenType::Mod => {
                 self.advance();
-                let name = self.expect(RustTokenType::Ident(String::new()), "module name")?;
+                let name = self.expect(RustTokenType::Ident(String::new()), "module name").ok()?;
                 ItemKind::Module(name.lexeme)
             }
             RustTokenType::Extern => {
@@ -1263,7 +1260,7 @@ impl RustParser {
             }
             RustTokenType::Static | RustTokenType::Const => {
                 let is_static = self.advance().token_type == RustTokenType::Static;
-                let name = self.expect(RustTokenType::Ident(String::new()), "name")?.lexeme;
+                let name = self.expect(RustTokenType::Ident(String::new()), "name").ok()?.lexeme;
                 let ty = if self.match_token(&[RustTokenType::Colon]) {
                     self.parse_type().unwrap_or(Type::Infer)
                 } else {
@@ -1338,7 +1335,7 @@ impl RustParser {
             }
             RustTokenType::Type => {
                 self.advance();
-                let name = self.expect(RustTokenType::Ident(String::new()), "type name")?.lexeme;
+                let name = self.expect(RustTokenType::Ident(String::new()), "type name").ok()?.lexeme;
                 let generics = self.parse_generics();
                 self.match_token(&[RustTokenType::Eq]);
                 let ty = self.parse_type().unwrap_or(Type::Infer);
@@ -1350,8 +1347,9 @@ impl RustParser {
                 if let RustTokenType::Ident(name) = &self.current().token_type {
                     if name == "macro_rules" {
                         self.advance();
-                        let name = self.expect(RustTokenType::Ident(String::new()), "macro name")?.lexeme;
-                        ItemKind::MacroRules(name, self.parse_macro_rules())
+                        let name = self.expect(RustTokenType::Ident(String::new()), "macro name").ok()?.lexeme;
+                        let rules = self.parse_macro_rules(&name);
+                        ItemKind::MacroRules(name, rules)
                     } else {
                         return None;
                     }
@@ -1387,7 +1385,9 @@ impl RustParser {
     }
 
     fn parse_attribute(&mut self) -> Option<Attribute> {
-        self.match_token(&[RustTokenType::Pound])?;
+        if !self.match_token(&[RustTokenType::Pound]) {
+            return None;
+        }
         let style = if self.match_token(&[RustTokenType::Bang]) {
             AttrStyle::Normal
         } else {
@@ -1638,7 +1638,7 @@ impl RustParser {
                     None
                 };
                 self.match_token(&[RustTokenType::RBracket]);
-                Type::Array(Box::new(ArrayType { elem, len }))
+                Type::Array(Box::new(ArrayType { elem, len: len.map(|e| *e) }))
             }
             RustTokenType::LParen => {
                 self.advance();
@@ -2325,11 +2325,11 @@ impl RustParser {
         })
     }
 
-    fn parse_macro_rules(&mut self) -> Vec<MacroRule> {
-        let mut rules = Vec::new();
+    fn parse_macro_rules(&mut self, name: &str) -> Vec<MacroDef> {
+        let mut body: Vec<TokenTree> = Vec::new();
         if self.match_token(&[RustTokenType::LBrace]) {
             while !self.check(&RustTokenType::RBrace) && !self.check(&RustTokenType::Eof) {
-                // Simple: skip to matching brace
+                // Skip to the matching brace, keeping the tokens of the body
                 let mut depth = 1;
                 while depth > 0 && !self.check(&RustTokenType::Eof) {
                     if self.check(&RustTokenType::LBrace) {
@@ -2337,13 +2337,13 @@ impl RustParser {
                     } else if self.check(&RustTokenType::RBrace) {
                         depth -= 1;
                     }
-                    self.advance();
+                    body.push(TokenTree::Token(self.advance()));
                 }
                 self.match_token(&[RustTokenType::Comma]);
             }
             self.match_token(&[RustTokenType::RBrace]);
         }
-        rules
+        vec![MacroDef { name: name.to_string(), body, is_builtin: false }]
     }
 
     pub fn parse(&mut self) -> (Vec<Item>, Vec<ParseError>) {
@@ -2739,8 +2739,8 @@ impl RustAstConverter {
             },
             ExprKind::Binary(op, lhs, rhs) => ast::ExprKind::Binary {
                 op: self.convert_binop(op),
-                lhs: Box::new(self.convert_expr(lhs)),
-                rhs: Box::new(self.convert_expr(rhs)),
+                lhs: Box::new(self.convert_expr(lhs.as_ref())),
+                rhs: Box::new(self.convert_expr(rhs.as_ref())),
             },
             ExprKind::Logical(op, lhs, rhs) => ast::ExprKind::Binary {
                 op: match op {
@@ -2799,18 +2799,20 @@ impl RustAstConverter {
                 condition: Box::new(self.convert_expr(cond)),
                 body: self.convert_block_expr(body),
             },
-            ExprKind::For(pat, iter, body) => ast::ExprKind::For(
-                self.pattern_name(pat),
-                Box::new(self.convert_expr(iter)),
-                self.convert_block_expr(body),
-            ),
+            ExprKind::For(pat, iter, body) => ast::ExprKind::Block(vec![ast::Stmt::new_at(
+                ast::StmtKind::For(
+                    self.pattern_name(pat),
+                    Box::new(self.convert_expr(iter)),
+                    self.convert_block_expr(body),
+                ),
+            )]),
             ExprKind::Continue(_) => ast::ExprKind::Continue { label: None },
             ExprKind::Break(value, _) => ast::ExprKind::Break {
                 label: None,
                 value: value.as_ref().map(|v| Box::new(self.convert_expr(v))),
             },
             ExprKind::Return(value) => {
-                ast::ExprKind::Return(value.as_ref().map(|v| self.convert_expr(v)))
+                ast::ExprKind::Return(value.as_ref().map(|v| Box::new(self.convert_expr(v))))
             }
 
             // Functions
@@ -2836,7 +2838,7 @@ impl RustAstConverter {
                     })
                     .collect(),
                 self.convert_block_expr(body),
-                ret.as_ref().map(|t| Box::new(self.convert_type(t))),
+                ret.as_ref().map(|t| self.convert_type(t)),
             ),
             ExprKind::Async(_, body) => ast::ExprKind::Async {
                 body: Box::new(self.convert_expr(body)),
@@ -2857,8 +2859,14 @@ impl RustAstConverter {
                 Box::new(self.convert_expr(index)),
             ),
             ExprKind::Range(start, end, inclusive) => ast::ExprKind::Range(
-                start.as_ref().map(|s| Box::new(self.convert_expr(s))),
-                end.as_ref().map(|e| Box::new(self.convert_expr(e))),
+                Box::new(match start.as_ref() {
+                    Some(s) => self.convert_expr(s),
+                    None => ast::Expr::new_at(ast::ExprKind::Literal(ast::Literal::Unit)),
+                }),
+                Box::new(match end.as_ref() {
+                    Some(e) => self.convert_expr(e),
+                    None => ast::Expr::new_at(ast::ExprKind::Literal(ast::Literal::Unit)),
+                }),
                 *inclusive,
             ),
             ExprKind::Field(base, name) => {
@@ -2892,16 +2900,16 @@ impl RustAstConverter {
             ExprKind::LitPat(literal) => ast::ExprKind::Literal(self.convert_literal(literal)),
             ExprKind::OrPat(lhs, rhs) => ast::ExprKind::Binary {
                 op: ast::BinOp::BitOr,
-                lhs: Box::new(self.convert_expr(lhs)),
-                rhs: Box::new(self.convert_expr(rhs)),
+                lhs: Box::new(self.pattern_expr(lhs.as_ref())),
+                rhs: Box::new(self.pattern_expr(rhs.as_ref())),
             },
             ExprKind::RangePat(start, end) => ast::ExprKind::Range(
-                Some(Box::new(ast::Expr::new_at(ast::ExprKind::Literal(
+                Box::new(ast::Expr::new_at(ast::ExprKind::Literal(
                     self.convert_literal(start),
-                )))),
-                Some(Box::new(ast::Expr::new_at(ast::ExprKind::Literal(
+                ))),
+                Box::new(ast::Expr::new_at(ast::ExprKind::Literal(
                     self.convert_literal(end),
-                )))),
+                ))),
                 false,
             ),
             ExprKind::SlicePat(pats) => {
@@ -2910,7 +2918,7 @@ impl RustAstConverter {
             ExprKind::TuplePat(pats) => {
                 ast::ExprKind::Tuple(pats.iter().map(|p| self.pattern_expr(p)).collect())
             }
-            ExprKind::StructPat(path, fields, _) => ast::ExprKind::Struct {
+            ExprKind::StructPat(path, fields) => ast::ExprKind::Struct {
                 name: self.path_to_string(path),
                 fields: fields
                     .iter()
@@ -3019,6 +3027,18 @@ impl RustAstConverter {
         }
     }
 
+    /// Read the literal out of a pattern.
+    ///
+    /// A range pattern may bound its ends with any pattern; the IR models a
+    /// range with literals, so a non-literal bound degrades to the unit
+    /// literal.
+    fn pattern_literal(&self, pat: &Pat) -> ast::Literal {
+        match pat {
+            Pat::Literal(literal) => self.convert_literal(literal),
+            _ => ast::Literal::Unit,
+        }
+    }
+
     /// Convert a Rust pattern into the IR pattern.
     fn convert_pattern(&self, pat: &Pat) -> ast::Pattern {
         match pat {
@@ -3029,7 +3049,10 @@ impl RustAstConverter {
             }
             Pat::Literal(literal) => ast::Pattern::Literal(self.convert_literal(literal)),
             Pat::Range(start, end) => {
-                ast::Pattern::Range(self.convert_literal(start), self.convert_literal(end))
+                ast::Pattern::Range(
+                    self.pattern_literal(start.as_ref()),
+                    self.pattern_literal(end.as_ref()),
+                )
             }
             Pat::RangeLit(start, end) => {
                 ast::Pattern::Range(self.convert_literal(start), self.convert_literal(end))
