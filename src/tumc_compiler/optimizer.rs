@@ -87,6 +87,7 @@ impl Optimizer {
             OptimizationLevel::O1 => 20,
             OptimizationLevel::O2 => 40,
             OptimizationLevel::O3 => 100,
+            OptimizationLevel::Oz => 100,
         };
 
         let max_unroll_factor = match level {
@@ -95,6 +96,7 @@ impl Optimizer {
             OptimizationLevel::O1 => 2,
             OptimizationLevel::O2 => 4,
             OptimizationLevel::O3 => 8,
+            OptimizationLevel::Oz => 8,
         };
 
         Optimizer {
@@ -159,8 +161,11 @@ impl Optimizer {
 
     fn fold_constants_in_stmt(&mut self, stmt: &mut Stmt) {
         match &mut stmt.kind {
-            StmtKind::Expr(expr) | StmtKind::Assignment(_, expr) => {
+            StmtKind::Expr(expr) => {
                 self.fold_constants_in_expr(expr);
+            }
+            StmtKind::Assignment(_, expr) => {
+                self.fold_constants_in_expr(expr.as_mut());
             }
             StmtKind::Let(pattern, _, value, body) => {
                 if let Some(v) = value {
@@ -343,10 +348,10 @@ impl Optimizer {
             }
 
             // Division by constant powers of 2 -> shift
-            (BinOp::Div, Literal::Int(a), Literal::Int(b)) if b.is_power_of_two() && *b > 0 => {
+            (BinOp::Div, Literal::Int(a), Literal::Int(b)) if (*b as u64).is_power_of_two() && *b > 0 => {
                 Some(Expr::new_literal(Literal::Int(a / b), lhs.span.clone()))
             }
-            (BinOp::Mod, Literal::Int(a), Literal::Int(b)) if b.is_power_of_two() && *b > 0 => {
+            (BinOp::Mod, Literal::Int(a), Literal::Int(b)) if (*b as u64).is_power_of_two() && *b > 0 => {
                 Some(Expr::new_literal(Literal::Int(a % b), lhs.span.clone()))
             }
 
@@ -396,6 +401,7 @@ impl Optimizer {
             // Check for if with constant condition
             if let StmtKind::If(condition, then_block, else_block) = &stmt.kind {
                 if let Some(Literal::Bool(value)) = condition.to_literal() {
+                    let value = *value;
                     // Keep the live branch, remove the dead one
                     let live_stmts = if value { then_block.clone() } else {
                         else_block.as_ref().map(|(_, s)| s.clone()).unwrap_or_default()
@@ -470,6 +476,7 @@ impl Optimizer {
             StmtKind::Loop(body) => 1 + body.iter().map(|s| self.stmt_size(s)).sum::<usize>(),
             StmtKind::Return(_) => 1,
             StmtKind::Break | StmtKind::Continue => 1,
+            StmtKind::Block(body) => 1 + body.iter().map(|s| self.stmt_size(s)).sum::<usize>(),
             StmtKind::Assignment(_, e) => 1 + self.expr_size(e),
             StmtKind::CompoundAssignment(_, _, e) => 1 + self.expr_size(e),
             StmtKind::Assert(e) => 1 + self.expr_size(e),
@@ -628,11 +635,11 @@ impl Optimizer {
     fn eliminate_cse_in_stmts(&mut self, stmts: &mut Vec<Stmt>, seen: &mut std::collections::HashMap<String, Expr>) {
         let mut i = 0;
         while i < stmts.len() {
-            let stmt = &stmts[i];
+            let stmt = &mut stmts[i];
 
             // Check for simple assignment like `let x = expr;`
-            if let StmtKind::Let(pattern, _, Some(value), body) = &stmt.kind {
-                if let ExprKind::Identifier(name) = &pattern.kind {
+            if let StmtKind::Let(pattern, _, Some(value), body) = &mut stmt.kind {
+                if let ast::Pattern::Binding(name) = pattern {
                     // Store the value for future CSE
                     if !matches!(value.kind, ExprKind::Identifier(_)) {
                         let key = format!("{:?}", value.kind);
@@ -667,10 +674,8 @@ impl Optimizer {
             }
             StmtKind::If(condition, then_block, else_block) => {
                 self.try_replace_with_cse(condition, seen);
-                for (_, body) in then_block {
-                    for s in body {
-                        self.eliminate_cse_in_stmt(s, seen);
-                    }
+                for s in then_block {
+                    self.eliminate_cse_in_stmt(s, seen);
                 }
                 if let Some((_, else_stmts)) = else_block {
                     for s in else_stmts {
@@ -721,11 +726,9 @@ impl Optimizer {
             }
             StmtKind::If(condition, then_block, else_block) => {
                 self.reduce_strength_in_expr(condition);
-                for (_, body) in then_block {
-                    for s in body {
+                for s in then_block {
                         self.reduce_strength_in_stmt(s);
                     }
-                }
                 if let Some((_, else_stmts)) = else_block {
                     for s in else_stmts {
                         self.reduce_strength_in_stmt(s);
@@ -805,11 +808,9 @@ impl Optimizer {
             }
             StmtKind::If(condition, then_block, else_block) => {
                 self.simplify_in_expr(condition);
-                for (_, body) in then_block {
-                    for s in body {
+                for s in then_block {
                         self.simplify_in_stmt(s);
                     }
-                }
                 if let Some((_, else_stmts)) = else_block {
                     for s in else_stmts {
                         self.simplify_in_stmt(s);
@@ -888,9 +889,7 @@ impl Optimizer {
     fn remove_unreachable_in_stmt(&mut self, stmt: &mut Stmt) {
         match &mut stmt.kind {
             StmtKind::If(_, then_block, else_block) => {
-                for (_, body) in then_block {
-                    self.remove_unreachable_in_stmts(body);
-                }
+                self.remove_unreachable_in_stmts(then_block);
                 if let Some((_, else_stmts)) = else_block {
                     self.remove_unreachable_in_stmts(else_stmts);
                 }

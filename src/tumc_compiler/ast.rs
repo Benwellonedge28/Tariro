@@ -805,6 +805,14 @@ impl Expr {
         Self::new(ExprKind::Identifier(name.into()), span)
     }
 
+    /// The literal this expression evaluates to, if it is a literal.
+    pub fn to_literal(&self) -> Option<&Literal> {
+        match &self.kind {
+            ExprKind::Literal(literal) => Some(literal),
+            _ => None,
+        }
+    }
+
     /// Create a literal expression
     pub fn new_literal(lit: Literal, span: Span) -> Self {
         Self::new(ExprKind::Literal(lit), span)
