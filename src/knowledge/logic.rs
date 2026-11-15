@@ -78,7 +78,7 @@ impl Term {
 }
 
 /// Constants in logic programming
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Constant {
     String(String),
     Integer(i64),

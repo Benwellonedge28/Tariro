@@ -99,7 +99,7 @@ impl Attribute {
 }
 
 /// Value types for attributes
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Value {
     String(String),
     Integer(i64),

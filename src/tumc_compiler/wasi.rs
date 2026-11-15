@@ -458,7 +458,7 @@ pub mod preview2 {
         pub next_resource: RwLock<u32>,
     }
 
-    #[derive(Debug)]
+    #[derive(Debug, Clone)]
     pub struct Resource {
         pub id: u32,
         pub kind: ResourceKind,

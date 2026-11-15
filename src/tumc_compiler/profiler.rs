@@ -227,7 +227,7 @@ impl CompilerProfiler {
 }
 
 /// Phase statistics
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct PhaseStats {
     pub phase: String,
     pub total: Duration,
@@ -239,14 +239,14 @@ pub struct PhaseStats {
 }
 
 /// Function call statistics
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct FunctionCallStats {
     pub function: String,
     pub count: u64,
 }
 
 /// Memory statistics
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct MemoryStats {
     pub peak_allocated: u64,
     pub final_allocated: u64,
@@ -254,7 +254,7 @@ pub struct MemoryStats {
 }
 
 /// Profile report
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ProfileReport {
     pub total_time: Duration,
     pub phase_stats: Vec<PhaseStats>,

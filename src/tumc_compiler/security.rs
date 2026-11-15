@@ -66,7 +66,7 @@ pub enum Capability {
 }
 
 /// Trust level
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum TrustLevel {
     Untrusted,
     Restricted,

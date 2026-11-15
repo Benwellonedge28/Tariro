@@ -477,7 +477,10 @@ impl GoLexer {
                 let value = s.chars().last().map(|c| c as i32).unwrap_or(0);
                 Ok((Some(GoToken::Rune(value)), *pos))
             }
-            _ => Err(GoLexerError::new("Invalid string literal", *pos)),
+            _ => Err(GoLexerError {
+                message: "Invalid string literal".to_string(),
+                position: *pos,
+            }),
         }
     }
 
@@ -636,7 +639,7 @@ impl GoParser {
             GoToken::Func => self.parse_function(),
             GoToken::Const => self.parse_const(),
             GoToken::Var => self.parse_var(),
-            GoToken::Type => self.parse_type(),
+            GoToken::Type => self.parse_type_node(),
             GoToken::Import => self.parse_import(),
             GoToken::Go => self.parse_go(),
             GoToken::Defer => self.parse_defer(),
@@ -778,7 +781,7 @@ impl GoParser {
                 } else {
                     let len = if let GoToken::Int(n) = self.current() {
                         self.advance();
-                        n as usize
+                        *n as usize
                     } else {
                         return Err(GoParseError::new("Expected array length", self.pos));
                     };
@@ -975,7 +978,7 @@ impl GoParser {
         Ok(None)
     }
 
-    fn parse_type(&mut self) -> Result<Option<AstNode>, GoParseError> {
+    fn parse_type_node(&mut self) -> Result<Option<AstNode>, GoParseError> {
         self.advance();
         self.parse_type_decl()
     }
@@ -1001,7 +1004,7 @@ impl GoParser {
                 self.advance();
             }
             self.expect(&GoToken::RightParen)?;
-            paths.join(", ")
+            paths.iter().map(|p| p.as_str()).collect::<Vec<_>>().join(", ")
         } else {
             String::new()
         };

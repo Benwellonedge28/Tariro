@@ -41,7 +41,7 @@ pub enum SmtExpr {
 }
 
 /// SMT constant
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum SmtConst {
     Bool(bool),
     Int(i64),

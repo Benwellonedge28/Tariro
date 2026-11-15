@@ -406,7 +406,7 @@ impl TypeScriptLexer {
                 *pos += 1;
             }
             let s = &self.source[start..*pos];
-            let value = u64::from_str_radix(&s[2..], 16).unwrap_or(0.0);
+            let value = u64::from_str_radix(&s[2..], 16).unwrap_or(0);
             return Ok((Some(TsToken::NumericLiteral(value as f64)), *pos));
         }
 
@@ -416,7 +416,7 @@ impl TypeScriptLexer {
                 *pos += 1;
             }
             let s = &self.source[start..*pos];
-            let value = u64::from_str_radix(&s[2..], 8).unwrap_or(0.0);
+            let value = u64::from_str_radix(&s[2..], 8).unwrap_or(0);
             return Ok((Some(TsToken::NumericLiteral(value as f64)), *pos));
         }
 
@@ -427,7 +427,7 @@ impl TypeScriptLexer {
                 *pos += 1;
             }
             let s = &self.source[start..*pos];
-            let value = u64::from_str_radix(&s[2..], 2).unwrap_or(0.0);
+            let value = u64::from_str_radix(&s[2..], 2).unwrap_or(0);
             return Ok((Some(TsToken::NumericLiteral(value as f64)), *pos));
         }
 
@@ -491,7 +491,7 @@ impl TypeScriptLexer {
     fn lex_template(&self, pos: &mut usize) -> Result<(Option<TsToken>, usize), TsLexerError> {
         *pos += 1; // Skip backtick
         let start = *pos;
-        let mut depth = 0;
+        let mut depth: usize = 0;
 
         while *pos < self.source.len() {
             let ch = self.source.as_bytes()[*pos];
@@ -863,6 +863,7 @@ impl TypeScriptParser {
         } else {
             // Async arrow function or expression
             self.parse_expression()
+                .map(|expr| Some(AstNode::ExpressionStatement(Box::new(expr))))
         }
     }
 
@@ -1552,7 +1553,7 @@ impl TypeScriptParser {
             let value = if self.check(&TsToken::Equal) {
                 self.advance();
                 next_value = match self.current() {
-                    TsToken::NumericLiteral(n) => n as i64,
+                    TsToken::NumericLiteral(n) => *n as i64,
                     _ => next_value,
                 };
                 self.advance();
@@ -2292,7 +2293,7 @@ impl TypeScriptParser {
                     // Simplify: just use the first part for now
                     if !parts.is_empty() {
                         if let Expression::Literal(lit) = parts.remove(0) {
-                            expr = lit.into();
+                            expr = Expression::Literal(lit);
                         }
                     }
                 }
@@ -2424,7 +2425,7 @@ impl TypeScriptParser {
                 while !self.check(&TsToken::CloseBrace) && !self.is_at_end() {
                     let key = match self.current() {
                         TsToken::Identifier(n) => n.clone(),
-                        TsToken::StringLiteral(s) => s,
+                        TsToken::StringLiteral(s) => s.clone(),
                         TsToken::NumericLiteral(n) => n.to_string(),
                         _ => {
                             self.advance();
@@ -2473,6 +2474,7 @@ impl TypeScriptParser {
                 let _return_type = if self.check(&TsToken::Colon) {
                     self.advance();
                     let _ = self.parse_type();
+                    None
                 } else {
                     None
                 };
@@ -2483,7 +2485,7 @@ impl TypeScriptParser {
                     None
                 };
 
-                Ok(Expression::Function(name, Vec::new(), Box::new(
+                Ok(Expression::Function(name.unwrap_or_default(), Vec::new(), Box::new(
                     Expression::Block(body.map(|b| match b {
                         AstNode::Block(s) => s,
                         _ => vec![b],
@@ -2534,12 +2536,21 @@ impl TypeScriptParser {
                     self.parse_block()?
                 } else {
                     let expr = self.parse_expression()?;
-                    vec![AstNode::Return(Some(Box::new(expr)))]
+                    Some(AstNode::Return(Some(Box::new(expr))))
                 };
 
                 Ok(Expression::Lambda {
                     params: Vec::new(),
-                    body: Box::new(Expression::Block(body.into()).into()),
+                    body: Box::new(
+                        Expression::Block(
+                            body.map(|b| match b {
+                                AstNode::Block(s) => s,
+                                _ => vec![b],
+                            })
+                            .unwrap_or_default(),
+                        )
+                        .into(),
+                    ),
                 })
             }
             TsToken::New => {
@@ -2575,7 +2586,7 @@ impl TypeScriptParser {
                             self.advance();
                             Ok(Expression::FieldAccess {
                                 object: Box::new(Expression::Super.into()),
-                                field: n,
+                                field: n.clone(),
                             })
                         }
                         _ => Err(TsParseError::new("Expected identifier", self.pos)),
