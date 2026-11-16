@@ -139,6 +139,50 @@ impl InvariantDetector {
         invariants
     }
 
+    /// Detect the invariants that hold inside a single basic block.
+    pub fn detect_block(&self, block: &BasicBlock) -> Vec<Invariant> {
+        let mut invariants = Vec::new();
+
+        if self.use_dataflow {
+            let reaching_defs = self.compute_reaching_definitions(block);
+            for (var, defs) in &reaching_defs {
+                if defs.len() > 1 {
+                    invariants.push(Invariant::Arithmetic(ArithmeticInvariant {
+                        variable: var.clone(),
+                        property: ArithmeticProperty::Even, // Simplified
+                        always_holds: false,
+                    }));
+                }
+            }
+
+            for inst in &block.instructions {
+                if let Operation::Const(val, _) = &inst.op {
+                    if let crate::tumc_compiler::ir::Const::Int(i) = &**val {
+                        invariants.push(Invariant::Range(RangeInvariant {
+                            variable: inst.result_name.clone().unwrap_or_default(),
+                            lower_bound: Some(*i),
+                            upper_bound: Some(*i),
+                            always_holds: true,
+                        }));
+                    }
+                }
+            }
+        }
+
+        if self.use_template {
+            let templates = self.get_templates();
+            for inst in &block.instructions {
+                for template in &templates {
+                    if let Some(inv) = self.match_template(inst, template) {
+                        invariants.push(inv);
+                    }
+                }
+            }
+        }
+
+        invariants
+    }
+
     /// Detect invariants using dataflow analysis
     fn detect_dataflow_invariants(&self, function: &Function) -> Vec<Invariant> {
         let mut invariants = Vec::new();
@@ -270,7 +314,7 @@ impl InvariantDetector {
                     // Check if instruction is part of loop
                     true // Simplified
                 }) {
-                    invariants.extend(self.detect_function(block));
+                    invariants.extend(self.detect_block(block));
                 }
             }
 

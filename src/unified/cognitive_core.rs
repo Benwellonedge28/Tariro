@@ -119,7 +119,7 @@ impl CognitiveCore {
         let words: Vec<&str> = intent.split_whitespace().collect();
 
         // Detect performance keywords
-        if words.iter().any(|w| matches!(***w, "fast" | "optimize" | "performance")) {
+        if words.iter().any(|w| matches!(*w, "fast" | "optimize" | "performance")) {
             insights.push(AgiInsight {
                 insight_type: InsightType::Performance,
                 confidence: 0.85,
@@ -138,7 +138,7 @@ impl CognitiveCore {
         }
 
         // Detect memory keywords
-        if words.iter().any(|w| matches!(***w, "memory" | "efficient" | "cache")) {
+        if words.iter().any(|w| matches!(*w, "memory" | "efficient" | "cache")) {
             insights.push(AgiInsight {
                 insight_type: InsightType::Memory,
                 confidence: 0.80,
@@ -157,7 +157,7 @@ impl CognitiveCore {
         }
 
         // Detect parallelization keywords
-        if words.iter().any(|w| matches!(***w, "parallel" | "concurrent" | "async")) {
+        if words.iter().any(|w| matches!(*w, "parallel" | "concurrent" | "async")) {
             insights.push(AgiInsight {
                 insight_type: InsightType::Parallelization,
                 confidence: 0.75,

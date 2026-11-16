@@ -177,22 +177,22 @@ impl WasmMemory {
 
     /// Read f32 from memory
     pub fn read_f32(&self, addr: u32) -> Option<f32> {
-        self.read_i32(addr).map(f32::from_bits)
+        self.read_i32(addr).map(|bits| f32::from_bits(bits as u32))
     }
 
     /// Write f32 to memory
     pub fn write_f32(&mut self, addr: u32, value: f32) -> bool {
-        self.write_i32(addr, value.to_bits())
+        self.write_i32(addr, value.to_bits() as i32)
     }
 
     /// Read f64 from memory
     pub fn read_f64(&self, addr: u32) -> Option<f64> {
-        self.read_i64(addr).map(f64::from_bits)
+        self.read_i64(addr).map(|bits| f64::from_bits(bits as u64))
     }
 
     /// Write f64 to memory
     pub fn write_f64(&mut self, addr: u32, value: f64) -> bool {
-        self.write_i64(addr, value.to_bits())
+        self.write_i64(addr, value.to_bits() as i64)
     }
 
     /// Grow memory
@@ -509,7 +509,7 @@ impl WasmEngine {
                 let align = code[*pc];
                 let offset = u32::from_le_bytes(code[*pc + 1..*pc + 5].try_into().unwrap());
                 *pc += 5;
-                let addr = self.pop_i32()?;
+                let addr = self.pop_i32()? as u32;
                 let effective_addr = addr + offset;
                 if let Some(val) = self.memory.read_i32(effective_addr) {
                     self.operand_stack.push(WasmValue::I32(val));
@@ -523,7 +523,7 @@ impl WasmEngine {
                 let offset = u32::from_le_bytes(code[*pc + 1..*pc + 5].try_into().unwrap());
                 *pc += 5;
                 let val = self.pop_i32()?;
-                let addr = self.pop_i32()?;
+                let addr = self.pop_i32()? as u32;
                 if !self.memory.write_i32(addr + offset, val) {
                     return Err(WasmError::MemoryAccessViolation);
                 }

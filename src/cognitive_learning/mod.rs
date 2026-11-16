@@ -97,7 +97,7 @@ pub struct RepresentedAttribute {
     pub value: AttributeValue,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum AttributeValue {
     Numeric(f64),
     Boolean(bool),
@@ -153,7 +153,7 @@ impl AnalogicalReasoner {
             });
         }
 
-        self.stats.analogies_found += mappings.len();
+        self.stats.analogies_found += mappings.len() as u64;
         mappings
     }
 
@@ -425,7 +425,7 @@ pub struct RevisionOutcome {
 // Reinforcement Learning
 // ============================================================================
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RLState {
     pub id: String,
     pub features: Vec<f64>,
@@ -440,7 +440,7 @@ impl RLState {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RLAction {
     pub id: String,
     pub name: String,

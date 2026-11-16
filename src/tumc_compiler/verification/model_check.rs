@@ -102,17 +102,8 @@ pub struct ModelCheckResult {
     pub states_explored: usize,
 }
 
-#[derive(Debug, Clone)]
-pub enum VerificationErrorType {
-    AssertionFailed,
-    ArrayBoundsViolation,
-    NullPointerDereference,
-    DivisionByZero,
-    IntegerOverflow,
-    Deadlock,
-    Livelock,
-    RaceCondition,
-}
+/// The verification error type is owned by the verification module.
+pub use super::VerificationErrorType;
 
 #[derive(Debug, Clone)]
 pub struct Counterexample {
@@ -315,15 +306,17 @@ impl ModelChecker {
         };
 
         // Check if block has proper terminator
-        if let Some(term) = &block.terminator {
-            match term {
-                Terminator::Ret(_) | Terminator::Jump(_) | Terminator::Br(_, _, _) => {
-                    // Has proper terminator
-                }
-                _ => {
-                    result.verified = false;
-                    result.errors.push(VerificationErrorType::Deadlock);
-                }
+        match &block.terminator {
+            Terminator::Ret(_)
+            | Terminator::Br(_)
+            | Terminator::BrCond(_, _, _)
+            | Terminator::Switch(..)
+            | Terminator::IndirectBr(..) => {
+                // Has proper terminator
+            }
+            _ => {
+                result.verified = false;
+                result.errors.push(VerificationErrorType::Deadlock);
             }
         }
 
@@ -357,10 +350,11 @@ impl ModelChecker {
                 trace.push(system.states[system.initial_states[0]].clone());
                 trace.reverse();
 
+                let violating_state = trace.len();
                 return Some(Counterexample {
                     initial_state: system.states[system.initial_states[0]].clone(),
                     trace,
-                    violating_state: trace.len(),
+                    violating_state,
                     error_type: VerificationErrorType::AssertionFailed,
                 });
             }

@@ -370,30 +370,28 @@ impl Compiler {
         let ast_nodes = ast.node_count();
 
         // 3. Type Checking
-        let typed_ast = match type_checker::TypeChecker::new(&mut self.type_context).check(&ast) {
-            Ok(typed) => typed,
-            Err(e) => {
+        if let Err(type_errors) = type_checker::TypeChecker::new().check_program(&ast) {
+            for e in type_errors {
                 errors.push(CompilerError::TypeError(e));
-                return CompilationResult {
-                    success: false,
-                    output: Vec::new(),
-                    format: OutputFormat::WasmBinary,
-                    diagnostics,
-                    stats: CompilationStats::default(),
-                    errors,
-                };
             }
-        };
+            return CompilationResult {
+                success: false,
+                output: Vec::new(),
+                format: OutputFormat::WasmBinary,
+                diagnostics,
+                stats: CompilationStats::default(),
+                errors,
+            };
+        }
 
         // 4. Optimization
-        let optimized = if self.optimization_level != OptimizationLevel::None {
-            optimizer::Optimizer::new(self.optimizer_level()).optimize(typed_ast)
-        } else {
-            typed_ast
-        };
+        let mut ast = ast;
+        if self.optimization_level != OptimizationLevel::None {
+            optimizer::Optimizer::new(self.optimizer_level()).optimize(&mut ast);
+        }
 
         // 5. Code Generation
-        let output = match codegen::CodeGenerator::new(self.target_platform).generate(&optimized) {
+        let output = match codegen::CodeGenerator::new(self.target_platform).generate(&ast) {
             Ok(output) => output,
             Err(e) => {
                 errors.push(CompilerError::CodegenError(e));
@@ -461,26 +459,22 @@ impl Compiler {
         let start = std::time::Instant::now();
 
         // Type check
-        let typed_ast = match type_checker::TypeChecker::new(&mut self.type_context).check(ir) {
-            Ok(typed) => typed,
-            Err(e) => {
-                return CompilationResult {
-                    success: false,
-                    output: Vec::new(),
-                    format: self.target_format(),
-                    diagnostics: Vec::new(),
-                    stats: CompilationStats::default(),
-                    errors: vec![CompilerError::TypeError(e)],
-                };
-            }
-        };
+        if let Err(type_errors) = type_checker::TypeChecker::new().check_program(ir) {
+            return CompilationResult {
+                success: false,
+                output: Vec::new(),
+                format: self.target_format(),
+                diagnostics: Vec::new(),
+                stats: CompilationStats::default(),
+                errors: type_errors.into_iter().map(CompilerError::TypeError).collect(),
+            };
+        }
 
         // Optimize
-        let optimized = if self.optimization_level != OptimizationLevel::None {
-            optimizer::Optimizer::new(self.optimizer_level()).optimize(typed_ast)
-        } else {
-            typed_ast
-        };
+        let mut optimized = ir.clone();
+        if self.optimization_level != OptimizationLevel::None {
+            optimizer::Optimizer::new(self.optimizer_level()).optimize(&mut optimized);
+        }
 
         // Generate code
         let output = match codegen::CodeGenerator::new(self.target_platform).generate(&optimized) {
@@ -666,10 +660,10 @@ impl Type {
                 t.size().and_then(|s| len.map(|l| s * l))
             }
             Type::Tuple(types) => {
-                types.iter().filter_map(|t| t.size()).sum::<Option<usize>>()
+                types.iter().map(|t| t.size()).sum::<Option<usize>>()
             }
             Type::Struct(s) => {
-                s.fields.iter().filter_map(|(_, t)| t.size()).sum::<Option<usize>>()
+                s.fields.iter().map(|(_, t)| t.size()).sum::<Option<usize>>()
             }
             _ => None,
         }
@@ -792,8 +786,8 @@ impl Type {
             // Numeric unification
             (a, b) if a.is_numeric() && b.is_numeric() => Some(Type::I32),
             // Pointer unification
-            (Type::Ref(a), Type::Ref(b)) => a.unify(b).map(Type::Ref),
-            (Type::MutRef(a), Type::MutRef(b)) => a.unify(b).map(Type::MutRef),
+            (Type::Ref(a), Type::Ref(b)) => a.unify(b).map(|t| Type::Ref(Box::new(t))),
+            (Type::MutRef(a), Type::MutRef(b)) => a.unify(b).map(|t| Type::MutRef(Box::new(t))),
             (Type::Ref(a), Type::MutRef(b)) if *a == *b => Some(Type::Ref(a.clone())),
             (Type::MutRef(a), Type::Ref(b)) if *a == *b => Some(Type::Ref(a.clone())),
             // Function unification
@@ -811,7 +805,7 @@ impl Type {
                     let ret = f1.return_type.unify(&f2.return_type)?;
                     Some(Type::Function(Box::new(FunctionType {
                         parameters: params,
-                        return_type: ret,
+                        return_type: Box::new(ret),
                         variadic: f1.variadic || f2.variadic,
                     })))
                 } else {

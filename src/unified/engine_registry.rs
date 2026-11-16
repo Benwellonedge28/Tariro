@@ -3,12 +3,13 @@
 //! This module provides a unified registry that ties together all engine modules
 //! under the Tariro AGI system, enabling coordinated access and management.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, RwLock};
+use std::time::{Duration, Instant};
 use serde::{Deserialize, Serialize};
 
 /// Engine capability categories
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum EngineCategory {
     /// Core AGI capabilities
     Core,
@@ -48,6 +49,10 @@ pub struct EngineMetadata {
 pub struct EngineRegistry {
     engines: RwLock<HashMap<String, EngineMetadata>>,
     categories: RwLock<HashMap<EngineCategory, Vec<String>>>,
+    /// The engines that have been switched off.
+    disabled: RwLock<HashSet<String>>,
+    /// The execution statistics recorded for every engine.
+    statistics: RwLock<HashMap<String, EngineStatistics>>,
 }
 
 impl EngineRegistry {
@@ -55,6 +60,8 @@ impl EngineRegistry {
         let registry = EngineRegistry {
             engines: RwLock::new(HashMap::new()),
             categories: RwLock::new(HashMap::new()),
+            disabled: RwLock::new(HashSet::new()),
+            statistics: RwLock::new(HashMap::new()),
         };
         registry.register_all_engines();
         registry
@@ -677,14 +684,150 @@ impl EngineRegistry {
             .map(|(k, v)| (format!("{:?}", k), v.len()))
             .collect();
 
-        EngineStatistics {
+        let mut statistics = EngineStatistics {
             total_engines: engines.len(),
             category_breakdown: category_counts,
             total_files: 3051,
             total_modules: 110 + 100, // dirs + major modules
+            ..Default::default()
+        };
+
+        if let Ok(per_engine) = self.statistics.read() {
+            for engine_statistics in per_engine.values() {
+                statistics.invocation_count += engine_statistics.invocation_count;
+                statistics.total_execution_time += engine_statistics.total_execution_time;
+                statistics.success_count += engine_statistics.success_count;
+                statistics.failure_count += engine_statistics.failure_count;
+                statistics.peak_memory_usage =
+                    statistics.peak_memory_usage.max(engine_statistics.peak_memory_usage);
+            }
+            if statistics.invocation_count > 0 {
+                statistics.avg_execution_time = Duration::from_nanos(
+                    statistics.total_execution_time.as_nanos() as u64 / statistics.invocation_count,
+                );
+            }
+        }
+
+        statistics
+    }
+
+    /// Register an engine under its own name.
+    pub fn register(&self, metadata: EngineMetadata) -> Result<(), EngineRegistryError> {
+        let name = metadata.name.clone();
+        if self.get_engine(&name).is_some() {
+            return Err(EngineRegistryError::AlreadyRegistered(name));
+        }
+        self.register_engine(name, metadata);
+        Ok(())
+    }
+
+    /// Get the metadata of an engine.
+    pub fn get_metadata(&self, id: &str) -> Option<EngineMetadata> {
+        self.get_engine(id)
+    }
+
+    /// Get all engines in a category.
+    pub fn get_by_category(&self, category: EngineCategory) -> Vec<EngineMetadata> {
+        self.get_engines_by_category(category)
+    }
+
+    /// Get all engines that provide a capability.
+    pub fn get_by_capability(&self, capability: &str) -> Vec<EngineMetadata> {
+        self.find_engines_with_capability(capability)
+    }
+
+    /// Get the statistics recorded for a single engine.
+    pub fn engine_statistics(&self, id: &str) -> Option<EngineStatistics> {
+        self.statistics.read().ok()?.get(id).cloned()
+    }
+
+    /// List the registered engines.
+    pub fn list_engines(&self) -> Vec<String> {
+        self.get_all_engine_names()
+    }
+
+    /// Enable an engine.
+    pub fn enable(&self, id: &str) -> Result<(), EngineRegistryError> {
+        if self.get_engine(id).is_none() {
+            return Err(EngineRegistryError::NotFound(id.to_string()));
+        }
+        if let Ok(mut disabled) = self.disabled.write() {
+            disabled.remove(id);
+        }
+        Ok(())
+    }
+
+    /// Disable an engine.
+    pub fn disable(&self, id: &str) -> Result<(), EngineRegistryError> {
+        if self.get_engine(id).is_none() {
+            return Err(EngineRegistryError::NotFound(id.to_string()));
+        }
+        if let Ok(mut disabled) = self.disabled.write() {
+            disabled.insert(id.to_string());
+        }
+        Ok(())
+    }
+
+    /// Check whether an engine is enabled.
+    pub fn is_enabled(&self, id: &str) -> bool {
+        if self.get_engine(id).is_none() {
+            return false;
+        }
+        match self.disabled.read() {
+            Ok(disabled) => !disabled.contains(id),
+            Err(_) => false,
+        }
+    }
+
+    /// Record the execution of an engine.
+    pub fn record_execution(
+        &self,
+        id: &str,
+        duration: Duration,
+        success: bool,
+        memory_used: usize,
+    ) -> Result<(), EngineRegistryError> {
+        if self.get_engine(id).is_none() {
+            return Err(EngineRegistryError::NotFound(id.to_string()));
+        }
+        let mut statistics = self
+            .statistics
+            .write()
+            .map_err(|_| EngineRegistryError::LockError)?;
+        let entry = statistics.entry(id.to_string()).or_default();
+        entry.record_invocation(duration, success, memory_used);
+        Ok(())
+    }
+}
+
+/// Engine registry errors
+#[derive(Debug, Clone)]
+pub enum EngineRegistryError {
+    /// Engine already registered
+    AlreadyRegistered(String),
+    /// Engine already registered under a different spelling
+    AlreadyExists(String),
+    /// Engine not found
+    NotFound(String),
+    /// The registry lock could not be taken
+    LockError,
+    /// Configuration error
+    ConfigurationError(String),
+}
+
+impl std::fmt::Display for EngineRegistryError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            EngineRegistryError::AlreadyRegistered(name) => write!(f, "Engine already registered: {}", name),
+            EngineRegistryError::AlreadyExists(name) => write!(f, "Engine already registered: {}", name),
+            EngineRegistryError::NotFound(name) => write!(f, "Engine not found: {}", name),
+            EngineRegistryError::LockError => write!(f, "Engine registry lock poisoned"),
+            EngineRegistryError::ConfigurationError(message) => write!(f, "Engine configuration error: {}", message),
         }
     }
 }
+
+impl std::error::Error for EngineRegistryError {}
 
 impl Default for EngineRegistry {
     fn default() -> Self {
@@ -699,4 +842,84 @@ pub struct EngineStatistics {
     pub category_breakdown: HashMap<String, usize>,
     pub total_files: usize,
     pub total_modules: usize,
+    /// Number of times an engine was invoked.
+    pub invocation_count: u64,
+    /// Total execution time of the recorded invocations.
+    pub total_execution_time: Duration,
+    /// Number of successful executions.
+    pub success_count: u64,
+    /// Number of failed executions.
+    pub failure_count: u64,
+    /// Average execution time per invocation.
+    pub avg_execution_time: Duration,
+    /// Peak memory usage observed.
+    pub peak_memory_usage: usize,
+    /// The moment of the last invocation.
+    #[serde(skip)]
+    pub last_invocation: Option<Instant>,
+    /// The timestamps of the most recent invocations.
+    #[serde(skip)]
+    pub recent_invocations: Vec<Instant>,
+}
+
+impl Default for EngineStatistics {
+    fn default() -> Self {
+        EngineStatistics {
+            total_engines: 0,
+            category_breakdown: HashMap::new(),
+            total_files: 0,
+            total_modules: 0,
+            invocation_count: 0,
+            total_execution_time: Duration::ZERO,
+            success_count: 0,
+            failure_count: 0,
+            avg_execution_time: Duration::ZERO,
+            peak_memory_usage: 0,
+            last_invocation: None,
+            recent_invocations: Vec::new(),
+        }
+    }
+}
+
+impl EngineStatistics {
+    /// Create new statistics tracker
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Record an invocation
+    pub fn record_invocation(&mut self, duration: Duration, success: bool, memory_used: usize) {
+        self.invocation_count += 1;
+        self.total_execution_time += duration;
+        self.last_invocation = Some(Instant::now());
+
+        if success {
+            self.success_count += 1;
+        } else {
+            self.failure_count += 1;
+        }
+
+        // Update average
+        self.avg_execution_time =
+            Duration::from_nanos(self.total_execution_time.as_nanos() as u64 / self.invocation_count);
+
+        // Update peak memory
+        if memory_used > self.peak_memory_usage {
+            self.peak_memory_usage = memory_used;
+        }
+
+        // Keep recent invocations (last 100)
+        self.recent_invocations.push(self.last_invocation.unwrap());
+        if self.recent_invocations.len() > 100 {
+            self.recent_invocations.remove(0);
+        }
+    }
+
+    /// Get success rate
+    pub fn success_rate(&self) -> f64 {
+        if self.invocation_count == 0 {
+            return 0.0;
+        }
+        self.success_count as f64 / self.invocation_count as f64
+    }
 }

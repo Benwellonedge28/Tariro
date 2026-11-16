@@ -22,7 +22,7 @@ pub enum SmtSort {
 }
 
 /// SMT expression
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum SmtExpr {
     /// Constant
     Const(SmtConst),

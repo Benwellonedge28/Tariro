@@ -186,7 +186,7 @@ impl Event {
 }
 
 /// Types of events
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum EventType {
     /// Perceptual input
     Perception,
@@ -356,7 +356,7 @@ impl SemanticKnowledge {
 }
 
 /// Knowledge categories
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum KnowledgeCategory {
     /// Physical world knowledge
     Physical,
@@ -413,7 +413,7 @@ pub enum KnowledgeSource {
 }
 
 /// Association between semantic memories
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Association {
     pub target_id: MemoryId,
     pub association_type: AssociationType,
@@ -1396,6 +1396,8 @@ pub struct SystemStats {
     pub initializations: usize,
     pub retrievals: usize,
     pub stores: usize,
+    pub consolidations: usize,
+    pub decay_operations: usize,
 }
 
 /// Memory search result

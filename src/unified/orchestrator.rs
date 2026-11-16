@@ -129,7 +129,9 @@ impl TariroUnifiedOrchestrator {
         if let Some(ref mut cc) = self.cognitive_core {
             let cog_result = cc.process_intent(intent);
             if !cog_result.success {
-                errors.push(cog_result.error.clone());
+                if let Some(error) = &cog_result.error {
+                    errors.push(error.clone());
+                }
             }
             insights.extend(cog_result.insights);
         }
@@ -145,6 +147,7 @@ impl TariroUnifiedOrchestrator {
 
         // Step 3: Post-processing and memory update
         {
+            let reasoning_steps = insights.len();
             let mut mem = match self.memory.write() {
                 Ok(m) => m,
                 Err(_) => return IntentResult {
@@ -153,7 +156,7 @@ impl TariroUnifiedOrchestrator {
                     insights,
                     metrics: ProcessingMetrics {
                         compilation_time_ms: start.elapsed().as_millis() as u64,
-                        reasoning_steps: insights.len(),
+                        reasoning_steps,
                         optimizations_applied: 0,
                         confidence: 0.0,
                     },
@@ -166,7 +169,10 @@ impl TariroUnifiedOrchestrator {
         // Update metrics
         self.status.metrics.compilations_completed += 1;
         self.status.metrics.insights_generated += insights.len() as u64;
-        self.status.metrics.optimizations_applied += compile_result.optimizations_applied;
+        self.status.metrics.optimizations_applied += compile_result.optimizations_applied as u64;
+
+        let reasoning_steps = insights.len();
+        let confidence = calculate_confidence(&insights);
 
         IntentResult {
             success: errors.is_empty(),
@@ -174,9 +180,9 @@ impl TariroUnifiedOrchestrator {
             insights,
             metrics: ProcessingMetrics {
                 compilation_time_ms: start.elapsed().as_millis() as u64,
-                reasoning_steps: insights.len(),
+                reasoning_steps,
                 optimizations_applied: compile_result.optimizations_applied,
-                confidence: calculate_confidence(&insights),
+                confidence,
             },
             errors,
         }
@@ -200,14 +206,18 @@ impl TariroUnifiedOrchestrator {
                 IntentType::Compile | IntentType::Optimize => {
                     let cog_result = cc.process_intent(&intent.description);
                     if !cog_result.success {
-                        errors.push(cog_result.error.clone());
+                        if let Some(error) = &cog_result.error {
+                errors.push(error.clone());
+            }
                     }
                     insights.extend(cog_result.insights);
                 }
                 IntentType::Reason | IntentType::Understand => {
                     let cog_result = cc.process_intent(&intent.description);
                     if !cog_result.success {
-                        errors.push(cog_result.error.clone());
+                        if let Some(error) = &cog_result.error {
+                        errors.push(error.clone());
+                    }
                     }
                     insights.extend(cog_result.insights);
                 }
@@ -215,7 +225,9 @@ impl TariroUnifiedOrchestrator {
                     // For other intent types, do basic processing
                     let cog_result = cc.process_intent(&intent.description);
                     if !cog_result.success {
-                        errors.push(cog_result.error.clone());
+                        if let Some(error) = &cog_result.error {
+                            errors.push(error.clone());
+                        }
                     }
                     insights.extend(cog_result.insights);
                 }
@@ -281,7 +293,7 @@ impl TariroUnifiedOrchestrator {
         // Update metrics
         self.status.metrics.compilations_completed += 1;
         self.status.metrics.insights_generated += insights.len() as u64;
-        self.status.metrics.optimizations_applied += optimizations_applied;
+        self.status.metrics.optimizations_applied += optimizations_applied as u64;
 
         let metrics = ProcessingMetrics {
             compilation_time_ms: start.elapsed().as_millis() as u64,

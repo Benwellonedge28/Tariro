@@ -482,8 +482,23 @@ impl Value {
 }
 
 /// Garbage collected object pointer
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy)]
 pub struct GcPtr<T: 'static>(*const T);
+
+/// Two garbage collected pointers are equal when they address the same object.
+impl<T: 'static> PartialEq for GcPtr<T> {
+    fn eq(&self, other: &Self) -> bool {
+        std::ptr::eq(self.0, other.0)
+    }
+}
+
+impl<T: 'static> Eq for GcPtr<T> {}
+
+impl<T: 'static> std::hash::Hash for GcPtr<T> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        std::ptr::hash(self.0, state);
+    }
+}
 
 impl<T> GcPtr<T> {
     pub fn new(ptr: *const T) -> Self {
@@ -666,7 +681,7 @@ impl VM {
 
     /// Get a global variable
     pub fn get_global(&self, name: &str) -> Option<&Value> {
-        self.globits.get(name)
+        self.globals.get(name)
     }
 
     /// Execute bytecode
@@ -826,8 +841,18 @@ impl VM {
 
             Opcode::DivI32 => {
                 let dest = code[ip + 1] as usize;
-                let a = self.registers[code[ip + 2] as usize].as_i32()?;
-                let b = self.registers[code[ip + 3] as usize].as_i32()?;
+                let a = self.registers[code[ip + 2] as usize]
+                    .as_i32()
+                    .ok_or_else(|| VMError::TypeError {
+                        expected: "i32".to_string(),
+                        found: "non integer".to_string(),
+                    })?;
+                let b = self.registers[code[ip + 3] as usize]
+                    .as_i32()
+                    .ok_or_else(|| VMError::TypeError {
+                        expected: "i32".to_string(),
+                        found: "non integer".to_string(),
+                    })?;
                 if b == 0 {
                     return Err(VMError::DivisionByZero);
                 }
@@ -837,8 +862,18 @@ impl VM {
 
             Opcode::ModI32 => {
                 let dest = code[ip + 1] as usize;
-                let a = self.registers[code[ip + 2] as usize].as_i32()?;
-                let b = self.registers[code[ip + 3] as usize].as_i32()?;
+                let a = self.registers[code[ip + 2] as usize]
+                    .as_i32()
+                    .ok_or_else(|| VMError::TypeError {
+                        expected: "i32".to_string(),
+                        found: "non integer".to_string(),
+                    })?;
+                let b = self.registers[code[ip + 3] as usize]
+                    .as_i32()
+                    .ok_or_else(|| VMError::TypeError {
+                        expected: "i32".to_string(),
+                        found: "non integer".to_string(),
+                    })?;
                 if b == 0 {
                     return Err(VMError::DivisionByZero);
                 }

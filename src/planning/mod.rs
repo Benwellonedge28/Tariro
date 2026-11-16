@@ -146,8 +146,18 @@ impl Fact {
     }
 }
 
+/// The default modifier keeps the value unchanged.
+fn default_modify_value() -> fn(f64) -> f64 {
+    |value| value
+}
+
+/// The default comparison reports no match.
+fn default_compare_value() -> fn(f64, f64) -> bool {
+    |_, _| false
+}
+
 /// Effect of an action
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub enum Effect {
     Add(Fact),
     Remove(Fact),
@@ -155,12 +165,142 @@ pub enum Effect {
     ModifyValue(String, fn(f64) -> f64),
 }
 
+/// The effects are serialised by hand because a modifier is a function
+/// pointer: it is behaviour rather than data, so it is not preserved.
+impl Serialize for Effect {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        use serde::ser::SerializeStruct;
+        let mut state = serializer.serialize_struct("Effect", 3)?;
+        match self {
+            Effect::Add(fact) => {
+                state.serialize_field("kind", "Add")?;
+                state.serialize_field("fact", fact)?;
+            }
+            Effect::Remove(fact) => {
+                state.serialize_field("kind", "Remove")?;
+                state.serialize_field("fact", fact)?;
+            }
+            Effect::SetValue(key, value) => {
+                state.serialize_field("kind", "SetValue")?;
+                state.serialize_field("key", key)?;
+                state.serialize_field("value", value)?;
+            }
+            Effect::ModifyValue(key, _) => {
+                state.serialize_field("kind", "ModifyValue")?;
+                state.serialize_field("key", key)?;
+            }
+        }
+        state.end()
+    }
+}
+
+impl<'de> Deserialize<'de> for Effect {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        #[derive(Deserialize)]
+        struct Repr {
+            kind: String,
+            #[serde(default)]
+            fact: Option<Fact>,
+            #[serde(default)]
+            key: Option<String>,
+            #[serde(default)]
+            value: Option<f64>,
+        }
+
+        let repr = Repr::deserialize(deserializer)?;
+        match repr.kind.as_str() {
+            "Add" => Ok(Effect::Add(
+                repr.fact.ok_or_else(|| serde::de::Error::missing_field("fact"))?,
+            )),
+            "Remove" => Ok(Effect::Remove(
+                repr.fact.ok_or_else(|| serde::de::Error::missing_field("fact"))?,
+            )),
+            "SetValue" => {
+                let key = repr.key.ok_or_else(|| serde::de::Error::missing_field("key"))?;
+                let value = repr
+                    .value
+                    .ok_or_else(|| serde::de::Error::missing_field("value"))?;
+                Ok(Effect::SetValue(key, value))
+            }
+            "ModifyValue" => {
+                let key = repr.key.ok_or_else(|| serde::de::Error::missing_field("key"))?;
+                Ok(Effect::ModifyValue(key, default_modify_value()))
+            }
+            other => Err(serde::de::Error::unknown_variant(
+                other,
+                &["Add", "Remove", "SetValue", "ModifyValue"],
+            )),
+        }
+    }
+}
+
 /// Condition for preconditions
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub enum Condition {
     Fact(Fact),
     NotFact(Fact),
     Value(String, fn(f64, f64) -> bool, f64),
+}
+
+/// The conditions are serialised by hand because a comparison is a function
+/// pointer: it is behaviour rather than data, so it is not preserved.
+impl Serialize for Condition {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        use serde::ser::SerializeStruct;
+        let mut state = serializer.serialize_struct("Condition", 3)?;
+        match self {
+            Condition::Fact(fact) => {
+                state.serialize_field("kind", "Fact")?;
+                state.serialize_field("fact", fact)?;
+            }
+            Condition::NotFact(fact) => {
+                state.serialize_field("kind", "NotFact")?;
+                state.serialize_field("fact", fact)?;
+            }
+            Condition::Value(key, _, expected) => {
+                state.serialize_field("kind", "Value")?;
+                state.serialize_field("key", key)?;
+                state.serialize_field("expected", expected)?;
+            }
+        }
+        state.end()
+    }
+}
+
+impl<'de> Deserialize<'de> for Condition {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        #[derive(Deserialize)]
+        struct Repr {
+            kind: String,
+            #[serde(default)]
+            fact: Option<Fact>,
+            #[serde(default)]
+            key: Option<String>,
+            #[serde(default)]
+            expected: Option<f64>,
+        }
+
+        let repr = Repr::deserialize(deserializer)?;
+        match repr.kind.as_str() {
+            "Fact" => Ok(Condition::Fact(
+                repr.fact.ok_or_else(|| serde::de::Error::missing_field("fact"))?,
+            )),
+            "NotFact" => Ok(Condition::NotFact(
+                repr.fact.ok_or_else(|| serde::de::Error::missing_field("fact"))?,
+            )),
+            "Value" => {
+                let key = repr.key.ok_or_else(|| serde::de::Error::missing_field("key"))?;
+                let expected = repr
+                    .expected
+                    .ok_or_else(|| serde::de::Error::missing_field("expected"))?;
+                Ok(Condition::Value(key, default_compare_value(), expected))
+            }
+            other => Err(serde::de::Error::unknown_variant(
+                other,
+                &["Fact", "NotFact", "Value"],
+            )),
+        }
+    }
 }
 
 /// An action that can be taken
@@ -431,11 +571,9 @@ impl HTNPlanner {
             // Apply task parameters
             for subtask in &mut subtasks {
                 for (i, param) in task.parameters.iter().enumerate() {
-                    if subtask.name.contains(&format!("?{}", ('a' as usize + i) as char)) {
-                        subtask.name = subtask.name.replace(
-                            &format!("?{}", ('a' as usize + i) as char),
-                            param,
-                        );
+                    let placeholder = ((b'a' as usize + i) as u8) as char;
+                    if subtask.name.contains(&format!("?{}", placeholder)) {
+                        subtask.name = subtask.name.replace(&format!("?{}", placeholder), param);
                     }
                 }
             }

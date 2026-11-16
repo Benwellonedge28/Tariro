@@ -8,6 +8,22 @@ pub mod smt;
 use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction};
 use std::collections::HashMap;
 
+/// The outcome of checking a single instruction.
+#[derive(Debug, Clone)]
+struct InstructionVerification {
+    verified: bool,
+    errors: Vec<VerificationErrorType>,
+}
+
+impl Default for InstructionVerification {
+    fn default() -> Self {
+        InstructionVerification {
+            verified: true,
+            errors: Vec::new(),
+        }
+    }
+}
+
 /// Verification result
 #[derive(Debug, Clone)]
 pub struct VerificationResult {
@@ -24,7 +40,7 @@ pub struct VerificationError {
     pub message: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum VerificationErrorType {
     AssertionFailed,
     ArrayBoundsViolation,
@@ -36,6 +52,28 @@ pub enum VerificationErrorType {
     Deadlock,
     MemoryLeak,
     UnreachableCode,
+    Livelock,
+    RaceCondition,
+}
+
+impl std::fmt::Display for VerificationErrorType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let name = match self {
+            VerificationErrorType::AssertionFailed => "assertion failed",
+            VerificationErrorType::ArrayBoundsViolation => "array bounds violation",
+            VerificationErrorType::NullPointerDereference => "null pointer dereference",
+            VerificationErrorType::DivisionByZero => "division by zero",
+            VerificationErrorType::IntegerOverflow => "integer overflow",
+            VerificationErrorType::UseAfterFree => "use after free",
+            VerificationErrorType::DataRace => "data race",
+            VerificationErrorType::Deadlock => "deadlock",
+            VerificationErrorType::MemoryLeak => "memory leak",
+            VerificationErrorType::UnreachableCode => "unreachable code",
+            VerificationErrorType::Livelock => "livelock",
+            VerificationErrorType::RaceCondition => "race condition",
+        };
+        write!(f, "{}", name)
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -161,7 +199,7 @@ impl Verifier {
                 result.errors.push(VerificationError {
                     location: Location {
                         function: function.name.clone(),
-                        block: Some(block.name.clone()),
+                        block: block.name.clone(),
                         instruction: None,
                     },
                     error_type: error,
@@ -185,11 +223,11 @@ impl Verifier {
                 result.errors.push(VerificationError {
                     location: Location {
                         function: function_name.to_string(),
-                        block: Some(block.name.clone()),
+                        block: block.name.clone(),
                         instruction: Some(i),
                     },
                     error_type: error,
-                    message: inst_result.errors.iter().find(|_| true).map(|e| e.to_string()).unwrap_or_default(),
+                    message: format!("{:?}", error),
                 });
             }
         }
@@ -198,8 +236,8 @@ impl Verifier {
     }
 
     /// Verify a single instruction
-    fn verify_instruction(&mut self, inst: &Instruction) -> VerificationResult {
-        let mut result = VerificationResult::default();
+    fn verify_instruction(&mut self, inst: &Instruction) -> InstructionVerification {
+        let mut result = InstructionVerification::default();
 
         // Check for various violations
         match &inst.op {
@@ -212,7 +250,7 @@ impl Verifier {
                     }
                 }
             }
-            crate::tumc_compiler::ir::Operation::Index(arr, idx) => {
+            crate::tumc_compiler::ir::Operation::LoadElementPtr(arr, idx) => {
                 if self.config.check_bounds {
                     // Simplified: would check if idx is within bounds
                     if false {
@@ -243,7 +281,7 @@ impl Verifier {
         for function in &module.functions {
             for block in &function.body {
                 for (i, inst) in block.instructions.iter().enumerate() {
-                    if let crate::tumc_compiler::ir::Operation::Alloc(_, _) = &inst.op {
+                    if let crate::tumc_compiler::ir::Operation::Alloca(_, _) = &inst.op {
                         // Check if allocation is paired with deallocation
                         // Simplified check
                     }

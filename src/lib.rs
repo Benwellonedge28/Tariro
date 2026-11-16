@@ -475,7 +475,7 @@ impl TariroAGI {
             description: format!("Compile: {} -> {}", source, target),
             context: std::collections::HashMap::new(),
         };
-        match self.unified_orchestrator.process_intent(intent) {
+        match self.unified_orchestrator.process_unified_intent(intent) {
             Ok(result) => Ok(result.output),
             Err(e) => Err(e),
         }
@@ -492,7 +492,7 @@ impl TariroAGI {
     }
 
     /// Get detailed unified system status
-    pub fn get_unified_status(&self) -> crate::unified::UnifiedStatus {
+    pub fn get_unified_status(&self) -> crate::unified::SystemStatus {
         self.unified_orchestrator.get_status()
     }
 

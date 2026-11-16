@@ -452,6 +452,14 @@ pub struct Instruction {
 }
 
 impl Instruction {
+    /// The SSA value this instruction defines.
+    ///
+    /// Values are numbered in the order their definitions appear, so the
+    /// instruction identifier doubles as the identifier of its result.
+    pub fn result_value(&self) -> ValueId {
+        ValueId(self.id.0)
+    }
+
     pub fn new(op: Operation, result_type: IrType) -> Self {
         Self {
             id: InstId(0), // Set by basic block

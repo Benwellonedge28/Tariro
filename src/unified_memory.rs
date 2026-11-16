@@ -307,7 +307,7 @@ pub struct MemoryLink {
     pub strength: f64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum MemoryType {
     Working,
     Episodic,
@@ -315,7 +315,7 @@ pub enum MemoryType {
     Procedural,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum LinkType {
     Association,
     Sequence,
@@ -725,13 +725,15 @@ impl EpisodicMemory {
 
     pub fn add_episode(&mut self, episode: Episode) {
         let episode_id = episode.id.clone();
-        self.episodes.push(episode);
+        let start_time = episode.start_time;
 
         // Index by time
         self.timeline_index
-            .entry(episode.start_time)
+            .entry(start_time)
             .or_insert_with(Vec::new)
             .push(episode_id.clone());
+
+        self.episodes.push(episode);
     }
 }
 

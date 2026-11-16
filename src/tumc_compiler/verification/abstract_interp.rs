@@ -1,10 +1,10 @@
 // Abstract Interpretation for Static Analysis
 
-use crate::tumc_compiler::ir::{Instruction, IrType, Operation, BinOp};
+use crate::tumc_compiler::ir::{Instruction, IrType, Operation, BinOp, ValueId};
 use std::collections::{HashMap, HashSet};
 
 /// Abstract domain type
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum AbstractDomainType {
     /// Interval domain for numeric values
     Interval(Interval),
@@ -22,7 +22,7 @@ pub enum AbstractDomainType {
     Bottom,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Interval {
     pub lower: i64,
     pub upper: i64,
@@ -176,7 +176,7 @@ impl Sign {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct PointerInfo {
     pub may_be_null: bool,
     pub may_alias: Vec<String>,
@@ -205,7 +205,7 @@ impl PointerInfo {
 }
 
 /// Abstract value
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct AbstractValue {
     pub domain_type: AbstractDomainType,
 }
@@ -293,9 +293,10 @@ impl AbstractValue {
 }
 
 /// Abstract domain state
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct AbstractDomain {
-    pub variables: HashMap<String, AbstractValue>,
+    /// The abstract value of every SSA value known to the interpreter.
+    pub variables: HashMap<ValueId, AbstractValue>,
     pub memory: HashMap<String, AbstractValue>,
 }
 
@@ -314,12 +315,12 @@ impl AbstractDomain {
         }
     }
 
-    pub fn get(&self, name: &str) -> AbstractValue {
-        self.variables.get(name).cloned().unwrap_or(AbstractValue::top())
+    pub fn get(&self, value: ValueId) -> AbstractValue {
+        self.variables.get(&value).cloned().unwrap_or(AbstractValue::top())
     }
 
-    pub fn set(&mut self, name: String, value: AbstractValue) {
-        self.variables.insert(name, value);
+    pub fn set(&mut self, value: ValueId, abstract_value: AbstractValue) {
+        self.variables.insert(value, abstract_value);
     }
 
     pub fn join(&self, other: &AbstractDomain) -> AbstractDomain {
@@ -409,31 +410,31 @@ impl AbstractInterpreter {
 
         match &inst.op {
             Operation::Binary(op, lhs, rhs) => {
-                let left_val = state.get(lhs);
-                let right_val = state.get(rhs);
+                let left_val = state.get(*lhs);
+                let right_val = state.get(*rhs);
                 let result = self.compute_binary_op(op, &left_val, &right_val);
-                new_state.set(inst.result_name.clone().unwrap_or_default(), result);
+                new_state.set(inst.result_value(), result);
             }
             Operation::Const(val, ty) => {
                 let result = match &**val {
                     crate::tumc_compiler::ir::Const::Int(i) => AbstractValue::constant(*i),
                     _ => AbstractValue::top(),
                 };
-                new_state.set(inst.result_name.clone().unwrap_or_default(), result);
+                new_state.set(inst.result_value(), result);
             }
             Operation::Load(_, ptr, ty, offset) => {
-                let ptr_val = state.get(ptr);
+                let ptr_val = state.get(*ptr);
                 // Simplified: return top for loads
-                new_state.set(inst.result_name.clone().unwrap_or_default(), AbstractValue::top());
+                new_state.set(inst.result_value(), AbstractValue::top());
             }
-            Operation::Store(val, ptr, _) => {
-                let val_val = state.get(val);
-                new_state.set(ptr.clone(), val_val);
+            Operation::Store(_, val, ptr, _) => {
+                let val_val = state.get(*val);
+                new_state.set(*ptr, val_val);
             }
             Operation::Alloca(ty, size) => {
                 // Allocation returns non-null pointer
                 new_state.set(
-                    inst.result_name.clone().unwrap_or_default(),
+                    inst.result_value(),
                     AbstractValue {
                         domain_type: AbstractDomainType::Pointer(PointerInfo::non_null()),
                     },
@@ -465,7 +466,7 @@ impl AbstractInterpreter {
     }
 
     /// Check if a condition is always true
-    pub fn is_always_true(&self, cond: &str, state: &AbstractDomain) -> bool {
+    pub fn is_always_true(&self, cond: ValueId, state: &AbstractDomain) -> bool {
         // Simplified: check if condition variable is constant > 0
         let val = state.get(cond);
         match &val.domain_type {
@@ -475,7 +476,7 @@ impl AbstractInterpreter {
     }
 
     /// Check if a condition is always false
-    pub fn is_always_false(&self, cond: &str, state: &AbstractDomain) -> bool {
+    pub fn is_always_false(&self, cond: ValueId, state: &AbstractDomain) -> bool {
         let val = state.get(cond);
         match &val.domain_type {
             AbstractDomainType::Interval(i) => i.upper < 0 || i.is_bottom(),
