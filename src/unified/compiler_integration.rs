@@ -2,9 +2,10 @@
 //!
 //! Integrates the TUMC compiler with the unified AGI system.
 
-use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation, IrType};
-use crate::tumc_compiler::optimizer::Optimizer;
-use crate::tumc_compiler::optimization::OptLevel;
+use crate::tumc_compiler::ir::{
+    Module, Function, BasicBlock, BasicBlockId, Instruction, Operation, IrType, Terminator,
+};
+use crate::tumc_compiler::optimization::{OptLevel, OptimizationManager};
 use crate::tumc_compiler::agi_integration::AgiInsight;
 use crate::unified::orchestrator::CompilationResult;
 use serde::{Deserialize, Serialize};
@@ -12,7 +13,7 @@ use std::collections::HashMap;
 
 /// Compiler integration layer
 pub struct CompilerIntegration {
-    optimizer: Optimizer,
+    optimizer: OptimizationManager,
     module_cache: HashMap<String, Module>,
     compilation_count: u64,
 }
@@ -21,7 +22,7 @@ impl CompilerIntegration {
     /// Create a new compiler integration
     pub fn new() -> Self {
         Self {
-            optimizer: Optimizer::new(OptLevel::O3),
+            optimizer: OptimizationManager::new(OptLevel::O3),
             module_cache: HashMap::new(),
             compilation_count: 0,
         }
@@ -52,7 +53,7 @@ impl CompilerIntegration {
         }
 
         // Optimize
-        self.optimizer.optimize_module(&mut module);
+        self.optimizer.run(&mut module);
 
         // Generate target code
         let output = self.generate_code(&module, target);
@@ -67,8 +68,8 @@ impl CompilerIntegration {
 
     /// Optimize a module
     pub fn optimize_module(&mut self, module: &mut Module, level: OptLevel) {
-        self.optimizer = Optimizer::new(level);
-        self.optimizer.optimize_module(module);
+        self.optimizer = OptimizationManager::new(level);
+        self.optimizer.run(module);
     }
 
     /// Parse source to IR module
@@ -77,8 +78,9 @@ impl CompilerIntegration {
         let mut module = Module {
             name: "main".to_string(),
             functions: Vec::new(),
-            globals: HashMap::new(),
+            globals: Vec::new(),
             metadata: HashMap::new(),
+            ..Default::default()
         };
 
         // Extract functions from source
@@ -88,22 +90,23 @@ impl CompilerIntegration {
                 let mut func = Function {
                     name: "func_0".to_string(),
                     params: Vec::new(),
-                    return_type: IrType::Int64,
+                    ret_type: IrType::Int64,
                     body: Vec::new(),
-                    attributes: HashMap::new(),
+                    ..Default::default()
                 };
 
                 let mut block = BasicBlock {
-                    name: "entry".to_string(),
+                    id: BasicBlockId(0),
+                    name: Some("entry".to_string()),
                     instructions: Vec::new(),
-                    terminator: None,
+                    terminator: Terminator::Unreachable,
                 };
 
                 block.instructions.push(Instruction {
                     op: Operation::Const(Box::new(crate::tumc_compiler::ir::Const::Int(0)), IrType::Int64),
                     result_type: IrType::Int64,
                     result_name: Some("result".to_string()),
-                    metadata: HashMap::new(),
+                    ..Default::default()
                 });
 
                 func.body.push(block);
@@ -116,18 +119,19 @@ impl CompilerIntegration {
             module.functions.push(Function {
                 name: "main".to_string(),
                 params: Vec::new(),
-                return_type: IrType::Int64,
+                ret_type: IrType::Int64,
                 body: vec![BasicBlock {
-                    name: "entry".to_string(),
+                    id: BasicBlockId(0),
+                    name: Some("entry".to_string()),
                     instructions: vec![Instruction {
                         op: Operation::Const(Box::new(crate::tumc_compiler::ir::Const::Int(0)), IrType::Int64),
                         result_type: IrType::Int64,
                         result_name: Some("main_result".to_string()),
-                        metadata: HashMap::new(),
+                        ..Default::default()
                     }],
-                    terminator: None,
+                    terminator: Terminator::Unreachable,
                 }],
-                attributes: HashMap::new(),
+                ..Default::default()
             });
         }
 
@@ -143,7 +147,7 @@ impl CompilerIntegration {
                     for block in &mut func.body {
                         // Mark for inlining
                         for inst in &mut block.instructions {
-                            inst.metadata.insert("inline_candidate".to_string(), "true".to_string());
+                            inst.comments.push("inline_candidate".to_string());
                         }
                     }
                 }
@@ -153,7 +157,7 @@ impl CompilerIntegration {
                 for func in &mut module.functions {
                     for block in &mut func.body {
                         for inst in &mut block.instructions {
-                            inst.metadata.insert("vectorize_candidate".to_string(), "true".to_string());
+                            inst.comments.push("vectorize_candidate".to_string());
                         }
                     }
                 }

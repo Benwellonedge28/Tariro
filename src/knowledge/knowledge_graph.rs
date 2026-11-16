@@ -14,7 +14,7 @@ use std::cmp::Ordering;
 // ============================================================================
 
 /// Unique identifier for entities
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct EntityId(pub String);
 
 impl EntityId {
@@ -30,8 +30,14 @@ impl std::fmt::Display for EntityId {
 }
 
 /// Unique identifier for relations
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct RelationId(pub String);
+
+impl std::fmt::Display for RelationId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
 
 impl RelationId {
     pub fn new(id: impl Into<String>) -> Self {
@@ -40,7 +46,7 @@ impl RelationId {
 }
 
 /// Type of entity
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 pub enum EntityType {
     Concrete,
     Abstract,
@@ -53,7 +59,7 @@ pub enum EntityType {
 }
 
 /// An entity in the knowledge graph
-#[derive(Debug, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Entity {
     pub id: EntityId,
     pub name: String,
@@ -89,7 +95,7 @@ impl Entity {
 }
 
 /// Attribute of an entity
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Attribute(pub String);
 
 impl Attribute {
@@ -99,7 +105,7 @@ impl Attribute {
 }
 
 /// Value types for attributes
-#[derive(Debug, Clone, PartialEq)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq)]
 pub enum Value {
     String(String),
     Integer(i64),
@@ -142,7 +148,7 @@ impl Value {
 }
 
 /// A property of an entity
-#[derive(Debug, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Property {
     pub name: String,
     pub value: Value,
@@ -164,7 +170,7 @@ impl Property {
 // ============================================================================
 
 /// A predicate represents a type of relation
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Predicate {
     // Semantic relations
     IsA,
@@ -245,7 +251,7 @@ impl Predicate {
 }
 
 /// A relation between entities
-#[derive(Debug, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Relation {
     pub id: RelationId,
     pub subject: EntityId,
@@ -286,7 +292,7 @@ impl Relation {
 }
 
 /// A fact is the basic unit of knowledge
-#[derive(Debug, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Fact {
     pub subject: Entity,
     pub predicate: Predicate,
@@ -311,6 +317,24 @@ impl Fact {
     pub fn is_causal(&self) -> bool {
         self.predicate.is_causal()
     }
+
+    /// Set the confidence of the fact
+    pub fn with_confidence(mut self, confidence: Probability) -> Self {
+        self.confidence = confidence;
+        self
+    }
+
+    /// Set the evidence source of the fact
+    pub fn with_source(mut self, source: Evidence) -> Self {
+        self.source = source;
+        self
+    }
+
+    /// Attach a temporal interval to the fact
+    pub fn with_temporal(mut self, temporal: Option<TimeInterval>) -> Self {
+        self.temporal = temporal;
+        self
+    }
 }
 
 // ============================================================================
@@ -318,7 +342,7 @@ impl Fact {
 // ============================================================================
 
 /// Probability with confidence intervals
-#[derive(Debug, Clone, Copy)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Copy)]
 pub struct Probability {
     pub value: f64,
     pub lower: f64,
@@ -383,7 +407,7 @@ impl PartialEq for Probability {
 }
 
 /// Source of knowledge
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq)]
 pub enum Evidence {
     /// Direct observation
     Observation,
@@ -400,7 +424,7 @@ pub enum Evidence {
 }
 
 /// Time interval for temporal knowledge
-#[derive(Debug, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct TimeInterval {
     pub start: Option<DateTime<Utc>>,
     pub end: Option<DateTime<Utc>>,
@@ -451,12 +475,13 @@ impl TimeInterval {
 // ============================================================================
 
 /// The Tariro Knowledge Graph - explicit, first-class knowledge representation
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct KnowledgeGraph {
     /// Core entity storage
-    entities: HashMap<EntityId, Entity>,
+    pub entities: HashMap<EntityId, Entity>,
 
     /// Core relation storage
-    relations: HashMap<RelationId, Relation>,
+    pub relations: HashMap<RelationId, Relation>,
 
     /// Index: subject -> relations
     subject_index: HashMap<EntityId, Vec<RelationId>>,
@@ -478,7 +503,7 @@ pub struct KnowledgeGraph {
 }
 
 /// Statistics about the knowledge graph
-#[derive(Debug, Clone, Default)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone, Default)]
 pub struct KnowledgeStats {
     pub total_entities: usize,
     pub total_relations: usize,
@@ -487,6 +512,16 @@ pub struct KnowledgeStats {
 }
 
 impl KnowledgeGraph {
+    /// Read the relation index
+    pub fn relations(&self) -> &HashMap<RelationId, Relation> {
+        &self.relations
+    }
+
+    /// Read the entity index
+    pub fn entities(&self) -> &HashMap<EntityId, Entity> {
+        &self.entities
+    }
+
     /// Create a new empty knowledge graph
     pub fn new() -> Self {
         let mut kg = KnowledgeGraph {

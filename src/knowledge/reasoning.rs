@@ -4,6 +4,7 @@
 //! Uses formal logic, inference rules, and deduction.
 
 use std::sync::RwLock;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use crate::prelude::*;
 use crate::knowledge::knowledge_graph::{
     KnowledgeGraph, EntityId, Entity, Relation, Fact, Predicate, Probability,
@@ -60,7 +61,7 @@ impl InferenceRule {
     }
 
     /// Check if rule can be applied
-    pub fn matches(&self, facts: &[&Fact]) -> Option<Substitution> {
+    pub fn matches(&self, facts: &[Fact]) -> Option<Substitution> {
         if self.antecedents.len() != facts.len() {
             return None;
         }
@@ -152,18 +153,11 @@ impl EntityTypeConstraint {
     }
 }
 
-/// Type for pattern matching
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum EntityType {
-    Concrete,
-    Abstract,
-    Event,
-    Process,
-    Property,
-    Concept,
-    Agent,
-    Custom(String),
-}
+/// Type for pattern matching.
+///
+/// The knowledge graph owns the entity type; it is re-exported here so that
+/// reasoning code and graph code always agree on the same type.
+pub use crate::knowledge::knowledge_graph::EntityType;
 
 /// Variable value for substitution
 #[derive(Debug, Clone)]
@@ -280,11 +274,21 @@ pub struct ReasoningEngine {
 }
 
 /// Reasoning statistics
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Default)]
 pub struct ReasoningStats {
-    pub deductions_made: usize,
-    pub rules_fired: usize,
-    pub queries_executed: usize,
+    pub deductions_made: AtomicUsize,
+    pub rules_fired: AtomicUsize,
+    pub queries_executed: AtomicUsize,
+}
+
+impl Clone for ReasoningStats {
+    fn clone(&self) -> Self {
+        ReasoningStats {
+            deductions_made: AtomicUsize::new(self.deductions_made.load(Ordering::Relaxed)),
+            rules_fired: AtomicUsize::new(self.rules_fired.load(Ordering::Relaxed)),
+            queries_executed: AtomicUsize::new(self.queries_executed.load(Ordering::Relaxed)),
+        }
+    }
 }
 
 impl ReasoningEngine {
@@ -376,7 +380,7 @@ impl ReasoningEngine {
         });
         result.execution_time_ms = start.elapsed().as_millis() as u64;
 
-        self.stats.queries_executed += 1;
+        self.stats.queries_executed.fetch_add(1, Ordering::Relaxed);
 
         result
     }
@@ -389,7 +393,7 @@ impl ReasoningEngine {
         // For each rule, check if antecedents are satisfied
         for rule in &self.rules {
             // Get all facts that might match
-            let matching_facts = self.find_matching_facts(&kb, &rule.antecedents);
+            let matching_facts = Self::find_matching_facts(&kb, &rule.antecedents);
 
             // Try all combinations
             for facts in matching_facts {
@@ -405,20 +409,20 @@ impl ReasoningEngine {
                                 self.build_proof(rule, &facts, &subst),
                                 rule.confidence,
                             ));
-                            self.stats.deductions_made += 1;
+                            self.stats.deductions_made.fetch_add(1, Ordering::Relaxed);
                         }
                     }
                 }
             }
 
-            self.stats.rules_fired += 1;
+            self.stats.rules_fired.fetch_add(1, Ordering::Relaxed);
         }
 
         new_deductions
     }
 
     /// Apply a rule to produce a new fact
-    fn apply_rule(&self, rule: &InferenceRule, facts: &[&Fact], subst: &Substitution) -> Option<Fact> {
+    fn apply_rule(&self, rule: &InferenceRule, facts: &[Fact], subst: &Substitution) -> Option<Fact> {
         match rule.name.as_str() {
             "transitivity_is_a" => {
                 // A is-a B, B is-a C => A is-a C
@@ -445,12 +449,12 @@ impl ReasoningEngine {
     }
 
     /// Find facts matching patterns
-    fn find_matching_facts(&self, kb: &KnowledgeGraph, patterns: &[Pattern]) -> Vec<Vec<&Fact>> {
+    fn find_matching_facts(kb: &KnowledgeGraph, patterns: &[Pattern]) -> Vec<Vec<Fact>> {
         // Simplified: get all relations and filter
-        let all_relations: Vec<&Relation> = kb.relations.values().collect();
+        let all_relations: Vec<&Relation> = kb.relations().values().collect();
 
         // For each pattern, find matching facts
-        let mut matching: Vec<Vec<&Fact>> = patterns.iter().map(|_| Vec::new()).collect();
+        let mut matching: Vec<Vec<Fact>> = patterns.iter().map(|_| Vec::new()).collect();
 
         for rel in all_relations {
             // Create a dummy fact for matching
@@ -464,18 +468,23 @@ impl ReasoningEngine {
 
             for (i, pattern) in patterns.iter().enumerate() {
                 if let Some(_) = pattern.unify_fact(&fact, &Substitution::new()) {
-                    matching[i].push(&fact);
+                    matching[i].push(fact.clone());
                 }
             }
         }
 
         // Return all combinations
         let mut result = Vec::new();
-        self.combine_matches(&matching, &mut result, 0, Vec::new());
+        Self::combine_matches(&matching, &mut result, 0, Vec::new());
         result
     }
 
-    fn combine_matches(&self, matching: &[Vec<&Fact>], results: &mut Vec<Vec<&Fact>>, idx: usize, current: Vec<&Fact>) {
+    fn combine_matches(
+        matching: &[Vec<Fact>],
+        results: &mut Vec<Vec<Fact>>,
+        idx: usize,
+        current: Vec<Fact>,
+    ) {
         if idx == matching.len() {
             results.push(current);
             return;
@@ -483,13 +492,13 @@ impl ReasoningEngine {
 
         for fact in &matching[idx] {
             let mut next = current.clone();
-            next.push(*fact);
-            self.combine_matches(matching, results, idx + 1, next);
+            next.push(fact.clone());
+            Self::combine_matches(matching, results, idx + 1, next);
         }
     }
 
     /// Build proof for a deduction
-    fn build_proof(&self, rule: &InferenceRule, facts: &[&Fact], subst: &Substitution) -> Proof {
+    fn build_proof(&self, rule: &InferenceRule, facts: &[Fact], subst: &Substitution) -> Proof {
         let mut steps = Vec::new();
 
         for (i, fact) in facts.iter().enumerate() {
@@ -543,7 +552,7 @@ impl ReasoningEngine {
         // Simplified: look for matching facts in KB
         let kb = self.kb.read().unwrap();
 
-        for rel in kb.relations.values() {
+        for rel in kb.relations().values() {
             let subject = kb.get_entity(&rel.subject).cloned().unwrap_or_else(|| {
                 Entity::new(&rel.subject.0, EntityType::Concept)
             });
@@ -628,7 +637,7 @@ impl AbductionEngine {
         let mut explanations = Vec::new();
 
         // Find facts that could explain the observation
-        for relation in kb.relations.values() {
+        for relation in kb.relations().values() {
             // Check if this relation is relevant to the observation
             let relevance = self.calculate_relevance(relation, observation);
 

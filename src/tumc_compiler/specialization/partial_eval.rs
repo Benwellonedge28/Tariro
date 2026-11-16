@@ -1,6 +1,6 @@
 // Partial Evaluation for Program Specialization
 
-use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation, IrType, Terminator, Const};
+use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation, IrType, Terminator, Const, ValueId};
 use crate::tumc_compiler::ast::Literal;
 use std::collections::HashMap;
 
@@ -38,8 +38,8 @@ pub enum DynamicValue {
 
 /// Partial evaluator
 pub struct PartialEvaluator {
-    static_env: HashMap<String, StaticValue>,
-    dynamic_env: HashMap<String, DynamicValue>,
+    static_env: HashMap<ValueId, StaticValue>,
+    dynamic_env: HashMap<ValueId, DynamicValue>,
     inline_threshold: usize,
     max_depth: usize,
 }
@@ -63,11 +63,12 @@ impl PartialEvaluator {
         let mut specialized = function.clone();
         specialized.name = format!("{}_spec", function.name);
 
-        // Set up static environment with arguments
+        // Set up static environment with arguments. The parameters occupy the
+        // leading value identifiers of the function body.
         let mut env = self.static_env.clone();
-        for (i, (name, _)) in function.params.iter().enumerate() {
+        for (i, (_name, _)) in function.params.iter().enumerate() {
             if let Some(val) = static_args.get(i) {
-                env.insert(name.clone(), val.clone());
+                env.insert(ValueId(i), val.clone());
             }
         }
 
@@ -86,7 +87,7 @@ impl PartialEvaluator {
     fn specialize_block(
         &self,
         block: &BasicBlock,
-        env: &HashMap<String, StaticValue>,
+        env: &HashMap<ValueId, StaticValue>,
         depth: usize,
     ) -> BasicBlock {
         let mut specialized_block = block.clone();
@@ -105,7 +106,7 @@ impl PartialEvaluator {
     fn specialize_instruction(
         &self,
         inst: &Instruction,
-        env: &HashMap<String, StaticValue>,
+        env: &HashMap<ValueId, StaticValue>,
         depth: usize,
     ) -> Vec<Instruction> {
         // Check if all operands are static
@@ -123,7 +124,7 @@ impl PartialEvaluator {
     }
 
     /// Check if all operands are static
-    fn operands_are_static(&self, inst: &Instruction, env: &HashMap<String, StaticValue>) -> bool {
+    fn operands_are_static(&self, inst: &Instruction, env: &HashMap<ValueId, StaticValue>) -> bool {
         match &inst.op {
             Operation::Binary(_, lhs, rhs) => {
                 env.contains_key(lhs) && env.contains_key(rhs)
@@ -139,7 +140,7 @@ impl PartialEvaluator {
     fn try_static_eval(
         &self,
         inst: &Instruction,
-        env: &HashMap<String, StaticValue>,
+        env: &HashMap<ValueId, StaticValue>,
     ) -> Option<StaticValue> {
         match &inst.op {
             Operation::Binary(op, lhs, rhs) => {
@@ -150,7 +151,7 @@ impl PartialEvaluator {
                     crate::tumc_compiler::ir::BinOp::Sub => lval - rval,
                     crate::tumc_compiler::ir::BinOp::Mul => lval * rval,
                     crate::tumc_compiler::ir::BinOp::Div => lval / rval,
-                    crate::tumc_compiler::ir::BinOp::Mod => lval % rval,
+                    crate::tumc_compiler::ir::BinOp::Rem => lval % rval,
                     crate::tumc_compiler::ir::BinOp::And => lval & rval,
                     crate::tumc_compiler::ir::BinOp::Or => lval | rval,
                     crate::tumc_compiler::ir::BinOp::Xor => lval ^ rval,
@@ -161,8 +162,8 @@ impl PartialEvaluator {
             Operation::Unary(op, operand) => {
                 let val = env.get(operand)?.as_int()?;
                 let result = match op {
-                    crate::tumc_compiler::ir::UnaryOp::Neg => -val,
-                    crate::tumc_compiler::ir::UnaryOp::Not => !val,
+                    crate::tumc_compiler::ir::UnOp::Neg => -val,
+                    crate::tumc_compiler::ir::UnOp::Not => !val,
                     _ => return None,
                 };
                 Some(StaticValue::Int(result))
@@ -190,12 +191,12 @@ impl PartialEvaluator {
     /// Specialize a conditional branch
     pub fn specialize_branch(
         &self,
-        condition: &str,
+        condition: ValueId,
         then_block: &BasicBlock,
         else_block: &BasicBlock,
-        env: &HashMap<String, StaticValue>,
+        env: &HashMap<ValueId, StaticValue>,
     ) -> Vec<BasicBlock> {
-        if let Some(val) = env.get(condition) {
+        if let Some(val) = env.get(&condition) {
             if let Some(true) = val.as_bool() {
                 // Only then block is reachable
                 return vec![then_block.clone()];
@@ -214,7 +215,7 @@ impl PartialEvaluator {
         &self,
         header: &BasicBlock,
         body: &[BasicBlock],
-        env: &HashMap<String, StaticValue>,
+        env: &HashMap<ValueId, StaticValue>,
     ) -> Vec<BasicBlock> {
         // Check if loop bound is static
         let mut new_env = env.clone();
@@ -235,17 +236,17 @@ impl PartialEvaluator {
         &self,
         callee: &Function,
         caller: &Function,
-        args: &[String],
+        args: &[ValueId],
         call_site: usize,
     ) -> Function {
         let mut inlined = caller.clone();
         let mut inlined_body = Vec::new();
 
         // Substitute arguments
-        let mut subst = HashMap::new();
-        for (i, (param, _)) in callee.params.iter().enumerate() {
+        let mut subst: HashMap<ValueId, ValueId> = HashMap::new();
+        for (i, (_param, _)) in callee.params.iter().enumerate() {
             if let Some(arg) = args.get(i) {
-                subst.insert(param.clone(), arg.clone());
+                subst.insert(ValueId(i), *arg);
             }
         }
 
@@ -269,12 +270,12 @@ impl PartialEvaluator {
     fn substitute_operation(
         &self,
         op: &Operation,
-        subst: &HashMap<String, String>,
+        subst: &HashMap<ValueId, ValueId>,
     ) -> Operation {
         match op {
             Operation::Binary(binop, lhs, rhs) => {
-                let new_lhs = subst.get(lhs).cloned().unwrap_or_else(|| lhs.clone());
-                let new_rhs = subst.get(rhs).cloned().unwrap_or_else(|| rhs.clone());
+                let new_lhs = subst.get(lhs).copied().unwrap_or(*lhs);
+                let new_rhs = subst.get(rhs).copied().unwrap_or(*rhs);
                 Operation::Binary(*binop, new_lhs, new_rhs)
             }
             _ => op.clone(),
@@ -336,7 +337,7 @@ impl ResidualGenerator {
     pub fn generate_residual(
         &self,
         original: &Function,
-        static_values: &HashMap<String, StaticValue>,
+        static_values: &HashMap<ValueId, StaticValue>,
     ) -> Function {
         let mut residual = original.clone();
         residual.name = format!("{}_residual", original.name);
@@ -362,7 +363,7 @@ impl ResidualGenerator {
     fn is_static_computable(
         &self,
         inst: &Instruction,
-        static_values: &HashMap<String, StaticValue>,
+        static_values: &HashMap<ValueId, StaticValue>,
     ) -> bool {
         match &inst.op {
             Operation::Const(_, _) => true,
