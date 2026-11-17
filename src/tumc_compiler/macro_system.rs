@@ -17,6 +17,8 @@ pub struct MacroExpansionEnv {
     scope_level: usize,
     /// Variable bindings in current scope
     bindings: HashMap<String, Token>,
+    /// The scope every binding was made in
+    binding_scopes: HashMap<String, usize>,
     /// Macro definitions
     macros: HashMap<String, MacroDefinition>,
     /// Hygiene context
@@ -28,6 +30,7 @@ impl MacroExpansionEnv {
         MacroExpansionEnv {
             scope_level: 0,
             bindings: HashMap::new(),
+            binding_scopes: HashMap::new(),
             macros: HashMap::new(),
             hygiene: HygieneContext::new(),
         }
@@ -42,12 +45,17 @@ impl MacroExpansionEnv {
     pub fn exit_scope(&mut self) {
         self.scope_level -= 1;
         // Clean up bindings from exited scope
-        self.bindings.retain(|_, binding| binding.scope >= self.scope_level);
+        let scope_level = self.scope_level;
+        let scopes = &self.binding_scopes;
+        self.bindings
+            .retain(|name, _| scopes.get(name).copied().unwrap_or(scope_level) >= scope_level);
+        self.binding_scopes
+            .retain(|name, _| self.bindings.contains_key(name));
     }
 
     /// Add a macro definition
     pub fn add_macro(&mut self, name: String, macro_: MacroDefinition) {
-        self.macrosacros.insert(name, macro_);
+        self.macros.insert(name, macro_);
     }
 
     /// Look up a macro
@@ -352,8 +360,8 @@ impl HygieneContext {
 
         Token {
             kind: TokenKind::Identifier(unique),
-            span: Span::default(),
-            scope,
+            location: SourceLocation { line: 0, column: 0, offset: 0 },
+            literal: None,
         }
     }
 }
@@ -936,7 +944,7 @@ impl TemplateToken {
                     kind: StmtKind::Expr(Expr {
                         kind: ExprKind::Identifier(match tk {
                             TokenKind::Identifier(s) => s.clone(),
-                            TokenKind::String(Literal::String(s)) => s.clone(),
+                            TokenKind::String(s) => s.clone(),
                             _ => "()".to_string(),
                         }),
                         span: Span::default(),

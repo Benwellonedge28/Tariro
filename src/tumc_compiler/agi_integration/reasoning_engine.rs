@@ -174,17 +174,26 @@ impl CognitiveReasoningEngine {
                     confidence: 0.75,
                     description: format!(
                         "Deductive: Large block '{}' in function '{}' should be analyzed for unrolling",
-                        block.name, function.name
+                        block.name.as_deref().unwrap_or("<unnamed>"),
+                        function.name
                     ),
                     suggestion: crate::tumc_compiler::agi_integration::AgiSuggestion {
                         transform_type: crate::tumc_compiler::agi_integration::TransformType::Unroll,
-                        target_location: format!("{}.{}", function.name, block.name),
+                        target_location: format!(
+                            "{}.{}",
+                            function.name,
+                            block.name.as_deref().unwrap_or("<unnamed>")
+                        ),
                         expected_improvement: 0.1,
                         risk_level: crate::tumc_compiler::agi_integration::RiskLevel::Medium,
                     },
                     reasoning_chain: vec![
                         "Rule: Blocks with >20 instructions may benefit from unrolling".to_string(),
-                        format!("Block '{}' has {} instructions", block.name, block.instructions.len()),
+                        format!(
+                            "Block '{}' has {} instructions",
+                            block.name.as_deref().unwrap_or("<unnamed>"),
+                            block.instructions.len()
+                        ),
                         "Conclusion: Apply loop unrolling analysis".to_string(),
                     ],
                 });
@@ -217,12 +226,8 @@ impl CognitiveReasoningEngine {
                         }
                     }
                     crate::tumc_compiler::ir::Operation::Load(_, _, _, _) |
-                    crate::tumc_compiler::ir::Operation::Store(_, _, _) => {
+                    crate::tumc_compiler::ir::Operation::Store(_, _, _, _) => {
                         memory_count += 1;
-                    }
-                    crate::tumc_compiler::ir::Operation::Branch(_, _, _) |
-                    crate::tumc_compiler::ir::Operation::Jump(_) => {
-                        branch_count += 1;
                     }
                     _ => {}
                 }
@@ -288,9 +293,17 @@ impl CognitiveReasoningEngine {
         let mut insights = Vec::new();
 
         // Observation: Function has many branches
-        let branch_count: usize = function.body.iter()
-            .flat_map(|b| &b.instructions)
-            .filter(|i| matches!(i.op, crate::tumc_compiler::ir::Operation::Branch(_, _, _)))
+        let branch_count: usize = function
+            .body
+            .iter()
+            .filter(|b| {
+                matches!(
+                    b.terminator,
+                    crate::tumc_compiler::ir::Terminator::BrCond(..)
+                        | crate::tumc_compiler::ir::Terminator::Switch(..)
+                        | crate::tumc_compiler::ir::Terminator::IndirectBr(..)
+                )
+            })
             .count();
 
         if branch_count > 5 {

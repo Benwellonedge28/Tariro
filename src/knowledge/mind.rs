@@ -4,6 +4,7 @@
 //! common sense, and formal verification into a unified cognitive system.
 
 use std::collections::HashMap;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::RwLock;
 use crate::prelude::*;
 use crate::knowledge::knowledge_graph::{
@@ -48,14 +49,27 @@ pub struct TariroMind {
 }
 
 /// Mind statistics
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Default)]
 pub struct MindStats {
-    pub queries_processed: usize,
-    pub facts_learned: usize,
-    pub deductions_made: usize,
-    pub causal_inferences: usize,
-    pub contradictions_found: usize,
-    pub verifications_passed: usize,
+    pub queries_processed: AtomicUsize,
+    pub facts_learned: AtomicUsize,
+    pub deductions_made: AtomicUsize,
+    pub causal_inferences: AtomicUsize,
+    pub contradictions_found: AtomicUsize,
+    pub verifications_passed: AtomicUsize,
+}
+
+impl Clone for MindStats {
+    fn clone(&self) -> Self {
+        MindStats {
+            queries_processed: AtomicUsize::new(self.queries_processed.load(Ordering::Relaxed)),
+            facts_learned: AtomicUsize::new(self.facts_learned.load(Ordering::Relaxed)),
+            deductions_made: AtomicUsize::new(self.deductions_made.load(Ordering::Relaxed)),
+            causal_inferences: AtomicUsize::new(self.causal_inferences.load(Ordering::Relaxed)),
+            contradictions_found: AtomicUsize::new(self.contradictions_found.load(Ordering::Relaxed)),
+            verifications_passed: AtomicUsize::new(self.verifications_passed.load(Ordering::Relaxed)),
+        }
+    }
 }
 
 /// Mind configuration
@@ -133,7 +147,7 @@ impl TariroMind {
 
     /// Learn a new fact (with optional verification)
     pub fn learn_fact(&mut self, fact: Fact) -> Result<LearningResult, LearningError> {
-        self.stats.facts_learned += 1;
+        self.stats.facts_learned.fetch_add(1, Ordering::Relaxed);
 
         // Verify if enabled
         if self.config.auto_verify {
@@ -175,7 +189,7 @@ impl TariroMind {
         // Apply deductions
         for deduction in &deductions {
             let _ = kb.assert_fact(deduction.fact.clone());
-            self.stats.deductions_made += 1;
+            self.stats.deductions_made.fetch_add(1, Ordering::Relaxed);
         }
 
         Ok(LearningResult::new(fact, deductions, deductions.len()))
@@ -200,7 +214,7 @@ impl TariroMind {
 
     /// Query the mind
     pub fn query(&self, query: Query) -> QueryResult {
-        self.stats.queries_processed += 1;
+        self.stats.queries_processed.fetch_add(1, Ordering::Relaxed);
         self.reasoning.deduce(&query)
     }
 
@@ -262,7 +276,7 @@ impl TariroMind {
 
     /// Analyze causation
     pub fn analyze_causation(&mut self, effect: &EntityId) -> CausalAnalysisResult {
-        self.stats.causal_inferences += 1;
+        self.stats.causal_inferences.fetch_add(1, Ordering::Relaxed);
 
         // Build SCM from knowledge graph
         self.causal.build_scm();
@@ -298,8 +312,8 @@ impl TariroMind {
         self.causal.counterfactual(
             entity,
             variable,
-            &crate::knowledge::causal::Value::String("actual".to_string()),
-            &crate::knowledge::causal::Value::String(counterfactual.to_string()),
+            &crate::knowledge::causal::Value::Categorical("actual".to_string()),
+            &crate::knowledge::causal::Value::Categorical(counterfactual.to_string()),
         )
     }
 
@@ -327,7 +341,7 @@ impl TariroMind {
         let result = self.verifier.verify_invariants(&kb);
 
         if result.is_valid() {
-            self.stats.verifications_passed += 1;
+            self.stats.verifications_passed.fetch_add(1, Ordering::Relaxed);
         }
 
         result
@@ -356,11 +370,11 @@ impl TariroMind {
 
             if inverse_exists && relation.predicate == relation.predicate {
                 contradictions.push(Contradiction {
-                    fact1: relation.clone().into(),
+                    fact1: kb.fact_for_relation(relation),
                     fact2: None,
                     contradiction_type: ContradictionType::MutualExclusion,
                 });
-                self.stats.contradictions_found += 1;
+                self.stats.contradictions_found.fetch_add(1, Ordering::Relaxed);
             }
         }
 
@@ -541,12 +555,8 @@ pub enum ContradictionType {
     InconsistentProperty,
 }
 
-/// Hypothetical for commonsense reasoning
-#[derive(Debug, Clone)]
-pub struct Hypothetical {
-    pub original_situation: Situation,
-    pub changes: Vec<crate::knowledge::commonsense::HypotheticalChange>,
-}
+/// The hypothetical for commonsense reasoning has a single owner.
+pub use crate::knowledge::commonsense::Hypothetical;
 
 // ============================================================================
 // Tests

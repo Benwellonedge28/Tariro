@@ -133,7 +133,7 @@ impl CritiqueEngine {
         issues: &mut Vec<CritiqueIssue>,
         suggestions: &mut Vec<RefinementSuggestion>,
     ) -> f64 {
-        let mut score = 0.7; // Base score
+        let mut score: f64 = 0.7; // Base score
 
         // Check for template-like patterns
         if content.text.contains("[placeholder]") || content.text.contains("[Content placeholder]") {
@@ -165,7 +165,7 @@ impl CritiqueEngine {
         issues: &mut Vec<CritiqueIssue>,
         suggestions: &mut Vec<RefinementSuggestion>,
     ) -> f64 {
-        let mut score = 0.8;
+        let mut score: f64 = 0.8;
 
         // Check for abrupt transitions
         if content.text.contains("## Structure") && content.text.contains("### Resolution") {
@@ -189,7 +189,7 @@ impl CritiqueEngine {
         issues: &mut Vec<CritiqueIssue>,
         suggestions: &mut Vec<RefinementSuggestion>,
     ) -> f64 {
-        let mut score = 0.75;
+        let mut score: f64 = 0.75;
 
         // Check text length (engagement often correlates with sufficient length)
         if content.text.len() < 500 {
@@ -217,7 +217,7 @@ impl CritiqueEngine {
         issues: &mut Vec<CritiqueIssue>,
         suggestions: &mut Vec<RefinementSuggestion>,
     ) -> f64 {
-        let mut score = 0.7;
+        let mut score: f64 = 0.7;
 
         // Check theme exploration
         if concept.themes.len() > 2 {
@@ -245,7 +245,7 @@ impl CritiqueEngine {
         issues: &mut Vec<CritiqueIssue>,
         suggestions: &mut Vec<RefinementSuggestion>,
     ) -> f64 {
-        let mut score = 0.85;
+        let mut score: f64 = 0.85;
 
         // Simple heuristic: check for very long sentences
         let long_sentences = content.text.lines()
@@ -277,7 +277,7 @@ impl CritiqueEngine {
         issues: &mut Vec<CritiqueIssue>,
         suggestions: &mut Vec<RefinementSuggestion>,
     ) -> f64 {
-        let mut score = 0.8;
+        let mut score: f64 = 0.8;
 
         // Check genre consistency
         if !concept.style_hints.is_empty() {
@@ -293,7 +293,7 @@ impl CritiqueEngine {
         issues: &mut Vec<CritiqueIssue>,
         suggestions: &mut Vec<RefinementSuggestion>,
     ) -> f64 {
-        let mut score = 0.7;
+        let mut score: f64 = 0.7;
 
         // This is subjective - simplified heuristic
         let emotional_words = ["love", "fear", "hope", "joy", "anger", "sorrow", "wonder", "passion"];

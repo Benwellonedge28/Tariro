@@ -26,7 +26,7 @@ pub enum DocFormat {
 }
 
 /// Documentation item
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct DocItem {
     /// Item kind
     pub kind: DocKind,
@@ -43,7 +43,7 @@ pub struct DocItem {
 }
 
 /// Documentation kind
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub enum DocKind {
     Module,
     Function,
@@ -57,7 +57,7 @@ pub enum DocKind {
 }
 
 /// Documentation attribute
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct DocAttribute {
     pub name: String,
     pub value: Option<String>,
@@ -457,7 +457,7 @@ impl AstToDocConverter {
                         kind: DocKind::Function,
                         name: f.name.clone(),
                         doc: f.doc.clone().unwrap_or_default(),
-                        location: Some(f.location),
+                        location: Some(f.span.start),
                         children: Vec::new(),
                         attributes: Vec::new(),
                     });
@@ -470,7 +470,7 @@ impl AstToDocConverter {
                             kind: DocKind::Type,
                             name: f.name.clone(),
                             doc: f.doc.clone().unwrap_or_default(),
-                            location: Some(f.location),
+                            location: Some(f.span.start),
                             children: Vec::new(),
                             attributes: Vec::new(),
                         })
@@ -480,7 +480,7 @@ impl AstToDocConverter {
                         kind: DocKind::Struct,
                         name: s.name.clone(),
                         doc: s.doc.clone().unwrap_or_default(),
-                        location: Some(s.location),
+                        location: Some(s.span.start),
                         children,
                         attributes: Vec::new(),
                     });
@@ -493,7 +493,7 @@ impl AstToDocConverter {
                             kind: DocKind::Type,
                             name: v.name.clone(),
                             doc: v.doc.clone().unwrap_or_default(),
-                            location: Some(v.location),
+                            location: Some(v.span.start),
                             children: Vec::new(),
                             attributes: Vec::new(),
                         })
@@ -503,7 +503,7 @@ impl AstToDocConverter {
                         kind: DocKind::Enum,
                         name: e.name.clone(),
                         doc: e.doc.clone().unwrap_or_default(),
-                        location: Some(e.location),
+                        location: Some(e.span.start),
                         children,
                         attributes: Vec::new(),
                     });

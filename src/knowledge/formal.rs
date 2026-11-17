@@ -275,7 +275,7 @@ impl Invariant {
             InvariantCondition::NeverNegative(attribute) => {
                 // Check attribute never negative
                 kb.entities.values().all(|e| {
-                    e.attributes.get(&Attribute(attribute.clone()))
+                    e.attributes.get(&crate::knowledge::knowledge_graph::Attribute(attribute.clone()))
                         .map(|v| v.as_f64().map(|f| f >= 0.0).unwrap_or(true))
                         .unwrap_or(true)
                 })
@@ -581,8 +581,8 @@ impl FormalVerifier {
     /// Type check an entity
     pub fn type_check(&self, entity: &Entity) -> Result<(), TypeError> {
         // Check entity type exists
-        if !self.type_system.types.contains_key(&entity.entity_type.name) {
-            return Err(TypeError::UnknownType(entity.entity_type.name.clone()));
+        if !self.type_system.types.contains_key(entity.entity_type.name()) {
+            return Err(TypeError::UnknownType(entity.entity_type.name().to_string()));
         }
 
         // Check attributes have valid types

@@ -39,6 +39,22 @@ impl std::fmt::Display for RelationId {
     }
 }
 
+impl EntityType {
+    /// The name of the entity type.
+    pub fn name(&self) -> &'static str {
+        match self {
+            EntityType::Concrete => "Concrete",
+            EntityType::Abstract => "Abstract",
+            EntityType::Event => "Event",
+            EntityType::Process => "Process",
+            EntityType::Property => "Property",
+            EntityType::Concept => "Concept",
+            EntityType::Agent => "Agent",
+            EntityType::Custom(name) => name.as_str(),
+        }
+    }
+}
+
 impl RelationId {
     pub fn new(id: impl Into<String>) -> Self {
         RelationId(id.into())
@@ -517,6 +533,25 @@ impl KnowledgeGraph {
         &self.relations
     }
 
+    /// Build the fact that describes a relation.
+    pub fn fact_for_relation(&self, relation: &Relation) -> Fact {
+        let subject = self.get_entity(&relation.subject).cloned().unwrap_or_else(|| {
+            Entity::new(&relation.subject.0, EntityType::Concept)
+        });
+        let object = self.get_entity(&relation.object).cloned().unwrap_or_else(|| {
+            Entity::new(&relation.object.0, EntityType::Concept)
+        });
+
+        Fact {
+            subject,
+            predicate: relation.predicate.clone(),
+            object,
+            confidence: relation.confidence,
+            source: relation.source.clone(),
+            temporal: relation.temporal.clone(),
+        }
+    }
+
     /// Read the entity index
     pub fn entities(&self) -> &HashMap<EntityId, Entity> {
         &self.entities
@@ -579,16 +614,18 @@ impl KnowledgeGraph {
 
         // Insert relation
         let relation_id = relation.id.clone();
+        let subject_id = fact.subject.id;
+        let object_id = fact.object.id;
         self.relations.insert(relation_id.clone(), relation);
 
         // Update indexes
-        self.subject_index.entry(fact.subject.id).or_default().push(relation_id.clone());
+        self.subject_index.entry(subject_id).or_default().push(relation_id.clone());
         self.predicate_index.entry(predicate.clone()).or_default().push(relation_id.clone());
-        self.object_index.entry(fact.object.id).or_default().push(relation_id.clone());
+        self.object_index.entry(object_id).or_default().push(relation_id.clone());
 
         // Track causal edges
         if predicate.is_causal() {
-            self.causal_edges.push((fact.subject.id, fact.object.id));
+            self.causal_edges.push((subject_id, object_id));
         }
 
         // Update stats
@@ -622,16 +659,19 @@ impl KnowledgeGraph {
         }
 
         let id = relation.id.clone();
+        let subject = relation.subject;
+        let object = relation.object;
+        let is_causal = relation.predicate.is_causal();
         self.relations.insert(id.clone(), relation);
 
         // Update indexes
-        self.subject_index.entry(relation.subject).or_default().push(id.clone());
+        self.subject_index.entry(subject).or_default().push(id.clone());
         self.predicate_index.entry(relation.predicate.clone()).or_default().push(id.clone());
-        self.object_index.entry(relation.object).or_default().push(id);
+        self.object_index.entry(object).or_default().push(id);
 
         // Track causal edges
-        if relation.predicate.is_causal() {
-            self.causal_edges.push((relation.subject, relation.object));
+        if is_causal {
+            self.causal_edges.push((subject, object));
         }
 
         self.stats.total_relations += 1;

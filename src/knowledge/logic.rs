@@ -13,7 +13,7 @@ use std::sync::Arc;
 // ============================================================================
 
 /// A term in logic programming
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Term {
     /// Constant term
     Constant(Constant),
@@ -46,6 +46,29 @@ impl Term {
     }
 
     /// Get all variables in this term
+    /// Unify this literal with another one.
+    pub fn unifies_with(&self, other: &Literal, subst: &mut Substitution) -> Option<Substitution> {
+        if self.predicate != other.predicate {
+            return None;
+        }
+
+        if self.terms.len() != other.terms.len() {
+            return None;
+        }
+
+        let mut sub = subst.clone();
+
+        for (t1, t2) in self.terms.iter().zip(other.terms.iter()) {
+            if let Some(s) = unify_terms(t1, t2, &mut sub) {
+                sub = s;
+            } else {
+                return None;
+            }
+        }
+
+        Some(sub)
+    }
+
     pub fn variables(&self) -> HashSet<&str> {
         match self {
             Term::Constant(_) => HashSet::new(),
@@ -65,7 +88,7 @@ impl Term {
         match self {
             Term::Constant(_) => self.clone(),
             Term::Variable(name) => {
-                subst.get(name).map(|v| v.to_term()).unwrap_or(self.clone())
+                subst.get(name).cloned().unwrap_or_else(|| self.clone())
             }
             Term::Compound { functor, args } => {
                 Term::Compound {
@@ -167,7 +190,7 @@ impl Clause {
             // Rule
             let parts: Vec<&str> = s.split(":-").collect();
             if parts.len() != 2 {
-                return Err(ParseError::InvalidSyntax(s.to_string()));
+                return Err(ParseError(s.to_string()));
             }
 
             let head = Self::parse_literal(parts[0].trim())?;
