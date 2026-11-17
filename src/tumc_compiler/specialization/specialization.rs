@@ -96,13 +96,14 @@ impl Supercompiler {
 
             // Analyze state
             let analysis = self.analyze_state(&state_with_history);
-            driving_result.states.push(analysis);
 
             // Generate residual code if needed
             if self.should_residualize(&analysis) {
                 let residual = self.generate_residual_code(&state_with_history);
                 driving_result.residual_instructions.extend(residual);
             }
+
+            driving_result.states.push(analysis);
 
             // Propagate to next states
             let next_states = self.propagate(&state_with_history);
@@ -164,7 +165,10 @@ impl Supercompiler {
                                 name: format!("call_{}", callee.0),
                                 ..Default::default()
                             },
-                            arguments: args.iter().map(|a| (a.clone(), IrType::Int64)).collect(),
+                            arguments: args
+                                .iter()
+                                .map(|a| (a.to_string(), IrType::Int64))
+                                .collect(),
                             history: state.history.clone(),
                         });
                     }
@@ -183,12 +187,12 @@ impl Supercompiler {
         // Generate function call
         let mut args = Vec::new();
         for (name, _) in &state.arguments {
-            args.push(name.clone());
+            args.push(crate::tumc_compiler::ir::ValueId(name.len()));
         }
 
         instructions.push(Instruction {
             op: Operation::Call(
-                crate::tumc_compiler::ir::FunctionId(state.function.name.len() as u32),
+                crate::tumc_compiler::ir::FunctionId(state.function.name.len()),
                 args,
             ),
             result_type: IrType::Int64,
@@ -481,7 +485,7 @@ impl Devirtualizer {
     pub fn get_target(&self, call_site: &str) -> Option<&str> {
         let targets = self.call_targets.get(call_site)?;
         if targets.len() == 1 {
-            targets.iter().next()
+            targets.iter().next().map(|target| target.as_str())
         } else {
             None
         }

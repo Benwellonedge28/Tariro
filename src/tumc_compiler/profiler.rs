@@ -463,7 +463,7 @@ impl BenchmarkRunner {
 
         for (label, _sel) in [(a.as_ref(), "A"), (b.as_ref(), "B")] {
             self.benchmark(format!("{} [{}]", name, label), || {
-                f(label, || {});
+                f(label, &|| {});
             });
         }
     }
@@ -540,7 +540,7 @@ pub mod benchmarks {
     /// Benchmark lexer
     pub fn bench_lexer(source: &str, iterations: usize) -> BenchmarkResult {
         let mut runner = BenchmarkRunner::new();
-        runner.warmup(5).iterations(iterations);
+        runner = runner.warmup(5).iterations(iterations);
         runner.benchmark("lexer", || {
             let _ = lexer::Lexer::new(source).tokenize();
         });
@@ -551,7 +551,7 @@ pub mod benchmarks {
     pub fn bench_parser(source: &str, iterations: usize) -> BenchmarkResult {
         let tokens = lexer::Lexer::new(source).tokenize().unwrap();
         let mut runner = BenchmarkRunner::new();
-        runner.warmup(5).iterations(iterations);
+        runner = runner.warmup(5).iterations(iterations);
         runner.benchmark("parser", move || {
             let _ = parser::Parser::new(tokens.clone()).parse();
         });
@@ -561,7 +561,7 @@ pub mod benchmarks {
     /// Benchmark full compilation
     pub fn bench_compilation(source: &str, iterations: usize) -> BenchmarkResult {
         let mut runner = BenchmarkRunner::new();
-        runner.warmup(3).iterations(iterations);
+        runner = runner.warmup(3).iterations(iterations);
         runner.benchmark("full_compilation", || {
             let mut compiler = crate::tumc_compiler::Compiler::new(
                 crate::tumc_compiler::SourceLanguage::TumcIR,
@@ -574,6 +574,11 @@ pub mod benchmarks {
 
     /// Run all benchmarks
     pub fn run_all_benchmarks() -> Vec<BenchmarkResult> {
+        let large_source = format!(
+            "fn add(a: i32, b: i32) -> i32 {{ a + b }}\n{}",
+            (0..100).map(|i| format!("fn f{}() -> i32 {{ {} }}\n", i, i)).collect::<String>()
+        );
+
         let sources = vec![
             ("small", "fn test() -> i32 { 42 }"),
             ("medium", r#"
@@ -582,10 +587,7 @@ pub mod benchmarks {
                 }
                 fn main() -> i32 { fib(10) }
             "#),
-            ("large", &format!(
-                "fn add(a: i32, b: i32) -> i32 {{ a + b }}\n{}",
-                (0..100).map(|i| format!("fn f{}() -> i32 {{ {} }}\n", i, i)).collect::<String>()
-            )),
+            ("large", large_source.as_str()),
         ];
 
         let mut results = Vec::new();
@@ -602,12 +604,13 @@ pub mod benchmarks {
 }
 
 /// Flamegraph data collector
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct FlamegraphCollector {
     /// Stack frames
     frames: Vec<FlameFrame>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct FlameFrame {
     pub name: String,
     pub start_ns: u64,

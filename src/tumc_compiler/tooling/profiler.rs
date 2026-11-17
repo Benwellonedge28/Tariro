@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::time::{Duration, Instant};
 
 /// Performance counter type
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub enum CounterType {
     Instructions,
     Cycles,
@@ -258,7 +258,7 @@ impl Profiler {
             profile.allocations.push(Allocation {
                 size,
                 address,
-                stack_trace,
+                stack_trace: stack_trace.clone(),
                 timestamp,
                 freed: false,
             });

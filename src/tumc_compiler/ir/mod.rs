@@ -415,6 +415,18 @@ pub struct BasicBlock {
     pub terminator: Terminator,
 }
 
+impl Default for BasicBlock {
+    /// An empty block that cannot be reached.
+    fn default() -> Self {
+        BasicBlock {
+            id: BasicBlockId(0),
+            name: None,
+            instructions: Vec::new(),
+            terminator: Terminator::Unreachable,
+        }
+    }
+}
+
 impl BasicBlock {
     pub fn new(id: BasicBlockId) -> Self {
         Self {

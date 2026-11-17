@@ -90,7 +90,7 @@ impl RepresentedRelation {
 }
 
 /// Attribute of an object
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RepresentedAttribute {
     pub object: String,
     pub name: String,
@@ -386,7 +386,7 @@ impl ConceptualChangeEngine {
         theory.evidence.push(evidence);
         revisions.push(RevisionType::EvidenceAddition);
 
-        self.stats.revisions_completed += revisions.len();
+        self.stats.revisions_completed += revisions.len() as u64;
 
         RevisionOutcome {
             theory_id: theory.id.clone(),
@@ -502,7 +502,7 @@ impl QLearningAgent {
             .insert(action.id.clone(), new_q);
     }
 
-    pub fn choose_action(&self, state: &RLState, actions: &[RLAction]) -> &RLAction {
+    pub fn choose_action<'a>(&self, state: &RLState, actions: &'a [RLAction]) -> &'a RLAction {
         use std::time::{SystemTime, UNIX_EPOCH};
         let random: f64 = SystemTime::now()
             .duration_since(UNIX_EPOCH)
