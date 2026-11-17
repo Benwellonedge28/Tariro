@@ -26,7 +26,7 @@ pub enum PointsToLevel {
 impl Default for PointsToAnalysis {
     fn default() -> Self {
         Self {
-            level: PointsToLevel::FlowInsensitive,
+            level: PointsToLevel::Insensitive,
         }
     }
 }
@@ -55,12 +55,12 @@ impl PointsToAnalysis {
                             // Points to heap or stack allocation
                             let loc = PointsToLocation::Stack(LocationId(result.locations.len()));
                             result.locations.push(Location::new(ty.clone()));
-                            result.points_to.insert(PointsToKey::Value(inst.id), vec![loc]);
+                            result.points_to.insert(PointsToKey::Value(inst.result_value()), vec![loc]);
                         }
                         Operation::Load(_, ptr, _, _) => {
                             // Copy points-to set
                             if let Some(src_pts) = result.points_to.get(&PointsToKey::Value(*ptr)) {
-                                result.points_to.insert(PointsToKey::Value(inst.id), src_pts.clone());
+                                result.points_to.insert(PointsToKey::Value(inst.result_value()), src_pts.clone());
                             }
                         }
                         Operation::Store(_, ptr, val, _) => {
@@ -92,16 +92,16 @@ impl PointsToAnalysis {
                         Operation::Alloca(ty, _) => {
                             let loc = PointsToLocation::Heap(LocationId(result.locations.len()));
                             result.locations.push(Location::new(ty.clone()));
-                            constraints.push(Constraint::Allocate(inst.id, loc));
+                            constraints.push(Constraint::Allocate(inst.result_value(), loc));
                         }
                         Operation::Load(_, ptr, _, _) => {
-                            constraints.push(Constraint::Copy(inst.id, *ptr));
+                            constraints.push(Constraint::Copy(inst.result_value(), *ptr));
                         }
                         Operation::Store(_, ptr, val, _) => {
                             constraints.push(Constraint::Store(*ptr, *val));
                         }
                         Operation::Bitcast(val, _) => {
-                            constraints.push(Constraint::Copy(inst.id, *val));
+                            constraints.push(Constraint::Copy(inst.result_value(), *val));
                         }
                         _ => {}
                     }
@@ -133,7 +133,7 @@ impl PointsToAnalysis {
                     if let Operation::Alloca(ty, _) = &inst.op {
                         let loc = PointsToLocation::Stack(LocationId(result.locations.len()));
                         result.locations.push(Location::new(ty.clone()));
-                        result.points_to.insert(PointsToKey::Value(inst.id), vec![loc]);
+                        result.points_to.insert(PointsToKey::Value(inst.result_value()), vec![loc]);
                     }
                 }
             }
@@ -152,7 +152,8 @@ impl PointsToAnalysis {
                 }
             }
             Constraint::Copy(dst, src) => {
-                if let Some(src_pts) = result.points_to.get(&PointsToKey::Value(*src)) {
+                let source_points = result.points_to.get(&PointsToKey::Value(*src)).cloned();
+                if let Some(src_pts) = source_points {
                     let pts = result.points_to.entry(PointsToKey::Value(*dst)).or_default();
                     let initial_len = pts.len();
                     pts.extend(src_pts.iter().cloned());

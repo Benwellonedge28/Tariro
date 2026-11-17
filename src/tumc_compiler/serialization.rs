@@ -286,44 +286,45 @@ impl Deserializer for BinaryDeserializer {
         T::deserialize(self)
     }
 
-    fn deserialize_bool(self) -> Result<bool, SerialError> {
+    fn deserialize_bool(mut self) -> Result<bool, SerialError> {
         let bytes = self.read_bytes(1)?;
         Ok(bytes[0] != 0)
     }
 
-    fn deserialize_i32(self) -> Result<i32, SerialError> {
+    fn deserialize_i32(mut self) -> Result<i32, SerialError> {
         let bytes = self.read_bytes(4)?;
         Ok(i32::from_le_bytes(bytes.try_into().unwrap()))
     }
 
-    fn deserialize_i64(self) -> Result<i64, SerialError> {
+    fn deserialize_i64(mut self) -> Result<i64, SerialError> {
         let bytes = self.read_bytes(8)?;
         Ok(i64::from_le_bytes(bytes.try_into().unwrap()))
     }
 
-    fn deserialize_u32(self) -> Result<u32, SerialError> {
+    fn deserialize_u32(mut self) -> Result<u32, SerialError> {
         let bytes = self.read_bytes(4)?;
         Ok(u32::from_le_bytes(bytes.try_into().unwrap()))
     }
 
-    fn deserialize_u64(self) -> Result<u64, SerialError> {
+    fn deserialize_u64(mut self) -> Result<u64, SerialError> {
         let bytes = self.read_bytes(8)?;
         Ok(u64::from_le_bytes(bytes.try_into().unwrap()))
     }
 
-    fn deserialize_f32(self) -> Result<f32, SerialError> {
+    fn deserialize_f32(mut self) -> Result<f32, SerialError> {
         let bytes = self.read_bytes(4)?;
         Ok(f32::from_le_bytes(bytes.try_into().unwrap()))
     }
 
-    fn deserialize_f64(self) -> Result<f64, SerialError> {
+    fn deserialize_f64(mut self) -> Result<f64, SerialError> {
         let bytes = self.read_bytes(8)?;
         Ok(f64::from_le_bytes(bytes.try_into().unwrap()))
     }
 
-    fn deserialize_str(self) -> Result<String, SerialError> {
-        let len = self.deserialize_u32()?;
-        let bytes = self.read_bytes(len as usize)?;
+    fn deserialize_str(mut self) -> Result<String, SerialError> {
+        let length_bytes = self.read_bytes(4)?;
+        let len = u32::from_le_bytes(length_bytes.try_into().unwrap()) as usize;
+        let bytes = self.read_bytes(len)?;
         String::from_utf8(bytes.to_vec()).map_err(|_| SerialError::InvalidType)
     }
 

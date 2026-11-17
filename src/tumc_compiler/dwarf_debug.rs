@@ -315,6 +315,14 @@ pub enum DwarfAttr {
     Event,
     /// Deleted
     Deleted,
+    /// The compilation directory
+    CompDir,
+    /// The lowest program counter address
+    LowPc,
+    /// The highest program counter address
+    HighPc,
+    /// The value of a constant
+    ConstValue,
 }
 
 impl DwarfAttr {
@@ -795,7 +803,8 @@ impl DwarfGenerator {
 
     /// Start compilation unit
     pub fn start_compile_unit(&mut self, name: &str, lang: u64) -> &mut Die {
-        self.strings.insert(name.to_string(), self.add_string(name));
+        let name_offset = self.add_string(name);
+        self.strings.insert(name.to_string(), name_offset);
 
         let mut die = Die::new(DwarfTag::CompileUnit, 1);
         die.attributes.insert(DwarfAttr::Language, DieAttribute::Data(lang));

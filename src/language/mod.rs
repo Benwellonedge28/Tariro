@@ -6,6 +6,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, Ordering};
 use tokio::sync::RwLock;
 use uuid::Uuid;
 use chrono::Utc;
@@ -190,13 +191,13 @@ impl SemanticParser {
 
         // Common adjectives
         let adjectives = vec![
-            ("big", "big"),
-            ("small", "small"),
-            ("red", "color", "red"),
-            ("happy", "happy"),
-            ("sad", "sad"),
-            ("tall", "tall"),
-            ("short", "short"),
+            ("big", "big", None),
+            ("small", "small", None),
+            ("red", "color", Some("red")),
+            ("happy", "happy", None),
+            ("sad", "sad", None),
+            ("tall", "tall", None),
+            ("short", "short", None),
         ];
 
         // Common determiners
@@ -221,11 +222,8 @@ impl SemanticParser {
             lexicon.add_noun(surface, lemma, hypernym);
         }
 
-        for adj_data in adjectives {
-            match adj_data {
-                (surf, lemma) => lexicon.add_adjective(surf, lemma, None),
-                (surf, lemma, sense) => lexicon.add_adjective(surf, lemma, Some(sense)),
-            }
+        for (surf, lemma, sense) in adjectives {
+            lexicon.add_adjective(surf, lemma, sense);
         }
 
         for (surface, quant) in determiners {
@@ -239,7 +237,7 @@ impl SemanticParser {
 
     /// Parse text into semantic representation
     pub async fn parse(&mut self, text: &str) -> ParseResult {
-        self.stats.utterances_parsed += 1;
+        self.stats.utterances_parsed.fetch_add(1, Ordering::Relaxed);
 
         let tokens = self.tokenize(text);
         let pos_tags = self.pos_tag(&tokens);
@@ -475,6 +473,27 @@ pub enum PartOfSpeech {
     Other,
 }
 
+impl std::fmt::Display for PartOfSpeech {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let name = match self {
+            PartOfSpeech::Determiner => "determiner",
+            PartOfSpeech::Pronoun => "pronoun",
+            PartOfSpeech::CommonNoun => "common-noun",
+            PartOfSpeech::ProperNoun => "proper-noun",
+            PartOfSpeech::Verb => "verb",
+            PartOfSpeech::Adjective => "adjective",
+            PartOfSpeech::Adverb => "adverb",
+            PartOfSpeech::Preposition => "preposition",
+            PartOfSpeech::Conjunction => "conjunction",
+            PartOfSpeech::Number => "number",
+            PartOfSpeech::QuestionWord => "question-word",
+            PartOfSpeech::Punctuation => "punctuation",
+            PartOfSpeech::Other => "other",
+        };
+        write!(f, "{}", name)
+    }
+}
+
 /// Constituent structure
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Constituent {
@@ -678,7 +697,7 @@ pub struct Intent {
     pub slots: HashMap<String, SlotValue>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum IntentType {
     Greeting,
     Farewell,
@@ -1049,21 +1068,32 @@ impl RealizationGrammar {
 // Language Statistics
 // ============================================================================
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Default)]
 pub struct LanguageStats {
-    pub utterances_parsed: u64,
-    pub meanings_extracted: u64,
-    pub dialogues_managed: u64,
-    pub texts_generated: u64,
+    pub utterances_parsed: AtomicU64,
+    pub meanings_extracted: AtomicU64,
+    pub dialogues_managed: AtomicU64,
+    pub texts_generated: AtomicU64,
+}
+
+impl Clone for LanguageStats {
+    fn clone(&self) -> Self {
+        LanguageStats {
+            utterances_parsed: AtomicU64::new(self.utterances_parsed.load(Ordering::Relaxed)),
+            meanings_extracted: AtomicU64::new(self.meanings_extracted.load(Ordering::Relaxed)),
+            dialogues_managed: AtomicU64::new(self.dialogues_managed.load(Ordering::Relaxed)),
+            texts_generated: AtomicU64::new(self.texts_generated.load(Ordering::Relaxed)),
+        }
+    }
 }
 
 impl LanguageStats {
-    pub fn increment_parsed(&mut self) {
-        self.utterances_parsed += 1;
+    pub fn increment_parsed(&self) {
+        self.utterances_parsed.fetch_add(1, Ordering::Relaxed);
     }
 
-    pub fn increment_generated(&mut self) {
-        self.texts_generated += 1;
+    pub fn increment_generated(&self) {
+        self.texts_generated.fetch_add(1, Ordering::Relaxed);
     }
 }
 
@@ -1104,7 +1134,7 @@ impl LanguageSystem {
 
     /// Full dialogue turn
     pub async fn dialogue_turn(&mut self, utterance: &str) -> DialogueResponse {
-        self.stats.dialogues_managed += 1;
+        self.stats.dialogues_managed.fetch_add(1, Ordering::Relaxed);
         self.dialogue_manager.process(utterance, &mut self.parser).await
     }
 

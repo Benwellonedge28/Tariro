@@ -286,7 +286,7 @@ impl SimdVectorizer {
     }
 
     /// Analyze a loop for vectorization potential
-    pub fn analyze_loop(&self, loop_: &Stmt) -> SimdAnalysis {
+    pub fn analyze_loop(&mut self, loop_: &Stmt) -> SimdAnalysis {
         self.stats.loops_analyzed += 1;
 
         // Check for simple for loops
@@ -379,8 +379,8 @@ impl SimdVectorizer {
 
         // Simplified: check for scalar dependencies
         for stmt in body {
-            if let StmtKind::Assignment(Expr { kind: ExprKind::Identifier(name), .. }, rhs) = &stmt.kind {
-                if let ExprKind::Identifier(_) = rhs.kind {
+            if let StmtKind::Assignment(lhs, rhs) = &stmt.kind {
+                if let (ExprKind::Identifier(name), ExprKind::Identifier(_)) = (&lhs.kind, &rhs.kind) {
                     deps.push(Dependency {
                         kind: DependencyKind::Scalar,
                         from: name.clone(),
@@ -399,13 +399,13 @@ impl SimdVectorizer {
     fn estimate_trip_count(&self, iterable: &Expr) -> Option<usize> {
         if let ExprKind::Range(start, end, _) = &iterable.kind {
             let start_val = if let ExprKind::Literal(Literal::Int(n)) = start.kind {
-                *n as usize
+                n as usize
             } else {
                 return None;
             };
 
             let end_val = if let ExprKind::Literal(Literal::Int(n)) = end.kind {
-                *n as usize
+                n as usize
             } else {
                 return None;
             };
@@ -470,7 +470,7 @@ impl SimdVectorizer {
     }
 
     /// Vectorize a loop
-    pub fn vectorize_loop(&self, loop_: &Stmt, analysis: &SimdAnalysis) -> Result<Stmt, VectorizeError> {
+    pub fn vectorize_loop(&mut self, loop_: &Stmt, analysis: &SimdAnalysis) -> Result<Stmt, VectorizeError> {
         if !analysis.can_vectorize {
             return Err(VectorizeError::CannotVectorize(
                 "Loop has dependencies that prevent vectorization".to_string(),
@@ -486,7 +486,7 @@ impl SimdVectorizer {
     }
 
     /// Create vectorized loop body
-    fn create_vectorized_loop(&self, loop_: &Stmt, analysis: &SimdAnalysis) -> Result<Stmt, VectorizeError> {
+    fn create_vectorized_loop(&mut self, loop_: &Stmt, analysis: &SimdAnalysis) -> Result<Stmt, VectorizeError> {
         if let StmtKind::For(var, iterable, body) = &loop_.kind {
             let width = analysis.recommended_width;
             let lane_type = analysis.recommended_lanes;
@@ -502,11 +502,7 @@ impl SimdVectorizer {
 
             // Return vectorized loop
             Ok(Stmt {
-                kind: StmtKind::For(
-                    var.clone(),
-                    Box::new(iterable.clone()),
-                    vectorized_body,
-                ),
+                kind: StmtKind::For(var.clone(), iterable.clone(), vectorized_body),
                 span: loop_.span.clone(),
             })
         } else {
@@ -515,7 +511,7 @@ impl SimdVectorizer {
     }
 
     /// Vectorize a single statement
-    fn vectorize_stmt(&self, stmt: &Stmt, width: VectorWidth, lane_type: LaneType) -> Result<Stmt, VectorizeError> {
+    fn vectorize_stmt(&mut self, stmt: &Stmt, width: VectorWidth, lane_type: LaneType) -> Result<Stmt, VectorizeError> {
         match &stmt.kind {
             StmtKind::Expr(expr) => {
                 Ok(Stmt {
@@ -537,7 +533,9 @@ impl SimdVectorizer {
                     kind: StmtKind::Let(
                         p.clone(),
                         t.clone(),
-                        v.as_ref().map(|e| Box::new(self.vectorize_expr(e, width, lane_type)?)),
+                        v.as_ref()
+                            .map(|e| self.vectorize_expr(e, width, lane_type))
+                            .transpose()?,
                         body.iter().map(|s| self.vectorize_stmt(s, width, lane_type)).collect::<Result<Vec<_>, _>>()?,
                     ),
                     span: stmt.span.clone(),
@@ -548,7 +546,7 @@ impl SimdVectorizer {
     }
 
     /// Vectorize an expression
-    fn vectorize_expr(&self, expr: &Expr, width: VectorWidth, lane_type: LaneType) -> Result<Expr, VectorizeError> {
+    fn vectorize_expr(&mut self, expr: &Expr, width: VectorWidth, lane_type: LaneType) -> Result<Expr, VectorizeError> {
         match &expr.kind {
             ExprKind::Binary { op, lhs, rhs } => {
                 let vlhs = self.vectorize_expr(lhs, width, lane_type)?;
@@ -562,7 +560,7 @@ impl SimdVectorizer {
                     BinOp::Div => SimdOp::Div(width, lane_type),
                     BinOp::And => SimdOp::And(width),
                     BinOp::Or => SimdOp::Or(width),
-                    BinOp::Xor => SimdOp::Xor(width),
+                    BinOp::BitXor => SimdOp::Xor(width),
                     _ => return Ok(expr.clone()),
                 };
 

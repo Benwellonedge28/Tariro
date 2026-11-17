@@ -714,7 +714,7 @@ impl FederatedProtocol {
             .duration_since(SystemTime::UNIX_EPOCH)
             .unwrap()
             .subsec_nanos();
-        (self.node_id as u64) << 32 | nanos as u64
+        (u64::from(self.node_id) << 32) | nanos as u64
     }
 
     /// Get federated statistics

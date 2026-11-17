@@ -779,9 +779,9 @@ impl GoParser {
                     let elem_type = Box::new(self.parse_type()?);
                     Ok(Type::Array(elem_type, None))
                 } else {
-                    let len = if let GoToken::Int(n) = self.current() {
+                    let len = if let GoToken::Int(n) = self.current().clone() {
                         self.advance();
-                        *n as usize
+                        n as usize
                     } else {
                         return Err(GoParseError::new("Expected array length", self.pos));
                     };
@@ -879,7 +879,7 @@ impl GoParser {
               !self.check(&GoToken::Type) && !self.check(&GoToken::Import) &&
               !self.check(&GoToken::Package) && !self.is_at_end() {
 
-            if let GoToken::Ident(name) = self.current() {
+            if let GoToken::Ident(name) = self.current().clone() {
                 self.advance();
 
                 let value = if self.check(&GoToken::Equal) {
@@ -986,19 +986,19 @@ impl GoParser {
     fn parse_import(&mut self) -> Result<Option<AstNode>, GoParseError> {
         self.advance(); // skip import
 
-        let path = if let GoToken::InterpretedString(s) = self.current() {
+        let path = if let GoToken::InterpretedString(s) = self.current().clone() {
             self.advance();
             s
-        } else if let GoToken::RawString(s) = self.current() {
+        } else if let GoToken::RawString(s) = self.current().clone() {
             self.advance();
             s
         } else if self.check(&GoToken::LeftParen) {
             self.advance();
             let mut paths = Vec::new();
             while !self.check(&GoToken::RightParen) && !self.is_at_end() {
-                if let GoToken::InterpretedString(s) = self.current() {
+                if let GoToken::InterpretedString(s) = self.current().clone() {
                     paths.push(s);
-                } else if let GoToken::RawString(s) = self.current() {
+                } else if let GoToken::RawString(s) = self.current().clone() {
                     paths.push(s);
                 }
                 self.advance();
@@ -1082,7 +1082,10 @@ impl GoParser {
         self.advance(); // skip if
 
         let init = if self.check(&GoToken::Const) || self.check(&GoToken::Var) {
-            Some(Box::new(self.parse_statement()?.unwrap_or_default()))
+            match self.parse_statement()? {
+                Some(stmt) => Some(Box::new(stmt)),
+                None => None,
+            }
         } else {
             None
         };
@@ -1339,11 +1342,16 @@ impl GoParser {
     }
 
     fn parse_expression(&mut self) -> Result<Expression, GoParseError> {
-        self.parse_expression_list()
+        self.parse_primary()
     }
 
-    fn parse_expression_list(&mut self) -> Result<Expression, GoParseError> {
-        self.parse_primary()
+    fn parse_expression_list(&mut self) -> Result<Vec<Expression>, GoParseError> {
+        let mut expressions = vec![self.parse_primary()?];
+        while self.check(&GoToken::Comma) {
+            self.advance();
+            expressions.push(self.parse_primary()?);
+        }
+        Ok(expressions)
     }
 
     fn parse_primary(&mut self) -> Result<Expression, GoParseError> {
@@ -1372,7 +1380,7 @@ impl GoParser {
                 }
                 GoToken::Dot => {
                     self.advance();
-                    if let GoToken::Ident(name) = self.current() {
+                    if let GoToken::Ident(name) = self.current().clone() {
                         self.advance();
                         expr = Expression::FieldAccess {
                             object: Box::new(expr.into()),

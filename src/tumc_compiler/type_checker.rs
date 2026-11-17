@@ -594,12 +594,12 @@ impl TypeChecker {
 
         // First pass: collect all type definitions
         for item in &program.items {
-            self.collect_type_def(item)?;
+            self.collect_type_def(item).map_err(|e| vec![e])?;
         }
 
         // Second pass: check all items
         for item in &program.items {
-            self.check_item(item)?;
+            self.check_item(item).map_err(|e| vec![e])?;
         }
 
         if self.errors.is_empty() {
@@ -724,9 +724,18 @@ impl TypeChecker {
     fn check_stmt(&mut self, stmt: &Stmt) -> Result<Type, TypeError> {
         match &stmt.kind {
             StmtKind::Expr(expr) => self.check_expr(expr),
+            StmtKind::Block(body) => {
+                for stmt in body {
+                    self.check_stmt(stmt)?;
+                }
+                Ok(Type::Unit)
+            }
 
             StmtKind::Let(pattern, ann_type, value, body) => {
-                let value_type = self.check_expr(value)?;
+                let value_type = match value {
+                    Some(expr) => self.check_expr(expr)?,
+                    None => Type::Unit,
+                };
                 let declared_type = match ann_type {
                     Some(t) => self.convert_ann_type(t),
                     None => value_type.clone(),
@@ -853,7 +862,7 @@ impl TypeChecker {
     /// Check an expression
     fn check_expr(&mut self, expr: &Expr) -> Result<Type, TypeError> {
         match &expr.kind {
-            ExprKind::Literal(lit) => self.check_literal(lit),
+            ExprKind::Literal(lit) => Ok(self.check_literal(lit)),
 
             ExprKind::Identifier(name) => {
                 self.env.get_binding(name).cloned()
@@ -976,10 +985,10 @@ impl TypeChecker {
                 self.env.unify(&Type::Int, &index_type)?;
 
                 match &self.env.apply(&base_type) {
-                    Type::Array(elem_type) => Ok((*elem_type).clone()),
+                    Type::Array(elem_type) => Ok((**elem_type).clone()),
                     Type::Dict(key_type, val_type) => {
                         self.env.unify(key_type, &index_type)?;
-                        Ok((*val_type).clone())
+                        Ok((**val_type).clone())
                     }
                     _ => Err(TypeError::TypeMismatch {
                         expected: Type::Array(Box::new(self.env.fresh_var())),
@@ -1140,6 +1149,7 @@ impl TypeChecker {
             Literal::RawString(_) => Type::String,
             Literal::ByteString(_) => Type::Array(Box::new(Type::Int)),
             Literal::Verbatim(_) => Type::String,
+            Literal::Null => Type::Optional(Box::new(Type::Unit)),
         }
     }
 
@@ -1262,7 +1272,7 @@ impl TypeChecker {
             }
             UnOp::Deref => {
                 match &self.env.apply(&operand_type) {
-                    Type::Ref(inner) | Type::MutRef(inner) => Ok((*inner).clone()),
+                    Type::Ref(inner) | Type::MutRef(inner) => Ok((**inner).clone()),
                     _ => Err(TypeError::TypeMismatch {
                         expected: Type::Ref(Box::new(self.env.fresh_var())),
                         found: operand_type,
@@ -1315,7 +1325,7 @@ impl TypeChecker {
                 // Check if method is a field
                 if let Some(field_type) = fields.iter().find(|(n, _)| n == method) {
                     if arguments.is_empty() {
-                        return Ok(field_type.clone());
+                        return Ok(field_type.1.clone());
                     }
                 }
 

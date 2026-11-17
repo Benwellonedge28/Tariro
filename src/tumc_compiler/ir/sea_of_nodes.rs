@@ -31,6 +31,12 @@ impl From<NodeId> for u64 {
     }
 }
 
+impl From<NodeId> for u64 {
+    fn from(id: NodeId) -> u64 {
+        id.0 as u64
+    }
+}
+
 impl NodeId {
     pub fn new(id: usize) -> Self {
         NodeId(id)
@@ -160,6 +166,7 @@ impl SeaOfNodes {
                 is_control: true,
                 is_pinned: true,
                 is_schedulable: false,
+                ..Default::default()
             },
         });
 
@@ -173,6 +180,7 @@ impl SeaOfNodes {
                 is_control: true,
                 is_pinned: true,
                 is_schedulable: false,
+                ..Default::default()
             },
         });
 
@@ -267,6 +275,7 @@ impl SeaOfNodes {
                 is_control: true,
                 is_pinned: true,
                 is_schedulable: true,
+                ..Default::default()
             },
         };
         let region_id = self.add_node(node);
@@ -327,6 +336,7 @@ impl SeaOfNodes {
             properties: NodeProperties {
                 is_memory: true,
                 is_schedulable: true,
+                ..Default::default()
             },
         };
         let load_id = self.add_node(node);
@@ -347,6 +357,7 @@ impl SeaOfNodes {
             properties: NodeProperties {
                 is_memory: true,
                 is_schedulable: true,
+                ..Default::default()
             },
         };
         let store_id = self.add_node(node);
@@ -386,6 +397,7 @@ impl SeaOfNodes {
             properties: NodeProperties {
                 is_control: true,
                 is_schedulable: true,
+                ..Default::default()
             },
         };
         let if_id = self.add_node(node);
@@ -415,6 +427,7 @@ impl SeaOfNodes {
                 is_control: true,
                 is_pinned: true,
                 is_schedulable: true,
+                ..Default::default()
             },
         };
         let ret_id = self.add_node(node);
@@ -554,7 +567,7 @@ impl SeaOfNodes {
 
     /// Compute dominators
     pub fn dominators(&self, root: NodeId) -> HashMap<NodeId, HashSet<NodeId>> {
-        let mut doms = HashMap::new();
+        let mut doms: HashMap<NodeId, HashSet<NodeId>> = HashMap::new();
         doms.insert(root, vec![root].into_iter().collect());
 
         let mut changed = true;
