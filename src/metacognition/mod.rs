@@ -196,7 +196,7 @@ impl SelfModelCalibrator {
         let mut total_diff = 0.0;
         for record in &self.performance_history {
             let predicted = if record.confidence > 0.5 { true } else { false };
-            let diff = if predicted == record.success { 0.0 } else { 1.0 };
+            let diff: f64 = if predicted == record.success { 0.0 } else { 1.0 };
             total_diff += diff.abs();
         }
 

@@ -70,10 +70,11 @@ pub struct AuthorshipResult {
 impl AuthorshipResult {
     /// Create a successful result
     pub fn success(work: CreativeWork, iterations: u32, time_ms: u64) -> Self {
+        let quality_score = work.quality_score;
         Self {
             success: true,
             work: Some(work),
-            quality_score: work.quality_score,
+            quality_score,
             iterations,
             execution_time_ms: time_ms,
             errors: Vec::new(),
@@ -207,12 +208,12 @@ impl AuthorshipEngine {
         let mut iterations = 0u32;
         let mut quality_score = 0.0;
 
-        while iterations < self.config.max_critique_iterations {
+        while iterations < self.config.max_critique_iterations as u32 {
             iterations += 1;
 
             let critique = self.critique.critique(&content, &concept);
 
-            if critique.is_satisfied() {
+            if critique.is_satisfied {
                 quality_score = critique.overall_score;
                 break;
             }

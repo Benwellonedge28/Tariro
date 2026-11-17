@@ -5,7 +5,7 @@
 
 use crate::prelude::*;
 use std::collections::{HashMap, HashSet};
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 
 // ============================================================================
 // World Entities
@@ -305,7 +305,7 @@ impl ImaginationEngine {
         graph: &mut CausalGraph,
         action: &SimulatedAction,
     ) -> SimulationResult {
-        self.stats.total_simulations += 1;
+        self.stats.total_simulations.fetch_add(1, Ordering::Relaxed);
 
         let mut current_state = action.initial_state.clone();
         let mut predicted_effects = Vec::new();
@@ -323,9 +323,9 @@ impl ImaginationEngine {
 
         SimulationResult {
             action: action.clone(),
+            confidence: self.calculate_confidence(&predicted_effects),
             predicted_effects,
             final_state: current_state,
-            confidence: self.calculate_confidence(&predicted_effects),
         }
     }
 
@@ -347,9 +347,9 @@ impl ImaginationEngine {
         // Find direct effects
         for effect_entity in graph.get_effects(entity) {
             effects.push(PredictedEffect {
-                entity: effect_entity.id.clone(),
+                entity: effect_entity.id,
                 effect_type: "caused_by".to_string(),
-                description: format!("{} is affected by {}", effect_entity.name, entity.id.0),
+                description: format!("{} is affected by {}", effect_entity.name, entity.0),
                 probability: 0.8,
                 confidence: 0.9,
             });
@@ -384,7 +384,8 @@ impl ImaginationEngine {
         graph: &mut CausalGraph,
         scenario: &CounterfactualScenario,
     ) -> CounterfactualResult {
-        self.stats.counterfactual_simulations += 1;
+        self.stats.counterfactual_simulations
+            .fetch_add(1, Ordering::Relaxed);
 
         // Apply hypothetical change
         let mut hypothetical_state = scenario.actual_state.clone();
@@ -441,10 +442,21 @@ impl Default for ImaginationEngine {
 }
 
 /// Imagination statistics
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Default)]
 pub struct ImaginationStats {
-    pub total_simulations: usize,
-    pub counterfactual_simulations: usize,
+    pub total_simulations: AtomicUsize,
+    pub counterfactual_simulations: AtomicUsize,
+}
+
+impl Clone for ImaginationStats {
+    fn clone(&self) -> Self {
+        ImaginationStats {
+            total_simulations: AtomicUsize::new(self.total_simulations.load(Ordering::Relaxed)),
+            counterfactual_simulations: AtomicUsize::new(
+                self.counterfactual_simulations.load(Ordering::Relaxed),
+            ),
+        }
+    }
 }
 
 // ============================================================================
@@ -667,13 +679,13 @@ impl WorldModel {
 
     /// Add an entity to the world
     pub fn add_entity(&mut self, entity: WorldEntity) {
-        self.entities.insert(entity.id.clone(), entity.clone());
+        self.entities.insert(entity.id, entity.clone());
         self.causal_graph.add_entity(entity);
         self.stats.entities_added += 1;
 
         // Create theory of mind model for agents
         if entity.entity_type == WorldEntityType::Agent {
-            self.theory_of_mind.create_agent_model(entity);
+            self.theory_of_mind.create_agent_model(entity.clone());
         }
     }
 

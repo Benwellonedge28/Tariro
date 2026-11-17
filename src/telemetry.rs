@@ -28,6 +28,9 @@ pub enum TelemetryEvent {
     GoalProgressUpdated { goal_id: String, progress_pct: f32 },
     FeatureProposed { title: String, source: String },
 
+    // Policy changes
+    PolicyUpdated { policy_id: String, action: String },
+
     // Learning & Knowledge
     LearningInsightProcessed { insight_id: String, category: String },
     KnowledgeAcquired { item_id: String, title: String, category: String },

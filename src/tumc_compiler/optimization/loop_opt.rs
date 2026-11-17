@@ -46,7 +46,7 @@ impl LoopInvariantCodeMotion {
 
         // Find instructions whose operands are all loop-invariant
         for &block_id in &loop_.blocks {
-            let block = &func.body[block_id];
+            let block = &func.body[block_id.0];
             let mut invariant_insts = Vec::new();
 
             for inst in &block.instructions {
@@ -71,11 +71,11 @@ impl LoopInvariantCodeMotion {
         // Check if all operands are defined outside the loop
         match &inst.op {
             Operation::Binary(_, lhs, rhs) => {
-                !loop_.contains(self.find_block(func, *lhs)) &&
-                !loop_.contains(self.find_block(func, *rhs))
+                !loop_.blocks.contains(&self.find_block(func, *lhs)) &&
+                !loop_.blocks.contains(&self.find_block(func, *rhs))
             }
             Operation::Unary(_, operand) => {
-                !loop_.contains(self.find_block(func, *operand))
+                !loop_.blocks.contains(&self.find_block(func, *operand))
             }
             _ => false,
         }

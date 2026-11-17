@@ -209,7 +209,7 @@ pub enum GoalType {
 }
 
 /// State of a goal
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GoalState {
     Active,
     Completed,
@@ -303,7 +303,7 @@ impl GoalHierarchy {
             }
         };
 
-        if let Some(id) = selected {
+        if let Some(id) = &selected {
             self.current_goal = Some(id.clone());
         }
 
@@ -312,19 +312,23 @@ impl GoalHierarchy {
 
     /// Complete a goal
     pub fn complete_goal(&mut self, id: &GoalId) {
-        if let Some(goal) = self.goals.get_mut(id) {
-            goal.state = GoalState::Completed;
-            goal.progress = 1.0;
-
-            // Complete parent goals if all subgoals done
-            if let Some(parent_id) = &goal.parent {
-                self.check_parent_completion(parent_id);
+        let (parent_id, was_current) = match self.goals.get_mut(id) {
+            Some(goal) => {
+                goal.state = GoalState::Completed;
+                goal.progress = 1.0;
+                (goal.parent.clone(), self.current_goal.as_ref() == Some(id))
             }
+            None => return,
+        };
 
-            // Clear current if this was current
-            if self.current_goal.as_ref() == Some(id) {
-                self.current_goal = None;
-            }
+        // Complete parent goals if all subgoals done
+        if let Some(parent_id) = parent_id {
+            self.check_parent_completion(&parent_id);
+        }
+
+        // Clear current if this was current
+        if was_current {
+            self.current_goal = None;
         }
     }
 

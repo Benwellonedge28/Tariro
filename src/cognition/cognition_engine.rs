@@ -292,7 +292,7 @@ impl CognitionEngine {
 
         // Select best option
         let decision = scored_options.first()
-            .map(|(opt, _)| opt.clone())
+            .map(|(opt, _)| (*opt).clone())
             .unwrap_or_else(|| "No decision possible".to_string());
 
         // Generate emotion
@@ -330,7 +330,7 @@ impl CognitionEngine {
         self.working_memory.store(item);
 
         // Satisfy curiosity drive
-        if let Some(goal) = self.motivation.get_current_goal() {
+        if let Some(goal) = self.motivation.get_current_goal().cloned() {
             self.motivation.update_goal_progress(&goal.id, 0.2);
         }
     }
@@ -446,12 +446,9 @@ pub struct SelfReflection {
 }
 
 /// Result of imagination/simulation
-#[derive(Debug, Clone)]
-pub struct SimulationResult {
-    pub scenario: String,
-    pub predicted_outcomes: Vec<String>,
-    pub confidence: f64,
-}
+///
+/// The simulation result is owned by the world model.
+pub use crate::cognition::world_model::SimulationResult;
 
 /// Cognition statistics
 #[derive(Debug, Clone, Default)]

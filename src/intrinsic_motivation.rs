@@ -201,7 +201,8 @@ impl IntrinsicMotivationSystem {
         let mut total_reward = 0.0f32;
         let mut components = HashMap::new();
 
-        for motivation in &mut self.motivations {
+        let motivations = self.motivations.clone();
+        for motivation in &motivations {
             if !motivation.enabled {
                 continue;
             }
@@ -276,7 +277,8 @@ impl IntrinsicMotivationSystem {
     /// Update drive states based on current activity
     pub fn update_drives(&mut self, activity: &ActivityMetrics, reward: &IntrinsicReward) {
         // Calculate urgency for each motivation
-        for motivation in &mut self.motivations {
+        let motivations = self.motivations.clone();
+        for motivation in &motivations {
             if !motivation.enabled {
                 continue;
             }

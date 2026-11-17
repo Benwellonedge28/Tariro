@@ -113,7 +113,7 @@ impl IdeationEngine {
 
     /// Generate multiple concept options
     pub fn generate_multiple(&mut self, prompt: &CreativePrompt) -> IdeationResult {
-        let concepts = (0..self.max_concepts)
+        let concepts: Vec<CreativeConcept> = (0..self.max_concepts)
             .filter_map(|_| self.generate_concept(prompt).ok())
             .collect();
 

@@ -130,6 +130,30 @@ pub struct CreativeContent {
     pub metadata: serde_json::Map<String, serde_json::Value>,
 }
 
+impl CreativeContent {
+    /// Merge the parts of another content into this one.
+    pub fn merge(&mut self, other: CreativeContent) {
+        if !other.text.is_empty() {
+            self.text.push_str(&other.text);
+        }
+        if !other.code.is_empty() {
+            self.code.push_str(&other.code);
+        }
+        if self.audio.is_none() {
+            self.audio = other.audio;
+        }
+        if self.image.is_none() {
+            self.image = other.image;
+        }
+        if self.video.is_none() {
+            self.video = other.video;
+        }
+        for (key, value) in other.metadata {
+            self.metadata.insert(key, value);
+        }
+    }
+}
+
 /// Creative prompt for authorship
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreativePrompt {

@@ -191,7 +191,7 @@ impl GenerationEngine {
                 refined.text = self.improve_clarity(&refined.text);
             }
             "pacing" => {
-                refined.text = self.adjust_pacing(&refined.text, suggestion.intensity);
+                refined.text = self.adjust_pacing(&refined.text, suggestion.intensity as f32);
             }
             "depth" => {
                 refined.text = self.add_depth(&refined.text);

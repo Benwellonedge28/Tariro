@@ -593,7 +593,7 @@ pub struct ReflectionPatterns {
     pub strategy_count: usize,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Outcome {
     pub description: String,
     pub result_type: ResultType,
