@@ -53,7 +53,7 @@ pub struct CompletionClientCapabilities {
     pub completion_item: Option<CompletionItemCapabilities>,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct CompletionItemCapabilities {
     pub snippet_support: bool,
     pub resolve_support: bool,
@@ -64,12 +64,12 @@ pub struct DefinitionClientCapabilities {
     pub dynamic_registration: bool,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ReferencesClientCapabilities {
     pub dynamic_registration: bool,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct DiagnosticsClientCapabilities {
     pub dynamic_registration: bool,
 }
