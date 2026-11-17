@@ -461,8 +461,8 @@ impl HTNDomain {
         self.methods
             .entry(method.task_name.clone())
             .or_default()
-            .push(method);
-        self.compound_tasks.insert(method.task_name.clone());
+            .push(method.clone());
+        self.compound_tasks.insert(method.task_name);
     }
 
     /// Get action
@@ -542,7 +542,7 @@ impl HTNPlanner {
         }
 
         // If primitive task, try actions
-        if let Some(action) = self.domain.get_action(&task.name) {
+        if let Some(action) = self.domain.get_action(&task.name).cloned() {
             if action.is_applicable(&state) {
                 let mut new_state = state.clone();
                 action.apply(&mut new_state);
@@ -807,10 +807,43 @@ impl MCTSPlanner {
         root.untried_actions = self.actions.clone();
 
         for _ in 0..self.config.simulations {
-            let mut node = self.select(&root);
-            node = self.expand(node);
+            // Walk down the tree to the node that will be expanded.
+            let mut path: Vec<usize> = Vec::new();
+            let mut current: &MCTSNode = &root;
+            while !current.children.is_empty()
+                && !current.is_terminal(&Goal::new(GoalType::Achievement))
+            {
+                let best = current.best_child(self.config.exploration_constant);
+                match best {
+                    Some(child) => {
+                        let index = current
+                            .children
+                            .iter()
+                            .position(|candidate| std::ptr::eq(candidate, child))
+                            .unwrap_or(0);
+                        path.push(index);
+                        current = &current.children[index];
+                    }
+                    None => break,
+                }
+            }
 
-            let reward = self.rollout(&node, goal);
+            // The same path, taken with a mutable borrow.
+            let mut node: &mut MCTSNode = &mut root;
+            for index in path {
+                node = &mut node.children[index];
+            }
+
+            // Expand the node with one of its untried actions.
+            if let Some(action) = node.untried_actions.first().cloned() {
+                let mut new_state = node.state.clone();
+                if let Some((_, effects)) = self.action_effects.get(&action) {
+                    new_state.apply_effects(effects);
+                }
+                node.expand(&action, new_state);
+            }
+
+            let reward = self.rollout(node, goal);
 
             node.backpropagate(reward);
         }
@@ -834,7 +867,7 @@ impl MCTSPlanner {
         None
     }
 
-    fn select(&self, node: &MCTSNode) -> &MCTSNode {
+    fn select<'a>(&self, node: &'a MCTSNode) -> &'a MCTSNode {
         let mut current = node;
 
         while !current.children.is_empty() && !current.is_terminal(&Goal::new(GoalType::Achievement)) {
@@ -848,7 +881,7 @@ impl MCTSPlanner {
         current
     }
 
-    fn expand(&self, node: &MCTSNode) -> &MCTSNode {
+    fn expand<'a>(&self, node: &'a MCTSNode) -> &'a MCTSNode {
         if node.is_terminal(&Goal::new(GoalType::Achievement)) {
             return node;
         }

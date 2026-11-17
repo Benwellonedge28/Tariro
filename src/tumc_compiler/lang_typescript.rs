@@ -809,8 +809,10 @@ impl TypeScriptParser {
             None
         };
 
-        let body = if self.check(&TsToken::OpenBrace) {
-            self.block_statements(self.parse_block()?)
+        let has_block = self.check(&TsToken::OpenBrace);
+        let body = if has_block {
+            let block = self.parse_block()?;
+            self.block_statements(block)
         } else {
             Vec::new()
         };
@@ -846,8 +848,10 @@ impl TypeScriptParser {
             }
             self.expect(&TsToken::RightParen)?;
 
-            let body = if self.check(&TsToken::OpenBrace) {
-                self.block_statements(self.parse_block()?)
+            let has_block = self.check(&TsToken::OpenBrace);
+        let body = if has_block {
+                let block = self.parse_block()?;
+                self.block_statements(block)
             } else {
                 Vec::new()
             };
@@ -931,7 +935,8 @@ impl TypeScriptParser {
                     self.expect(&TsToken::RightParen)?;
 
                     if self.check(&TsToken::OpenBrace) {
-                        let constructor_body = self.block_statements(self.parse_block()?);
+                        let constructor_block = self.parse_block()?;
+                        let constructor_body = self.block_statements(constructor_block);
                         body.push(AstNode::Function(Function {
                             name: "constructor".to_string(),
                             params: Vec::new(),
@@ -1796,7 +1801,7 @@ impl TypeScriptParser {
                 self.advance();
                 let value = Box::new(self.parse_assignment()?);
                 Ok(Expression::Assignment {
-                    target: Box::new(expr.into()),
+                    target: Box::new(expr.clone().into()),
                     value,
                 })
             }
@@ -1807,7 +1812,7 @@ impl TypeScriptParser {
                 self.advance();
                 let value = Box::new(self.parse_assignment()?);
                 Ok(Expression::Assignment {
-                    target: Box::new(expr.into()),
+                    target: Box::new(expr.clone().into()),
                     value,
                 })
             }
@@ -1815,7 +1820,7 @@ impl TypeScriptParser {
                 self.advance();
                 let value = Box::new(self.parse_assignment()?);
                 Ok(Expression::BinaryOp {
-                    left: Box::new(expr.into()),
+                    left: Box::new(expr.clone().into()),
                     op: crate::tumc_compiler::frontend::BinaryOp::NullishCoalesce,
                     right: value,
                 })
@@ -1833,7 +1838,7 @@ impl TypeScriptParser {
             self.expect(&TsToken::Colon)?;
             let alternate = Box::new(self.parse_assignment()?);
             return Ok(Expression::Conditional {
-                test: Box::new(expr.into()),
+                test: Box::new(expr.clone().into()),
                 consequent,
                 alternate,
             });
@@ -1849,7 +1854,7 @@ impl TypeScriptParser {
             self.advance();
             let right = Box::new(self.parse_coalesce()?);
             return Ok(Expression::BinaryOp {
-                left: Box::new(expr.into()),
+                left: Box::new(expr.clone().into()),
                 op: crate::tumc_compiler::frontend::BinaryOp::Or,
                 right,
             });
@@ -1865,7 +1870,7 @@ impl TypeScriptParser {
             self.advance();
             let right = Box::new(self.parse_or()?);
             return Ok(Expression::BinaryOp {
-                left: Box::new(expr.into()),
+                left: Box::new(expr.clone().into()),
                 op: crate::tumc_compiler::frontend::BinaryOp::And,
                 right,
             });
@@ -1881,7 +1886,7 @@ impl TypeScriptParser {
             self.advance();
             let right = Box::new(self.parse_and()?);
             return Ok(Expression::BinaryOp {
-                left: Box::new(expr.into()),
+                left: Box::new(expr.clone().into()),
                 op: crate::tumc_compiler::frontend::BinaryOp::BitAnd,
                 right,
             });
@@ -1897,7 +1902,7 @@ impl TypeScriptParser {
             self.advance();
             let right = Box::new(self.parse_bitwise_or()?);
             return Ok(Expression::BinaryOp {
-                left: Box::new(expr.into()),
+                left: Box::new(expr.clone().into()),
                 op: crate::tumc_compiler::frontend::BinaryOp::BitOr,
                 right,
             });
@@ -1913,7 +1918,7 @@ impl TypeScriptParser {
             self.advance();
             let right = Box::new(self.parse_bitwise_xor()?);
             return Ok(Expression::BinaryOp {
-                left: Box::new(expr.into()),
+                left: Box::new(expr.clone().into()),
                 op: crate::tumc_compiler::frontend::BinaryOp::BitXor,
                 right,
             });
@@ -1929,7 +1934,7 @@ impl TypeScriptParser {
             self.advance();
             let right = Box::new(self.parse_bitwise_and()?);
             return Ok(Expression::BinaryOp {
-                left: Box::new(expr.into()),
+                left: Box::new(expr.clone().into()),
                 op: crate::tumc_compiler::frontend::BinaryOp::BitAnd,
                 right,
             });
@@ -1946,7 +1951,7 @@ impl TypeScriptParser {
                 self.advance();
                 let right = Box::new(self.parse_equality()?);
                 Ok(Expression::BinaryOp {
-                    left: Box::new(expr.into()),
+                    left: Box::new(expr.clone().into()),
                     op: crate::tumc_compiler::frontend::BinaryOp::Eq,
                     right,
                 })
@@ -1955,7 +1960,7 @@ impl TypeScriptParser {
                 self.advance();
                 let right = Box::new(self.parse_equality()?);
                 Ok(Expression::BinaryOp {
-                    left: Box::new(expr.into()),
+                    left: Box::new(expr.clone().into()),
                     op: crate::tumc_compiler::frontend::BinaryOp::Ne,
                     right,
                 })
@@ -1979,7 +1984,7 @@ impl TypeScriptParser {
                 self.advance();
                 let right = Box::new(self.parse_comparison()?);
                 Ok(Expression::BinaryOp {
-                    left: Box::new(expr.into()),
+                    left: Box::new(expr.clone().into()),
                     op,
                     right,
                 })
@@ -1988,7 +1993,7 @@ impl TypeScriptParser {
                 self.advance();
                 let right = Box::new(self.parse_comparison()?);
                 Ok(Expression::BinaryOp {
-                    left: Box::new(expr.into()),
+                    left: Box::new(expr.clone().into()),
                     op: crate::tumc_compiler::frontend::BinaryOp::Is,
                     right,
                 })
@@ -1997,7 +2002,7 @@ impl TypeScriptParser {
                 self.advance();
                 let right = Box::new(self.parse_comparison()?);
                 Ok(Expression::BinaryOp {
-                    left: Box::new(expr.into()),
+                    left: Box::new(expr.clone().into()),
                     op: crate::tumc_compiler::frontend::BinaryOp::In,
                     right,
                 })
@@ -2013,7 +2018,7 @@ impl TypeScriptParser {
             self.advance();
             let right = Box::new(self.parse_shift()?);
             return Ok(Expression::BinaryOp {
-                left: Box::new(expr.into()),
+                left: Box::new(expr.clone().into()),
                 op: crate::tumc_compiler::frontend::BinaryOp::Shl,
                 right,
             });
@@ -2023,7 +2028,7 @@ impl TypeScriptParser {
             self.advance();
             let right = Box::new(self.parse_shift()?);
             return Ok(Expression::BinaryOp {
-                left: Box::new(expr.into()),
+                left: Box::new(expr.clone().into()),
                 op: crate::tumc_compiler::frontend::BinaryOp::Shr,
                 right,
             });
@@ -2044,7 +2049,7 @@ impl TypeScriptParser {
             self.advance();
             let right = Box::new(self.parse_multiplicative()?);
             expr = Expression::BinaryOp {
-                left: Box::new(expr.into()),
+                left: Box::new(expr.clone().into()),
                 op,
                 right,
             };
@@ -2066,7 +2071,7 @@ impl TypeScriptParser {
             self.advance();
             let right = Box::new(self.parse_exponentiation()?);
             expr = Expression::BinaryOp {
-                left: Box::new(expr.into()),
+                left: Box::new(expr.clone().into()),
                 op,
                 right,
             };
@@ -2186,17 +2191,18 @@ impl TypeScriptParser {
 
                     self.expect(&TsToken::RightParen)?;
 
+                    let function = Box::new(expr.clone().into());
                     expr = Expression::Call {
-                        function: Box::new(expr.into()),
+                        function,
                         arguments: args,
                     };
                 }
                 TsToken::Dot => {
                     self.advance();
-                    match self.current() {
+                    match self.current().clone() {
                         TsToken::Identifier(n) => {
                             expr = Expression::FieldAccess {
-                                object: Box::new(expr.into()),
+                                object: Box::new(expr.clone().into()),
                                 field: n.clone(),
                             };
                             self.advance();
@@ -2208,10 +2214,10 @@ impl TypeScriptParser {
                     self.advance();
                     if self.check(&TsToken::Dot) {
                         self.advance();
-                        match self.current() {
+                        match self.current().clone() {
                             TsToken::Identifier(n) => {
                                 expr = Expression::FieldAccess {
-                                    object: Box::new(expr.into()),
+                                    object: Box::new(expr.clone().into()),
                                     field: n.clone(),
                                 };
                                 self.advance();
@@ -2223,7 +2229,7 @@ impl TypeScriptParser {
                         let index = Box::new(self.parse_expression()?);
                         self.expect(&TsToken::RightBracket)?;
                         expr = Expression::OptionalChain {
-                            base: Box::new(expr.into()),
+                            base: Box::new(expr.clone().into()),
                             path: vec![crate::tumc_compiler::frontend::ChainElement::Index(index)],
                         };
                     } else {
@@ -2232,7 +2238,7 @@ impl TypeScriptParser {
                             self.advance();
                             self.expect(&TsToken::RightParen)?;
                             expr = Expression::Call {
-                                function: Box::new(expr.into()),
+                                function: Box::new(expr.clone().into()),
                                 arguments: Vec::new(),
                             };
                         }
@@ -2243,13 +2249,13 @@ impl TypeScriptParser {
                     let index = Box::new(self.parse_expression()?);
                     self.expect(&TsToken::RightBracket)?;
                     expr = Expression::Index {
-                        array: Box::new(expr.into()),
+                        array: Box::new(expr.clone().into()),
                         index,
                     };
                 }
                 TsToken::TemplateHead(_) | TsToken::TemplateMiddle(_) => {
                     // Template literal
-                    let mut parts = vec![expr.into()];
+                    let mut parts = vec![expr.clone().into()];
 
                     while matches!(self.current(), TsToken::TemplateHead(_) |
                                   TsToken::TemplateMiddle(_) | TsToken::TemplateTail(_)) {
@@ -2302,7 +2308,7 @@ impl TypeScriptParser {
                     self.advance();
                     expr = Expression::UnaryOp {
                         op: crate::tumc_compiler::frontend::UnaryOp::NonNull,
-                        operand: Box::new(expr.into()),
+                        operand: Box::new(expr.clone().into()),
                     };
                 }
                 TsToken::As => {
@@ -2311,7 +2317,7 @@ impl TypeScriptParser {
                     let _type_annotation = self.parse_type()?;
                     expr = Expression::UnaryOp {
                         op: crate::tumc_compiler::frontend::UnaryOp::Cast,
-                        operand: Box::new(expr.into()),
+                        operand: Box::new(expr.clone().into()),
                     };
                 }
                 _ => break,
@@ -2471,7 +2477,7 @@ impl TypeScriptParser {
                 }
                 self.expect(&TsToken::RightParen)?;
 
-                let _return_type = if self.check(&TsToken::Colon) {
+                let _return_type: Option<String> = if self.check(&TsToken::Colon) {
                     self.advance();
                     let _ = self.parse_type();
                     None
@@ -2517,7 +2523,7 @@ impl TypeScriptParser {
                         None
                     };
 
-                    Ok(Expression::Function(name, Vec::new(), Box::new(
+                    Ok(Expression::Function(name.unwrap_or_default(), Vec::new(), Box::new(
                         Expression::Block(body.map(|b| match b {
                             AstNode::Block(s) => s,
                             _ => vec![b],
@@ -2581,12 +2587,12 @@ impl TypeScriptParser {
                     Ok(Expression::Super)
                 } else if self.check(&TsToken::Dot) {
                     self.advance();
-                    match self.current() {
+                    match self.current().clone() {
                         TsToken::Identifier(n) => {
                             self.advance();
                             Ok(Expression::FieldAccess {
                                 object: Box::new(Expression::Super.into()),
-                                field: n.clone(),
+                                field: n,
                             })
                         }
                         _ => Err(TsParseError::new("Expected identifier", self.pos)),
@@ -2721,8 +2727,10 @@ impl TypeScriptParser {
         }
         self.advance();
 
-        let body = if self.check(&TsToken::OpenBrace) {
-            self.block_statements(self.parse_block()?)
+        let has_block = self.check(&TsToken::OpenBrace);
+        let body = if has_block {
+            let block = self.parse_block()?;
+            self.block_statements(block)
         } else {
             let expr = self.parse_expression()?;
             vec![AstNode::Return(Some(Box::new(expr)))]

@@ -202,9 +202,10 @@ impl TestRunner {
         let start = std::time::Instant::now();
         let mut report = TestReport::new();
 
-        for (name, suite) in &self.suites {
-            let suite_report = self.run_suite(name);
-            report.add_suite(name.clone(), suite_report);
+        let suite_names: Vec<String> = self.suites.keys().cloned().collect();
+        for name in suite_names {
+            let suite_report = self.run_suite(&name);
+            report.add_suite(name, suite_report);
         }
 
         report.duration = start.elapsed();
@@ -641,7 +642,7 @@ pub struct BenchmarkTest {
     /// Setup
     setup: Option<Arc<dyn Fn() + Send + Sync>>,
     /// Benchmark function
-    func: Arc<dyn FnMut() + Send + Sync>,
+    func: Box<dyn FnMut() + Send + Sync>,
     /// Teardown
     teardown: Option<Arc<dyn Fn() + Send + Sync>>,
     /// Warmup iterations
@@ -656,7 +657,7 @@ impl BenchmarkTest {
         Self {
             name: name.to_string(),
             setup: None,
-            func: Arc::new(f),
+            func: Box::new(f),
             teardown: None,
             warmup: 3,
             iterations: 10,
@@ -890,7 +891,7 @@ impl TestCaseBuilder {
     }
 
     /// Set ignore
-    pub fn ignore(self) -> Self {
+    pub fn ignore(mut self) -> Self {
         self.suite.tests.push(TestCase {
             name: self.test_name.clone(),
             func: Arc::new(|| Ok(())),
@@ -902,7 +903,7 @@ impl TestCaseBuilder {
     }
 
     /// Build test
-    pub fn build<F>(self, func: F) -> SuiteBuilder
+    pub fn build<F>(mut self, func: F) -> SuiteBuilder
     where
         F: Fn() -> Result<(), TestError> + Send + Sync + 'static,
     {
