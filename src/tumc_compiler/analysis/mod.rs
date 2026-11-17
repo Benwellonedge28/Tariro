@@ -71,7 +71,7 @@ impl ReachingDefinitions {
                 let mut new_in = HashSet::new();
                 for &pred in cfg.predecessors(block.id) {
                     if let Some(out) = result.out_sets.get(&pred) {
-                        new_in.extend(out);
+                        new_in.extend(out.iter().copied());
                     }
                 }
 
@@ -85,7 +85,7 @@ impl ReachingDefinitions {
                 let killed = self.kill_set(block);
                 if let Some(in_set) = result.in_sets.get(&block.id) {
                     let in_minus_kill: HashSet<_> = in_set.difference(&killed).cloned().collect();
-                    new_out.extend(in_minus_kill);
+                    new_out.extend(in_minus_kill.into_iter());
                 }
 
                 if result.out_sets.get(&block.id) != Some(&new_out) {
@@ -126,7 +126,7 @@ impl AnalysisResult for ReachingDefinitionsResult {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct DefId {
     pub block: BasicBlockId,
     pub idx: usize,
@@ -173,7 +173,7 @@ impl LiveVariables {
                 let mut new_out = HashSet::new();
                 for &succ in cfg.successors(block.id) {
                     if let Some(in_set) = result.in_sets.get(&succ) {
-                        new_out.extend(in_set);
+                        new_out.extend(in_set.iter().cloned());
                     }
                 }
 

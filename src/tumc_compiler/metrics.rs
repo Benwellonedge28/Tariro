@@ -7,7 +7,7 @@ use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
 
 /// Metric type
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum MetricType {
     Counter,
     Gauge,
@@ -16,7 +16,7 @@ pub enum MetricType {
 }
 
 /// Metric value
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub enum MetricValue {
     Counter(u64),
     Gauge(f64),
@@ -25,7 +25,7 @@ pub enum MetricValue {
 }
 
 /// Summary data
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub struct SummaryData {
     pub count: u64,
     pub sum: f64,
@@ -33,7 +33,7 @@ pub struct SummaryData {
 }
 
 /// Metric
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub struct Metric {
     /// Metric name
     pub name: String,
@@ -271,7 +271,7 @@ impl Drop for Timer {
 }
 
 /// Tracing span
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Span {
     /// Trace ID
     pub trace_id: u64,
@@ -391,12 +391,12 @@ impl Tracer {
 
     /// Get all spans
     pub fn spans(&self) -> Vec<Span> {
-        self.spans.read().unwrap().clone()
+        self.spans.read().unwrap().to_vec()
     }
 }
 
 /// Health check
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum HealthStatus {
     Healthy,
     Degraded,
@@ -404,7 +404,7 @@ pub enum HealthStatus {
 }
 
 /// Health check result
-#[derive(Debug)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub struct HealthCheck {
     pub name: String,
     pub status: HealthStatus,
@@ -559,5 +559,49 @@ mod tests {
         });
 
         assert!(checker.is_healthy());
+    }
+}
+
+impl serde::Serialize for SpanLog {
+    /// The log entry carries the fields and the moment it was written.
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        use serde::ser::SerializeStruct;
+        let mut state = serializer.serialize_struct("SpanLog", 2)?;
+        state.serialize_field("timestamp_nanos", &self.timestamp.elapsed().as_nanos())?;
+        state.serialize_field("fields", &self.fields)?;
+        state.end()
+    }
+}
+
+impl serde::Serialize for Span {
+    /// The span keeps its identity, its timings and its annotations.
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        use serde::ser::SerializeStruct;
+        let mut state = serializer.serialize_struct("Span", 8)?;
+        state.serialize_field("trace_id", &self.trace_id)?;
+        state.serialize_field("span_id", &self.span_id)?;
+        state.serialize_field("parent_id", &self.parent_id)?;
+        state.serialize_field("name", &self.name)?;
+        state.serialize_field("start_nanos", &self.start.elapsed().as_nanos())?;
+        state.serialize_field(
+            "end_nanos",
+            &self.end.map(|end| end.duration_since(self.start).as_nanos()),
+        )?;
+        state.serialize_field("tags", &self.tags)?;
+        state.serialize_field("logs", &self.logs)?;
+        state.end()
+    }
+}
+
+impl serde::Serialize for MetricsSnapshot {
+    /// The snapshot keeps its metrics, its spans and its health checks.
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        use serde::ser::SerializeStruct;
+        let mut state = serializer.serialize_struct("MetricsSnapshot", 4)?;
+        state.serialize_field("timestamp_nanos", &self.timestamp.elapsed().as_nanos())?;
+        state.serialize_field("metrics", &self.metrics)?;
+        state.serialize_field("spans", &self.spans)?;
+        state.serialize_field("health_checks", &self.health_checks)?;
+        state.end()
     }
 }

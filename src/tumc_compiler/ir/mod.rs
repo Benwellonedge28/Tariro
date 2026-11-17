@@ -277,6 +277,12 @@ impl std::fmt::Display for ValueId {
     }
 }
 
+impl From<usize> for ValueId {
+    fn from(id: usize) -> ValueId {
+        ValueId(id)
+    }
+}
+
 impl From<ValueId> for u64 {
     fn from(id: ValueId) -> u64 {
         id.0 as u64

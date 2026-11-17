@@ -16,13 +16,13 @@ pub struct LspConnection {
     pub capabilities: ClientCapabilities,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ClientCapabilities {
     pub text_document: TextDocumentClientCapabilities,
     pub workspace: WorkspaceClientCapabilities,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct TextDocumentClientCapabilities {
     pub synchronization: Option<TextDocumentSyncClientCapabilities>,
     pub hover: Option<HoverClientCapabilities>,
@@ -32,22 +32,22 @@ pub struct TextDocumentClientCapabilities {
     pub diagnostics: Option<DiagnosticsClientCapabilities>,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct WorkspaceClientCapabilities {
     pub workspace_folders: bool,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct TextDocumentSyncClientCapabilities {
     pub dynamic_registration: bool,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct HoverClientCapabilities {
     pub dynamic_registration: bool,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct CompletionClientCapabilities {
     pub dynamic_registration: bool,
     pub completion_item: Option<CompletionItemCapabilities>,
@@ -59,7 +59,7 @@ pub struct CompletionItemCapabilities {
     pub resolve_support: bool,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct DefinitionClientCapabilities {
     pub dynamic_registration: bool,
 }
@@ -368,7 +368,7 @@ impl LspServer {
         let mut references = Vec::new();
 
         for (line, block) in module.functions.iter().enumerate() {
-            for inst in &block.body.iter().flat_map(|b| b.instructions.iter()) {
+            for inst in block.body.iter().flat_map(|b| b.instructions.iter()) {
                 references.push(ReferenceItem {
                     uri: uri.to_string(),
                     range: Range {

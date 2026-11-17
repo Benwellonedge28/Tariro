@@ -1,6 +1,7 @@
 // Escape Analysis
 
 use super::*;
+use crate::tumc_compiler::ir::ValueId;
 
 /// Escape analysis implementation
 pub struct EscapeAnalysis {
@@ -47,7 +48,7 @@ impl EscapeAnalysis {
         }
 
         // Propagate through CFG
-        self.propagate(&mut result, &cfg);
+        self.propagate(func, &mut result, &cfg);
 
         result
     }
@@ -62,14 +63,14 @@ impl EscapeAnalysis {
         match &inst.op {
             Operation::Alloca(ty, _) => {
                 // Initially not escaping
-                result.escape_level.insert(inst.id, EscapeLevel::Local);
+                result.escape_level.insert(inst.result_value(), EscapeLevel::Local);
             }
             Operation::Store(_, ptr, val, _) => {
                 // Check if stored value escapes
                 if let Some(val_escape) = result.escape_level.get(&val) {
                     if matches!(val_escape, EscapeLevel::Escaped) {
                         // Value stored to escaping location
-                        result.escape_level.insert(val, EscapeLevel::Escaped);
+                        result.escape_level.insert(*val, EscapeLevel::Escaped);
                     }
                 }
             }
@@ -88,22 +89,57 @@ impl EscapeAnalysis {
         }
     }
 
-    fn propagate(&self, result: &mut FunctionEscapeResult, cfg: &ControlFlowGraph) {
-        // Propagate escape information backward through CFG
+    fn propagate(
+        &self,
+        func: &Function,
+        result: &mut FunctionEscapeResult,
+        cfg: &ControlFlowGraph,
+    ) {
+        // The values every block defines and the values it reads.
+        let mut defined: HashMap<BasicBlockId, Vec<ValueId>> = HashMap::new();
+        let mut used: HashMap<BasicBlockId, Vec<ValueId>> = HashMap::new();
+
+        for block in &func.body {
+            for inst in &block.instructions {
+                defined
+                    .entry(block.id)
+                    .or_default()
+                    .push(inst.result_value());
+                for operand in operation_operands(&inst.op) {
+                    used.entry(block.id).or_default().push(operand);
+                }
+            }
+        }
+
+        // A value that escapes in a successor escapes in its predecessor too.
         let mut changed = true;
         while changed {
             changed = false;
 
-            for block in cfg.nodes.keys() {
-                for &succ in cfg.successors(*block) {
-                    // Merge succ's escape info into block
-                    if let Some(succ_info) = result.escape_level.get(&succ.0.into()) {
-                        for (val, escape) in succ_info {
-                            let current = result.escape_level.entry(*val).or_insert(EscapeLevel::Local);
-                            if self.is_more_escaped(escape, current) {
-                                *current = escape.clone();
-                                changed = true;
-                            }
+            for node in cfg.nodes.values() {
+                let successors = &node.successors;
+                if successors.is_empty() {
+                    continue;
+                }
+
+                // The strongest escape level of the values the successors read.
+                let successor_level = successors
+                    .iter()
+                    .filter_map(|successor| used.get(successor))
+                    .flat_map(|values| values.iter())
+                    .filter_map(|value| result.escape_level.get(value))
+                    .fold(None, |strongest: Option<&EscapeLevel>, level| match strongest {
+                        Some(current) if !self.is_more_escaped(level, current) => Some(current),
+                        _ => Some(level),
+                    })
+                    .cloned();
+
+                if let Some(level) = successor_level {
+                    for value in defined.get(&node.block).cloned().unwrap_or_default() {
+                        let current = result.escape_level.entry(value).or_insert(EscapeLevel::Local);
+                        if self.is_more_escaped(&level, current) {
+                            *current = level.clone();
+                            changed = true;
                         }
                     }
                 }
@@ -231,3 +267,30 @@ impl CallGraph {
 }
 
 use std::collections::HashMap;
+
+/// The values an operation reads.
+fn operation_operands(op: &Operation) -> Vec<ValueId> {
+    match op {
+        Operation::Binary(_, lhs, rhs) => vec![*lhs, *rhs],
+        Operation::Unary(_, operand) => vec![*operand],
+        Operation::Load(_, ptr, _, _) => vec![*ptr],
+        Operation::Store(_, value, ptr, _) => vec![*value, *ptr],
+        Operation::LoadElementPtr(ptr, indices) => {
+            let mut values = vec![*ptr];
+            values.extend(indices.iter().copied());
+            values
+        }
+        Operation::LoadFieldPtr(ptr, _) => vec![*ptr],
+        Operation::Call(_, arguments) => arguments.clone(),
+        Operation::CallIndirect(callee, arguments) => {
+            let mut values = vec![*callee];
+            values.extend(arguments.iter().copied());
+            values
+        }
+        Operation::Cast(value, _, _) => vec![*value],
+        Operation::Bitcast(value, _) => vec![*value],
+        Operation::IntToPtr(value) => vec![*value],
+        Operation::PtrToInt(value) => vec![*value],
+        _ => Vec::new(),
+    }
+}

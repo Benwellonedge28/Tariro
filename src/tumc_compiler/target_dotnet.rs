@@ -33,6 +33,8 @@ pub enum ClrType {
     Float64,
     /// Decimal
     Decimal,
+    /// Date and time
+    DateTime,
     /// String
     String,
     /// Object
@@ -72,6 +74,7 @@ impl ClrType {
             ClrType::Float32 => "float32".to_string(),
             ClrType::Float64 => "float64".to_string(),
             ClrType::Decimal => "decimal".to_string(),
+            ClrType::DateTime => "datetime".to_string(),
             ClrType::String => "string".to_string(),
             ClrType::Object => "object".to_string(),
             ClrType::Void => "void".to_string(),
@@ -114,6 +117,8 @@ pub enum IlOpcode {
     // Stack operations
     Nop,
     Break,
+    Pop,
+    Dup,
    Ldarg(u16),
     Ldarga(u16),
     Starg(u16),
@@ -354,8 +359,9 @@ impl IlAssembler {
 
     /// Emit instruction
     pub fn emit(&mut self, op: IlOpcode) {
+        let size = op.bytes().len();
         self.instructions.push(op);
-        self.pos += op.bytes().len();
+        self.pos += size;
     }
 
     /// Load argument
