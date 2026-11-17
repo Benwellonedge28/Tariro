@@ -22,10 +22,8 @@ impl OptimizationPass for ConstantFolding {
 
                     if let Some((value, ty)) = folded {
                         // Replace instruction with constant
-                        let new_inst = Instruction::new(
-                            Operation::Const,
-                            ty,
-                        );
+                        let new_inst =
+                            Instruction::new(Operation::Const(Box::new(value), ty.clone()), ty);
                         block.instructions[i] = new_inst;
                         changed = true;
                     }
@@ -44,7 +42,7 @@ impl OptimizationPass for ConstantFolding {
 }
 
 impl ConstantFolding {
-    fn fold_instruction(&self, inst: &Instruction) -> Option<(ValueDef, IrType)> {
+    fn fold_instruction(&self, inst: &Instruction) -> Option<(Const, IrType)> {
         match &inst.op {
             Operation::Binary(op, lhs, rhs) => {
                 // Would evaluate binary operations with constant operands
@@ -118,7 +116,10 @@ impl AlgebraicSimplification {
             // x * 0 = 0
             Operation::Binary(BinOp::Mul, _, rhs) => {
                 if *rhs == ValueId(0) {
-                    return Some(Operation::Const);
+                    return Some(Operation::Const(
+                        Box::new(Const::Int(0)),
+                        IrType::Int32,
+                    ));
                 }
                 None
             }
@@ -144,27 +145,45 @@ impl OptimizationPass for DeadCodeElimination {
             changed = false;
 
             for func in &mut module.functions {
-                let cfg = ControlFlowGraph::from_function(func);
+                // The values the surviving instructions still need.
+                let mut needed: HashSet<ValueId> = HashSet::new();
+                // The instructions that have to stay.
+                let mut live: HashSet<InstId> = HashSet::new();
 
-                // Mark all instructions as potentially dead
-                let mut live = HashSet::new();
-
-                // Mark function return as live
+                // The values the block terminators read are always needed.
                 for block in &func.body {
-                    if matches!(block.terminator, Terminator::Ret(_)) {
-                        live.insert(block.id);
+                    for value in terminator_operands(&block.terminator) {
+                        needed.insert(value);
                     }
                 }
 
-                // Find live instructions
-                let mut worklist: Vec<_> = live.iter().cloned().collect();
-                while let Some(block_id) = worklist.pop() {
-                    if let Some(node) = cfg.get_node(block_id) {
-                        for &inst_id in &node.instructions {
-                            if !is_pure_instruction(&func.body[block_id.0].instructions.iter().find(|i| i.id == inst_id).map(|i| i.op.clone()).unwrap_or(Operation::Const)) {
-                                live.insert(block_id);
+                // An instruction stays when it has a side effect or when its
+                // result is still needed.
+                loop {
+                    let mut changed = false;
+
+                    for block in &func.body {
+                        for inst in &block.instructions {
+                            if live.contains(&inst.id) {
+                                continue;
+                            }
+
+                            let result = inst.result_value();
+                            if !is_pure_instruction(&inst.op) || needed.contains(&result) {
+                                live.insert(inst.id);
+                                changed = true;
+
+                                for operand in operation_operands(&inst.op) {
+                                    if needed.insert(operand) {
+                                        changed = true;
+                                    }
+                                }
                             }
                         }
+                    }
+
+                    if !changed {
+                        break;
                     }
                 }
 
@@ -213,7 +232,7 @@ impl OptimizationPass for CommonSubexpressionElimination {
                             // Replace with existing value
                             changed = true;
                         } else {
-                            available_exprs.insert(hash, inst.id);
+                            available_exprs.insert(hash, inst.result_value());
                         }
                     }
                 }
@@ -267,13 +286,13 @@ impl OptimizationPass for LocalValueNumbering {
                 let mut value_table: HashMap<ValueNumber, ValueId> = HashMap::new();
                 let mut next_vn: usize = 1;
 
-                for inst in &block.instructions.iter_mut() {
+                for inst in block.instructions.iter_mut() {
                     let vn = self.compute_value_number(inst, &value_table, &mut next_vn);
                     if let Some(existing) = value_table.get(&vn) {
                         // Replace with equivalent value
                         changed = true;
                     }
-                    value_table.insert(vn, inst.id);
+                    value_table.insert(vn, inst.result_value());
                 }
             }
         }
@@ -411,3 +430,41 @@ impl CodeSinking {
 }
 
 use std::collections::HashMap;
+
+/// The values an operation reads.
+fn operation_operands(op: &Operation) -> Vec<ValueId> {
+    match op {
+        Operation::Binary(_, lhs, rhs) => vec![*lhs, *rhs],
+        Operation::Unary(_, operand) => vec![*operand],
+        Operation::Load(_, ptr, _, _) => vec![*ptr],
+        Operation::Store(_, value, ptr, _) => vec![*value, *ptr],
+        Operation::LoadElementPtr(ptr, indices) => {
+            let mut values = vec![*ptr];
+            values.extend(indices.iter().copied());
+            values
+        }
+        Operation::LoadFieldPtr(ptr, _) => vec![*ptr],
+        Operation::Call(_, arguments) => arguments.clone(),
+        Operation::CallIndirect(callee, arguments) => {
+            let mut values = vec![*callee];
+            values.extend(arguments.iter().copied());
+            values
+        }
+        Operation::Cast(value, _, _) => vec![*value],
+        Operation::Bitcast(value, _) => vec![*value],
+        Operation::IntToPtr(value) => vec![*value],
+        Operation::PtrToInt(value) => vec![*value],
+        _ => Vec::new(),
+    }
+}
+
+/// The values a terminator reads.
+fn terminator_operands(terminator: &Terminator) -> Vec<ValueId> {
+    match terminator {
+        Terminator::BrCond(value, _, _) => vec![*value],
+        Terminator::Switch(value, _, _) => vec![*value],
+        Terminator::IndirectBr(value, _) => vec![*value],
+        Terminator::Ret(Some(value)) => vec![*value],
+        _ => Vec::new(),
+    }
+}

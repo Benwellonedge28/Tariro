@@ -41,16 +41,16 @@ impl std::fmt::Display for RelationId {
 
 impl EntityType {
     /// The name of the entity type.
-    pub fn name(&self) -> &'static str {
+    pub fn name(&self) -> String {
         match self {
-            EntityType::Concrete => "Concrete",
-            EntityType::Abstract => "Abstract",
-            EntityType::Event => "Event",
-            EntityType::Process => "Process",
-            EntityType::Property => "Property",
-            EntityType::Concept => "Concept",
-            EntityType::Agent => "Agent",
-            EntityType::Custom(name) => name.as_str(),
+            EntityType::Concrete => "Concrete".to_string(),
+            EntityType::Abstract => "Abstract".to_string(),
+            EntityType::Event => "Event".to_string(),
+            EntityType::Process => "Process".to_string(),
+            EntityType::Property => "Property".to_string(),
+            EntityType::Concept => "Concept".to_string(),
+            EntityType::Agent => "Agent".to_string(),
+            EntityType::Custom(name) => name.clone(),
         }
     }
 }
@@ -593,6 +593,8 @@ impl KnowledgeGraph {
         let subject = fact.subject.clone();
         let object = fact.object.clone();
         let predicate = fact.predicate.clone();
+        let subject_id = fact.subject.id.clone();
+        let object_id = fact.object.id.clone();
 
         // Validate
         self.validate_fact(&fact)?;
@@ -603,10 +605,10 @@ impl KnowledgeGraph {
 
         // Create relation
         let relation = Relation {
-            id: RelationId::new(format!("{}-{:?}-{}", fact.subject.id, predicate, fact.object.id)),
-            subject: fact.subject.id,
+            id: RelationId::new(format!("{}-{:?}-{}", subject_id, predicate, object_id)),
+            subject: subject_id.clone(),
             predicate: predicate.clone(),
-            object: fact.object.id,
+            object: object_id.clone(),
             confidence: fact.confidence,
             source: fact.source,
             temporal: fact.temporal,
@@ -614,14 +616,21 @@ impl KnowledgeGraph {
 
         // Insert relation
         let relation_id = relation.id.clone();
-        let subject_id = fact.subject.id;
-        let object_id = fact.object.id;
         self.relations.insert(relation_id.clone(), relation);
 
         // Update indexes
-        self.subject_index.entry(subject_id).or_default().push(relation_id.clone());
-        self.predicate_index.entry(predicate.clone()).or_default().push(relation_id.clone());
-        self.object_index.entry(object_id).or_default().push(relation_id.clone());
+        self.subject_index
+            .entry(subject_id.clone())
+            .or_default()
+            .push(relation_id.clone());
+        self.predicate_index
+            .entry(predicate.clone())
+            .or_default()
+            .push(relation_id.clone());
+        self.object_index
+            .entry(object_id.clone())
+            .or_default()
+            .push(relation_id.clone());
 
         // Track causal edges
         if predicate.is_causal() {
@@ -659,15 +668,22 @@ impl KnowledgeGraph {
         }
 
         let id = relation.id.clone();
-        let subject = relation.subject;
-        let object = relation.object;
+        let subject = relation.subject.clone();
+        let object = relation.object.clone();
+        let relation_predicate = relation.predicate.clone();
         let is_causal = relation.predicate.is_causal();
         self.relations.insert(id.clone(), relation);
 
         // Update indexes
-        self.subject_index.entry(subject).or_default().push(id.clone());
-        self.predicate_index.entry(relation.predicate.clone()).or_default().push(id.clone());
-        self.object_index.entry(object).or_default().push(id);
+        self.subject_index
+            .entry(subject.clone())
+            .or_default()
+            .push(id.clone());
+        self.predicate_index
+            .entry(relation_predicate)
+            .or_default()
+            .push(id.clone());
+        self.object_index.entry(object.clone()).or_default().push(id);
 
         // Track causal edges
         if is_causal {

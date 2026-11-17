@@ -36,7 +36,7 @@ impl EscapeAnalysis {
         let cfg = ControlFlowGraph::from_function(func);
 
         // Build call graph for interprocedural analysis
-        let call_graph = CallGraph::new();
+        let mut call_graph = CallGraph::new();
         call_graph.build_from_module(module);
 
         // Compute escape information

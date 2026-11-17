@@ -102,7 +102,7 @@ impl JvmTarget {
         // CONSTANT_Utf8 for java/lang/Object
         bytecode.push_u8(1);
         bytecode.push_u16(16);
-        bytecode.extend_from_slice(b"java/lang/Object".as_bytes());
+        bytecode.extend_from_slice(b"java/lang/Object");
     }
 
     fn emit_method(&self, method: &JvmMethod, bytecode: &mut JvmBytecode) {
@@ -163,16 +163,13 @@ impl JvmTarget {
             Operation::Binary(BinOp::Div, _, _) => {
                 buf.push(0x6C); // idiv
             }
-            Operation::Ret(_) => {
-                buf.push(0xAC); // ireturn
-            }
             Operation::Load(_, ptr, ty, _) => {
                 buf.push(0x2E); // aload_0 (simplified)
                 let _ = (ptr, ty);
             }
             Operation::Call(func_id, _) => {
                 buf.push(0xB8); // invokestatic
-                buf.push_u16(func_id.0 as u16);
+                buf.extend_from_slice(&(func_id.0 as u16).to_be_bytes());
             }
             _ => {}
         }
@@ -312,6 +309,11 @@ impl JvmBytecode {
 
     fn push_u8(&mut self, val: u8) {
         self.data.push(val);
+    }
+
+    /// The number of bytes written so far
+    fn len(&self) -> usize {
+        self.data.len()
     }
 
     fn push_u16(&mut self, val: u16) {

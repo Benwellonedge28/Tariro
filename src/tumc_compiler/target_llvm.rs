@@ -740,7 +740,7 @@ impl LlvmIrBuilder {
     pub fn next_name(&mut self, hint: &str) -> String {
         let name = format!("%{}", hint);
         if !self.value_names.contains_key(&name) {
-            self.value_names.insert(name.clone(), name);
+            self.value_names.insert(name.clone(), name.clone());
             return name;
         }
         let name = format!("%{}.{}", hint, self.next_value_num);

@@ -116,7 +116,12 @@ impl LspServer {
             doc.version = params.text_document.version;
 
             // Recompile
-            self.compile_and_cache(&uri, &doc.text);
+            let text = doc.text.clone();
+            let document = self.documents.remove(&uri);
+            self.compile_and_cache(&uri, &text);
+            if let Some(document) = document {
+                self.documents.insert(uri, document);
+            }
         }
 
         Ok(serde_json::Value::Null)
@@ -287,8 +292,8 @@ impl LspServer {
         let mut lexer = Lexer::new(text);
         let tokens: Vec<Token> = lexer.tokenize().unwrap_or_default();
 
-        let mut parser = Parser::new(text, tokens);
-        let ast = parser.parse_program().unwrap_or_else(|_| Program::default());
+        let mut parser = Parser::new(tokens.clone());
+        let ast = parser.parse().unwrap_or_else(|_| Program::default());
 
         let mut checker = TypeChecker::new();
         let _ = checker.check_program(&ast);
@@ -516,21 +521,21 @@ impl LspServer {
 
     /// Convert offset to position
     fn offset_to_position(&self, text: &str, range: &Range) -> (usize, usize) {
-        let mut lines = text.lines();
-        let mut start = 0;
-        let mut end = 0;
-
-        for (i, line) in lines.enumerate() {
-            if i == range.start.line as usize {
-                start = lines.as_str().find(line).unwrap_or(0) + range.start.character as usize;
+        let line_offset = |line: usize| -> usize {
+            let mut offset = 0;
+            for (index, current) in text.lines().enumerate() {
+                if index == line {
+                    return offset;
+                }
+                offset += current.len() + 1;
             }
-            if i == range.end.line as usize {
-                end = lines.as_str().find(line).unwrap_or(0) + range.end.character as usize;
-                break;
-            }
-        }
+            offset
+        };
 
-        (start, end)
+        (
+            line_offset(range.start.line as usize) + range.start.character as usize,
+            line_offset(range.end.line as usize) + range.end.character as usize,
+        )
     }
 }
 

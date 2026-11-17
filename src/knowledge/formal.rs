@@ -581,8 +581,9 @@ impl FormalVerifier {
     /// Type check an entity
     pub fn type_check(&self, entity: &Entity) -> Result<(), TypeError> {
         // Check entity type exists
-        if !self.type_system.types.contains_key(entity.entity_type.name()) {
-            return Err(TypeError::UnknownType(entity.entity_type.name().to_string()));
+        let entity_type_name = entity.entity_type.name();
+        if !self.type_system.types.contains_key(&entity_type_name) {
+            return Err(TypeError::UnknownType(entity_type_name));
         }
 
         // Check attributes have valid types

@@ -36,8 +36,9 @@ impl CallGraphAnalysis {
                         graph.add_edge(func.id, *callee);
                     } else if let Operation::CallIndirect(ptr, _) = &inst.op {
                         // Indirect call - add edges to all functions
-                        for func_id in graph.nodes.keys() {
-                            graph.add_edge(func.id, *func_id);
+                        let targets: Vec<FunctionId> = graph.nodes.keys().copied().collect();
+                        for func_id in targets {
+                            graph.add_edge(func.id, func_id);
                         }
                     }
                 }
@@ -57,8 +58,9 @@ impl CallGraphAnalysis {
                     // Check for function pointer assignments
                     if matches!(inst.op, Operation::Bitcast(_, _)) {
                         // Function pointer - connect to all potential targets
-                        for target_id in graph.nodes.keys() {
-                            graph.add_edge(func.id, *target_id);
+                        let targets: Vec<FunctionId> = graph.nodes.keys().copied().collect();
+                        for target_id in targets {
+                            graph.add_edge(func.id, target_id);
                         }
                     }
                 }
@@ -134,7 +136,7 @@ impl CallGraph {
         fn strongconnect(
             graph: &CallGraph,
             v: FunctionId,
-            &mut index: &mut usize,
+            index: &mut usize,
             stack: &mut Vec<FunctionId>,
             indices: &mut HashMap<FunctionId, usize>,
             lowlinks: &mut HashMap<FunctionId, usize>,
@@ -147,7 +149,7 @@ impl CallGraph {
             stack.push(v);
             on_stack.insert(v);
 
-            for &w in graph.callees(v) {
+            for w in graph.callees(v) {
                 if !indices.contains_key(&w) {
                     strongconnect(graph, w, &mut index, stack, indices, lowlinks, on_stack, sccs);
                     let w_low = *lowlinks.get(&w).unwrap();
@@ -197,7 +199,7 @@ impl CallGraph {
             }
             visited.insert(node);
 
-            for &callee in graph.callees(node) {
+            for callee in graph.callees(node) {
                 dfs(graph, callee, visited, order);
             }
 
@@ -252,7 +254,7 @@ impl<'a> Iterator for CallGraphEdges<'a> {
             let mut found = false;
             for &key in &keys {
                 if *key > self.current {
-                    self.current = key;
+                    self.current = *key;
                     found = true;
                     break;
                 }

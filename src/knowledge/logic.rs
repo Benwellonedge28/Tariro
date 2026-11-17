@@ -46,29 +46,6 @@ impl Term {
     }
 
     /// Get all variables in this term
-    /// Unify this literal with another one.
-    pub fn unifies_with(&self, other: &Literal, subst: &mut Substitution) -> Option<Substitution> {
-        if self.predicate != other.predicate {
-            return None;
-        }
-
-        if self.terms.len() != other.terms.len() {
-            return None;
-        }
-
-        let mut sub = subst.clone();
-
-        for (t1, t2) in self.terms.iter().zip(other.terms.iter()) {
-            if let Some(s) = unify_terms(t1, t2, &mut sub) {
-                sub = s;
-            } else {
-                return None;
-            }
-        }
-
-        Some(sub)
-    }
-
     pub fn variables(&self) -> HashSet<&str> {
         match self {
             Term::Constant(_) => HashSet::new(),
@@ -120,7 +97,7 @@ impl Constant {
 }
 
 /// A literal (atom or negated atom)
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Literal {
     pub predicate: String,
     pub terms: Vec<Term>,
@@ -128,6 +105,29 @@ pub struct Literal {
 }
 
 impl Literal {
+    /// Unify this literal with another one.
+    pub fn unifies_with(&self, other: &Literal, subst: &mut Substitution) -> Option<Substitution> {
+        if self.predicate != other.predicate {
+            return None;
+        }
+
+        if self.terms.len() != other.terms.len() {
+            return None;
+        }
+
+        let mut sub = subst.clone();
+
+        for (t1, t2) in self.terms.iter().zip(other.terms.iter()) {
+            if let Some(s) = unify_terms(t1, t2, &mut sub) {
+                sub = s;
+            } else {
+                return None;
+            }
+        }
+
+        Some(sub)
+    }
+
     pub fn new(predicate: impl Into<String>, terms: Vec<Term>) -> Self {
         Literal {
             predicate: predicate.into(),
@@ -259,7 +259,7 @@ impl Clause {
     }
 
     fn fact_from_string(s: &str) -> Self {
-        let s = s.trim().trim_end('.');
+        let s = s.trim().trim_end_matches('.');
         Self::parse_literal(s).map(|head| Clause::Fact { head }).unwrap_or_else(|_| {
             Clause::fact("unknown", vec![])
         })
@@ -313,16 +313,18 @@ impl Substitution {
 /// Extensional Database (facts)
 #[derive(Debug, Clone, Default)]
 pub struct EDB {
-    facts: HashSet<Atom>,
+    facts: Vec<Atom>,
 }
 
 impl EDB {
     pub fn new() -> Self {
-        EDB { facts: HashSet::new() }
+        EDB { facts: Vec::new() }
     }
 
     pub fn add(&mut self, atom: Atom) {
-        self.facts.insert(atom);
+        if !self.facts.contains(&atom) {
+            self.facts.push(atom);
+        }
     }
 
     pub fn iter(&self) -> impl Iterator<Item = &Atom> {
@@ -363,44 +365,8 @@ impl IDB {
     }
 }
 
-/// An atom (predicate applied to terms)
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Atom {
-    pub predicate: String,
-    pub terms: Vec<Term>,
-}
-
-impl Atom {
-    pub fn new(predicate: impl Into<String>, terms: Vec<Term>) -> Self {
-        Atom {
-            predicate: predicate.into(),
-            terms,
-        }
-    }
-
-    /// Unify with another atom
-    pub fn unifies_with(&self, other: &Atom, subst: &mut Substitution) -> Option<Substitution> {
-        if self.predicate != other.predicate {
-            return None;
-        }
-
-        if self.terms.len() != other.terms.len() {
-            return None;
-        }
-
-        let mut sub = subst.clone();
-
-        for (t1, t2) in self.terms.iter().zip(other.terms.iter()) {
-            if let Some(s) = unify_terms(t1, t2, &mut sub) {
-                sub = s;
-            } else {
-                return None;
-            }
-        }
-
-        Some(sub)
-    }
-}
+/// An atom is a literal that is not negated.
+pub type Atom = Literal;
 
 fn unify_terms(t1: &Term, t2: &Term, subst: &mut Substitution) -> Option<Substitution> {
     // Apply current substitution

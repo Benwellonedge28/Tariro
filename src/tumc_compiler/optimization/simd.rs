@@ -150,6 +150,8 @@ impl SimdCodeGenerator {
             SimdTarget::AVX | SimdTarget::AVX2 => vec!["vaddps %ymm0, %ymm1, %ymm2".to_string()],
             SimdTarget::AVX512 => vec!["vaddps %zmm0, %zmm1, %zmm2".to_string()],
             SimdTarget::NEON => vec!["fadd v0.4s, v1.4s, v2.4s".to_string()],
+            SimdTarget::SVE => vec!["fadd z0.s, z1.s, z2.s".to_string()],
+            SimdTarget::RVV => vec!["vadd.vv v0, v1, v2".to_string()],
         }
     }
 
@@ -159,11 +161,19 @@ impl SimdCodeGenerator {
             SimdTarget::AVX | SimdTarget::AVX2 => vec!["vmulps %ymm0, %ymm1, %ymm2".to_string()],
             SimdTarget::AVX512 => vec!["vmulps %zmm0, %zmm1, %zmm2".to_string()],
             SimdTarget::NEON => vec!["fmul v0.4s, v1.4s, v2.4s".to_string()],
+            SimdTarget::SVE => vec!["fmul z0.s, z1.s, z2.s".to_string()],
+            SimdTarget::RVV => vec!["vmul.vv v0, v1, v2".to_string()],
         }
     }
 
     fn generate_load(&self, align: usize) -> Vec<String> {
         match self.target {
+            SimdTarget::SVE => {
+                vec!["ldr z0, [x0]".to_string()]
+            }
+            SimdTarget::RVV => {
+                vec!["vle8.v v0, [x0]".to_string()]
+            }
             SimdTarget::SSE => {
                 if align >= 16 {
                     vec!["movaps (%rdi), %xmm0".to_string()]
@@ -201,6 +211,8 @@ impl SimdCodeGenerator {
             }
             SimdTarget::AVX512 => vec!["vmovaps %zmm0, (%rdi)".to_string()],
             SimdTarget::NEON => vec!["str q0, [x0]".to_string()],
+            SimdTarget::SVE => vec!["str z0, [x0]".to_string()],
+            SimdTarget::RVV => vec!["vse8.v v0, [x0]".to_string()],
         }
     }
 
@@ -226,7 +238,13 @@ impl SimdCodeGenerator {
     /// Generate horizontal operations (e.g., hadd for reduction)
     pub fn generate_horizontal(&self, op: &str) -> Vec<String> {
         match self.target {
-            SimdTarget::SSE3 | SimdTarget::SSSE3 => {
+            SimdTarget::SVE => {
+                vec![format!("f{}", op)]
+            }
+            SimdTarget::RVV => {
+                vec![format!("v{}", op)]
+            }
+            SimdTarget::SSE => {
                 vec![format!("h{}", op)]
             }
             SimdTarget::AVX | SimdTarget::AVX2 => {

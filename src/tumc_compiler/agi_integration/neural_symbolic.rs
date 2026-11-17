@@ -54,11 +54,11 @@ impl NeuralNetwork {
 
         for i in 0..layers.len() {
             if i > 0 {
-                let input_size = layers[i - 1].config.hidden_size;
-                let output_size = layers[i].config.hidden_size;
+                let input_size = layers[i - 1].hidden_size;
+                let output_size = layers[i].hidden_size;
 
                 // Initialize weights with Xavier initialization
-                let scale = (2.0 / (input_size + output_size) as f64).sqrt();
+                let scale = (2.0f64 / (input_size + output_size) as f64).sqrt();
                 let mut layer_weights = Vec::new();
                 for _ in 0..output_size {
                     let mut neuron_weights = Vec::new();
@@ -378,8 +378,7 @@ impl NeuralSymbolicEngine {
             for inst in &block.instructions {
                 match &inst.op {
                     Operation::Binary(_, _, _) => arithmetic_ops += 1,
-                    Operation::Load(_, _, _, _) | Operation::Store(_, _, _) => memory_ops += 1,
-                    Operation::Branch(_, _, _) | Operation::Jump(_) => branch_count += 1,
+                    Operation::Load(_, _, _, _) | Operation::Store(_, _, _, _) => memory_ops += 1,
                     _ => {}
                 }
             }
