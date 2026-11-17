@@ -94,6 +94,7 @@ pub struct MCTSNodeRef {
 
 impl MCTSNode {
     pub fn new(state: MCTSState, parent: Option<String>) -> Self {
+        let is_terminal = state.is_terminal;
         Self {
             node_id: generate_id(),
             state,
@@ -103,7 +104,7 @@ impl MCTSNode {
             wins: 0.0,
             value: 0.0,
             is_fully_expanded: false,
-            is_terminal: state.is_terminal,
+            is_terminal,
         }
     }
 
@@ -331,22 +332,24 @@ impl MCTSTree {
 
     /// Expansion phase - add new child nodes
     fn expand(&mut self, node_id: &str, environment: &mut impl MCTSEnvironment) -> Result<(), MCTSError> {
-        let node = self.nodes.get(node_id)
-            .ok_or(MCTSError::NodeNotFound)?;
+        let (node_state, node_visits, is_terminal) = {
+            let node = self.nodes.get(node_id).ok_or(MCTSError::NodeNotFound)?;
+            (node.state.clone(), node.visits, node.is_terminal)
+        };
 
-        if node.is_terminal {
+        if is_terminal {
             return Ok(());
         }
 
         // Get possible actions
-        let actions = environment.get_valid_actions(&node.state)?;
+        let actions = environment.get_valid_actions(&node_state)?;
 
         // Select actions to expand based on policy
         let actions_to_expand = match self.config.expansion_policy {
             ExpansionPolicy::AllChildren => actions,
             ExpansionPolicy::SingleChild => actions.first().map(|a| vec![a.clone()]).unwrap_or_default(),
             ExpansionPolicy::Progressive => {
-                let node_visits = node.visits.max(1);
+                let node_visits = node_visits.max(1);
                 let depth = (node_visits as f32).ln().floor() as usize;
                 actions.into_iter().take(1 << depth).collect()
             }
@@ -354,7 +357,7 @@ impl MCTSTree {
 
         // Add child nodes
         for action in actions_to_expand {
-            let child_state = environment.apply_action(&node.state, &action)?;
+            let child_state = environment.apply_action(&node_state, &action)?;
 
             let child_node = MCTSNode::new(child_state, Some(node_id.to_string()));
 
@@ -372,12 +375,15 @@ impl MCTSTree {
         }
 
         // Check if fully expanded
-        if let Some(node) = self.nodes.get_mut(node_id) {
-            if let Some(parent) = &node.parent {
-                let parent = self.nodes.get(parent).unwrap();
-                let total_actions = environment.get_valid_actions(&parent.state)?.len();
-                node.is_fully_expanded = node.children.len() >= total_actions;
-            }
+        let parent_state = self
+            .nodes
+            .get(node_id)
+            .and_then(|node| node.parent.clone())
+            .and_then(|parent| self.nodes.get(&parent))
+            .map(|parent| parent.state.clone());
+        if let (Some(parent_state), Some(node)) = (parent_state, self.nodes.get_mut(node_id)) {
+            let total_actions = environment.get_valid_actions(&parent_state)?.len();
+            node.is_fully_expanded = node.children.len() >= total_actions;
         }
 
         Ok(())
@@ -426,13 +432,15 @@ impl MCTSTree {
 
                     let r = rand::thread_rng().gen_range(0.0..1.0);
                     let mut cumsum = 0.0;
+                    let mut chosen = actions.last().cloned().unwrap_or_default();
                     for (i, prob) in probs.iter().enumerate() {
                         cumsum += prob;
                         if r <= cumsum {
-                            return actions[i].clone();
+                            chosen = actions[i].clone();
+                            break;
                         }
                     }
-                    actions.last().cloned().unwrap_or_default()
+                    chosen
                 }
                 _ => actions[0].clone(),
             };

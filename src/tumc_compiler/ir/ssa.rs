@@ -109,7 +109,7 @@ impl SsaConverter {
         function: &Function,
         dom_tree: &DominatorTree,
     ) -> HashMap<BasicBlockId, Vec<BasicBlockId>> {
-        let mut frontiers = HashMap::new();
+        let mut frontiers: HashMap<BasicBlockId, Vec<BasicBlockId>> = HashMap::new();
 
         for block in &function.body {
             let preds: Vec<_> = function.body.iter()
@@ -162,7 +162,7 @@ impl SsaConverter {
 
                 if let Some(frontier) = self.dom_frontier.get(&block) {
                     for &df_block in frontier {
-                        let phis = all_phis.entry(df_block).or_default();
+                        let phis: &mut Vec<PhiNode> = all_phis.entry(df_block).or_default();
 
                         // Check if phi already exists for this variable
                         let has_phi = phis.iter().any(|p| {
@@ -373,7 +373,7 @@ impl InductionVariableAnalysis {
                         match op {
                             BinOp::Add | BinOp::Sub => {
                                 // Check if one operand is a constant or another induction var
-                                self.induction_vars.insert(inst.id, InductionVariable {
+                                self.induction_vars.insert(inst.result_value(), InductionVariable {
                                     base: *lhs,
                                     step: *rhs,
                                     initial: *lhs,
@@ -433,7 +433,7 @@ pub struct DominanceFrontierCalculator;
 
 impl DominanceFrontierCalculator {
     pub fn compute(function: &Function, dom_tree: &DominatorTree) -> HashMap<BasicBlockId, Vec<BasicBlockId>> {
-        let mut frontiers = HashMap::new();
+        let mut frontiers: HashMap<BasicBlockId, Vec<BasicBlockId>> = HashMap::new();
         let cfg = ControlFlowGraph::from_function(function);
 
         for block in &function.body {
@@ -465,7 +465,7 @@ impl PhiInserter {
     ) -> HashMap<BasicBlockId, Vec<PhiNode>> {
         let dom_tree = DominatorTree::new(function);
         let frontiers = DominanceFrontierCalculator::compute(function, &dom_tree);
-        let mut phis = HashMap::new();
+        let mut phis: HashMap<BasicBlockId, Vec<PhiNode>> = HashMap::new();
 
         for var in variables {
             let mut def_blocks = Vec::new();
