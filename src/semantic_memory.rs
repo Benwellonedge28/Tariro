@@ -405,7 +405,7 @@ impl SemanticMemoryStore {
 
         // Spreading activation iterations
         for _ in 0..self.config.spreading_iterations {
-            let new_activation: HashMap<String, f32> = HashMap::new();
+            let mut new_activation: HashMap<String, f32> = HashMap::new();
 
             for (concept_id, current_activation) in &activation {
                 if let Some(concept) = self.concepts.get(concept_id) {
@@ -501,16 +501,34 @@ impl SemanticMemoryStore {
     /// Add relation between concepts
     pub fn add_relation(&mut self, source_id: &str, target_id: &str,
                         relation_type: RelationType, strength: f32) -> bool {
+        // Check if relation exists
+        let exists = self
+            .concepts
+            .get(source_id)
+            .map(|source| {
+                source
+                    .relations
+                    .iter()
+                    .any(|r| r.target_id == target_id && r.relation_type == relation_type)
+            })
+            .unwrap_or(false);
+        if exists {
+            return false;
+        }
+
+        let target_name = self
+            .concepts
+            .get(target_id)
+            .map(|c| c.name.clone())
+            .unwrap_or_default();
+
+        let source_name = match self.concepts.get(source_id) {
+            Some(source) => source.name.clone(),
+            None => return false,
+        };
+
+        // Add the relation to the source concept
         if let Some(source) = self.concepts.get_mut(source_id) {
-            // Check if relation exists
-            if source.relations.iter().any(|r| r.target_id == target_id && r.relation_type == relation_type) {
-                return false;
-            }
-
-            let target_name = self.concepts.get(target_id)
-                .map(|c| c.name.clone())
-                .unwrap_or_default();
-
             source.relations.push(ConceptRelation {
                 relation_type,
                 target_id: target_id.to_string(),
@@ -518,30 +536,37 @@ impl SemanticMemoryStore {
                 strength,
                 bidirectional: false,
             });
-
-            // Update indices
-            self.update_relation_indices(source);
-            self.update_adjacency_lists(source);
-
-            // Create reverse relation
-            if let Some(target) = self.concepts.get_mut(target_id) {
-                let reverse_type = Self::get_reverse_relation(relation_type);
-                target.relations.push(ConceptRelation {
-                    relation_type: reverse_type,
-                    target_id: source_id.to_string(),
-                    target_name: source.name.clone(),
-                    strength,
-                    bidirectional: false,
-                });
-                self.update_relation_indices(target);
-                self.update_adjacency_lists(target);
-            }
-
-            self.stats.total_relations += 2;
-            true
         } else {
-            false
+            return false;
         }
+
+        // Update indices
+        if let Some(source) = self.concepts.get(source_id).cloned() {
+            self.update_relation_indices(&source);
+            self.update_adjacency_lists(&source);
+        }
+
+        // Create reverse relation
+        if let Some(target) = self.concepts.get_mut(target_id) {
+            let reverse_type = Self::get_reverse_relation(relation_type);
+            target.relations.push(ConceptRelation {
+                relation_type: reverse_type,
+                target_id: source_id.to_string(),
+                target_name: source_name,
+                strength,
+                bidirectional: false,
+            });
+        } else {
+            return false;
+        }
+
+        if let Some(target) = self.concepts.get(target_id).cloned() {
+            self.update_relation_indices(&target);
+            self.update_adjacency_lists(&target);
+        }
+
+        self.stats.total_relations += 2;
+        true
     }
 
     /// Get reverse relation type
@@ -677,10 +702,12 @@ impl SemanticMemoryStore {
 
     /// Merge duplicate concepts
     pub fn merge_concepts(&mut self, source_id: &str, target_id: &str) -> bool {
-        if let (Some(source), Some(target)) = (
-            self.concepts.get(source_id),
-            self.concepts.get_mut(target_id)
-        ) {
+        let source = match self.concepts.get(source_id).cloned() {
+            Some(source) => source,
+            None => return false,
+        };
+
+        if let Some(target) = self.concepts.get_mut(target_id) {
             // Merge attributes
             for (key, attr) in &source.attributes {
                 if !target.attributes.contains_key(key) {

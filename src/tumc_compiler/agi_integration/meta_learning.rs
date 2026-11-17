@@ -167,21 +167,25 @@ impl MetaLearningOptimizer {
         metrics: &PerformanceMetrics,
     ) {
         // Find the decision
-        if let Some(decision) = self.decision_history
+        let updated = self
+            .decision_history
             .iter_mut()
             .find(|d| d.decision_id == compilation_id)
-        {
-            decision.outcome = OptimizationOutcome {
-                compilation_time_ms: metrics.compilation_time_ms,
-                output_size_bytes: metrics.output_size_bytes,
-                runtime_improvement: metrics.estimated_execution_time,
-                memory_improvement: metrics.memory_usage_bytes as f64,
-                success,
-                error_message: None,
-            };
+            .map(|decision| {
+                decision.outcome = OptimizationOutcome {
+                    compilation_time_ms: metrics.compilation_time_ms,
+                    output_size_bytes: metrics.output_size_bytes,
+                    runtime_improvement: metrics.estimated_execution_time,
+                    memory_improvement: metrics.memory_usage_bytes as f64,
+                    success,
+                    error_message: None,
+                };
+                decision.clone()
+            });
 
-            // Update model based on outcome
-            self.update_model_with_outcome(decision);
+        // Update model based on outcome
+        if let Some(decision) = updated {
+            self.update_model_with_outcome(&decision);
         }
     }
 
@@ -274,10 +278,16 @@ impl MetaLearningOptimizer {
 
     fn update_model(&mut self) {
         // Update based on recent history
-        let recent: Vec<_> = self.decision_history.iter().rev().take(10).collect();
+        let recent: Vec<OptimizationDecision> = self
+            .decision_history
+            .iter()
+            .rev()
+            .take(10)
+            .cloned()
+            .collect();
 
         for decision in recent {
-            self.update_model_with_outcome(decision);
+            self.update_model_with_outcome(&decision);
         }
     }
 
@@ -326,10 +336,8 @@ impl MetaLearningOptimizer {
 
                 for inst in &block.instructions {
                     match &inst.op {
-                        crate::tumc_compiler::ir::Operation::Loop(_, _, _) => loop_count += 1,
-                        crate::tumc_compiler::ir::Operation::Branch(_, _, _) => branch_count += 1,
                         crate::tumc_compiler::ir::Operation::Load(_, _, _, _)
-                        | crate::tumc_compiler::ir::Operation::Store(_, _, _) => memory_ops += 1,
+                        | crate::tumc_compiler::ir::Operation::Store(_, _, _, _) => memory_ops += 1,
                         _ => {}
                     }
                 }

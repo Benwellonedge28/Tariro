@@ -4,8 +4,7 @@
 //! for intelligent, self-improving compilation.
 
 use crate::tumc_compiler::ir::{Module, Function, Operation};
-use crate::tumc_compiler::optimizer::Optimizer;
-use crate::tumc_compiler::optimization::OptLevel;
+use crate::tumc_compiler::optimization::{OptimizationManager, OptLevel};
 use crate::tumc_compiler::verification::Verifier;
 use crate::tumc_compiler::agi_integration::{
     AgiCompilerConfig, AgiCompilerBridge, AgiInsight, AgiCompilerMetrics,
@@ -99,7 +98,7 @@ pub struct CognitiveCompiler {
     bridge: AgiCompilerBridge,
 
     /// Traditional optimizer
-    optimizer: Optimizer,
+    optimizer: OptimizationManager,
 
     /// Verifier
     verifier: Verifier,
@@ -152,7 +151,7 @@ impl CognitiveCompiler {
             config: config.clone(),
             mode,
             bridge: AgiCompilerBridge::new(config),
-            optimizer: Optimizer::new(OptLevel::O2),
+            optimizer: OptimizationManager::new(OptLevel::O2),
             verifier: Verifier::default(),
             stats: CognitiveCompilerStats::default(),
             cache: HashMap::new(),
@@ -174,7 +173,7 @@ impl CognitiveCompiler {
         let insights = match request.mode {
             CompilationMode::Standard => {
                 // Just use traditional optimization
-                self.optimizer.optimize_module(&mut module);
+                self.optimizer.run(&mut module);
                 Vec::new()
             }
             CompilationMode::Intelligent => {
@@ -229,7 +228,7 @@ impl CognitiveCompiler {
         }
 
         // Final traditional optimization pass
-        self.optimizer.optimize_module(&mut module);
+        self.optimizer.run(&mut module);
 
         // Calculate metrics
         let optimized_instructions = self.count_instructions(&module);
@@ -257,7 +256,7 @@ impl CognitiveCompiler {
             success: true,
             original_module: request.source,
             optimized_module: format!("{:?}", module), // Simplified serialization
-            insights,
+            insights: insights.clone(),
             metrics: CognitiveMetrics {
                 original_instructions,
                 optimized_instructions,
@@ -278,8 +277,9 @@ impl CognitiveCompiler {
         Module {
             name: source.lines().next().unwrap_or("main").to_string(),
             functions: Vec::new(),
-            globals: HashMap::new(),
+            globals: Vec::new(),
             metadata: HashMap::new(),
+            ..Default::default()
         }
     }
 
@@ -318,8 +318,8 @@ impl CognitiveCompiler {
 
     /// Enable/disable features
     pub fn configure(&mut self, config: AgiCompilerConfig) {
+        self.bridge = AgiCompilerBridge::new(config.clone());
         self.config = config;
-        self.bridge = AgiCompilerBridge::new(config);
     }
 }
 

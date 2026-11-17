@@ -1468,10 +1468,11 @@ impl Tokenizer {
                 cleaned.clone()
             };
 
+            let pos_tag = self.guess_pos(&cleaned);
             tokens.push(Token {
                 text: cleaned,
                 lemma,
-                pos_tag: self.guess_pos(&cleaned),
+                pos_tag,
                 ner_tag: None,
                 embedding: vec![0.0; 300], // Placeholder embedding
                 position,
@@ -1539,9 +1540,10 @@ impl SyntacticParser {
         }
 
         if !current_phrase.is_empty() {
+            let label = format!("{:?}", phrase_type);
             children.push(SyntacticNode {
                 node_type: phrase_type,
-                label: format!("{:?}", phrase_type),
+                label,
                 children: current_phrase,
                 token_span: None,
             });
@@ -1800,8 +1802,10 @@ impl ComplementaryFusion {
     }
 
     pub fn fuse(&self, features_a: &[f32], features_b: &[f32], m1: &Modality, m2: &Modality) -> Vec<f32> {
-        let weight = self.fusion_weights.get(&(*m1, *m2))
-            .or_else(|| self.fusion_weights.get(&(*m2, *m1)))
+        let weight = self
+            .fusion_weights
+            .get(&(m1.clone(), m2.clone()))
+            .or_else(|| self.fusion_weights.get(&(m2.clone(), m1.clone())))
             .copied()
             .unwrap_or(0.5);
 
@@ -2321,38 +2325,58 @@ impl PerceptualProcessing {
         let alignments = aligner.align(&perceptions);
 
         for alignment in alignments {
-            if let (Some(perception_a), Some(perception_b)) = (
-                integrated.get_mut(alignment.perception_a),
-                integrated.get_mut(alignment.perception_b),
-            ) {
-                // Create binding
-                let binding = CrossModalBinding {
-                    binding_id: Uuid::new(),
-                    source_modality: perception_a.modality.clone(),
-                    target_modality: perception_b.modality.clone(),
-                    source_id: perception_a.perception_id.clone(),
-                    target_id: perception_b.perception_id.clone(),
-                    binding_type: match alignment.alignment_type {
-                        AlignmentType::Synchronized => BindingType::Synchronized,
-                        _ => BindingType::Correlated,
-                    },
-                    confidence: alignment.confidence,
-                    temporal_alignment: Some(alignment.time_diff),
+            // Read the two perceptions before either of them is changed.
+            let (source_modality, target_modality, source_id, target_id, source_features, target_features) = {
+                let perception_a = match integrated.get(alignment.perception_a) {
+                    Some(perception) => perception,
+                    None => continue,
+                };
+                let perception_b = match integrated.get(alignment.perception_b) {
+                    Some(perception) => perception,
+                    None => continue,
                 };
 
-                perception_a.cross_modal_bindings.push(binding);
-                perception_b.cross_modal_bindings.push(binding);
+                (
+                    perception_a.modality.clone(),
+                    perception_b.modality.clone(),
+                    perception_a.perception_id.clone(),
+                    perception_b.perception_id.clone(),
+                    perception_a.processed_features.clone(),
+                    perception_b.processed_features.clone(),
+                )
+            };
 
-                // Fuse features if complementary
-                let fusion = ComplementaryFusion::new();
-                let fused = fusion.fuse(
-                    &perception_a.processed_features,
-                    &perception_b.processed_features,
-                    &perception_a.modality,
-                    &perception_b.modality,
-                );
+            // Create binding
+            let binding = CrossModalBinding {
+                binding_id: Uuid::new(),
+                source_modality: source_modality.clone(),
+                target_modality: target_modality.clone(),
+                source_id: source_id.clone(),
+                target_id: target_id.clone(),
+                binding_type: match alignment.alignment_type {
+                    AlignmentType::Synchronized => BindingType::Synchronized,
+                    _ => BindingType::Correlated,
+                },
+                confidence: alignment.confidence,
+                temporal_alignment: Some(alignment.time_diff),
+            };
 
+            // Fuse features if complementary
+            let fusion = ComplementaryFusion::new();
+            let fused = fusion.fuse(
+                &source_features,
+                &target_features,
+                &source_modality,
+                &target_modality,
+            );
+
+            if let Some(perception_a) = integrated.get_mut(alignment.perception_a) {
+                perception_a.cross_modal_bindings.push(binding.clone());
                 perception_a.processed_features = fused;
+            }
+
+            if let Some(perception_b) = integrated.get_mut(alignment.perception_b) {
+                perception_b.cross_modal_bindings.push(binding);
             }
         }
 
