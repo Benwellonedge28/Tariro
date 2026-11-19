@@ -608,14 +608,16 @@ impl EpisodicMemory {
 
     /// Retrieve episode by ID
     pub fn retrieve(&mut self, id: &MemoryId) -> Option<&Episode> {
-        self.episodes.iter().find(|e| &e.id == id).map(|e| {
-            // Update retrieval metrics
-            if let Some(ep) = self.episodes.iter_mut().find(|ep| &ep.id == id) {
-                ep.record_retrieval();
-                self.stats.episodes_retrieved += 1;
-            }
-            e
-        })
+        let index = self.episodes.iter().position(|e| &e.id == id)?;
+
+        // Update retrieval metrics
+        {
+            let episode = &mut self.episodes[index];
+            episode.record_retrieval();
+            self.stats.episodes_retrieved += 1;
+        }
+
+        Some(&self.episodes[index])
     }
 
     /// Retrieve episode by ID (mutable)
@@ -892,17 +894,16 @@ impl SemanticMemory {
 
         // Store new
         let cat_id = knowledge.id.clone();
+        let concept = knowledge.concept.clone();
+        let category = knowledge.category;
         self.knowledge.insert(id.clone(), knowledge);
 
         // Update indices
         self.name_index
-            .entry(knowledge.concept.clone())
+            .entry(concept)
             .or_insert_with(|| id.clone());
 
-        self.category_index
-            .entry(knowledge.category)
-            .or_default()
-            .push(cat_id);
+        self.category_index.entry(category).or_default().push(cat_id);
 
         self.association_graph
             .entry(id.clone())
@@ -979,12 +980,12 @@ impl SemanticMemory {
         result
     }
 
-    fn traverse_associations(
-        &self,
+    fn traverse_associations<'a>(
+        &'a self,
         id: &MemoryId,
         depth: usize,
         visited: &mut std::collections::HashSet<MemoryId>,
-        result: &mut Vec<&SemanticKnowledge>,
+        result: &mut Vec<&'a SemanticKnowledge>,
     ) {
         if depth == 0 || visited.contains(id) {
             return;
@@ -1116,12 +1117,12 @@ impl ProceduralMemory {
         }
 
         // Store new
+        let name = procedure.name.clone();
+        let domain = procedure.domain.clone();
         self.procedures.insert(id.clone(), procedure);
-        self.name_index
-            .entry(procedure.name.clone())
-            .or_insert_with(|| id.clone());
+        self.name_index.entry(name).or_insert_with(|| id.clone());
         self.domain_index
-            .entry(procedure.domain.clone())
+            .entry(domain)
             .or_default()
             .push(id.clone());
 
@@ -1269,7 +1270,7 @@ impl MemorySystem {
     }
 
     /// Search across all memory types
-    pub fn search(&self, query: &str) -> MemorySearchResult {
+    pub fn search(&self, query: &str) -> MemorySearchResult<'_> {
         MemorySearchResult {
             episodes: self.episodic.search(query),
             knowledge: self.semantic.search(query),
@@ -1402,13 +1403,13 @@ pub struct SystemStats {
 
 /// Memory search result
 #[derive(Debug, Clone)]
-pub struct MemorySearchResult {
-    pub episodes: Vec<&'static Episode>,
-    pub knowledge: Vec<&'static SemanticKnowledge>,
-    pub procedures: Vec<&'static Procedure>,
+pub struct MemorySearchResult<'a> {
+    pub episodes: Vec<&'a Episode>,
+    pub knowledge: Vec<&'a SemanticKnowledge>,
+    pub procedures: Vec<&'a Procedure>,
 }
 
-impl MemorySearchResult {
+impl<'a> MemorySearchResult<'a> {
     pub fn is_empty(&self) -> bool {
         self.episodes.is_empty() && self.knowledge.is_empty() && self.procedures.is_empty()
     }

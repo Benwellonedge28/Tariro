@@ -42,22 +42,36 @@ impl GarbageCollector for MarkSweepGc {
             return std::ptr::null_mut();
         }
 
-        if let Some(ref mut heap) = self.heap {
-            // Check if we need to GC
-            if heap.allocated + size > (self.config.gc_threshold * heap.size as f64) as usize {
-                self.collect();
+        // Check if we need to collect before the heap grows too large.
+        let over_threshold = match self.heap {
+            Some(ref heap) => {
+                heap.allocated + size > (self.config.gc_threshold * heap.size as f64) as usize
             }
-
-            if let Some(ptr) = heap.allocate(size) {
-                self.stats.allocations += 1;
-                return ptr;
-            }
-
-            // Try expanding heap
+            None => false,
+        };
+        if over_threshold {
             self.collect();
-            if let Some(ptr) = heap.allocate(size) {
-                return ptr;
-            }
+        }
+
+        // Try to allocate from the heap.
+        let allocated = match self.heap {
+            Some(ref mut heap) => heap.allocate(size),
+            None => None,
+        };
+        if let Some(ptr) = allocated {
+            self.stats.allocations += 1;
+            return ptr;
+        }
+
+        // Collect the unreachable objects and try once more.
+        self.collect();
+        let allocated = match self.heap {
+            Some(ref mut heap) => heap.allocate(size),
+            None => None,
+        };
+        if let Some(ptr) = allocated {
+            self.stats.allocations += 1;
+            return ptr;
         }
 
         std::ptr::null_mut()
@@ -66,18 +80,23 @@ impl GarbageCollector for MarkSweepGc {
     fn collect(&mut self) {
         let start = std::time::Instant::now();
 
-        if let Some(ref mut heap) = self.heap {
-            // Phase 1: Mark
-            let mut marked = HashMap::new();
-            self.mark(&self.roots, &mut marked);
+        // Phase 1: Mark
+        let mut marked = HashMap::new();
+        let roots = self.roots.clone();
+        self.mark(&roots, &mut marked);
 
-            // Phase 2: Sweep
-            let freed = self.sweep(heap, &marked);
+        // Phase 2: Sweep
+        let (freed, free_memory) = match self.heap {
+            Some(ref mut heap) => {
+                let freed = self.sweep(heap, &marked);
+                (freed, heap.size - heap.allocated)
+            }
+            None => (0, 0),
+        };
 
-            self.stats.collections += 1;
-            self.stats.freed_objects += freed;
-            self.stats.free_memory = heap.size - heap.allocated;
-        }
+        self.stats.collections += 1;
+        self.stats.freed_objects += freed;
+        self.stats.free_memory = free_memory;
 
         self.stats.total_collection_time +=
             start.elapsed().as_millis() as u64;

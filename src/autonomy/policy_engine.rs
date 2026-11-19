@@ -146,12 +146,13 @@ impl AutonomyPolicyEngineTrait for AutonomyPolicyEngine {
     async fn evaluate_action(&self, action: &str, context: &HashMap<String, String>) -> Result<PolicyDecision, String> {
         let action_domain = context.get("domain").cloned().unwrap_or_else(|| "default".to_string());
         
-        let policies_guard = self.policies.lock().unwrap();
-        let policy_option = policies_guard.values().find(|p| p.domain == action_domain);
-
-        let policy = policy_option.cloned()
-            .unwrap_or_else(|| {
-                AutonomyPolicy {
+        let policy = {
+            let policies_guard = self.policies.lock().unwrap();
+            policies_guard
+                .values()
+                .find(|p| p.domain == action_domain)
+                .cloned()
+                .unwrap_or_else(|| AutonomyPolicy {
                     id: None,
                     label: format!("Default Policy for {}", action_domain),
                     domain: action_domain.clone(),
@@ -160,9 +161,8 @@ impl AutonomyPolicyEngineTrait for AutonomyPolicyEngine {
                     notes: Some("Automatically generated default policy.".to_string()),
                     created_at: Utc::now(),
                     last_updated: Utc::now(),
-                }
-            });
-        drop(policies_guard);
+                })
+        };
 
         self.telemetry_logger.log_event(TelemetryEvent::AGIAction {
             action_type: "EvaluateAction".to_string(),
@@ -208,25 +208,39 @@ impl AutonomyPolicyEngineTrait for AutonomyPolicyEngine {
     }
 
     async fn update_policy(&mut self, mut policy: AutonomyPolicy) -> Result<(), String> {
-        if let Some(id) = &policy.id {
+        let id = match &policy.id {
+            Some(id) => id.clone(),
+            None => return Err("Policy to update must have an ID.".to_string()),
+        };
+
+        // The policy is written while the lock is held, and the label is read
+        // before the lock is released for the database call.
+        let existing_label = {
             let mut policies_guard = self.policies.lock().unwrap();
-            if let Some(existing_policy) = policies_guard.get_mut(id) {
-                policy.last_updated = Utc::now();
-                *existing_policy = policy.clone();
-                drop(policies_guard); // Release lock before async DB call
-                self.db_service.update(id, &policy).await?;
-                println!("[AutonomyPolicyEngine] Updated policy: {}", existing_policy.label);
-                self.telemetry_logger.log_event(TelemetryEvent::PolicyUpdated {
-                    policy_id: id.clone(),
-                    action: "update".to_string(),
-                }).await;
-                Ok(())
-            } else {
-                Err(format!("Policy with ID {} not found.", id))
+            match policies_guard.get_mut(&id) {
+                Some(existing_policy) => {
+                    policy.last_updated = Utc::now();
+                    *existing_policy = policy.clone();
+                    Some(existing_policy.label.clone())
+                }
+                None => None,
             }
-        } else {
-            Err("Policy to update must have an ID.".to_string())
-        }
+        };
+
+        let existing_label = match existing_label {
+            Some(label) => label,
+            None => return Err(format!("Policy with ID {} not found.", id)),
+        };
+
+        self.db_service.update(&id, &policy).await?;
+        println!("[AutonomyPolicyEngine] Updated policy: {}", existing_label);
+        self.telemetry_logger
+            .log_event(TelemetryEvent::PolicyUpdated {
+                policy_id: id,
+                action: "update".to_string(),
+            })
+            .await;
+        Ok(())
     }
 
     async fn remove_policy(&mut self, policy_id: &str) -> Result<(), String> {
@@ -254,20 +268,28 @@ impl AutonomyPolicyEngineTrait for AutonomyPolicyEngine {
     }
 
     async fn list_policies(&self) -> Vec<AutonomyPolicy> {
-        let policies = self.policies.lock().unwrap();
-        policies.values().cloned().collect()
+        self.policies.lock().unwrap().values().cloned().collect()
     }
 
     async fn set_autonomy_level(&mut self, domain: &str, level: AutonomyLevel) -> Result<(), String> {
-        let mut policies_guard = self.policies.lock().unwrap();
-        let mut found_policy_id = None;
-        if let Some(policy) = policies_guard.values_mut().find(|p| p.domain == domain) {
-            let old_level = policy.autonomy_level.to_string();
-            policy.autonomy_level = level.clone();
-            policy.last_updated = Utc::now();
-            found_policy_id = policy.id.clone();
-            let updated_policy = policy.clone(); // Clone for DB update after releasing lock
-            drop(policies_guard);
+        // The policy is read and written while the lock is held, and copied
+        // before the lock is released for the database call.
+        let updated = {
+            let mut policies_guard = self.policies.lock().unwrap();
+            let mut found_policy_id = None;
+            let mut updated = None;
+            if let Some(policy) = policies_guard.values_mut().find(|p| p.domain == domain) {
+                let old_level = policy.autonomy_level.to_string();
+                policy.autonomy_level = level.clone();
+                policy.last_updated = Utc::now();
+                found_policy_id = policy.id.clone();
+                updated = Some((old_level, policy.clone()));
+            }
+            let _ = found_policy_id;
+            updated
+        };
+
+        if let Some((old_level, updated_policy)) = updated {
             if let Some(id) = updated_policy.id.as_ref() {
                 self.db_service.update(id, &updated_policy).await?;
             }
@@ -292,7 +314,6 @@ impl AutonomyPolicyEngineTrait for AutonomyPolicyEngine {
                 created_at: Utc::now(),
                 last_updated: Utc::now(),
             };
-            drop(policies_guard); // Release lock before calling async add_policy
             let new_policy_id = self.add_policy(new_policy.clone()).await?;
             new_policy.id = Some(new_policy_id);
             println!("[AutonomyPolicyEngine] New autonomy policy created for domain '{}' with level {:?}", domain, level);
