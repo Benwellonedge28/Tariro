@@ -31,12 +31,6 @@ impl From<NodeId> for u64 {
     }
 }
 
-impl From<NodeId> for u64 {
-    fn from(id: NodeId) -> u64 {
-        id.0 as u64
-    }
-}
-
 impl NodeId {
     pub fn new(id: usize) -> Self {
         NodeId(id)

@@ -78,8 +78,8 @@ impl DialectRegistry {
         self.dialects.get(name).map(|b| b.as_ref())
     }
 
-    pub fn names(&self) -> Vec<&'static str> {
-        self.dialects.keys().map(|s| s.as_str()).collect()
+    pub fn names(&self) -> Vec<String> {
+        self.dialects.keys().cloned().collect()
     }
 }
 

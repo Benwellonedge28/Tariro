@@ -40,7 +40,7 @@ impl OptimizationPass for CopyPropagation {
                 for inst in &block.instructions {
                     // Find copy operations
                     if let Operation::Cast(val, _, CastKind::Bitcast) = &inst.op {
-                        copies.insert(inst.id, *val);
+                        copies.insert(inst.result_value(), *val);
                     }
                 }
             }
@@ -120,19 +120,34 @@ impl OptimizationPass for FunctionInlining {
     fn run(&self, module: &mut Module) -> bool {
         let mut inlined = 0;
 
+        // The size of every function is collected before the module is
+        // changed, so that the module is not borrowed twice.
+        let functions: Vec<(usize, bool)> = module
+            .functions
+            .iter()
+            .map(|function| {
+                let size = function
+                    .body
+                    .iter()
+                    .map(|block| block.instructions.len())
+                    .sum::<usize>();
+                (
+                    size,
+                    function.attributes.inline == Some(InlineAttribute::Always),
+                )
+            })
+            .collect();
+
         for func in &mut module.functions {
             for block in &mut func.body {
                 for inst in &mut block.instructions {
-                    if let Operation::Call(func_id, args) = &inst.op.clone() {
+                    if let Operation::Call(func_id, _) = &inst.op.clone() {
                         // Check if should inline
-                        if let Some(target) = module.functions.get(func_id.0) {
-                            let size = target.body.iter()
-                                .map(|b| b.instructions.len())
-                                .sum::<usize>();
+                        let (size, always_inline) =
+                            functions.get(func_id.0).copied().unwrap_or((0, false));
 
-                            if size <= self.threshold || target.attributes.inline == Some(InlineAttribute::Always) {
-                                inlined += 1;
-                            }
+                        if size <= self.threshold || always_inline {
+                            inlined += 1;
                         }
                     }
                 }

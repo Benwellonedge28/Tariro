@@ -60,7 +60,7 @@ impl OldGeneration {
 
 impl GenerationalGc {
     pub fn new(config: HeapConfig) -> Self {
-        let young_gen = YoungGeneration::neweden_size(1024 * 1024, 256 * 1024).unwrap();
+        let young_gen = YoungGeneration::new(1024 * 1024, 256 * 1024).unwrap();
         let old_gen = OldGeneration::new(config.max_size, config.max_size).unwrap();
 
         Self {
@@ -218,10 +218,17 @@ impl GarbageCollector for G1Collector {
         // Check if object is humongous (> half region)
         if size > self.region_size / 2 {
             // Allocate in dedicated humongous region
-            let region = HeapRegion::new(size + self.region_size).ok()?;
+            let region = match HeapRegion::new(size + self.region_size) {
+                Some(region) => region,
+                None => return std::ptr::null_mut(),
+            };
             self.humongous_regions.push(self.regions.len());
             self.regions.push(region);
-            return self.regions.last_mut().unwrap().allocate(size);
+            return self
+                .regions
+                .last_mut()
+                .and_then(|region| region.allocate(size))
+                .unwrap_or(std::ptr::null_mut());
         }
 
         // Allocate in young regions

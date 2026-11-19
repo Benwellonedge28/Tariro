@@ -166,6 +166,8 @@ impl Dialect for GpuDialect {
 
 pub struct GpuDialect {
     pub kernels: Vec<GpuKernel>,
+    /// The operations the dialect has launched.
+    pub operations: Vec<GpuOp>,
     pub current_device: usize,
 }
 
@@ -173,6 +175,7 @@ impl GpuDialect {
     pub fn new() -> Self {
         Self {
             kernels: Vec::new(),
+            operations: Vec::new(),
             current_device: 0,
         }
     }

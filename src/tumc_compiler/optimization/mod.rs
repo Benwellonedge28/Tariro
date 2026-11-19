@@ -284,6 +284,7 @@ pub fn clone_instruction(inst: &Instruction, new_id: InstId) -> Instruction {
         id: new_id,
         op: inst.op.clone(),
         result_type: inst.result_type.clone(),
+        result_name: inst.result_name.clone(),
         comments: inst.comments.clone(),
     }
 }

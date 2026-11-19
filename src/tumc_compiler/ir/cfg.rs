@@ -52,7 +52,7 @@ impl ControlFlowGraph {
 
         // Build predecessor lists
         for block in &function.body {
-            for &succ in block.terminator.successors() {
+            for succ in block.terminator.successors() {
                 if let Some(node) = cfg.nodes.get_mut(&succ) {
                     node.predecessors.push(block.id);
                 }
@@ -371,7 +371,7 @@ impl ControlFlowGraph {
         loop {
             let mut new = Vec::new();
             for &block in &result {
-                for &df in self.dominance_frontier(block, idom) {
+                for df in self.dominance_frontier(block, idom) {
                     if !result.contains(&df) {
                         new.push(df);
                     }
@@ -404,6 +404,11 @@ impl NaturalLoop {
 
     pub fn contains(&self, block: BasicBlockId) -> bool {
         self.blocks.contains(&block)
+    }
+
+    /// The blocks that belong to the loop.
+    pub fn blocks(&self) -> &[BasicBlockId] {
+        &self.blocks
     }
 
     pub fn preheader(&self, cfg: &ControlFlowGraph) -> Option<BasicBlockId> {

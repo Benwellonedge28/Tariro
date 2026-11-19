@@ -107,7 +107,7 @@ impl AliasAnalysis {
         match &inst.op {
             Operation::Load(_, ptr, _, _) => {
                 // Load may create alias with previous loads from same location
-                result.may_alias.insert((inst.id, *ptr));
+                result.may_alias.insert((inst.result_value(), *ptr));
             }
             Operation::Store(_, ptr, val, _) => {
                 // Store may create alias
@@ -115,7 +115,7 @@ impl AliasAnalysis {
             }
             Operation::Bitcast(val, _) => {
                 // Bitcast preserves aliasing
-                result.may_alias.insert((inst.id, *val));
+                result.may_alias.insert((inst.result_value(), *val));
             }
             _ => {}
         }

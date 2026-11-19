@@ -86,12 +86,6 @@ impl LoopInvariantCodeMotion {
     }
 }
 
-impl NaturalLoop {
-    fn contains(&self, block: BasicBlockId) -> bool {
-        self.blocks.contains(&block)
-    }
-}
-
 /// Loop unrolling
 pub struct LoopUnrolling {
     pub threshold: usize,

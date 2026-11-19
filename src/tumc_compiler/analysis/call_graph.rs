@@ -143,15 +143,15 @@ impl CallGraph {
             on_stack: &mut HashSet<FunctionId>,
             sccs: &mut Vec<Vec<FunctionId>>,
         ) {
-            indices.insert(v, index);
-            lowlinks.insert(v, index);
-            index += 1;
+            indices.insert(v, *index);
+            lowlinks.insert(v, *index);
+            *index += 1;
             stack.push(v);
             on_stack.insert(v);
 
             for w in graph.callees(v) {
                 if !indices.contains_key(&w) {
-                    strongconnect(graph, w, &mut index, stack, indices, lowlinks, on_stack, sccs);
+                    strongconnect(graph, w, index, stack, indices, lowlinks, on_stack, sccs);
                     let w_low = *lowlinks.get(&w).unwrap();
                     *lowlinks.entry(v).or_insert(0) = w_low.min(*lowlinks.get(&v).unwrap());
                 } else if on_stack.contains(&w) {

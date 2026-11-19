@@ -201,7 +201,7 @@ impl VectorType {
     }
 
     pub fn to_ir_type(&self) -> IrType {
-        IrType::Vector(Box::new(self.element_type), self.num_elements)
+        IrType::Vector(Box::new(self.element_type.clone()), self.num_elements)
     }
 }
 
