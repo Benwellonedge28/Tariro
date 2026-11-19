@@ -494,11 +494,22 @@ impl ResourceAwareLoader {
         self.resolve_dependencies()?;
 
         // Get modules sorted by priority
-        let mut sorted: Vec<_> = self.modules.values_mut().collect();
-        sorted.sort_by_key(|m| m.descriptor.load_priority);
+        let mut sorted: Vec<(u8, String)> = self
+            .modules
+            .values()
+            .map(|module| (module.descriptor.load_priority, module.descriptor.name.to_string()))
+            .collect();
+        sorted.sort_by_key(|(priority, _)| *priority);
 
-        for entry in sorted {
+        for (_, name) in sorted {
             summary.total_modules += 1;
+
+            // The module is taken out of the registry while it is loaded, so
+            // that the loader can borrow the registry as well.
+            let mut entry = match self.modules.remove(name.as_str()) {
+                Some(entry) => entry,
+                None => continue,
+            };
 
             // Check if module can be loaded
             let can_load = self.can_load_module(&entry.descriptor);
@@ -514,7 +525,7 @@ impl ResourceAwareLoader {
                         module: entry.descriptor.name.to_string(),
                         success: false,
                         memory_used: 0,
-                        error: Some(can_load.1),
+                        error: Some(can_load.1.clone()),
                     });
 
                     if self.strict {
@@ -524,13 +535,15 @@ impl ResourceAwareLoader {
                         });
                     }
                 }
+                let module_name = entry.descriptor.name;
+                self.modules.insert(module_name, entry);
                 continue;
             }
 
             // Load the module
             entry.state = ModuleState::Loading;
 
-            let handle = self.load_module_internal(entry)?;
+            let handle = self.load_module_internal(&mut entry)?;
 
             if let Some(h) = handle {
                 entry.state = ModuleState::Loaded;
@@ -557,6 +570,9 @@ impl ResourceAwareLoader {
                     error: Some("Load returned None".to_string()),
                 });
             }
+
+            let module_name = entry.descriptor.name;
+            self.modules.insert(module_name, entry);
         }
 
         Ok(summary)
@@ -661,18 +677,18 @@ impl ResourceAwareLoader {
     }
 
     /// Check for circular dependencies
-    fn has_circular_dependency<'a>(
+    fn has_circular_dependency(
         &self,
-        module: &'a str,
-        entry: &'a ModuleEntry,
-        visited: &mut HashSet<&'a str>,
+        module: &str,
+        entry: &ModuleEntry,
+        visited: &mut HashSet<String>,
     ) -> bool {
         if visited.contains(module) {
             return true;
         }
-        visited.insert(module);
+        visited.insert(module.to_string());
 
-        for dep in entry.descriptor.dependencies {
+        for dep in entry.descriptor.dependencies.iter() {
             if let Some(dep_entry) = self.modules.get(dep) {
                 if self.has_circular_dependency(dep, dep_entry, visited) {
                     return true;

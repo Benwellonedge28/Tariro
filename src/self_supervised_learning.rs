@@ -339,7 +339,10 @@ impl ContrastiveLearner {
 
         // Numerical stability
         let max_log = logits.iter().flatten().fold(f32::MIN, |a, &b| a.max(b));
-        let stable_exp: Vec<Vec<f32>> = exp_logits.iter().map(|row| row.iter().map(|x| (x - max_log).exp())).collect();
+        let stable_exp: Vec<Vec<f32>> = exp_logits
+            .iter()
+            .map(|row| row.iter().map(|x| (x - max_log).exp()).collect::<Vec<f32>>())
+            .collect();
         let sum_exp: Vec<f32> = stable_exp.iter().map(|row| row.iter().sum::<f32>()).collect();
 
         // Cross entropy
@@ -391,9 +394,12 @@ impl ContrastiveLearner {
 
         // Off-diagonal loss (redundancy reduction)
         let off_diag_loss: f32 = (0..batch_size)
-            .flat_map(|i| (0..batch_size)
-                .filter(|&j| i != j)
-                .map(|j| c_matrix[i][j].powi(2)))
+            .flat_map(|i| {
+                let row = &c_matrix[i];
+                (0..batch_size)
+                    .filter(move |&j| i != j)
+                    .map(move |j| row[j].powi(2))
+            })
             .sum::<f32>() / (batch_size * (batch_size - 1)) as f32;
 
         let total_loss = diag_loss + lambda * off_diag_loss;
@@ -679,7 +685,7 @@ impl MaskedAutoencoder {
                 masked_original.iter()
                     .zip(masked_reconstructed.iter())
                     .map(|(o, r)| {
-                        let r_clamped = r.clamp(&eps, &(1.0 - eps));
+                        let r_clamped = r.clamp(eps, 1.0 - eps);
                         -(o * r_clamped.ln() + (1.0 - o) * (1.0 - r_clamped).ln())
                     })
                     .sum::<f32>() / masked_original.len().max(1) as f32

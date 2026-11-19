@@ -88,7 +88,7 @@ impl GarbageCollector for MarkSweepGc {
         // Phase 2: Sweep
         let (freed, free_memory) = match self.heap {
             Some(ref mut heap) => {
-                let freed = self.sweep(heap, &marked);
+                let freed = Self::sweep(heap, &marked);
                 (freed, heap.size - heap.allocated)
             }
             None => (0, 0),
@@ -143,7 +143,7 @@ impl MarkSweepGc {
     }
 
     /// Sweep phase - free unmarked objects
-    fn sweep(&self, heap: &mut HeapRegion, marked: &HashMap<*mut u8, bool>) -> usize {
+    fn sweep(heap: &mut HeapRegion, marked: &HashMap<*mut u8, bool>) -> usize {
         let mut freed = 0;
         let mut ptr = heap.start;
 

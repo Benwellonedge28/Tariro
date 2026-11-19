@@ -301,7 +301,7 @@ impl Default for TrainingConfig {
 
 impl Default for FederatedProtocol {
     fn default() -> Self {
-        Self::new(0, FederatedConfig::default())
+        Self::new(NodeId(0), FederatedConfig::default())
     }
 }
 
@@ -310,8 +310,8 @@ impl FederatedProtocol {
     pub fn new(node_id: NodeId, config: FederatedConfig) -> Self {
         Self {
             node_id,
-            aggregation: config.aggregation,
-            privacy: config.privacy,
+            aggregation: config.aggregation.clone(),
+            privacy: config.privacy.clone(),
             local_weights: Vec::new(),
             server_weights: None,
             peer_updates: Vec::new(),
@@ -319,7 +319,7 @@ impl FederatedProtocol {
             current_round: 0,
             min_peers: config.min_peers,
             sync_frequency_s: config.sync_frequency_s,
-            config,
+            config: config.clone(),
         }
     }
 
@@ -625,8 +625,8 @@ impl FederatedProtocol {
 
         // Add proximal term if we have server weights
         if let Some(ref server) = self.server_weights {
-            let mut result = avg;
-            for (r, (&a, &s)) in result.iter_mut().zip(avg.iter()).zip(server.iter()) {
+            let mut result = avg.clone();
+            for ((r, &a), &s) in result.iter_mut().zip(avg.iter()).zip(server.iter()) {
                 *r += mu * (a - s);
             }
             Ok(result)

@@ -274,7 +274,7 @@ impl BPETokenizer {
     fn get_stats(&self, pairs: &[(String, String)]) -> HashMap<(String, String), usize> {
         let mut stats = HashMap::new();
         for pair in pairs {
-            *stats.entry(*pair).or_insert(0) += 1;
+            *stats.entry(pair.clone()).or_insert(0) += 1;
         }
         stats
     }
@@ -566,7 +566,7 @@ impl LocalInferenceEngine {
 
         for _ in 0..session.config.max_tokens.min(100) {
             // Simulate next token prediction
-            let next_token = self.sample_next_token(session, &output_ids)?;
+            let next_token = self.sample_next_token(&session.config, &output_ids)?;
 
             if let Some(stop) = session.config.stop_sequences.iter().find(|s| s.len() <= 10) {
                 if output_ids.len() > stop.len() {
