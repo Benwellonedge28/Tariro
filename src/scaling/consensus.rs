@@ -344,7 +344,11 @@ pub struct PeerState {
 
 impl Default for DistributedConsensus {
     fn default() -> Self {
-        Self::new(0, ConsensusConfig::default())
+        // The default configuration always validates.
+        Self::new(NodeId(0), ConsensusConfig::default()).unwrap_or_else(|error| {
+            eprintln!("[DistributedConsensus] the default configuration is invalid: {}", error);
+            Self::new(NodeId(0), ConsensusConfig::default()).unwrap_or_else(|_| unreachable!())
+        })
     }
 }
 
@@ -725,7 +729,7 @@ impl DistributedConsensus {
     fn count_prepares(&self, digest: &[u8; 32]) -> usize {
         self.pbft_prepares
             .iter()
-            .filter(|(d, _), &&v| v && d.0 == *digest)
+            .filter(|((d, _), &v)| v && d.0 == *digest)
             .count()
     }
 

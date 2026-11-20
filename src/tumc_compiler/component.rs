@@ -460,7 +460,7 @@ impl ComponentBuilder {
                 binary.push(0x70);
                 self.encode_val_type(inner, binary);
             }
-            ComponentValType::Result(inner) => {
+            ComponentValType::Result(inner, _error) => {
                 binary.push(0x6F);
                 self.encode_val_type(inner, binary);
             }

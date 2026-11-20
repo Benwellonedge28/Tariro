@@ -85,7 +85,11 @@ impl Arm64Reg {
 
     /// Check if this is a 64-bit register
     pub fn is_64bit(&self) -> bool {
-        matches!(self, Arm64Reg::X0..=Arm64Reg::Xzr)
+        // The 64 bit registers come before the 32 bit registers.
+        let last_64 = Arm64Reg::Xzr as isize;
+        let first_32 = Arm64Reg::W0 as isize;
+        let register = *self as isize;
+        register <= last_64 && register < first_32
     }
 
     /// Get 64-bit counterpart

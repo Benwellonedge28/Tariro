@@ -173,7 +173,10 @@ impl PluginManager {
             entry: path.to_string_lossy().to_string(),
         };
 
-        let plugin: Arc<dyn Plugin> = Arc::new(DynamicPlugin { metadata });
+        let plugin: Arc<dyn Plugin> = Arc::new(DynamicPlugin {
+            metadata,
+            state: PluginState::Loaded,
+        });
         self.plugins.insert(name.clone(), plugin);
 
         Ok(())

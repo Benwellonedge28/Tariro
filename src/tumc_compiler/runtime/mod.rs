@@ -70,7 +70,7 @@ impl Runtime {
     /// Execute a function
     pub fn execute(&mut self, func: &Function, args: &[Value]) -> Result<Value, RuntimeError> {
         // Check if we should JIT compile
-        let invocation_count = self.adadaptive.get_invocation_count(func.id);
+        let invocation_count = self.adaptive.get_invocation_count(func.id);
 
         if invocation_count >= self.config.jit_threshold {
             if let Some(ref mut jit) = self.jit {

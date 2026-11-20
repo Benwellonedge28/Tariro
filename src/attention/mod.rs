@@ -503,7 +503,7 @@ impl GlobalWorkspace {
 
     /// Run attention competition and select focus
     pub fn attend(&mut self, context: Option<CompetitionContext>) {
-        let contents: Vec<&WorkspaceContent> = self.contents.values().collect();
+        let contents: Vec<WorkspaceContent> = self.contents.values().cloned().collect();
 
         // Adjust competition based on context
         if let Some(ctx) = context {

@@ -131,11 +131,13 @@ impl DatabaseService {
             }
         }
 
+        // The identifier is read before the entity is handed to the database.
+        let own_id = entity.id_as_string();
         let result = collection.insert_one(entity).await
             .map_err(|e| format!("Failed to create {}: {:?}", T::COLLECTION_NAME, e))?;
-        
+
         let inserted_id = result.inserted_id.as_str().map(|s| s.to_string())
-            .unwrap_or_else(|| entity.id_as_string().unwrap_or_else(|| "unknown_id".to_string()));
+            .unwrap_or_else(|| own_id.unwrap_or_else(|| "unknown_id".to_string()));
 
         println!("[DatabaseService] Created {}: ID = {}", T::COLLECTION_NAME, inserted_id);
         Ok(inserted_id)

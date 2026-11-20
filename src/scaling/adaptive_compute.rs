@@ -490,7 +490,7 @@ impl AdaptiveComputation {
 
             for (candidate, score) in &beam {
                 if depth == max_depth - 1 {
-                    if best.as_ref().map(|b| score > b.1).unwrap_or(true) {
+                    if best.as_ref().map(|b| *score > b.1).unwrap_or(true) {
                         best = Some((candidate.clone(), *score));
                     }
                 } else {

@@ -145,7 +145,7 @@ impl GovernanceService {
                     eprintln!("[GovernanceService] Failed to execute action {}: {}", action_id, e);
                     Err(format!("Execution failed: {}", e))
                 },
-            }
+            };
         }
         // Record the outcome in the registry.
         self.active_actions.insert(action_id.to_string(), action);

@@ -997,7 +997,8 @@ impl<'a> Lexer<'a> {
 
         // Check for floating point
         if let Some(&'.') = self.chars.peek() {
-            if let Some(&next) = self.nth_char(1) {
+            let next = self.nth_char(1);
+            {
                 if next.is_ascii_digit() || next == '_' {
                     self.advance();
                     value.push('.');
@@ -1149,7 +1150,7 @@ impl<'a> Lexer<'a> {
     }
 
     /// Peek at next character without advancing
-    fn peek(&self) -> char {
+    fn peek(&mut self) -> char {
         self.chars.peek().copied().unwrap_or('\0')
     }
 

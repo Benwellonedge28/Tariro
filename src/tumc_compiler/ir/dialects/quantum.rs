@@ -275,38 +275,44 @@ impl QuantumOptimizer {
 
         let mut i = 0;
         while i < ops.len() {
-            if let QuantumOp::Gate(ref g1, ref qubits1) = ops[i] {
-                // The gates that follow are copied, so that the list can be
-                // changed while the inverse pairs are looked for.
-                let following: Vec<(usize, QuantumGate, Vec<QubitId>)> = ops
-                    .iter()
-                    .enumerate()
-                    .skip(i + 1)
-                    .filter_map(|(index, op)| match op {
-                        QuantumOp::Gate(gate, qubits) => {
-                            Some((index, *gate, qubits.clone()))
-                        }
-                        _ => None,
-                    })
-                    .collect();
-
-                for (j, g2, qubits2) in following {
-                    for (inv1, inv2) in &inverse_pairs {
-                        if std::mem::discriminant(g1) == std::mem::discriminant(inv1) &&
-                           std::mem::discriminant(&g2) == std::mem::discriminant(inv2) &&
-                           qubits1 == &qubits2 {
-                            // Cancel adjacent inverse gates
-                            ops.remove(j);
-                            ops.remove(i);
-                            if i > 0 {
-                                i -= 1;
+            // The gate that follows an inverse gate is found first, so that
+            // the list can be changed afterwards.
+            let cancel = match &ops[i] {
+                QuantumOp::Gate(g1, qubits1) => {
+                    let mut cancel = None;
+                    for (offset, op) in ops.iter().enumerate().skip(i + 1) {
+                        if let QuantumOp::Gate(g2, qubits2) = op {
+                            for (inv1, inv2) in &inverse_pairs {
+                                if std::mem::discriminant(g1) == std::mem::discriminant(inv1)
+                                    && std::mem::discriminant(g2) == std::mem::discriminant(inv2)
+                                    && qubits1 == qubits2
+                                {
+                                    cancel = Some(offset);
+                                    break;
+                                }
                             }
+                        }
+                        if cancel.is_some() {
                             break;
                         }
                     }
+                    cancel
                 }
+                _ => None,
+            };
+
+            match cancel {
+                Some(offset) => {
+                    // Cancel adjacent inverse gates
+                    let j = i + offset;
+                    ops.remove(j);
+                    ops.remove(i);
+                    if i > 0 {
+                        i -= 1;
+                    }
+                }
+                None => i += 1,
             }
-            i += 1;
         }
     }
 }

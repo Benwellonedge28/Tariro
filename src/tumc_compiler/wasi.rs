@@ -465,7 +465,7 @@ pub mod preview2 {
         pub closed: bool,
     }
 
-    #[derive(Debug)]
+    #[derive(Debug, Clone)]
     pub enum ResourceKind {
         StdioStdin,
         StdioStdout,
@@ -474,14 +474,14 @@ pub mod preview2 {
         Socket(SocketResource),
     }
 
-    #[derive(Debug)]
+    #[derive(Debug, Clone)]
     pub struct FilesystemResource {
         pub path: String,
         pub read: bool,
         pub write: bool,
     }
 
-    #[derive(Debug)]
+    #[derive(Debug, Clone)]
     pub struct SocketResource {
         pub domain: u32,
         pub type_: u32,

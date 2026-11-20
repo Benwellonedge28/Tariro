@@ -497,7 +497,7 @@ impl CapabilityProfile {
             memory_min: 0,
             memory_max: memory_total,
             stack_size: 8 * 1024 * 1024,
-            heap_size: memory_total / 4,
+            heap_size: (memory_total / 4) as usize,
             cpu_cores: cpu_count,
             cpu_frequency_mhz: cpu_freq,
             has_fpu: Self::detect_has_fpu(),
