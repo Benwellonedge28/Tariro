@@ -344,8 +344,8 @@ impl SelfModifyingGenerator {
                 Instruction {
                     op: Operation::Binary(
                         crate::tumc_compiler::ir::BinOp::Add,
-                        format!("{}_exec_count", modified.name),
-                        "1".to_string(),
+                        ValueId(0),
+                        ValueId(1),
                     ),
                     result_type: IrType::Int64,
                     result_name: Some(format!("{}_exec_count", modified.name)),

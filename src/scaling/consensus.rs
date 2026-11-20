@@ -345,10 +345,7 @@ pub struct PeerState {
 impl Default for DistributedConsensus {
     fn default() -> Self {
         // The default configuration always validates.
-        Self::new(NodeId(0), ConsensusConfig::default()).unwrap_or_else(|error| {
-            eprintln!("[DistributedConsensus] the default configuration is invalid: {}", error);
-            Self::new(NodeId(0), ConsensusConfig::default()).unwrap_or_else(|_| unreachable!())
-        })
+        Self::with_config(0, ConsensusConfig::default())
     }
 }
 
@@ -357,7 +354,12 @@ impl DistributedConsensus {
     pub fn new(node_id: NodeId, config: ConsensusConfig) -> Result<Self, ConsensusError> {
         config.validate()?;
 
-        Ok(Self {
+        Ok(Self::with_config(node_id, config))
+    }
+
+    /// Build a consensus node without validating the configuration.
+    fn with_config(node_id: NodeId, config: ConsensusConfig) -> Self {
+        Self {
             node_id,
             config,
             state: ConsensusState::Follower,
@@ -376,7 +378,7 @@ impl DistributedConsensus {
             pbft_pre_prepares: HashMap::new(),
             pbft_prepares: HashMap::new(),
             pbft_commits: HashMap::new(),
-        })
+        }
     }
 
     /// Create with peer list
@@ -729,7 +731,7 @@ impl DistributedConsensus {
     fn count_prepares(&self, digest: &[u8; 32]) -> usize {
         self.pbft_prepares
             .iter()
-            .filter(|((d, _), &v)| v && d.0 == *digest)
+            .filter(|((d, _), &v)| v && *d == *digest)
             .count()
     }
 
@@ -737,7 +739,7 @@ impl DistributedConsensus {
     fn count_commits(&self, digest: &[u8; 32]) -> usize {
         self.pbft_commits
             .iter()
-            .filter(|(d, _), &&v| v && d.0 == *digest)
+            .filter(|((d, _), &v)| v && *d == *digest)
             .count()
     }
 

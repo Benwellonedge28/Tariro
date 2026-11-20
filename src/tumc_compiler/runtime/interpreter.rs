@@ -201,11 +201,11 @@ impl Interpreter {
             Const::Float(f) => Value::Float(*f),
             Const::String(s) => Value::String(s.clone()),
             Const::Char(ch) => Value::Int(*ch as i64),
-            Const::Unit => Value::Unit,
+            Const::Null => Value::Unit,
             Const::Tuple(values) | Const::Array(values) => {
                 Value::Tuple(values.iter().map(Self::const_to_value).collect())
             }
-            Const::Struct(_, fields) => Value::Tuple(
+            Const::Struct(fields) => Value::Tuple(
                 fields
                     .iter()
                     .map(|(_, value)| Self::const_to_value(value))

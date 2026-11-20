@@ -105,7 +105,7 @@ pub struct EnumType {
     pub variants: Vec<EnumVariant>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct EnumVariant {
     pub name: String,
     pub data: Vec<MonoType>,

@@ -225,20 +225,22 @@ impl Suggestion {
 
     /// Create a replacement suggestion
     pub fn replace(span: Span, replacement: impl Into<String>) -> Self {
+        let replacement = replacement.into();
         Suggestion {
             kind: SuggestionKind::Replace,
-            description: format!("Replace with '{}'", replacement.into()),
-            replacement: Some(replacement.into()),
+            description: format!("Replace with '{}'", replacement),
+            replacement: Some(replacement),
             span: Some(span),
         }
     }
 
     /// Create an insertion suggestion
     pub fn insert(span: Span, text: impl Into<String>) -> Self {
+        let text = text.into();
         Suggestion {
             kind: SuggestionKind::Insert,
-            description: format!("Insert '{}'", text.into()),
-            replacement: Some(text.into()),
+            description: format!("Insert '{}'", text),
+            replacement: Some(text),
             span: Some(span),
         }
     }
