@@ -63,16 +63,6 @@ impl RiscVTarget {
                 buf.extend_from_slice(&encoding.to_le_bytes());
                 let _ = (lhs, rhs);
             }
-            Operation::Ret(_) => {
-                // jalr x0, x1, 0 = ret
-                let rd = 0;
-                let rs1 = 1; // ra (return address)
-                let jalr_opcode = 0x67;
-                let funct3 = 0x0;
-
-                let encoding = (rd as u32) << 7 | (funct3 as u32) << 12 | (rs1 as u32) << 15 | (jalr_opcode as u32);
-                buf.extend_from_slice(&encoding.to_le_bytes());
-            }
             _ => {}
         }
     }

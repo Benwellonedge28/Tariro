@@ -148,9 +148,6 @@ impl WasmTarget {
             Operation::Binary(BinOp::Lt, _, _) => {
                 wasm.push_byte(0x48); // i32.lt_s
             }
-            Operation::Ret(_) => {
-                wasm.push_byte(0x0F); // return
-            }
             Operation::Call(func_id, _) => {
                 wasm.push_byte(0x10); // call
                 wasm.push_u32(func_id.0 as u32);

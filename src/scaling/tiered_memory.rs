@@ -628,6 +628,7 @@ impl TieredMemory {
 
     /// Add a region to the appropriate tier
     fn add_region(&mut self, region: MemoryRegion) {
+        let address = region.addr.clone();
         match region.tier {
             MemoryTier::L1Cache => self.l1_regions.push_back(region),
             MemoryTier::L2Heap => self.l2_regions.push_back(region),
@@ -651,7 +652,7 @@ impl TieredMemory {
         }
 
         // Add to eviction queue
-        self.eviction_queue.push_back(region.addr);
+        self.eviction_queue.push_back(address);
     }
 
     /// Get used memory for a tier

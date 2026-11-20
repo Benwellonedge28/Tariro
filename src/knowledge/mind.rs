@@ -192,7 +192,8 @@ impl TariroMind {
             self.stats.deductions_made.fetch_add(1, Ordering::Relaxed);
         }
 
-        Ok(LearningResult::new(fact, deductions, deductions.len()))
+        let deduction_count = deductions.len();
+        Ok(LearningResult::new(fact, deductions, deduction_count))
     }
 
     /// Add an entity

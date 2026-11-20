@@ -426,14 +426,14 @@ impl EdgeCloudSync {
         self.version += 1;
         let version = self.version;
 
-        self.local_knowledge.insert(version, fact);
+        self.local_knowledge.insert(version, fact.clone());
 
         // Generate delta
         let delta = KnowledgeDelta {
             id: self.generate_id(),
             source: self.node_id,
             timestamp_ms: 0, // Would be timestamp
-            additions: vec![fact],
+            additions: vec![fact.clone()],
             removals: Vec::new(),
             modifications: Vec::new(),
             base_version: version,

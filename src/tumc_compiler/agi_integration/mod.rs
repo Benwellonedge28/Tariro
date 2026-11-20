@@ -251,7 +251,7 @@ impl AgiCompilerBridge {
         let mut insights = Vec::new();
 
         // Step 1: Neural-symbolic analysis
-        if let Some(ns) = &self.neural_symbolic {
+        if let Some(ns) = self.neural_symbolic.as_mut() {
             let ns_insights = ns.analyze_module(module);
             insights.extend(ns_insights);
         }
@@ -360,7 +360,13 @@ impl AgiCompilerBridge {
         use std::hash::{Hash, Hasher};
 
         let mut hasher = DefaultHasher::new();
-        module.hash(&mut hasher);
+        module.name.hash(&mut hasher);
+        module.functions.len().hash(&mut hasher);
+        module.globals.len().hash(&mut hasher);
+        for function in &module.functions {
+            function.name.hash(&mut hasher);
+            function.body.len().hash(&mut hasher);
+        }
         format!("{:x}", hasher.finish())
     }
 

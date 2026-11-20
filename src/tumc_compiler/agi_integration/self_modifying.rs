@@ -344,8 +344,8 @@ impl SelfModifyingGenerator {
                 Instruction {
                     op: Operation::Binary(
                         crate::tumc_compiler::ir::BinOp::Add,
-                        ValueId(0),
-                        ValueId(1),
+                        crate::tumc_compiler::ir::ValueId(0),
+                        crate::tumc_compiler::ir::ValueId(1),
                     ),
                     result_type: IrType::Int64,
                     result_name: Some(format!("{}_exec_count", modified.name)),
@@ -447,14 +447,14 @@ impl SelfModifyingGenerator {
 
     /// Record a modification for history
     pub fn record_modification(&mut self, record: ModificationRecord) {
+        let success = record.success;
+        let original_function = record.original_function.clone();
+        let generated_code = record.generated_code.clone();
         self.history.push(record);
 
         // Cache successful modifications
-        if record.success {
-            self.code_cache.insert(
-                record.original_function.clone(),
-                record.generated_code.clone(),
-            );
+        if success {
+            self.code_cache.insert(original_function, generated_code);
         }
     }
 

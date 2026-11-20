@@ -101,11 +101,12 @@ impl StructuralCausalModel {
 
     /// Add a variable
     pub fn add_variable(&mut self, var: VariableDef, is_exogenous: bool) {
-        self.variables.insert(var.name.clone(), var);
+        let name = var.name.clone();
+        self.variables.insert(name.clone(), var);
         if is_exogenous {
-            self.exogenous.insert(var.name.clone());
+            self.exogenous.insert(name);
         } else {
-            self.endogenous.insert(var.name.clone());
+            self.endogenous.insert(name);
         }
     }
 
