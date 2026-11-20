@@ -74,8 +74,10 @@ impl MacroExpansionEnv {
             ExprKind::Call { function, arguments } => {
                 // Check if function is a macro
                 if let ExprKind::Identifier(name) = &function.kind {
-                    if let Some(macro_) = self.get_macro(name) {
-                        return self.expand_macro_call(macro_, arguments);
+                    let name = name.clone();
+                    if let Some(macro_) = self.get_macro(&name) {
+                        let macro_ = macro_.clone();
+                        return self.expand_macro_call(&macro_, arguments);
                     }
                 }
 
@@ -546,8 +548,8 @@ impl MacroExpander {
         }
 
         if result_stmts.len() == 1 {
-            if let StmtKind::Expr(expr) = result_stmts[0].kind {
-                return Ok(expr);
+            if let StmtKind::Expr(expr) = &result_stmts[0].kind {
+                return Ok(expr.clone());
             }
         }
 

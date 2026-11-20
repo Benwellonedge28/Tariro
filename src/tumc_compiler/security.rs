@@ -123,7 +123,7 @@ impl SecurityManager {
 
     /// Grant permission
     pub fn grant_permission(&mut self, context: &mut SecurityContext, permission: Permission) {
-        context.permissions.insert(permission);
+        context.permissions.insert(permission.clone());
         self.audit(AuditEntry::new(
             "permission_granted",
             &context.principal_id,

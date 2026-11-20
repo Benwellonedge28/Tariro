@@ -405,7 +405,8 @@ impl WasmEngine {
             .module
             .functions
             .get(func_index as usize)
-            .ok_or(WasmError::UnknownFunction)?;
+            .ok_or(WasmError::UnknownFunction)?
+            .clone();
 
         // Initialize locals
         let mut locals = args.to_vec();
@@ -440,7 +441,8 @@ impl WasmEngine {
             let opcode = func.code[pc];
             pc += 1;
 
-            match self.execute_instruction(opcode, &func.code, &mut pc)? {
+            let code = func.code.clone();
+            match self.execute_instruction(opcode, &code, &mut pc)? {
                 ControlFlow::Continue => {}
                 ControlFlow::Break(level) => {
                     // Unwind to end of block

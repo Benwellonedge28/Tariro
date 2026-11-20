@@ -36,6 +36,16 @@ use crate::tumc_compiler::lexer::{Lexer, LexerError, Token, TokenKind};
 use crate::tumc_compiler::SourceLocation;
 use std::collections::VecDeque;
 
+/// The token that marks the end of the token stream.
+static EOF_TOKEN: Token = Token::new(
+    TokenKind::Eof,
+    SourceLocation {
+        line: 0,
+        column: 0,
+        offset: 0,
+    },
+);
+
 // ============================================================================
 // Parser
 // ============================================================================
@@ -1594,10 +1604,7 @@ impl Parser {
 
     /// Peek at current token
     fn peek(&self) -> &Token {
-        self.tokens.get(self.current).unwrap_or(&Token::new(
-            TokenKind::Eof,
-            SourceLocation { line: 0, column: 0, offset: 0 },
-        ))
+        self.tokens.get(self.current).unwrap_or(&EOF_TOKEN)
     }
 
     /// Get previous token

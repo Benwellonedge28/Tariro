@@ -383,7 +383,7 @@ pub struct Token {
 
 impl Token {
     /// Create a new token
-    pub fn new(kind: TokenKind, location: SourceLocation) -> Self {
+    pub const fn new(kind: TokenKind, location: SourceLocation) -> Self {
         Self {
             kind,
             location,

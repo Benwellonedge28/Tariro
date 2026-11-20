@@ -311,18 +311,23 @@ impl FileWatcher {
     pub fn get_events(&mut self) -> Vec<FileEvent> {
         let mut events = Vec::new();
 
-        for path in &self.paths {
+        let paths = self.paths.clone();
+        for path in &paths {
             if path.is_dir() {
                 if let Ok(entries) = std::fs::read_dir(path) {
                     for entry in entries.flatten() {
                         let entry_path = entry.path();
-                        if let Some(event) = self.check_file(&entry_path) {
+                        let event = self.check_file(&entry_path);
+                        if let Some(event) = event {
                             events.push(event);
                         }
                     }
                 }
-            } else if let Some(event) = self.check_file(path) {
-                events.push(event);
+            } else {
+                let event = self.check_file(path);
+                if let Some(event) = event {
+                    events.push(event);
+                }
             }
         }
 
