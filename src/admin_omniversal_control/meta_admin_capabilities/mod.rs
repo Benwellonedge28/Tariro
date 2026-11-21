@@ -633,10 +633,11 @@ impl MetaAdminService {
     pub async fn create_task(&self, mut task: MetaAdminTask) -> Result<String, String> {
         let task_id = task.id.clone();
         let mut tasks = self.tasks.write().await;
+        let scheduled = task.scheduled_at.is_some();
         tasks.insert(task_id.clone(), task);
 
         // Add to execution queue if scheduled
-        if task.scheduled_at.is_some() {
+        if scheduled {
             drop(tasks);
             let mut queue = self.execution_queue.write().await;
             if let Some(t) = self.tasks.read().await.get(&task_id) {

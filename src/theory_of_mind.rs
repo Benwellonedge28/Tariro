@@ -490,7 +490,7 @@ impl TheoryOfMindEngine {
         };
 
         let mut evidence = Vec::new();
-        let mut confidence = 0.5;
+        let mut confidence: f32 = 0.5;
 
         for obs in observations {
             match obs.observation_type {

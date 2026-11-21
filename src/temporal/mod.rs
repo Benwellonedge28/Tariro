@@ -31,7 +31,7 @@ impl Default for TemporalId {
 }
 
 /// Point in time
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct TimePoint {
     pub timestamp: DateTime<Utc>,
     pub certainty: f64,
@@ -451,11 +451,12 @@ impl TemporalSystem {
 
     /// Process temporal experience
     pub fn process(&mut self, event: TemporalEvent) {
+        let event_time = event.time;
         self.constructor.add_event(event.clone());
         self.timeline.add_episode(Episode {
             id: TemporalId::new(),
             events: vec![event],
-            time_span: TimeInterval::new(event.time, event.time),
+            time_span: TimeInterval::new(event_time, event_time),
             coherence: 1.0,
             narrative: String::new(),
         });

@@ -604,7 +604,7 @@ impl CommonSenseEngine {
                         Domain::Temporal => "temporal",
                         _ => "general",
                     },
-                    rule.reasoning
+                    format!("{:?}", rule.consequent)
                 ),
             });
         }

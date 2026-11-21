@@ -590,7 +590,7 @@ impl CounterfactualEngine {
 
     /// Get counterfactual history
     pub fn get_history(&self) -> &[CounterfactualReasoning] {
-        &self.counterfactuals
+        self.counterfactuals.as_slices().0
     }
 
     /// Get statistics

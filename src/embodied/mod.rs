@@ -389,6 +389,7 @@ pub enum ToolType {
     Grasp,
     Cut,
     Strike,
+    Turn,
     Contain,
     Transport,
 }
@@ -616,11 +617,12 @@ impl EmbodiedCognition {
             10,
         );
 
+        let energy_cost = self.estimate_energy(&trajectory);
         MovementPlan {
             start: self.environment.agent_position,
             end: target,
             trajectory,
-            energy_cost: self.estimate_energy(&trajectory),
+            energy_cost,
         }
     }
 

@@ -8,6 +8,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::{BinaryHeap, HashMap, HashSet, VecDeque};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, Ordering};
 use tokio::sync::RwLock;
 use uuid::Uuid;
 use chrono::Utc;
@@ -559,7 +560,7 @@ impl GlobalWorkspace {
     pub async fn broadcast_focus(&self) {
         if let Some(content) = self.get_focus() {
             self.broadcast.broadcast(content, None).await;
-            self.stats.total_broadcasts += 1;
+            self.stats.total_broadcasts.fetch_add(1, Ordering::Relaxed);
         }
     }
 
@@ -616,12 +617,24 @@ impl Default for GlobalWorkspace {
     }
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Default)]
 pub struct WorkspaceStats {
     pub total_content_added: u64,
     pub focus_changes: u64,
-    pub total_broadcasts: u64,
+    /// The broadcasts are counted from a shared reference.
+    pub total_broadcasts: AtomicU64,
     pub decay_operations: u64,
+}
+
+impl Clone for WorkspaceStats {
+    fn clone(&self) -> Self {
+        WorkspaceStats {
+            total_content_added: self.total_content_added,
+            focus_changes: self.focus_changes,
+            total_broadcasts: AtomicU64::new(self.total_broadcasts.load(Ordering::Relaxed)),
+            decay_operations: self.decay_operations,
+        }
+    }
 }
 
 // ============================================================================

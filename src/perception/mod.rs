@@ -700,7 +700,9 @@ impl SentimentAnalyzer {
         let caps_ratio = text.chars().filter(|c| c.is_uppercase()).count() as f64
             / text.len().max(1) as f64;
 
-        let arousal = ((exclamation_count * 0.1) + (question_count * 0.05) + (caps_ratio * 0.3))
+        let arousal = ((exclamation_count as f64 * 0.1)
+            + (question_count as f64 * 0.05)
+            + (caps_ratio * 0.3))
             .min(1.0);
 
         // Dominance based on confidence indicators

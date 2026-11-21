@@ -49,7 +49,14 @@ impl ExecutiveFunction {
         );
 
         // Step 4: Metacognitive monitoring
-        self.metacognitive_monitor.check_processing(self);
+        // The monitor is taken out of the executive for the check, so that the
+        // executive can be read while the monitor is written.
+        let mut monitor = std::mem::replace(
+            &mut self.metacognitive_monitor,
+            MetacognitiveMonitor::new(),
+        );
+        monitor.check_processing(self);
+        self.metacognitive_monitor = monitor;
 
         // Step 5: Resource allocation
         let resources = self.resource_allocator.allocate(
@@ -59,7 +66,7 @@ impl ExecutiveFunction {
 
         // Step 6: Behavior selection
         let selected_behavior = self.behavior_selector.select(
-            self.goal_manager.highest_priority_goal().map(|g| g.as_ref()),
+            self.goal_manager.highest_priority_goal(),
             &focus_items,
             &resources,
             context
@@ -103,7 +110,8 @@ impl ExecutiveFunction {
                 Some(self.process_cycle(input, &ProcessingContext::default()))
             }
             SystemMessage::NewGoal(goal) => {
-                self.receive_goal(&goal.goal_text, goal.priority, goal.goal_type);
+                let goal_type = goal.goal_type.clone();
+                self.receive_goal(&goal.goal_text, goal.priority, goal_type);
                 None
             }
             SystemMessage::ResourceChange(change) => {
@@ -395,9 +403,10 @@ impl AttentionController {
         });
 
         // Take top N items
-        let selected: Vec<String> = candidates.into_iter()
+        let selected: Vec<String> = candidates
+            .iter()
             .take(5)
-            .map(|c| c.item_id)
+            .map(|c| c.item_id.clone())
             .collect();
 
         self.current_focus = candidates.into_iter().take(5).collect();

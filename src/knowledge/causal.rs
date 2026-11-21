@@ -345,7 +345,7 @@ impl DoCalculator {
     /// Check identifiability: can we compute the causal effect?
     pub fn is_identifiable(&self, treatment: &str, outcome: &str) -> bool {
         // Check if there is no unblocked backdoor path that cannot be adjusted for
-        let backdoor_paths = self.scm.backdoor_paths(treatment, outcome);
+        let backdoor_paths = self.scm.graph.backdoor_paths(treatment, outcome);
 
         // If all backdoor paths are blocked by adjustment set, identifiable
         !backdoor_paths.is_empty()
