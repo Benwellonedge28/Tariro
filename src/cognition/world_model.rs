@@ -680,12 +680,14 @@ impl WorldModel {
     /// Add an entity to the world
     pub fn add_entity(&mut self, entity: WorldEntity) {
         self.entities.insert(entity.id, entity.clone());
-        self.causal_graph.add_entity(entity);
+        let graph_entity = entity.clone();
+        self.causal_graph.add_entity(graph_entity);
         self.stats.entities_added += 1;
 
         // Create theory of mind model for agents
         if entity.entity_type == WorldEntityType::Agent {
-            self.theory_of_mind.create_agent_model(entity.clone());
+            let agent = entity.clone();
+            self.theory_of_mind.create_agent_model(agent);
         }
     }
 

@@ -321,11 +321,13 @@ impl NeuralSymbolicIntegration {
             }
         }
 
+        let final_result = derivations.last().map(|d| d.result.clone()).unwrap_or_default();
+        let confidence = derivations.last().map(|d| d.confidence).unwrap_or(0.0);
         ReasoningResult {
             query: query.to_string(),
             derivations,
-            final_result: derivations.last().map(|d| d.result.clone()).unwrap_or_default(),
-            confidence: derivations.last().map(|d| d.confidence).unwrap_or(0.0),
+            final_result,
+            confidence,
         }
     }
 
@@ -529,7 +531,7 @@ impl NeuralSymbolicIntegration {
             AnalogyResult {
                 source_concept: source.name.clone(),
                 target_domain: target_domain.to_string(),
-                mapping: relations,
+                mapping: relations.clone(),
                 similarity_score: 0.75,
                 explanation: format!("'{}' relates to '{}' similar to how concepts in {} relate", source.name, relations.join(", "), target_domain),
             }

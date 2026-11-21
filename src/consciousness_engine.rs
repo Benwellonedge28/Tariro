@@ -433,7 +433,7 @@ impl ConsciousnessEngine {
             changes_effected: vec![],
         };
 
-        self.reflective_states.push(state);
+        self.reflective_states.push(state.clone());
 
         // Limit history
         if self.reflective_states.len() > 100 {

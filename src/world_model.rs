@@ -816,13 +816,20 @@ impl WorldModel {
 
     /// Add entity to world model
     pub fn add_entity(&mut self, entity: WorldEntity) {
-        self.entities.insert(entity.id.clone(), entity.clone());
-        self.current_state.entities.insert(entity.id.clone(), entity);
+        let entity_id = entity.id.clone();
+        let entity_type = entity.entity_type;
+        let position = entity.position;
+        let name = entity.id.clone();
+
+        self.entities.insert(entity_id.clone(), entity.clone());
+        self.current_state
+            .entities
+            .insert(entity_id.clone(), entity.clone());
 
         // If physical entity, add to physics engine
-        if entity.entity_type == EntityType::Physical && entity.position.is_some() {
+        if entity_type == EntityType::Physical && position.is_some() {
             self.physics.add_body(PhysicsBody {
-                entity_id: entity.id.clone(),
+                entity_id: entity_id.clone(),
                 mass: 1.0,
                 velocity: (0.0, 0.0, 0.0),
                 acceleration: (0.0, 0.0, 0.0),
@@ -832,9 +839,9 @@ impl WorldModel {
         }
 
         // If social entity, add to social engine
-        if entity.entity_type == EntityType::Social {
+        if entity_type == EntityType::Social {
             let agent = SocialAgent {
-                id: entity.id.clone(),
+                id: entity_id.clone(),
                 personality: Personality {
                     openness: 0.5,
                     conscientiousness: 0.5,
@@ -850,7 +857,7 @@ impl WorldModel {
             self.social.add_agent(agent);
         }
 
-        println!("[WorldModel] Added entity: {}", entity.id);
+        println!("[WorldModel] Added entity: {}", name);
     }
 
     /// Update world model state
@@ -948,8 +955,8 @@ impl WorldModel {
 
         QueryResult {
             query: query.to_string(),
-            relevant_entities,
-            causal_relationships,
+            relevant_entities: relevant_entities.clone(),
+            causal_relationships: causal_relationships.clone(),
             summary: format!("Found {} entities and {} causal relationships",
                 relevant_entities.len(), causal_relationships.len()),
         }

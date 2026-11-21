@@ -451,8 +451,14 @@ impl SafetyConstraints {
         let recent = self.violation_history.iter().rev().take(1000);
 
         let total = recent.len();
-        let blocked = recent.filter(|r| matches!(r.action_taken, ActionTaken::Blocked)).count();
-        let warnings = recent.filter(|r| matches!(r.action_taken, ActionTaken::Warned)).count();
+        let blocked = recent
+            .clone()
+            .filter(|r| matches!(r.action_taken, ActionTaken::Blocked))
+            .count();
+        let warnings = recent
+            .clone()
+            .filter(|r| matches!(r.action_taken, ActionTaken::Warned))
+            .count();
 
         ConstraintStatistics {
             total_violations: total,

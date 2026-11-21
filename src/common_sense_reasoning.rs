@@ -320,11 +320,12 @@ impl CommonSenseReasoning {
 
         PhysicalReasoningResult {
             scenario: scenario.to_string(),
-            predictions,
+            predictions: predictions.clone(),
             explanations: vec![
                 "Based on naive physics principles".to_string(),
             ],
-            confidence: predictions.iter().map(|p| p.confidence).sum::<f64>() / predictions.len().max(1) as f64,
+            confidence: predictions.iter().map(|p| p.confidence).sum::<f64>()
+                / predictions.len().max(1) as f64,
         }
     }
 
@@ -451,7 +452,7 @@ impl CommonSenseReasoning {
         AnalogicalReasoningResult {
             source: source.to_string(),
             target: target.to_string(),
-            mappings,
+            mappings: mappings.clone(),
             inferred_knowledge: format!("Based on {} structural mappings", mappings.len()),
             analogical_strength,
             novelty: 0.5,
@@ -485,7 +486,7 @@ impl CommonSenseReasoning {
         DefaultReasoningResult {
             statement: statement.to_string(),
             default_truth: typical_truth,
-            exceptions,
+            exceptions: exceptions.clone(),
             reasoning_type: if exceptions.is_empty() {
                 "Presumed true by default".to_string()
             } else {

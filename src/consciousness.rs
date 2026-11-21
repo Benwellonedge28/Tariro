@@ -602,7 +602,7 @@ impl Consciousness {
         let thought = Thought {
             id: format!("thought_{}", Utc::now().timestamp()),
             content: content.to_string(),
-            thought_type,
+            thought_type: thought_type.clone(),
             intensity: 0.7,
             timestamp: Utc::now(),
             associated_concepts: vec![],
@@ -613,7 +613,11 @@ impl Consciousness {
         self.thoughts.push(thought.clone());
         self.consciousness_stream.add_thought(thought.clone());
 
-        println!("[Consciousness] New thought: {} ({:?})", content, thought_type);
+        println!(
+            "[Consciousness] New thought: {} ({:?})",
+            content,
+            thought_type.clone()
+        );
         thought
     }
 
