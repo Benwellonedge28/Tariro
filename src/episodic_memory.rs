@@ -481,7 +481,8 @@ impl EpisodicMemoryStore {
             memory.decay_factor *= 0.5;
 
             // Extract key patterns
-            self.extract_patterns(memory);
+            let memory = memory.clone();
+            self.extract_patterns(&memory);
 
             self.stats.consolidation_count += 1;
             true
@@ -491,14 +492,16 @@ impl EpisodicMemoryStore {
     }
 
     /// Extract and store patterns from consolidated memory
-    fn extract_patterns(&self, memory: &EpisodicMemory) {
+    fn extract_patterns(&mut self, memory: &EpisodicMemory) {
         // Theme-based clustering
         let themes = self.extract_themes(memory);
+        let memory_id = memory.memory_id.clone();
         for theme in themes {
             let cluster_key = theme.to_lowercase();
-            self.theme_clusters.entry(cluster_key)
+            self.theme_clusters
+                .entry(cluster_key)
                 .or_insert_with(Vec::new)
-                .push(memory.memory_id.clone());
+                .push(memory_id.clone());
         }
     }
 
@@ -531,7 +534,8 @@ impl EpisodicMemoryStore {
 
         for theme in themes {
             let key = theme.to_lowercase();
-            self.theme_clusters.entry(key)
+            self.theme_clusters
+                .entry(key.clone())
                 .or_insert_with(Vec::new)
                 .push(memory.memory_id.clone());
 

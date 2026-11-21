@@ -455,16 +455,21 @@ impl WorkingMemoryStore {
         self.items.push_back(item.clone());
         self.item_index.insert(item_id.clone(), index);
 
+        // Update bindings
+        let binding_key = item.binding_key.clone();
+
         // Update specialized stores
-        match &item.content {
-            WorkingContent::Verbal(v) => self.handle_verbal(item),
-            WorkingContent::Visual(v) => self.handle_visual(item),
+        let stored = item.clone();
+        let content = stored.content.clone();
+        match &content {
+            WorkingContent::Verbal(_) => self.handle_verbal(stored),
+            WorkingContent::Visual(_) => self.handle_visual(stored),
             _ => {}
         }
 
-        // Update bindings
-        if let Some(binding_key) = &item.binding_key {
-            self.bindings.entry(binding_key.clone())
+        if let Some(binding_key) = binding_key {
+            self.bindings
+                .entry(binding_key)
                 .or_insert_with(Vec::new)
                 .push(item_id.clone());
         }
@@ -704,8 +709,9 @@ impl WorkingMemoryStore {
             }
         }
 
-        let item = self.items.remove(lowest_idx);
-        self.item_index.remove(&item.item_id);
+        if let Some(item) = self.items.remove(lowest_idx) {
+            self.item_index.remove(&item.item_id.clone());
+        }
 
         // Re-index
         for (i, remaining) in self.items.iter().enumerate() {

@@ -623,7 +623,7 @@ impl Agency {
         EthicalCheck {
             action: action.to_string(),
             permissible: violations.is_empty(),
-            violations,
+            violations: violations.clone(),
             warnings,
             value_alignment: alignment,
             recommendation: if violations.is_empty() {
@@ -664,11 +664,14 @@ impl Agency {
 
     /// Replan when intention fails
     pub fn replan(&mut self, intention_id: &str) -> Option<ActionPlan> {
-        let intention = self.intentions.iter().find(|i| i.id == intention_id);
-        if let Some(intention) = intention {
+        let intention = self
+            .intentions
+            .iter()
+            .find(|i| i.id == intention_id)
+            .map(|intention| intention.goal_id.clone());
+        if let Some(goal_id) = intention {
             // Create new plan with contingencies
-            self.create_plan(&intention.goal_id)
-                .into()
+            self.create_plan(&goal_id).into()
         } else {
             None
         }
@@ -752,6 +755,15 @@ impl Agency {
 
     /// Learn from execution outcomes
     pub fn learn_from_execution(&mut self, execution_id: &str, outcome: &str) {
+        // The statuses are read before the execution is changed, so that the
+        // executions are not borrowed twice.
+        let statuses: Vec<ExecutionStatus> = self
+            .execution_monitor
+            .active_executions
+            .iter()
+            .map(|execution| execution.status)
+            .collect();
+
         if let Some(execution) = self.execution_monitor.active_executions.iter_mut()
             .find(|e| e.execution_id == execution_id)
         {
@@ -762,10 +774,11 @@ impl Agency {
             };
 
             // Update success rate
-            let completed = self.execution_monitor.active_executions.iter()
-                .filter(|e| e.status == ExecutionStatus::Completed)
+            let completed = statuses
+                .iter()
+                .filter(|status| **status == ExecutionStatus::Completed)
                 .count();
-            let total = self.execution_monitor.active_executions.len();
+            let total = statuses.len();
             self.execution_monitor.success_rate = completed as f64 / total as f64;
 
             // Analyze failure if applicable
