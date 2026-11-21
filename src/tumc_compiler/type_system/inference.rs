@@ -56,8 +56,9 @@ impl TypeInference {
                 let rhs_ty = self.infer_expr(rhs)?;
                 let result_ty = self.fresh_var();
 
-                self.constraints.push(Constraint::Equal(lhs_ty, rhs_ty));
-                self.constraints.push(Constraint::Equal(result_ty.clone(), lhs_ty));
+                self.constraints.push(Constraint::Equal(lhs_ty.clone(), rhs_ty));
+                self.constraints
+                    .push(Constraint::Equal(result_ty.clone(), lhs_ty));
 
                 Ok(result_ty)
             }
@@ -275,7 +276,7 @@ impl Substitution {
     pub fn compose(&mut self, other: &Substitution) {
         for (var, ty) in &other.map {
             let applied = self.apply(ty);
-            self.map.insert(*var, applied);
+            self.map.insert(var.clone(), applied);
         }
     }
 }

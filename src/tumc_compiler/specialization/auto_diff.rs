@@ -182,7 +182,7 @@ impl AutoDifferentiator {
                         results.push(Instruction {
                             op: Operation::Binary(BinOp::Mul, lhs.clone(), rhs_dot),
                             result_type: inst.result_type.clone(),
-                            result_name: Some(temp1_name),
+                            result_name: Some(temp1_name.clone()),
                             ..Default::default()
                         });
                         results.push(Instruction {

@@ -239,7 +239,7 @@ impl Profiler {
             .unwrap_or(0);
 
         let site = self.allocation_sites.entry(stack_trace.clone()).or_insert(AllocationSite {
-            stack_trace,
+            stack_trace: stack_trace.clone(),
             allocation_count: 0,
             total_size: 0,
             peak_size: 0,
@@ -255,10 +255,11 @@ impl Profiler {
             profile.total_allocated += size;
             profile.current_allocated += size;
             profile.peak_allocated = profile.peak_allocated.max(profile.current_allocated);
+            let stack_trace = stack_trace.clone();
             profile.allocations.push(Allocation {
                 size,
                 address,
-                stack_trace: stack_trace.clone(),
+                stack_trace,
                 timestamp,
                 freed: false,
             });

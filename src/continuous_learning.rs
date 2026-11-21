@@ -412,7 +412,9 @@ impl ContinuousLearning {
     /// Practice existing skill
     pub fn practice_skill(&mut self, skill_id: &str, practice_data: &str) -> PracticeResult {
         if let Some(skill) = self.skills.get_mut(skill_id) {
-            let improvement = self.calculate_practice_improvement(skill, practice_data);
+            let skill = skill.clone();
+            let improvement = self.calculate_practice_improvement(&skill, practice_data);
+            let skill = self.skills.get_mut(skill_id).expect("the skill was there");
 
             skill.proficiency = (skill.proficiency + improvement).min(1.0);
             skill.last_practiced = Some(Utc::now());

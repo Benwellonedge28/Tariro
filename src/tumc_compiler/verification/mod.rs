@@ -226,7 +226,7 @@ impl Verifier {
                         block: block.name.clone(),
                         instruction: Some(i),
                     },
-                    error_type: error,
+                    error_type: error.clone(),
                     message: format!("{:?}", error),
                 });
             }

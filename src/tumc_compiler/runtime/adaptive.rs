@@ -88,12 +88,13 @@ impl AdaptiveOptimizer {
 
     /// Record observed type
     pub fn record_type(&mut self, value: ValueId, type_name: impl Into<String>) {
+        let type_name = type_name.into();
         let observed = self.profile.type_feedback.entry(value).or_default();
-        if let Some(existing) = observed.iter_mut().find(|o| o.type_name == type_name.into()) {
+        if let Some(existing) = observed.iter_mut().find(|o| o.type_name == type_name) {
             existing.count += 1;
         } else {
             observed.push(ObservedType {
-                type_name: type_name.into(),
+                type_name,
                 count: 1,
             });
         }

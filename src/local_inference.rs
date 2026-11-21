@@ -522,26 +522,41 @@ impl LocalInferenceEngine {
     pub fn generate(&mut self, session_id: &str, prompt: &str) -> Result<GenerationResult, InferenceError> {
         let start_time = Utc::now();
 
-        let session = self.inference_sessions.get_mut(session_id)
-            .ok_or(InferenceError::SessionNotFound)?;
+        let model_id = self
+            .inference_sessions
+            .get(session_id)
+            .ok_or(InferenceError::SessionNotFound)?
+            .model_id
+            .clone();
 
-        let tokenizer = self.tokenizers.get(&session.model_id)
+        let tokenizer = self
+            .tokenizers
+            .get(&model_id)
             .ok_or(InferenceError::TokenizerNotLoaded)?;
 
         // Tokenize prompt
         let input_ids = tokenizer.encode(prompt);
-        session.statistics.prompt_tokens = input_ids.len();
 
         // Run model forward pass
+        let session = self
+            .inference_sessions
+            .get(session_id)
+            .ok_or(InferenceError::SessionNotFound)?
+            .clone();
         let output_ids = self.forward_pass(&session, &input_ids)?;
+        let output_count = output_ids.len();
 
         // Decode output
         let output_text = tokenizer.decode(&output_ids);
 
         let inference_time = Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default();
-        session.statistics.inference_time_ms = inference_time.as_millis() as u64;
-        session.statistics.tokens_generated = output_ids.len();
-        session.statistics.tokens_per_second = output_ids.len() as f32 / inference_time.as_secs_f32();
+        let tokens_per_second = output_count as f32 / inference_time.as_secs_f32();
+        if let Some(session) = self.inference_sessions.get_mut(session_id) {
+            session.statistics.prompt_tokens = input_ids.len();
+            session.statistics.inference_time_ms = inference_time.as_millis() as u64;
+            session.statistics.tokens_generated = output_count;
+            session.statistics.tokens_per_second = tokens_per_second;
+        }
 
         Ok(GenerationResult {
             text: output_text,

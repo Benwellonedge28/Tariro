@@ -154,8 +154,8 @@ impl TargetRegistry {
         self.targets.get(name).map(|b| b.as_ref())
     }
 
-    pub fn names(&self) -> Vec<&'static str> {
-        self.targets.keys().map(|s| s.as_str()).collect()
+    pub fn names(&self) -> Vec<String> {
+        self.targets.keys().cloned().collect()
     }
 }
 
