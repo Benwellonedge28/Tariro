@@ -415,15 +415,15 @@ impl AbstractInterpreter {
                 let result = self.compute_binary_op(op, &left_val, &right_val);
                 new_state.set(inst.result_value(), result);
             }
-            Operation::Const(val, ty) => {
+            Operation::Const(val, _ty) => {
                 let result = match &**val {
                     crate::tumc_compiler::ir::Const::Int(i) => AbstractValue::constant(*i),
                     _ => AbstractValue::top(),
                 };
                 new_state.set(inst.result_value(), result);
             }
-            Operation::Load(_, ptr, ty, offset) => {
-                let ptr_val = state.get(*ptr);
+            Operation::Load(_, ptr, _ty, _offset) => {
+                let _ptr_val = state.get(*ptr);
                 // Simplified: return top for loads
                 new_state.set(inst.result_value(), AbstractValue::top());
             }
@@ -431,7 +431,7 @@ impl AbstractInterpreter {
                 let val_val = state.get(*val);
                 new_state.set(*ptr, val_val);
             }
-            Operation::Alloca(ty, size) => {
+            Operation::Alloca(_ty, _size) => {
                 // Allocation returns non-null pointer
                 new_state.set(
                     inst.result_value(),

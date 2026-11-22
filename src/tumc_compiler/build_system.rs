@@ -376,7 +376,7 @@ impl BuildDriver {
 
         let (tx, rx) = std::sync::mpsc::channel();
 
-        for mut unit in units.drain(..) {
+        for unit in units.drain(..) {
             let tx = tx.clone();
             let context = self.context.clone();
             let cache = Arc::new(RwLock::new(self.cache.clone()));
@@ -422,7 +422,7 @@ impl BuildDriver {
     }
 
     /// Internal compile unit
-    fn compile_unit_internal(context: &BuildContext, unit: &BuildUnit) -> BuildResult {
+    fn compile_unit_internal(_context: &BuildContext, unit: &BuildUnit) -> BuildResult {
         let start = Instant::now();
 
         // In a real implementation, this would invoke the actual compiler

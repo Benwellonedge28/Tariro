@@ -40,7 +40,7 @@ impl GradualCast {
             (GradualType::Dynamic, GradualType::Static(_)) => {
                 Some(CastOp::FromDynamic)
             }
-            (GradualType::Static(a), GradualType::Static(b)) => {
+            (GradualType::Static(_a), GradualType::Static(_b)) => {
                 // Type-safe cast
                 None
             }

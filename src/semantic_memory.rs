@@ -1,10 +1,9 @@
 // Tariro AGI - Semantic Memory Module
 // Knowledge graph-based semantic memory system
 
-use crate::prelude::*;
 use std::collections::{HashMap, HashSet, VecDeque, BinaryHeap};
 use chrono::{DateTime, Utc};
-use std::time::Duration;
+
 use std::cmp::Ordering;
 
 // ============================================================================
@@ -389,7 +388,7 @@ impl SemanticMemoryStore {
 
         // Seed with query concepts
         for seed_id in &query.seed_concepts {
-            if let Some(concept) = self.concepts.get(seed_id) {
+            if let Some(_concept) = self.concepts.get(seed_id) {
                 activation.insert(seed_id.clone(), 1.0);
             }
         }

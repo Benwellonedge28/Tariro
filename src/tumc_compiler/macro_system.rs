@@ -1,12 +1,12 @@
 //! Macro system for TUMC - Declarative and procedural macros
 //! Implements hygienic macros with proper scope handling
 
-use crate::prelude::*;
+
 use super::ast::{self, *};
 use super::lexer::{Lexer, Token, TokenKind};
 // The punctuation kinds now live with the lexer that produces them.
 pub use super::lexer::PunctKind;
-use super::parser::Parser;
+
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 
@@ -993,7 +993,7 @@ impl TemplateToken {
                 let items = bindings.get_exprs(name);
                 let mut result = Vec::new();
 
-                for (i, item) in items.iter().enumerate() {
+                for (i, _item) in items.iter().enumerate() {
                     for token in inner {
                         let mut stmts = token.expand(bindings)?;
                         result.append(&mut stmts);

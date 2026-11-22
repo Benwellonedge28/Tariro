@@ -1,10 +1,9 @@
 // Tariro AGI - Adversarial Defense Module
 // Protection against poisoning, evasion, and manipulation attacks
 
-use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
-use std::time::Duration;
+
 
 // ============================================================================
 // Adversarial Defense Types
@@ -779,10 +778,11 @@ impl AdversarialDefenseEngine {
             }
         }
 
+        let threats = threats_found.clone();
         ValidationResult {
             is_valid: threats_found.is_empty(),
             sanitized_input: Some(sanitized_input),
-            threats: threats_found,
+            threats,
             action: if threats_found.is_empty() {
                 ValidationAction::Allow
             } else {
@@ -798,7 +798,7 @@ impl AdversarialDefenseEngine {
     }
 
     /// Extract matched text
-    fn extract_match(&self, input: &str, pattern: &str) -> String {
+    fn extract_match(&self, _input: &str, pattern: &str) -> String {
         // Simplified extraction
         pattern.to_string()
     }
@@ -922,7 +922,7 @@ impl AdversarialDefenseEngine {
         InjectionResult {
             is_injection,
             injection_score,
-            detected_patterns,
+            detected_patterns: detected_patterns.clone(),
             confidence: if injection_score > 0.7 { 0.95 } else { 0.7 },
             sanitized_prompt: if is_injection {
                 Some(self.sanitize_prompt(prompt, &detected_patterns))

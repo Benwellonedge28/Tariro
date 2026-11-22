@@ -210,7 +210,7 @@ impl CognitiveReasoningEngine {
         // Count operation types
         let mut arithmetic_count = 0;
         let mut memory_count = 0;
-        let mut branch_count = 0;
+        let branch_count = 0;
 
         for block in &function.body {
             for inst in &block.instructions {

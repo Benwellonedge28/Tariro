@@ -1,7 +1,7 @@
 // Partial Evaluation for Program Specialization
 
 use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation, IrType, Terminator, Const, ValueId};
-use crate::tumc_compiler::ast::Literal;
+
 use std::collections::HashMap;
 
 /// Static value (known at specialization time)
@@ -107,7 +107,7 @@ impl PartialEvaluator {
         &self,
         inst: &Instruction,
         env: &HashMap<ValueId, StaticValue>,
-        depth: usize,
+        _depth: usize,
     ) -> Vec<Instruction> {
         // Check if all operands are static
         let all_static = self.operands_are_static(inst, env);
@@ -218,7 +218,7 @@ impl PartialEvaluator {
         env: &HashMap<ValueId, StaticValue>,
     ) -> Vec<BasicBlock> {
         // Check if loop bound is static
-        let mut new_env = env.clone();
+        let mut _new_env = env.clone();
 
         // Unroll small loops
         let loop_body = body.to_vec();
@@ -237,7 +237,7 @@ impl PartialEvaluator {
         callee: &Function,
         caller: &Function,
         args: &[ValueId],
-        call_site: usize,
+        _call_site: usize,
     ) -> Function {
         let mut inlined = caller.clone();
         let mut inlined_body = Vec::new();
@@ -251,7 +251,7 @@ impl PartialEvaluator {
         }
 
         // Inline function body
-        for (i, block) in callee.body.iter().enumerate() {
+        for (_i, block) in callee.body.iter().enumerate() {
             let mut new_block = block.clone();
             for inst in &block.instructions {
                 let mut new_inst = inst.clone();

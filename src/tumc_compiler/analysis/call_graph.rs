@@ -34,7 +34,7 @@ impl CallGraphAnalysis {
                 for inst in &block.instructions {
                     if let Operation::Call(callee, _) = &inst.op {
                         graph.add_edge(func.id, *callee);
-                    } else if let Operation::CallIndirect(ptr, _) = &inst.op {
+                    } else if let Operation::CallIndirect(_ptr, _) = &inst.op {
                         // Indirect call - add edges to all functions
                         let targets: Vec<FunctionId> = graph.nodes.keys().copied().collect();
                         for func_id in targets {

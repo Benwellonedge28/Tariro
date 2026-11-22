@@ -498,7 +498,7 @@ impl TieredMemory {
     fn alloc_in_tier(
         &mut self,
         tier: MemoryTier,
-        size: u64,
+        _size: u64,
         _align: Option<u64>,
     ) -> Result<u64, MemoryError> {
         let base = self.tier_bases.get(&tier).copied().unwrap_or(0);

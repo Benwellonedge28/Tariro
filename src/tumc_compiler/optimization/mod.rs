@@ -67,7 +67,7 @@ pub trait OptimizationPass {
     fn run(&self, module: &mut Module) -> bool;
 
     /// Check if pass should run at this optimization level
-    fn should_run(&self, level: OptLevel) -> bool {
+    fn should_run(&self, _level: OptLevel) -> bool {
         true
     }
 }
@@ -230,13 +230,13 @@ impl PassResult {
 // ============================================================================
 
 /// Check if a value is a constant
-pub fn is_constant(module: &Module, value: ValueId) -> bool {
+pub fn is_constant(_module: &Module, _value: ValueId) -> bool {
     // Implementation would check value definitions
     false
 }
 
 /// Get constant integer value
-pub fn get_const_int(module: &Module, value: ValueId) -> Option<i64> {
+pub fn get_const_int(_module: &Module, _value: ValueId) -> Option<i64> {
     None
 }
 

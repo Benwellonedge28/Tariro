@@ -1,7 +1,6 @@
 // Tariro AGI - Perceptual Processing Module
 // Multi-modal perception system for unified sensory integration
 
-use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
 use chrono::{DateTime, Utc, TimeDelta};
@@ -697,7 +696,7 @@ pub enum VoiceType {
     Breath,
     Modal,
     Falsetto,
-    fry,
+    Fry,
     Undetermined,
 }
 
@@ -885,7 +884,7 @@ impl LowLevelExtractor {
             return histogram;
         }
 
-        let bin_size = 256.0 / (bins as f32);
+        let _bin_size = 256.0 / (bins as f32);
         for chunk in data.raw_pixels.chunks(data.channels) {
             if chunk.len() >= 3 {
                 let r_bin = ((chunk[0] * 255.0) as usize).min(bins - 1);
@@ -1364,7 +1363,7 @@ impl SpeakerAnalyzer {
         }
     }
 
-    pub fn analyze(&self, features: &SpectralFeatures, prosody: &ProsodicFeatures) -> SpeakerInfo {
+    pub fn analyze(&self, _features: &SpectralFeatures, prosody: &ProsodicFeatures) -> SpeakerInfo {
         // Simplified speaker analysis
         SpeakerInfo {
             embedding: vec![0.0; self.embedding_dim],
@@ -1695,7 +1694,7 @@ impl TemporalAligner {
 
     pub fn align(&self, perceptions: &[PerceptualResult]) -> Vec<TemporalAlignment> {
         let mut alignments = Vec::new();
-        let mut perception_refs: Vec<_> = perceptions.iter().enumerate().collect();
+        let perception_refs: Vec<_> = perceptions.iter().enumerate().collect();
 
         for (i, p1) in perception_refs.iter() {
             for (_, p2) in perception_refs.iter().skip(*i + 1) {
@@ -1786,8 +1785,7 @@ impl SemanticBinder {
 
 /// Complementary feature fusion
 pub struct ComplementaryFusion {
-    fusion_weights: HashMap<(Modality, Modality), f32>,
-}
+    fusion_weights: HashMap<(Modality, Modality), f32>}
 
 impl ComplementaryFusion {
     pub fn new() -> Self {

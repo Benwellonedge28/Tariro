@@ -604,7 +604,7 @@ impl Agency {
     /// Check if action is ethically permissible
     pub fn check_ethical_permissibility(&self, action: &str) -> EthicalCheck {
         let mut violations = Vec::new();
-        let mut warnings = Vec::new();
+        let warnings = Vec::new();
 
         for rule in &self.value_system.ethical_rules {
             if action.contains(&rule.description) && rule.enforced {

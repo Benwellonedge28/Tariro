@@ -326,7 +326,7 @@ impl BroadcastChannel {
     }
 
     /// Broadcast content to all subscribers
-    pub async fn broadcast(&self, content: &WorkspaceContent, recipients: Option<Vec<ModuleType>>) {
+    pub async fn broadcast(&self, content: &WorkspaceContent, _recipients: Option<Vec<ModuleType>>) {
         let item = BroadcastItem {
             content_id: content.id.clone(),
             content_type: content.content_type,

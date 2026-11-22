@@ -132,7 +132,7 @@ impl MarkSweepGc {
 
         // Get object header
         let header = unsafe { &*(ptr as *const ObjectHeader) };
-        let data_ptr = unsafe { ptr.add(std::mem::size_of::<ObjectHeader>()) };
+        let _data_ptr = unsafe { ptr.add(std::mem::size_of::<ObjectHeader>()) };
 
         // Traverse fields based on type
         // This would typically use type information or pointer maps

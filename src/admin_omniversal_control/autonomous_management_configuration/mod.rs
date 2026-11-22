@@ -6,14 +6,13 @@
 //! allowing fine-grained control over self-modification, learning, decision-making,
 //! and various operational aspects of the AGI system.
 
-use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
-use std::time::Duration;
+
 
 /// Configuration for autonomous behavior
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -653,7 +652,7 @@ impl ConfigurationManager {
         let history = self.change_history.read().await;
 
         // Find the target version in history
-        let change = history.iter()
+        let _change = history.iter()
             .find(|c| c.configuration_id == configuration_id && c.new_version == target_version)
             .ok_or_else(|| format!("Version {} not found for configuration '{}'", target_version, configuration_id))?;
 

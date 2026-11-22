@@ -67,7 +67,7 @@ impl JitCompiler {
     }
 
     /// On-stack replacement
-    pub fn osr(&mut self, function: &Function, bci: usize) -> Option<CompiledCode> {
+    pub fn osr(&mut self, function: &Function, _bci: usize) -> Option<CompiledCode> {
         self.compile(function)
     }
 }
@@ -99,7 +99,7 @@ impl JitPipeline {
         module.functions.into_iter().next().unwrap_or(function.clone())
     }
 
-    pub fn generate_code(&self, function: &Function) -> Option<Vec<u8>> {
+    pub fn generate_code(&self, _function: &Function) -> Option<Vec<u8>> {
         // Simplified code generation
         Some(Vec::new())
     }

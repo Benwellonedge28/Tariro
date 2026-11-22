@@ -1,12 +1,11 @@
 use uuid::Uuid;
-use crate::prelude::*;
 use chrono::{DateTime, Utc};
-use std::time::Duration;
+
 use serde::{Serialize, Deserialize};
-use std::collections::HashMap;
+
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct R_DInsight {
+pub struct RDinsight {
     pub id: Uuid,
     pub query: String,
     pub insights: Vec<String>,
@@ -34,7 +33,7 @@ pub struct PrototypeResult {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct R_DRoadmap {
+pub struct RDroadmap {
     pub id: Uuid,
     pub idea_origin: String, // e.g., "Voice Input"
     pub structured_roadmap: Vec<String>,
@@ -100,7 +99,7 @@ pub struct SystemUndoResult {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct R_DTrendAlert {
+pub struct RDtrendalert {
     pub id: Uuid,
     pub trend_name: String,
     pub impact_on_omega_os: String,
@@ -145,7 +144,7 @@ impl CoreLogic {
     }
 
     /// Feature 41: R&D Thought-Partner Mode
-    pub async fn r_d_thought_partner_mode(&self, query: &str) -> R_DInsight {
+    pub async fn r_d_thought_partner_mode(&self, query: &str) -> RDinsight {
         // ... existing implementation ...
         println!("Activating R&D Thought-Partner Mode for query: '{}'.", query);
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
@@ -156,7 +155,7 @@ impl CoreLogic {
             format!("Insight 3: A new coding paradigm based on temporal causality could optimize {} by 150%.", query),
         ];
 
-        let result = R_DInsight {
+        let result = RDinsight {
             id: Uuid::new_v4(),
             query: query.to_string(),
             insights,
@@ -218,7 +217,7 @@ impl CoreLogic {
     }
 
     /// Feature 44: Voice-to-R&D Synthesis
-    pub async fn voice_to_r_d_synthesis(&self, idea_audio_transcript: &str) -> R_DRoadmap {
+    pub async fn voice_to_r_d_synthesis(&self, idea_audio_transcript: &str) -> RDroadmap {
         // ... existing implementation ...
         println!("Synthesizing R&D roadmap from voice transcript: '{}'.", idea_audio_transcript);
         tokio::time::sleep(std::time::Duration::from_millis(3500)).await;
@@ -230,7 +229,7 @@ impl CoreLogic {
         ];
         let new_tree_suggestion = Some(format!("New 'Tree' suggested: 'Quantum Telepathy R&D Forest' (ID: {}).", Uuid::new_v4().simple()));
 
-        let roadmap = R_DRoadmap {
+        let roadmap = RDroadmap {
             id: Uuid::new_v4(),
             idea_origin: "Voice Input".to_string(),
             structured_roadmap,
@@ -389,7 +388,7 @@ impl CoreLogic {
 
     /// Feature 51: R&D Trend Alerts
     /// TARIRO notifies you of global breakthroughs that can be integrated into OMEGA OS.
-    pub async fn r_d_trend_alerts(&self, topic_of_interest: &str) -> R_DTrendAlert {
+    pub async fn r_d_trend_alerts(&self, topic_of_interest: &str) -> RDtrendalert {
         println!("Monitoring R&D trends for topic: '{}'.", topic_of_interest);
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
 
@@ -397,7 +396,7 @@ impl CoreLogic {
         let impact = format!("Immediate integration into OMEGA OS 'Inter-Dimensional Data Transfer Protocol' for 500% speed increase.");
         let recommended_action = "Initiate autonomous adaptation of relevant core modules.".to_string();
 
-        let alert = R_DTrendAlert {
+        let alert = RDtrendalert {
             id: Uuid::new_v4(),
             trend_name,
             impact_on_omega_os: impact,

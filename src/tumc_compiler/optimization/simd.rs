@@ -217,7 +217,7 @@ impl SimdCodeGenerator {
     }
 
     /// Generate gather operation
-    pub fn generate_gather(&self, indices: &[ValueId]) -> Vec<String> {
+    pub fn generate_gather(&self, _indices: &[ValueId]) -> Vec<String> {
         match self.target {
             SimdTarget::AVX2 => {
                 // vpgatherdd
@@ -354,7 +354,7 @@ impl MaskedSimdOperations {
     }
 
     /// Generate masked load
-    pub fn gen_masked_load(&self, mask_reg: &str, passthru: &str) -> Vec<String> {
+    pub fn gen_masked_load(&self, _mask_reg: &str, _passthru: &str) -> Vec<String> {
         match self.target {
             SimdTarget::AVX512 => vec![
                 format!("vmovaps.zmm{{k1}}{{z}}, (%rdi), %zmm0",),
@@ -364,7 +364,7 @@ impl MaskedSimdOperations {
     }
 
     /// Generate masked store
-    pub fn gen_masked_store(&self, mask_reg: &str) -> Vec<String> {
+    pub fn gen_masked_store(&self, _mask_reg: &str) -> Vec<String> {
         match self.target {
             SimdTarget::AVX512 => vec![
                 format!("vmovaps.zmm %zmm0, (%rdi){{k1}}",),

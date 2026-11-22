@@ -3,13 +3,12 @@
 //! Combines knowledge graph, reasoning, logic, causal reasoning,
 //! common sense, and formal verification into a unified cognitive system.
 
-use std::collections::HashMap;
+
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::RwLock;
-use crate::prelude::*;
+
 use crate::knowledge::knowledge_graph::{
-    KnowledgeGraph, EntityId, Entity, Fact, Predicate, Probability,
-};
+    KnowledgeGraph, EntityId, Entity, Fact, Predicate, Probability};
 use crate::knowledge::reasoning::{ReasoningEngine, Query, QueryResult, Deduction};
 use crate::knowledge::logic::LogicEngine;
 use crate::knowledge::causal::{CausalReasoningEngine, CausalEffect, CounterfactualResult};

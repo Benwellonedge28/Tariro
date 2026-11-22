@@ -1,10 +1,9 @@
 // Tariro AGI - Self-Supervised Learning Module
 // Learning representations without explicit labels
 
-use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
-use std::time::Duration;
+
 
 // ============================================================================
 // Self-Supervised Learning Types
@@ -335,7 +334,7 @@ impl ContrastiveLearner {
 
         // Compute loss
         let exp_logits = self.exp_normalize(&logits);
-        let positive_loss = (logits.iter().flatten().zip(positives.iter().flatten()).map(|(l, p)| l * p).sum::<f32>()) / (batch_size as f32 * 2.0);
+        let _positive_loss = (logits.iter().flatten().zip(positives.iter().flatten()).map(|(l, p)| l * p).sum::<f32>()) / (batch_size as f32 * 2.0);
 
         // Numerical stability
         let max_log = logits.iter().flatten().fold(f32::MIN, |a, &b| a.max(b));

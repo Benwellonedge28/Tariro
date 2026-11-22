@@ -1,7 +1,6 @@
 // Tariro AGI - Meta-Cognition Module
 // Self-awareness, planning, and reflection systems for AGI
 
-use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
 use chrono::{DateTime, Utc};
@@ -342,7 +341,7 @@ impl HTNPlanner {
     }
 
     /// Create a plan to achieve a goal
-    pub fn plan(&self, goal: &str, initial_state: &WorldState) -> Option<ActionPlan> {
+    pub fn plan(&self, goal: &str, _initial_state: &WorldState) -> Option<ActionPlan> {
         let plan_id = generate_id();
 
         let steps = self.decompose_goal(goal, 0)?;

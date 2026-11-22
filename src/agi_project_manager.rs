@@ -183,7 +183,7 @@ impl ProjectManagerServiceTrait for ProjectManagerService {
     }
 
     /// Updates an existing project.
-    async fn update_project(&mut self, mut updated_project: Project) -> Result<(), String> {
+    async fn update_project(&mut self, updated_project: Project) -> Result<(), String> {
         if let Some(project) = self.projects.get_mut(&updated_project.id) {
             project.name = updated_project.name;
             project.description = updated_project.description;
@@ -235,7 +235,7 @@ impl ProjectManagerServiceTrait for ProjectManagerService {
     }
 
     /// Updates an existing task.
-    async fn update_task(&mut self, mut updated_task: ProjectTask) -> Result<(), String> {
+    async fn update_task(&mut self, updated_task: ProjectTask) -> Result<(), String> {
         if let Some(task) = self.tasks.get_mut(&updated_task.id) {
             task.project_id = updated_task.project_id;
             task.title = updated_task.title;

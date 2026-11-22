@@ -8,8 +8,8 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::Arc;
-use tokio::sync::RwLock;
+
+
 use uuid::Uuid;
 use chrono::Utc;
 
@@ -303,7 +303,7 @@ impl Tokenizer {
 
         while let Some((start, ch)) = chars.next() {
             let end;
-            let token_text = if ch.is_whitespace() {
+            let _token_text = if ch.is_whitespace() {
                 // Collect whitespace
                 let mut scan_end = start;
                 while let Some(&(idx, c)) = chars.peek() {
@@ -514,7 +514,7 @@ pub struct RelationExtractor;
 
 impl RelationExtractor {
     /// Extract subject-predicate-object relations
-    pub fn extract(tokens: &[Token], entities: &[PerceivedEntity], text: &str) -> Vec<PerceivedRelation> {
+    pub fn extract(_tokens: &[Token], entities: &[PerceivedEntity], text: &str) -> Vec<PerceivedRelation> {
         let mut relations = Vec::new();
 
         // Common predicate patterns
@@ -838,7 +838,7 @@ impl PerceptionEngine {
         let start_time = std::time::Instant::now();
 
         let text = data.to_string();
-        let mut tokens = Tokenizer::tokenize(&text);
+        let tokens = Tokenizer::tokenize(&text);
         let entities = EntityExtractor::extract(&tokens, &text);
 
         let processing_time = start_time.elapsed().as_millis() as u64;

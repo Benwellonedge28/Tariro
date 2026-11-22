@@ -6,9 +6,10 @@
 
 use crate::prelude::*;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
+use tokio::sync::Mutex;
 use std::time::Duration;
 use tracing::{info, error};
 use crate::quantum_security::QuantumSecurityManager;
@@ -120,6 +121,7 @@ impl ReplicationService {
 
         let request_id_clone = request.request_id.clone();
         self.active_requests.insert(request_id_clone.clone(), request);
+        let workflow_request_id = request_id_clone.clone();
 
         // Asynchronously execute the replication workflow
         let qsm_clone = self.qsm.clone(); 
@@ -128,7 +130,7 @@ impl ReplicationService {
 
         tokio::spawn(async move {
             Self::execute_replication_workflow(
-                request_id_clone,
+                workflow_request_id,
                 qsm_clone, 
                 telemetry_logger_clone, 
                 event_bus_clone, 
@@ -161,7 +163,7 @@ impl ReplicationService {
         info!("[ReplicationWorkflow] Starting workflow for request: {}", request_id);
         tokio::time::sleep(Duration::from_secs(1)).await;
 
-        let qsm_locked = qsm.lock().unwrap(); 
+        let qsm_locked = qsm.lock().await;
 
         // Simulate Code Generation (PQC-secured)
         Self::update_request_status_and_log(&request_id, ReplicationStatus::GeneratingCode, "Code generation started.", &telemetry_logger, &event_bus).await;
@@ -252,9 +254,9 @@ impl ReplicationService {
     pub async fn generate_code(&self, project_id: &str, project_type: &str, target_platform: &str) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
         info!("[ReplicationService] Generating code for project '{}' (type: {}, platform: {})...", project_id, project_type, target_platform);
         // This would involve the QSM to ensure the generated code itself is quantum-resistant or signed.
-        let qsm_locked = self.qsm.lock().unwrap();
+        let qsm_locked = self.qsm.lock().await;
         let sensitive_generation_params = b"AGI code generation parameters.";
-        let protected_params = qsm_locked.protect_data(sensitive_generation_params, "code_gen_params").await?;
+        let _protected_params = qsm_locked.protect_data(sensitive_generation_params, "code_gen_params").await?;
         info!("Code generation parameters PQC-protected.");
         
         // Simulate actual code generation

@@ -923,7 +923,7 @@ impl IrBuilder {
         self.current_block = block;
     }
 
-    pub fn build_alloca(&mut self, ty: IrType, name: Option<String>) -> ValueId {
+    pub fn build_alloca(&mut self, ty: IrType, _name: Option<String>) -> ValueId {
         let inst = Instruction::new(
             Operation::Alloca(ty.clone(), None),
             IrType::Pointer(Box::new(ty)),

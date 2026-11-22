@@ -84,7 +84,7 @@ pub struct LicenseInfo {
 
 impl ProvenanceRecord {
     /// Create a new provenance record
-    pub fn new(concept: &CreativeConcept, iterations: u32) -> Self {
+    pub fn new(_concept: &CreativeConcept, iterations: u32) -> Self {
         Self {
             id: uuid::Uuid::new_v4().to_string(),
             author: AuthorInfo {
@@ -132,7 +132,7 @@ impl ProvenanceRecord {
 
 impl Default for ProvenanceRecord {
     fn default() -> Self {
-        let mut record = Self::new(
+        let record = Self::new(
             &CreativeConcept::new("Default".to_string(), "Default".to_string()),
             0,
         );

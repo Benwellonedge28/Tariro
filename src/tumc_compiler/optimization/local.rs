@@ -44,15 +44,15 @@ impl OptimizationPass for ConstantFolding {
 impl ConstantFolding {
     fn fold_instruction(&self, inst: &Instruction) -> Option<(Const, IrType)> {
         match &inst.op {
-            Operation::Binary(op, lhs, rhs) => {
+            Operation::Binary(_op, _lhs, _rhs) => {
                 // Would evaluate binary operations with constant operands
                 None
             }
-            Operation::Unary(op, operand) => {
+            Operation::Unary(_op, _operand) => {
                 // Would evaluate unary operations
                 None
             }
-            Operation::ICmp(cmp, lhs, rhs) => {
+            Operation::ICmp(_cmp, _lhs, _rhs) => {
                 // Would fold comparisons
                 None
             }
@@ -228,7 +228,7 @@ impl OptimizationPass for CommonSubexpressionElimination {
             for block in &func.body {
                 for inst in &block.instructions {
                     if let Some(hash) = self.hash_instruction(inst) {
-                        if let Some(existing) = available_exprs.get(&hash) {
+                        if let Some(_existing) = available_exprs.get(&hash) {
                             // Replace with existing value
                             changed = true;
                         } else {
@@ -288,7 +288,7 @@ impl OptimizationPass for LocalValueNumbering {
 
                 for inst in block.instructions.iter_mut() {
                     let vn = self.compute_value_number(inst, &value_table, &mut next_vn);
-                    if let Some(existing) = value_table.get(&vn) {
+                    if let Some(_existing) = value_table.get(&vn) {
                         // Replace with equivalent value
                         changed = true;
                     }
@@ -308,8 +308,8 @@ impl OptimizationPass for LocalValueNumbering {
 impl LocalValueNumbering {
     fn compute_value_number(
         &self,
-        inst: &Instruction,
-        table: &HashMap<ValueNumber, ValueId>,
+        _inst: &Instruction,
+        _table: &HashMap<ValueNumber, ValueId>,
         next_vn: &mut usize,
     ) -> ValueNumber {
         ValueNumber(*next_vn)
@@ -357,7 +357,7 @@ impl OptimizationPass for InstructionCombining {
 }
 
 impl InstructionCombining {
-    fn try_combine(&self, inst1: &Instruction, inst2: &Instruction) -> Option<Instruction> {
+    fn try_combine(&self, _inst1: &Instruction, _inst2: &Instruction) -> Option<Instruction> {
         // Combine (x + y) + z -> x + (y + z) etc.
         None
     }
@@ -390,7 +390,7 @@ impl OptimizationPass for Reassociation {
 }
 
 impl Reassociation {
-    fn reassociate_block(&self, block: &mut BasicBlock) -> bool {
+    fn reassociate_block(&self, _block: &mut BasicBlock) -> bool {
         false
     }
 }
@@ -424,7 +424,7 @@ impl OptimizationPass for CodeSinking {
 }
 
 impl CodeSinking {
-    fn sink_block(&self, block: &mut BasicBlock, _cfg: &ControlFlowGraph) -> bool {
+    fn sink_block(&self, _block: &mut BasicBlock, _cfg: &ControlFlowGraph) -> bool {
         false
     }
 }

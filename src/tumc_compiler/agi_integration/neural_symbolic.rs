@@ -368,7 +368,7 @@ impl NeuralSymbolicEngine {
         features.push(function.params.len() as f64); // Number of parameters
 
         let mut total_instructions = 0;
-        let mut branch_count = 0;
+        let branch_count = 0;
         let mut memory_ops = 0;
         let mut arithmetic_ops = 0;
 

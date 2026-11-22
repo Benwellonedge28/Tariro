@@ -84,7 +84,7 @@ impl Runtime {
         self.interpreter.execute(func, args)
     }
 
-    fn execute_compiled(&self, code: &CompiledCode, args: &[Value]) -> Result<Value, RuntimeError> {
+    fn execute_compiled(&self, _code: &CompiledCode, _args: &[Value]) -> Result<Value, RuntimeError> {
         // Call compiled code
         Ok(Value::Unit)
     }

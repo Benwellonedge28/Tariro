@@ -94,7 +94,7 @@ impl Scheduler {
 
     /// Create waker for task
     fn create_waker(&self, handle: &TaskHandle) -> Waker {
-        let data = handle.clone();
+        let _data = handle.clone();
 
         let vtable = Box::leak(Box::new(RawWakerVTable::new(
             |data| {
@@ -225,7 +225,7 @@ impl<T> Channel<T> {
     }
 
     /// Create bounded channel
-    pub fn bounded(capacity: usize) -> (Sender<T>, Receiver<T>) {
+    pub fn bounded(_capacity: usize) -> (Sender<T>, Receiver<T>) {
         Self::new() // Simplified
     }
 }

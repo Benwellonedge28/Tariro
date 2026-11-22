@@ -167,11 +167,11 @@ impl AdaptiveOptimizer {
         decision
     }
 
-    fn check_specialization(&self, func_id: FunctionId) -> Option<Specialization> {
+    fn check_specialization(&self, _func_id: FunctionId) -> Option<Specialization> {
         // Look for monomorphic call sites
         let mut specialized_types = Vec::new();
 
-        for (value, types) in &self.profile.type_feedback {
+        for (_value, types) in &self.profile.type_feedback {
             if let Some(dominant) = types.iter().max_by_key(|t| t.count) {
                 if dominant.count > 100 {
                     specialized_types.push(dominant.type_name.clone());
@@ -315,7 +315,7 @@ impl Deoptimization {
     }
 
     /// Deoptimize to interpreter
-    pub fn deoptimize(&self, runtime: &mut Runtime) {
+    pub fn deoptimize(&self, _runtime: &mut Runtime) {
         // Transfer control to interpreter
         // Invalidate compiled code
         // Continue execution

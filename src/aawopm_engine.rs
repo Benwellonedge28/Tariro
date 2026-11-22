@@ -11,7 +11,7 @@
 
 use crate::prelude::*;
 use std::collections::HashMap;
-use std::fmt;
+
 use std::thread;
 use std::time::Duration;
 use rand::Rng;
@@ -68,7 +68,7 @@ pub struct MonitoringUpdate {
 
 /// Overall Advanced Workflow Orchestration & Project Management system report.
 #[derive(Debug, Clone)]
-pub struct AAWOPM_Report {
+pub struct AawopmReport {
     pub report_id: String,
     pub total_workflows_managed: u64,
     pub total_tasks_executed: u64,

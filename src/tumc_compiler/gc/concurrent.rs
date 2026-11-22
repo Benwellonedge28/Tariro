@@ -30,7 +30,7 @@ impl ConcurrentMarkSweep {
     /// Start concurrent marking
     pub fn start_concurrent_mark(&mut self) {
         let stop = self.stop_flag.clone();
-        let bitmap = self.mark_bitmap.clone();
+        let _bitmap = self.mark_bitmap.clone();
 
         self.mark_thread = Some(std::thread::spawn(move || {
             while !stop.load(Ordering::Relaxed) {
@@ -49,7 +49,7 @@ impl ConcurrentMarkSweep {
     }
 
     /// Incremental update via write barrier
-    pub fn write_barrier(&mut self, src: *mut u8, dst: *mut u8) {
+    pub fn write_barrier(&mut self, src: *mut u8, _dst: *mut u8) {
         // Mark card as dirty in card table
         if let Some(ref mut heap) = self.inner.heap {
             let card_idx = (src as usize) / 64;
@@ -271,7 +271,7 @@ impl ReferenceProcessor {
             for &ptr in discovered.iter() {
                 if !is_alive(ptr) {
                     // Reference is not live, enqueue for finalization
-                    if let Ok(mut queue) = self.queue.lock() {
+                    if let Ok(queue) = self.queue.lock() {
                         // Find callback and call it
                         let _ = queue;
                     }

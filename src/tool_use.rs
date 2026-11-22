@@ -1,11 +1,10 @@
 // Tariro AGI - Tool Use Engine Module
 // Enables AGI to use external tools and APIs
 
-use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
 use std::time::Duration;
-use std::sync::Arc;
+
 
 // ============================================================================
 // Tool Types
@@ -116,8 +115,7 @@ pub struct ToolUseEngine {
     pub execution_history: VecDeque<ToolExecution>,
     pub tool_permissions: HashMap<String, ToolPermission>,
     pub config: ToolConfig,
-    pub execution_stats: ToolStats,
-}
+    pub execution_stats: ToolStats}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ToolExecution {
@@ -127,8 +125,7 @@ pub struct ToolExecution {
     pub result: Option<ToolResult>,
     pub status: ExecutionStatus,
     pub started_at: DateTime<Utc>,
-    pub completed_at: Option<DateTime<Utc>>,
-}
+    pub completed_at: Option<DateTime<Utc>>}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ExecutionStatus {
@@ -137,8 +134,7 @@ pub enum ExecutionStatus {
     Completed,
     Failed,
     Timeout,
-    Cancelled,
-}
+    Cancelled}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ToolPermission {
@@ -146,8 +142,7 @@ pub struct ToolPermission {
     pub allowed: bool,
     pub restricted_parameters: Vec<String>,
     pub max_usage_per_day: Option<usize>,
-    pub requires_confirmation: bool,
-}
+    pub requires_confirmation: bool}
 
 #[derive(Debug, Clone)]
 pub struct ToolConfig {
@@ -157,8 +152,7 @@ pub struct ToolConfig {
     pub enable_retry: bool,
     pub max_retries: usize,
     pub require_permission: bool,
-    pub sandbox_execution: bool,
-}
+    pub sandbox_execution: bool}
 
 impl Default for ToolConfig {
     fn default() -> Self {
@@ -169,8 +163,7 @@ impl Default for ToolConfig {
             enable_retry: true,
             max_retries: 3,
             require_permission: true,
-            sandbox_execution: true,
-        }
+            sandbox_execution: true}
     }
 }
 
@@ -180,8 +173,7 @@ pub struct ToolStats {
     pub successful_executions: usize,
     pub failed_executions: usize,
     pub average_execution_time: Duration,
-    pub most_used_tools: Vec<(String, usize)>,
-}
+    pub most_used_tools: Vec<(String, usize)>}
 
 impl ToolUseEngine {
     pub fn new() -> Self {
@@ -195,9 +187,7 @@ impl ToolUseEngine {
                 successful_executions: 0,
                 failed_executions: 0,
                 average_execution_time: Duration::from_secs(0),
-                most_used_tools: Vec::new(),
-            },
-        };
+                most_used_tools: Vec::new()}};
 
         engine.register_default_tools();
         engine
@@ -473,8 +463,7 @@ impl ToolUseEngine {
                     error: Some("Tool use not permitted".to_string()),
                     execution_time: Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default(),
                     retries: 0,
-                    timestamp: Utc::now(),
-                };
+                    timestamp: Utc::now()};
             }
         }
 
@@ -524,7 +513,7 @@ impl ToolUseEngine {
         // Simplified execution - in production would implement actual tool logic
         match tool.tool_type {
             ToolType::WebSearch => {
-                let query = params.get("query")
+                let _query = params.get("query")
                     .map(|p| p.value.as_str().unwrap_or(""))
                     .unwrap_or("");
 

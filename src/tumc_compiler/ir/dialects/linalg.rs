@@ -1,6 +1,6 @@
 // Linalg Dialect - Linear Algebra Operations
 
-use crate::tumc_compiler::ir::*;
+
 use super::*;
 
 /// Linalg operations for tensor/matrix computations

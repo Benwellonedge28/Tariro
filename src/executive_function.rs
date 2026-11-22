@@ -6,7 +6,7 @@
 use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
-use std::sync::RwLock;
+
 
 /// The central executive function coordinating all AGI subsystems
 pub struct ExecutiveFunction {
@@ -862,7 +862,7 @@ impl GlobalStateManager {
         self.current_state.timestamp = Utc::now();
     }
 
-    pub fn record_decision(&mut self, decision: &ExecutiveDecision) {
+    pub fn record_decision(&mut self, _decision: &ExecutiveDecision) {
         self.state_history.push(self.current_state.clone());
         if self.state_history.len() > 100 {
             self.state_history.remove(0);
@@ -997,7 +997,7 @@ fn rand_simple() -> f64 {
     nanos as f64 / u32::MAX as f64
 }
 
-use std::collections::hash_map::DefaultHasher;
+
 use std::hash::{Hash, Hasher};
 
 trait ChooseRandom {

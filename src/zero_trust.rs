@@ -1,13 +1,12 @@
 // Tariro AGI - Zero Trust Security Architecture
 // Sovereign, defense-in-depth security model
 
-use crate::prelude::*;
 use std::collections::{HashMap, HashSet, VecDeque};
 use chrono::{DateTime, Utc};
 use std::time::Duration;
 use std::sync::{Arc, RwLock};
 use std::hash::{Hash, Hasher};
-use std::collections::hash_map::DefaultHasher;
+
 
 // ============================================================================
 // Zero Trust Types
@@ -604,7 +603,7 @@ pub enum ComplianceFramework {
     ISO27001,
     NIST,
     HIPAA,
-    PCI_DSS,
+    PciDss,
     GDPR,
     FedRAMP,
 }

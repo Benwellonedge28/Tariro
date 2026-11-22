@@ -57,15 +57,15 @@ impl EscapeAnalysis {
         &self,
         inst: &Instruction,
         result: &mut FunctionEscapeResult,
-        cfg: &ControlFlowGraph,
-        call_graph: &CallGraph,
+        _cfg: &ControlFlowGraph,
+        _call_graph: &CallGraph,
     ) {
         match &inst.op {
-            Operation::Alloca(ty, _) => {
+            Operation::Alloca(_ty, _) => {
                 // Initially not escaping
                 result.escape_level.insert(inst.result_value(), EscapeLevel::Local);
             }
-            Operation::Store(_, ptr, val, _) => {
+            Operation::Store(_, _ptr, val, _) => {
                 // Check if stored value escapes
                 if let Some(val_escape) = result.escape_level.get(&val) {
                     if matches!(val_escape, EscapeLevel::Escaped) {
@@ -74,7 +74,7 @@ impl EscapeAnalysis {
                     }
                 }
             }
-            Operation::Call(func_id, args) => {
+            Operation::Call(_func_id, args) => {
                 // Check if any arguments escape through call
                 for arg in args {
                     if let Some(arg_escape) = result.escape_level.get(arg) {

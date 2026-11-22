@@ -6,10 +6,9 @@ use std::time::Duration;
 /// tasks, adapting to data characteristics and available quantum resources (RAG: QML model architectures,
 /// quantum resource management; SIMD: parallel QML model training/inference).
 
-use crate::prelude::*;
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
-use std::fmt;
+
 use std::thread;
 use rand::Rng;
 use num_complex::Complex;

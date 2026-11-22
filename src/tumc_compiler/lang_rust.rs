@@ -1072,54 +1072,46 @@ pub enum GenericParamKind {
 
 #[derive(Debug, Clone)]
 pub struct WhereClause {
-    pub predicates: Vec<WherePredicate>,
-}
+    pub predicates: Vec<WherePredicate>}
 
 #[derive(Debug, Clone)]
 pub enum WherePredicate {
     Bound(WhereBoundPredicate),
-    Eq(WhereEqPredicate),
-}
+    Eq(WhereEqPredicate)}
 
 #[derive(Debug, Clone)]
 pub struct WhereBoundPredicate {
     pub bound_lifetimes: Vec<String>,
     pub ty: Type,
-    pub bounds: Vec<Type>,
-}
+    pub bounds: Vec<Type>}
 
 #[derive(Debug, Clone)]
 pub struct WhereEqPredicate {
     pub ty: Type,
-    pub bound: Type,
-}
+    pub bound: Type}
 
 #[derive(Debug, Clone)]
 pub struct Attribute {
     pub path: Path,
     pub tokens: Vec<TokenTree>,
-    pub style: AttrStyle,
-}
+    pub style: AttrStyle}
 
 #[derive(Debug, Clone)]
 pub enum AttrStyle {
     Doc(bool),  // is_sugared_doc
-    Normal,
-}
+    Normal}
 
 #[derive(Debug, Clone)]
 pub struct ForeignItem {
     pub name: String,
     pub ty: Type,
-    pub attrs: Vec<Attribute>,
-}
+    pub attrs: Vec<Attribute>}
 
 #[derive(Debug, Clone)]
 pub struct MacroDef {
     pub name: String,
     pub body: Vec<TokenTree>,
-    pub is_builtin: bool,
-}
+    pub is_builtin: bool}
 
 // ============================================================================
 // Parser
@@ -1128,22 +1120,19 @@ pub struct MacroDef {
 pub struct RustParser {
     tokens: Vec<RustToken>,
     pos: usize,
-    errors: Vec<ParseError>,
-}
+    errors: Vec<ParseError>}
 
 #[derive(Debug, Clone)]
 pub struct ParseError {
     pub message: String,
-    pub span: (usize, usize),
-}
+    pub span: (usize, usize)}
 
 impl RustParser {
     pub fn new(tokens: Vec<RustToken>) -> Self {
         Self {
             tokens,
             pos: 0,
-            errors: Vec::new(),
-        }
+            errors: Vec::new()}
     }
 
     fn current(&self) -> &RustToken {
@@ -1207,7 +1196,7 @@ impl RustParser {
 
     // Parse item
     pub fn parse_item(&mut self) -> Option<Item> {
-        let start_span = self.current().span;
+        let _start_span = self.current().span;
 
         // Visibility
         let vis = self.parse_visibility();
@@ -1259,7 +1248,7 @@ impl RustParser {
                 ItemKind::ForeignMod(abi, items)
             }
             RustTokenType::Static | RustTokenType::Const => {
-                let is_static = self.advance().token_type == RustTokenType::Static;
+                let _is_static = self.advance().token_type == RustTokenType::Static;
                 let name = self.expect(RustTokenType::Ident(String::new()), "name").ok()?.lexeme;
                 let ty = if self.match_token(&[RustTokenType::Colon]) {
                     self.parse_type().unwrap_or(Type::Infer)
@@ -1831,7 +1820,7 @@ impl RustParser {
                 break;
             }
 
-            let op = self.advance();
+            let _op = self.advance();
             let rhs = self.parse_expr_with_precedence(prec + 1)?;
 
             lhs = Expr {
@@ -1856,11 +1845,11 @@ impl RustParser {
     fn parse_prefix_expr(&mut self) -> Option<Expr> {
         let token = self.current().clone();
         let expr = match &token.token_type {
-            RustTokenType::Integer(v, s) => {
+            RustTokenType::Integer(v, _s) => {
                 self.advance();
                 ExprKind::Int(*v)
             }
-            RustTokenType::Float(v, s) => {
+            RustTokenType::Float(v, _s) => {
                 self.advance();
                 ExprKind::Float(*v)
             }
@@ -2064,7 +2053,7 @@ impl RustParser {
             }
             RustTokenType::Ref => {
                 self.advance();
-                let mutable = self.match_token(&[RustTokenType::Mut]);
+                let _mutable = self.match_token(&[RustTokenType::Mut]);
                 let operand = Box::new(self.parse_expr().unwrap_or(Expr {
                     kind: ExprKind::Unit,
                     ty: None,
@@ -2581,7 +2570,7 @@ impl RustAstConverter {
                             visibility: ast::Visibility::Public,
                         })
                     }
-                    ImplItem::Type(_, _) => None,
+                    ImplItem::Type(_, _) | ImplItem::Function(_) => None,
                 })
                 .collect(),
             span: ast::Span::default(),
@@ -2795,7 +2784,7 @@ impl RustAstConverter {
                 condition: Box::new(self.convert_expr(cond)),
                 body: self.convert_block_expr(body),
             },
-            ExprKind::WhileLet(pat, cond, body) => ast::ExprKind::While {
+            ExprKind::WhileLet(_pat, cond, body) => ast::ExprKind::While {
                 condition: Box::new(self.convert_expr(cond)),
                 body: self.convert_block_expr(body),
             },

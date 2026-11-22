@@ -1,10 +1,11 @@
 // Tariro AGI - Counterfactual Reasoning Module
 // Abductive reasoning about alternative possibilities
 
-use crate::prelude::*;
+
 use std::collections::{HashMap, HashSet, VecDeque};
+use std::sync::atomic::{AtomicUsize, Ordering};
 use chrono::{DateTime, Utc};
-use std::time::Duration;
+
 
 // ============================================================================
 // Counterfactual Types
@@ -214,12 +215,24 @@ impl Default for CFConfig {
     }
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Default)]
 pub struct CFStatistics {
     pub counterfactuals_generated: usize,
-    pub worlds_explored: usize,
+    /// The explored worlds are counted from a shared reference.
+    pub worlds_explored: AtomicUsize,
     pub causal_links_used: usize,
     pub avg_plausibility: f32,
+}
+
+impl Clone for CFStatistics {
+    fn clone(&self) -> Self {
+        CFStatistics {
+            counterfactuals_generated: self.counterfactuals_generated,
+            worlds_explored: AtomicUsize::new(self.worlds_explored.load(Ordering::Relaxed)),
+            causal_links_used: self.causal_links_used,
+            avg_plausibility: self.avg_plausibility,
+        }
+    }
 }
 
 // ============================================================================
@@ -403,7 +416,9 @@ impl CounterfactualEngine {
         // Filter by plausibility
         worlds.retain(|w| w.similarity >= self.config.similarity_threshold);
 
-        self.stats.worlds_explored += worlds.len();
+        self.stats
+            .worlds_explored
+            .fetch_add(worlds.len(), Ordering::Relaxed);
 
         worlds
     }
@@ -467,8 +482,8 @@ impl CounterfactualEngine {
     /// Generate comparison world
     fn generate_comparison_world(
         &self,
-        antecedent: &Condition,
-        consequent: &str,
+        _antecedent: &Condition,
+        _consequent: &str,
         causal_chain: &[CausalLink],
     ) -> AlternativeWorld {
         // Find the key causal link
@@ -523,8 +538,7 @@ impl CounterfactualEngine {
                     hypothesized_cause: cause.clone(),
                     confidence: self.calculate_abduction_confidence(cause, observation),
                     supporting_evidence: self.find_supporting_evidence(cause),
-                    alternatives: vec![],
-                };
+                    alternatives: vec![]};
                 explanations.push(explanation);
             }
         }
@@ -556,7 +570,7 @@ impl CounterfactualEngine {
 
     /// Answer "what if" questions
     pub fn what_if(&mut self, condition: &str, action: &str) -> Vec<Prediction> {
-        let antecedent = Condition {
+        let _antecedent = Condition {
             condition_type: ConditionType::CausalAntecedent,
             proposition: condition.to_string(),
             negation: false,
@@ -568,7 +582,7 @@ impl CounterfactualEngine {
         // Find causal paths from action
         if let Some(edges) = self.causal_graph.edges.get(action) {
             for edge in edges {
-                let path = self.find_causal_path(action, &edge.target);
+                let _path = self.find_causal_path(action, &edge.target);
 
                 let prediction = Prediction {
                     prediction_id: generate_id(),

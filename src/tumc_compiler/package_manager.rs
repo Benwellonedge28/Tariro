@@ -555,13 +555,13 @@ impl Uploader {
     }
 
     /// Publish package
-    pub async fn publish(&self, package: &Package) -> Result<(), PackageError> {
+    pub async fn publish(&self, _package: &Package) -> Result<(), PackageError> {
         // In a real implementation, this would upload to registry
         Ok(())
     }
 
     /// Yank package version
-    pub async fn yank(&self, id: &PackageId) -> Result<(), PackageError> {
+    pub async fn yank(&self, _id: &PackageId) -> Result<(), PackageError> {
         Ok(())
     }
 }

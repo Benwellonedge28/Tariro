@@ -2,10 +2,10 @@
 //!
 //! Mathematical proofs and type-level reasoning for verified knowledge.
 
-use crate::prelude::*;
+
 use crate::knowledge::knowledge_graph::{KnowledgeGraph, EntityId, Entity, Probability};
 use std::collections::{HashMap, HashSet};
-use std::sync::Arc;
+
 
 // ============================================================================
 // Type System for Knowledge

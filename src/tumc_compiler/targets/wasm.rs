@@ -231,7 +231,7 @@ impl Target for WasmTarget {
         module.functions.push(function.clone());
 
         let binary = self.emit_binary(&module)?;
-        let text = self.emit_text(&module);
+        let _text = self.emit_text(&module);
 
         Ok(TargetCode {
             data: binary,

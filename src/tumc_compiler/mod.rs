@@ -329,7 +329,7 @@ impl Compiler {
     /// Compile source code
     pub fn compile(&mut self, source: &str) -> CompilationResult {
         let start = std::time::Instant::now();
-        let mut diagnostics = Vec::new();
+        let diagnostics = Vec::new();
         let mut errors = Vec::new();
 
         // 1. Lexical Analysis
@@ -655,7 +655,7 @@ impl Type {
             Type::Char => Some(4),
             Type::String => None, // Pointer + length
             Type::Unit => Some(0),
-            Type::Ref(t) | Type::MutRef(t) | Type::Ptr(t) => Some(8), // 64-bit pointer
+            Type::Ref(_t) | Type::MutRef(_t) | Type::Ptr(_t) => Some(8), // 64-bit pointer
             Type::Array(t, len) => {
                 t.size().and_then(|s| len.map(|l| s * l))
             }

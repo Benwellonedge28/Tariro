@@ -5,11 +5,10 @@
 
 use std::sync::RwLock;
 use std::sync::atomic::{AtomicUsize, Ordering};
-use crate::prelude::*;
+
 use crate::knowledge::knowledge_graph::{
     KnowledgeGraph, EntityId, Entity, Relation, Fact, Predicate, Probability,
-    Evidence, KnowledgeError, Attribute, Value,
-};
+    Evidence, KnowledgeError, Attribute, Value};
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::sync::Arc;
 use std::fmt::Debug;
@@ -99,7 +98,7 @@ pub enum Pattern {
 
 impl Pattern {
     /// Match against a fact
-    pub fn unify_fact(&self, fact: &Fact, subst: &Substitution) -> Option<Substitution> {
+    pub fn unify_fact(&self, fact: &Fact, _subst: &Substitution) -> Option<Substitution> {
         match self {
             Pattern::Wildcard => Some(Substitution::new()),
             Pattern::Entity(id) => {
@@ -422,7 +421,7 @@ impl ReasoningEngine {
     }
 
     /// Apply a rule to produce a new fact
-    fn apply_rule(&self, rule: &InferenceRule, facts: &[Fact], subst: &Substitution) -> Option<Fact> {
+    fn apply_rule(&self, rule: &InferenceRule, facts: &[Fact], _subst: &Substitution) -> Option<Fact> {
         match rule.name.as_str() {
             "transitivity_is_a" => {
                 // A is-a B, B is-a C => A is-a C
@@ -518,7 +517,7 @@ impl ReasoningEngine {
     }
 
     /// Backward chaining to prove a query
-    fn backward_chain(&self, query: &Query) -> Option<Proof> {
+    fn backward_chain(&self, _query: &Query) -> Option<Proof> {
         // Try each rule that could derive the query
         for rule in &self.rules {
             // Try to prove antecedents
@@ -666,7 +665,7 @@ impl AbductionEngine {
         explanations
     }
 
-    fn calculate_relevance(&self, relation: &Relation, observation: &Observation) -> f64 {
+    fn calculate_relevance(&self, relation: &Relation, _observation: &Observation) -> f64 {
         // Simplified relevance calculation
         if relation.predicate.is_causal() {
             0.8

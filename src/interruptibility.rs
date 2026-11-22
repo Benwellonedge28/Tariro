@@ -1,7 +1,6 @@
 // Tariro AGI - Interruptibility Module
 // Ensures AI can be safely interrupted at any time
 
-use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
 use chrono::{DateTime, Utc};

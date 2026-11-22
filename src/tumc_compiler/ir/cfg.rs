@@ -365,7 +365,7 @@ impl ControlFlowGraph {
         frontier
     }
 
-    pub fn iterated_dominance_frontier(&self, mut set: Vec<BasicBlockId>, idom: &HashMap<BasicBlockId, BasicBlockId>) -> Vec<BasicBlockId> {
+    pub fn iterated_dominance_frontier(&self, set: Vec<BasicBlockId>, idom: &HashMap<BasicBlockId, BasicBlockId>) -> Vec<BasicBlockId> {
         let mut result = set.clone();
 
         loop {

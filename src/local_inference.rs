@@ -1,11 +1,11 @@
 // Tariro AGI - Sovereign Local Inference Engine
 // Fully offline, no external API dependencies
 
-use crate::prelude::*;
+
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
 use chrono::{DateTime, Utc};
-use std::time::Duration;
+
 
 // ============================================================================
 // Local Inference Types
@@ -395,9 +395,9 @@ pub struct InferenceConfig {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CompileMode {
-    eager,
-    compile,
-   inductor,
+    Eager,
+    Compile,
+   Inductor,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -560,13 +560,13 @@ impl LocalInferenceEngine {
 
         Ok(GenerationResult {
             text: output_text,
-            tokens: output_ids,
+            tokens: output_ids.clone(),
             metrics: GenerationMetrics {
                 prompt_tokens: input_ids.len(),
-                completion_tokens: output_ids.len(),
-                total_tokens: input_ids.len() + output_ids.len(),
+                completion_tokens: output_count,
+                total_tokens: input_ids.len() + output_count,
                 inference_time_ms: inference_time.as_millis() as u64,
-                tokens_per_second: session.statistics.tokens_per_second,
+                tokens_per_second,
             },
         })
     }
@@ -703,7 +703,7 @@ mod tests {
             enable_flash_attention: true,
             tensor_parallel: false,
             num_tp_ranks: 1,
-            compile_mode: CompileMode::eager,
+            compile_mode: CompileMode::Eager,
         };
 
         let engine = LocalInferenceEngine::new(config);

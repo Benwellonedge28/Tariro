@@ -2,8 +2,7 @@
 // Auto-Differentiation for Machine Learning and Scientific Computing
 
 use crate::tumc_compiler::ir::{
-    Module, Function, BasicBlock, Instruction, Operation, IrType, BinOp, UnaryOp, ValueId,
-};
+    Module, Function, BasicBlock, Instruction, Operation, IrType, BinOp, UnaryOp, ValueId};
 use crate::tumc_compiler::derive_system::Const;
 use std::collections::HashMap;
 
@@ -90,7 +89,7 @@ impl AutoDifferentiator {
         let mut scope = ValueScope::default();
         let mut new_body = Vec::new();
         for block in &function.body {
-            let mut new_block = self.forward_diff_block(block, &mut scope);
+            let new_block = self.forward_diff_block(block, &mut scope);
             new_body.push(new_block);
         }
         diff_function.body = new_body;
@@ -247,7 +246,7 @@ impl AutoDifferentiator {
         let mut scope = ValueScope::default();
         let mut new_body = Vec::new();
         for block in &function.body {
-            let mut new_block = self.reverse_diff_block(block, &tape, &mut scope);
+            let new_block = self.reverse_diff_block(block, &tape, &mut scope);
             new_body.push(new_block);
         }
         diff_function.body = new_body;
@@ -392,7 +391,7 @@ impl AutoDifferentiator {
         let mut gradients = Vec::new();
 
         // Generate gradient for each parameter
-        for (name, ty) in &function.params {
+        for (name, _ty) in &function.params {
             let mut grad_func = function.clone();
             grad_func.name = format!("d{}_d_{}", function.name, name);
 

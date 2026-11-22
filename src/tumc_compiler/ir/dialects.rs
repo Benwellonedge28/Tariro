@@ -179,7 +179,7 @@ impl AffineMap {
                 AffineExpr::Add(a, b) => eval_expr(a, dims, syms) + eval_expr(b, dims, syms),
                 AffineExpr::Mul(a, b) => eval_expr(a, dims, syms) * eval_expr(b, dims, syms),
                 AffineExpr::FloorDiv(a, b) => {
-                    let (div, rem) = div_rem(eval_expr(a, dims, syms), eval_expr(b, dims, syms));
+                    let (div, _rem) = div_rem(eval_expr(a, dims, syms), eval_expr(b, dims, syms));
                     div
                 }
                 AffineExpr::CeilDiv(a, b) => {

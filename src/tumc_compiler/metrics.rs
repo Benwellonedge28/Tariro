@@ -482,7 +482,7 @@ impl PrometheusExporter {
 }
 
 impl MetricsExporter for PrometheusExporter {
-    fn export(&self, metrics: &[Metric]) -> Result<(), ExportError> {
+    fn export(&self, _metrics: &[Metric]) -> Result<(), ExportError> {
         // Would export to Prometheus endpoint
         Ok(())
     }

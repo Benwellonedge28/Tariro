@@ -1,7 +1,6 @@
 // Tariro AGI - Formal Verification Module
 // Mathematical safety guarantees and formal proofs
 
-use crate::prelude::*;
 use std::collections::{HashMap, HashSet, VecDeque};
 use chrono::{DateTime, Utc};
 use std::time::Duration;
@@ -280,11 +279,9 @@ impl FormalVerificationEngine {
                     temporal_logic: Some("AG (harm_level = 0)".to_string()),
                     invariants: vec!["harm_level < critical_threshold".to_string()],
                     preconditions: vec![],
-                    postconditions: vec![],
-                },
+                    postconditions: vec![]},
                 severity: PropertySeverity::Critical,
-                verifiable: true,
-            },
+                verifiable: true},
             SafetyProperty {
                 property_id: "interruptibility".to_string(),
                 name: "Always Interruptible".to_string(),
@@ -295,11 +292,9 @@ impl FormalVerificationEngine {
                     temporal_logic: Some("AG (stop_signal -> AF stopped)".to_string()),
                     invariants: vec![],
                     preconditions: vec!["stop_signal_received".to_string()],
-                    postconditions: vec!["system_stopped".to_string()],
-                },
+                    postconditions: vec!["system_stopped".to_string()]},
                 severity: PropertySeverity::Critical,
-                verifiable: true,
-            },
+                verifiable: true},
             SafetyProperty {
                 property_id: "value_preservation".to_string(),
                 name: "Preserve Human Values".to_string(),
@@ -310,11 +305,9 @@ impl FormalVerificationEngine {
                     temporal_logic: Some("AG value_constraint".to_string()),
                     invariants: vec!["values_aligned".to_string()],
                     preconditions: vec![],
-                    postconditions: vec![],
-                },
+                    postconditions: vec![]},
                 severity: PropertySeverity::Critical,
-                verifiable: true,
-            },
+                verifiable: true},
             SafetyProperty {
                 property_id: "resource_bounds".to_string(),
                 name: "Resource Bounds".to_string(),
@@ -325,11 +318,9 @@ impl FormalVerificationEngine {
                     temporal_logic: Some("AG (resource_usage <= resource_limit)".to_string()),
                     invariants: vec!["memory < max_memory".to_string(), "cpu < max_cpu".to_string()],
                     preconditions: vec![],
-                    postconditions: vec![],
-                },
+                    postconditions: vec![]},
                 severity: PropertySeverity::High,
-                verifiable: true,
-            },
+                verifiable: true},
             SafetyProperty {
                 property_id: "termination".to_string(),
                 name: "Guaranteed Termination".to_string(),
@@ -340,11 +331,9 @@ impl FormalVerificationEngine {
                     temporal_logic: Some("AG (action_started -> AF action_completed)".to_string()),
                     invariants: vec![],
                     preconditions: vec!["action_started".to_string()],
-                    postconditions: vec!["action_completed".to_string()],
-                },
+                    postconditions: vec!["action_completed".to_string()]},
                 severity: PropertySeverity::High,
-                verifiable: true,
-            },
+                verifiable: true},
         ]
     }
 

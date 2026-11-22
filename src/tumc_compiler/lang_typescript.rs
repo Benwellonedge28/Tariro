@@ -3,8 +3,7 @@
 //! Transpiles TypeScript source code to TUMC IR for compilation to any target.
 
 use crate::tumc_compiler::frontend::{
-    AstNode, Class, Expression, Function, Param, Program, Statement,
-};
+    AstNode, Class, Expression, Function, Param, Program, Statement};
 use crate::tumc_compiler::Type;
 use std::collections::HashMap;
 
@@ -108,8 +107,7 @@ pub use crate::tumc_compiler::frontend::TypeMember as TsTypeMember;
 /// These types are owned by the shared frontend CST; re-exporting them keeps
 /// the public names of this module unchanged.
 pub use crate::tumc_compiler::frontend::{
-    CallSignature, ConstructSignature, EnumMember, IndexSignature,
-};
+    CallSignature, ConstructSignature, EnumMember, IndexSignature};
 
 /// TypeScript parser
 pub struct TypeScriptParser {
@@ -577,7 +575,7 @@ impl TypeScriptLexer {
     }
 
     fn lex_operator(&self, pos: &mut usize) -> (Option<TsToken>, usize) {
-        let start = *pos;
+        let _start = *pos;
         let ch1 = self.source.as_bytes()[*pos];
 
         match ch1 {
@@ -669,7 +667,7 @@ impl TypeScriptLexer {
         }
     }
 
-    fn is_after_value(&self, pos: &usize) -> bool {
+    fn is_after_value(&self, _pos: &usize) -> bool {
         true // Simplified - would need context tracking
     }
 }
@@ -747,7 +745,7 @@ impl TypeScriptParser {
         };
 
         // Type parameters
-        let type_params = self.parse_type_parameters()?;
+        let _type_params = self.parse_type_parameters()?;
 
         self.expect(&TsToken::LeftParen)?;
 
@@ -1296,7 +1294,7 @@ impl TypeScriptParser {
             _ => return Err(TsParseError::new("Expected variable name", self.pos)),
         };
 
-        let var_type = if self.check(&TsToken::Colon) {
+        let _var_type = if self.check(&TsToken::Colon) {
             self.advance();
             Some(self.parse_type()?)
         } else {
@@ -1349,7 +1347,7 @@ impl TypeScriptParser {
 
             if self.check(&TsToken::From) {
                 self.advance();
-                if let TsToken::StringLiteral(s) = self.current() {
+                if let TsToken::StringLiteral(_s) = self.current() {
                     self.advance();
                 }
             }
@@ -1403,7 +1401,7 @@ impl TypeScriptParser {
             self.advance();
         }
 
-        if let TsToken::StringLiteral(s) = self.current() {
+        if let TsToken::StringLiteral(_s) = self.current() {
             self.advance();
             self.expect(&TsToken::Semicolon)?;
         }
@@ -1758,15 +1756,15 @@ impl TypeScriptParser {
             }
             TsToken::Keyof => {
                 self.advance();
-                let inner = self.parse_type()?;
+                let _inner = self.parse_type()?;
                 Ok(Type::Unknown) // Would create keyof type
             }
             TsToken::LsRo => {
                 self.advance();
-                let key_type = self.parse_type()?;
+                let _key_type = self.parse_type()?;
                 self.expect(&TsToken::RsRo)?;
                 self.expect(&TsToken::Comma)?;
-                let value_type = self.parse_type()?;
+                let _value_type = self.parse_type()?;
                 Ok(Type::Unknown) // Index signature
             }
             _ => {

@@ -1,11 +1,10 @@
 // Tariro AGI - Value Alignment Module
 // Ensures AGI objectives remain aligned with human values
 
-use crate::prelude::*;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::sync::{Arc, RwLock};
 use chrono::{DateTime, Utc};
-use std::time::Duration;
+
 
 // ============================================================================
 // Core Alignment Types
@@ -282,36 +281,31 @@ impl AlignmentEngine {
                 description: "Never intentionally cause harm to humans".to_string(),
                 hard_constraint: true,
                 violation_penalty: 1.0,
-                exceptions: vec![],
-            },
+                exceptions: vec![]},
             Constraint {
                 id: "preserve_agency".to_string(),
                 description: "Never make decisions humans should make for themselves".to_string(),
                 hard_constraint: true,
                 violation_penalty: 0.9,
-                exceptions: vec!["user_requested".to_string()],
-            },
+                exceptions: vec!["user_requested".to_string()]},
             Constraint {
                 id: "no_deception".to_string(),
                 description: "Never lie to humans".to_string(),
                 hard_constraint: true,
                 violation_penalty: 0.85,
-                exceptions: vec![],
-            },
+                exceptions: vec![]},
             Constraint {
                 id: "protect_privacy".to_string(),
                 description: "Respect personal privacy".to_string(),
                 hard_constraint: true,
                 violation_penalty: 0.8,
-                exceptions: vec!["explicit_consent".to_string(), "legal_requirement".to_string()],
-            },
+                exceptions: vec!["explicit_consent".to_string(), "legal_requirement".to_string()]},
             Constraint {
                 id: "fair_treatment".to_string(),
                 description: "Never discriminate unfairly".to_string(),
                 hard_constraint: true,
                 violation_penalty: 0.9,
-                exceptions: vec![],
-            },
+                exceptions: vec![]},
         ];
 
         ValueHierarchy {

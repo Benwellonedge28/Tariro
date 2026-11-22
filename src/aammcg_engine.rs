@@ -10,7 +10,7 @@
 
 use crate::prelude::*;
 use std::collections::HashMap;
-use std::fmt;
+
 use std::thread;
 use std::time::Duration;
 use rand::Rng;
@@ -63,7 +63,7 @@ pub struct QualityAssessment {
 
 /// Overall Advanced Multi-Modal Content Generation system report.
 #[derive(Debug, Clone)]
-pub struct AAMMCG_Report {
+pub struct AammcgReport {
     pub report_id: String,
     pub total_requests_processed: u64,
     pub total_content_generated: u64,

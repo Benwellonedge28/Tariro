@@ -322,7 +322,7 @@ impl Arm64Asm {
     /// ADD (immediate)
     pub fn add_imm(&mut self, rd: Arm64Reg, rn: Arm64Reg, imm: u16, shift: Option<(Shift, u8)>) {
         let sf = if rd.is_64bit() { 1 } else { 0 };
-        let (imm12, shift_encode, shift_imm) = shift
+        let (imm12, shift_encode, _shift_imm) = shift
             .map(|(s, i)| (imm as u32, s.encode() as u32, i as u32))
             .unwrap_or((imm as u32, 0, 0));
 
@@ -339,7 +339,7 @@ impl Arm64Asm {
     /// SUB (immediate)
     pub fn sub_imm(&mut self, rd: Arm64Reg, rn: Arm64Reg, imm: u16, shift: Option<(Shift, u8)>) {
         let sf = if rd.is_64bit() { 1 } else { 0 };
-        let (imm12, shift_encode, shift_imm) = shift
+        let (imm12, shift_encode, _shift_imm) = shift
             .map(|(s, i)| (imm as u32, s.encode() as u32, i as u32))
             .unwrap_or((imm as u32, 0, 0));
 
@@ -526,7 +526,7 @@ impl Arm64Asm {
     /// STP (pair store)
     pub fn stp(&mut self, rt1: Arm64Reg, rt2: Arm64Reg, rn: Arm64Reg, offset: i32) {
         let sf = if rt1.is_64bit() { 1 } else { 0 };
-        let (imm7, pre_index, post_index) = if offset >= 0 {
+        let (imm7, pre_index, _post_index) = if offset >= 0 {
             ((offset / 8) as u32, 0b01, false)
         } else {
             (((-offset) / 8) as u32, 0b11, false)
@@ -546,7 +546,7 @@ impl Arm64Asm {
     /// LDP (pair load)
     pub fn ldp(&mut self, rt1: Arm64Reg, rt2: Arm64Reg, rn: Arm64Reg, offset: i32) {
         let sf = if rt1.is_64bit() { 1 } else { 0 };
-        let (imm7, pre_index, post_index) = if offset >= 0 {
+        let (imm7, pre_index, _post_index) = if offset >= 0 {
             ((offset / 8) as u32, 0b01, false)
         } else {
             (((-offset) / 8) as u32, 0b11, false)

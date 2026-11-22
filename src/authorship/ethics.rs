@@ -93,7 +93,7 @@ impl DefaultEthicsFilter {
 }
 
 impl EthicsFilter for DefaultEthicsFilter {
-    fn filter(&self, content: &str) -> EthicsFilterResult {
+    fn filter(&self, _content: &str) -> EthicsFilterResult {
         let violations = Vec::new();
         EthicsFilterResult {
             passed: violations.is_empty(),

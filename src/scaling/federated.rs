@@ -339,7 +339,7 @@ impl FederatedProtocol {
             return Err(FederatedError::ModelNotInitialized);
         }
 
-        let start_time = std::time::Instant::now();
+        let _start_time = std::time::Instant::now();
 
         // Initialize gradients
         let mut gradients = vec![0.0_f32; self.local_weights.len()];
@@ -350,7 +350,7 @@ impl FederatedProtocol {
             let error = self.compute_error(&prediction, &sample.output);
 
             // Compute gradient contribution
-            for (i, (w, x)) in self.local_weights.iter().zip(sample.input.iter()).enumerate() {
+            for (i, (_w, x)) in self.local_weights.iter().zip(sample.input.iter()).enumerate() {
                 gradients[i] += error * x * sample.weight / data.len() as f32;
             }
         }
@@ -661,8 +661,7 @@ impl FederatedProtocol {
         if update.len() != self.local_weights.len() {
             return Err(FederatedError::DimensionMismatch {
                 expected: self.local_weights.len(),
-                actual: update.len(),
-            });
+                actual: update.len()});
         }
 
         self.local_weights.copy_from_slice(update);

@@ -10,7 +10,7 @@
 
 use crate::prelude::*;
 use std::collections::HashMap;
-use std::fmt;
+
 use std::thread;
 use std::time::Duration;
 use rand::Rng;
@@ -67,7 +67,7 @@ pub struct OrchestrationAction {
 
 /// Report for ACP operations.
 #[derive(Debug, Clone)]
-pub struct ACP_Report {
+pub struct AcpReport {
     pub control_run_id: String,
     pub states_monitored: u64,
     pub policies_evaluated: u64,
@@ -78,14 +78,14 @@ pub struct ACP_Report {
 
 // --- ACP Engine --- //
 
-pub struct ACP_Engine {
+pub struct AcpEngine {
     pub autonomous_systems_rag_db: HashMap<String, String>, // Conceptual: RAG for autonomous systems
     pub control_theory_cybernetics_rag_db: HashMap<String, String>, // Conceptual: RAG for control theory and cybernetics
     pub self_management_dynamic_systems_modeling_rag_db: HashMap<String, String>, // Conceptual: RAG for self-management and dynamic systems modeling
     pub formal_verification_rag_db: HashMap<String, String>, // Conceptual: RAG for formal verification
 }
 
-impl ACP_Engine {
+impl AcpEngine {
     pub fn new() -> Self {
         let mut as_db = HashMap::new();
         as_db.insert("Adaptive_Control_Systems_for_Uncertain_Environments".to_string(), "Control systems that can modify their control laws in response to changes in system dynamics or external disturbances.".to_string());
@@ -103,7 +103,7 @@ impl ACP_Engine {
         fv_db.insert("Temporal_Logic_for_Verifying_System_Properties".to_string(), "A specialized logic used to express and verify properties of systems that evolve over time, such as safety (something bad never happens) and liveness (something good eventually happens).".to_string());
         fv_db.insert("Theorem_Proving_for_Critical_Control_Algorithms".to_string(), "Using mathematical theorems and proof assistants to formally prove the correctness and safety of critical control algorithms, ensuring their reliability.".to_string());
 
-        ACP_Engine { autonomous_systems_rag_db: as_db, control_theory_cybernetics_rag_db: ctc_db, self_management_dynamic_systems_modeling_rag_db: smdsm_db, formal_verification_rag_db: fv_db }
+        AcpEngine { autonomous_systems_rag_db: as_db, control_theory_cybernetics_rag_db: ctc_db, self_management_dynamic_systems_modeling_rag_db: smdsm_db, formal_verification_rag_db: fv_db }
     }
 
     /// Monitors the state of various system components in parallel (conceptual SIMD).
@@ -225,7 +225,7 @@ mod tests {
 
     #[test]
     fn test_acp_engine_flow() {
-        let engine = ACP_Engine::new();
+        let engine = AcpEngine::new();
 
         let component_ids = vec!["cognitive_core_01".to_string(), "resource_mgr_01".to_string()];
         let states = engine.monitor_system_state_simd(&component_ids);
@@ -255,7 +255,7 @@ mod tests {
 fn main() {
     println!("\n--- Autonomous Control Plane (ACP) Demonstration ---");
 
-    let acp_engine = ACP_Engine::new();
+    let acp_engine = AcpEngine::new();
 
     let monitored_components = vec![
         "tariro_cognitive_core_A".to_string(),

@@ -10,7 +10,7 @@
 
 use crate::prelude::*;
 use std::collections::HashMap;
-use std::fmt;
+
 use std::thread;
 use std::time::Duration;
 use rand::Rng;
@@ -63,7 +63,7 @@ pub struct ProjectBudget {
 
 /// Overall Autonomous Financial Management & Optimization system report.
 #[derive(Debug, Clone)]
-pub struct AFMO_Report {
+pub struct AfmoReport {
     pub report_id: String,
     pub total_transactions_processed: u64,
     pub avg_processing_latency_ms: f32,
@@ -219,7 +219,7 @@ fn main() {
     println!("\n--- Autonomous Financial Management & Optimization (RAG-Driven) Demonstration ---");
 
     let afmo_engine = AFMOEngine::new();
-    let now = Utc::now();
+    let _now = Utc::now();
 
     let mut Tariro_project_budget = ProjectBudget {
         budget_id: "tariro_infra_pb_001".to_string(),
@@ -249,7 +249,7 @@ fn main() {
         },
     ];
 
-    let (updated_budget_1, report_1) = afmo_engine.manage_financials_rag(Tariro_project_budget.clone(), new_tx_batch);
+    let (updated_budget_1, _report_1) = afmo_engine.manage_financials_rag(Tariro_project_budget.clone(), new_tx_batch);
     println!("  Financials Updated. Project: '{}'. New Status: '{}'. Remaining Budget: {:.2}.\n",
         updated_budget_1.project_id,
         updated_budget_1.status,

@@ -361,7 +361,7 @@ impl NeuralSymbolicIntegration {
         }
     }
 
-    fn activate_layer(&self, input: &[f64], layer: &NeuralLayer, activation: &ActivationType) -> Vec<f64> {
+    fn activate_layer(&self, input: &[f64], _layer: &NeuralLayer, activation: &ActivationType) -> Vec<f64> {
         match activation {
             ActivationType::ReLU => input.iter().map(|x| x.max(0.0)).collect(),
             ActivationType::Sigmoid => input.iter().map(|x| 1.0 / (1.0 + (-*x).exp())).collect(),

@@ -1,7 +1,6 @@
 // Tariro AGI - Episodic Memory Module
 // Long-term memory for experiences and events
 
-use crate::prelude::*;
 use std::collections::{HashMap, VecDeque, BinaryHeap, HashSet};
 use chrono::{DateTime, Utc};
 use std::time::Duration;
@@ -640,7 +639,7 @@ impl EpisodicMemoryStore {
     }
 
     /// Form associative link between memories
-    pub fn form_association(&mut self, memory_id1: &str, memory_id2: &str, strength: f32) -> bool {
+    pub fn form_association(&mut self, memory_id1: &str, memory_id2: &str, _strength: f32) -> bool {
         let get_idx = |store: &Self, id: &str| store.memory_index.get(id).copied();
 
         if let (Some(idx1), Some(idx2)) = (get_idx(self, memory_id1), get_idx(self, memory_id2)) {

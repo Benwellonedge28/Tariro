@@ -623,7 +623,7 @@ impl Consciousness {
 
     /// Introspect on own mental state
     pub fn introspect(&self) -> IntrospectionReport {
-        let thoughts_count = self.thoughts.len();
+        let _thoughts_count = self.thoughts.len();
         let recent_thoughts: Vec<String> = self.thoughts.iter()
             .rev()
             .take(5)
@@ -798,7 +798,7 @@ impl Consciousness {
         }
     }
 
-    fn generate_qualia(&mut self, experience: &str) -> Vec<Qualia> {
+    fn generate_qualia(&mut self, _experience: &str) -> Vec<Qualia> {
         // Generate qualia-like representations
         vec![
             Qualia {

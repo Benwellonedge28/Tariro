@@ -647,8 +647,7 @@ impl ResourceAwareLoader {
         if let Some(init_fn) = entry.init_fn {
             match init_fn(&self.profile) {
                 Ok(handle) => Ok(Some(handle)),
-                Err(e) => Err(e),
-            }
+                Err(e) => Err(e)}
         } else {
             // Create a default handle
             Ok(Some(ScalingModuleHandle {

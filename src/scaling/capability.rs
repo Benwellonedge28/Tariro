@@ -463,7 +463,7 @@ impl CapabilityProfile {
     /// Detect for native (std) environments
     #[cfg(feature = "std")]
     pub fn detect_native() -> Self {
-        use std::mem;
+        
 
         // Try to detect actual system resources
         let memory_total = Self::detect_memory();

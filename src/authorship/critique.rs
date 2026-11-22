@@ -163,7 +163,7 @@ impl CritiqueEngine {
         &self,
         content: &CreativeContent,
         issues: &mut Vec<CritiqueIssue>,
-        suggestions: &mut Vec<RefinementSuggestion>,
+        _suggestions: &mut Vec<RefinementSuggestion>,
     ) -> f64 {
         let mut score: f64 = 0.8;
 
@@ -212,10 +212,10 @@ impl CritiqueEngine {
 
     fn evaluate_depth(
         &self,
-        content: &CreativeContent,
+        _content: &CreativeContent,
         concept: &CreativeConcept,
         issues: &mut Vec<CritiqueIssue>,
-        suggestions: &mut Vec<RefinementSuggestion>,
+        _suggestions: &mut Vec<RefinementSuggestion>,
     ) -> f64 {
         let mut score: f64 = 0.7;
 
@@ -272,12 +272,12 @@ impl CritiqueEngine {
 
     fn evaluate_style(
         &self,
-        content: &CreativeContent,
+        _content: &CreativeContent,
         concept: &CreativeConcept,
-        issues: &mut Vec<CritiqueIssue>,
-        suggestions: &mut Vec<RefinementSuggestion>,
+        _issues: &mut Vec<CritiqueIssue>,
+        _suggestions: &mut Vec<RefinementSuggestion>,
     ) -> f64 {
-        let mut score: f64 = 0.8;
+        let score: f64 = 0.8;
 
         // Check genre consistency
         if !concept.style_hints.is_empty() {

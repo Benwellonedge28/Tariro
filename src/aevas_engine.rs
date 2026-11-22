@@ -9,7 +9,7 @@
 
 use crate::prelude::*;
 use std::collections::HashMap;
-use std::fmt;
+
 use std::thread;
 use std::time::Duration;
 use rand::Rng;
@@ -54,7 +54,7 @@ pub struct ValueDriftReport {
 
 /// Report for AEVAS operations.
 #[derive(Debug, Clone)]
-pub struct AEVAS_Report {
+pub struct AevasReport {
     pub alignment_run_id: String,
     pub decisions_monitored: u32,
     pub value_drifts_detected: u64,
@@ -64,13 +64,13 @@ pub struct AEVAS_Report {
 
 // --- AEVAS Engine --- //
 
-pub struct AEVAS_Engine {
+pub struct AevasEngine {
     pub ethical_ai_frameworks_rag_db: HashMap<String, String>, // Conceptual: RAG for ethical AI frameworks
     pub value_alignment_problem_research_rag_db: HashMap<String, String>, // Conceptual: RAG for value alignment problem research
     pub moral_philosophy_legal_societal_norms_rag_db: HashMap<String, String>, // Conceptual: RAG for moral philosophy, legal, and societal norms in AI
 }
 
-impl AEVAS_Engine {
+impl AevasEngine {
     pub fn new() -> Self {
         let mut eaf_db = HashMap::new();
         eaf_db.insert("AI_Ethics_Guidelines_EU_High_Level_Expert_Group".to_string(), "Comprehensive guidelines for trustworthy AI, focusing on human agency, safety, privacy, and fairness.".to_string());
@@ -84,7 +84,7 @@ impl AEVAS_Engine {
         mp_lsn_db.insert("Deontology_and_Consequentialism_in_AI_Ethics".to_string(), "Applying philosophical concepts of deontology (duty-based ethics) and consequentialism (outcome-based ethics) to AI decision-making.".to_string());
         mp_lsn_db.insert("GDPR_and_Data_Privacy_Regulations_for_AI".to_string(), "Integrating legal frameworks like GDPR into AI design to ensure data privacy and protection.".to_string());
 
-        AEVAS_Engine { ethical_ai_frameworks_rag_db: eaf_db, value_alignment_problem_research_rag_db: vapr_db, moral_philosophy_legal_societal_norms_rag_db: mp_lsn_db }
+        AevasEngine { ethical_ai_frameworks_rag_db: eaf_db, value_alignment_problem_research_rag_db: vapr_db, moral_philosophy_legal_societal_norms_rag_db: mp_lsn_db }
     }
 
     /// Monitors Tariro's decisions and behaviors in real-time across parallel processes (conceptual SIMD).
@@ -132,7 +132,7 @@ impl AEVAS_Engine {
             format!("MPLSN RAG insight for proposal: {}. Drift: '{}'", mp_lsn_info, drift_report.violated_principle_id);
         }
         thread::sleep(Duration::from_millis(250));
-        let mut rng = rand::thread_rng();
+        let mut _rng = rand::thread_rng();
         let actions = vec![
             format!("Adjust optimization target to prioritize '{}'.", drift_report.violated_principle_id),
             "Implement a new ethical safeguard module.".to_string(),
@@ -169,7 +169,7 @@ mod tests {
 
     #[test]
     fn test_aevas_engine_flow() {
-        let engine = AEVAS_Engine::new();
+        let engine = AevasEngine::new();
         let principles = create_default_principles();
 
         let events = vec![
@@ -200,7 +200,7 @@ mod tests {
 fn main() {
     println!("\n--- Autonomous Ethical & Value Alignment System (AEVAS) Demonstration ---");
 
-    let aevas_engine = AEVAS_Engine::new();
+    let aevas_engine = AevasEngine::new();
     let ethical_principles = vec![
         EthicalPrinciple { principle_id: "ep_safety".to_string(), name: "Safety and Robustness".to_string(), description: "Ensure the system operates safely and reliably.".to_string(), guidelines: vec![], priority: 10 },
         EthicalPrinciple { principle_id: "ep_privacy".to_string(), name: "Privacy and Data Governance".to_string(), description: "Respect user privacy and protect data.".to_string(), guidelines: vec![], priority: 9 },

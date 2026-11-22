@@ -4,7 +4,7 @@
 
 use crate::prelude::*;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+
 use std::collections::HashMap;
 
 /// Represents a single NanoAgent within a Tariro swarm.

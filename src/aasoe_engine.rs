@@ -10,7 +10,7 @@
 
 use crate::prelude::*;
 use std::collections::HashMap;
-use std::fmt;
+
 use std::thread;
 use std::time::Duration;
 use rand::Rng;
@@ -64,7 +64,7 @@ pub struct SelfOptimizationAction {
 
 /// Overall Architectural Self-Optimization & Evolution system report.
 #[derive(Debug, Clone)]
-pub struct AASOE_Report {
+pub struct AasoeReport {
     pub report_id: String,
     pub total_components_optimized: u64,
     pub total_architectural_proposals: u64,
@@ -97,7 +97,7 @@ impl AASOEEngine {
     }
 
     /// Performs parallel architectural simulations and real-time code optimization (SIMD conceptualization).
-    fn parallel_architectural_simulations_code_optimization_simd(&self, current_architecture: &[ArchitecturalComponent], proposed_changes: &[ArchitecturalProposal]) -> Vec<SelfOptimizationAction> { // list of actions
+    fn parallel_architectural_simulations_code_optimization_simd(&self, current_architecture: &[ArchitecturalComponent], _proposed_changes: &[ArchitecturalProposal]) -> Vec<SelfOptimizationAction> { // list of actions
         println!("    [AASOE-SIMD]: Running parallel architectural simulations and real-time code optimization.");
         thread::sleep(Duration::from_millis(150));
         let mut rng = rand::thread_rng();
@@ -208,7 +208,7 @@ fn main() {
     println!("\n--- Autonomous Architectural Self-Optimization & Evolution (RAG-Driven) Demonstration ---");
 
     let aasoe_engine = AASOEEngine::new();
-    let now = Utc::now();
+    let _now = Utc::now();
 
     // Scenario 1: Tariro detects high latency in a core data processing module and autonomously proposes/implements an optimization
     println!("--- Scenario 1: Performance Optimization ---");

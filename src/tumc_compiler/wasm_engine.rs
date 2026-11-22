@@ -508,7 +508,7 @@ impl WasmEngine {
             // Memory operations
             0x28 => {
                 // i32.load
-                let align = code[*pc];
+                let _align = code[*pc];
                 let offset = u32::from_le_bytes(code[*pc + 1..*pc + 5].try_into().unwrap());
                 *pc += 5;
                 let addr = self.pop_i32()? as u32;
@@ -521,7 +521,7 @@ impl WasmEngine {
             }
             0x36 => {
                 // i32.store
-                let align = code[*pc];
+                let _align = code[*pc];
                 let offset = u32::from_le_bytes(code[*pc + 1..*pc + 5].try_into().unwrap());
                 *pc += 5;
                 let val = self.pop_i32()?;

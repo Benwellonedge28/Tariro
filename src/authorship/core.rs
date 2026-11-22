@@ -11,8 +11,7 @@ use crate::authorship::{
     attribution::AttributionManager,
     collaboration::CollaborationEngine,
     style::StyleEngine,
-    ethics::AuthorshipEthics,
-};
+    ethics::AuthorshipEthics};
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, RwLock};
 use std::time::Instant;

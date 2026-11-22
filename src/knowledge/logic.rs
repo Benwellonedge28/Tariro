@@ -3,7 +3,7 @@
 //! Datalog/Prolog-style logic programming with explicit rules and facts.
 
 use std::sync::RwLock;
-use crate::prelude::*;
+
 use crate::knowledge::knowledge_graph::{KnowledgeGraph, EntityId, Predicate, Probability};
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
@@ -161,21 +161,17 @@ impl Literal {
 pub enum Clause {
     /// Fact: Head.
     Fact {
-        head: Literal,
-    },
+        head: Literal},
     /// Rule: Head :- Body.
     Rule {
         head: Literal,
-        body: Vec<Literal>,
-    },
-}
+        body: Vec<Literal>}}
 
 impl Clause {
     /// Create a fact
     pub fn fact(predicate: impl Into<String>, terms: Vec<Term>) -> Self {
         Clause::Fact {
-            head: Literal::new(predicate, terms),
-        }
+            head: Literal::new(predicate, terms)}
     }
 
     /// Create a rule
@@ -415,8 +411,7 @@ impl Clause {
     pub fn head_predicate(&self) -> Option<&str> {
         match self {
             Clause::Fact { head } => Some(head.predicate.as_str()),
-            Clause::Rule { head, .. } => Some(head.predicate.as_str()),
-        }
+            Clause::Rule { head, .. } => Some(head.predicate.as_str())}
     }
 }
 
@@ -436,8 +431,7 @@ pub struct LogicEngine {
     kb: Arc<RwLock<KnowledgeGraph>>,
 
     /// Maximum recursion depth
-    max_depth: usize,
-}
+    max_depth: usize}
 
 impl LogicEngine {
     /// Create a new logic engine
@@ -446,8 +440,7 @@ impl LogicEngine {
             edb: EDB::new(),
             idb: IDB::new(),
             kb,
-            max_depth: 10,
-        }
+            max_depth: 10}
     }
 
     /// Add a fact
@@ -531,7 +524,7 @@ impl LogicEngine {
     }
 
     /// Prove a list of goals (conjunction)
-    fn prove_goals(&self, goals: &[Literal], mut subst: Substitution, depth: usize) -> Vec<Substitution> {
+    fn prove_goals(&self, goals: &[Literal], subst: Substitution, depth: usize) -> Vec<Substitution> {
         if goals.is_empty() {
             return vec![subst];
         }

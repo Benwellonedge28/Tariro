@@ -1,7 +1,7 @@
 // Tariro AGI - Monte Carlo Tree Search (MCTS) Planning Module
 // Simulation-based planning for complex decision spaces
 
-use crate::prelude::*;
+
 use std::collections::{HashMap, VecDeque, BinaryHeap};
 use chrono::{DateTime, Utc};
 use std::time::Duration;
@@ -307,7 +307,7 @@ impl MCTSTree {
         let mut best_child = None;
         let mut best_score = f32::MIN;
 
-        for (child_id, child_ref) in &node.children {
+        for (child_id, _child_ref) in &node.children {
             if let Some(child) = self.nodes.get(child_id) {
                 let score = match self.config.selection_policy {
                     SelectionPolicy::UCB1 | SelectionPolicy::UCB1Tuned => {

@@ -8,10 +8,10 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet, VecDeque};
-use std::sync::Arc;
-use tokio::sync::RwLock;
+
+
 use uuid::Uuid;
-use chrono::Utc;
+
 
 // ============================================================================
 // Core Types
@@ -300,7 +300,7 @@ impl Theory {
     }
 
     pub fn explains(&self, observation: &Observation) -> bool {
-        self.concepts.iter().any(|c| {
+        self.concepts.iter().any(|_c| {
             self.principles.iter().any(|p| {
                 p.antecedents.iter().any(|a| a.contains(&observation.description))
             })

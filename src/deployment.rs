@@ -2,9 +2,9 @@
 
 //! Defines entities and functionalities related to the deployment of Tariro AGI components.
 
-use crate::prelude::*;
+
 use chrono::{DateTime, Utc};
-use std::time::Duration;
+
 use serde::{Deserialize, Serialize};
 
 /// Represents a record of a deployment event for an AGI component or instance.

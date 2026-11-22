@@ -8,232 +8,232 @@ use std::collections::HashMap;
 #[derive(Debug, Clone)]
 pub enum PycInst {
     // Stack operations
-    POP_TOP,
-    ROT_TWO,
-    ROT_THREE,
-    DUP_TOP,
-    DUP_TOP_TWO,
+    PopTop,
+    RotTwo,
+    RotThree,
+    DupTop,
+    DupTopTwo,
 
     // Binary operations
-    BINARY_ADD,
-    BINARY_SUBTRACT,
-    BINARY_MULTIPLY,
-    BINARY_MATRIX_MULTIPLY,
-    BINARY_TRUE_DIVIDE,
-    BINARY_FLOOR_DIVIDE,
-    BINARY_MODULO,
-    BINARY_POWER,
-    BINARY_LSHIFT,
-    BINARY_RSHIFT,
-    BINARY_AND,
-    BINARY_OR,
-    BINARY_XOR,
+    BinaryAdd,
+    BinarySubtract,
+    BinaryMultiply,
+    BinaryMatrixMultiply,
+    BinaryTrueDivide,
+    BinaryFloorDivide,
+    BinaryModulo,
+    BinaryPower,
+    BinaryLshift,
+    BinaryRshift,
+    BinaryAnd,
+    BinaryOr,
+    BinaryXor,
 
     // In-place operations
-    INPLACE_ADD,
-    INPLACE_SUBTRACT,
-    INPLACE_MULTIPLY,
-    INPLACE_MATRIX_MULTIPLY,
-    INPLACE_TRUE_DIVIDE,
-    INPLACE_FLOOR_DIVIDE,
-    INPLACE_MODULO,
-    INPLACE_POWER,
-    INPLACE_LSHIFT,
-    INPLACE_RSHIFT,
-    INPLACE_AND,
-    INPLACE_OR,
-    INPLACE_XOR,
+    InplaceAdd,
+    InplaceSubtract,
+    InplaceMultiply,
+    InplaceMatrixMultiply,
+    InplaceTrueDivide,
+    InplaceFloorDivide,
+    InplaceModulo,
+    InplacePower,
+    InplaceLshift,
+    InplaceRshift,
+    InplaceAnd,
+    InplaceOr,
+    InplaceXor,
 
     // Subscript and slicing
     SUBSCR,
-    STORE_SUBSCR,
-    DELETE_SUBSCR,
+    StoreSubscr,
+    DeleteSubscr,
 
     // Load constants
-    LOAD_CONST(usize),
+    LoadConst(usize),
 
     // Load names
-    LOAD_FAST(usize),
-    LOAD_GLOBAL(usize),
+    LoadFast(usize),
+    LoadGlobal(usize),
 
     // Store names
-    STORE_FAST(usize),
-    STORE_GLOBAL(usize),
+    StoreFast(usize),
+    StoreGlobal(usize),
 
     // Delete names
-    DELETE_FAST(usize),
-    DELETE_GLOBAL(usize),
-    DELETE_NAME(usize),
+    DeleteFast(usize),
+    DeleteGlobal(usize),
+    DeleteName(usize),
 
     // Unary operations
-    UNARY_POSITIVE,
-    UNARY_NEGATIVE,
-    UNARY_NOT,
-    UNARY_INVERT,
+    UnaryPositive,
+    UnaryNegative,
+    UnaryNot,
+    UnaryInvert,
 
     // Comparisons
-    COMPARE_OP(usize),
+    CompareOp(usize),
 
     // Jumps
-    JUMP_FORWARD(i32),
-    JUMP_ABSOLUTE(usize),
-    POP_JUMP_IF_TRUE(usize),
-    POP_JUMP_IF_FALSE(usize),
-    JUMP_IF_TRUE_OR_POP(usize),
-    JUMP_IF_FALSE_OR_POP(usize),
+    JumpForward(i32),
+    JumpAbsolute(usize),
+    PopJumpIfTrue(usize),
+    PopJumpIfFalse(usize),
+    JumpIfTrueOrPop(usize),
+    JumpIfFalseOrPop(usize),
 
     // Function calls
-    CALL_FUNCTION(usize),
-    CALL_FUNCTION_KW(usize),
-    CALL_FUNCTION_EX(usize),
-    CALL_METHOD(usize),
-    LOAD_METHOD(usize),
-    CALL_METHOD_KW(usize),
+    CallFunction(usize),
+    CallFunctionKw(usize),
+    CallFunctionEx(usize),
+    CallMethod(usize),
+    LoadMethod(usize),
+    CallMethodKw(usize),
 
     // Returns
-    RETURN_VALUE,
-    RETURN_CONST,
+    ReturnValue,
+    ReturnConst,
 
     // Imports
-    IMPORT_NAME(usize),
-    IMPORT_FROM(usize),
-    IMPORT_STAR,
-    LOAD_CONSTANT(usize),
+    ImportName(usize),
+    ImportFrom(usize),
+    ImportStar,
+    LoadConstant(usize),
 
     // Exception handling
-    SETUP_FINALLY(i32),
-    END_FINALLY,
-    CLEANUP_SUPER,
-    WITH_CLEANUP_START,
-    WITH_CLEANUP_FINISH,
-    POP_FINALLY(i32),
-    END_FINALLY_YIELD,
+    SetupFinally(i32),
+    EndFinally,
+    CleanupSuper,
+    WithCleanupStart,
+    WithCleanupFinish,
+    PopFinally(i32),
+    EndFinallyYield,
 
     // Loops
-    GET_ITER,
-    FOR_ITER(i32),
-    BREAK_LOOP,
-    CONTINUE_LOOP(i32),
+    GetIter,
+    ForIter(i32),
+    BreakLoop,
+    ContinueLoop(i32),
 
     // Setup
-    SETUP_WITH(i32),
-    SETUP_ASYNC_WITH(i32),
-    BEFORE_WITH,
-    YIELD_VALUE,
-    GET_AWAITABLE,
-    BEFORE_ASYNC_WITH,
-    GET_YIELD_FROM_ITER,
-    YIELD_FROM,
+    SetupWith(i32),
+    SetupAsyncWith(i32),
+    BeforeWith,
+    YieldValue,
+    GetAwaitable,
+    BeforeAsyncWith,
+    GetYieldFromIter,
+    YieldFrom,
 
     // Other
     NOP,
-    UNPACK_SEQUENCE(usize),
-    UNPACK_EX(usize, usize),
-    BUILD_STRING(usize),
-    BUILD_TUPLE(usize),
-    BUILD_LIST(usize),
-    BUILD_SET(usize),
-    BUILD_MAP(usize),
-    BUILD_CONST_KEY_MAP(usize),
-    BUILD_TUPLE_UNPACK(usize),
-    BUILD_LIST_UNPACK(usize),
-    BUILD_SET_UNPACK(usize),
-    BUILD_MAP_UNPACK(usize),
-    BUILD_MAP_UNPACK_WITH_CALL(usize),
-    BUILD_TUPLE_UNPACK_WITH_CALL(usize),
-    DICT_MERGE(usize),
-    DICT_UPDATE(usize),
-    LIST_EXTEND(usize),
-    SET_UPDATE(usize),
-    LIST_TO_TUPLE,
-    SETUP_LOOP(i32),
-    EXTENDED_ARG(usize),
+    UnpackSequence(usize),
+    UnpackEx(usize, usize),
+    BuildString(usize),
+    BuildTuple(usize),
+    BuildList(usize),
+    BuildSet(usize),
+    BuildMap(usize),
+    BuildConstKeyMap(usize),
+    BuildTupleUnpack(usize),
+    BuildListUnpack(usize),
+    BuildSetUnpack(usize),
+    BuildMapUnpack(usize),
+    BuildMapUnpackWithCall(usize),
+    BuildTupleUnpackWithCall(usize),
+    DictMerge(usize),
+    DictUpdate(usize),
+    ListExtend(usize),
+    SetUpdate(usize),
+    ListToTuple,
+    SetupLoop(i32),
+    ExtendedArg(usize),
 }
 
 impl PycInst {
     /// Get opcode number
     pub fn opcode(&self) -> u8 {
         match self {
-            PycInst::POP_TOP => 1,
-            PycInst::ROT_TWO => 2,
-            PycInst::ROT_THREE => 3,
-            PycInst::DUP_TOP => 4,
-            PycInst::DUP_TOP_TWO => 5,
-            PycInst::BINARY_ADD => 23,
-            PycInst::BINARY_SUBTRACT => 24,
-            PycInst::BINARY_MULTIPLY => 20,
-            PycInst::BINARY_TRUE_DIVIDE => 27,
-            PycInst::BINARY_FLOOR_DIVIDE => 26,
-            PycInst::BINARY_MODULO => 22,
-            PycInst::BINARY_POWER => 25,
-            PycInst::BINARY_LSHIFT => 62,
-            PycInst::BINARY_RSHIFT => 63,
-            PycInst::BINARY_AND => 64,
-            PycInst::BINARY_OR => 66,
-            PycInst::BINARY_XOR => 65,
-            PycInst::INPLACE_ADD => 55,
-            PycInst::INPLACE_SUBTRACT => 56,
-            PycInst::INPLACE_MULTIPLY => 57,
-            PycInst::INPLACE_TRUE_DIVIDE => 29,
-            PycInst::INPLACE_FLOOR_DIVIDE => 28,
-            PycInst::INPLACE_MODULO => 24,
-            PycInst::INPLACE_POWER => 67,
-            PycInst::INPLACE_LSHIFT => 75,
-            PycInst::INPLACE_RSHIFT => 76,
-            PycInst::INPLACE_AND => 77,
-            PycInst::INPLACE_OR => 78,
-            PycInst::INPLACE_XOR => 79,
+            PycInst::PopTop => 1,
+            PycInst::RotTwo => 2,
+            PycInst::RotThree => 3,
+            PycInst::DupTop => 4,
+            PycInst::DupTopTwo => 5,
+            PycInst::BinaryAdd => 23,
+            PycInst::BinarySubtract => 24,
+            PycInst::BinaryMultiply => 20,
+            PycInst::BinaryTrueDivide => 27,
+            PycInst::BinaryFloorDivide => 26,
+            PycInst::BinaryModulo => 22,
+            PycInst::BinaryPower => 25,
+            PycInst::BinaryLshift => 62,
+            PycInst::BinaryRshift => 63,
+            PycInst::BinaryAnd => 64,
+            PycInst::BinaryOr => 66,
+            PycInst::BinaryXor => 65,
+            PycInst::InplaceAdd => 55,
+            PycInst::InplaceSubtract => 56,
+            PycInst::InplaceMultiply => 57,
+            PycInst::InplaceTrueDivide => 29,
+            PycInst::InplaceFloorDivide => 28,
+            PycInst::InplaceModulo => 24,
+            PycInst::InplacePower => 67,
+            PycInst::InplaceLshift => 75,
+            PycInst::InplaceRshift => 76,
+            PycInst::InplaceAnd => 77,
+            PycInst::InplaceOr => 78,
+            PycInst::InplaceXor => 79,
             PycInst::SUBSCR => 60,
-            PycInst::STORE_SUBSCR => 61,
-            PycInst::DELETE_SUBSCR => 59,
-            PycInst::LOAD_CONST(_) => 100,
-            PycInst::LOAD_FAST(_) => 125,
-            PycInst::LOAD_GLOBAL(_) => 116,
-            PycInst::STORE_FAST(_) => 125,
-            PycInst::STORE_GLOBAL(_) => 116,
-            PycInst::DELETE_FAST(_) => 126,
-            PycInst::DELETE_GLOBAL(_) => 117,
-            PycInst::DELETE_NAME(_) => 119,
-            PycInst::UNARY_POSITIVE => 10,
-            PycInst::UNARY_NEGATIVE => 11,
-            PycInst::UNARY_NOT => 12,
-            PycInst::UNARY_INVERT => 15,
-            PycInst::COMPARE_OP(_) => 107,
-            PycInst::JUMP_FORWARD(_) => 110,
-            PycInst::JUMP_ABSOLUTE(_) => 113,
-            PycInst::POP_JUMP_IF_TRUE(_) => 115,
-            PycInst::POP_JUMP_IF_FALSE(_) => 114,
-            PycInst::JUMP_IF_TRUE_OR_POP(_) => 112,
-            PycInst::JUMP_IF_FALSE_OR_POP(_) => 111,
-            PycInst::CALL_FUNCTION(_) => 131,
-            PycInst::CALL_FUNCTION_KW(_) => 141,
-            PycInst::CALL_FUNCTION_EX(_) => 142,
-            PycInst::CALL_METHOD(_) => 161,
-            PycInst::LOAD_METHOD(_) => 160,
-            PycInst::CALL_METHOD_KW(_) => 162,
-            PycInst::RETURN_VALUE => 83,
-            PycInst::RETURN_CONST => 135,
-            PycInst::IMPORT_NAME(_) => 108,
-            PycInst::IMPORT_FROM(_) => 109,
-            PycInst::IMPORT_STAR => 84,
-            PycInst::GET_ITER => 68,
-            PycInst::FOR_ITER(_) => 93,
-            PycInst::BREAK_LOOP => 80,
-            PycInst::CONTINUE_LOOP(_) => 119,
-            PycInst::SETUP_FINALLY(_) => 85,
-            PycInst::END_FINALLY => 88,
-            PycInst::YIELD_VALUE => 72,
-            PycInst::GET_AWAITABLE => 73,
-            PycInst::YIELD_FROM => 88,
+            PycInst::StoreSubscr => 61,
+            PycInst::DeleteSubscr => 59,
+            PycInst::LoadConst(_) => 100,
+            PycInst::LoadFast(_) => 125,
+            PycInst::LoadGlobal(_) => 116,
+            PycInst::StoreFast(_) => 125,
+            PycInst::StoreGlobal(_) => 116,
+            PycInst::DeleteFast(_) => 126,
+            PycInst::DeleteGlobal(_) => 117,
+            PycInst::DeleteName(_) => 119,
+            PycInst::UnaryPositive => 10,
+            PycInst::UnaryNegative => 11,
+            PycInst::UnaryNot => 12,
+            PycInst::UnaryInvert => 15,
+            PycInst::CompareOp(_) => 107,
+            PycInst::JumpForward(_) => 110,
+            PycInst::JumpAbsolute(_) => 113,
+            PycInst::PopJumpIfTrue(_) => 115,
+            PycInst::PopJumpIfFalse(_) => 114,
+            PycInst::JumpIfTrueOrPop(_) => 112,
+            PycInst::JumpIfFalseOrPop(_) => 111,
+            PycInst::CallFunction(_) => 131,
+            PycInst::CallFunctionKw(_) => 141,
+            PycInst::CallFunctionEx(_) => 142,
+            PycInst::CallMethod(_) => 161,
+            PycInst::LoadMethod(_) => 160,
+            PycInst::CallMethodKw(_) => 162,
+            PycInst::ReturnValue => 83,
+            PycInst::ReturnConst => 135,
+            PycInst::ImportName(_) => 108,
+            PycInst::ImportFrom(_) => 109,
+            PycInst::ImportStar => 84,
+            PycInst::GetIter => 68,
+            PycInst::ForIter(_) => 93,
+            PycInst::BreakLoop => 80,
+            PycInst::ContinueLoop(_) => 119,
+            PycInst::SetupFinally(_) => 85,
+            PycInst::EndFinally => 88,
+            PycInst::YieldValue => 72,
+            PycInst::GetAwaitable => 73,
+            PycInst::YieldFrom => 88,
             PycInst::NOP => 9,
-            PycInst::UNPACK_SEQUENCE(_) => 92,
-            PycInst::BUILD_STRING(_) => 157,
-            PycInst::BUILD_TUPLE(_) => 102,
-            PycInst::BUILD_LIST(_) => 103,
-            PycInst::BUILD_SET(_) => 104,
-            PycInst::BUILD_MAP(_) => 105,
-            PycInst::BUILD_CONST_KEY_MAP(_) => 156,
-            PycInst::SETUP_LOOP(_) => 120,
+            PycInst::UnpackSequence(_) => 92,
+            PycInst::BuildString(_) => 157,
+            PycInst::BuildTuple(_) => 102,
+            PycInst::BuildList(_) => 103,
+            PycInst::BuildSet(_) => 104,
+            PycInst::BuildMap(_) => 105,
+            PycInst::BuildConstKeyMap(_) => 156,
+            PycInst::SetupLoop(_) => 120,
             _ => 0,
         }
     }
@@ -241,39 +241,39 @@ impl PycInst {
     /// Get argument bytes
     pub fn arg_bytes(&self) -> Vec<u8> {
         match self {
-            PycInst::LOAD_CONST(idx) |
-            PycInst::LOAD_FAST(idx) |
-            PycInst::LOAD_GLOBAL(idx) |
-            PycInst::STORE_FAST(idx) |
-            PycInst::STORE_GLOBAL(idx) |
-            PycInst::DELETE_FAST(idx) |
-            PycInst::DELETE_GLOBAL(idx) |
-            PycInst::DELETE_NAME(idx) |
-            PycInst::BUILD_TUPLE(idx) |
-            PycInst::BUILD_LIST(idx) |
-            PycInst::BUILD_SET(idx) |
-            PycInst::BUILD_MAP(idx) |
-            PycInst::UNPACK_SEQUENCE(idx) |
-            PycInst::JUMP_ABSOLUTE(idx) |
-            PycInst::POP_JUMP_IF_TRUE(idx) |
-            PycInst::POP_JUMP_IF_FALSE(idx) |
-            PycInst::JUMP_IF_TRUE_OR_POP(idx) |
-            PycInst::JUMP_IF_FALSE_OR_POP(idx) |
-            PycInst::LOAD_METHOD(idx) |
-            PycInst::CALL_FUNCTION(idx) |
-            PycInst::CALL_FUNCTION_KW(idx) |
-            PycInst::CALL_FUNCTION_EX(idx) |
-            PycInst::CALL_METHOD(idx) |
-            PycInst::CALL_METHOD_KW(idx) => idx.to_le_bytes().to_vec(),
-            PycInst::JUMP_FORWARD(offset) |
-            PycInst::FOR_ITER(offset) |
-            PycInst::SETUP_FINALLY(offset) |
-            PycInst::CONTINUE_LOOP(offset) |
-            PycInst::SETUP_LOOP(offset) |
-            PycInst::SETUP_WITH(offset) |
-            PycInst::SETUP_ASYNC_WITH(offset) => (offset / 2).to_le_bytes().to_vec(),
-            PycInst::COMPARE_OP(op) => (*op as usize).to_le_bytes().to_vec(),
-            PycInst::EXTENDED_ARG(arg) => (*arg as usize).to_le_bytes().to_vec(),
+            PycInst::LoadConst(idx) |
+            PycInst::LoadFast(idx) |
+            PycInst::LoadGlobal(idx) |
+            PycInst::StoreFast(idx) |
+            PycInst::StoreGlobal(idx) |
+            PycInst::DeleteFast(idx) |
+            PycInst::DeleteGlobal(idx) |
+            PycInst::DeleteName(idx) |
+            PycInst::BuildTuple(idx) |
+            PycInst::BuildList(idx) |
+            PycInst::BuildSet(idx) |
+            PycInst::BuildMap(idx) |
+            PycInst::UnpackSequence(idx) |
+            PycInst::JumpAbsolute(idx) |
+            PycInst::PopJumpIfTrue(idx) |
+            PycInst::PopJumpIfFalse(idx) |
+            PycInst::JumpIfTrueOrPop(idx) |
+            PycInst::JumpIfFalseOrPop(idx) |
+            PycInst::LoadMethod(idx) |
+            PycInst::CallFunction(idx) |
+            PycInst::CallFunctionKw(idx) |
+            PycInst::CallFunctionEx(idx) |
+            PycInst::CallMethod(idx) |
+            PycInst::CallMethodKw(idx) => idx.to_le_bytes().to_vec(),
+            PycInst::JumpForward(offset) |
+            PycInst::ForIter(offset) |
+            PycInst::SetupFinally(offset) |
+            PycInst::ContinueLoop(offset) |
+            PycInst::SetupLoop(offset) |
+            PycInst::SetupWith(offset) |
+            PycInst::SetupAsyncWith(offset) => (offset / 2).to_le_bytes().to_vec(),
+            PycInst::CompareOp(op) => (*op as usize).to_le_bytes().to_vec(),
+            PycInst::ExtendedArg(arg) => (*arg as usize).to_le_bytes().to_vec(),
             _ => Vec::new(),
         }
     }
@@ -326,31 +326,31 @@ impl PythonBytecodeCompiler {
     /// Calculate stack effect
     fn calc_stack(&self, inst: &PycInst) -> usize {
         match inst {
-            PycInst::POP_TOP => self.stack_size.saturating_sub(1),
-            PycInst::ROT_TWO | PycInst::ROT_THREE => self.stack_size,
-            PycInst::DUP_TOP => self.stack_size + 1,
-            PycInst::BINARY_ADD | PycInst::BINARY_SUBTRACT | PycInst::BINARY_MULTIPLY |
-            PycInst::BINARY_TRUE_DIVIDE | PycInst::BINARY_FLOOR_DIVIDE |
-            PycInst::BINARY_MODULO | PycInst::BINARY_POWER |
-            PycInst::BINARY_LSHIFT | PycInst::BINARY_RSHIFT |
-            PycInst::BINARY_AND | PycInst::BINARY_OR | PycInst::BINARY_XOR => {
+            PycInst::PopTop => self.stack_size.saturating_sub(1),
+            PycInst::RotTwo | PycInst::RotThree => self.stack_size,
+            PycInst::DupTop => self.stack_size + 1,
+            PycInst::BinaryAdd | PycInst::BinarySubtract | PycInst::BinaryMultiply |
+            PycInst::BinaryTrueDivide | PycInst::BinaryFloorDivide |
+            PycInst::BinaryModulo | PycInst::BinaryPower |
+            PycInst::BinaryLshift | PycInst::BinaryRshift |
+            PycInst::BinaryAnd | PycInst::BinaryOr | PycInst::BinaryXor => {
                 self.stack_size.saturating_sub(1)
             }
-            PycInst::LOAD_CONST(_) | PycInst::LOAD_FAST(_) | PycInst::LOAD_GLOBAL(_) => {
+            PycInst::LoadConst(_) | PycInst::LoadFast(_) | PycInst::LoadGlobal(_) => {
                 self.stack_size + 1
             }
-            PycInst::STORE_FAST(_) | PycInst::STORE_GLOBAL(_) => {
+            PycInst::StoreFast(_) | PycInst::StoreGlobal(_) => {
                 self.stack_size.saturating_sub(1)
             }
-            PycInst::RETURN_VALUE => 0,
-            PycInst::JUMP_FORWARD(_) | PycInst::JUMP_ABSOLUTE(_) => self.stack_size,
-            PycInst::POP_JUMP_IF_TRUE(_) | PycInst::POP_JUMP_IF_FALSE(_) => {
+            PycInst::ReturnValue => 0,
+            PycInst::JumpForward(_) | PycInst::JumpAbsolute(_) => self.stack_size,
+            PycInst::PopJumpIfTrue(_) | PycInst::PopJumpIfFalse(_) => {
                 self.stack_size.saturating_sub(1)
             }
-            PycInst::CALL_FUNCTION(n) => self.stack_size.saturating_sub(*n),
-            PycInst::BUILD_TUPLE(n) => self.stack_size.saturating_sub(*n),
-            PycInst::BUILD_LIST(n) => self.stack_size.saturating_sub(*n),
-            PycInst::BUILD_MAP(n) => self.stack_size.saturating_sub(*n * 2),
+            PycInst::CallFunction(n) => self.stack_size.saturating_sub(*n),
+            PycInst::BuildTuple(n) => self.stack_size.saturating_sub(*n),
+            PycInst::BuildList(n) => self.stack_size.saturating_sub(*n),
+            PycInst::BuildMap(n) => self.stack_size.saturating_sub(*n * 2),
             _ => self.stack_size,
         }
     }
@@ -391,48 +391,48 @@ impl PythonBytecodeCompiler {
     /// Load constant
     pub fn load_const(&mut self, constant: PyConstant) {
         let idx = self.add_const(constant);
-        self.emit(PycInst::LOAD_CONST(idx));
+        self.emit(PycInst::LoadConst(idx));
     }
 
     /// Load local variable
     pub fn load_fast(&mut self, name: &str) {
         let idx = self.add_varname(name);
-        self.emit(PycInst::LOAD_FAST(idx));
+        self.emit(PycInst::LoadFast(idx));
     }
 
     /// Load global variable
     pub fn load_global(&mut self, name: &str) {
         let idx = self.add_name(name);
-        self.emit(PycInst::LOAD_GLOBAL(idx));
+        self.emit(PycInst::LoadGlobal(idx));
     }
 
     /// Store local variable
     pub fn store_fast(&mut self, name: &str) {
         let idx = self.add_varname(name);
-        self.emit(PycInst::STORE_FAST(idx));
+        self.emit(PycInst::StoreFast(idx));
     }
 
     /// Store global variable
     pub fn store_global(&mut self, name: &str) {
         let idx = self.add_name(name);
-        self.emit(PycInst::STORE_GLOBAL(idx));
+        self.emit(PycInst::StoreGlobal(idx));
     }
 
     /// Binary operation
     pub fn binary_op(&mut self, op: &str) {
         match op {
-            "+" => self.emit(PycInst::BINARY_ADD),
-            "-" => self.emit(PycInst::BINARY_SUBTRACT),
-            "*" => self.emit(PycInst::BINARY_MULTIPLY),
-            "/" => self.emit(PycInst::BINARY_TRUE_DIVIDE),
-            "//" => self.emit(PycInst::BINARY_FLOOR_DIVIDE),
-            "%" => self.emit(PycInst::BINARY_MODULO),
-            "**" => self.emit(PycInst::BINARY_POWER),
-            "<<" => self.emit(PycInst::BINARY_LSHIFT),
-            ">>" => self.emit(PycInst::BINARY_RSHIFT),
-            "&" => self.emit(PycInst::BINARY_AND),
-            "|" => self.emit(PycInst::BINARY_OR),
-            "^" => self.emit(PycInst::BINARY_XOR),
+            "+" => self.emit(PycInst::BinaryAdd),
+            "-" => self.emit(PycInst::BinarySubtract),
+            "*" => self.emit(PycInst::BinaryMultiply),
+            "/" => self.emit(PycInst::BinaryTrueDivide),
+            "//" => self.emit(PycInst::BinaryFloorDivide),
+            "%" => self.emit(PycInst::BinaryModulo),
+            "**" => self.emit(PycInst::BinaryPower),
+            "<<" => self.emit(PycInst::BinaryLshift),
+            ">>" => self.emit(PycInst::BinaryRshift),
+            "&" => self.emit(PycInst::BinaryAnd),
+            "|" => self.emit(PycInst::BinaryOr),
+            "^" => self.emit(PycInst::BinaryXor),
             _ => {}
         }
     }
@@ -440,10 +440,10 @@ impl PythonBytecodeCompiler {
     /// Unary operation
     pub fn unary_op(&mut self, op: &str) {
         match op {
-            "+" => self.emit(PycInst::UNARY_POSITIVE),
-            "-" => self.emit(PycInst::UNARY_NEGATIVE),
-            "not" => self.emit(PycInst::UNARY_NOT),
-            "~" => self.emit(PycInst::UNARY_INVERT),
+            "+" => self.emit(PycInst::UnaryPositive),
+            "-" => self.emit(PycInst::UnaryNegative),
+            "not" => self.emit(PycInst::UnaryNot),
+            "~" => self.emit(PycInst::UnaryInvert),
             _ => {}
         }
     }
@@ -463,53 +463,53 @@ impl PythonBytecodeCompiler {
             "is not" => 9,
             _ => 0,
         };
-        self.emit(PycInst::COMPARE_OP(idx));
+        self.emit(PycInst::CompareOp(idx));
     }
 
     /// Jump
     pub fn jump(&mut self, target: &str) {
         let offset = self.labels.get(target).copied().unwrap_or(0);
-        self.emit(PycInst::JUMP_ABSOLUTE(offset));
+        self.emit(PycInst::JumpAbsolute(offset));
     }
 
     /// Conditional jump
     pub fn pop_jump_if(&mut self, cond: bool, target: &str) {
         let offset = self.labels.get(target).copied().unwrap_or(0);
         if cond {
-            self.emit(PycInst::POP_JUMP_IF_TRUE(offset));
+            self.emit(PycInst::PopJumpIfTrue(offset));
         } else {
-            self.emit(PycInst::POP_JUMP_IF_FALSE(offset));
+            self.emit(PycInst::PopJumpIfFalse(offset));
         }
     }
 
     /// Call function
     pub fn call(&mut self, argc: usize) {
-        self.emit(PycInst::CALL_FUNCTION(argc));
+        self.emit(PycInst::CallFunction(argc));
     }
 
     /// Return
     pub fn ret(&mut self) {
-        self.emit(PycInst::RETURN_VALUE);
+        self.emit(PycInst::ReturnValue);
     }
 
     /// Build tuple
     pub fn build_tuple(&mut self, size: usize) {
-        self.emit(PycInst::BUILD_TUPLE(size));
+        self.emit(PycInst::BuildTuple(size));
     }
 
     /// Build list
     pub fn build_list(&mut self, size: usize) {
-        self.emit(PycInst::BUILD_LIST(size));
+        self.emit(PycInst::BuildList(size));
     }
 
     /// Build map
     pub fn build_map(&mut self, size: usize) {
-        self.emit(PycInst::BUILD_MAP(size));
+        self.emit(PycInst::BuildMap(size));
     }
 
     /// Build set
     pub fn build_set(&mut self, size: usize) {
-        self.emit(PycInst::BUILD_SET(size));
+        self.emit(PycInst::BuildSet(size));
     }
 
     /// Finalize bytecode
@@ -737,7 +737,7 @@ mod tests {
         compiler.ret();
 
         let code = compiler.finalize();
-        assert!(code.code.contains(&PycInst::BINARY_ADD.opcode()));
+        assert!(code.code.contains(&PycInst::BinaryAdd.opcode()));
     }
 
     #[test]

@@ -1,7 +1,7 @@
 //! TUMC Language Server Protocol (LSP) Implementation
 //! Provides IDE features: autocomplete, go-to-definition, diagnostics, etc.
 
-use crate::prelude::*;
+
 use super::ast::*;
 use super::lexer::{Lexer, Token, TokenKind};
 use super::parser::Parser;
@@ -102,7 +102,7 @@ impl LspServer {
             // Apply changes
             for change in params.content_changes {
                 if let Some(range) = change.range {
-                    let (start, end) = self.offset_to_position(&doc.text, &range);
+                    let (start, end) = Self::offset_to_position(&doc.text, &range);
                     doc.text = format!(
                         "{}{}{}",
                         &doc.text[..start],
@@ -128,7 +128,7 @@ impl LspServer {
     }
 
     /// Handle text document save
-    fn handle_did_save(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
+    fn handle_did_save(&mut self, _params: serde_json::Value) -> Result<serde_json::Value, LspError> {
         // Could trigger file save diagnostics here
         Ok(serde_json::Value::Null)
     }
@@ -289,7 +289,7 @@ impl LspServer {
 
     /// Compile document and cache results
     fn compile_and_cache(&mut self, uri: &str, text: &str) {
-        let mut lexer = Lexer::new(text);
+        let lexer = Lexer::new(text);
         let tokens: Vec<Token> = lexer.tokenize().unwrap_or_default();
 
         let mut parser = Parser::new(tokens.clone());
@@ -316,7 +316,7 @@ impl LspServer {
     }
 
     /// Get completions at position
-    fn get_completions(&self, ast: &Program, position: Position) -> Vec<CompletionItem> {
+    fn get_completions(&self, ast: &Program, _position: Position) -> Vec<CompletionItem> {
         let mut completions = Vec::new();
 
         // Add keywords
@@ -357,7 +357,7 @@ impl LspServer {
     }
 
     /// Get hover information at position
-    fn get_hover_info(&self, ast: &Program, position: Position) -> Option<Hover> {
+    fn get_hover_info(&self, ast: &Program, _position: Position) -> Option<Hover> {
         // Simplified: return info for first function
         for item in &ast.items {
             if let Item::Function(func) = item {
@@ -374,11 +374,11 @@ impl LspServer {
     }
 
     /// Get definition locations
-    fn get_definition_locations(&self, ast: &Program, position: Position) -> Option<Vec<Location>> {
+    fn get_definition_locations(&self, ast: &Program, _position: Position) -> Option<Vec<Location>> {
         let mut locations = Vec::new();
 
         for item in &ast.items {
-            if let Item::Function(func) = item {
+            if let Item::Function(_func) = item {
                 locations.push(Location {
                     uri: "file:///.tumc".to_string(),
                     range: Range {
@@ -397,11 +397,11 @@ impl LspServer {
     }
 
     /// Find all references
-    fn find_references(&self, ast: &Program, position: Position) -> Vec<Location> {
+    fn find_references(&self, ast: &Program, _position: Position) -> Vec<Location> {
         let mut references = Vec::new();
 
         for item in &ast.items {
-            if let Item::Function(func) = item {
+            if let Item::Function(_func) = item {
                 references.push(Location {
                     uri: "file:///.tumc".to_string(),
                     range: Range::default(),
@@ -520,7 +520,7 @@ impl LspServer {
     }
 
     /// Convert offset to position
-    fn offset_to_position(&self, text: &str, range: &Range) -> (usize, usize) {
+    fn offset_to_position(text: &str, range: &Range) -> (usize, usize) {
         let line_offset = |line: usize| -> usize {
             let mut offset = 0;
             for (index, current) in text.lines().enumerate() {

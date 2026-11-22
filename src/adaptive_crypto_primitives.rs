@@ -5,7 +5,7 @@
 /// or even structure in response to new cryptanalytic threats or available computing power
 /// (leveraging RAG for real-time threat intelligence and SIMD for rapid re-computation of cryptographic parameters).
 
-use crate::prelude::*;
+
 use std::collections::HashMap;
 use std::fmt;
 use std::thread;
@@ -17,7 +17,7 @@ use rand::Rng;
 pub enum CryptoAlgorithm {
     AES256,
     RSA4096,
-    ECC_P384,
+    EccP384,
     Chacha20Poly1305,
     Hybrid(String),
 }

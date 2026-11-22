@@ -526,7 +526,7 @@ impl DistributedConsensus {
     fn handle_vote_response(
         &mut self,
         term: u64,
-        voter_id: NodeId,
+        _voter_id: NodeId,
         vote_granted: bool,
     ) -> Result<Option<CommitResult>, ConsensusError> {
         if term != self.current_term || self.state != ConsensusState::Candidate {
@@ -548,7 +548,7 @@ impl DistributedConsensus {
     fn handle_append_entries(
         &mut self,
         term: u64,
-        leader_id: NodeId,
+        _leader_id: NodeId,
         entries: Vec<LogEntry>,
     ) -> Result<Option<CommitResult>, ConsensusError> {
         if term > self.current_term {
@@ -715,7 +715,7 @@ impl DistributedConsensus {
     fn handle_heartbeat(
         &mut self,
         term: u64,
-        leader_id: NodeId,
+        _leader_id: NodeId,
         commit_index: u64,
     ) -> Result<Option<CommitResult>, ConsensusError> {
         if term >= self.current_term {
@@ -769,8 +769,8 @@ impl DistributedConsensus {
     }
 
     /// Replicate to followers
-    fn replicate(&mut self, index: u64) -> Result<(), ConsensusError> {
-        for (peer_id, peer) in &mut self.peers {
+    fn replicate(&mut self, _index: u64) -> Result<(), ConsensusError> {
+        for (_peer_id, peer) in &mut self.peers {
             let entries: Vec<LogEntry> = self
                 .log
                 .iter()

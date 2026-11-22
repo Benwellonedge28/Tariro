@@ -1,7 +1,6 @@
 // Tariro AGI - Privacy Preservation Module
 // Privacy protection and data governance
 
-use crate::prelude::*;
 use std::collections::{HashMap, HashSet, VecDeque};
 use chrono::{DateTime, Utc};
 use std::time::Duration;
@@ -490,7 +489,7 @@ impl PrivacyPreservationEngine {
     /// Get privacy audit report
     pub fn generate_audit_report(&self) -> PrivacyAuditReport {
         let now = Utc::now();
-        let recent_logs: Vec<_> = self.access_logs.iter().rev().take(100).collect();
+        let _recent_logs: Vec<_> = self.access_logs.iter().rev().take(100).collect();
 
         PrivacyAuditReport {
             report_id: generate_id(),

@@ -3,13 +3,12 @@
 //! The integrated cognitive system combining consciousness, working memory,
 //! world model, and motivation into a unified architecture.
 
-use crate::prelude::*;
+
 use crate::cognition::{
     consciousness::{Consciousness, Thought, ThoughtContent, FocusLevel},
     working_memory::{WorkingMemory, MentalItem, ItemContent, Context},
     world_model::{WorldModel, WorldEntity, WorldEntityType},
-    motivation::{MotivationSystem, Goal, GoalType, Emotion, ValueAlignment},
-};
+    motivation::{MotivationSystem, Goal, GoalType, Emotion, ValueAlignment}};
 use std::collections::{HashMap, VecDeque};
 
 // ============================================================================

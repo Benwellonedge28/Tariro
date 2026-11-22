@@ -170,7 +170,7 @@ impl ModelChecker {
         let mut transitions = Vec::new();
 
         // Create state for each instruction
-        for (i, inst) in block.instructions.iter().enumerate() {
+        for (i, _inst) in block.instructions.iter().enumerate() {
             let mut state = ProgramState::new(i);
             state.variables.insert("result".to_string(), 0);
             states.push(state);
@@ -266,8 +266,8 @@ impl ModelChecker {
     }
 
     /// Check LTL property (simplified)
-    pub fn check_ltl(&self, system: &TransitionSystem, formula: &str) -> ModelCheckResult {
-        let mut result = ModelCheckResult {
+    pub fn check_ltl(&self, _system: &TransitionSystem, formula: &str) -> ModelCheckResult {
+        let result = ModelCheckResult {
             verified: true,
             errors: Vec::new(),
             counterexample: None,
@@ -282,8 +282,8 @@ impl ModelChecker {
     }
 
     /// Check CTL property (simplified)
-    pub fn check_ctl(&self, system: &TransitionSystem, formula: &str) -> ModelCheckResult {
-        let mut result = ModelCheckResult {
+    pub fn check_ctl(&self, _system: &TransitionSystem, formula: &str) -> ModelCheckResult {
+        let result = ModelCheckResult {
             verified: true,
             errors: Vec::new(),
             counterexample: None,

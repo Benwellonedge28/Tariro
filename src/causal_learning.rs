@@ -1,11 +1,10 @@
 // Tariro AGI - Causal Learning Module
 // Learning causal relationships from observations
 
-use crate::prelude::*;
 use std::collections::{HashMap, HashSet, VecDeque};
 use chrono::{DateTime, Utc};
-use std::time::Duration;
-use rand::Rng;
+
+
 
 // ============================================================================
 // Causal Learning Types
@@ -312,14 +311,20 @@ impl CausalLearner {
         let mut depth = 0;
 
         while depth <= self.config.max_conditioning_set {
-            for edge in &mut self.skeleton.undirected_edges {
-                if edge.removed {
-                    continue;
-                }
+            // The edges are collected first, so that the skeleton is not
+            // borrowed while the conditioning sets are computed.
+            let edges: Vec<(String, String)> = self
+                .skeleton
+                .undirected_edges
+                .iter()
+                .filter(|edge| !edge.removed)
+                .map(|edge| (edge.node1.clone(), edge.node2.clone()))
+                .collect();
 
+            for (node1, node2) in edges {
                 // Get conditioning set candidates
                 let others: Vec<String> = variables.iter()
-                    .filter(|v| *v != &edge.node1 && *v != &edge.node2)
+                    .filter(|v| *v != &node1 && *v != &node2)
                     .cloned()
                     .collect();
 
@@ -329,10 +334,11 @@ impl CausalLearner {
                 }
 
                 // Test all conditioning sets of current depth
-                for cond_set in self.combinations(&others, depth) {
+                let cond_sets = self.combinations(&others, depth);
+                for cond_set in cond_sets {
                     let test = self.test_conditional_independence(
-                        &edge.node1,
-                        &edge.node2,
+                        &node1,
+                        &node2,
                         &cond_set,
                         observations
                     );
@@ -340,16 +346,20 @@ impl CausalLearner {
                     self.stats.ci_tests_performed += 1;
 
                     if test.is_independent {
-                        edge.removed = true;
                         self.stats.edges_removed += 1;
 
                         // Record separation set
-                        let key = if edge.node1 < edge.node2 {
-                            (edge.node1.clone(), edge.node2.clone())
+                        let key = if node1 < node2 {
+                            (node1.clone(), node2.clone())
                         } else {
-                            (edge.node2.clone(), edge.node1.clone())
+                            (node2.clone(), node1.clone())
                         };
                         self.skeleton.separation_sets.insert(key, cond_set);
+                        // The separated edge is removed from the skeleton.
+                        self.skeleton.undirected_edges.retain(|edge| {
+                            !((edge.node1 == node1 && edge.node2 == node2)
+                                || (edge.node1 == node2 && edge.node2 == node1))
+                        });
                         break;
                     }
                 }
@@ -439,7 +449,7 @@ impl CausalLearner {
     /// Chi-square p-value approximation
     fn chi_square_pvalue(&self, statistic: f32, df: usize) -> f32 {
         // Simplified approximation
-        let gamma = |x: f32, a: f32| (x.powi(2) * x.exp() / (a + x / 2.0)).ln() - x;
+        let _gamma = |x: f32, a: f32| (x.powi(2) * x.exp() / (a + x / 2.0)).ln() - x;
 
         let x = statistic;
         let k = df as f32;
@@ -730,7 +740,7 @@ impl CausalLearner {
         }
     }
 
-    fn has_backdoor_path(&self, graph: &CausalGraph, treatment: &str, outcome: &str, covariates: &[String]) -> bool {
+    fn has_backdoor_path(&self, graph: &CausalGraph, treatment: &str, outcome: &str, _covariates: &[String]) -> bool {
         // Check if covariates block all backdoor paths
         !self.find_backdoor_paths(graph, treatment, outcome).is_empty()
     }

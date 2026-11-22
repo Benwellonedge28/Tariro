@@ -324,8 +324,8 @@ impl MetaLearningOptimizer {
     fn extract_context(&self, module: &Module) -> OptimizationContext {
         let mut function_count = 0;
         let mut total_instructions = 0;
-        let mut loop_count = 0;
-        let mut branch_count = 0;
+        let loop_count = 0;
+        let branch_count = 0;
         let mut memory_ops = 0;
 
         for function in &module.functions {

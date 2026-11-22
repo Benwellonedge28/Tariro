@@ -173,7 +173,7 @@ impl TypeInference {
 
     /// Solve constraints and produce substitution
     pub fn solve(&mut self) -> Result<Substitution, TypeError> {
-        let mut substitution = Substitution::new();
+        let substitution = Substitution::new();
 
         for constraint in &self.constraints {
             match constraint {
@@ -185,10 +185,10 @@ impl TypeInference {
                         }
                     }
                 }
-                Constraint::Subtype(a, b) => {
+                Constraint::Subtype(_a, _b) => {
                     // Subtype constraint
                 }
-                Constraint::Implements(ty, trait_name) => {
+                Constraint::Implements(_ty, _trait_name) => {
                     // Trait constraint
                 }
             }

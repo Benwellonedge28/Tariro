@@ -4,7 +4,7 @@
 //! This is NOT statistical correlation - it is explicit causal reasoning.
 
 use std::sync::RwLock;
-use crate::prelude::*;
+
 use crate::knowledge::knowledge_graph::{KnowledgeGraph, EntityId, Entity, Probability};
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::sync::Arc;
@@ -165,16 +165,14 @@ pub struct CausalGraph {
     children: HashMap<String, HashSet<String>>,
 
     /// Reverse adjacency list: node -> parents
-    parents: HashMap<String, HashSet<String>>,
-}
+    parents: HashMap<String, HashSet<String>>}
 
 impl CausalGraph {
     /// Create a new causal graph
     pub fn new() -> Self {
         CausalGraph {
             children: HashMap::new(),
-            parents: HashMap::new(),
-        }
+            parents: HashMap::new()}
     }
 
     /// Add a causal edge (cause -> effect)

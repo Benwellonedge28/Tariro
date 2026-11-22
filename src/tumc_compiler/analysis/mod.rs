@@ -105,7 +105,7 @@ impl ReachingDefinitions {
             .collect()
     }
 
-    fn kill_set(&self, block: &BasicBlock) -> HashSet<DefId> {
+    fn kill_set(&self, _block: &BasicBlock) -> HashSet<DefId> {
         // Would track which variables are killed
         HashSet::new()
     }
@@ -201,12 +201,12 @@ impl LiveVariables {
         result
     }
 
-    fn use_set(&self, block: &BasicBlock) -> HashSet<String> {
+    fn use_set(&self, _block: &BasicBlock) -> HashSet<String> {
         // Extract used variables
         HashSet::new()
     }
 
-    fn def_set(&self, block: &BasicBlock) -> HashSet<String> {
+    fn def_set(&self, _block: &BasicBlock) -> HashSet<String> {
         // Extract defined variables
         HashSet::new()
     }

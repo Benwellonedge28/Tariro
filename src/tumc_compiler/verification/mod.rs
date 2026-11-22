@@ -70,8 +70,7 @@ impl std::fmt::Display for VerificationErrorType {
             VerificationErrorType::MemoryLeak => "memory leak",
             VerificationErrorType::UnreachableCode => "unreachable code",
             VerificationErrorType::Livelock => "livelock",
-            VerificationErrorType::RaceCondition => "race condition",
-        };
+            VerificationErrorType::RaceCondition => "race condition"};
         write!(f, "{}", name)
     }
 }
@@ -241,7 +240,7 @@ impl Verifier {
 
         // Check for various violations
         match &inst.op {
-            crate::tumc_compiler::ir::Operation::Binary(crate::tumc_compiler::ir::BinOp::Div, lhs, rhs) => {
+            crate::tumc_compiler::ir::Operation::Binary(crate::tumc_compiler::ir::BinOp::Div, _lhs, _rhs) => {
                 if self.config.check_division {
                     // Simplified: would check if rhs could be zero
                     if false {
@@ -250,7 +249,7 @@ impl Verifier {
                     }
                 }
             }
-            crate::tumc_compiler::ir::Operation::LoadElementPtr(arr, idx) => {
+            crate::tumc_compiler::ir::Operation::LoadElementPtr(_arr, _idx) => {
                 if self.config.check_bounds {
                     // Simplified: would check if idx is within bounds
                     if false {
@@ -259,7 +258,7 @@ impl Verifier {
                     }
                 }
             }
-            crate::tumc_compiler::ir::Operation::Load(_, ptr, _, _) => {
+            crate::tumc_compiler::ir::Operation::Load(_, _ptr, _, _) => {
                 if self.config.check_null {
                     // Simplified: would check if ptr is null
                     if false {
@@ -276,11 +275,11 @@ impl Verifier {
 
     /// Check for memory leaks
     pub fn check_memory_leaks(&self, module: &Module) -> Vec<VerificationError> {
-        let mut errors = Vec::new();
+        let errors = Vec::new();
 
         for function in &module.functions {
             for block in &function.body {
-                for (i, inst) in block.instructions.iter().enumerate() {
+                for (_i, inst) in block.instructions.iter().enumerate() {
                     if let crate::tumc_compiler::ir::Operation::Alloca(_, _) = &inst.op {
                         // Check if allocation is paired with deallocation
                         // Simplified check
@@ -293,14 +292,14 @@ impl Verifier {
     }
 
     /// Check for data races
-    pub fn check_data_races(&self, module: &Module) -> Vec<VerificationError> {
-        let mut errors = Vec::new();
+    pub fn check_data_races(&self, _module: &Module) -> Vec<VerificationError> {
+        let errors = Vec::new();
         // Would implement formal data race detection
         errors
     }
 
     /// Get counterexample for failed verification
-    pub fn get_counterexample(&self, error: &VerificationError) -> Option<model_check::Counterexample> {
+    pub fn get_counterexample(&self, _error: &VerificationError) -> Option<model_check::Counterexample> {
         // Would generate a counterexample trace
         None
     }

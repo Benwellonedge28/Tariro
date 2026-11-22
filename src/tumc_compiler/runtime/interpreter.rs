@@ -187,7 +187,7 @@ impl Interpreter {
         Ok(())
     }
 
-    fn get_value(&self, value: ValueId) -> Result<Value, RuntimeError> {
+    fn get_value(&self, _value: ValueId) -> Result<Value, RuntimeError> {
         // Would look up value from stack/registers
         Ok(Value::Int(0))
     }

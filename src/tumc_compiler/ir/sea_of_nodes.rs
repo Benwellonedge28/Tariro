@@ -240,7 +240,7 @@ impl SeaOfNodes {
     }
 
     /// Create a constant node
-    pub fn make_const(&mut self, value: ConstValue) -> NodeId {
+    pub fn make_const(&mut self, _value: ConstValue) -> NodeId {
         let id = self.next_id();
         let node = SeaNode {
             id,
@@ -282,7 +282,7 @@ impl SeaOfNodes {
     }
 
     /// Create a phi node
-    pub fn make_phi(&mut self, region: NodeId, inputs: Vec<NodeId>, ty: IrType) -> NodeId {
+    pub fn make_phi(&mut self, region: NodeId, inputs: Vec<NodeId>, _ty: IrType) -> NodeId {
         let id = self.next_id();
         let node = SeaNode {
             id,
@@ -320,7 +320,7 @@ impl SeaOfNodes {
     }
 
     /// Create a load node
-    pub fn make_load(&mut self, address: NodeId, ty: IrType) -> NodeId {
+    pub fn make_load(&mut self, address: NodeId, _ty: IrType) -> NodeId {
         let id = self.next_id();
         let node = SeaNode {
             id,
@@ -663,7 +663,7 @@ impl ListScheduler {
 
     /// Schedule nodes using list scheduling
     pub fn schedule(&self, graph: &SeaOfNodes) -> Vec<(NodeId, usize)> {
-        let schedule_order = graph.schedule();
+        let _schedule_order = graph.schedule();
         let mut result = Vec::new();
         let mut ready: VecDeque<(NodeId, usize)> = VecDeque::new();
         let mut scheduled = HashSet::new();

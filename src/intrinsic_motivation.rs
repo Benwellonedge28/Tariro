@@ -1,7 +1,6 @@
 // Tariro AGI - Intrinsic Motivation Module
 // Internal motivation systems for autonomous learning
 
-use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
 use std::time::Duration;
@@ -309,7 +308,7 @@ impl IntrinsicMotivationSystem {
         self.current_drives.truncate(self.config.max_concurrent_drives);
     }
 
-    fn calculate_drive_urgency(&self, motivation: &Motivation, _activity: &ActivityMetrics, reward: &IntrinsicReward) -> f32 {
+    fn calculate_drive_urgency(&self, motivation: &Motivation, _activity: &ActivityMetrics, _reward: &IntrinsicReward) -> f32 {
         let base_urgency = motivation.current_strength;
 
         // Apply decay

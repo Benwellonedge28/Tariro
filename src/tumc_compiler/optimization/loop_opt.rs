@@ -40,7 +40,7 @@ impl LoopInvariantCodeMotion {
         func: &mut Function,
         loop_: &NaturalLoop,
         cfg: &ControlFlowGraph,
-        dom_tree: &DominatorTree,
+        _dom_tree: &DominatorTree,
     ) -> usize {
         let mut moved = 0;
 
@@ -57,7 +57,7 @@ impl LoopInvariantCodeMotion {
 
             // Move to preheader
             if !invariant_insts.is_empty() {
-                if let Some(preheader) = loop_.preheader(cfg) {
+                if let Some(_preheader) = loop_.preheader(cfg) {
                     // Insert invariant instructions in preheader
                     moved += invariant_insts.len();
                 }
@@ -81,7 +81,7 @@ impl LoopInvariantCodeMotion {
         }
     }
 
-    fn find_block(&self, func: &Function, _value: ValueId) -> BasicBlockId {
+    fn find_block(&self, _func: &Function, _value: ValueId) -> BasicBlockId {
         BasicBlockId(0) // Simplified
     }
 }
@@ -178,7 +178,7 @@ impl OptimizationPass for LoopVectorization {
 }
 
 impl LoopVectorization {
-    fn can_vectorize(&self, loop_: &NaturalLoop, func: &Function) -> bool {
+    fn can_vectorize(&self, loop_: &NaturalLoop, _func: &Function) -> bool {
         // Check loop structure for vectorization feasibility
         // - Single entry/exit
         // - No conditional branches inside
@@ -196,7 +196,7 @@ impl OptimizationPass for LoopPeeling {
         "loop-peel"
     }
 
-    fn run(&self, module: &mut Module) -> bool {
+    fn run(&self, _module: &mut Module) -> bool {
         false
     }
 
@@ -213,7 +213,7 @@ impl OptimizationPass for LoopUnswitching {
         "loop-unswitch"
     }
 
-    fn run(&self, module: &mut Module) -> bool {
+    fn run(&self, _module: &mut Module) -> bool {
         false
     }
 
@@ -230,7 +230,7 @@ impl OptimizationPass for LoopFusion {
         "loop-fusion"
     }
 
-    fn run(&self, module: &mut Module) -> bool {
+    fn run(&self, _module: &mut Module) -> bool {
         false
     }
 
@@ -247,7 +247,7 @@ impl OptimizationPass for LoopDistribution {
         "loop-distribute"
     }
 
-    fn run(&self, module: &mut Module) -> bool {
+    fn run(&self, _module: &mut Module) -> bool {
         false
     }
 
@@ -264,7 +264,7 @@ impl OptimizationPass for InductionVariableSimplification {
         "indvars"
     }
 
-    fn run(&self, module: &mut Module) -> bool {
+    fn run(&self, _module: &mut Module) -> bool {
         false
     }
 
@@ -281,7 +281,7 @@ impl OptimizationPass for LoopStrengthReduction {
         "loop-reduce"
     }
 
-    fn run(&self, module: &mut Module) -> bool {
+    fn run(&self, _module: &mut Module) -> bool {
         false
     }
 
@@ -298,7 +298,7 @@ impl OptimizationPass for MemoryAccessOptimization {
         "mem-access-opt"
     }
 
-    fn run(&self, module: &mut Module) -> bool {
+    fn run(&self, _module: &mut Module) -> bool {
         false
     }
 
@@ -315,7 +315,7 @@ impl OptimizationPass for LoopInterchange {
         "loop-interchange"
     }
 
-    fn run(&self, module: &mut Module) -> bool {
+    fn run(&self, _module: &mut Module) -> bool {
         false
     }
 
@@ -332,7 +332,7 @@ impl OptimizationPass for TailDuplication {
         "tail-dup"
     }
 
-    fn run(&self, module: &mut Module) -> bool {
+    fn run(&self, _module: &mut Module) -> bool {
         false
     }
 
@@ -349,7 +349,7 @@ impl OptimizationPass for BlockPlacement {
         "blocksort"
     }
 
-    fn run(&self, module: &mut Module) -> bool {
+    fn run(&self, _module: &mut Module) -> bool {
         false
     }
 

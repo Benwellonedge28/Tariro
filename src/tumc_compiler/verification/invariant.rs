@@ -305,12 +305,12 @@ impl InvariantDetector {
     pub fn detect_loop_invariants(&self, function: &Function, loop_headers: &[usize]) -> Vec<LoopInvariant> {
         let mut loop_invariants = Vec::new();
 
-        for (loop_id, &header) in loop_headers.iter().enumerate() {
+        for (loop_id, &_header) in loop_headers.iter().enumerate() {
             let mut invariants = Vec::new();
 
             // Collect loop body blocks
             for block in &function.body {
-                if block.instructions.iter().any(|i| {
+                if block.instructions.iter().any(|_i| {
                     // Check if instruction is part of loop
                     true // Simplified
                 }) {

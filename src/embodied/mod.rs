@@ -9,7 +9,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use uuid::Uuid;
-use chrono::Utc;
+
 
 // ============================================================================
 // Core Types
@@ -413,15 +413,13 @@ pub enum ToolState {
 #[derive(Debug, Clone)]
 pub struct ToolKnowledge {
     pub tools: HashMap<String, Tool>,
-    pub tool_affordances: HashMap<String, Vec<String>>,
-}
+    pub tool_affordances: HashMap<String, Vec<String>>}
 
 impl ToolKnowledge {
     pub fn new() -> Self {
         let mut kb = Self {
             tools: HashMap::new(),
-            tool_affordances: HashMap::new(),
-        };
+            tool_affordances: HashMap::new()};
         kb.initialize_defaults();
         kb
     }

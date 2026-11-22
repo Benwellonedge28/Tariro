@@ -1,8 +1,8 @@
 // Advanced Specialization Techniques
 
 use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation, IrType};
-use crate::tumc_compiler::derive_system::Const;
-use crate::tumc_compiler::specialization::partial_eval::PartialEvaluator;
+
+
 // Re-exported so that sibling modules can name the constant type through
 // `specialization::StaticValue`.
 pub use crate::tumc_compiler::specialization::partial_eval::StaticValue;
@@ -116,7 +116,7 @@ impl Supercompiler {
     /// Analyze a program state
     fn analyze_state(&self, state: &ProgramState) -> StateAnalysis {
         let mut is_static = true;
-        let mut can_fold = true;
+        let can_fold = true;
         let mut is_loop = false;
         let mut loop_info = None;
 
@@ -284,7 +284,7 @@ impl PolyvariantSpecializer {
 
         // Create specialized version for each group
         for (_, sites) in groups {
-            if let Some(site) = sites.first() {
+            if let Some(_site) = sites.first() {
                 let mut specialized = function.clone();
                 specialized.name = format!("{}_poly{}", function.name, specialized_versions.len());
                 specialized_versions.push(specialized);
@@ -438,7 +438,7 @@ impl RuntimeTypeSpecializer {
         let mut specialized = function.clone();
 
         // Use most common types
-        if let Some(ty) = self.get_common_type(&function.name) {
+        if let Some(_ty) = self.get_common_type(&function.name) {
             // Specialized version uses inferred types
             specialized.name = format!("{}_typed", function.name);
         }

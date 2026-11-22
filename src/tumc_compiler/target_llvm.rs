@@ -316,7 +316,7 @@ impl CmpPredicate {
             CmpPredicate::Ult => "ult",
             CmpPredicate::Ule => "ule",
             CmpPredicate::Sgt | CmpPredicate::Sgt2 => "sgt",
-            CmpPredicate::Sge | CmpPredicate::Sge2 => "sge",
+            CmpPredicate::Sge => "sge",
             CmpPredicate::Slt => "slt",
             CmpPredicate::Sle => "sle",
             CmpPredicate::Oeq => "oeq",

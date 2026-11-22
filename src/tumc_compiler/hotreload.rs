@@ -207,7 +207,7 @@ impl HotReloadManager {
 
     /// Save state
     fn save_state(&self) {
-        if let Some(serializer) = &self.serializer {
+        if let Some(_serializer) = &self.serializer {
             let mut cache = self.state_cache.write().unwrap();
             // In a real implementation, would serialize current app state
             cache.insert("last_save".to_string(), Vec::new());
@@ -337,7 +337,7 @@ impl FileWatcher {
     /// Check single file
     fn check_file(&mut self, path: &Path) -> Option<FileEvent> {
         let metadata = std::fs::metadata(path).ok()?;
-        let modified = metadata.modified().ok()?;
+        let _modified = metadata.modified().ok()?;
         let hash = self.compute_hash(path);
 
         let old_hash = self.hashes.get(path);

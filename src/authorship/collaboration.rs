@@ -165,11 +165,11 @@ impl CollaborationEngine {
     /// Integrate human feedback into content
     pub fn integrate_feedback(
         &mut self,
-        content: &CreativeContent,
+        _content: &CreativeContent,
         feedback: &HumanFeedback,
     ) -> IntegrationReport {
         let mut changes_applied = 0u32;
-        let mut conflicts_resolved = 0u32;
+        let conflicts_resolved = 0u32;
         let mut remaining_issues = Vec::new();
 
         match feedback.feedback_type {

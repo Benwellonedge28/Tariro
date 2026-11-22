@@ -165,7 +165,7 @@ impl SsaConverter {
                         let phis: &mut Vec<PhiNode> = all_phis.entry(df_block).or_default();
 
                         // Check if phi already exists for this variable
-                        let has_phi = phis.iter().any(|p| {
+                        let has_phi = phis.iter().any(|_p| {
                             // Would need variable name tracking in phi
                             false
                         });
@@ -305,7 +305,7 @@ impl IrPass for CopyPropagation {
     }
 
     fn run(&self, module: &mut Module) -> bool {
-        let mut changed = false;
+        let changed = false;
 
         for func in &mut module.functions {
             let mut copies = HashMap::new();
@@ -468,10 +468,10 @@ impl PhiInserter {
         let mut phis: HashMap<BasicBlockId, Vec<PhiNode>> = HashMap::new();
 
         for var in variables {
-            let mut def_blocks = Vec::new();
+            let def_blocks = Vec::new();
 
             // Find where variable is defined
-            for (block_idx, block) in function.body.iter().enumerate() {
+            for (_block_idx, block) in function.body.iter().enumerate() {
                 for inst in &block.instructions {
                     // Would need to track variable definitions
                     let _ = (var, inst);
@@ -493,7 +493,7 @@ impl PhiInserter {
                         let block_phis = phis.entry(df).or_default();
 
                         // Check if phi already exists
-                        let exists = block_phis.iter().any(|p| {
+                        let exists = block_phis.iter().any(|_p| {
                             // Would check variable name
                             false
                         });

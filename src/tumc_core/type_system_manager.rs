@@ -1,4 +1,4 @@
-use crate::prelude::*;
+
 pub struct TypeSystemManager;
 
 impl TypeSystemManager {
@@ -23,7 +23,7 @@ impl TypeSystemManager {
         //    Perform rigorous verification that types from different domains can 
         //    interact correctly and safely according to established rules and constraints.
         //    Example: Check that a classical operation doesn't directly consume an unmeasured Qubit.
-        let consistency_report = self.verify_cross_domain_consistency(&assigned_types);
+        let _consistency_report = self.verify_cross_domain_consistency(&assigned_types);
         println!("TUMC: Cross-domain consistency verified.");
 
         // 3. Dynamic Type Inference:

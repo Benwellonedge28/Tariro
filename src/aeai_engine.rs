@@ -6,9 +6,9 @@
 /// algorithm tuning, and system configuration. (SIMD: parallel evaluation of fitness functions for populations;
 /// RAG: evolutionary computation theory, neuro-evolution, multi-objective optimization).
 
-use crate::prelude::*;
+
 use std::collections::HashMap;
-use std::fmt;
+
 use std::thread;
 use std::time::Duration;
 use rand::Rng;
@@ -42,7 +42,7 @@ pub struct FitnessFunction {
 
 /// Report for AEAI operations.
 #[derive(Debug, Clone)]
-pub struct AEAI_Report {
+pub struct AeaiReport {
     pub evolution_run_id: String,
     pub generations_run: u32,
     pub best_solution_fitness: f64,
@@ -52,13 +52,13 @@ pub struct AEAI_Report {
 
 // --- AEAI Engine --- //
 
-pub struct AEAI_Engine {
+pub struct AeaiEngine {
     pub evolutionary_computation_theory_rag_db: HashMap<String, String>, // Conceptual: RAG for evolutionary computation theory
     pub neuro_evolution_rag_db: HashMap<String, String>, // Conceptual: RAG for neuro-evolution
     pub multi_objective_optimization_rag_db: HashMap<String, String>, // Conceptual: RAG for multi-objective optimization
 }
 
-impl AEAI_Engine {
+impl AeaiEngine {
     pub fn new() -> Self {
         let mut ect_db = HashMap::new();
         ect_db.insert("Genetic_Algorithms_Principles".to_string(), "Detailed principles of Genetic Algorithms, including selection, crossover, and mutation operators.".to_string());
@@ -72,7 +72,7 @@ impl AEAI_Engine {
         moo_db.insert("Pareto_Optimality_in_Multi_Objective_Problems".to_string(), "Understanding Pareto optimality and Pareto fronts for problems with multiple conflicting objectives.".to_string());
         moo_db.insert("NSGA_II_Algorithm_for_Multi_Objective_Optimization".to_string(), "The Non-dominated Sorting Genetic Algorithm II for solving multi-objective optimization problems.".to_string());
 
-        AEAI_Engine { evolutionary_computation_theory_rag_db: ect_db, neuro_evolution_rag_db: ne_db, multi_objective_optimization_rag_db: moo_db }
+        AeaiEngine { evolutionary_computation_theory_rag_db: ect_db, neuro_evolution_rag_db: ne_db, multi_objective_optimization_rag_db: moo_db }
     }
 
     /// Initializes an evolutionary population in parallel (conceptual SIMD).
@@ -181,7 +181,7 @@ mod tests {
 
     #[test]
     fn test_aeai_engine_flow() {
-        let mut engine = AEAI_Engine::new();
+        let mut engine = AeaiEngine::new();
 
         let mut population = engine.initialize_population_simd(10, 5);
         assert_eq!(population.individuals.len(), 10);
@@ -202,7 +202,7 @@ mod tests {
 fn main() {
     println!("\n--- Autonomous Evolutionary Algorithm Integration (AEAI) Demonstration ---");
 
-    let aeai_engine = AEAI_Engine::new();
+    let aeai_engine = AeaiEngine::new();
 
     // Scenario 1: Initializing a population for optimizing a complex algorithm
     println!("--- Scenario 1: Population Initialization ---");

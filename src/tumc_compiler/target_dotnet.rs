@@ -595,7 +595,7 @@ impl ClrCodeGen {
     }
 
     /// Define method entry
-    pub fn begin_method(&mut self, name: &str, return_type: ClrType, params: Vec<(String, ClrType)>) {
+    pub fn begin_method(&mut self, _name: &str, _return_type: ClrType, _params: Vec<(String, ClrType)>) {
         // Method prologue
         self.locals.clear();
     }
@@ -758,7 +758,7 @@ impl PortableExecutable {
     }
 
     /// Generate PE file
-    pub fn generate(mut self) -> Vec<u8> {
+    pub fn generate(self) -> Vec<u8> {
         let mut output = Vec::new();
 
         // DOS header

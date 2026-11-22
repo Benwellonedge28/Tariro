@@ -50,7 +50,7 @@ impl ToolingManager {
         }
     }
 
-    pub fn start(&mut self, module: &Module) {
+    pub fn start(&mut self, _module: &Module) {
         if self.config.enable_lsp {
             self.lsp = Some(LspServer::new(self.config.lsp_port));
         }

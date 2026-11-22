@@ -1,7 +1,6 @@
 // Tariro AGI - Trusted Execution Environment Module
 // Hardware-backed security for sovereign AI operations
 
-use crate::prelude::*;
 use std::collections::HashMap;
 use chrono::{DateTime, Utc};
 use std::time::Duration;
@@ -83,7 +82,7 @@ pub enum Capability {
     MemoryProtection,
     SecureRandom,
     CryptoOperations,
-    Protected_fs,
+    ProtectedFs,
     EPC,
 }
 
@@ -130,10 +129,10 @@ pub struct QuoteGeneration {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum QuoteType {
-    SignatureType_ECDSA_P256,
-    SignatureType_ECDSA_P256_SHA256,
-    SignatureType_EPID_Unlinkable,
-    SignatureType_EPID_Linkable,
+    SignaturetypeEcdsaP256,
+    SignaturetypeEcdsaP256Sha256,
+    SignaturetypeEpidUnlinkable,
+    SignaturetypeEpidLinkable,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -158,8 +157,8 @@ pub enum VerificationMethod {
     DCAP,
     ECDSA256,
     ECDSA384,
-    SGX_QL_Verify,
-    DCAP_QL_Verify,
+    SgxQlVerify,
+    DcapQlVerify,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -508,7 +507,7 @@ impl TEEEngine {
                     service_enabled: true,
                     spid: None,
                     api_key: None,
-                    quote_type: QuoteType::SignatureType_ECDSA_P256_SHA256,
+                    quote_type: QuoteType::SignaturetypeEcdsaP256Sha256,
                 },
                 verification_service: AttestationVerification {
                     verification_method: VerificationMethod::DCAP,

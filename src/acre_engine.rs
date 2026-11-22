@@ -6,9 +6,9 @@
 /// (SIMD: parallel analysis of code segments and application of transformations; RAG: best coding practices, design patterns,
 /// quantum-safe coding guidelines, Rust idioms).
 
-use crate::prelude::*;
+
 use std::collections::HashMap;
-use std::fmt;
+
 use std::thread;
 use std::time::Duration;
 use rand::Rng;
@@ -47,7 +47,7 @@ pub struct RefactoringAction {
 
 /// Report for ACRE operations.
 #[derive(Debug, Clone)]
-pub struct ACRE_Report {
+pub struct AcreReport {
     pub analysis_id: String,
     pub code_files_analyzed: u32,
     pub suggestions_generated: u64,
@@ -57,14 +57,14 @@ pub struct ACRE_Report {
 
 // --- ACRE Engine --- //
 
-pub struct ACRE_Engine {
+pub struct AcreEngine {
     pub best_coding_practices_rag_db: HashMap<String, String>, // Conceptual: RAG for best coding practices
     pub design_patterns_rag_db: HashMap<String, String>, // Conceptual: RAG for design patterns
     pub quantum_safe_coding_guidelines_rag_db: HashMap<String, String>, // Conceptual: RAG for quantum-safe coding guidelines
     pub rust_idioms_rag_db: HashMap<String, String>, // Conceptual: RAG for Rust idioms
 }
 
-impl ACRE_Engine {
+impl AcreEngine {
     pub fn new() -> Self {
         let mut bcp_db = HashMap::new();
         bcp_db.insert("SOLID_Principles".to_string(), "Detailed explanation of SOLID principles for object-oriented design and maintainability.".to_string());
@@ -82,7 +82,7 @@ impl ACRE_Engine {
         ri_db.insert("Ownership_Borrowing_Lifetimes".to_string(), "Idiomatic Rust patterns for managing memory safely and efficiently without a garbage collector.".to_string());
         ri_db.insert("Error_Handling_with_Result_Option".to_string(), "Best practices for robust error handling in Rust using the Result and Option enums.".to_string());
 
-        ACRE_Engine { best_coding_practices_rag_db: bcp_db, design_patterns_rag_db: dp_db, quantum_safe_coding_guidelines_rag_db: qscg_db, rust_idioms_rag_db: ri_db }
+        AcreEngine { best_coding_practices_rag_db: bcp_db, design_patterns_rag_db: dp_db, quantum_safe_coding_guidelines_rag_db: qscg_db, rust_idioms_rag_db: ri_db }
     }
 
     /// Analyzes code segments for potential improvements in parallel (conceptual SIMD).
@@ -175,7 +175,7 @@ mod tests {
 
     #[test]
     fn test_acre_engine_flow() {
-        let engine = ACRE_Engine::new();
+        let engine = AcreEngine::new();
 
         let snippet = CodeSnippet { id: "func_calc".to_string(), content: "fn calculate_sum(a, b) { return a + b; }".to_string(), file_path: "src/main.rs".to_string(), lines_start: 1, lines_end: 1 };
         let suggestions = engine.analyze_code_for_improvements_simd(&[snippet.clone()]);
@@ -195,7 +195,7 @@ mod tests {
 fn main() {
     println!("\n--- Autonomous Code Refactoring Engine (ACRE) Demonstration ---");
 
-    let acre_engine = ACRE_Engine::new();
+    let acre_engine = AcreEngine::new();
 
     // Scenario 1: Analyzing a simple code snippet for improvements
     println!("--- Scenario 1: Code Analysis ---");

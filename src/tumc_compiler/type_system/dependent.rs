@@ -97,7 +97,7 @@ impl DependentTypeChecker {
             DepTypeExpr::NatLit(_) => MonoType::Int(IntSize::Usize),
             DepTypeExpr::Var(_) => MonoType::Wildcard,
             DepTypeExpr::App(f, _) => self.erase(f),
-            DepTypeExpr::Add(a, b) => {
+            DepTypeExpr::Add(a, _b) => {
                 // Both must be Nat
                 self.erase(a)
             }

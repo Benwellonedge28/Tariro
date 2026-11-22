@@ -10,8 +10,8 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::Arc;
-use tokio::sync::RwLock;
+
+
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
@@ -766,7 +766,7 @@ impl EpisodicMemory {
                 !ids.is_empty()
             });
 
-            for entity in &oldest.entities {
+            for _entity in &oldest.entities {
                 self.entity_index.retain(|_, ids| {
                     ids.retain(|i| i != id);
                     !ids.is_empty()
@@ -778,7 +778,7 @@ impl EpisodicMemory {
                 !ids.is_empty()
             });
 
-            if let Some(ref location) = oldest.location {
+            if let Some(ref _location) = oldest.location {
                 self.location_index.retain(|_, ids| {
                     ids.retain(|i| i != id);
                     !ids.is_empty()
@@ -868,7 +868,7 @@ impl SemanticMemory {
     }
 
     /// Store new knowledge
-    pub fn store(&mut self, mut knowledge: SemanticKnowledge) -> Result<MemoryId, MemoryError> {
+    pub fn store(&mut self, knowledge: SemanticKnowledge) -> Result<MemoryId, MemoryError> {
         let id = knowledge.id.clone();
 
         // Check for existing with same concept name
@@ -1101,7 +1101,7 @@ impl ProceduralMemory {
     }
 
     /// Store a procedure
-    pub fn store(&mut self, mut procedure: Procedure) -> Result<MemoryId, MemoryError> {
+    pub fn store(&mut self, procedure: Procedure) -> Result<MemoryId, MemoryError> {
         let id = procedure.id.clone();
 
         // Check for existing with same name

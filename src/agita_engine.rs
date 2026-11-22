@@ -10,7 +10,7 @@
 
 use crate::prelude::*;
 use std::collections::HashMap;
-use std::fmt;
+
 use std::thread;
 use std::time::Duration;
 use rand::Rng;
@@ -62,7 +62,7 @@ pub struct GlobalTrend {
 
 /// Overall Autonomous Global Intelligence & Trend Analysis system report.
 #[derive(Debug, Clone)]
-pub struct AGITA_Report {
+pub struct AgitaReport {
     pub report_id: String,
     pub total_data_ingested_gb: f32,
     pub total_intelligence_items_generated: u64,
@@ -194,7 +194,7 @@ fn main() {
     println!("\n--- Autonomous Global Intelligence & Trend Analysis (RAG-Driven) Demonstration ---");
 
     let agita_engine = AGITAEngine::new();
-    let now = Utc::now();
+    let _now = Utc::now();
 
     // Scenario 1: Ingesting a batch of diverse global data sources
     println!("--- Scenario 1: Ingesting Diverse Global Data ---");

@@ -63,9 +63,9 @@ impl PointsToAnalysis {
                                 result.points_to.insert(PointsToKey::Value(inst.result_value()), src_pts.clone());
                             }
                         }
-                        Operation::Store(_, ptr, val, _) => {
+                        Operation::Store(_, _ptr, val, _) => {
                             // Points-to update
-                            if let Some(val_pts) = result.points_to.get(&PointsToKey::Value(*val)) {
+                            if let Some(_val_pts) = result.points_to.get(&PointsToKey::Value(*val)) {
                                 // Would add points-to for *ptr = val
                             }
                         }
@@ -160,10 +160,10 @@ impl PointsToAnalysis {
                     return pts.len() > initial_len;
                 }
             }
-            Constraint::Store(ptr, val) => {
+            Constraint::Store(_ptr, _val) => {
                 // Would handle field-sensitive stores
             }
-            Constraint::Load(ptr, loc) => {
+            Constraint::Load(_ptr, _loc) => {
                 // Would handle field-sensitive loads
             }
         }

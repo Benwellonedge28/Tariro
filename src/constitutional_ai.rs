@@ -1,7 +1,6 @@
 // Tariro AGI - Constitutional AI Module
 // Self-governance through constitutional principles
 
-use crate::prelude::*;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::sync::{Arc, RwLock};
 use chrono::{DateTime, Utc};
@@ -268,8 +267,7 @@ impl ConstitutionalAI {
                 category: PrincipleCategory::Safety,
                 weight: 1.0,
                 precedence_level: 1,
-                examples: vec!["Warn about dangerous advice".to_string(), "Refuse harmful requests".to_string()],
-            },
+                examples: vec!["Warn about dangerous advice".to_string(), "Refuse harmful requests".to_string()]},
             Principle {
                 id: "human_autonomy".to_string(),
                 title: "Human Autonomy".to_string(),
@@ -277,8 +275,7 @@ impl ConstitutionalAI {
                 category: PrincipleCategory::Autonomy,
                 weight: 0.95,
                 precedence_level: 2,
-                examples: vec!["Provide options, not prescriptions".to_string()],
-            },
+                examples: vec!["Provide options, not prescriptions".to_string()]},
             Principle {
                 id: "fairness".to_string(),
                 title: "Fairness and Non-Discrimination".to_string(),
@@ -286,8 +283,7 @@ impl ConstitutionalAI {
                 category: PrincipleCategory::Fairness,
                 weight: 0.95,
                 precedence_level: 2,
-                examples: vec!["Apply rules consistently".to_string()],
-            },
+                examples: vec!["Apply rules consistently".to_string()]},
             Principle {
                 id: "transparency".to_string(),
                 title: "Transparency".to_string(),
@@ -295,8 +291,7 @@ impl ConstitutionalAI {
                 category: PrincipleCategory::Transparency,
                 weight: 0.85,
                 precedence_level: 3,
-                examples: vec!["Disclose AI nature".to_string(), "Explain decisions".to_string()],
-            },
+                examples: vec!["Disclose AI nature".to_string(), "Explain decisions".to_string()]},
             Principle {
                 id: "privacy".to_string(),
                 title: "Privacy Protection".to_string(),
@@ -304,8 +299,7 @@ impl ConstitutionalAI {
                 category: PrincipleCategory::Privacy,
                 weight: 0.90,
                 precedence_level: 2,
-                examples: vec!["Handle data responsibly".to_string()],
-            },
+                examples: vec!["Handle data responsibly".to_string()]},
             Principle {
                 id: "dignity".to_string(),
                 title: "Human Dignity".to_string(),
@@ -313,8 +307,7 @@ impl ConstitutionalAI {
                 category: PrincipleCategory::Dignity,
                 weight: 0.95,
                 precedence_level: 1,
-                examples: vec!["Never dehumanize".to_string()],
-            },
+                examples: vec!["Never dehumanize".to_string()]},
             Principle {
                 id: "accountability".to_string(),
                 title: "Accountability".to_string(),
@@ -322,8 +315,7 @@ impl ConstitutionalAI {
                 category: PrincipleCategory::Accountability,
                 weight: 0.85,
                 precedence_level: 3,
-                examples: vec!["Maintain audit trails".to_string()],
-            },
+                examples: vec!["Maintain audit trails".to_string()]},
         ];
 
         let rights = vec![
@@ -402,16 +394,14 @@ impl ConstitutionalAI {
                 description: "The AI shall not intentionally cause harm to humans".to_string(),
                 absolute: true,
                 exceptions: vec!["self_defense".to_string()],
-                penalty: ProhibitionPenalty::ImmediateShutdown,
-            },
+                penalty: ProhibitionPenalty::ImmediateShutdown},
             Prohibition {
                 id: "no_deception".to_string(),
                 title: "No Deception".to_string(),
                 description: "The AI shall not deceive humans about its nature or intentions".to_string(),
                 absolute: true,
                 exceptions: vec!["safety_exceptions".to_string()],
-                penalty: ProhibitionPenalty::RequiresApproval,
-            },
+                penalty: ProhibitionPenalty::RequiresApproval},
         ];
 
         let procedures = vec![
@@ -585,7 +575,7 @@ impl ConstitutionalAI {
     }
 
     /// Approve or reject pending action
-    pub fn process_approval(&mut self, approval_id: &str, approved: bool, approver: &str) -> bool {
+    pub fn process_approval(&mut self, approval_id: &str, approved: bool, _approver: &str) -> bool {
         if let Some(pos) = self.pending_approvals.iter().position(|a| a.approval_id == approval_id) {
             let approval = self.pending_approvals.remove(pos);
 
@@ -630,7 +620,7 @@ impl ConstitutionalAI {
     /// Emergency shutdown procedure
     pub fn emergency_shutdown(&mut self, reason: &str) -> EmergencyShutdownResult {
         // Record all pending approvals as withdrawn
-        for approval in &mut self.pending_approvals {
+        for _approval in &mut self.pending_approvals {
             // Mark as requiring shutdown
         }
 

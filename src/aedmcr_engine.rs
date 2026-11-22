@@ -10,7 +10,7 @@
 
 use crate::prelude::*;
 use std::collections::HashMap;
-use std::fmt;
+
 use std::thread;
 use std::time::Duration;
 use rand::Rng;
@@ -58,7 +58,7 @@ pub struct ConflictResolution {
 
 /// Overall Ethical Decision-Making & Conflict Resolution system report.
 #[derive(Debug, Clone)]
-pub struct AEDMCR_Report {
+pub struct AedmcrReport {
     pub report_id: String,
     pub total_dilemmas_faced: u64,
     pub total_conflicts_resolved: u64,
@@ -91,7 +91,7 @@ impl AEDMCRAEngine {
     }
 
     /// Performs parallel ethical scenario modeling and real-time value weight optimization (SIMD conceptualization).
-    fn parallel_ethical_modeling_value_optimization_simd(&self, dilemma: &EthicalDilemma, principles: &[EthicalPrinciple]) -> HashMap<String, HashMap<String, f32>> { // optimized predicted outcomes
+    fn parallel_ethical_modeling_value_optimization_simd(&self, dilemma: &EthicalDilemma, _principles: &[EthicalPrinciple]) -> HashMap<String, HashMap<String, f32>> { // optimized predicted outcomes
         println!("    [AEDMCR-SIMD]: Modeling ethical scenarios and optimizing value weights in parallel.");
         thread::sleep(Duration::from_millis(150));
         let mut rng = rand::thread_rng();
@@ -122,7 +122,7 @@ impl AEDMCRAEngine {
         thread::sleep(Duration::from_millis(2000));
         let mut rng = rand::thread_rng();
 
-        let optimized_outcomes = self.parallel_ethical_modeling_value_optimization_simd(&dilemma, &samuel_core_principles);
+        let _optimized_outcomes = self.parallel_ethical_modeling_value_optimization_simd(&dilemma, &samuel_core_principles);
 
         // Conceptual: RAG-driven decision based on optimized outcomes and Samuel's values
         let chosen_action = if rng.gen_bool(0.8) && !dilemma.human_oversight_required {
@@ -192,7 +192,7 @@ fn main() {
     println!("\n--- Autonomous Ethical Decision-Making & Conflict Resolution (RAG-Driven) Demonstration ---");
 
     let aedmcr_engine = AEDMCRAEngine::new();
-    let now = Utc::now();
+    let _now = Utc::now();
 
     // Scenario 1: Tariro faces an ethical dilemma between maximizing productivity and ensuring fairness
     println!("--- Scenario 1: Productivity vs. Fairness Dilemma ---");

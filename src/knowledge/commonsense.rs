@@ -742,7 +742,7 @@ impl SpatialReasoner {
         });
     }
 
-    pub fn reason(&self, situation: &Situation) -> Vec<Inference> {
+    pub fn reason(&self, _situation: &Situation) -> Vec<Inference> {
         let mut inferences = Vec::new();
 
         // Check for spatial violations or implications
@@ -798,8 +798,7 @@ impl TemporalReasoner {
         self.temporal_kb.push(TemporalRule {
             name: "causality_precedence".to_string(),
             rule: "A cause must occur before or simultaneously with its effect".to_string(),
-            certainty: Certainty::Always,
-        });
+            certainty: Certainty::Always});
 
         // Duration
         self.temporal_kb.push(TemporalRule {
@@ -816,7 +815,7 @@ impl TemporalReasoner {
         });
     }
 
-    pub fn reason(&self, situation: &Situation) -> Vec<Inference> {
+    pub fn reason(&self, _situation: &Situation) -> Vec<Inference> {
         let mut inferences = Vec::new();
 
         for rule in &self.temporal_kb {

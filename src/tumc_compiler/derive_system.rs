@@ -1,7 +1,7 @@
 //! Derive/Attribute System for TUMC
 //! Implements procedural macros for derive macros like Clone, Debug, etc.
 
-use crate::prelude::*;
+
 use super::ast::*;
 use std::collections::HashMap;
 use std::fmt;
@@ -578,7 +578,7 @@ impl DeriveGenerator {
     }
 
     /// Derive From implementation
-    fn derive_from(&self, struct_: &Struct) -> Result<Vec<Item>, DeriveError> {
+    fn derive_from(&self, _struct_: &Struct) -> Result<Vec<Item>, DeriveError> {
         // From requires specific source type
         Err(DeriveError::RequiresArgument {
             derive_name: "From".to_string(),
@@ -636,7 +636,7 @@ impl Attribute {
     /// Parse from attribute syntax
     pub fn parse(attr: &super::ast::Attribute) -> Result<Self, DeriveError> {
         let mut derives = Vec::new();
-        let mut args = Vec::new();
+        let args = Vec::new();
 
         // Parse derive list
         for token in &attr.tokens {
@@ -748,7 +748,7 @@ impl AttributeTransformer {
     }
 
     /// Transform item based on attributes
-    pub fn transform(&self, attrs: &[Attribute], item: &mut Item) -> Result<Vec<Transformation>, AttributeError> {
+    pub fn transform(&self, attrs: &[Attribute], _item: &mut Item) -> Result<Vec<Transformation>, AttributeError> {
         let mut transformations = Vec::new();
 
         for attr in attrs {

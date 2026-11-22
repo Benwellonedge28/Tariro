@@ -1,7 +1,7 @@
 // Tariro AGI - Hierarchical Task Network (HTN) Planning Module
 // Decomposition-based planning for complex goals
 
-use crate::prelude::*;
+
 use std::collections::{HashMap, HashSet, VecDeque, BinaryHeap};
 use chrono::{DateTime, Utc};
 use std::time::Duration;
@@ -349,8 +349,11 @@ impl HTNPlanner {
         let start_time = Utc::now();
         self.stats = PlannerStats::default();
 
-        let domain = self.domain.as_ref()
-            .ok_or(PlanningError::NoDomainLoaded)?;
+        let domain = self
+            .domain
+            .as_ref()
+            .ok_or(PlanningError::NoDomainLoaded)?
+            .clone();
 
         // Initialize planning state
         let initial_state = PlanningState {
@@ -363,7 +366,7 @@ impl HTNPlanner {
         };
 
         // Plan search
-        let result = self.plan_search(initial_state, domain, problem);
+        let result = self.plan_search(initial_state, &domain, problem);
 
         self.stats.planning_time_ms = Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default().as_millis() as u64;
 
@@ -398,7 +401,7 @@ impl HTNPlanner {
                     let action = self.apply_primitive(&task, &state.state, domain)?;
                     state.apply_action(action);
                 }
-                TaskType::Compound(ref method_name) => {
+                TaskType::Compound(ref _method_name) => {
                     // Find applicable methods
                     let methods = self.find_applicable_methods(&task, &state.state, domain)?;
 
@@ -455,12 +458,12 @@ impl HTNPlanner {
     }
 
     /// Find applicable methods for task
-    fn find_applicable_methods(
+    fn find_applicable_methods<'a>(
         &self,
         task: &NetworkTask,
         state: &WorldState,
-        domain: &HTNDomain,
-    ) -> Result<Vec<&Method>, PlanningError> {
+        domain: &'a HTNDomain,
+    ) -> Result<Vec<&'a Method>, PlanningError> {
         let applicable: Vec<_> = domain.methods.iter()
             .filter(|m| m.task.task_name == task.task_id)
             .filter(|m| self.check_preconditions(&m.preconditions, state, task))
@@ -504,7 +507,11 @@ impl HTNPlanner {
     }
 
     /// Select best method using heuristic
-    fn select_method(&self, methods: &[&Method], state: &PlanningState) -> Result<&Method, PlanningError> {
+    fn select_method<'a>(
+        &self,
+        methods: &[&'a Method],
+        _state: &PlanningState,
+    ) -> Result<&'a Method, PlanningError> {
         match self.config.heuristic {
             HeuristicType::LevelSum => {
                 // Select method with lowest cost estimate
@@ -527,7 +534,7 @@ impl HTNPlanner {
         &self,
         task: &NetworkTask,
         method: &Method,
-        domain: &HTNDomain,
+        _domain: &HTNDomain,
     ) -> Result<Vec<NetworkTask>, PlanningError> {
         let mut subtasks = Vec::new();
 
@@ -551,7 +558,7 @@ impl HTNPlanner {
     }
 
     /// Apply action to state
-    fn apply_action(&mut self, action: PlanAction) {
+    fn apply_action(&mut self, _action: PlanAction) {
         // This would apply effects to state
         // Implementation depends on domain specifics
     }

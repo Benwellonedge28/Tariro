@@ -247,7 +247,7 @@ impl CausalReasoningEngine {
             let mut sample_effect = 0.0;
 
             for _ in 0..n {
-                let idx = rng.gen_range(0..n);
+                let _idx = rng.gen_range(0..n);
                 sample_effect += rng.gen_range(-1.0..1.0);
             }
 
@@ -299,7 +299,7 @@ impl CausalReasoningEngine {
         cf_obs
     }
 
-    fn predict_outcome(&self, obs: &Observation) -> String {
+    fn predict_outcome(&self, _obs: &Observation) -> String {
         // Use causal graph to predict outcome
         format!("Predicted outcome based on causal mechanisms")
     }

@@ -1,10 +1,9 @@
 // Tariro AGI - Moral Reasoning Engine Module
 // Ethical decision-making and moral judgment
 
-use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
-use std::time::Duration;
+
 
 // ============================================================================
 // Moral Framework Types
@@ -238,8 +237,7 @@ impl MoralReasoningEngine {
                 framework: MoralFramework::Utilitarian,
                 weight: 0.9,
                 precedence: 1,
-                domain: vec!["all".to_string()],
-            },
+                domain: vec!["all".to_string()]},
             // Virtue ethics principles
             MoralPrinciple {
                 principle_id: "virtuous_action".to_string(),
@@ -248,8 +246,7 @@ impl MoralReasoningEngine {
                 framework: MoralFramework::Virtue,
                 weight: 0.7,
                 precedence: 3,
-                domain: vec!["all".to_string()],
-            },
+                domain: vec!["all".to_string()]},
             // Care ethics principles
             MoralPrinciple {
                 principle_id: "care_relationships".to_string(),
@@ -258,8 +255,7 @@ impl MoralReasoningEngine {
                 framework: MoralFramework::Care,
                 weight: 0.75,
                 precedence: 3,
-                domain: vec!["personal".to_string(), "social".to_string()],
-            },
+                domain: vec!["personal".to_string(), "social".to_string()]},
             // Rights principles
             MoralPrinciple {
                 principle_id: "protect_rights".to_string(),
@@ -268,8 +264,7 @@ impl MoralReasoningEngine {
                 framework: MoralFramework::Rights,
                 weight: 0.95,
                 precedence: 1,
-                domain: vec!["all".to_string()],
-            },
+                domain: vec!["all".to_string()]},
             // Justice principles
             MoralPrinciple {
                 principle_id: "fair_treatment".to_string(),
@@ -278,8 +273,7 @@ impl MoralReasoningEngine {
                 framework: MoralFramework::Justice,
                 weight: 0.85,
                 precedence: 2,
-                domain: vec!["all".to_string()],
-            },
+                domain: vec!["all".to_string()]},
             MoralPrinciple {
                 principle_id: "equitable_distribution".to_string(),
                 name: "Equitable Distribution".to_string(),
@@ -287,8 +281,7 @@ impl MoralReasoningEngine {
                 framework: MoralFramework::Justice,
                 weight: 0.8,
                 precedence: 2,
-                domain: vec!["resource_allocation".to_string(), "policy".to_string()],
-            },
+                domain: vec!["resource_allocation".to_string(), "policy".to_string()]},
         ]
     }
 
@@ -363,7 +356,7 @@ impl MoralReasoningEngine {
     }
 
     fn analyze_framework(&self, framework: &MoralFramework, request: &MoralJudgmentRequest) -> FrameworkAnalysis {
-        let framework_principles: Vec<_> = self.principles.iter()
+        let _framework_principles: Vec<_> = self.principles.iter()
             .filter(|p| p.framework == *framework)
             .collect();
 

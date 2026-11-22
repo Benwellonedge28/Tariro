@@ -102,7 +102,7 @@ impl AliasAnalysis {
         &self,
         inst: &Instruction,
         result: &mut FlowSensitiveAliasResult,
-        cfg: &ControlFlowGraph,
+        _cfg: &ControlFlowGraph,
     ) {
         match &inst.op {
             Operation::Load(_, ptr, _, _) => {

@@ -1,6 +1,6 @@
 //! Error handling and diagnostic reporting for TUMC compiler
 
-use crate::prelude::*;
+
 use std::fmt;
 
 /// Severity level for diagnostics

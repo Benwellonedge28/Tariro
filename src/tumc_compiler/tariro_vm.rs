@@ -1,7 +1,7 @@
 //! Tariro Bytecode Virtual Machine
 //! A register-based VM for executing TUMC bytecode
 
-use crate::prelude::*;
+
 use crate::tumc_compiler::ast::Span;
 use std::collections::{HashMap, VecDeque};
 use std::fmt;
@@ -921,7 +921,7 @@ impl VM {
             }
 
             Opcode::Call => {
-                let func_idx = self.read_u16(code, ip + 1) as usize;
+                let _func_idx = self.read_u16(code, ip + 1) as usize;
                 // Would look up function and create new frame
                 self.current_frame.as_mut().unwrap().ip = ip + 3;
             }
@@ -939,7 +939,7 @@ impl VM {
 
             Opcode::Alloc => {
                 let dest = code[ip + 1] as usize;
-                let size = self.registers[code[ip + 2] as usize].as_i32().unwrap_or(0) as usize;
+                let _size = self.registers[code[ip + 2] as usize].as_i32().unwrap_or(0) as usize;
                 let obj = Value::Array(GcPtr::new(std::ptr::null()));
                 self.heap.push(obj.clone());
                 self.registers[dest] = obj;
@@ -969,7 +969,7 @@ impl VM {
             Opcode::SetElem => {
                 let arr = self.registers[code[ip + 1] as usize].clone();
                 let idx = self.registers[code[ip + 2] as usize].as_i32().unwrap_or(0) as usize;
-                let val = self.registers[code[ip + 3] as usize].clone();
+                let _val = self.registers[code[ip + 3] as usize].clone();
 
                 if let Value::Array(ptr) = arr {
                     if idx < ptr.as_ref().elements.len() {

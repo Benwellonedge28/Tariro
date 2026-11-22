@@ -1,7 +1,6 @@
 // Tariro AGI - Theory of Mind Module
 // Mental state attribution and social cognition
 
-use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 
@@ -454,16 +453,18 @@ impl TheoryOfMindEngine {
             let existing = agent.beliefs.beliefs.iter()
                 .position(|b| b.content == belief.content);
 
+            let belief_id = belief.belief_id.clone();
+            let truth_value = belief.truth_value;
+
             if let Some(idx) = existing {
                 agent.beliefs.beliefs[idx] = belief;
             } else {
                 agent.beliefs.beliefs.push(belief);
             }
 
-            agent.beliefs.belief_strengths.insert(
-                belief.belief_id.clone(),
-                belief.truth_value
-            );
+            agent.beliefs
+                .belief_strengths
+                .insert(belief_id.clone(), truth_value);
 
             agent.mental_model_version += 1;
             agent.last_updated = Utc::now();
@@ -494,6 +495,12 @@ impl TheoryOfMindEngine {
 
         for obs in observations {
             match obs.observation_type {
+                ObservationType::Speech | ObservationType::Intention => {
+                    // Infer from what was said or intended
+                    if obs.content.contains("said") {
+                        inferred_state.beliefs.push(self.extract_belief_from_statement(&obs.content));
+                    }
+                }
                 ObservationType::Behavior => {
                     // Infer from behavior
                     if obs.content.contains("said") {
@@ -625,9 +632,11 @@ impl TheoryOfMindEngine {
             .position(|r| (r.agent1 == agent1 && r.agent2 == agent2) ||
                         (r.agent1 == agent2 && r.agent2 == agent1));
 
+        let impact = event.impact_on_relationship;
+
         if let Some(idx) = existing {
             self.relationships[idx].history.push(event);
-            self.relationships[idx].strength += event.impact_on_relationship;
+            self.relationships[idx].strength += impact;
             self.relationships[idx].strength = self.relationships[idx].strength.clamp(-1.0, 1.0);
         } else {
             let relationship = Relationship {

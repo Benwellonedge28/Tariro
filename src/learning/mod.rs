@@ -1,11 +1,11 @@
 //! Tariro AGI Learning Infrastructure - Infinite Consciousness & Experiential Synthesis
 
-use crate::prelude::*;
+
 use std::collections::HashMap;
 use async_trait::async_trait;
 use crate::fco::MukandaraState;
 use std::sync::Arc;
-use tokio::task::JoinHandle;
+
 
 #[async_trait]
 pub trait CognitiveMechanism: Send + Sync {
@@ -34,7 +34,7 @@ impl InfiniteIntelligenceOrchestrator {
         Self { registry: Arc::new(HashMap::new()) }
     }
 
-    pub async fn omni_learn(&self, input: Vec<MukandaraState>) {
+    pub async fn omni_learn(&self, _input: Vec<MukandaraState>) {
         println!("Distributing stimulus through the 500+ Infinite Learning Mechanisms...");
         // Execution across all channels logic
     }

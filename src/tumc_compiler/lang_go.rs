@@ -485,7 +485,7 @@ impl GoLexer {
     }
 
     fn lex_operator(&self, pos: &mut usize) -> (Option<GoToken>, usize) {
-        let start = *pos;
+        let _start = *pos;
         let ch = self.source.as_bytes()[*pos];
 
         let token = match ch {
@@ -795,12 +795,12 @@ impl GoParser {
                 self.expect(&GoToken::LeftBracket)?;
                 let _ = self.parse_type()?;
                 self.expect(&GoToken::RightBracket)?;
-                let value_type = self.parse_type()?;
+                let _value_type = self.parse_type()?;
                 Ok(Type::Unknown) // Map type
             }
             GoToken::Chan => {
                 self.advance();
-                let value_type = self.parse_type()?;
+                let _value_type = self.parse_type()?;
                 Ok(Type::Unknown) // Channel type
             }
             GoToken::Func => {
@@ -932,7 +932,7 @@ impl GoParser {
             return Err(GoParseError::new("Expected variable name", self.pos));
         };
 
-        let var_type = if matches!(self.current(), GoToken::Ident(_)) && !self.check(&GoToken::Equal) &&
+        let _var_type = if matches!(self.current(), GoToken::Ident(_)) && !self.check(&GoToken::Equal) &&
                         !self.check(&GoToken::ColonEqual) {
             Some(self.parse_type()?)
         } else {
@@ -956,7 +956,7 @@ impl GoParser {
     fn parse_type_decl(&mut self) -> Result<Option<AstNode>, GoParseError> {
         self.advance(); // skip type
 
-        let name = if let GoToken::Ident(n) = self.current() {
+        let _name = if let GoToken::Ident(n) = self.current() {
             let n = n.clone();
             self.advance();
             n
@@ -967,13 +967,13 @@ impl GoParser {
         // Check if it's a type alias or definition
         if self.check(&GoToken::Equal) {
             self.advance();
-            let type_annotation = self.parse_type()?;
+            let _type_annotation = self.parse_type()?;
             // Type alias - could be represented differently
             return Ok(None);
         }
 
         // Type definition
-        let type_annotation = self.parse_type()?;
+        let _type_annotation = self.parse_type()?;
 
         Ok(None)
     }
@@ -1059,7 +1059,7 @@ impl GoParser {
 
                 if self.check(&GoToken::Equal) || self.check(&GoToken::ColonEqual) ||
                    self.check(&GoToken::PlusEqual) || self.check(&GoToken::MinusEqual) {
-                    let is_init = matches!(self.current(), GoToken::ColonEqual);
+                    let _is_init = matches!(self.current(), GoToken::ColonEqual);
                     self.advance();
                     let value = Box::new(self.parse_expression()?);
 
@@ -1081,7 +1081,7 @@ impl GoParser {
     fn parse_if(&mut self) -> Result<Option<AstNode>, GoParseError> {
         self.advance(); // skip if
 
-        let init = if self.check(&GoToken::Const) || self.check(&GoToken::Var) {
+        let _init = if self.check(&GoToken::Const) || self.check(&GoToken::Var) {
             match self.parse_statement()? {
                 Some(stmt) => Some(Box::new(stmt)),
                 None => None,
@@ -1198,7 +1198,7 @@ impl GoParser {
         self.advance(); // skip switch
         self.skip_newlines();
 
-        let init = if matches!(self.current(), GoToken::Ident(_)) && !self.check(&GoToken::Ident("".to_string())) {
+        let _init = if matches!(self.current(), GoToken::Ident(_)) && !self.check(&GoToken::Ident("".to_string())) {
             Some(Box::new(self.parse_simple_statement()?))
         } else {
             None
@@ -1275,10 +1275,10 @@ impl GoParser {
             if self.check(&GoToken::Case) {
                 self.advance();
                 // Parse send or receive
-                let comm = self.parse_send_or_recv()?;
+                let _comm = self.parse_send_or_recv()?;
 
                 self.expect(&GoToken::Colon)?;
-                let body = self.parse_block_stmts()?;
+                let _body = self.parse_block_stmts()?;
 
                 cases.push(AstNode::Block(vec![AstNode::ExpressionStatement(Box::new(
                     Expression::Call {
@@ -1708,7 +1708,7 @@ impl GoParser {
                 let params = self.parse_param_list()?;
                 self.expect(&GoToken::RightParen)?;
 
-                let return_type = if matches!(self.current(), GoToken::Ident(_)) {
+                let _return_type = if matches!(self.current(), GoToken::Ident(_)) {
                     Some(self.parse_type()?)
                 } else {
                     None
@@ -1733,7 +1733,7 @@ impl GoParser {
             }
             GoToken::Make => {
                 self.advance();
-                let type_info = self.parse_type()?;
+                let _type_info = self.parse_type()?;
                 // Simplified make() handling
                 Ok(Expression::Call {
                     function: Box::new(Expression::Identifier("make".to_string()).into()),
@@ -1742,7 +1742,7 @@ impl GoParser {
             }
             GoToken::New => {
                 self.advance();
-                let type_info = self.parse_type()?;
+                let _type_info = self.parse_type()?;
                 Ok(Expression::Call {
                     function: Box::new(Expression::Identifier("new".to_string()).into()),
                     arguments: vec![],

@@ -6,14 +6,13 @@
 //! the AGI system to manage its own management infrastructure, enabling
 //! self-optimizing, self-healing, and self-evolving administrative functions.
 
-use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
-use std::time::Duration;
+
 
 /// Meta-administration task that can be executed by the system
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -630,7 +629,7 @@ impl MetaAdminService {
         capabilities.insert(audit_cap.id.clone(), audit_cap);
     }
 
-    pub async fn create_task(&self, mut task: MetaAdminTask) -> Result<String, String> {
+    pub async fn create_task(&self, task: MetaAdminTask) -> Result<String, String> {
         let task_id = task.id.clone();
         let mut tasks = self.tasks.write().await;
         let scheduled = task.scheduled_at.is_some();
@@ -728,7 +727,7 @@ impl MetaAdminService {
         capabilities.values().cloned().collect()
     }
 
-    pub async fn create_policy(&self, mut policy: MetaAdminPolicy) -> Result<String, String> {
+    pub async fn create_policy(&self, policy: MetaAdminPolicy) -> Result<String, String> {
         let policy_id = policy.id.clone();
         let mut policies = self.policies.write().await;
         policies.insert(policy_id.clone(), policy);

@@ -340,7 +340,7 @@ impl ContinuousLearning {
         }]
     }
 
-    fn predict_retention(&self, knowledge: &str) -> f64 {
+    fn predict_retention(&self, _knowledge: &str) -> f64 {
         // Simple retention prediction
         let recency_factor = if self.learning_history.len() > 10 { 0.8 } else { 0.5 };
         recency_factor

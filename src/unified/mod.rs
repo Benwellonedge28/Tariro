@@ -56,12 +56,11 @@ pub use tariro_integration::{
     SystemStatus as IntegrationSystemStatus,
     SystemHealth,
     CapabilityProfile,
-    CapabilityLevel,
-};
+    CapabilityLevel};
 pub use engine_registry::{EngineMetadata, EngineCategory, EngineStatistics};
 
-use crate::tumc_compiler::ir::Module;
-use crate::tumc_compiler::optimization::OptLevel;
+
+
 use crate::tumc_compiler::agi_integration::{AgiInsight as TUMCAgiInsight, InsightType as TUMCInsightType};
 
 /// AGI Insight - Re-exported from TUMC-AGI integration layer

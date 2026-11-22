@@ -157,7 +157,7 @@ impl PhysicsEngine {
         };
 
         match (&body1.shape, &body2.shape) {
-            (BodyShape::Sphere { radius: r1 }, BodyShape::Sphere { radius: r2 }) => {
+            (BodyShape::Sphere { radius: _r1 }, BodyShape::Sphere { radius: _r2 }) => {
                 // Simplified: just check if they exist
                 true
             }
@@ -332,7 +332,7 @@ impl SocialDynamicsEngine {
         interaction
     }
 
-    fn compute_interaction_outcomes(&self, agent1_id: &str, agent2_id: &str, interaction_type: &InteractionType) -> HashMap<String, f64> {
+    fn compute_interaction_outcomes(&self, agent1_id: &str, agent2_id: &str, _interaction_type: &InteractionType) -> HashMap<String, f64> {
         let mut outcomes = HashMap::new();
 
         let p1 = self.agents.get(agent1_id).map(|a| &a.personality);
@@ -699,7 +699,7 @@ impl PlanningHorizon {
     }
 
     /// Plan optimal sequence of actions using MCTS-like approach
-    pub fn plan(&self, initial_state: &WorldState, goal_state: &WorldState, max_depth: u32) -> ActionPlan {
+    pub fn plan(&self, _initial_state: &WorldState, _goal_state: &WorldState, max_depth: u32) -> ActionPlan {
         let mut best_plan = ActionPlan {
             actions: Vec::new(),
             expected_outcome: 0.0,
@@ -818,7 +818,7 @@ impl WorldModel {
     pub fn add_entity(&mut self, entity: WorldEntity) {
         let entity_id = entity.id.clone();
         let entity_type = entity.entity_type;
-        let position = entity.position;
+        let position = entity.position.clone();
         let name = entity.id.clone();
 
         self.entities.insert(entity_id.clone(), entity.clone());
@@ -900,7 +900,7 @@ impl WorldModel {
         }
 
         // Predict social changes
-        for (id, agent) in &self.social.agents {
+        for (id, _agent) in &self.social.agents {
             let behaviors = self.social.predict_behavior(id, action);
             for behavior in behaviors {
                 predicted_changes.push(StateChange {
@@ -926,8 +926,7 @@ impl WorldModel {
                 format!("Action '{}' will cause state transitions", action),
                 "Physical entities will update positions".to_string(),
                 "Social agents may modify relationships".to_string(),
-            ],
-        }
+            ]}
     }
 
     /// Query the world model

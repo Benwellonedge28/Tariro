@@ -1,7 +1,6 @@
 // Tariro AGI - Consciousness Engine Module
 // Self-awareness and consciousness simulation
 
-use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};

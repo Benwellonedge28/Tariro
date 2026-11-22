@@ -1,7 +1,6 @@
 //! WASM code generation for TUMC compiler
 //! Generates WebAssembly bytecode from parsed and type-checked AST
 
-use crate::prelude::*;
 use super::ast::{self, *};
 use super::type_checker::{Type, TypeEnv};
 use super::optimizer::OptimizationLevel;
@@ -390,7 +389,7 @@ impl CodeGen {
     /// Collect type signature
     fn collect_type_signature(&mut self, func: &Function) {
         let params: Vec<WasmType> = func.params.iter()
-            .filter_map(|p| WasmType::from_tumc(&Type::Int)) // Simplified
+            .filter_map(|_p| WasmType::from_tumc(&Type::Int)) // Simplified
             .collect();
 
         let result: Vec<WasmType> = match &func.return_type {
@@ -654,7 +653,7 @@ impl CodeGen {
             }
 
             StmtKind::Loop(body) => {
-                let loop_label = self.next_label;
+                let _loop_label = self.next_label;
                 self.next_label += 1;
 
                 instrs.push(WasmInstruction::Loop(WasmType::Empty, vec![]));
@@ -733,7 +732,7 @@ impl CodeGen {
     }
 
     /// Generate expression to specific instruction list
-    fn generate_expression_to(&self, expr: &Expr, instrs: &mut Vec<WasmInstruction>) -> Result<WasmInstruction, String> {
+    fn generate_expression_to(&self, _expr: &Expr, _instrs: &mut Vec<WasmInstruction>) -> Result<WasmInstruction, String> {
         // This is a helper - actual generation happens in generate_expression
         Ok(WasmInstruction::Nop)
     }
@@ -781,16 +780,16 @@ impl CodeGen {
             ExprKind::If { condition, then_block, else_expr } => {
                 self.generate_expression(condition, instrs)?;
 
-                let mut then_instrs = vec![];
-                let mut else_instrs = vec![];
+                let then_instrs = vec![];
+                let else_instrs = vec![];
 
-                for (pat, body) in then_block {
+                for (_pat, body) in then_block {
                     for stmt in body {
                         self.generate_statement(stmt)?;
                     }
                 }
 
-                if let Some((pat, else_body)) = else_expr {
+                if let Some((_pat, else_body)) = else_expr {
                     for stmt in else_body {
                         self.generate_statement(stmt)?;
                     }
@@ -840,7 +839,7 @@ impl CodeGen {
             Literal::Float(f) => instrs.push(WasmInstruction::F64Const(*f)),
             Literal::Bool(b) => instrs.push(WasmInstruction::I32Const(if *b { 1 } else { 0 })),
             Literal::Char(c) => instrs.push(WasmInstruction::I32Const(*c as i32)),
-            Literal::String(s) => {
+            Literal::String(_s) => {
                 // For strings, we'd typically allocate and copy
                 // Simplified: push address of string constant
                 instrs.push(WasmInstruction::I32Const(0));
@@ -1063,7 +1062,7 @@ impl CodeGen {
             WasmInstruction::Br(label) => format!("br {}", label),
             WasmInstruction::BrIf(label) => format!("br_if {}", label),
             WasmInstruction::Call(idx) => format!("call {}", idx),
-            WasmInstruction::CallIndirect(type_idx, table_idx) => {
+            WasmInstruction::CallIndirect(type_idx, _table_idx) => {
                 format!("call_indirect (type {})", type_idx)
             }
             WasmInstruction::End => "end".to_string(),

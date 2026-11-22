@@ -699,7 +699,7 @@ impl MotivationSystem {
         }
     }
 
-    fn satisfy_drive_for_goal(&mut self, goal_id: &GoalId) {
+    fn satisfy_drive_for_goal(&mut self, _goal_id: &GoalId) {
         // Satisfy competence/mastery drives when goals completed
         for drive in self.secondary_drives.values_mut() {
             if matches!(drive.drive_type, DriveType::Competence | DriveType::Mastery) {

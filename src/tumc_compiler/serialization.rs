@@ -435,14 +435,14 @@ impl Serializer for JsonSerializer {
         Ok(())
     }
 
-    fn serialize_seq(&mut self, len: usize) -> Result<SeqSerializer<'_, Self>, SerialError> {
+    fn serialize_seq(&mut self, _len: usize) -> Result<SeqSerializer<'_, Self>, SerialError> {
         self.buffer.push('[');
         self.newline();
         self.indent += 1;
         Ok(SeqSerializer { serializer: self })
     }
 
-    fn serialize_map(&mut self, len: usize) -> Result<MapSerializer<'_, Self>, SerialError> {
+    fn serialize_map(&mut self, _len: usize) -> Result<MapSerializer<'_, Self>, SerialError> {
         self.buffer.push('{');
         self.newline();
         self.indent += 1;

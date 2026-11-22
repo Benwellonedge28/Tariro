@@ -1,8 +1,8 @@
 //! DWARF Debug Information Generation for TUMC
 //! Generates DWARF format debug info for debugging support
 
-use crate::prelude::*;
-use super::ast::*;
+
+
 use std::collections::{HashMap, HashSet};
 
 /// DWARF version
@@ -391,7 +391,7 @@ pub enum LocationOp {
     /// Read memory
     Fbreg(i64),
     /// Frame base register
-   breg(u8, i64),
+   Breg(u8, i64),
     /// Register
     Reg(u8),
     /// Register based
@@ -904,7 +904,7 @@ impl DwarfGenerator {
     }
 
     /// Add string to string table
-    pub fn add_string(&mut self, s: &str) -> u64 {
+    pub fn add_string(&mut self, _s: &str) -> u64 {
         let offset = self.strings.len() as u64;
         offset
     }
@@ -982,7 +982,7 @@ impl DwarfGenerator {
             match value {
                 DieAttribute::Addr(v) => bytes.extend_from_slice(&v.to_le_bytes()),
                 DieAttribute::Data(v) => bytes.extend_from_slice(&encode_uleb128(*v)),
-                DieAttribute::String(s) => {
+                DieAttribute::String(_s) => {
                     bytes.push(0); // null-terminated
                 }
                 DieAttribute::Ref(v) => bytes.extend_from_slice(&v.to_le_bytes()),
@@ -1017,7 +1017,7 @@ impl DwarfGenerator {
         let mut bytes = Vec::new();
 
         // Unit header
-        let mut unit_start = bytes.len();
+        let unit_start = bytes.len();
 
         // Unit length (placeholder)
         bytes.extend_from_slice(&0u32.to_le_bytes());
@@ -1059,7 +1059,7 @@ impl DwarfGenerator {
         bytes.push(0);
 
         // File names
-        for (i, file) in self.source_files.iter().enumerate() {
+        for (_i, file) in self.source_files.iter().enumerate() {
             // File name
             bytes.extend_from_slice(file.name.as_bytes());
             bytes.push(0);

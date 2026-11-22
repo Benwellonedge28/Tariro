@@ -53,13 +53,13 @@ impl LexerPropertyTest {
     /// Property: lexer should not panic on any input
     pub fn lexer_never_panics(&self, iterations: usize) -> FuzzResult {
         let mut rng = rand::thread_rng();
-        let mut failures = Vec::new();
+        let failures = Vec::new();
 
-        for i in 0..iterations {
+        for _i in 0..iterations {
             let source = self.generate_source(&mut rng);
             let lexer = lexer::Lexer::new(&source);
             match lexer.tokenize() {
-                Ok(tokens) => {
+                Ok(_tokens) => {
                     // Tokenization succeeded
                 }
                 Err(_) => {
@@ -93,7 +93,7 @@ impl ParserPropertyTest {
     /// Property: parser should handle valid token sequences
     pub fn parser_handles_valid_tokens(&self, iterations: usize) -> FuzzResult {
         let mut rng = rand::thread_rng();
-        let mut failures = Vec::new();
+        let failures = Vec::new();
 
         for i in 0..iterations {
             // Generate random but valid-ish tokens
@@ -266,9 +266,9 @@ pub struct OptimizerPropertyTest;
 impl OptimizerPropertyTest {
     /// Property: optimization should preserve semantics
     pub fn optimization_preserves_semantics(&self, iterations: usize) -> Vec<PropertyFailure> {
-        let mut failures = Vec::new();
+        let failures = Vec::new();
 
-        for i in 0..iterations {
+        for _i in 0..iterations {
             // Generate simple expressions that should optimize
             let sources = vec![
                 "let x = 2 + 3;",
@@ -300,7 +300,7 @@ pub struct CodegenPropertyTest;
 impl CodegenPropertyTest {
     /// Property: code generation should not crash on valid AST
     pub fn codegen_never_panics(&self, iterations: usize) -> FuzzResult {
-        let mut failures = Vec::new();
+        let failures = Vec::new();
 
         for i in 0..iterations {
             let source = format!("fn test_{}() -> i32 {{ {} }}", i, i);
@@ -529,7 +529,7 @@ impl DifferentialTester {
                         });
                     }
                 }
-                (Err(ref_err), Err(_)) => {
+                (Err(_ref_err), Err(_)) => {
                     // Both failed - acceptable
                 }
                 (Ok(_), Err(cand_err)) => {

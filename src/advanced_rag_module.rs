@@ -6,12 +6,12 @@
 /// synthesis of information. This includes dynamic context window management,
 /// semantic chunking, and knowledge graph integration for richer augmentations.
 
-use crate::prelude::*;
+
 use std::collections::{HashMap, HashSet};
-use std::fmt;
-use std::thread;
-use std::time::Duration;
-use rand::Rng;
+
+
+
+
 
 /// Represents a semantically meaningful block of information.
 #[derive(Debug, Clone, PartialEq)]
@@ -59,7 +59,7 @@ impl KnowledgeGraph {
         let mut results = Vec::new();
         let mut current_level = vec![start_node_id.to_string()];
 
-        for h in 0..hops {
+        for _h in 0..hops {
             let mut next_level = Vec::new();
             for node_id in current_level {
                 if visited.contains(&node_id) { continue; }
@@ -67,7 +67,7 @@ impl KnowledgeGraph {
                 if let Some(label) = self.nodes.get(&node_id) { results.push(format!("({}: {})", node_id, label)); }
 
                 if let Some(connections) = self.edges.get(&node_id) {
-                    for (target_id, rel) in connections {
+                    for (target_id, _rel) in connections {
                         if !visited.contains(target_id) {
                             next_level.push(target_id.clone());
                             // results.push(format!("({} -> {} -> {})", node_id, rel, target_id));

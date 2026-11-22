@@ -1,6 +1,6 @@
 // Quantum Dialect - Quantum Circuit Operations
 
-use crate::tumc_compiler::ir::*;
+
 use super::*;
 
 /// Quantum dialect operations
@@ -211,7 +211,7 @@ impl QuantumState {
         let result = rand::random::<f64>() < prob_zero;
 
         // Collapse state
-        let mask = !(1 << qubit.0);
+        let _mask = !(1 << qubit.0);
         let target = if result { 0 } else { 1 << qubit.0 };
 
         let mut norm = 0.0;
@@ -334,7 +334,7 @@ impl Dialect for QuantumDialect {
     }
 
     fn to_standard(&self) -> Result<Module, DialectError> {
-        let mut module = Module::new("quantum_conversion");
+        let module = Module::new("quantum_conversion");
         // Would convert quantum operations to standard IR
         Ok(module)
     }
@@ -360,7 +360,7 @@ impl QuantumDialect {
         }
     }
 
-    pub fn allocate(&mut self, name: String) -> QubitId {
+    pub fn allocate(&mut self, _name: String) -> QubitId {
         // Update state
         if let Some(ref mut state) = self.state {
             // Add new qubit (expand state)

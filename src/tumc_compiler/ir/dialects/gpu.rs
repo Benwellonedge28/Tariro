@@ -1,6 +1,6 @@
 // GPU Dialect - GPU Kernel Operations
 
-use crate::tumc_compiler::ir::*;
+
 use super::*;
 
 /// GPU dialect operations

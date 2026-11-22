@@ -5,9 +5,9 @@
 /// over time, improving its relevance, quality, and impact (RAG: evolutionary algorithms, user feedback analysis,
 /// environmental dynamics; SIMD: parallel evaluation of content variants, adaptive model training).
 
-use crate::prelude::*;
+
 use std::collections::HashMap;
-use std::fmt;
+
 use std::thread;
 use std::time::Duration;
 use rand::Rng;
@@ -54,14 +54,14 @@ pub struct EvolutionReport {
 
 // --- AGCAE Engine --- //
 
-pub struct AGCAE_Engine {
+pub struct AgcaeEngine {
     pub content_variants: HashMap<String, ContentVariant>,
     pub evolutionary_algorithms_rag_db: HashMap<String, String>, // Conceptual: RAG for evolutionary algorithms
     pub user_feedback_analysis_rag_db: HashMap<String, String>, // Conceptual: RAG for user feedback analysis
     pub environmental_dynamics_rag_db: HashMap<String, String>, // Conceptual: RAG for environmental dynamics
 }
 
-impl AGCAE_Engine {
+impl AgcaeEngine {
     pub fn new() -> Self {
         let mut ea_db = HashMap::new();
         ea_db.insert("Genetic_Algorithms_for_Design".to_string(), "Research on using GAs to optimize artistic designs and creative outputs.".to_string());
@@ -74,7 +74,7 @@ impl AGCAE_Engine {
         let mut ed_db = HashMap::new();
         ed_db.insert("Trend_Prediction_Models".to_string(), "Models for forecasting emerging topics and shifts in public interest.".to_string());
 
-        AGCAE_Engine { content_variants: HashMap::new(), evolutionary_algorithms_rag_db: ea_db, user_feedback_analysis_rag_db: ufa_db, environmental_dynamics_rag_db: ed_db }
+        AgcaeEngine { content_variants: HashMap::new(), evolutionary_algorithms_rag_db: ea_db, user_feedback_analysis_rag_db: ufa_db, environmental_dynamics_rag_db: ed_db }
     }
 
     /// Simulates collecting user feedback for generated content.
@@ -138,7 +138,7 @@ mod tests {
 
     #[test]
     fn test_agcae_engine_flow() {
-        let mut engine = AGCAE_Engine::new();
+        let mut engine = AgcaeEngine::new();
         let initial_variant = ContentVariant { id: "v1".to_string(), content_type: "story".to_string(), data_hash: "abc".to_string(), generation_parameters: HashMap::new(), performance_score: 0.7 };
         engine.content_variants.insert(initial_variant.id.clone(), initial_variant.clone());
 
@@ -160,7 +160,7 @@ mod tests {
 fn main() {
     println!("\n--- Autonomous Generative Content Adaptation & Evolution (AGCAE) Demonstration ---");
 
-    let mut agcae_engine = AGCAE_Engine::new();
+    let mut agcae_engine = AgcaeEngine::new();
 
     // Initial content variant
     let initial_story = ContentVariant {

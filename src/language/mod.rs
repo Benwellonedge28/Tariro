@@ -9,7 +9,7 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
 use tokio::sync::RwLock;
 use uuid::Uuid;
-use chrono::Utc;
+
 
 // ============================================================================
 // Core Types
@@ -968,7 +968,7 @@ impl TextGenerator {
             })
             .unwrap_or_else(|| "it".to_string());
 
-        let object = args.get(1).map(|a| match a {
+        let _object = args.get(1).map(|a| match a {
             MeaningArgument::Individual(name) => name.clone(),
             MeaningArgument::Variable(var) => var.clone(),
             _ => "something".to_string(),

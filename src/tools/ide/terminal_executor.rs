@@ -4,7 +4,7 @@
 
 use std::process::{Command, Stdio};
 use std::path::Path;
-use std::io::Read;
+
 
 /// Command execution result
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]

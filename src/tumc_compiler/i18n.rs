@@ -421,8 +421,7 @@ impl DateTime {
             day: 1,
             hour: ((secs / 3600) % 24) as u8,
             minute: ((secs / 60) % 60) as u8,
-            second: (secs % 60) as u8,
-        }
+            second: (secs % 60) as u8}
     }
 }
 
@@ -431,20 +430,18 @@ pub struct MessageCatalog {
     /// Messages by locale
     messages: HashMap<String, TranslationMap>,
     /// Current locale
-    current: Locale,
-}
+    current: Locale}
 
 impl MessageCatalog {
     /// Create new catalog
     pub fn new() -> Self {
         Self {
             messages: HashMap::new(),
-            current: Locale::default(),
-        }
+            current: Locale::default()}
     }
 
     /// Load from JSON
-    pub fn load_json(&mut self, locale: &Locale, json: &str) -> Result<(), ParseError> {
+    pub fn load_json(&mut self, locale: &Locale, _json: &str) -> Result<(), ParseError> {
         // Simplified JSON parsing
         let map = TranslationMap::new();
         self.messages.insert(locale.to_tag(), map);

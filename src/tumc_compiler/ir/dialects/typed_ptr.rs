@@ -1,6 +1,6 @@
 // Typed Pointer Dialect
 
-use crate::tumc_compiler::ir::*;
+
 use super::*;
 
 /// Typed pointer operations
@@ -64,7 +64,7 @@ impl Dialect for TypedPtrDialect {
                         ty.clone(),
                     ));
                 }
-                TypedPtrOp::TypedStore(ptr, val, ty) => {
+                TypedPtrOp::TypedStore(ptr, val, _ty) => {
                     func.body[0].instructions.push(Instruction::new(
                         Operation::Store(MemOp::Store, *ptr, *val, MemoryOrdering::NotAtomic),
                         IrType::Void,

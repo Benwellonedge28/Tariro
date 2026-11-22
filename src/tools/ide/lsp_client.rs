@@ -114,7 +114,7 @@ impl LSPClient {
     }
 
     /// Get completions at a position
-    pub fn get_completions(&mut self, path: &str, position: (u32, u32)) -> Result<Vec<CompletionItem>, String> {
+    pub fn get_completions(&mut self, path: &str, _position: (u32, u32)) -> Result<Vec<CompletionItem>, String> {
         // Simulated completions based on path extension
         let items = match path.rsplit('.').next().unwrap_or("") {
             "rs" => vec![
@@ -179,7 +179,7 @@ impl LSPClient {
     }
 
     /// Get diagnostics for a file
-    pub fn get_diagnostics(&mut self, path: &str) -> Result<Vec<Diagnostic>, String> {
+    pub fn get_diagnostics(&mut self, _path: &str) -> Result<Vec<Diagnostic>, String> {
         // In a real implementation, this would communicate with the LSP server
         // For now, return an empty list as we don't have an active server
         Ok(Vec::new())

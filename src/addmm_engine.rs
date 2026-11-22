@@ -5,9 +5,9 @@
 /// and drug-target interaction analyses. It leverages RAG for chemical databases and biological pathways,
 /// and SIMD for parallel force field calculations.
 
-use crate::prelude::*;
+
 use std::collections::HashMap;
-use std::fmt;
+
 use std::thread;
 use std::time::Duration;
 use rand::Rng;
@@ -65,7 +65,7 @@ pub struct DrugTargetInteractionResult {
 
 /// Overall ADDMM system report.
 #[derive(Debug, Clone)]
-pub struct ADDMM_Report {
+pub struct AddmmReport {
     pub addmm_run_id: String,
     pub molecules_screened: u64,
     pub proteins_modeled: u64,
@@ -77,18 +77,18 @@ pub struct ADDMM_Report {
 
 // --- ADDMM Engine --- //
 
-pub struct ADDMM_Engine {
+pub struct AddmmEngine {
     pub chemical_databases_biological_pathways_rag_db: HashMap<String, String>, // Conceptual: RAG for chemical databases and biological pathways
     pub parallel_force_field_calculations_simd_accelerator: String, // Conceptual: SIMD for parallel force field calculations
 }
 
-impl ADDMM_Engine {
+impl AddmmEngine {
     pub fn new() -> Self {
         let mut cdbp_db = HashMap::new();
         cdbp_db.insert("ChEMBL_Database_Extract".to_string(), "Extracts from ChEMBL, a large-scale bioactivity database, providing information on drug-like properties, chemical structures, and assay results. Used to inform drug candidate selection.".to_string());
         cdbp_db.insert("KEGG_Pathway_Database".to_string(), "Data from KEGG (Kyoto Encyclopedia of Genes and Genomes) detailing metabolic and signaling pathways. Used to understand biological context of drug targets and potential off-target effects.".to_string());
 
-        ADDMM_Engine {
+        AddmmEngine {
             chemical_databases_biological_pathways_rag_db: cdbp_db,
             parallel_force_field_calculations_simd_accelerator: "SIMD_Molecular_FF_Calc_v1.0".to_string(),
         }
@@ -117,7 +117,7 @@ impl ADDMM_Engine {
     }
 
     /// Performs parallel force field calculations for molecular dynamics (conceptual SIMD).
-    pub fn perform_parallel_force_field_calculations_simd(&self, molecule: &Molecule, protein: &Protein, force_field: &ForceField) -> Vec<f32> {
+    pub fn perform_parallel_force_field_calculations_simd(&self, molecule: &Molecule, protein: &Protein, _force_field: &ForceField) -> Vec<f32> {
         println!("  [ADDMM]: Performing parallel force field calculations for molecule '{}' and protein '{}' using {} (SIMD acceleration).", molecule.molecule_id, protein.protein_id, self.parallel_force_field_calculations_simd_accelerator);
         thread::sleep(Duration::from_millis(150));
         let mut rng = rand::thread_rng();
@@ -128,7 +128,7 @@ impl ADDMM_Engine {
     }
 
     /// Runs a molecular dynamics simulation (conceptual SIMD).
-    pub fn run_molecular_dynamics_simulation_simd(&self, molecule: &Molecule, force_field: &ForceField, time_steps: u32, temperature_k: f32) -> MolecularDynamicsSimulation {
+    pub fn run_molecular_dynamics_simulation_simd(&self, molecule: &Molecule, _force_field: &ForceField, time_steps: u32, temperature_k: f32) -> MolecularDynamicsSimulation {
         println!("  [ADDMM]: Running molecular dynamics simulation for molecule '{}' over {} time steps at {}K (SIMD for parallel MD).", molecule.molecule_id, time_steps, temperature_k);
         thread::sleep(Duration::from_millis(250));
         let mut rng = rand::thread_rng();
@@ -189,7 +189,7 @@ mod tests {
 
     #[test]
     fn test_addmm_engine_flow() {
-        let engine = ADDMM_Engine::new();
+        let engine = AddmmEngine::new();
 
         let (mol, prot) = engine.load_molecular_data("CC(=O)Oc1ccccc1C(=O)O", "1A07"); // Aspirin, Cytochrome C
         assert!(!mol.atomic_coordinates.is_empty());
@@ -212,7 +212,7 @@ mod tests {
 fn main() {
     println!("\n--- Accelerated Drug Discovery & Molecular Modeling (ADDMM) Demonstration ---");
 
-    let addmm_engine = ADDMM_Engine::new();
+    let addmm_engine = AddmmEngine::new();
 
     // Scenario 1: Load molecular data
     println!("--- Scenario 1: Load Molecular Data ---");

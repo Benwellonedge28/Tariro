@@ -741,9 +741,7 @@ impl EdgeCloudSync {
                 }
             }
             ConflictStrategy::Manual => Err(SyncError::ConflictRequiresManualResolution {
-                conflict_id: conflict.id,
-            }),
-        }
+                conflict_id: conflict.id})}
     }
 
     /// Aggregate local knowledge (for edge/cloud)
@@ -773,7 +771,7 @@ impl EdgeCloudSync {
     }
 
     /// Pull from endpoint
-    async fn pull_from(&mut self, endpoint_id: NodeId) -> Result<Option<KnowledgeDelta>, SyncError> {
+    async fn pull_from(&mut self, _endpoint_id: NodeId) -> Result<Option<KnowledgeDelta>, SyncError> {
         // Simplified - would use actual network call
         Ok(None)
     }

@@ -1,4 +1,4 @@
-use crate::prelude::*;
+
 pub struct MetaGrammarEngine;
 
 impl MetaGrammarEngine {
@@ -44,7 +44,7 @@ impl MetaGrammarEngine {
 
     /// Allows for dynamic, autonomous integration of new linguistic constructs, domain-specific
     /// grammar rules, or entirely new language specifications into the Universal Grammar.
-    pub fn integrate_new_rules(&self, new_rules_specification: &str) {
+    pub fn integrate_new_rules(&self, _new_rules_specification: &str) {
         println!("TUMC: MetaGrammarEngine - Integrating new grammar rules/specification.");
         // 1. Validate the new specification for internal consistency and compliance with universal grammar meta-rules.
         // 2. Seamlessly merge the new rules into the Universal Grammar hierarchy, ensuring no conflicts.

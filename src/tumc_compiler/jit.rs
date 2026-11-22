@@ -3,7 +3,7 @@
 //! Just-In-Time compilation for high-performance execution of TUMC programs.
 
 use std::collections::HashMap;
-use std::sync::Arc;
+
 
 use super::ast;
 use crate::tumc_compiler::OptimizationLevel;
@@ -299,7 +299,7 @@ impl Interpreter {
     }
 
     /// Execute function
-    pub fn execute(&mut self, func_name: &str, args: &[Value]) -> Result<Value, JitError> {
+    pub fn execute(&mut self, func_name: &str, _args: &[Value]) -> Result<Value, JitError> {
         *self.call_counts.entry(func_name.to_string()).or_insert(0) += 1;
         // Simplified execution
         Ok(Value::Int(42))
@@ -321,7 +321,7 @@ impl BaselineCompiler {
     }
 
     /// Compile function
-    pub fn compile(&self, func_name: &str, ast: &ast::Program) -> Result<Vec<u8>, JitError> {
+    pub fn compile(&self, _func_name: &str, _ast: &ast::Program) -> Result<Vec<u8>, JitError> {
         // Simplified baseline compilation
         Ok(vec![0xC3]) // ret
     }
@@ -337,7 +337,7 @@ impl OptimizingCompiler {
     }
 
     /// Compile function
-    pub fn compile(&self, func_name: &str, ast: &ast::Program) -> Result<Vec<u8>, JitError> {
+    pub fn compile(&self, _func_name: &str, _ast: &ast::Program) -> Result<Vec<u8>, JitError> {
         // Simplified optimized compilation
         Ok(vec![0xC3]) // ret
     }

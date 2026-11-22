@@ -1,7 +1,7 @@
 // Tariro AGI - Goal Generation Module
 // Autonomous goal self-generation and management
 
-use crate::prelude::*;
+
 use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
 use std::time::Duration;
@@ -558,7 +558,7 @@ impl GoalGeneration {
     }
 
     /// Abandon a goal
-    pub fn abandon_goal(&mut self, goal_id: &str, reason: &str) -> bool {
+    pub fn abandon_goal(&mut self, goal_id: &str, _reason: &str) -> bool {
         if self.config.allow_goal_abandonment {
             if let Some(goal) = self.goals.iter_mut().find(|g| g.goal_id == goal_id) {
                 goal.status = GoalStatus::Abandoned;

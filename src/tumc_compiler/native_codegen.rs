@@ -1,7 +1,7 @@
 //! Native code generation for x86_64 and AArch64
 //! Generates machine code for native execution
 
-use crate::prelude::*;
+
 use super::ast::*;
 use std::collections::HashMap;
 use std::fmt;
@@ -504,7 +504,7 @@ impl NativeCodegen {
             StmtKind::Expr(expr) => {
                 self.compile_expr(expr, func)?;
             }
-            StmtKind::Let(pattern, _, value, body) => {
+            StmtKind::Let(_pattern, _, value, body) => {
                 if let Some(val) = value {
                     self.compile_expr(val, func)?;
                 }
@@ -606,7 +606,7 @@ impl NativeCodegen {
     }
 
     /// Emit load variable
-    fn emit_load_var(&self, name: &str, func: &mut NativeFunction) {
+    fn emit_load_var(&self, _name: &str, func: &mut NativeFunction) {
         match self.target.arch {
             Arch::X86_64 => {
                 func.instructions.push(CompiledInst {
@@ -895,7 +895,7 @@ impl NativeCodegen {
         let mut bytes = vec![];
 
         let (mod_, rm, reg) = match src {
-            Operand::Reg(Register::X86_64(r)) => (0xC0, self.x86_reg_num(src), self.x86_reg_num(&Operand::Reg(Register::X86_64(dest)))),
+            Operand::Reg(Register::X86_64(_r)) => (0xC0, self.x86_reg_num(src), self.x86_reg_num(&Operand::Reg(Register::X86_64(dest)))),
             Operand::Imm(_) => (0xC0, self.x86_reg_num(&Operand::Reg(Register::X86_64(dest))), 0),
             _ => (0x00, 0x00, 0x00),
         };

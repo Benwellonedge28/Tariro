@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BinaryHeap, HashMap, HashSet};
 use std::cmp::Ordering;
 use uuid::Uuid;
-use chrono::Utc;
+
 
 // ============================================================================
 // Core Types
@@ -891,7 +891,7 @@ impl MCTSPlanner {
                 let mut new_state = node.state.clone();
                 new_state.apply_effects(effects);
 
-                let new_node = MCTSNode::child(new_state, node, action);
+                let _new_node = MCTSNode::child(new_state, node, action);
                 // Note: In actual implementation, we'd need mutable access
                 return node;
             }

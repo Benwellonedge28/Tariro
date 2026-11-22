@@ -1,7 +1,7 @@
 // Tariro AGI - Few-Shot Learning Module
 // Learning from few examples
 
-use crate::prelude::*;
+
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::cmp::Ordering;
@@ -599,7 +599,7 @@ impl MatchingNetworks {
     pub fn new() -> Self {
         Self {
             embedding_fn: Box::new(|x| x.to_vec()),
-            attention_fn: |query, supports, dist| {
+            attention_fn: |query, supports, _dist| {
                 let mut attention = Vec::new();
                 for support in supports {
                     let d = Self::euclidean_distance(query, support);
@@ -644,7 +644,7 @@ impl MatchingNetworks {
         let total: f32 = class_weights.values().map(|(w, _)| w).sum();
 
         class_weights.iter()
-            .map(|(k, (w, c))| (k.clone(), w / total))
+            .map(|(k, (w, _c))| (k.clone(), w / total))
             .collect()
     }
 

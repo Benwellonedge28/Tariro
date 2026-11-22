@@ -10,7 +10,7 @@
 
 use crate::prelude::*;
 use std::collections::HashMap;
-use std::fmt;
+
 use std::thread;
 use std::time::Duration;
 use rand::Rng;
@@ -62,7 +62,7 @@ pub struct PolicyEvaluation {
 
 /// Overall Ethical & Regulatory Compliance system report.
 #[derive(Debug, Clone)]
-pub struct AERC_Report {
+pub struct AercReport {
     pub report_id: String,
     pub total_audits_performed: u64,
     pub total_violations_identified: u64,

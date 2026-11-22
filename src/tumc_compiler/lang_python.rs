@@ -3,8 +3,7 @@
 //! Transpiles Python source code to TUMC IR for compilation to any target.
 
 use crate::tumc_compiler::frontend::{
-    AstNode, Class, Expression, Function, Param, Program, Statement,
-};
+    AstNode, Class, Expression, Function, Param, Program, Statement};
 use crate::tumc_compiler::Type;
 use std::collections::HashMap;
 
@@ -233,8 +232,7 @@ pub enum Token {
     Yield,
 
     // Walrus operator
-    Walrus,
-}
+    Walrus}
 
 impl PythonParser {
     /// Create new Python parser
@@ -596,7 +594,7 @@ impl PythonParser {
             self.advance();
             let elif_cond = Box::new(self.parse_expression()?);
             self.expect(&Token::Colon)?;
-            let elif_body = self.parse_block()?;
+            let _elif_body = self.parse_block()?;
 
             else_branch = vec![AstNode::If {
                 condition: elif_cond,
@@ -1499,7 +1497,7 @@ impl PythonLexer {
     /// Lex string literal
     fn lex_string(&self, source: &str, pos: usize) -> Result<(Option<Token>, usize), LexerError> {
         let p = pos;
-        let ch = source.as_bytes()[p];
+        let _ch = source.as_bytes()[p];
 
         // Determine quote type
         let is_triple = if source[p..].starts_with("'''") || source[p..].starts_with("\"\"\"") {
@@ -1539,7 +1537,7 @@ impl PythonLexer {
     /// Lex bytes literal
     fn lex_bytes(&self, source: &str, pos: usize) -> Result<(Option<Token>, usize), LexerError> {
         let p = pos + 2;
-        let ch = source.as_bytes()[p];
+        let _ch = source.as_bytes()[p];
         let quote = &source[pos + 1..pos + 2];
 
         let mut end = p + 1;

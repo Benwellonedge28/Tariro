@@ -10,7 +10,7 @@ impl OptimizationPass for GlobalValueNumbering {
         "gvn"
     }
 
-    fn run(&self, module: &mut Module) -> bool {
+    fn run(&self, _module: &mut Module) -> bool {
         false
     }
 
@@ -31,7 +31,7 @@ impl OptimizationPass for CopyPropagation {
         let mut changed = false;
 
         for func in &mut module.functions {
-            let cfg = ControlFlowGraph::from_function(func);
+            let _cfg = ControlFlowGraph::from_function(func);
 
             // Build copy table
             let mut copies: HashMap<ValueId, ValueId> = HashMap::new();
@@ -170,7 +170,7 @@ impl OptimizationPass for AggressiveDeadCodeElimination {
         "adce"
     }
 
-    fn run(&self, module: &mut Module) -> bool {
+    fn run(&self, _module: &mut Module) -> bool {
         false
     }
 
@@ -187,7 +187,7 @@ impl OptimizationPass for SpeculativeExecution {
         "spec-exec"
     }
 
-    fn run(&self, module: &mut Module) -> bool {
+    fn run(&self, _module: &mut Module) -> bool {
         false
     }
 
@@ -204,7 +204,7 @@ impl OptimizationPass for PartialRedundancyElimination {
         "pre"
     }
 
-    fn run(&self, module: &mut Module) -> bool {
+    fn run(&self, _module: &mut Module) -> bool {
         false
     }
 
@@ -226,7 +226,7 @@ impl OptimizationPass for TailCallOptimization {
 
         for func in &mut module.functions {
             for block in &mut func.body {
-                if let Terminator::Ret(Some(val)) = &block.terminator {
+                if let Terminator::Ret(Some(_val)) = &block.terminator {
                     // Check if this is a tail call
                     // Would convert to tail call instruction
                     converted += 1;
@@ -250,7 +250,7 @@ impl OptimizationPass for ReturnValueOptimization {
         "rvo"
     }
 
-    fn run(&self, module: &mut Module) -> bool {
+    fn run(&self, _module: &mut Module) -> bool {
         false
     }
 
@@ -267,7 +267,7 @@ impl OptimizationPass for MergeFunctions {
         "mergefunc"
     }
 
-    fn run(&self, module: &mut Module) -> bool {
+    fn run(&self, _module: &mut Module) -> bool {
         false
     }
 
@@ -328,7 +328,7 @@ impl OptimizationPass for Devirtualization {
         "devirt"
     }
 
-    fn run(&self, module: &mut Module) -> bool {
+    fn run(&self, _module: &mut Module) -> bool {
         false
     }
 
@@ -345,7 +345,7 @@ impl OptimizationPass for ArgumentPromotion {
         "argpromotion"
     }
 
-    fn run(&self, module: &mut Module) -> bool {
+    fn run(&self, _module: &mut Module) -> bool {
         false
     }
 
@@ -362,7 +362,7 @@ impl OptimizationPass for UnusedFunctionValuesElimination {
         "unreachablefunc"
     }
 
-    fn run(&self, module: &mut Module) -> bool {
+    fn run(&self, _module: &mut Module) -> bool {
         false
     }
 

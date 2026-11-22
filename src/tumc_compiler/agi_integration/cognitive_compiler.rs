@@ -11,8 +11,7 @@ use crate::tumc_compiler::agi_integration::{
     neural_symbolic::NeuralSymbolicEngine,
     meta_learning::MetaLearningOptimizer,
     self_modifying::SelfModifyingGenerator,
-    reasoning_engine::CognitiveReasoningEngine,
-};
+    reasoning_engine::CognitiveReasoningEngine};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::time::{Instant, Duration};

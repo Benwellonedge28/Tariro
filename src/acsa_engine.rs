@@ -10,7 +10,7 @@
 
 use crate::prelude::*;
 use std::collections::HashMap;
-use std::fmt;
+
 use std::thread;
 use std::time::Duration;
 use rand::Rng;
@@ -62,7 +62,7 @@ pub struct SelfAssessmentReport {
 
 /// Overall Autonomous Compliance & Self-Auditing system report.
 #[derive(Debug, Clone)]
-pub struct ACSA_Report {
+pub struct AcsaReport {
     pub report_id: String,
     pub total_audits_performed: u64,
     pub avg_audit_cycle_time_ms: f32,
@@ -98,7 +98,7 @@ impl ACSAEngine {
     fn parallel_compliance_risk_assessment_simd(&self, tariro_state: &HashMap<String, String>, compliance_rules: &[ComplianceRule]) -> (Vec<String>, f32) { // detected deviations and overall risk
         println!("    [ACSA-SIMD]: Performing parallel compliance checks and risk assessment for {} rules.", compliance_rules.len());
         thread::sleep(Duration::from_millis(70));
-        let mut rng = rand::thread_rng();
+        let mut _rng = rand::thread_rng();
 
         let mut deviations = Vec::new();
         let mut total_risk = 0.0;
@@ -195,7 +195,7 @@ fn main() {
     println!("\n--- Autonomous Compliance & Self-Auditing (RAG-Driven) Demonstration ---");
 
     let acsa_engine = ACSAEngine::new();
-    let now = Utc::now();
+    let _now = Utc::now();
 
     // Scenario 1: Tariro performs a routine audit of its data handling practices
     println!("--- Scenario 1: Routine Data Handling Audit ---");

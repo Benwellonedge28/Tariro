@@ -1,7 +1,7 @@
 //! Type checking and inference for TUMC
 //! Implements Hindley-Milner type inference with constraint solving
 
-use crate::prelude::*;
+
 use super::ast::{self, *};
 use std::collections::{HashMap, HashSet};
 use std::fmt;
@@ -897,7 +897,7 @@ impl TypeChecker {
             }
 
             ExprKind::Match { discriminant, arms } => {
-                let disc_type = self.check_expr(discriminant)?;
+                let _disc_type = self.check_expr(discriminant)?;
 
                 let mut result_type = self.env.fresh_var();
                 for arm in arms {
@@ -997,7 +997,7 @@ impl TypeChecker {
                 }
             }
 
-            ExprKind::Range(start, end, inclusive) => {
+            ExprKind::Range(start, end, _inclusive) => {
                 let start_type = self.check_expr(start)?;
                 let end_type = self.check_expr(end)?;
                 self.env.unify(&Type::Int, &start_type)?;
@@ -1333,7 +1333,7 @@ impl TypeChecker {
                 // For now, assume method returns some type
                 Ok(self.env.fresh_var())
             }
-            Type::Named(name) => {
+            Type::Named(_name) => {
                 // Look for impl blocks
                 Ok(self.env.fresh_var())
             }

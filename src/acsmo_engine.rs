@@ -10,7 +10,7 @@
 
 use crate::prelude::*;
 use std::collections::HashMap;
-use std::fmt;
+
 use std::thread;
 use std::time::Duration;
 use rand::Rng;
@@ -61,7 +61,7 @@ pub struct SelfModificationRecord {
 
 /// Overall Autonomous Code Self-Modification & Optimization system report.
 #[derive(Debug, Clone)]
-pub struct ACSMO_Report {
+pub struct AcsmoReport {
     pub report_id: String,
     pub total_optimization_cycles: u64,
     pub total_code_changes_applied: u64,
@@ -100,7 +100,7 @@ impl ACSMOEngine {
         let mut rng = rand::thread_rng();
 
         let mut evaluation_results = HashMap::new();
-        for candidate in code_candidates {
+        for _candidate in code_candidates {
             // Simulate SIMD-accelerated static analysis, compilation, and benchmark execution
             let performance = HashMap::from([
                 ("cpu_cycles".to_string(), rng.gen_range(100.0..1000.0)),
@@ -217,7 +217,7 @@ fn main() {
     println!("\n--- Autonomous Code Self-Modification & Optimization (RAG-Driven) Demonstration ---");
 
     let acsmo_engine = ACSMOEngine::new();
-    let now = Utc::now();
+    let _now = Utc::now();
 
     // Scenario 1: AI analyzes its own data processing module and optimizes it
     println!("--- Scenario 1: Data Processing Module Optimization ---");

@@ -10,7 +10,7 @@
 
 use crate::prelude::*;
 use std::collections::HashMap;
-use std::fmt;
+
 use std::thread;
 use std::time::Duration;
 use rand::Rng;
@@ -58,7 +58,7 @@ pub struct AIModuleIntegrationReport {
 
 /// Overall Autonomous AI Module Generation & Integration system report.
 #[derive(Debug, Clone)]
-pub struct AAMGI_Report {
+pub struct AamgiReport {
     pub report_id: String,
     pub total_modules_generated: u64,
     pub total_successful_integrations: u64,
@@ -223,7 +223,7 @@ fn main() {
     println!("\n--- Autonomous AI Module Generation & Integration (RAG-Driven) Demonstration ---");
 
     let aamgi_engine = AAMGIEngine::new();
-    let now = Utc::now();
+    let _now = Utc::now();
 
     // Scenario 1: AI autonomously generates a module for enhanced anomaly detection
     println!("--- Scenario 1: Enhanced Anomaly Detection Module ---");

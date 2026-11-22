@@ -3,7 +3,7 @@
 //! Comprehensive testing infrastructure for TUMC programs including
 //! unit tests, integration tests, snapshot testing, and test harnesses.
 
-use crate::tumc_compiler::*;
+
 use std::sync::Arc;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -334,7 +334,7 @@ impl TestReport {
     }
 
     /// Add suite report
-    pub fn add_suite(&mut self, name: String, report: SuiteReport) {
+    pub fn add_suite(&mut self, _name: String, report: SuiteReport) {
         self.total_passed += report.passed;
         self.total_failed += report.failed;
         self.total_skipped += report.skipped;
@@ -841,7 +841,7 @@ impl SuiteBuilder {
     }
 
     /// Add test
-    pub fn test(mut self, name: &str) -> TestCaseBuilder {
+    pub fn test(self, name: &str) -> TestCaseBuilder {
         TestCaseBuilder {
             suite: self,
             test_name: name.to_string(),

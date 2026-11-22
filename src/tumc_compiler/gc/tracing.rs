@@ -19,7 +19,7 @@ pub struct ObjectTraverser;
 
 impl ObjectTraverser {
     /// Traverse all fields of an object
-    pub fn traverse_object<F>(&self, ptr: *mut u8, mut visit: F)
+    pub fn traverse_object<F>(&self, ptr: *mut u8, mut _visit: F)
     where
         F: FnMut(*mut u8),
     {

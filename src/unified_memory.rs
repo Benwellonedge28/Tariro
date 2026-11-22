@@ -4,10 +4,9 @@
 //! Integrates working memory, episodic memory, semantic memory, and procedural memory
 //! into a cohesive memory system with attention-based retrieval
 
-use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
-use std::sync::RwLock;
+
 use chrono::{DateTime, Utc};
 use std::time::Duration;
 
@@ -440,7 +439,7 @@ impl UnifiedMemory {
         }
     }
 
-    fn estimate_relevance(&self, content: &MemoryContent) -> f64 {
+    fn estimate_relevance(&self, _content: &MemoryContent) -> f64 {
         // Relevance based on current goals and focus
         let base = 0.5;
         if self.working_memory.focus_of_attention.is_some() {

@@ -1,10 +1,9 @@
 // Tariro AGI - Model Quantization Module
 // INT8/FP16/ONNX optimization for local inference
 
-use crate::prelude::*;
 use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
-use std::time::Duration;
+
 
 // ============================================================================
 // Quantization Types
@@ -90,13 +89,13 @@ pub enum ObserverType {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum QuantType {
-    f32,
-    f16,
-    bf16,
-    qint8,
-    qint4,
-    quint8,
-    quint4,
+    F32,
+    F16,
+    Bf16,
+    Qint8,
+    Qint4,
+    Quint8,
+    Quint4,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -201,9 +200,9 @@ pub enum HardwareTarget {
     ROCm,
     Metal,
     TPU,
-    CPU_Advanced,
-    CPU_AMX,
-    CPU_NEON,
+    CpuAdvanced,
+    CpuAmx,
+    CpuNeon,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -344,7 +343,7 @@ pub enum BNBQuantType {
     F4,
     F5,
     NF4,
-    NF4_Dither,
+    Nf4Dither,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -364,16 +363,16 @@ pub enum GGUFQuantType {
     Q8_0,
     F16,
     F32,
-    Q2_K,
-    Q3_K,
-    Q4_K,
-    Q5_K,
-    Q6_K,
-    IQ1_S,
-    IQ2_XXS,
-    IQ3_XXS,
-    IQ4_XS,
-    IQ1_M,
+    Q2K,
+    Q3K,
+    Q4K,
+    Q5K,
+    Q6K,
+    Iq1S,
+    Iq2Xxs,
+    Iq3Xxs,
+    Iq4Xs,
+    Iq1M,
 }
 
 // ============================================================================
@@ -416,7 +415,7 @@ impl QuantizationEngine {
             parameters: QuantParameters {
                 axis: QuantAxis::PerTensor,
                 observer_type: ObserverType::MinMaxObserver,
-                fallback_type: QuantType::qint8,
+                fallback_type: QuantType::Qint8,
                 quantization_scheme: QuantizationScheme::Symmetric,
                 reduce_range: false,
                 use_symmetric: true,
@@ -433,7 +432,7 @@ impl QuantizationEngine {
             parameters: QuantParameters {
                 axis: QuantAxis::PerChannel,
                 observer_type: ObserverType::MovingAverageMinMaxObserver,
-                fallback_type: QuantType::qint8,
+                fallback_type: QuantType::Qint8,
                 quantization_scheme: QuantizationScheme::AffinePerChannel,
                 reduce_range: true,
                 use_symmetric: false,
@@ -450,7 +449,7 @@ impl QuantizationEngine {
             parameters: QuantParameters {
                 axis: QuantAxis::PerGroup,
                 observer_type: ObserverType::HistogramObserver,
-                fallback_type: QuantType::qint4,
+                fallback_type: QuantType::Qint4,
                 quantization_scheme: QuantizationScheme::Affine,
                 reduce_range: false,
                 use_symmetric: false,
@@ -467,7 +466,7 @@ impl QuantizationEngine {
             parameters: QuantParameters {
                 axis: QuantAxis::PerGroup,
                 observer_type: ObserverType::HistogramObserver,
-                fallback_type: QuantType::qint4,
+                fallback_type: QuantType::Qint4,
                 quantization_scheme: QuantizationScheme::Affine,
                 reduce_range: false,
                 use_symmetric: false,
@@ -477,14 +476,14 @@ impl QuantizationEngine {
         // GGUF Quantization
         self.quantization_methods.push(QuantizationMethod {
             method_id: "gguf_q4k".to_string(),
-            name: "GGUF Q4_K Quantization".to_string(),
+            name: "GGUF Q4K Quantization".to_string(),
             method_type: QuantMethodType::GGUF,
             precision: QuantPrecision::INT4,
             calibration_method: CalibrationMethod::Percentile,
             parameters: QuantParameters {
                 axis: QuantAxis::PerGroup,
                 observer_type: ObserverType::HistogramObserver,
-                fallback_type: QuantType::qint4,
+                fallback_type: QuantType::Qint4,
                 quantization_scheme: QuantizationScheme::Affine,
                 reduce_range: false,
                 use_symmetric: false,
@@ -599,8 +598,7 @@ impl QuantizationEngine {
         for fusion in &config.operators_to_fuse {
             fusions_applied.push(FusionResult {
                 fusion_type: fusion.fusion_type.clone(),
-                nodes_fused: 10,
-            });
+                nodes_fused: 10});
         }
 
         // Simulate node elimination
@@ -660,7 +658,7 @@ impl QuantizationEngine {
                     parameters: QuantParameters {
                         axis: QuantAxis::PerTensor,
                         observer_type: ObserverType::MinMaxObserver,
-                        fallback_type: QuantType::f16,
+                        fallback_type: QuantType::F16,
                         quantization_scheme: QuantizationScheme::Symmetric,
                         reduce_range: false,
                         use_symmetric: true,

@@ -4,11 +4,11 @@
 //! These are the highest-level objectives that guide Tariro's self-evolution,
 //! learning, and operational decisions.
 
-use crate::prelude::*;
+
 use chrono::{DateTime, Utc};
-use std::time::Duration;
+
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+
 use std::collections::HashMap;
 
 /// Represents a single meta-goal for the Tariro AGI.

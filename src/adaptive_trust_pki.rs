@@ -8,10 +8,9 @@ use std::time::Duration;
 /// ensuring that trust is continuously verified and revocations are propagated instantly across the network
 /// (leveraging RAG for DLT-based PKI standards and SIMD for high-throughput trust validation and ledger interactions).
 
-use crate::prelude::*;
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
-use std::fmt;
+
 use std::thread;
 use rand::Rng;
 

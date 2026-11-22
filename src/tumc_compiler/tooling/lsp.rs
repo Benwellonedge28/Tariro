@@ -270,7 +270,7 @@ impl LspServer {
     }
 
     /// Get hover information for a position
-    pub fn get_hover(&self, module: &Module, uri: &str, position: Position) -> Option<HoverResponse> {
+    pub fn get_hover(&self, module: &Module, _uri: &str, position: Position) -> Option<HoverResponse> {
         // Find symbol at position
         for func in &module.functions {
             if let Some(type_info) = self.get_type_at_position(func, &position) {
@@ -364,7 +364,7 @@ impl LspServer {
     }
 
     /// Find all references to a symbol
-    pub fn find_references(&self, module: &Module, uri: &str, position: Position) -> ReferencesResponse {
+    pub fn find_references(&self, module: &Module, uri: &str, _position: Position) -> ReferencesResponse {
         let mut references = Vec::new();
 
         for (line, block) in module.functions.iter().enumerate() {

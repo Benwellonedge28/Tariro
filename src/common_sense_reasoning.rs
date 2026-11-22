@@ -3,7 +3,7 @@
 //! Common Sense Reasoning Engine for Tariro AGI
 //! Implements everyday reasoning about physical, social, and temporal concepts
 
-use crate::prelude::*;
+
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
@@ -408,8 +408,7 @@ impl CommonSenseReasoning {
             "after" => ("E2 happens earlier than E1".to_string(), 0.9),
             "during" => ("Events overlap in time".to_string(), 0.7),
             "causes" => ("E1 is likely cause of E2".to_string(), 0.8),
-            _ => ("Unknown temporal relation".to_string(), 0.3),
-        };
+            _ => ("Unknown temporal relation".to_string(), 0.3)};
 
         TemporalReasoningResult {
             event1: event1.to_string(),
@@ -459,7 +458,7 @@ impl CommonSenseReasoning {
         }
     }
 
-    fn find_structural_mappings(&self, source: &str, _target: &str) -> Vec<Mapping> {
+    fn find_structural_mappings(&self, _source: &str, _target: &str) -> Vec<Mapping> {
         // Simplified mapping finding
         vec![
             Mapping {
@@ -525,8 +524,7 @@ impl CommonSenseReasoning {
                 question: question.to_string(),
                 answer: "Because of gravity pulling objects toward the ground".to_string(),
                 confidence: 0.95,
-                domain: "physics".to_string(),
-            };
+                domain: "physics".to_string()};
         }
 
         // Social questions

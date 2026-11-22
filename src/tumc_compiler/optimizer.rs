@@ -1,9 +1,9 @@
 //! Optimization passes for TUMC compiler
 //! Implements various optimizations for improved code quality and performance
 
-use crate::prelude::*;
+
 use super::ast::{self, *};
-use super::type_checker::TypeEnv;
+
 
 /// Errors that can occur during optimization.
 ///
@@ -167,7 +167,7 @@ impl Optimizer {
             StmtKind::Assignment(_, expr) => {
                 self.fold_constants_in_expr(expr.as_mut());
             }
-            StmtKind::Let(pattern, _, value, body) => {
+            StmtKind::Let(_pattern, _, value, body) => {
                 if let Some(v) = value {
                     self.fold_constants_in_expr(v);
                 }
@@ -234,12 +234,12 @@ impl Optimizer {
             }
             ExprKind::If { condition, then_block, else_expr } => {
                 self.fold_constants_in_expr(condition);
-                for (pat, body) in then_block {
+                for (_pat, body) in then_block {
                     for stmt in body {
                         self.fold_constants_in_stmt(stmt);
                     }
                 }
-                if let Some((pat, else_body)) = else_expr {
+                if let Some((_pat, else_body)) = else_expr {
                     for stmt in else_body {
                         self.fold_constants_in_stmt(stmt);
                     }
@@ -525,7 +525,7 @@ impl Optimizer {
                 self.try_inline_in_expr(lhs, name, func);
                 self.try_inline_in_expr(rhs, name, func);
             }
-            StmtKind::Let(pattern, ann_type, value, body) => {
+            StmtKind::Let(_pattern, _ann_type, value, body) => {
                 if let Some(v) = value {
                     self.try_inline_in_expr(v, name, func);
                 }
@@ -538,7 +538,7 @@ impl Optimizer {
                 for s in then_block {
                     self.try_inline_in_stmt(s, name, func);
                 }
-                if let Some((p, else_stmts)) = else_block {
+                if let Some((_p, else_stmts)) = else_block {
                     for s in else_stmts {
                         self.try_inline_in_stmt(s, name, func);
                     }
@@ -550,7 +550,7 @@ impl Optimizer {
                     self.try_inline_in_stmt(s, name, func);
                 }
             }
-            StmtKind::For(var, iterable, body) => {
+            StmtKind::For(_var, iterable, body) => {
                 self.try_inline_in_expr(iterable, name, func);
                 for s in body {
                     self.try_inline_in_stmt(s, name, func);
@@ -639,7 +639,7 @@ impl Optimizer {
 
             // Check for simple assignment like `let x = expr;`
             if let StmtKind::Let(pattern, _, Some(value), body) = &mut stmt.kind {
-                if let ast::Pattern::Binding(name) = pattern {
+                if let ast::Pattern::Binding(_name) = pattern {
                     // Store the value for future CSE
                     if !matches!(value.kind, ExprKind::Identifier(_)) {
                         let key = format!("{:?}", value.kind);
@@ -768,7 +768,7 @@ impl Optimizer {
 
                 // -x -> x * -1 for better code gen
                 if let UnOp::Neg = op {
-                    if let ExprKind::Literal(Literal::Int(n)) = &operand.kind {
+                    if let ExprKind::Literal(Literal::Int(_n)) = &operand.kind {
                         self.stats.strength_reductions += 1;
                     }
                 }

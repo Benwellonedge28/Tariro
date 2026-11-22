@@ -288,7 +288,7 @@ impl ComponentBuilder {
     }
 
     /// Add type
-    pub fn add_type(&mut self, name: &str, type_def: ComponentType) -> &mut Self {
+    pub fn add_type(&mut self, _name: &str, type_def: ComponentType) -> &mut Self {
         self.types.push(ComponentTypeDef {
             index: self.types.len() as u32,
             kind: ComponentTypeDefKind::Defined(type_def),
@@ -328,7 +328,7 @@ impl ComponentBuilder {
     }
 
     /// Add export
-    pub fn export(&mut self, name: &str, kind: ExportKind) -> &mut Self {
+    pub fn export(&mut self, _name: &str, _kind: ExportKind) -> &mut Self {
         // Would add to component type definition
         self
     }
@@ -683,14 +683,13 @@ impl WitParser {
     }
 
     /// Parse WIT document
-    pub fn parse(&mut self, source: &str) -> Result<&WitPackage, ParseError> {
+    pub fn parse(&mut self, _source: &str) -> Result<&WitPackage, ParseError> {
         // Simplified parsing - would use pest or similar
         let package = WitPackage {
             name: "parsed".to_string(),
             version: "0.1.0".to_string(),
             world: World::default(),
-            types: Vec::new(),
-        };
+            types: Vec::new()};
         self.packages.push(package);
         Ok(self.packages.last().unwrap())
     }

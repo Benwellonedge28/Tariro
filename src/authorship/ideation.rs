@@ -233,7 +233,7 @@ impl IdeationEngine {
         structure
     }
 
-    fn generate_entities(&self, concept: &CreativeConcept) -> Vec<EntityConcept> {
+    fn generate_entities(&self, _concept: &CreativeConcept) -> Vec<EntityConcept> {
         vec![
             EntityConcept {
                 name: "Protagonist".to_string(),

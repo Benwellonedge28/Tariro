@@ -1,7 +1,6 @@
 // Tariro AGI - Deep Language Understanding Module
 // Comprehensive natural language processing system for AGI
 
-use crate::prelude::*;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::sync::{Arc, RwLock};
 use chrono::{DateTime, Utc};
@@ -867,7 +866,7 @@ impl PragmaticAnalyzer {
     }
 
     /// Analyze pragmatic aspects of utterance
-    pub fn analyze(&self, text: &str, syntactic: &SyntacticTree) -> PragmaticAnalysis {
+    pub fn analyze(&self, text: &str, _syntactic: &SyntacticTree) -> PragmaticAnalysis {
         let speech_act = self.classify_speech_act(text);
         let deictic = self.extract_deictic(text);
         let implicatures = self.compute_implicatures(text);
@@ -900,7 +899,7 @@ impl PragmaticAnalyzer {
         let mut references = Vec::new();
         let words: Vec<&str> = text.split_whitespace().collect();
 
-        for (i, word) in words.iter().enumerate() {
+        for (_i, word) in words.iter().enumerate() {
             let word_lower = word.to_lowercase();
 
             match word_lower.as_str() {

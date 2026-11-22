@@ -3,8 +3,7 @@
 //! Integrates the TUMC compiler with the unified AGI system.
 
 use crate::tumc_compiler::ir::{
-    Module, Function, BasicBlock, BasicBlockId, Instruction, Operation, IrType, Terminator,
-};
+    Module, Function, BasicBlock, BasicBlockId, Instruction, Operation, IrType, Terminator};
 use crate::tumc_compiler::optimization::{OptLevel, OptimizationManager};
 use crate::tumc_compiler::agi_integration::AgiInsight;
 use crate::unified::orchestrator::CompilationResult;
@@ -189,7 +188,7 @@ impl CompilerIntegration {
     }
 
     /// Generate self-modifying code
-    pub fn generate_self_modifying_code(&self, spec: &str) -> String {
+    pub fn generate_self_modifying_code(&self, _spec: &str) -> String {
         let mut code = String::new();
 
         code.push_str("// Self-modifying code\n");

@@ -9,7 +9,7 @@
 
 use crate::prelude::*;
 use std::collections::HashMap;
-use std::fmt;
+
 use std::thread;
 use std::time::Duration;
 use rand::Rng;
@@ -56,7 +56,7 @@ pub struct DataSovereigntyControl {
 
 /// Overall Advanced Data Privacy & Sovereignty system report.
 #[derive(Debug, Clone)]
-pub struct AADPS_Report {
+pub struct AadpsReport {
     pub report_id: String,
     pub total_privacy_events_handled: u64,
     pub total_sovereignty_violations_prevented: u64,
@@ -89,7 +89,7 @@ impl AADPSEngine {
     }
 
     /// Performs parallel access policy enforcement and real-time data flow monitoring (SIMD conceptualization).
-    fn parallel_policy_enforcement_data_flow_simd(&self, data_assets: &[DataAsset], access_requests: &[String]) -> Vec<PrivacyEvent> { // handled privacy events
+    fn parallel_policy_enforcement_data_flow_simd(&self, data_assets: &[DataAsset], _access_requests: &[String]) -> Vec<PrivacyEvent> { // handled privacy events
         println!("    [AADPS-SIMD]: Enforcing access policies and monitoring data flow in parallel for {} assets.", data_assets.len());
         thread::sleep(Duration::from_millis(100));
         let mut rng = rand::thread_rng();
@@ -121,7 +121,7 @@ impl AADPSEngine {
             format!("RAG knowledge for data provenance: '{}'", dlp.chars().take(100).collect::<String>());
         }
         thread::sleep(Duration::from_millis(1500));
-        let mut rng = rand::thread_rng();
+        let mut _rng = rand::thread_rng();
 
         let handled_privacy_events = self.parallel_policy_enforcement_data_flow_simd(&data_assets, &incoming_requests);
 
@@ -185,7 +185,7 @@ fn main() {
     println!("\n--- Autonomous Advanced Data Privacy & Sovereignty (RAG-Driven) Demonstration ---");
 
     let aadps_engine = AADPSEngine::new();
-    let now = Utc::now();
+    let _now = Utc::now();
 
     // Scenario 1: Samuel's personal financial data requires strict privacy and EU sovereignty compliance
     println!("--- Scenario 1: Personal Data Privacy & EU Sovereignty ---");

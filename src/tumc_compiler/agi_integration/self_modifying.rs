@@ -4,7 +4,7 @@
 //! can modify itself at runtime.
 
 use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation, IrType};
-use crate::tumc_compiler::agi_integration::TransformType;
+
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
@@ -289,7 +289,7 @@ impl SelfModifyingGenerator {
         self.templates.get("adaptive_loop").unwrap()
     }
 
-    fn generate_from_template(&self, template: &SelfModCodeTemplate, spec: &ParsedSpec) -> String {
+    fn generate_from_template(&self, template: &SelfModCodeTemplate, _spec: &ParsedSpec) -> String {
         let mut code = String::new();
 
         // Generate module header

@@ -1,10 +1,10 @@
 //! SIMD vectorization for TUMC
 //! Generates vectorized code using SIMD instructions (SSE, AVX, NEON)
 
-use crate::prelude::*;
+
 use super::ast::*;
 use super::tariro_vm::Value;
-use std::collections::HashMap;
+
 use std::fmt;
 
 /// SIMD instruction set
@@ -290,7 +290,7 @@ impl SimdVectorizer {
         self.stats.loops_analyzed += 1;
 
         // Check for simple for loops
-        if let StmtKind::For(var, iterable, body) = &loop_.kind {
+        if let StmtKind::For(_var, iterable, body) = &loop_.kind {
             let memory_pattern = self.analyze_memory_pattern(body);
 
             // Check for loop-carried dependencies
@@ -359,7 +359,7 @@ impl SimdVectorizer {
         let mut has_induction_access = false;
 
         for stmt in body {
-            if let StmtKind::Assignment(lhs, rhs) = &stmt.kind {
+            if let StmtKind::Assignment(lhs, _rhs) = &stmt.kind {
                 if let ExprKind::Index(_, _) = lhs.kind {
                     has_induction_access = true;
                 }
@@ -490,7 +490,7 @@ impl SimdVectorizer {
         if let StmtKind::For(var, iterable, body) = &loop_.kind {
             let width = analysis.recommended_width;
             let lane_type = analysis.recommended_lanes;
-            let lanes = lane_type.lanes(width);
+            let _lanes = lane_type.lanes(width);
 
             // Create vectorized body
             let mut vectorized_body = Vec::new();

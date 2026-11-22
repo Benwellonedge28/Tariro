@@ -1,7 +1,7 @@
 // Tariro AGI - Working Memory Module
 // Active working memory with attention mechanisms
 
-use crate::prelude::*;
+
 use std::collections::{HashMap, VecDeque, BinaryHeap, HashSet};
 use chrono::{DateTime, Utc};
 use std::time::Duration;
@@ -497,7 +497,7 @@ impl WorkingMemoryStore {
 
     /// Handle visual content
     fn handle_visual(&mut self, item: WorkingMemoryItem) {
-        if let WorkingContent::Visual(v) = item.content {
+        if let WorkingContent::Visual(_v) = item.content {
             self.visuospatial_sketchpad.visual_cache.push(VisualObject {
                 object_id: item.item_id,
                 features: vec![],

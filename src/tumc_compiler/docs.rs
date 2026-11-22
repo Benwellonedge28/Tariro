@@ -598,7 +598,7 @@ pub struct ApiDocGenerator;
 
 impl ApiDocGenerator {
     /// Generate API documentation
-    pub fn generate_api_docs(compiler: &Compiler) -> String {
+    pub fn generate_api_docs(_compiler: &Compiler) -> String {
         let mut docs = String::new();
 
         docs.push_str("# TUMC Compiler API Documentation\n\n");

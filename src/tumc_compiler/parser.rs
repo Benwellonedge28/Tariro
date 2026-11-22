@@ -1113,7 +1113,7 @@ impl Parser {
         let mut expr = self.parse_and()?;
 
         while self.check(&TokenKind::Or) || self.check(&TokenKind::Or) {
-            let op = self.advance();
+            let _op = self.advance();
             let rhs = Box::new(self.parse_and()?);
             let span = SourceSpan::new(expr.span.start, rhs.span.end);
             expr = Expr::new(

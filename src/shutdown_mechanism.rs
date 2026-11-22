@@ -1,7 +1,7 @@
 // Tariro AGI - Shutdown Mechanism Module
 // Safe and reliable shutdown procedures
 
-use crate::prelude::*;
+
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, Mutex, RwLock};
 use chrono::{DateTime, Utc};
@@ -90,7 +90,7 @@ pub struct ShutdownManager {
     // State
     shutdown_in_progress: AtomicBool,
     shutdown_state: RwLock<Option<ShutdownState>>,
-    shutdown_history: VecDeque<ShutdownRecord>,
+    shutdown_history: Mutex<VecDeque<ShutdownRecord>>,
 
     // Components
     phases: Vec<ShutdownPhase>,
@@ -180,7 +180,7 @@ impl ShutdownManager {
         let mut manager = Self {
             shutdown_in_progress: AtomicBool::new(false),
             shutdown_state: RwLock::new(None),
-            shutdown_history: VecDeque::new(),
+            shutdown_history: Mutex::new(VecDeque::new()),
             phases: Vec::new(),
             cleanup_handlers: Vec::new(),
             config: ShutdownConfig::default(),
@@ -328,7 +328,7 @@ impl ShutdownManager {
         }
     }
 
-    fn execute_phase(&self, phase: &ShutdownPhase) -> PhaseResult {
+    fn execute_phase(&self, _phase: &ShutdownPhase) -> PhaseResult {
         // Simplified - in production would run actual handler with timeout
         PhaseResult::Success
     }
@@ -409,7 +409,9 @@ impl ShutdownManager {
             error_message: Some(format!("Emergency: {}", reason)),
         };
 
-        self.shutdown_history.push_back(record);
+        if let Ok(mut history) = self.shutdown_history.lock() {
+            history.push_back(record);
+        }
 
         // Set flag
         self.shutdown_in_progress.store(false, Ordering::SeqCst);
@@ -423,7 +425,7 @@ impl ShutdownManager {
             shutdown_in_progress: self.shutdown_in_progress.load(Ordering::SeqCst),
             state: state.clone(),
             resources_tracked: self.resources.read().unwrap().len(),
-            shutdowns_completed: self.shutdown_history.len(),
+            shutdowns_completed: self.shutdown_history.lock().map(|history| history.len()).unwrap_or(0),
         }
     }
 }
