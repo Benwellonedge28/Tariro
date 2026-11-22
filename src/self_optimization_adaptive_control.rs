@@ -62,16 +62,14 @@ impl fmt::Display for AdaptiveStrategy {
 pub struct SelfOptimizer {
     pub system_metrics: HashMap<OptimizationTarget, f64>,
     pub current_configuration: HashMap<String, f64>,
-    pub adaptive_history: Vec<String>,
-}
+    pub adaptive_history: Vec<String>}
 
 impl SelfOptimizer {
     pub fn new() -> Self {
         SelfOptimizer {
             system_metrics: HashMap::new(),
             current_configuration: HashMap::new(),
-            adaptive_history: Vec::new(),
-        }
+            adaptive_history: Vec::new()}
     }
 
     /// Monitors system performance metrics.

@@ -2,7 +2,7 @@
 // Mental state attribution and social cognition
 
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, VecDeque};
+use std::collections::{HashMap};
 
 /// Commitment level for intentions
 #[derive(Debug, Clone, Serialize, Deserialize)]

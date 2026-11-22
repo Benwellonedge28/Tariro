@@ -41,8 +41,7 @@ pub enum CausalLicensingIntentType {
     MultiversalLicensing,
     TimeSpecificLicensing,
     DimensionalAccessLicensing,
-    UserDefined,
-}
+    UserDefined}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CausalLicensingIntent {
@@ -78,8 +77,7 @@ pub enum TemporalStream {
     Primary,
     Alternate(String), // e.g., "History_A_v1"
     FutureProjection,
-    PastEcho,
-}
+    PastEcho}
 
 // For OGE Feature: Contextual IP Mapping
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -88,8 +86,7 @@ pub enum DimensionalPlane {
     Conceptual,
     Emotional,
     Astral,
-    UserDefined(String),
-}
+    UserDefined(String)}
 
 // For OGE Feature: Contextual IP Mapping
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -98,8 +95,7 @@ pub enum MultiverseIteration {
     Beta,
     Gamma,
     Delta(String), // e.g., "Universe_X_variant"
-    UserDefined(String),
-}
+    UserDefined(String)}
 
 // SGE: Sentient Teleological Nucleus (STN)
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -118,8 +114,7 @@ pub struct AxiomaticIpGovernance {
     pub ip_asset_id: Uuid,
     pub governing_laws: Vec<String>, // Self-executing causal laws
     pub current_version: u32,
-    pub last_evolution_timestamp: DateTime<Utc>,
-}
+    pub last_evolution_timestamp: DateTime<Utc>}
 
 
 // Extending IpAsset for ontological concepts
@@ -157,8 +152,7 @@ impl OntologicalIpAsset {
             ip_asset_id: base_ip_asset.id,
             description: format!("Highest and best use for '{}'", base_ip_asset.title),
             uch_eou_alignment_score: 1.0, // Assumed perfect alignment at genesis
-            optimal_manifestation_path: vec!["universal_harmony".to_string()],
-        };
+            optimal_manifestation_path: vec!["universal_harmony".to_string()]};
 
         OntologicalIpAsset {
             base_ip_asset,

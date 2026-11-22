@@ -11,8 +11,7 @@ use crate::{prelude::*,
     ModuleContext,
     HumanInTheLoopConfig,
     SandboxedEnvironmentModuleConfig,
-    FeatureProposalId,
-};
+    FeatureProposalId};
 use async_trait::async_trait;
 use tokio::time::{sleep, Duration};
 use rand::Rng;

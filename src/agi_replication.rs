@@ -17,8 +17,8 @@ use crate::event_bus::AGIEvent;
 
 use crate::config::AGIConfig;
 use crate::telemetry::{TelemetryEvent, TelemetryLogger};
-use crate::deployment::{DeploymentRecord, DeploymentTarget, DeploymentStatus};
-use crate::compiler::{MetaProject, CompilerSnapshot, MetaProjectStatus};
+use crate::deployment::{ DeploymentTarget, DeploymentStatus};
+use crate::compiler::{ };
 use crate::event_bus::EventBus;
 
 

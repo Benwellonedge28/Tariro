@@ -2,7 +2,7 @@
 // Autonomous goal self-generation and management
 
 
-use std::collections::{HashMap, VecDeque};
+use std::collections::{ VecDeque};
 use chrono::{DateTime, Utc};
 use std::time::Duration;
 

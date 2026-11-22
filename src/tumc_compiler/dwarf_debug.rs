@@ -3,7 +3,7 @@
 
 
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap};
 
 /// DWARF version
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

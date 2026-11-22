@@ -7,7 +7,7 @@
 //! - Future projection
 
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, VecDeque};
+use std::collections::{ VecDeque};
 use uuid::Uuid;
 use chrono::{DateTime, Utc, Duration};
 

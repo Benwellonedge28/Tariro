@@ -6,7 +6,7 @@
 //! - Coherence: Integrates disparate information into unified experience
 
 use serde::{Deserialize, Serialize};
-use std::collections::{BinaryHeap, HashMap, HashSet, VecDeque};
+use std::collections::{ HashMap, VecDeque};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
 use tokio::sync::RwLock;

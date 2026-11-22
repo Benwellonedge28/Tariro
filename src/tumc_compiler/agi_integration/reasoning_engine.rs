@@ -6,7 +6,7 @@
 use crate::tumc_compiler::ir::Module;
 use crate::tumc_compiler::agi_integration::AgiInsight;
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, VecDeque};
 
 /// Reasoning type
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

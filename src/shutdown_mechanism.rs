@@ -2,8 +2,8 @@
 // Safe and reliable shutdown procedures
 
 
-use std::collections::{HashMap, VecDeque};
-use std::sync::{Arc, Mutex, RwLock};
+use std::collections::{ VecDeque};
+use std::sync::{ Mutex, RwLock};
 use chrono::{DateTime, Utc};
 use std::time::Duration;
 use std::sync::atomic::{AtomicBool, Ordering};

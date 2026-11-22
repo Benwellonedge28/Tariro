@@ -3,8 +3,7 @@ use axum::{
     routing::{get, post},
     http::StatusCode,
     response::{Html, IntoResponse},
-    Json, Router,
-};
+    Json, Router};
 use tower_http::services::ServeDir;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;

@@ -2,8 +2,8 @@
 //! Implements hygienic macros with proper scope handling
 
 
-use super::ast::{self, *};
-use super::lexer::{Lexer, Token, TokenKind};
+use super::ast::{ *};
+use super::lexer::{ Token, TokenKind};
 // The punctuation kinds now live with the lexer that produces them.
 pub use super::lexer::PunctKind;
 

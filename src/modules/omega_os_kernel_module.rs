@@ -10,8 +10,7 @@ use crate::{prelude::*,
     ModuleContext,
     OmegaOSKernelConfig,
     modules::idpte_module::IDPTEModule,
-    modules::sandboxed_environment::deployment_manager::DeploymentManager,
-};
+    modules::sandboxed_environment::deployment_manager::DeploymentManager};
 use async_trait::async_trait;
 use tokio::time::{sleep, Duration};
 use rand::Rng;

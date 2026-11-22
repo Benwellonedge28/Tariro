@@ -33,15 +33,13 @@ impl fmt::Display for ReasoningStep {
             ReasoningStep::RuleApplication { rule_name, condition_met, action_taken } => write!(f, "Applied rule '{}' because '{}'. Action: '{}'.", rule_name, condition_met, action_taken),
             ReasoningStep::ModelInference { model_id, inputs, output_prediction, confidence } => write!(f, "Inferred using model '{}' with inputs '{}'. Prediction: '{}' (Confidence: {:.2}).", model_id, inputs, output_prediction, confidence),
             ReasoningStep::HumanInput { user_id, input_value } => write!(f, "Received human input from '{}': '{}'.", user_id, input_value),
-            ReasoningStep::InternalComputation { operation, result } => write!(f, "Performed internal computation '{}'. Result: '{}'.", operation, result),
-        }
+            ReasoningStep::InternalComputation { operation, result } => write!(f, "Performed internal computation '{}'. Result: '{}'.", operation, result)}
     }
 }
 
 pub struct ReasoningPath {
     pub decision: Decision,
-    pub steps: Vec<ReasoningStep>,
-}
+    pub steps: Vec<ReasoningStep>}
 
 impl ReasoningPath {
     pub fn new(decision: Decision, steps: Vec<ReasoningStep>) -> Self {
@@ -55,8 +53,7 @@ pub enum FeedbackType {
     Correction { description: String, proposed_action: Option<String> },
     Approval { comment: Option<String> },
     Rejection { reason: String, proposed_alternative: Option<String> },
-    NewRuleSuggestion { suggested_rule: String, rationale: String },
-}
+    NewRuleSuggestion { suggested_rule: String, rationale: String }}
 
 /// Represents a piece of human feedback.
 #[derive(Debug, Clone)]
@@ -66,14 +63,12 @@ pub struct HumanFeedback {
     pub user_id: String,
     pub timestamp: u64,
     pub feedback_type: FeedbackType,
-    pub context_summary: String,
-}
+    pub context_summary: String}
 
 /// The Feedback System manages the ingestion and processing of human feedback.
 pub struct FeedbackSystem {
     feedback_store: HashMap<String, Vec<HumanFeedback>>,
-    decision_store: HashMap<String, ReasoningPath>,
-}
+    decision_store: HashMap<String, ReasoningPath>}
 
 impl FeedbackSystem {
     pub fn new() -> Self {

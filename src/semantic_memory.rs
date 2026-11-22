@@ -1,7 +1,7 @@
 // Tariro AGI - Semantic Memory Module
 // Knowledge graph-based semantic memory system
 
-use std::collections::{HashMap, HashSet, VecDeque, BinaryHeap};
+use std::collections::{HashMap, HashSet, BinaryHeap};
 use chrono::{DateTime, Utc};
 
 use std::cmp::Ordering;

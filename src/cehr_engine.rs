@@ -159,8 +159,7 @@ impl CEHR_Engine {
                     unit_type: if stream.waste_type == "waste_heat" { "electrical_power_watts".to_string() } else { "repurposed_cpu_cycles".to_string() },
                     quantity: stream.quantity * stream.potential_for_reuse as f64 * rng.gen_range(0.2..0.6), // Conceptual conversion efficiency
                     source_waste_stream_id: stream.stream_id.clone(),
-                    conversion_efficiency: rng.gen_range(0.2..0.6),
-                });
+                    conversion_efficiency: rng.gen_range(0.2..0.6)});
             }
         }
         harvested_energy

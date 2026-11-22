@@ -125,8 +125,7 @@ impl EEBAEngine {
                 description: format!("AI workload carbon footprint ({:.2} kg) is significantly above industry average ({:.2} kg).", benchmark.value, benchmark.industry_average),
                 recommendation: "Implement model quantization and use more efficient algorithms.".to_string(),
                 estimated_energy_savings_kwh: rng.gen_range(100.0..500.0),
-                estimated_cost_savings_usd: rng.gen_range(50.0..250.0),
-            });
+                estimated_cost_savings_usd: rng.gen_range(50.0..250.0)});
         }
 
         if workload.hardware_used.contains("Old") || rng.gen_bool(0.3) {

@@ -12,7 +12,7 @@ use crate::knowledge::knowledge_graph::{
 use crate::knowledge::reasoning::{ReasoningEngine, Query, QueryResult, Deduction};
 use crate::knowledge::logic::LogicEngine;
 use crate::knowledge::causal::{CausalReasoningEngine, CausalEffect, CounterfactualResult};
-use crate::knowledge::commonsense::{CommonSenseEngine, Situation, Observation, Inference};
+use crate::knowledge::commonsense::{CommonSenseEngine, Situation, Inference};
 use crate::knowledge::formal::{FormalVerifier, VerificationResult};
 use std::sync::Arc;
 

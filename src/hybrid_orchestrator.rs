@@ -20,23 +20,20 @@ use rand::Rng;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum MockQuantumBackendType {
     Simulator,
-    QPU,
-}
+    QPU}
 
 #[derive(Debug, Clone)]
 pub struct MockQuantumJob {
     pub id: String,
     pub circuit_params: HashMap<String, f64>, // e.g., for VQE: { "theta_0": 0.5, "theta_1": 1.2 }
     pub shots: u32,
-    pub backend: MockQuantumBackendType,
-}
+    pub backend: MockQuantumBackendType}
 
 #[derive(Debug, Clone)]
 pub struct MockQuantumResult {
     pub job_id: String,
     pub energy_estimate: f664,
-    pub measurement_counts: HashMap<String, u32>,
-}
+    pub measurement_counts: HashMap<String, u32>}
 
 pub struct MockQuantumHardwareManager;
 

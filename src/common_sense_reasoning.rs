@@ -5,7 +5,7 @@
 
 
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap};
 
 /// Main common sense reasoning engine
 pub struct CommonSenseReasoning {

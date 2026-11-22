@@ -6,7 +6,7 @@
 
 use std::sync::Arc;
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::{ PathBuf};
 
 /// Test configuration
 #[derive(Debug, Clone)]

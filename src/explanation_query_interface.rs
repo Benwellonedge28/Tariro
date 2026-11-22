@@ -34,8 +34,7 @@ impl fmt::Display for ReasoningStep {
             ReasoningStep::RuleApplication { rule_name, condition_met, action_taken } => write!(f, "Applied rule '{}' because '{}'. Action: '{}'.", rule_name, condition_met, action_taken),
             ReasoningStep::ModelInference { model_id, inputs, output_prediction, confidence } => write!(f, "Inferred using model '{}' with inputs '{}'. Prediction: '{}' (Confidence: {:.2}).", model_id, inputs, output_prediction, confidence),
             ReasoningStep::HumanInput { user_id, input_value } => write!(f, "Received human input from '{}': '{}'.", user_id, input_value),
-            ReasoningStep::InternalComputation { operation, result } => write!(f, "Performed internal computation '{}'. Result: '{}'.", operation, result),
-        }
+            ReasoningStep::InternalComputation { operation, result } => write!(f, "Performed internal computation '{}'. Result: '{}'.", operation, result)}
     }
 }
 
@@ -53,8 +52,7 @@ impl ReasoningPath {
 
 /// The Explanation Service manages and provides queries for reasoning paths.
 pub struct ExplanationService {
-    reasoning_paths: HashMap<String, ReasoningPath>,
-}
+    reasoning_paths: HashMap<String, ReasoningPath>}
 
 impl ExplanationService {
     pub fn new() -> Self {

@@ -2,10 +2,10 @@
 // Ensures AI can be safely interrupted at any time
 
 use std::collections::{HashMap, VecDeque};
-use std::sync::{Arc, RwLock};
+use std::sync::{ };
 use chrono::{DateTime, Utc};
 use std::time::Duration;
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicBool, Ordering};
 
 // ============================================================================
 // Interrupt Types

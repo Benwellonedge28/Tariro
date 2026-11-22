@@ -3,8 +3,8 @@
 //! Mathematical proofs and type-level reasoning for verified knowledge.
 
 
-use crate::knowledge::knowledge_graph::{KnowledgeGraph, EntityId, Entity, Probability};
-use std::collections::{HashMap, HashSet};
+use crate::knowledge::knowledge_graph::{KnowledgeGraph, EntityId, Entity};
+use std::collections::{HashMap};
 
 
 // ============================================================================

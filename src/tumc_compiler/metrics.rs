@@ -2,7 +2,7 @@
 //!
 //! Performance monitoring, metrics collection, and observability tools.
 
-use std::collections::{HashMap, VecDeque};
+use std::collections::{HashMap};
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
 

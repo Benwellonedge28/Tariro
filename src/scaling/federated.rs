@@ -20,7 +20,7 @@
 
 use crate::tumc_compiler::ir::NodeId;
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, VecDeque};
+use std::collections::{ VecDeque};
 
 /// Aggregation strategy for federated learning
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]

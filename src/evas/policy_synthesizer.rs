@@ -155,8 +155,7 @@ mod tests {
             category: "CulturalShift".to_string(),
             description: "Increased public awareness and concern regarding AI's use of personal data.".to_string(),
             impact_assessment: "Potential erosion of user trust and increased regulatory scrutiny if Tariro does not adapt.".to_string(),
-            relevance_score: 0.88,
-        };
+            relevance_score: 0.88};
 
         let draft2 = synthesizer.synthesize_new_policy(obs2.clone());
         println!("Policy Draft 2: {:?}", draft2);

@@ -9,7 +9,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use crate::knowledge::knowledge_graph::{
     KnowledgeGraph, EntityId, Entity, Relation, Fact, Predicate, Probability,
     Evidence, KnowledgeError, Attribute, Value};
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
 use std::fmt::Debug;
 

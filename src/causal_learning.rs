@@ -1,7 +1,7 @@
 // Tariro AGI - Causal Learning Module
 // Learning causal relationships from observations
 
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, HashSet};
 use chrono::{DateTime, Utc};
 
 

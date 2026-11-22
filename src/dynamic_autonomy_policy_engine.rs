@@ -47,8 +47,7 @@ pub struct PolicyRule {
     pub conditions: HashMap<ContextFactor, f64>, // Factor -> required value/threshold
     pub target_autonomy_level: AutonomyLevel,
     pub domain: String, // e.g., "file_operations", "decision_making", "resource_management"
-    pub description: String,
-}
+    pub description: String}
 
 /// Contextual factors that influence autonomy decisions.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -79,8 +78,7 @@ impl PolicyEngine {
         PolicyEngine {
             active_policies: Vec::new(),
             current_autonomy_levels: HashMap::new(),
-            evas_compliance_score: 1.0,
-        }
+            evas_compliance_score: 1.0}
     }
 
     pub fn add_policy(&mut self, policy: PolicyRule) {

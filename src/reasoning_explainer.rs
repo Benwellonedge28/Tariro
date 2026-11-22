@@ -32,16 +32,14 @@ impl fmt::Display for ReasoningStep {
             ReasoningStep::RuleApplication { rule_name, condition_met, action_taken } => write!(f, "Applied rule '{}' because '{}'. Action: '{}'.", rule_name, condition_met, action_taken),
             ReasoningStep::ModelInference { model_id, inputs, output_prediction, confidence } => write!(f, "Inferred using model '{}' with inputs '{}'. Prediction: '{}' (Confidence: {:.2}).", model_id, inputs, output_prediction, confidence),
             ReasoningStep::HumanInput { user_id, input_value } => write!(f, "Received human input from '{}': '{}'.", user_id, input_value),
-            ReasoningStep::InternalComputation { operation, result } => write!(f, "Performed internal computation '{}'. Result: '{}'.", operation, result),
-        }
+            ReasoningStep::InternalComputation { operation, result } => write!(f, "Performed internal computation '{}'. Result: '{}'.", operation, result)}
     }
 }
 
 /// Stores a sequence of reasoning steps leading to a specific decision.
 pub struct ReasoningPath {
     pub decision: Decision,
-    pub steps: VecDeque<ReasoningStep>,
-}
+    pub steps: VecDeque<ReasoningStep>}
 
 impl ReasoningPath {
     pub fn new(decision: Decision) -> Self {

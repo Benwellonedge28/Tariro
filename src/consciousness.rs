@@ -5,7 +5,7 @@
 
 use crate::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap};
 
 /// Represents a thought or mental representation
 #[derive(Debug, Clone, Serialize, Deserialize)]

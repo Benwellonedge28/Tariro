@@ -2,8 +2,8 @@
 // Decomposition-based planning for complex goals
 
 
-use std::collections::{HashMap, HashSet, VecDeque, BinaryHeap};
-use chrono::{DateTime, Utc};
+use std::collections::{HashMap, HashSet, VecDeque};
+use chrono::{ Utc};
 use std::time::Duration;
 
 // ============================================================================

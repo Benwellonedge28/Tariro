@@ -4,7 +4,7 @@
 
 use std::fs;
 use std::path::Path;
-use std::io::{self, Read};
+use std::io::{ Read};
 
 /// Directory entry information
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]

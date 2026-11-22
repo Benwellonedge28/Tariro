@@ -3,7 +3,7 @@
 //! Learns from compilation experiences to improve future optimization decisions.
 
 use crate::tumc_compiler::ir::Module;
-use crate::tumc_compiler::agi_integration::{AgiInsight, AgiCompilerConfig, PerformanceMetrics};
+use crate::tumc_compiler::agi_integration::{AgiInsight, PerformanceMetrics};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 

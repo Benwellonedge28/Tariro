@@ -56,8 +56,7 @@ impl AptTtpKnowledgeBase {
             name: "T1059.001 - PowerShell".to_string(),
             category: "Execution".to_string(),
             description: "Adversaries may abuse PowerShell to execute commands and scripts.".to_string(),
-            indicators: vec!["powershell.exe -e".to_string(), "Invoke-Expression".to_string(), "EncodedCommand".to_string()],
-        });
+            indicators: vec!["powershell.exe -e".to_string(), "Invoke-Expression".to_string(), "EncodedCommand".to_string()]});
         ttps.insert("T1003".to_string(), AptTtp {
             ttp_id: "T1003".to_string(),
             name: "T1003 - OS Credential Dumping".to_string(),

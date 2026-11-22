@@ -4,7 +4,7 @@
 
 use std::sync::RwLock;
 
-use crate::knowledge::knowledge_graph::{KnowledgeGraph, EntityId, Predicate, Probability};
+use crate::knowledge::knowledge_graph::{KnowledgeGraph, EntityId};
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 

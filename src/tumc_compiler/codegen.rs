@@ -1,10 +1,10 @@
 //! WASM code generation for TUMC compiler
 //! Generates WebAssembly bytecode from parsed and type-checked AST
 
-use super::ast::{self, *};
-use super::type_checker::{Type, TypeEnv};
+use super::ast::{ *};
+use super::type_checker::{Type};
 use super::optimizer::OptimizationLevel;
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap};
 
 /// WASM value types
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

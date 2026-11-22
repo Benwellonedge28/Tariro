@@ -291,20 +291,17 @@ pub struct TraitImpl {
 
 #[derive(Debug, Clone)]
 pub struct WhereClause {
-    pub predicates: Vec<WherePredicate>,
-}
+    pub predicates: Vec<WherePredicate>}
 
 #[derive(Debug, Clone)]
 pub enum WherePredicate {
     TraitBound { ty: MonoType, trait_name: String },
     Equality { left: MonoType, right: MonoType },
-    LifetimeBound { lifetime: String, bound: LifetimeBound },
-}
+    LifetimeBound { lifetime: String, bound: LifetimeBound }}
 
 #[derive(Debug, Clone)]
 pub enum LifetimeBound {
     Lifetime(String),
-    Trait { name: String },
-}
+    Trait { name: String }}
 
 use std::collections::HashMap;

@@ -3,10 +3,10 @@
 //! Enables the compiler to modify its own code and generate code that
 //! can modify itself at runtime.
 
-use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation, IrType};
+use crate::tumc_compiler::ir::{ Function, Instruction, Operation, IrType};
 
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap};
 
 /// Self-modification capability
 #[derive(Debug, Clone, Serialize, Deserialize)]

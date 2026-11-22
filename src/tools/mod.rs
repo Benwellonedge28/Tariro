@@ -11,5 +11,4 @@ pub mod ide;
 
 pub use ide::{
     IDETool, IDEToolConfig, IDEToolCapabilities, IDEToolResult,
-    IDEAction, IDEToolResponse,
-};
+    IDEAction, IDEToolResponse};

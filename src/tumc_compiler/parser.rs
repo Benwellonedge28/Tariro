@@ -32,7 +32,7 @@
 //! ```
 
 use crate::tumc_compiler::ast::*;
-use crate::tumc_compiler::lexer::{Lexer, LexerError, Token, TokenKind};
+use crate::tumc_compiler::lexer::{ Token, TokenKind};
 use crate::tumc_compiler::SourceLocation;
 use std::collections::VecDeque;
 

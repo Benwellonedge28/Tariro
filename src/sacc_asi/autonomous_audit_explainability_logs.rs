@@ -77,8 +77,7 @@ impl AutonomousAuditExplainabilityLogs {
             explanation_text: format!("The AGI '{}' decided to '{}' because [detailed reasoning from trace].", audit_entry.agent_id, audit_entry.action_taken),
             causal_chain_analysis: vec!["Input X led to internal state Y, which triggered rule Z.".to_string()],
             counterfactual_analysis: "Had input X been different, action A would have been taken.".to_string(),
-            decision_confidence: 0.99,
-        };
+            decision_confidence: 0.99};
         self.explainability_records.insert(log_id.clone(), explanation.clone());
         println!("  -> Explainability report '{}' generated.", log_id);
         explanation

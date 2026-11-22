@@ -3,9 +3,9 @@
 //! Combines neural network pattern recognition with symbolic reasoning
 //! for compiler optimization decisions.
 
-use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation};
+use crate::tumc_compiler::ir::{Module, Function, Operation};
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet};
+use std::collections::{ };
 
 /// Neural network layer configuration
 #[derive(Debug, Clone)]

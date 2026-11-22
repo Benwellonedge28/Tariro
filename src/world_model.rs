@@ -4,9 +4,9 @@
 //! Implements mental simulation of physical and social environments
 
 use crate::prelude::*;
-use crate::causal_reasoning_engine::{CausalReasoningEngine, CausalGraph, CausalEdge, CausalMechanism};
+use crate::causal_reasoning_engine::{CausalReasoningEngine};
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap};
 
 /// Represents an entity in the world model
 #[derive(Debug, Clone, Serialize, Deserialize)]

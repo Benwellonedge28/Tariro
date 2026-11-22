@@ -4,9 +4,9 @@
 //! This is NOT emergent from token prediction - it is a first-class citizen.
 
 use crate::prelude::*;
-use std::collections::{HashMap, HashSet, BTreeMap};
+use std::collections::{HashMap, HashSet};
 
-use std::hash::{Hash, Hasher};
+use std::hash::{Hash};
 use std::cmp::Ordering;
 
 // ============================================================================

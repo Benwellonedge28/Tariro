@@ -2,7 +2,7 @@
 // Simulation-based planning for complex decision spaces
 
 
-use std::collections::{HashMap, VecDeque, BinaryHeap};
+use std::collections::{HashMap};
 use chrono::{DateTime, Utc};
 use std::time::Duration;
 use std::cmp::Ordering;

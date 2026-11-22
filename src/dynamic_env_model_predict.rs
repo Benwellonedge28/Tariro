@@ -20,8 +20,7 @@ pub struct FusionOutput {
     pub timestamp: u64,
     pub fused_vector: Vec<f64>, // Combined numerical representation
     pub contextual_summary: String, // RAG-enhanced summary
-    pub detected_events: Vec<String>,
-}
+    pub detected_events: Vec<String>}
 
 /// Represents the current and evolving state of the environment.
 #[derive(Debug, Clone)]
@@ -29,8 +28,7 @@ pub struct EnvironmentState {
     pub timestamp: u64,
     pub parameters: HashMap<String, f64>, // e.g., "temperature": 25.5, "humidity": 60.0
     pub categorical_states: HashMap<String, String>, // e.g., "weather": "sunny"
-    pub event_history: Vec<String>,
-}
+    pub event_history: Vec<String>}
 
 impl EnvironmentState {
     pub fn new(timestamp: u64) -> Self {
@@ -44,8 +42,7 @@ pub enum PredictiveModelType {
     LinearRegression,
     MarkovChain,
     RecurrentNeuralNetwork, // Conceptual: would be external library
-    KalmanFilter,
-}
+    KalmanFilter}
 
 impl fmt::Display for PredictiveModelType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -70,16 +67,14 @@ pub struct EnvironmentalModeler {
     pub current_state: EnvironmentState,
     pub predictive_model_type: PredictiveModelType,
     // Conceptual model parameters (e.g., transition probabilities for Markov Chain)
-    pub model_params: HashMap<String, f64>,
-}
+    pub model_params: HashMap<String, f64>}
 
 impl EnvironmentalModeler {
     pub fn new(initial_timestamp: u64, model_type: PredictiveModelType) -> Self {
         EnvironmentalModeler {
             current_state: EnvironmentState::new(initial_timestamp),
             predictive_model_type: model_type,
-            model_params: HashMap::new(),
-        }
+            model_params: HashMap::new()}
     }
 
     /// Updates the environmental state from fused multi-modal data.

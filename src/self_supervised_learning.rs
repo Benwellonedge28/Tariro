@@ -1,7 +1,7 @@
 // Tariro AGI - Self-Supervised Learning Module
 // Learning representations without explicit labels
 
-use std::collections::{HashMap, VecDeque};
+use std::collections::{HashMap};
 use chrono::{DateTime, Utc};
 
 

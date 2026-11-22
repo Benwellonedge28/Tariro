@@ -321,8 +321,7 @@ pub struct ScalingConfig {
     pub consensus: Option<ConsensusConfig>,
 
     /// Federated learning configuration
-    pub federated: Option<FederatedConfig>,
-}
+    pub federated: Option<FederatedConfig>}
 
 impl Default for ScalingConfig {
     fn default() -> Self {
@@ -334,8 +333,7 @@ impl Default for ScalingConfig {
             enable_monitoring: true,
             enable_adaptive_compute: true,
             consensus: None,
-            federated: None,
-        }
+            federated: None}
     }
 }
 
@@ -350,8 +348,7 @@ impl ScalingConfig {
             enable_monitoring: false,
             enable_adaptive_compute: false,
             consensus: None,
-            federated: None,
-        }
+            federated: None}
     }
 
     /// Create a configuration for embedded devices
@@ -364,8 +361,7 @@ impl ScalingConfig {
             enable_monitoring: true,
             enable_adaptive_compute: true,
             consensus: None,
-            federated: None,
-        }
+            federated: None}
     }
 
     /// Create a configuration for cloud deployment
@@ -378,8 +374,7 @@ impl ScalingConfig {
             enable_monitoring: true,
             enable_adaptive_compute: true,
             consensus: Some(ConsensusConfig::default()),
-            federated: Some(FederatedConfig::default()),
-        }
+            federated: Some(FederatedConfig::default())}
     }
 }
 
@@ -396,8 +391,7 @@ pub struct FederatedConfig {
     pub privacy: PrivacyConfig,
 
     /// Sync frequency in seconds
-    pub sync_frequency_s: u32,
-}
+    pub sync_frequency_s: u32}
 
 impl Default for FederatedConfig {
     fn default() -> Self {
@@ -405,8 +399,7 @@ impl Default for FederatedConfig {
             min_peers: 3,
             aggregation: AggregationStrategy::FedAvg,
             privacy: PrivacyConfig::default(),
-            sync_frequency_s: 300,
-        }
+            sync_frequency_s: 300}
     }
 }
 

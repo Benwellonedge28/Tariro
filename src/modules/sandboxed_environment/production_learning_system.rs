@@ -9,8 +9,7 @@ use crate::prelude::*;
 use crate::{prelude::*,
     Module,
     ModuleContext,
-    ProductionLearningConfig,
-};
+    ProductionLearningConfig};
 use async_trait::async_trait;
 use tokio::time::{sleep, Duration};
 use rand::Rng;

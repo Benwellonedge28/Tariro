@@ -3,7 +3,7 @@
 
 
 use crate::tumc_compiler::ast::Span;
-use std::collections::{HashMap, VecDeque};
+use std::collections::{HashMap};
 use std::fmt;
 
 /// Maximum number of registers

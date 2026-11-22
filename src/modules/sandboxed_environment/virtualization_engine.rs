@@ -9,8 +9,7 @@ use crate::{prelude::*,
     Module,
     ModuleContext,
     FeatureProposalId,
-    VirtualizationEngineConfig,
-};
+    VirtualizationEngineConfig};
 use async_trait::async_trait;
 use std::process::Command;
 use tokio::io::{AsyncBufReadExt, BufReader};

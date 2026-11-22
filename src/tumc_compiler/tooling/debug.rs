@@ -1,6 +1,6 @@
 // Debugger Implementation with DWARF support
 
-use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction};
+use crate::tumc_compiler::ir::{Module, Instruction};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 

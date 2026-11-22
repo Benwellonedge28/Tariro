@@ -41,8 +41,7 @@ pub struct RootCause {
     pub causal_chain: Vec<String>, // Sequence of events leading to failure
     pub probable_cause: String, // RAG-derived diagnosis
     pub confidence: f32,
-    pub proposed_prevention: String,
-}
+    pub proposed_prevention: String}
 
 /// Represents a predicted future fault.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -53,8 +52,7 @@ pub struct PredictedFault {
     pub fault_type: String, // e.g., "DiskFailure", "MemoryLeak", "ServiceCrash"
     pub probability: f32,
     pub estimated_time_to_failure: Duration,
-    pub proactive_recommendation: String,
-}
+    pub proactive_recommendation: String}
 
 /// Overall Automated Root Cause Analysis & Predictive Fault Prevention system report.
 #[derive(Debug, Clone)]
@@ -64,8 +62,7 @@ pub struct ARCAP_Report {
     pub avg_rca_time_s: f32,
     pub total_faults_predicted: u32,
     pub avg_fault_prevention_rate: f32,
-    pub cost_savings_from_prevention: f32,
-}
+    pub cost_savings_from_prevention: f32}
 
 // --- ARCAP Engine --- //
 
@@ -130,8 +127,7 @@ impl ARCAPEngine {
                     causal_chain: vec!["Memory leak in service X leading to OOM.".to_string()],
                     probable_cause: "Memory Leak".to_string(),
                     confidence: rng.gen_range(0.8..0.98),
-                    proposed_prevention: "Implement memory profiling and limit container resources.".to_string(),
-                });
+                    proposed_prevention: "Implement memory profiling and limit container resources.".to_string()});
 
                 if rng.gen_bool(0.6) { // Also predict a future fault
                     predicted_faults.push(PredictedFault {

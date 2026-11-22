@@ -38,8 +38,7 @@ pub struct InfrastructureIssue {
     pub severity: String, // e.g., "Warning", "Error", "Critical"
     pub problem_description: String, // RAG-derived natural language description
     pub root_cause_diagnosis: String, // RAG-derived root cause analysis
-    pub suggested_remediation: String,
-}
+    pub suggested_remediation: String}
 
 /// Represents an automated remediation action.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -51,8 +50,7 @@ pub struct RemediationAction {
     pub action_type: String, // e.g., "RestartService", "ScaleOut", "DatabaseFailover"
     pub command_executed: String,
     pub status: String, // e.g., "InProgress", "Completed", "Failed"
-    pub result: String,
-}
+    pub result: String}
 
 /// Overall Self-Healing Infrastructure & Automated Remediation system report.
 #[derive(Debug, Clone)]
@@ -62,8 +60,7 @@ pub struct SHAR_Report {
     pub total_downtime_prevented_min: f32,
     pub avg_mttr_s: f32, // Mean Time To Resolution
     pub avg_op_cost_savings_pct: f32,
-    pub false_positive_remediation_rate: f32,
-}
+    pub false_positive_remediation_rate: f32}
 
 // --- SHAR Engine --- //
 

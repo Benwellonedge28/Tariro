@@ -435,8 +435,7 @@ impl SmtBuilder {
 
 /// Horn clause solver for program verification
 pub struct HornClauseSolver {
-    solver: SmtSolverWrapper,
-}
+    solver: SmtSolverWrapper}
 
 impl HornClauseSolver {
     pub fn new() -> Self {

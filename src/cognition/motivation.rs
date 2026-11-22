@@ -3,7 +3,7 @@
 //! The mind's motivational system - drives, goals, values, and emotions.
 
 use crate::prelude::*;
-use std::collections::{BinaryHeap, HashMap, VecDeque};
+use std::collections::{ HashMap, VecDeque};
 
 // ============================================================================
 // Drives

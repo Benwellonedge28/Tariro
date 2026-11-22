@@ -19,8 +19,7 @@ pub enum AutonomyLevel {
     FullAuto,
     SuggestOnly,
     HumanRequired,
-    MonitorOnly,
-}
+    MonitorOnly}
 
 #[derive(Debug, Clone)]
 pub struct PolicyRule {
@@ -28,8 +27,7 @@ pub struct PolicyRule {
     pub conditions: HashMap<ContextFactor, f64>,
     pub target_autonomy_level: AutonomyLevel,
     pub domain: String,
-    pub description: String,
-}
+    pub description: String}
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ContextFactor {
@@ -38,8 +36,7 @@ pub enum ContextFactor {
     UserOverride,
     SystemHealth,
     EthicalCompliance,
-    ExternalRegulation,
-}
+    ExternalRegulation}
 
 /// Represents various internal metrics for self-monitoring.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -50,8 +47,7 @@ pub enum InternalMetric {
     DecisionConfidence,
     LearningProgress,
     ToolUsageFrequency,
-    PolicyCompliance,
-}
+    PolicyCompliance}
 
 impl fmt::Display for InternalMetric {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -64,8 +60,7 @@ impl fmt::Display for InternalMetric {
 pub struct SelfReport {
     pub timestamp: u64,
     pub metrics: HashMap<InternalMetric, f64>,
-    pub qualitative_observations: Vec<String>,
-}
+    pub qualitative_observations: Vec<String>}
 
 impl SelfReport {
     pub fn new(timestamp: u64) -> Self {
@@ -76,8 +71,7 @@ impl SelfReport {
 /// The Self-Awareness & Introspection Module.
 pub struct IntrospectionAnalyzer {
     pub internal_state_history: Vec<SelfReport>,
-    pub current_performance_baselines: HashMap<InternalMetric, f64>,
-}
+    pub current_performance_baselines: HashMap<InternalMetric, f64>}
 
 impl IntrospectionAnalyzer {
     pub fn new() -> Self {

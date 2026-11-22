@@ -1,7 +1,7 @@
 // Tariro AGI - Privacy Preservation Module
 // Privacy protection and data governance
 
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
 use std::time::Duration;
 

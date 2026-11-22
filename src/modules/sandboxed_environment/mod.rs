@@ -24,8 +24,7 @@ use crate::{prelude::*,
     FeatureProposalId,
     SandboxedEnvironmentModuleConfig,
     // Import CodeQualityReport directly from its module
-    code_generation_engine::CodeQualityReport,
-};
+    code_generation_engine::CodeQualityReport};
 
 /// Represents the core Sandboxed Environment Module.
 pub struct SandboxedEnvironmentModule {

@@ -5,8 +5,7 @@ use async_trait::async_trait;
 use mongodb::{
     bson::{doc, Document},
     options::ClientOptions,
-    Client, Collection, Database,
-};
+    Client, Collection, Database};
 use serde::{de::DeserializeOwned, Serialize};
 use std::sync::Arc;
 use tokio::sync::Mutex;

@@ -4,8 +4,8 @@
 
 use std::sync::RwLock;
 use crate::prelude::*;
-use crate::knowledge::knowledge_graph::{KnowledgeGraph, EntityId, Entity, Probability};
-use std::collections::{HashMap, HashSet};
+use crate::knowledge::knowledge_graph::{KnowledgeGraph, Probability};
+use std::collections::{ };
 use std::sync::Arc;
 
 // ============================================================================

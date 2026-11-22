@@ -1,6 +1,6 @@
 // Abstract Interpretation for Static Analysis
 
-use crate::tumc_compiler::ir::{Instruction, IrType, Operation, BinOp, ValueId};
+use crate::tumc_compiler::ir::{Instruction, Operation, BinOp, ValueId};
 use std::collections::{HashMap, HashSet};
 
 /// Abstract domain type

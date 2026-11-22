@@ -39,8 +39,7 @@ pub struct RootCauseAnalysisResult {
     pub contributing_factors: Vec<String>,
     pub causal_graph_nodes: Vec<Event>, // Relevant events forming the causal chain
     pub causal_graph_links: Vec<CausalLink>, // Links between events
-    pub remediation_suggestions: Vec<String>,
-}
+    pub remediation_suggestions: Vec<String>}
 
 // Placeholder for SIMD-accelerated event sequencing and anomaly detection in event streams
 pub struct SimdEventSequencer;

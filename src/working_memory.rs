@@ -2,7 +2,7 @@
 // Active working memory with attention mechanisms
 
 
-use std::collections::{HashMap, VecDeque, BinaryHeap, HashSet};
+use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
 use std::time::Duration;
 

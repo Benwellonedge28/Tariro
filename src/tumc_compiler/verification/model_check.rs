@@ -1,6 +1,6 @@
 // Model Checking for Program Verification
 
-use crate::tumc_compiler::ir::{BasicBlock, Instruction, Operation, BinOp, Terminator};
+use crate::tumc_compiler::ir::{BasicBlock, BinOp, Terminator};
 use std::collections::{HashMap, HashSet, VecDeque};
 
 /// Transition system for model checking

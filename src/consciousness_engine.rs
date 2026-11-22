@@ -2,7 +2,7 @@
 // Self-awareness and consciousness simulation
 
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, VecDeque};
+use std::collections::{HashMap};
 use chrono::{DateTime, Utc};
 use std::time::Duration;
 

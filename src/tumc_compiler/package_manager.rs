@@ -3,7 +3,7 @@
 //! Package management system for TUMC including dependency resolution,
 //! versioning, publishing, and caching.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap};
 use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 

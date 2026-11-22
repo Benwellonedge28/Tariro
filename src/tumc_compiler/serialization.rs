@@ -3,7 +3,7 @@
 //! High-performance serialization for Tariro types including
 //! binary, JSON, and binary formats.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{ };
 
 /// Serializer trait
 pub trait Serializer: Sized {

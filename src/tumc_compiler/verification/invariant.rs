@@ -1,6 +1,6 @@
 // Invariant Detection and Checking
 
-use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation, BinOp};
+use crate::tumc_compiler::ir::{ Function, BasicBlock, Instruction, Operation, BinOp};
 use std::collections::HashMap;
 
 /// Invariant types

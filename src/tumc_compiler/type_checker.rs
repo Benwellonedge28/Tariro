@@ -2,7 +2,7 @@
 //! Implements Hindley-Milner type inference with constraint solving
 
 
-use super::ast::{self, *};
+use super::ast::{ *};
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 

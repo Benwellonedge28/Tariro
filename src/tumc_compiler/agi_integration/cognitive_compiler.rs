@@ -3,7 +3,7 @@
 //! The main cognitive compiler that integrates all AGI-Compiler components
 //! for intelligent, self-improving compilation.
 
-use crate::tumc_compiler::ir::{Module, Function, Operation};
+use crate::tumc_compiler::ir::{Module};
 use crate::tumc_compiler::optimization::{OptimizationManager, OptLevel};
 use crate::tumc_compiler::verification::Verifier;
 use crate::tumc_compiler::agi_integration::{
@@ -13,8 +13,8 @@ use crate::tumc_compiler::agi_integration::{
     self_modifying::SelfModifyingGenerator,
     reasoning_engine::CognitiveReasoningEngine};
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet};
-use std::time::{Instant, Duration};
+use std::collections::{HashMap};
+use std::time::{Instant};
 
 /// Compilation mode
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

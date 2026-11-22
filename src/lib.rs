@@ -572,8 +572,7 @@ pub use crate::unified::{
     IntentType,
     UnifiedResult,
     UnifiedStatus,
-    create_tariro_unified,
-};
+    create_tariro_unified};
 
 // Integration System Re-exports
 pub use crate::unified::{
@@ -585,5 +584,4 @@ pub use crate::unified::{
     SystemStatus as IntegrationSystemStatus,
     SystemHealth,
     CapabilityProfile,
-    CapabilityLevel,
-};
+    CapabilityLevel};

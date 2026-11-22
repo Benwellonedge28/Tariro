@@ -9,8 +9,7 @@ use crate::{prelude::*,
     Module,
     ModuleContext,
     DeploymentManagerConfig,
-    FeatureProposalId,
-};
+    FeatureProposalId};
 use async_trait::async_trait;
 use tokio::time::{sleep, Duration};
 use rand::Rng;

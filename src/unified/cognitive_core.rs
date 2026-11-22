@@ -7,7 +7,7 @@ use crate::unified::UnifiedConfig;
 use crate::tumc_compiler::agi_integration::{
     AgiInsight, AgiCompilerConfig, AgiSuggestion, InsightType, TransformType, RiskLevel,
     AgiCompilerBridge, PerformanceMetrics};
-use crate::tumc_compiler::ir::{Module, Function, Operation, IrType};
+use crate::tumc_compiler::ir::{Module};
 
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};

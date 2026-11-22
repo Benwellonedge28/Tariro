@@ -998,7 +998,7 @@ fn rand_simple() -> f64 {
 }
 
 
-use std::hash::{Hash, Hasher};
+use std::hash::{ };
 
 trait ChooseRandom {
     type Item;

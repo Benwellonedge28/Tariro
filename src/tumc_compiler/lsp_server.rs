@@ -3,12 +3,12 @@
 
 
 use super::ast::*;
-use super::lexer::{Lexer, Token, TokenKind};
+use super::lexer::{Lexer, Token};
 use super::parser::Parser;
 use super::type_checker::TypeChecker;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap};
 
 /// LSP Server instance
 pub struct LspServer {

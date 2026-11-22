@@ -8,7 +8,7 @@
 //! This module provides Tariro's executive function for generating and executing plans.
 
 use serde::{Deserialize, Serialize};
-use std::collections::{BinaryHeap, HashMap, HashSet};
+use std::collections::{ HashMap, HashSet};
 use std::cmp::Ordering;
 use uuid::Uuid;
 

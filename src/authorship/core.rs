@@ -13,7 +13,7 @@ use crate::authorship::{
     style::StyleEngine,
     ethics::AuthorshipEthics};
 use serde::{Deserialize, Serialize};
-use std::sync::{Arc, RwLock};
+use std::sync::{ };
 use std::time::Instant;
 
 /// Configuration for the authorship engine

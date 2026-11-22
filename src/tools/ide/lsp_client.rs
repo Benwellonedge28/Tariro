@@ -2,8 +2,8 @@
 //!
 //! Language Server Protocol client for IDE intelligence features.
 
-use std::process::{Command, Stdio, ChildStdin, ChildStdout};
-use std::io::{Write, BufRead, BufReader};
+use std::process::{Command, Stdio};
+use std::io::{Write};
 use serde::{Deserialize, Serialize};
 
 /// LSP completion item

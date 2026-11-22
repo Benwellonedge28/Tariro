@@ -14,7 +14,7 @@
 
 use crate::scaling::capability::{CapabilityProfile, DeviceTier};
 use serde::{Deserialize, Serialize};
-use std::collections::{BinaryHeap, HashMap, VecDeque};
+use std::collections::{ VecDeque};
 
 /// Computation path selection
 #[derive(Debug, Clone, Copy, PartialEq)]

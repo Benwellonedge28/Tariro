@@ -1,6 +1,6 @@
 // Language Server Protocol (LSP) Implementation
 
-use crate::tumc_compiler::ir::{Module, Function, BasicBlock};
+use crate::tumc_compiler::ir::{Module, Function};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 

@@ -2,7 +2,7 @@
 // Analogical reasoning and creative concept generation
 
 
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap};
 use std::cmp::Ordering;
 
 // ============================================================================

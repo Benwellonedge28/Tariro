@@ -33,12 +33,12 @@ pub mod self_modifying;
 pub mod reasoning_engine;
 pub mod cognitive_compiler;
 
-use crate::tumc_compiler::ir::{Module, Function, Operation};
+use crate::tumc_compiler::ir::{Module};
 
 
 
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap};
 
 /// AGI-Compiler bridge configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
