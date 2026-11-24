@@ -241,37 +241,37 @@ impl PycInst {
     /// Get argument bytes
     pub fn arg_bytes(&self) -> Vec<u8> {
         match self {
-            PycInst::LoadConst(idx) |
-            PycInst::LoadFast(idx) |
-            PycInst::LoadGlobal(idx) |
-            PycInst::StoreFast(idx) |
-            PycInst::StoreGlobal(idx) |
-            PycInst::DeleteFast(idx) |
-            PycInst::DeleteGlobal(idx) |
-            PycInst::DeleteName(idx) |
-            PycInst::BuildTuple(idx) |
-            PycInst::BuildList(idx) |
-            PycInst::BuildSet(idx) |
-            PycInst::BuildMap(idx) |
-            PycInst::UnpackSequence(idx) |
-            PycInst::JumpAbsolute(idx) |
-            PycInst::PopJumpIfTrue(idx) |
-            PycInst::PopJumpIfFalse(idx) |
-            PycInst::JumpIfTrueOrPop(idx) |
-            PycInst::JumpIfFalseOrPop(idx) |
-            PycInst::LoadMethod(idx) |
-            PycInst::CallFunction(idx) |
-            PycInst::CallFunctionKw(idx) |
-            PycInst::CallFunctionEx(idx) |
-            PycInst::CallMethod(idx) |
-            PycInst::CallMethodKw(idx) => idx.to_le_bytes().to_vec(),
-            PycInst::JumpForward(offset) |
-            PycInst::ForIter(offset) |
-            PycInst::SetupFinally(offset) |
-            PycInst::ContinueLoop(offset) |
-            PycInst::SetupLoop(offset) |
-            PycInst::SetupWith(offset) |
-            PycInst::SetupAsyncWith(offset) => (offset / 2).to_le_bytes().to_vec(),
+            PycInst::LoadConst(idx)
+            | PycInst::LoadFast(idx)
+            | PycInst::LoadGlobal(idx)
+            | PycInst::StoreFast(idx)
+            | PycInst::StoreGlobal(idx)
+            | PycInst::DeleteFast(idx)
+            | PycInst::DeleteGlobal(idx)
+            | PycInst::DeleteName(idx)
+            | PycInst::BuildTuple(idx)
+            | PycInst::BuildList(idx)
+            | PycInst::BuildSet(idx)
+            | PycInst::BuildMap(idx)
+            | PycInst::UnpackSequence(idx)
+            | PycInst::JumpAbsolute(idx)
+            | PycInst::PopJumpIfTrue(idx)
+            | PycInst::PopJumpIfFalse(idx)
+            | PycInst::JumpIfTrueOrPop(idx)
+            | PycInst::JumpIfFalseOrPop(idx)
+            | PycInst::LoadMethod(idx)
+            | PycInst::CallFunction(idx)
+            | PycInst::CallFunctionKw(idx)
+            | PycInst::CallFunctionEx(idx)
+            | PycInst::CallMethod(idx)
+            | PycInst::CallMethodKw(idx) => idx.to_le_bytes().to_vec(),
+            PycInst::JumpForward(offset)
+            | PycInst::ForIter(offset)
+            | PycInst::SetupFinally(offset)
+            | PycInst::ContinueLoop(offset)
+            | PycInst::SetupLoop(offset)
+            | PycInst::SetupWith(offset)
+            | PycInst::SetupAsyncWith(offset) => (offset / 2).to_le_bytes().to_vec(),
             PycInst::CompareOp(op) => (*op as usize).to_le_bytes().to_vec(),
             PycInst::ExtendedArg(arg) => (*arg as usize).to_le_bytes().to_vec(),
             _ => Vec::new(),
@@ -329,19 +329,22 @@ impl PythonBytecodeCompiler {
             PycInst::PopTop => self.stack_size.saturating_sub(1),
             PycInst::RotTwo | PycInst::RotThree => self.stack_size,
             PycInst::DupTop => self.stack_size + 1,
-            PycInst::BinaryAdd | PycInst::BinarySubtract | PycInst::BinaryMultiply |
-            PycInst::BinaryTrueDivide | PycInst::BinaryFloorDivide |
-            PycInst::BinaryModulo | PycInst::BinaryPower |
-            PycInst::BinaryLshift | PycInst::BinaryRshift |
-            PycInst::BinaryAnd | PycInst::BinaryOr | PycInst::BinaryXor => {
-                self.stack_size.saturating_sub(1)
-            }
+            PycInst::BinaryAdd
+            | PycInst::BinarySubtract
+            | PycInst::BinaryMultiply
+            | PycInst::BinaryTrueDivide
+            | PycInst::BinaryFloorDivide
+            | PycInst::BinaryModulo
+            | PycInst::BinaryPower
+            | PycInst::BinaryLshift
+            | PycInst::BinaryRshift
+            | PycInst::BinaryAnd
+            | PycInst::BinaryOr
+            | PycInst::BinaryXor => self.stack_size.saturating_sub(1),
             PycInst::LoadConst(_) | PycInst::LoadFast(_) | PycInst::LoadGlobal(_) => {
                 self.stack_size + 1
             }
-            PycInst::StoreFast(_) | PycInst::StoreGlobal(_) => {
-                self.stack_size.saturating_sub(1)
-            }
+            PycInst::StoreFast(_) | PycInst::StoreGlobal(_) => self.stack_size.saturating_sub(1),
             PycInst::ReturnValue => 0,
             PycInst::JumpForward(_) | PycInst::JumpAbsolute(_) => self.stack_size,
             PycInst::PopJumpIfTrue(_) | PycInst::PopJumpIfFalse(_) => {
@@ -357,7 +360,8 @@ impl PythonBytecodeCompiler {
 
     /// Define label
     pub fn label(&mut self, name: &str) {
-        self.labels.insert(name.to_string(), self.instructions.len());
+        self.labels
+            .insert(name.to_string(), self.instructions.len());
     }
 
     /// Add constant

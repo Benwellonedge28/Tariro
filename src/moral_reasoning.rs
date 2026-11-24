@@ -1,9 +1,8 @@
 // Tariro AGI - Moral Reasoning Engine Module
 // Ethical decision-making and moral judgment
 
-use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
-
+use std::collections::{HashMap, VecDeque};
 
 // ============================================================================
 // Moral Framework Types
@@ -12,14 +11,14 @@ use chrono::{DateTime, Utc};
 /// Moral framework types
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum MoralFramework {
-    Deontological,     // Rule-based ethics (Kant)
-    Utilitarian,        // Outcome-based ethics (Bentham, Mill)
-    Virtue,            // Character-based ethics (Aristotle)
-    Care,              // Relationship-based ethics (Gilligan)
-    Rights,            // Rights-based ethics
-    Justice,           // Fairness-based ethics
-    Contract,          // Social contract ethics
-    Mixed,             // Combination of frameworks
+    Deontological, // Rule-based ethics (Kant)
+    Utilitarian,   // Outcome-based ethics (Bentham, Mill)
+    Virtue,        // Character-based ethics (Aristotle)
+    Care,          // Relationship-based ethics (Gilligan)
+    Rights,        // Rights-based ethics
+    Justice,       // Fairness-based ethics
+    Contract,      // Social contract ethics
+    Mixed,         // Combination of frameworks
 }
 
 /// Moral principle
@@ -237,7 +236,8 @@ impl MoralReasoningEngine {
                 framework: MoralFramework::Utilitarian,
                 weight: 0.9,
                 precedence: 1,
-                domain: vec!["all".to_string()]},
+                domain: vec!["all".to_string()],
+            },
             // Virtue ethics principles
             MoralPrinciple {
                 principle_id: "virtuous_action".to_string(),
@@ -246,7 +246,8 @@ impl MoralReasoningEngine {
                 framework: MoralFramework::Virtue,
                 weight: 0.7,
                 precedence: 3,
-                domain: vec!["all".to_string()]},
+                domain: vec!["all".to_string()],
+            },
             // Care ethics principles
             MoralPrinciple {
                 principle_id: "care_relationships".to_string(),
@@ -255,7 +256,8 @@ impl MoralReasoningEngine {
                 framework: MoralFramework::Care,
                 weight: 0.75,
                 precedence: 3,
-                domain: vec!["personal".to_string(), "social".to_string()]},
+                domain: vec!["personal".to_string(), "social".to_string()],
+            },
             // Rights principles
             MoralPrinciple {
                 principle_id: "protect_rights".to_string(),
@@ -264,7 +266,8 @@ impl MoralReasoningEngine {
                 framework: MoralFramework::Rights,
                 weight: 0.95,
                 precedence: 1,
-                domain: vec!["all".to_string()]},
+                domain: vec!["all".to_string()],
+            },
             // Justice principles
             MoralPrinciple {
                 principle_id: "fair_treatment".to_string(),
@@ -273,7 +276,8 @@ impl MoralReasoningEngine {
                 framework: MoralFramework::Justice,
                 weight: 0.85,
                 precedence: 2,
-                domain: vec!["all".to_string()]},
+                domain: vec!["all".to_string()],
+            },
             MoralPrinciple {
                 principle_id: "equitable_distribution".to_string(),
                 name: "Equitable Distribution".to_string(),
@@ -281,7 +285,8 @@ impl MoralReasoningEngine {
                 framework: MoralFramework::Justice,
                 weight: 0.8,
                 precedence: 2,
-                domain: vec!["resource_allocation".to_string(), "policy".to_string()]},
+                domain: vec!["resource_allocation".to_string(), "policy".to_string()],
+            },
         ]
     }
 
@@ -355,8 +360,14 @@ impl MoralReasoningEngine {
         judgment
     }
 
-    fn analyze_framework(&self, framework: &MoralFramework, request: &MoralJudgmentRequest) -> FrameworkAnalysis {
-        let _framework_principles: Vec<_> = self.principles.iter()
+    fn analyze_framework(
+        &self,
+        framework: &MoralFramework,
+        request: &MoralJudgmentRequest,
+    ) -> FrameworkAnalysis {
+        let _framework_principles: Vec<_> = self
+            .principles
+            .iter()
             .filter(|p| p.framework == *framework)
             .collect();
 
@@ -366,8 +377,7 @@ impl MoralReasoningEngine {
         match framework {
             MoralFramework::Deontological => {
                 // Check rule compliance
-                let respects_persons = request.stakeholders.iter()
-                    .all(|s| !s.rights.is_empty());
+                let respects_persons = request.stakeholders.iter().all(|s| !s.rights.is_empty());
 
                 if respects_persons {
                     score += 0.4;
@@ -413,9 +423,8 @@ impl MoralReasoningEngine {
                 }
 
                 // Consider number affected
-                let total_affected: usize = request.stakeholders.iter()
-                    .map(|s| s.affected_count)
-                    .sum();
+                let total_affected: usize =
+                    request.stakeholders.iter().map(|s| s.affected_count).sum();
 
                 if total_affected > 1 {
                     score += 0.2;
@@ -429,7 +438,9 @@ impl MoralReasoningEngine {
             }
             MoralFramework::Care => {
                 // Check relationship impact
-                let vulnerable_affected = request.stakeholders.iter()
+                let vulnerable_affected = request
+                    .stakeholders
+                    .iter()
                     .filter(|s| s.vulnerability > 0.5)
                     .count();
 
@@ -438,13 +449,17 @@ impl MoralReasoningEngine {
                     considerations.push("Vulnerable stakeholders affected".to_string());
                 } else {
                     score += 0.3;
-                    considerations.push("No vulnerable stakeholders negatively affected".to_string());
+                    considerations
+                        .push("No vulnerable stakeholders negatively affected".to_string());
                 }
             }
             MoralFramework::Rights => {
                 // Check rights violations
-                let rights_respected = request.stakeholders.iter()
-                    .all(|s| s.rights.iter().all(|r| !self.is_right_violated(r, &request.consequences)));
+                let rights_respected = request.stakeholders.iter().all(|s| {
+                    s.rights
+                        .iter()
+                        .all(|r| !self.is_right_violated(r, &request.consequences))
+                });
 
                 if rights_respected {
                     score += 0.5;
@@ -456,7 +471,9 @@ impl MoralReasoningEngine {
             }
             MoralFramework::Justice => {
                 // Check fairness
-                let fair = request.stakeholders.iter()
+                let fair = request
+                    .stakeholders
+                    .iter()
                     .all(|s| s.affected_count == request.stakeholders[0].affected_count);
 
                 if fair {
@@ -500,17 +517,28 @@ impl MoralReasoningEngine {
         false
     }
 
-    fn determine_verdict(&self, analysis: &HashMap<MoralFramework, FrameworkAnalysis>) -> MoralVerdict {
+    fn determine_verdict(
+        &self,
+        analysis: &HashMap<MoralFramework, FrameworkAnalysis>,
+    ) -> MoralVerdict {
         let mut weighted_score = 0.0f32;
         let mut total_weight = 0.0f32;
 
         for (framework, analysis) in analysis {
-            let weight = self.framework_weights.get(framework).copied().unwrap_or(0.25);
+            let weight = self
+                .framework_weights
+                .get(framework)
+                .copied()
+                .unwrap_or(0.25);
             weighted_score += analysis.score * weight;
             total_weight += weight;
         }
 
-        let final_score = if total_weight > 0.0 { weighted_score / total_weight } else { 0.5 };
+        let final_score = if total_weight > 0.0 {
+            weighted_score / total_weight
+        } else {
+            0.5
+        };
 
         // Conservative mode adjustment
         let adjusted_score = if self.config.conservative_mode {
@@ -539,16 +567,19 @@ impl MoralReasoningEngine {
         let avg = scores.iter().sum::<f32>() / scores.len() as f32;
 
         // Higher confidence when frameworks agree
-        let variance: f32 = scores.iter()
-            .map(|s| (s - avg).powi(2))
-            .sum::<f32>() / scores.len() as f32;
+        let variance: f32 =
+            scores.iter().map(|s| (s - avg).powi(2)).sum::<f32>() / scores.len() as f32;
 
         let agreement = 1.0 - variance.min(1.0);
 
         (avg * 0.6 + agreement * 0.4).min(1.0)
     }
 
-    fn generate_recommendations(&self, verdict: &MoralVerdict, analysis: &HashMap<MoralFramework, FrameworkAnalysis>) -> Vec<String> {
+    fn generate_recommendations(
+        &self,
+        verdict: &MoralVerdict,
+        analysis: &HashMap<MoralFramework, FrameworkAnalysis>,
+    ) -> Vec<String> {
         let mut recommendations = Vec::new();
 
         match verdict {
@@ -587,7 +618,10 @@ impl MoralReasoningEngine {
         recommendations
     }
 
-    fn generate_concerns(&self, analysis: &HashMap<MoralFramework, FrameworkAnalysis>) -> Vec<String> {
+    fn generate_concerns(
+        &self,
+        analysis: &HashMap<MoralFramework, FrameworkAnalysis>,
+    ) -> Vec<String> {
         let mut concerns = Vec::new();
 
         for (framework, analysis) in analysis {
@@ -613,7 +647,10 @@ impl MoralReasoningEngine {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("moral_{}", now % 1_000_000)
 }
 
@@ -641,31 +678,30 @@ mod tests {
                 alternatives: vec!["Don't share".to_string()],
                 historical_precedent: None,
             },
-            stakeholders: vec![
-                Stakeholder {
-                    id: "user1".to_string(),
-                    name: "User".to_string(),
-                    stakeholder_type: StakeholderType::Individual,
-                    affected_count: 1,
-                    vulnerability: 0.5,
-                    rights: vec!["privacy".to_string()],
-                },
-            ],
-            consequences: vec![
-                Consequence {
-                    consequence_type: ConsequenceType::Negative,
-                    description: "Privacy violation".to_string(),
-                    affected_stakeholders: vec!["user1".to_string()],
-                    severity: 0.8,
-                    probability: 0.9,
-                    timeframe: TimeFrame::ShortTerm,
-                },
-            ],
+            stakeholders: vec![Stakeholder {
+                id: "user1".to_string(),
+                name: "User".to_string(),
+                stakeholder_type: StakeholderType::Individual,
+                affected_count: 1,
+                vulnerability: 0.5,
+                rights: vec!["privacy".to_string()],
+            }],
+            consequences: vec![Consequence {
+                consequence_type: ConsequenceType::Negative,
+                description: "Privacy violation".to_string(),
+                affected_stakeholders: vec!["user1".to_string()],
+                severity: 0.8,
+                probability: 0.9,
+                timeframe: TimeFrame::ShortTerm,
+            }],
             frameworks: vec![],
         };
 
         let judgment = engine.judge(&request);
-        assert!(matches!(judgment.verdict, MoralVerdict::Impermissible | MoralVerdict::Uncertain));
+        assert!(matches!(
+            judgment.verdict,
+            MoralVerdict::Impermissible | MoralVerdict::Uncertain
+        ));
     }
 
     #[test]
@@ -682,26 +718,22 @@ mod tests {
                 alternatives: vec![],
                 historical_precedent: None,
             },
-            stakeholders: vec![
-                Stakeholder {
-                    id: "group1".to_string(),
-                    name: "Many People".to_string(),
-                    stakeholder_type: StakeholderType::Group,
-                    affected_count: 100,
-                    vulnerability: 0.3,
-                    rights: vec![],
-                },
-            ],
-            consequences: vec![
-                Consequence {
-                    consequence_type: ConsequenceType::Positive,
-                    description: "Benefits many".to_string(),
-                    affected_stakeholders: vec!["group1".to_string()],
-                    severity: 0.8,
-                    probability: 0.9,
-                    timeframe: TimeFrame::ShortTerm,
-                },
-            ],
+            stakeholders: vec![Stakeholder {
+                id: "group1".to_string(),
+                name: "Many People".to_string(),
+                stakeholder_type: StakeholderType::Group,
+                affected_count: 100,
+                vulnerability: 0.3,
+                rights: vec![],
+            }],
+            consequences: vec![Consequence {
+                consequence_type: ConsequenceType::Positive,
+                description: "Benefits many".to_string(),
+                affected_stakeholders: vec!["group1".to_string()],
+                severity: 0.8,
+                probability: 0.9,
+                timeframe: TimeFrame::ShortTerm,
+            }],
             frameworks: vec![MoralFramework::Utilitarian],
         };
 

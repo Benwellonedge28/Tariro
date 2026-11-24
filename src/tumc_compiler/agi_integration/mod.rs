@@ -27,18 +27,16 @@
 //! └─────────────────────────────────────────────────────────────────┘
 //! ```
 
-pub mod neural_symbolic;
-pub mod meta_learning;
-pub mod self_modifying;
-pub mod reasoning_engine;
 pub mod cognitive_compiler;
+pub mod meta_learning;
+pub mod neural_symbolic;
+pub mod reasoning_engine;
+pub mod self_modifying;
 
-use crate::tumc_compiler::ir::{Module};
-
-
+use crate::tumc_compiler::ir::Module;
 
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap};
+use std::collections::HashMap;
 
 /// AGI-Compiler bridge configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -217,7 +215,9 @@ impl AgiCompilerBridge {
         };
 
         let meta_optimizer = if config.enable_meta_learning {
-            Some(meta_learning::MetaLearningOptimizer::new(config.learning_rate))
+            Some(meta_learning::MetaLearningOptimizer::new(
+                config.learning_rate,
+            ))
         } else {
             None
         };
@@ -229,7 +229,9 @@ impl AgiCompilerBridge {
         };
 
         let reasoning_engine = if config.enable_cognitive_planning {
-            Some(reasoning_engine::CognitiveReasoningEngine::new(config.max_reasoning_depth))
+            Some(reasoning_engine::CognitiveReasoningEngine::new(
+                config.max_reasoning_depth,
+            ))
         } else {
             None
         };
@@ -288,14 +290,30 @@ impl AgiCompilerBridge {
     /// Apply an AGI insight to the module
     fn apply_insight(&mut self, module: &mut Module, insight: &AgiInsight) {
         match insight.suggestion.transform_type {
-            TransformType::Inline => self.apply_inlining(module, &insight.suggestion.target_location),
-            TransformType::Unroll => self.apply_loop_unroll(module, &insight.suggestion.target_location),
-            TransformType::Vectorize => self.apply_vectorization(module, &insight.suggestion.target_location),
-            TransformType::Specialize => self.apply_specialization(module, &insight.suggestion.target_location),
-            TransformType::Parallelize => self.apply_parallelization(module, &insight.suggestion.target_location),
-            TransformType::Devirtualize => self.apply_devirtualization(module, &insight.suggestion.target_location),
-            TransformType::MemoryOptimize => self.apply_memory_optimization(module, &insight.suggestion.target_location),
-            TransformType::CacheOptimize => self.apply_cache_optimization(module, &insight.suggestion.target_location),
+            TransformType::Inline => {
+                self.apply_inlining(module, &insight.suggestion.target_location)
+            }
+            TransformType::Unroll => {
+                self.apply_loop_unroll(module, &insight.suggestion.target_location)
+            }
+            TransformType::Vectorize => {
+                self.apply_vectorization(module, &insight.suggestion.target_location)
+            }
+            TransformType::Specialize => {
+                self.apply_specialization(module, &insight.suggestion.target_location)
+            }
+            TransformType::Parallelize => {
+                self.apply_parallelization(module, &insight.suggestion.target_location)
+            }
+            TransformType::Devirtualize => {
+                self.apply_devirtualization(module, &insight.suggestion.target_location)
+            }
+            TransformType::MemoryOptimize => {
+                self.apply_memory_optimization(module, &insight.suggestion.target_location)
+            }
+            TransformType::CacheOptimize => {
+                self.apply_cache_optimization(module, &insight.suggestion.target_location)
+            }
         }
     }
 
@@ -371,7 +389,12 @@ impl AgiCompilerBridge {
     }
 
     /// Enable feedback loop learning
-    pub fn enable_feedback(&mut self, compilation_id: &str, success: bool, metrics: &PerformanceMetrics) {
+    pub fn enable_feedback(
+        &mut self,
+        compilation_id: &str,
+        success: bool,
+        metrics: &PerformanceMetrics,
+    ) {
         if !self.config.enable_feedback_loop {
             return;
         }
@@ -403,8 +426,8 @@ impl Default for AgiCompilerBridge {
 }
 
 // Re-exports
-pub use neural_symbolic::NeuralSymbolicEngine;
-pub use meta_learning::MetaLearningOptimizer;
-pub use self_modifying::SelfModifyingGenerator;
-pub use reasoning_engine::CognitiveReasoningEngine;
 pub use cognitive_compiler::CognitiveCompiler;
+pub use meta_learning::MetaLearningOptimizer;
+pub use neural_symbolic::NeuralSymbolicEngine;
+pub use reasoning_engine::CognitiveReasoningEngine;
+pub use self_modifying::SelfModifyingGenerator;

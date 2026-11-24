@@ -7,14 +7,13 @@
 /// models and constantly refines outputs based on implicit and explicit feedback. It leverages
 /// RAG for generative adversarial networks, diffusion models, and multimodal transformers,
 /// and SIMD for parallel generation of multimodal content and real-time quality assessment.
-
 use crate::prelude::*;
 use std::collections::HashMap;
 
+use rand::Rng;
+use serde::{Deserialize, Serialize};
 use std::thread;
 use std::time::Duration;
-use rand::Rng;
-use serde::{Serialize, Deserialize};
 
 // --- Conceptual Structures --- //
 
@@ -40,9 +39,9 @@ pub struct GeneratedContent {
     #[serde(with = "chrono::serde::ts_seconds")]
     pub timestamp: DateTime<Utc>,
     pub output_format: String, // e.g., "Markdown", "PNG", "MP4", "GLTF"
-    pub content_url: String, // URL to the generated content
-    pub quality_score: f32, // 0.0 to 1.0, based on internal assessment and feedback
-    pub coherence_score: f32, // 0.0 to 1.0, how well it fits the context
+    pub content_url: String,   // URL to the generated content
+    pub quality_score: f32,    // 0.0 to 1.0, based on internal assessment and feedback
+    pub coherence_score: f32,  // 0.0 to 1.0, how well it fits the context
     pub rag_derived_prompt: String, // The final RAG-augmented prompt used for generation
     pub refinement_iterations: u32,
     pub feedback_incorporated: bool,
@@ -56,7 +55,7 @@ pub struct QualityAssessment {
     pub timestamp: DateTime<Utc>,
     pub content_id: String,
     pub aspect: String, // e.g., "Visual_Cohesion", "Audio_Clarity", "Factual_Accuracy", "Ethical_Compliance"
-    pub score: f32, // 0.0 to 1.0
+    pub score: f32,     // 0.0 to 1.0
     pub detected_issues: Vec<String>,
     pub recommended_action: String,
 }
@@ -96,7 +95,12 @@ impl AAMMCGEngine {
     }
 
     /// Performs parallel generation of multimodal content and real-time quality assessment (SIMD conceptualization).
-    fn parallel_multimodal_generation_quality_assessment_simd(&self, current_prompt: &str, content_type: &str) -> GeneratedContent { // generated content
+    fn parallel_multimodal_generation_quality_assessment_simd(
+        &self,
+        current_prompt: &str,
+        content_type: &str,
+    ) -> GeneratedContent {
+        // generated content
         println!("    [AAMMCG-SIMD]: Generating '{}' content with prompt '{}' in parallel and assessing quality.", content_type, current_prompt);
         thread::sleep(Duration::from_millis(200));
         let mut rng = rand::thread_rng();
@@ -113,23 +117,48 @@ impl AAMMCGEngine {
                 "3D_Model" => "GLTF".to_string(),
                 _ => "JSON".to_string(),
             },
-            content_url: format!("https://tariro.ai/generated/{}/{}", content_type.to_lowercase(), rng.gen::<u32>()),
+            content_url: format!(
+                "https://tariro.ai/generated/{}/{}",
+                content_type.to_lowercase(),
+                rng.gen::<u32>()
+            ),
             quality_score: rng.gen_range(0.85..0.99),
             coherence_score: rng.gen_range(0.9..0.98),
-            rag_derived_prompt: format!("RAG-derived: Elaborated prompt based on user context: '{}'.", current_prompt),
+            rag_derived_prompt: format!(
+                "RAG-derived: Elaborated prompt based on user context: '{}'.",
+                current_prompt
+            ),
             refinement_iterations: rng.gen_range(1..5),
             feedback_incorporated: rng.gen_bool(0.7),
         }
     }
 
     /// Autonomously performs advanced multi-modal content generation (RAG-amplified).
-    pub fn generate_multimodal_content_rag(&self, request: ContentGenerationRequest) -> (GeneratedContent, Vec<QualityAssessment>) {
-        println!("  [AAMMCG]: Generating '{}' content for request '{}'.", request.content_type, request.request_id);
-        if let Some(gm) = self.generative_models_rag_db.get("diffusion_models_for_image_generation_architectures") {
-            format!("RAG knowledge for generative models: '{}'", gm.chars().take(100).collect::<String>());
+    pub fn generate_multimodal_content_rag(
+        &self,
+        request: ContentGenerationRequest,
+    ) -> (GeneratedContent, Vec<QualityAssessment>) {
+        println!(
+            "  [AAMMCG]: Generating '{}' content for request '{}'.",
+            request.content_type, request.request_id
+        );
+        if let Some(gm) = self
+            .generative_models_rag_db
+            .get("diffusion_models_for_image_generation_architectures")
+        {
+            format!(
+                "RAG knowledge for generative models: '{}'",
+                gm.chars().take(100).collect::<String>()
+            );
         }
-        if let Some(mmt) = self.multimodal_transformers_rag_db.get("multimodal_fusion_for_coherent_narration_models") {
-            format!("RAG knowledge for multimodal transformers: '{}'", mmt.chars().take(100).collect::<String>());
+        if let Some(mmt) = self
+            .multimodal_transformers_rag_db
+            .get("multimodal_fusion_for_coherent_narration_models")
+        {
+            format!(
+                "RAG knowledge for multimodal transformers: '{}'",
+                mmt.chars().take(100).collect::<String>()
+            );
         }
         thread::sleep(Duration::from_millis(2000));
         let mut rng = rand::thread_rng();
@@ -143,7 +172,10 @@ impl AAMMCGEngine {
             request.explicit_feedback.unwrap_or("None".to_string())
         );
 
-        let generated_content = self.parallel_multimodal_generation_quality_assessment_simd(&augmented_prompt, &request.content_type);
+        let generated_content = self.parallel_multimodal_generation_quality_assessment_simd(
+            &augmented_prompt,
+            &request.content_type,
+        );
 
         let mut assessments = Vec::new();
         // Conceptual: Perform multiple quality assessments (RAG-informed)
@@ -158,25 +190,35 @@ impl AAMMCGEngine {
                 recommended_action: "None".to_string(),
             });
         }
-        if rng.gen_bool(0.1) { // Simulate a detected minor issue
-             assessments.push(QualityAssessment {
+        if rng.gen_bool(0.1) {
+            // Simulate a detected minor issue
+            assessments.push(QualityAssessment {
                 assessment_id: format!("qa_issue_{}", rng.gen::<u32>()),
                 timestamp: Utc::now(),
                 content_id: generated_content.content_id.clone(),
                 aspect: "Factual_Accuracy".to_string(),
                 score: 0.7,
                 detected_issues: vec!["Minor factual inaccuracy in paragraph 3.".to_string()],
-                recommended_action: "RAG-derived: Re-check source material for section C.".to_string(),
+                recommended_action: "RAG-derived: Re-check source material for section C."
+                    .to_string(),
             });
         }
 
-        println!("  Content generation complete. Quality: {:.2}.\n", generated_content.quality_score);
+        println!(
+            "  Content generation complete. Quality: {:.2}.\n",
+            generated_content.quality_score
+        );
         (generated_content, assessments)
     }
 
     /// Generates a comprehensive report for AAMMCG.
-    pub fn generate_aammcg_report_rag(&self, total_requests: u64, total_generated: u64, avg_quality: f32) -> String {
-        println!("  [AAMMCG]: Generating AAMMCG report (RAG for report generation).", );
+    pub fn generate_aammcg_report_rag(
+        &self,
+        total_requests: u64,
+        total_generated: u64,
+        avg_quality: f32,
+    ) -> String {
+        println!("  [AAMMCG]: Generating AAMMCG report (RAG for report generation).",);
         thread::sleep(Duration::from_millis(80));
 
         format!("Autonomous Advanced Multi-Modal Content Generation Report:\n  Total Requests Processed: {}\n  Total Content Generated: {}\n  Average Content Quality: {:.2}%\n  (Conceptual summary based on RAG for generative models/multimodal transformers and SIMD for parallel generation).",
@@ -196,7 +238,14 @@ mod tests {
         let engine = AAMMCGEngine::new();
 
         let request = ContentGenerationRequest {
-            request_id: "req_001".to_string(), timestamp: Utc::now(), requested_by: "Samuel".to_string(), content_type: "Image".to_string(), context_description: "Generate a futuristic cityscape for my new project.".to_string(), target_audience: "General Public".to_string(), style_guide: "Cyberpunk, vibrant colors.".to_string(), explicit_feedback: None,
+            request_id: "req_001".to_string(),
+            timestamp: Utc::now(),
+            requested_by: "Samuel".to_string(),
+            content_type: "Image".to_string(),
+            context_description: "Generate a futuristic cityscape for my new project.".to_string(),
+            target_audience: "General Public".to_string(),
+            style_guide: "Cyberpunk, vibrant colors.".to_string(),
+            explicit_feedback: None,
         };
 
         let (generated, assessments) = engine.generate_multimodal_content_rag(request);
@@ -209,7 +258,9 @@ mod tests {
 }
 
 fn main() {
-    println!("\n--- Autonomous Advanced Multi-Modal Content Generation (RAG-Driven) Demonstration ---");
+    println!(
+        "\n--- Autonomous Advanced Multi-Modal Content Generation (RAG-Driven) Demonstration ---"
+    );
 
     let aammcg_engine = AAMMCGEngine::new();
     let now = Utc::now();
@@ -227,8 +278,10 @@ fn main() {
         explicit_feedback: None,
     };
 
-    let (generated_image, assessments_image) = aammcg_engine.generate_multimodal_content_rag(marketing_request_image);
-    println!("  Generated Image URL: '{}'. Quality: {:.2}. Assessments: {}.\n",
+    let (generated_image, assessments_image) =
+        aammcg_engine.generate_multimodal_content_rag(marketing_request_image);
+    println!(
+        "  Generated Image URL: '{}'. Quality: {:.2}. Assessments: {}.\n",
         generated_image.content_url,
         generated_image.quality_score,
         assessments_image.len()
@@ -245,8 +298,10 @@ fn main() {
         explicit_feedback: Some("Ensure diverse representation and avoid generic stock footage feel.".to_string()),
     };
 
-    let (generated_video, assessments_video) = aammcg_engine.generate_multimodal_content_rag(marketing_request_video);
-    println!("  Generated Video URL: '{}'. Quality: {:.2}. Assessments: {}.\n",
+    let (generated_video, assessments_video) =
+        aammcg_engine.generate_multimodal_content_rag(marketing_request_video);
+    println!(
+        "  Generated Video URL: '{}'. Quality: {:.2}. Assessments: {}.\n",
         generated_video.content_url,
         generated_video.quality_score,
         assessments_video.len()
@@ -265,8 +320,10 @@ fn main() {
         explicit_feedback: None,
     };
 
-    let (generated_tutorial, assessments_tutorial) = aammcg_engine.generate_multimodal_content_rag(tutorial_request);
-    println!("  Generated Tutorial URL: '{}'. Quality: {:.2}. Assessments: {}.\n",
+    let (generated_tutorial, assessments_tutorial) =
+        aammcg_engine.generate_multimodal_content_rag(tutorial_request);
+    println!(
+        "  Generated Tutorial URL: '{}'. Quality: {:.2}. Assessments: {}.\n",
         generated_tutorial.content_url,
         generated_tutorial.quality_score,
         assessments_tutorial.len()
@@ -277,5 +334,7 @@ fn main() {
     let aammcg_report_summary = aammcg_engine.generate_aammcg_report_rag(500, 480, 0.97);
     println!("  {}\n", aammcg_report_summary);
 
-    println!("\nAutonomous Advanced Multi-Modal Content Generation (RAG-Driven) Demonstration Complete.");
+    println!(
+        "\nAutonomous Advanced Multi-Modal Content Generation (RAG-Driven) Demonstration Complete."
+    );
 }

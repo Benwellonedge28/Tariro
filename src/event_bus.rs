@@ -2,10 +2,9 @@
 
 //! Implements an asynchronous event bus for inter-module communication within the Tariro AGI.
 
-
-use tokio::sync::broadcast;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
+use tokio::sync::broadcast;
 // NEW: Import PqcMigrationRecommendation
 use crate::quantum_security::threat_intelligence::PqcMigrationRecommendation;
 
@@ -13,21 +12,43 @@ use crate::quantum_security::threat_intelligence::PqcMigrationRecommendation;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum AGIEvent {
     // System Events
-    SystemInitialized { version: String },
+    SystemInitialized {
+        version: String,
+    },
     SystemStarted,
     SystemShutdown,
-    ErrorOccurred { message: String, details: Option<String> },
+    ErrorOccurred {
+        message: String,
+        details: Option<String>,
+    },
     // NEW: System alert for critical QSM events
-    SystemAlert { message: String, component: String, severity: String }, 
+    SystemAlert {
+        message: String,
+        component: String,
+        severity: String,
+    },
     // NEW: System status update for ongoing processes like PQC migration
-    SystemStatusUpdate { message: String, component: String, status: String }, 
+    SystemStatusUpdate {
+        message: String,
+        component: String,
+        status: String,
+    },
     // NEW: Critical Alert from QSM
-    CriticalSystemAlert { message: String },
-
+    CriticalSystemAlert {
+        message: String,
+    },
 
     // Admin/Control Events
-    AdminCommandIssued { command_id: String, command_type: String, initiator: String },
-    AdminCommandCompleted { command_id: String, status: String, message: String },
+    AdminCommandIssued {
+        command_id: String,
+        command_type: String,
+        initiator: String,
+    },
+    AdminCommandCompleted {
+        command_id: String,
+        status: String,
+        message: String,
+    },
     AutonomyLevelChanged {
         affected_domain: String,
         old_autonomy_level: String,
@@ -35,44 +56,116 @@ pub enum AGIEvent {
         reason: String,
         triggered_by_action_id: String,
     },
-    PolicyUpdated { policy_id: String, action: String },
+    PolicyUpdated {
+        policy_id: String,
+        action: String,
+    },
 
     // Learning Events
-    LearningInsightProcessed { insight_id: String, category: String },
-    KnowledgeAcquired { item_id: String, title: String, category: String },
-    KnowledgeGapIdentified { description: String },
+    LearningInsightProcessed {
+        insight_id: String,
+        category: String,
+    },
+    KnowledgeAcquired {
+        item_id: String,
+        title: String,
+        category: String,
+    },
+    KnowledgeGapIdentified {
+        description: String,
+    },
 
     // Project Management Events
-    ProjectCreated { project_id: String, project_name: String },
-    ProjectUpdated { project_id: String, project_name: String, new_status: Option<String> },
-    TaskCreated { task_id: String, task_title: String, project_id: String },
-    TaskUpdated { task_id: String, task_title: String, new_status: Option<String> },
-    GoalProgressUpdated { goal_id: String, progress_pct: f32 },
+    ProjectCreated {
+        project_id: String,
+        project_name: String,
+    },
+    ProjectUpdated {
+        project_id: String,
+        project_name: String,
+        new_status: Option<String>,
+    },
+    TaskCreated {
+        task_id: String,
+        task_title: String,
+        project_id: String,
+    },
+    TaskUpdated {
+        task_id: String,
+        task_title: String,
+        new_status: Option<String>,
+    },
+    GoalProgressUpdated {
+        goal_id: String,
+        progress_pct: f32,
+    },
 
     // Replication/Deployment Events
-    ReplicationInitiated { request_id: String, target_name: String, deployment_target: String },
-    ReplicationStatusUpdated { request_id: String, new_status: String },
-    DeploymentCompleted { record_id: String, status: String },
+    ReplicationInitiated {
+        request_id: String,
+        target_name: String,
+        deployment_target: String,
+    },
+    ReplicationStatusUpdated {
+        request_id: String,
+        new_status: String,
+    },
+    DeploymentCompleted {
+        record_id: String,
+        status: String,
+    },
 
     // Multi-Agent/Swarm Events
-    NanoAgentRegistered { agent_id: String, agent_type: String },
-    SwarmFormed { swarm_id: String, objective: String },
-    AgentTaskAssigned { agent_id: String, task_id: String },
+    NanoAgentRegistered {
+        agent_id: String,
+        agent_type: String,
+    },
+    SwarmFormed {
+        swarm_id: String,
+        objective: String,
+    },
+    AgentTaskAssigned {
+        agent_id: String,
+        task_id: String,
+    },
 
     // Communication Events
-    MessageSent { sender: String, recipient: String, message_type: String },
-    MessageReceived { sender: String, recipient: String, message_type: String },
+    MessageSent {
+        sender: String,
+        recipient: String,
+        message_type: String,
+    },
+    MessageReceived {
+        sender: String,
+        recipient: String,
+        message_type: String,
+    },
 
     // Health/Monitoring Events
-    SystemHealthWarning { component: String, level: String, message: String },
-    PerformanceMetricRecorded { metric_name: String, value: f64 },
+    SystemHealthWarning {
+        component: String,
+        level: String,
+        message: String,
+    },
+    PerformanceMetricRecorded {
+        metric_name: String,
+        value: f64,
+    },
 
     // Custom/Extension Events
-    CustomEvent { event_type: String, payload: serde_json::Value },
+    CustomEvent {
+        event_type: String,
+        payload: serde_json::Value,
+    },
 
     // NEW: Quantum Security Module Events
-    PqcMigrationRequired { recommendation: PqcMigrationRecommendation }, 
-    PqcMigrationCompleted { threat_id: String, status: String }, 
+    PqcMigrationRequired {
+        recommendation: PqcMigrationRecommendation,
+    },
+    PqcMigrationCompleted {
+        threat_id: String,
+        status: String,
+    },
 
     // NEW: IDE Bridge Events
     IDEEvent {
@@ -100,7 +193,10 @@ impl EventBus {
     pub async fn publish(&self, event: AGIEvent) {
         //println!("[EventBus] Publishing event: {:?}", event); // Use info! or debug! for logging in real system
         if let Err(e) = self.sender.send(event.clone()) {
-            eprintln!("[EventBus] Failed to publish event: {:?}. Error: {}", event, e); // Use error! for logging
+            eprintln!(
+                "[EventBus] Failed to publish event: {:?}. Error: {}",
+                event, e
+            ); // Use error! for logging
         }
     }
 
@@ -113,8 +209,10 @@ impl EventBus {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::quantum_security::threat_intelligence::{
+        PqcMigrationRecommendation, QuantumThreat, ThreatSeverity,
+    };
     use tokio::time::{self, Duration};
-    use crate::quantum_security::threat_intelligence::{QuantumThreat, ThreatSeverity, PqcMigrationRecommendation}; 
 
     #[tokio::test]
     async fn test_event_bus_publish_subscribe() {
@@ -138,20 +236,19 @@ mod tests {
         };
         let event3 = AGIEvent::PqcMigrationRequired { recommendation: migration_rec.clone() };
 
-
         event_bus.publish(event1.clone()).await;
         event_bus.publish(event2.clone()).await;
-        event_bus.publish(event3.clone()).await; 
+        event_bus.publish(event3.clone()).await;
 
         // Receiver 1 should get all events
         assert_eq!(receiver1.recv().await.unwrap(), event1);
         assert_eq!(receiver1.recv().await.unwrap(), event2);
-        assert_eq!(receiver1.recv().await.unwrap(), event3); 
+        assert_eq!(receiver1.recv().await.unwrap(), event3);
 
         // Receiver 2 should also get all events
         assert_eq!(receiver2.recv().await.unwrap(), event1);
         assert_eq!(receiver2.recv().await.unwrap(), event2);
-        assert_eq!(receiver2.recv().await.unwrap(), event3); 
+        assert_eq!(receiver2.recv().await.unwrap(), event3);
     }
 
     #[tokio::test]
@@ -183,7 +280,10 @@ mod tests {
 
         let new_bus = EventBus::new(10);
         let mut new_receiver = new_bus.subscribe();
-        let test_event = AGIEvent::CustomEvent { event_type: "test".to_string(), payload: serde_json::Value::Null };
+        let test_event = AGIEvent::CustomEvent {
+            event_type: "test".to_string(),
+            payload: serde_json::Value::Null,
+        };
         new_bus.publish(test_event.clone()).await;
         assert_eq!(new_receiver.recv().await.unwrap(), test_event);
     }
@@ -197,17 +297,21 @@ mod tests {
         let publisher2_bus = event_bus.clone();
 
         let handle1 = tokio::spawn(async move {
-            publisher1_bus.publish(AGIEvent::CustomEvent {
-                event_type: "publisher1".to_string(),
-                payload: serde_json::Value::String("hello".to_string()),
-            }).await;
+            publisher1_bus
+                .publish(AGIEvent::CustomEvent {
+                    event_type: "publisher1".to_string(),
+                    payload: serde_json::Value::String("hello".to_string()),
+                })
+                .await;
         });
 
         let handle2 = tokio::spawn(async move {
-            publisher2_bus.publish(AGIEvent::CustomEvent {
-                event_type: "publisher2".to_string(),
-                payload: serde_json::Value::String("world".to_string()),
-            }).await;
+            publisher2_bus
+                .publish(AGIEvent::CustomEvent {
+                    event_type: "publisher2".to_string(),
+                    payload: serde_json::Value::String("world".to_string()),
+                })
+                .await;
         });
 
         handle1.await.unwrap();
@@ -219,7 +323,11 @@ mod tests {
         events.push(receiver.recv().await.unwrap());
 
         assert_eq!(events.len(), 2);
-        assert!(events.iter().any(|e| matches!(e, AGIEvent::CustomEvent { event_type, .. } if event_type == "publisher1")));
-        assert!(events.iter().any(|e| matches!(e, AGIEvent::CustomEvent { event_type, .. } if event_type == "publisher2")));
+        assert!(events.iter().any(
+            |e| matches!(e, AGIEvent::CustomEvent { event_type, .. } if event_type == "publisher1")
+        ));
+        assert!(events.iter().any(
+            |e| matches!(e, AGIEvent::CustomEvent { event_type, .. } if event_type == "publisher2")
+        ));
     }
 }

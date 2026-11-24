@@ -13,7 +13,6 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, VecDeque};
-use std::sync::{ };
 
 /// Node identifier
 pub type NodeId = u64;
@@ -94,13 +93,7 @@ impl ConsensusConfig {
 
     /// Create configuration for cloud (Byzantine fault tolerance)
     pub fn for_cloud() -> Self {
-        Self {
-            n: 7,
-            f: 2,
-            quorum: 5,
-            byzantine: true,
-            ..Default::default()
-        }
+        Self { n: 7, f: 2, quorum: 5, byzantine: true, ..Default::default() }
     }
 
     /// Create configuration for planet-scale
@@ -191,11 +184,7 @@ pub enum ConsensusMessage {
     },
 
     /// Vote response
-    VoteResponse {
-        term: u64,
-        voter_id: NodeId,
-        vote_granted: bool,
-    },
+    VoteResponse { term: u64, voter_id: NodeId, vote_granted: bool },
 
     /// Append entries (replication)
     AppendEntries {
@@ -208,42 +197,19 @@ pub enum ConsensusMessage {
     },
 
     /// Append entries response
-    AppendResponse {
-        term: u64,
-        success: bool,
-        match_index: u64,
-    },
+    AppendResponse { term: u64, success: bool, match_index: u64 },
 
     /// Pre-prepare (PBFT)
-    PrePrepare {
-        view: u64,
-        sequence: u64,
-        digest: [u8; 32],
-        value: AgiValue,
-    },
+    PrePrepare { view: u64, sequence: u64, digest: [u8; 32], value: AgiValue },
 
     /// Prepare (PBFT)
-    Prepare {
-        view: u64,
-        sequence: u64,
-        digest: [u8; 32],
-        node_id: NodeId,
-    },
+    Prepare { view: u64, sequence: u64, digest: [u8; 32], node_id: NodeId },
 
     /// Commit (PBFT)
-    Commit {
-        view: u64,
-        sequence: u64,
-        digest: [u8; 32],
-        node_id: NodeId,
-    },
+    Commit { view: u64, sequence: u64, digest: [u8; 32], node_id: NodeId },
 
     /// Heartbeat
-    Heartbeat {
-        term: u64,
-        leader_id: NodeId,
-        commit_index: u64,
-    },
+    Heartbeat { term: u64, leader_id: NodeId, commit_index: u64 },
 }
 
 /// Log entry
@@ -464,7 +430,10 @@ impl DistributedConsensus {
     }
 
     /// Handle incoming message
-    pub fn handle_message(&mut self, message: ConsensusMessage) -> Result<Option<CommitResult>, ConsensusError> {
+    pub fn handle_message(
+        &mut self,
+        message: ConsensusMessage,
+    ) -> Result<Option<CommitResult>, ConsensusError> {
         match message {
             ConsensusMessage::RequestVote { term, candidate_id, .. } => {
                 self.handle_request_vote(term, candidate_id)
@@ -505,19 +474,19 @@ impl DistributedConsensus {
             self.voted_for = None;
         }
 
-        let vote_granted = self.voted_for.is_none()
-            || self.voted_for == Some(candidate_id);
+        let vote_granted = self.voted_for.is_none() || self.voted_for == Some(candidate_id);
 
         if vote_granted {
             self.voted_for = Some(candidate_id);
         }
 
         // Send vote response
-        self.message_queue.push_back(ConsensusMessage::VoteResponse {
-            term: self.current_term,
-            voter_id: self.node_id,
-            vote_granted,
-        });
+        self.message_queue
+            .push_back(ConsensusMessage::VoteResponse {
+                term: self.current_term,
+                voter_id: self.node_id,
+                vote_granted,
+            });
 
         Ok(None)
     }
@@ -572,11 +541,12 @@ impl DistributedConsensus {
         }
 
         // Send response
-        self.message_queue.push_back(ConsensusMessage::AppendResponse {
-            term: self.current_term,
-            success,
-            match_index: self.commit_index,
-        });
+        self.message_queue
+            .push_back(ConsensusMessage::AppendResponse {
+                term: self.current_term,
+                success,
+                match_index: self.commit_index,
+            });
 
         Ok(None)
     }
@@ -618,12 +588,10 @@ impl DistributedConsensus {
         }
 
         // Store pre-prepare
-        self.pbft_pre_prepares.insert(digest, ConsensusMessage::PrePrepare {
-            view,
-            sequence,
+        self.pbft_pre_prepares.insert(
             digest,
-            value,
-        });
+            ConsensusMessage::PrePrepare { view, sequence, digest, value },
+        );
 
         // Send prepare
         self.pbft_prepares.insert((digest, self.node_id), true);
@@ -694,11 +662,7 @@ impl DistributedConsensus {
         if self.count_commits(&digest) >= self.config.quorum {
             if let Some(pre_prepare) = self.pbft_pre_prepares.remove(&digest) {
                 if let ConsensusMessage::PrePrepare { value, .. } = pre_prepare {
-                    let result = CommitResult {
-                        index: value.id,
-                        term: self.current_term,
-                        value,
-                    };
+                    let result = CommitResult { index: value.id, term: self.current_term, value };
 
                     // Apply value
                     self.last_applied += 1;
@@ -778,14 +742,15 @@ impl DistributedConsensus {
                 .cloned()
                 .collect();
 
-            self.message_queue.push_back(ConsensusMessage::AppendEntries {
-                term: self.current_term,
-                leader_id: self.node_id,
-                prev_log_index: peer.next_index.saturating_sub(1),
-                prev_log_term: 0, // Simplified
-                entries,
-                leader_commit: self.commit_index,
-            });
+            self.message_queue
+                .push_back(ConsensusMessage::AppendEntries {
+                    term: self.current_term,
+                    leader_id: self.node_id,
+                    prev_log_index: peer.next_index.saturating_sub(1),
+                    prev_log_term: 0, // Simplified
+                    entries,
+                    leader_commit: self.commit_index,
+                });
         }
 
         Ok(())
@@ -891,11 +856,9 @@ impl std::fmt::Display for ConsensusError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ConsensusError::InvalidConfig(s) => write!(f, "Invalid config: {}", s),
-            ConsensusError::NotLeader(leader) => write!(
-                f,
-                "Not leader. Current leader: {:?}",
-                leader
-            ),
+            ConsensusError::NotLeader(leader) => {
+                write!(f, "Not leader. Current leader: {:?}", leader)
+            }
             ConsensusError::TermMismatch { expected, actual } => {
                 write!(f, "Term mismatch: expected {}, got {}", expected, actual)
             }
@@ -920,12 +883,7 @@ mod tests {
         let valid = ConsensusConfig::default();
         assert!(valid.validate().is_ok());
 
-        let invalid = ConsensusConfig {
-            n: 2,
-            f: 1,
-            quorum: 1,
-            ..Default::default()
-        };
+        let invalid = ConsensusConfig { n: 2, f: 1, quorum: 1, ..Default::default() };
         assert!(invalid.validate().is_err());
     }
 

@@ -25,9 +25,7 @@ pub enum PointsToLevel {
 
 impl Default for PointsToAnalysis {
     fn default() -> Self {
-        Self {
-            level: PointsToLevel::Insensitive,
-        }
+        Self { level: PointsToLevel::Insensitive }
     }
 }
 
@@ -55,17 +53,23 @@ impl PointsToAnalysis {
                             // Points to heap or stack allocation
                             let loc = PointsToLocation::Stack(LocationId(result.locations.len()));
                             result.locations.push(Location::new(ty.clone()));
-                            result.points_to.insert(PointsToKey::Value(inst.result_value()), vec![loc]);
+                            result
+                                .points_to
+                                .insert(PointsToKey::Value(inst.result_value()), vec![loc]);
                         }
                         Operation::Load(_, ptr, _, _) => {
                             // Copy points-to set
                             if let Some(src_pts) = result.points_to.get(&PointsToKey::Value(*ptr)) {
-                                result.points_to.insert(PointsToKey::Value(inst.result_value()), src_pts.clone());
+                                result.points_to.insert(
+                                    PointsToKey::Value(inst.result_value()),
+                                    src_pts.clone(),
+                                );
                             }
                         }
                         Operation::Store(_, _ptr, val, _) => {
                             // Points-to update
-                            if let Some(_val_pts) = result.points_to.get(&PointsToKey::Value(*val)) {
+                            if let Some(_val_pts) = result.points_to.get(&PointsToKey::Value(*val))
+                            {
                                 // Would add points-to for *ptr = val
                             }
                         }
@@ -133,7 +137,9 @@ impl PointsToAnalysis {
                     if let Operation::Alloca(ty, _) = &inst.op {
                         let loc = PointsToLocation::Stack(LocationId(result.locations.len()));
                         result.locations.push(Location::new(ty.clone()));
-                        result.points_to.insert(PointsToKey::Value(inst.result_value()), vec![loc]);
+                        result
+                            .points_to
+                            .insert(PointsToKey::Value(inst.result_value()), vec![loc]);
                     }
                 }
             }
@@ -145,7 +151,10 @@ impl PointsToAnalysis {
     fn solve_constraint(&self, constraint: &Constraint, result: &mut PointsToResult) -> bool {
         match constraint {
             Constraint::Allocate(val, loc) => {
-                let pts = result.points_to.entry(PointsToKey::Value(*val)).or_default();
+                let pts = result
+                    .points_to
+                    .entry(PointsToKey::Value(*val))
+                    .or_default();
                 if !pts.contains(loc) {
                     pts.push(*loc);
                     return true;
@@ -154,7 +163,10 @@ impl PointsToAnalysis {
             Constraint::Copy(dst, src) => {
                 let source_points = result.points_to.get(&PointsToKey::Value(*src)).cloned();
                 if let Some(src_pts) = source_points {
-                    let pts = result.points_to.entry(PointsToKey::Value(*dst)).or_default();
+                    let pts = result
+                        .points_to
+                        .entry(PointsToKey::Value(*dst))
+                        .or_default();
                     let initial_len = pts.len();
                     pts.extend(src_pts.iter().cloned());
                     return pts.len() > initial_len;
@@ -179,10 +191,7 @@ pub struct PointsToResult {
 
 impl PointsToResult {
     pub fn new() -> Self {
-        Self {
-            points_to: HashMap::new(),
-            locations: Vec::new(),
-        }
+        Self { points_to: HashMap::new(), locations: Vec::new() }
     }
 
     pub fn may_alias(&self, a: ValueId, b: ValueId) -> bool {
@@ -203,7 +212,10 @@ impl PointsToResult {
     }
 
     pub fn points_to_set(&self, value: ValueId) -> &[PointsToLocation] {
-        self.points_to.get(&PointsToKey::Value(value)).map(|v| v.as_slice()).unwrap_or(&[])
+        self.points_to
+            .get(&PointsToKey::Value(value))
+            .map(|v| v.as_slice())
+            .unwrap_or(&[])
     }
 }
 
@@ -243,11 +255,7 @@ pub struct Location {
 
 impl Location {
     pub fn new(ty: IrType) -> Self {
-        Self {
-            id: LocationId(0),
-            ty,
-            fields: Vec::new(),
-        }
+        Self { id: LocationId(0), ty, fields: Vec::new() }
     }
 
     pub fn field(&self, idx: FieldId) -> Option<&FieldLocation> {

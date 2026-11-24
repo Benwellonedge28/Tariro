@@ -47,28 +47,29 @@ impl TypeInference {
                 Literal::String(_) | Literal::RawString(_) => Ok(MonoType::String),
                 _ => Ok(MonoType::Wildcard),
             },
-            ExprKind::Identifier(name) => {
-                self.context.get(name).cloned()
-                    .ok_or_else(|| TypeError::UndefinedVariable(name.clone()))
-            }
+            ExprKind::Identifier(name) => self
+                .context
+                .get(name)
+                .cloned()
+                .ok_or_else(|| TypeError::UndefinedVariable(name.clone())),
             ExprKind::Binary { lhs, rhs, .. } => {
                 let lhs_ty = self.infer_expr(lhs)?;
                 let rhs_ty = self.infer_expr(rhs)?;
                 let result_ty = self.fresh_var();
 
-                self.constraints.push(Constraint::Equal(lhs_ty.clone(), rhs_ty));
+                self.constraints
+                    .push(Constraint::Equal(lhs_ty.clone(), rhs_ty));
                 self.constraints
                     .push(Constraint::Equal(result_ty.clone(), lhs_ty));
 
                 Ok(result_ty)
             }
-            ExprKind::Unary { operand, .. } => {
-                self.infer_expr(operand)
-            }
+            ExprKind::Unary { operand, .. } => self.infer_expr(operand),
             ExprKind::Call { function, arguments } => {
                 let callee_ty = self.infer_expr(function)?;
 
-                let param_tys: Vec<_> = arguments.iter()
+                let param_tys: Vec<_> = arguments
+                    .iter()
                     .map(|a| self.infer_expr(a))
                     .collect::<Result<Vec<_>, _>>()?;
 
@@ -87,7 +88,8 @@ impl TypeInference {
             }
             ExprKind::If { condition, then_block, else_expr } => {
                 let cond_ty = self.infer_expr(condition)?;
-                self.constraints.push(Constraint::Equal(cond_ty, MonoType::Bool));
+                self.constraints
+                    .push(Constraint::Equal(cond_ty, MonoType::Bool));
 
                 let then_ty = self.infer_pattern_blocks(then_block)?;
                 let else_ty = match else_expr {
@@ -96,15 +98,15 @@ impl TypeInference {
                 };
 
                 let result_ty = self.fresh_var();
-                self.constraints.push(Constraint::Equal(then_ty, result_ty.clone()));
-                self.constraints.push(Constraint::Equal(else_ty, result_ty.clone()));
+                self.constraints
+                    .push(Constraint::Equal(then_ty, result_ty.clone()));
+                self.constraints
+                    .push(Constraint::Equal(else_ty, result_ty.clone()));
 
                 Ok(result_ty)
             }
             ExprKind::Closure(params, body, _) => {
-                let param_tys: Vec<_> = params.iter()
-                    .map(|_| self.fresh_var())
-                    .collect();
+                let param_tys: Vec<_> = params.iter().map(|_| self.fresh_var()).collect();
 
                 for (param, ty) in params.iter().zip(param_tys.iter()) {
                     self.context.insert(param.name.clone(), ty.clone());
@@ -136,7 +138,8 @@ impl TypeInference {
 
                 if let Some(expected_ty) = annotation {
                     let expected_ty = MonoType::from_ann_type(expected_ty);
-                    self.constraints.push(Constraint::Equal(value_ty.clone(), expected_ty));
+                    self.constraints
+                        .push(Constraint::Equal(value_ty.clone(), expected_ty));
                 }
 
                 if let Pattern::Binding(name) = pattern {
@@ -177,14 +180,12 @@ impl TypeInference {
 
         for constraint in &self.constraints {
             match constraint {
-                Constraint::Equal(a, b) => {
-                    match self.unification.unify(a, b) {
-                        UnificationResult::Success => {}
-                        UnificationResult::Failure(e) => {
-                            return Err(TypeError::UnificationFailed(e));
-                        }
+                Constraint::Equal(a, b) => match self.unification.unify(a, b) {
+                    UnificationResult::Success => {}
+                    UnificationResult::Failure(e) => {
+                        return Err(TypeError::UnificationFailed(e));
                     }
-                }
+                },
                 Constraint::Subtype(_a, _b) => {
                     // Subtype constraint
                 }
@@ -249,26 +250,18 @@ impl Substitution {
 
     pub fn apply(&self, ty: &MonoType) -> MonoType {
         match ty {
-            MonoType::Var(var) => {
-                self.map.get(var).cloned().unwrap_or_else(|| ty.clone())
-            }
-            MonoType::Array(elem) => {
-                MonoType::Array(Box::new(self.apply(elem)))
-            }
-            MonoType::Slice(elem) => {
-                MonoType::Slice(Box::new(self.apply(elem)))
-            }
+            MonoType::Var(var) => self.map.get(var).cloned().unwrap_or_else(|| ty.clone()),
+            MonoType::Array(elem) => MonoType::Array(Box::new(self.apply(elem))),
+            MonoType::Slice(elem) => MonoType::Slice(Box::new(self.apply(elem))),
             MonoType::Tuple(elems) => {
                 MonoType::Tuple(elems.iter().map(|e| self.apply(e)).collect())
             }
-            MonoType::Function(func) => {
-                MonoType::Function(Box::new(FunctionType {
-                    params: func.params.iter().map(|p| self.apply(p)).collect(),
-                    ret: Box::new(self.apply(&func.ret)),
-                    safety: func.safety,
-                    abi: func.abi.clone(),
-                }))
-            }
+            MonoType::Function(func) => MonoType::Function(Box::new(FunctionType {
+                params: func.params.iter().map(|p| self.apply(p)).collect(),
+                ret: Box::new(self.apply(&func.ret)),
+                safety: func.safety,
+                abi: func.abi.clone(),
+            })),
             _ => ty.clone(),
         }
     }
@@ -286,16 +279,14 @@ impl MonoType {
         match ir {
             IrType::Void => MonoType::Unit,
             IrType::Bool => MonoType::Bool,
-            IrType::Int8 | IrType::Int16 | IrType::Int32 | IrType::Int64 => MonoType::Int(IntSize::I64),
+            IrType::Int8 | IrType::Int16 | IrType::Int32 | IrType::Int64 => {
+                MonoType::Int(IntSize::I64)
+            }
             IrType::Float32 => MonoType::Float(FloatSize::F32),
             IrType::Float64 => MonoType::Float(FloatSize::F64),
             IrType::Char => MonoType::Char,
-            IrType::Pointer(inner) => {
-                MonoType::Pointer(Box::new(MonoType::from_ir_type(inner)))
-            }
-            IrType::Array(elem, _) => {
-                MonoType::Array(Box::new(MonoType::from_ir_type(elem)))
-            }
+            IrType::Pointer(inner) => MonoType::Pointer(Box::new(MonoType::from_ir_type(inner))),
+            IrType::Array(elem, _) => MonoType::Array(Box::new(MonoType::from_ir_type(elem))),
             _ => MonoType::Wildcard,
         }
     }
@@ -329,7 +320,11 @@ impl std::fmt::Display for TypeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             TypeError::UnificationFailed(m) => {
-                write!(f, "Type mismatch: expected {:?}, found {:?}", m.expected, m.found)
+                write!(
+                    f,
+                    "Type mismatch: expected {:?}, found {:?}",
+                    m.expected, m.found
+                )
             }
             TypeError::UndefinedVariable(name) => {
                 write!(f, "Undefined variable: {}", name)

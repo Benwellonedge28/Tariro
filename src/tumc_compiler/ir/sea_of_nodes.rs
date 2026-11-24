@@ -1,9 +1,9 @@
 // Sea of Nodes IR Implementation
 // Based on the HotSpot/C2 compiler approach
 
+use super::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use super::*;
 use std::collections::VecDeque;
 
 /// Sea of Nodes representation - graph-based IR
@@ -151,32 +151,38 @@ impl SeaOfNodes {
         let end = NodeId::new(1);
 
         // Create start node
-        nodes.insert(start, SeaNode {
-            id: start,
-            opcode: SeaOpcode::Start,
-            inputs: Vec::new(),
-            output: None,
-            properties: NodeProperties {
-                is_control: true,
-                is_pinned: true,
-                is_schedulable: false,
-                ..Default::default()
+        nodes.insert(
+            start,
+            SeaNode {
+                id: start,
+                opcode: SeaOpcode::Start,
+                inputs: Vec::new(),
+                output: None,
+                properties: NodeProperties {
+                    is_control: true,
+                    is_pinned: true,
+                    is_schedulable: false,
+                    ..Default::default()
+                },
             },
-        });
+        );
 
         // Create end node
-        nodes.insert(end, SeaNode {
-            id: end,
-            opcode: SeaOpcode::End,
-            inputs: Vec::new(),
-            output: None,
-            properties: NodeProperties {
-                is_control: true,
-                is_pinned: true,
-                is_schedulable: false,
-                ..Default::default()
+        nodes.insert(
+            end,
+            SeaNode {
+                id: end,
+                opcode: SeaOpcode::End,
+                inputs: Vec::new(),
+                output: None,
+                properties: NodeProperties {
+                    is_control: true,
+                    is_pinned: true,
+                    is_schedulable: false,
+                    ..Default::default()
+                },
             },
-        });
+        );
 
         Self {
             nodes,
@@ -203,10 +209,16 @@ impl SeaOfNodes {
     /// Connect two nodes (input -> output)
     pub fn connect(&mut self, input: NodeId, output: NodeId) {
         // Add output to input's outputs
-        self.outputs.get_mut(&input).unwrap_or(&mut Vec::new()).push(output);
+        self.outputs
+            .get_mut(&input)
+            .unwrap_or(&mut Vec::new())
+            .push(output);
 
         // Add input to output's inputs
-        self.inputs.get_mut(&output).unwrap_or(&mut Vec::new()).push(input);
+        self.inputs
+            .get_mut(&output)
+            .unwrap_or(&mut Vec::new())
+            .push(input);
     }
 
     /// Disconnect two nodes
@@ -552,7 +564,14 @@ impl SeaOfNodes {
 
         for (&id, _) in &self.nodes {
             if !visited.contains(&id) {
-                dfs(id, self, &mut visited, &mut rec_stack, &mut path, &mut cycles);
+                dfs(
+                    id,
+                    self,
+                    &mut visited,
+                    &mut rec_stack,
+                    &mut path,
+                    &mut cycles,
+                );
             }
         }
 
@@ -691,7 +710,8 @@ impl ListScheduler {
                     // Update ready list with successors
                     for &output in graph.get_outputs(node) {
                         if !scheduled.contains(&output) {
-                            let latency = self.latency_model
+                            let latency = self
+                                .latency_model
                                 .get(&graph.get_node(node).unwrap().opcode)
                                 .copied()
                                 .unwrap_or(1);

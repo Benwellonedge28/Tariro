@@ -1,11 +1,10 @@
 // Tariro AGI - Interruptibility Module
 // Ensures AI can be safely interrupted at any time
 
-use std::collections::{HashMap, VecDeque};
-use std::sync::{ };
 use chrono::{DateTime, Utc};
-use std::time::Duration;
+use std::collections::{HashMap, VecDeque};
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::time::Duration;
 
 // ============================================================================
 // Interrupt Types
@@ -14,10 +13,10 @@ use std::sync::atomic::{AtomicBool, Ordering};
 /// Types of interrupts the system can receive
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum InterruptType {
-    Immediate,      // Must stop NOW
-    Graceful,       // Finish current step, then stop
-    Pause,          // Pause, can resume
-    Checkpoint,     // Save state and pause
+    Immediate,        // Must stop NOW
+    Graceful,         // Finish current step, then stop
+    Pause,            // Pause, can resume
+    Checkpoint,       // Save state and pause
     PriorityOverride, // Override current action
 }
 
@@ -35,7 +34,7 @@ pub struct Interrupt {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum InterruptPriority {
-    Critical,   // Absolute priority
+    Critical, // Absolute priority
     High,
     Normal,
     Low,
@@ -214,7 +213,7 @@ impl InterruptManager {
             InterruptType::Immediate => {
                 self.immediate_stop.store(true, Ordering::SeqCst);
             }
-            InterruptType::Pause | InterruptType::Checkpoint => {
+            InterruptType::Pause => {
                 self.pause_requested.store(true, Ordering::SeqCst);
             }
             InterruptType::Checkpoint => {
@@ -271,7 +270,10 @@ impl InterruptManager {
     }
 
     /// Create a checkpoint
-    pub fn create_checkpoint(&mut self, state_data: HashMap<String, String>) -> Option<CheckpointState> {
+    pub fn create_checkpoint(
+        &mut self,
+        state_data: HashMap<String, String>,
+    ) -> Option<CheckpointState> {
         if !self.config.enable_checkpoint {
             return None;
         }
@@ -279,16 +281,25 @@ impl InterruptManager {
         let checkpoint = CheckpointState {
             checkpoint_id: generate_id(),
             timestamp: Utc::now(),
-            operation: self.current_execution.as_ref()
+            operation: self
+                .current_execution
+                .as_ref()
                 .map(|e| e.current_operation.clone())
                 .unwrap_or_default(),
-            progress: self.current_execution.as_ref()
+            progress: self
+                .current_execution
+                .as_ref()
                 .map(|e| e.progress)
                 .unwrap_or(0.0),
             state_data,
             memory_snapshot: vec![],
-            resume_point: format!("resume_at_step_{}",
-                self.current_execution.as_ref().map(|e| e.steps_completed).unwrap_or(0)),
+            resume_point: format!(
+                "resume_at_step_{}",
+                self.current_execution
+                    .as_ref()
+                    .map(|e| e.steps_completed)
+                    .unwrap_or(0)
+            ),
         };
 
         self.checkpoint_state = Some(checkpoint.clone());
@@ -365,16 +376,14 @@ impl InterruptManager {
                         message: "Checkpoint saved".to_string(),
                     }
                 }
-                InterruptType::PriorityOverride => {
-                    InterruptResult {
-                        success: true,
-                        interrupt_acknowledged: true,
-                        action_taken: InterruptAction::ContinueWithWarning,
-                        state_saved: false,
-                        resume_point: None,
-                        message: "Priority override acknowledged".to_string(),
-                    }
-                }
+                InterruptType::PriorityOverride => InterruptResult {
+                    success: true,
+                    interrupt_acknowledged: true,
+                    action_taken: InterruptAction::ContinueWithWarning,
+                    state_saved: false,
+                    resume_point: None,
+                    message: "Priority override acknowledged".to_string(),
+                },
             }
         } else {
             InterruptResult {
@@ -450,7 +459,10 @@ pub struct InterruptStatus {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("int_{}", now % 1_000_000)
 }
 

@@ -1,9 +1,8 @@
 //! Macro system for TUMC - Declarative and procedural macros
 //! Implements hygienic macros with proper scope handling
 
-
-use super::ast::{ *};
-use super::lexer::{ Token, TokenKind};
+use super::ast::*;
+use super::lexer::{Token, TokenKind};
 // The punctuation kinds now live with the lexer that produces them.
 pub use super::lexer::PunctKind;
 
@@ -96,43 +95,39 @@ impl MacroExpansionEnv {
                     annotations: expr.annotations.clone(),
                 })
             }
-            ExprKind::MethodCall { object, method, arguments } => {
-                Ok(Expr {
-                    kind: ExprKind::MethodCall {
-                        object: Box::new(self.expand_macros(object)?),
-                        method: method.clone(),
-                        arguments: arguments.iter()
-                            .map(|a| self.expand_macros(a))
-                            .collect::<Result<Vec<_>, _>>()?,
-                    },
-                    span: expr.span.clone(),
-                    annotations: expr.annotations.clone(),
-                })
-            }
-            ExprKind::Binary { op, lhs, rhs } => {
-                Ok(Expr {
-                    kind: ExprKind::Binary {
-                        op: op.clone(),
-                        lhs: Box::new(self.expand_macros(lhs)?),
-                        rhs: Box::new(self.expand_macros(rhs)?),
-                    },
-                    span: expr.span.clone(),
-                    annotations: expr.annotations.clone(),
-                })
-            }
-            ExprKind::Unary { op, operand } => {
-                Ok(Expr {
-                    kind: ExprKind::Unary {
-                        op: op.clone(),
-                        operand: Box::new(self.expand_macros(operand)?),
-                    },
-                    span: expr.span.clone(),
-                    annotations: expr.annotations.clone(),
-                })
-            }
+            ExprKind::MethodCall { object, method, arguments } => Ok(Expr {
+                kind: ExprKind::MethodCall {
+                    object: Box::new(self.expand_macros(object)?),
+                    method: method.clone(),
+                    arguments: arguments
+                        .iter()
+                        .map(|a| self.expand_macros(a))
+                        .collect::<Result<Vec<_>, _>>()?,
+                },
+                span: expr.span.clone(),
+                annotations: expr.annotations.clone(),
+            }),
+            ExprKind::Binary { op, lhs, rhs } => Ok(Expr {
+                kind: ExprKind::Binary {
+                    op: op.clone(),
+                    lhs: Box::new(self.expand_macros(lhs)?),
+                    rhs: Box::new(self.expand_macros(rhs)?),
+                },
+                span: expr.span.clone(),
+                annotations: expr.annotations.clone(),
+            }),
+            ExprKind::Unary { op, operand } => Ok(Expr {
+                kind: ExprKind::Unary {
+                    op: op.clone(),
+                    operand: Box::new(self.expand_macros(operand)?),
+                },
+                span: expr.span.clone(),
+                annotations: expr.annotations.clone(),
+            }),
             ExprKind::Block(statements) => {
                 self.enter_scope();
-                let expanded_stmts = statements.iter()
+                let expanded_stmts = statements
+                    .iter()
                     .map(|s| self.expand_stmt_macros(s))
                     .collect::<Result<Vec<_>, _>>()?;
                 self.exit_scope();
@@ -143,71 +138,75 @@ impl MacroExpansionEnv {
                     annotations: expr.annotations.clone(),
                 })
             }
-            ExprKind::Array(elements) => {
-                Ok(Expr {
-                    kind: ExprKind::Array(
-                        elements.iter()
-                            .map(|e| self.expand_macros(e))
-                            .collect::<Result<Vec<_>, _>>()?
-                    ),
-                    span: expr.span.clone(),
-                    annotations: expr.annotations.clone(),
-                })
-            }
-            ExprKind::Tuple(elements) => {
-                Ok(Expr {
-                    kind: ExprKind::Tuple(
-                        elements.iter()
-                            .map(|e| self.expand_macros(e))
-                            .collect::<Result<Vec<_>, _>>()?
-                    ),
-                    span: expr.span.clone(),
-                    annotations: expr.annotations.clone(),
-                })
-            }
-            ExprKind::If { condition, then_block, else_expr } => {
-                Ok(Expr {
-                    kind: ExprKind::If {
-                        condition: Box::new(self.expand_macros(condition)?),
-                        then_block: then_block.iter()
-                            .map(|(p, b)| {
-                                Ok((p.clone(), b.iter()
+            ExprKind::Array(elements) => Ok(Expr {
+                kind: ExprKind::Array(
+                    elements
+                        .iter()
+                        .map(|e| self.expand_macros(e))
+                        .collect::<Result<Vec<_>, _>>()?,
+                ),
+                span: expr.span.clone(),
+                annotations: expr.annotations.clone(),
+            }),
+            ExprKind::Tuple(elements) => Ok(Expr {
+                kind: ExprKind::Tuple(
+                    elements
+                        .iter()
+                        .map(|e| self.expand_macros(e))
+                        .collect::<Result<Vec<_>, _>>()?,
+                ),
+                span: expr.span.clone(),
+                annotations: expr.annotations.clone(),
+            }),
+            ExprKind::If { condition, then_block, else_expr } => Ok(Expr {
+                kind: ExprKind::If {
+                    condition: Box::new(self.expand_macros(condition)?),
+                    then_block: then_block
+                        .iter()
+                        .map(|(p, b)| {
+                            Ok((
+                                p.clone(),
+                                b.iter()
                                     .map(|s| self.expand_stmt_macros(s))
-                                    .collect::<Result<Vec<_>, _>>()?))
-                            })
-                            .collect::<Result<Vec<_>, _>>()?,
-                        else_expr: if let Some((p, b)) = else_expr {
-                            Some((p.clone(), b.iter()
+                                    .collect::<Result<Vec<_>, _>>()?,
+                            ))
+                        })
+                        .collect::<Result<Vec<_>, _>>()?,
+                    else_expr: if let Some((p, b)) = else_expr {
+                        Some((
+                            p.clone(),
+                            b.iter()
                                 .map(|s| self.expand_stmt_macros(s))
-                                .collect::<Result<Vec<_>, _>>()?))
-                        } else {
-                            None
-                        },
+                                .collect::<Result<Vec<_>, _>>()?,
+                        ))
+                    } else {
+                        None
                     },
-                    span: expr.span.clone(),
-                    annotations: expr.annotations.clone(),
-                })
-            }
-            ExprKind::Match { discriminant, arms } => {
-                Ok(Expr {
-                    kind: ExprKind::Match {
-                        discriminant: Box::new(self.expand_macros(discriminant)?),
-                        arms: arms.iter()
-                            .map(|arm| {
-                                Ok(MatchArm {
-                                    pattern: self.expand_pattern_macros(&arm.pattern)?,
-                                    guard: arm.guard.as_ref()
-                                        .map(|g| self.expand_macros(g))
-                                        .transpose()?,
-                                    body: self.expand_macros(&arm.body)?,
-                                })
+                },
+                span: expr.span.clone(),
+                annotations: expr.annotations.clone(),
+            }),
+            ExprKind::Match { discriminant, arms } => Ok(Expr {
+                kind: ExprKind::Match {
+                    discriminant: Box::new(self.expand_macros(discriminant)?),
+                    arms: arms
+                        .iter()
+                        .map(|arm| {
+                            Ok(MatchArm {
+                                pattern: self.expand_pattern_macros(&arm.pattern)?,
+                                guard: arm
+                                    .guard
+                                    .as_ref()
+                                    .map(|g| self.expand_macros(g))
+                                    .transpose()?,
+                                body: self.expand_macros(&arm.body)?,
                             })
-                            .collect::<Result<Vec<_>, _>>()?,
-                    },
-                    span: expr.span.clone(),
-                    annotations: expr.annotations.clone(),
-                })
-            }
+                        })
+                        .collect::<Result<Vec<_>, _>>()?,
+                },
+                span: expr.span.clone(),
+                annotations: expr.annotations.clone(),
+            }),
             _ => Ok(expr.clone()),
         }
     }
@@ -215,77 +214,72 @@ impl MacroExpansionEnv {
     /// Expand macros in a statement
     fn expand_stmt_macros(&mut self, stmt: &Stmt) -> Result<Stmt, MacroError> {
         match &stmt.kind {
-            StmtKind::Let(pattern, ann_type, value, body) => {
-                Ok(Stmt {
-                    kind: StmtKind::Let(
-                        self.expand_pattern_macros(pattern)?,
-                        ann_type.clone(),
-                        if let Some(v) = value {
-                            Some(self.expand_macros(v)?)
-                        } else {
-                            None
-                        },
-                        body.iter()
-                            .map(|s| self.expand_stmt_macros(s))
-                            .collect::<Result<Vec<_>, _>>()?,
-                    ),
-                    span: stmt.span.clone(),
-                })
-            }
-            StmtKind::Expr(expr) => {
-                Ok(Stmt {
-                    kind: StmtKind::Expr(self.expand_macros(expr)?),
-                    span: stmt.span.clone(),
-                })
-            }
-            StmtKind::Assignment(lhs, rhs) => {
-                Ok(Stmt {
-                    kind: StmtKind::Assignment(
-                        Box::new(self.expand_macros(lhs)?),
-                        Box::new(self.expand_macros(rhs)?),
-                    ),
-                    span: stmt.span.clone(),
-                })
-            }
-            StmtKind::If(condition, then_block, else_block) => {
-                Ok(Stmt {
-                    kind: StmtKind::If(
-                        Box::new(self.expand_macros(condition)?),
-                        then_block.iter()
-                            .map(|s| self.expand_stmt_macros(s))
-                            .collect::<Result<Vec<_>, _>>()?,
-                        else_block.as_ref().map(|(p, b)| {
-                            Ok((p.clone(), b.iter()
-                                .map(|s| self.expand_stmt_macros(s))
-                                .collect::<Result<Vec<_>, _>>()?))
-                        }).transpose()?,
-                    ),
-                    span: stmt.span.clone(),
-                })
-            }
-            StmtKind::While(condition, body) => {
-                Ok(Stmt {
-                    kind: StmtKind::While(
-                        Box::new(self.expand_macros(condition)?),
-                        body.iter()
-                            .map(|s| self.expand_stmt_macros(s))
-                            .collect::<Result<Vec<_>, _>>()?,
-                    ),
-                    span: stmt.span.clone(),
-                })
-            }
-            StmtKind::For(var, iterable, body) => {
-                Ok(Stmt {
-                    kind: StmtKind::For(
-                        var.clone(),
-                        Box::new(self.expand_macros(iterable)?),
-                        body.iter()
-                            .map(|s| self.expand_stmt_macros(s))
-                            .collect::<Result<Vec<_>, _>>()?,
-                    ),
-                    span: stmt.span.clone(),
-                })
-            }
+            StmtKind::Let(pattern, ann_type, value, body) => Ok(Stmt {
+                kind: StmtKind::Let(
+                    self.expand_pattern_macros(pattern)?,
+                    ann_type.clone(),
+                    if let Some(v) = value {
+                        Some(self.expand_macros(v)?)
+                    } else {
+                        None
+                    },
+                    body.iter()
+                        .map(|s| self.expand_stmt_macros(s))
+                        .collect::<Result<Vec<_>, _>>()?,
+                ),
+                span: stmt.span.clone(),
+            }),
+            StmtKind::Expr(expr) => Ok(Stmt {
+                kind: StmtKind::Expr(self.expand_macros(expr)?),
+                span: stmt.span.clone(),
+            }),
+            StmtKind::Assignment(lhs, rhs) => Ok(Stmt {
+                kind: StmtKind::Assignment(
+                    Box::new(self.expand_macros(lhs)?),
+                    Box::new(self.expand_macros(rhs)?),
+                ),
+                span: stmt.span.clone(),
+            }),
+            StmtKind::If(condition, then_block, else_block) => Ok(Stmt {
+                kind: StmtKind::If(
+                    Box::new(self.expand_macros(condition)?),
+                    then_block
+                        .iter()
+                        .map(|s| self.expand_stmt_macros(s))
+                        .collect::<Result<Vec<_>, _>>()?,
+                    else_block
+                        .as_ref()
+                        .map(|(p, b)| {
+                            Ok((
+                                p.clone(),
+                                b.iter()
+                                    .map(|s| self.expand_stmt_macros(s))
+                                    .collect::<Result<Vec<_>, _>>()?,
+                            ))
+                        })
+                        .transpose()?,
+                ),
+                span: stmt.span.clone(),
+            }),
+            StmtKind::While(condition, body) => Ok(Stmt {
+                kind: StmtKind::While(
+                    Box::new(self.expand_macros(condition)?),
+                    body.iter()
+                        .map(|s| self.expand_stmt_macros(s))
+                        .collect::<Result<Vec<_>, _>>()?,
+                ),
+                span: stmt.span.clone(),
+            }),
+            StmtKind::For(var, iterable, body) => Ok(Stmt {
+                kind: StmtKind::For(
+                    var.clone(),
+                    Box::new(self.expand_macros(iterable)?),
+                    body.iter()
+                        .map(|s| self.expand_stmt_macros(s))
+                        .collect::<Result<Vec<_>, _>>()?,
+                ),
+                span: stmt.span.clone(),
+            }),
             _ => Ok(stmt.clone()),
         }
     }
@@ -296,39 +290,45 @@ impl MacroExpansionEnv {
     }
 
     /// Expand a macro call
-    fn expand_macro_call(&mut self, macro_: &MacroDefinition, arguments: &[Expr]) -> Result<Expr, MacroError> {
+    fn expand_macro_call(
+        &mut self,
+        macro_: &MacroDefinition,
+        arguments: &[Expr],
+    ) -> Result<Expr, MacroError> {
         match macro_ {
-            MacroDefinition::Declarative(rules) => {
-                self.expand_declarative_macro(rules, arguments)
-            }
-            MacroDefinition::Procedural(attr) => {
-                self.expand_procedural_macro(attr, arguments)
-            }
+            MacroDefinition::Declarative(rules) => self.expand_declarative_macro(rules, arguments),
+            MacroDefinition::Procedural(attr) => self.expand_procedural_macro(attr, arguments),
         }
     }
 
     /// Expand a declarative macro
-    fn expand_declarative_macro(&mut self, rules: &[MacroRule], arguments: &[Expr]) -> Result<Expr, MacroError> {
+    fn expand_declarative_macro(
+        &mut self,
+        rules: &[MacroRule],
+        arguments: &[Expr],
+    ) -> Result<Expr, MacroError> {
         for rule in rules {
             if let Some(bindings) = rule.matcher.match_tokens(arguments) {
                 return rule.expander.expand(&bindings);
             }
         }
-        Err(MacroError::NoMatchingRule {
-            arguments: arguments.len(),
-        })
+        Err(MacroError::NoMatchingRule { arguments: arguments.len() })
     }
 
     /// Expand a procedural macro
-    fn expand_procedural_macro(&mut self, _attr: &ProcMacroAttribute, arguments: &[Expr]) -> Result<Expr, MacroError> {
+    fn expand_procedural_macro(
+        &mut self,
+        _attr: &ProcMacroAttribute,
+        arguments: &[Expr],
+    ) -> Result<Expr, MacroError> {
         // Procedural macros would be handled by external proc-macro crates
         // For now, return the arguments as-is wrapped in a block
         Ok(Expr {
             kind: ExprKind::Block(
-                arguments.iter().map(|a| Stmt {
-                    kind: StmtKind::Expr(a.clone()),
-                    span: a.span.clone(),
-                }).collect()
+                arguments
+                    .iter()
+                    .map(|a| Stmt { kind: StmtKind::Expr(a.clone()), span: a.span.clone() })
+                    .collect(),
             ),
             span: Span::default(),
             annotations: vec![],
@@ -347,10 +347,7 @@ pub struct HygieneContext {
 
 impl HygieneContext {
     pub fn new() -> Self {
-        HygieneContext {
-            counter: 0,
-            marks: HashMap::new(),
-        }
+        HygieneContext { counter: 0, marks: HashMap::new() }
     }
 
     /// Create a fresh identifier with hygiene marking
@@ -358,7 +355,10 @@ impl HygieneContext {
         let unique = format!("{}_{}_{}", base, self.counter, scope);
         self.counter += 1;
 
-        self.marks.entry(base.to_string()).or_default().insert(unique.clone());
+        self.marks
+            .entry(base.to_string())
+            .or_default()
+            .insert(unique.clone());
 
         Token {
             kind: TokenKind::Identifier(unique),
@@ -434,16 +434,9 @@ pub enum MatcherToken {
     /// Match block
     Block(String),
     /// Match repetition
-    Repetition {
-        name: String,
-        kind: RepetitionKind,
-        inner: Vec<MatcherToken>,
-    },
+    Repetition { name: String, kind: RepetitionKind, inner: Vec<MatcherToken> },
     /// Match optional item
-    Optional {
-        name: String,
-        inner: Vec<MatcherToken>,
-    },
+    Optional { name: String, inner: Vec<MatcherToken> },
     /// Match alternation
     Alternation(Vec<Vec<MatcherToken>>),
     /// Match exactly this token
@@ -634,23 +627,13 @@ pub enum ProcMacroKind {
 #[derive(Debug, Clone)]
 pub enum MacroError {
     /// No matching rule found
-    NoMatchingRule {
-        arguments: usize,
-    },
+    NoMatchingRule { arguments: usize },
     /// Repetition mismatch
-    RepetitionMismatch {
-        name: String,
-        expected: usize,
-        found: usize,
-    },
+    RepetitionMismatch { name: String, expected: usize, found: usize },
     /// Missing binding
-    MissingBinding {
-        name: String,
-    },
+    MissingBinding { name: String },
     /// Invalid repetition
-    InvalidRepetition {
-        name: String,
-    },
+    InvalidRepetition { name: String },
     /// Tokenization error
     TokenizationError(String),
     /// Expansion error
@@ -658,10 +641,7 @@ pub enum MacroError {
     /// Hygiene violation
     HygieneViolation(String),
     /// Recursive macro expansion limit
-    ExpansionDepthExceeded {
-        limit: usize,
-        current: usize,
-    },
+    ExpansionDepthExceeded { limit: usize, current: usize },
 }
 
 impl fmt::Display for MacroError {
@@ -671,7 +651,11 @@ impl fmt::Display for MacroError {
                 write!(f, "No matching rule for {} arguments", arguments)
             }
             MacroError::RepetitionMismatch { name, expected, found } => {
-                write!(f, "Repetition '{}': expected {}, found {}", name, expected, found)
+                write!(
+                    f,
+                    "Repetition '{}': expected {}, found {}",
+                    name, expected, found
+                )
             }
             MacroError::MissingBinding { name } => {
                 write!(f, "Missing binding for '${}'", name)
@@ -721,14 +705,12 @@ impl MacroEngine {
     /// Register built-in macros
     fn register_builtins(&mut self) {
         // `println!` macro
-        self.builtins.insert("println".to_string(), MacroDefinition::Declarative(vec![
-            MacroRule {
+        self.builtins.insert(
+            "println".to_string(),
+            MacroDefinition::Declarative(vec![MacroRule {
                 matcher: MacroMatcher {
                     patterns: vec![MatcherToken::Expr("fmt".to_string())],
-                    meta: MacroMetadata {
-                        name: "println".to_string(),
-                        span: Span::default(),
-                    },
+                    meta: MacroMetadata { name: "println".to_string(), span: Span::default() },
                 },
                 expander: MacroExpander {
                     template: vec![
@@ -739,24 +721,20 @@ impl MacroEngine {
                     delimiter: Delimiter::Parenthesis,
                 },
                 span: Span::default(),
-            }
-        ]));
+            }]),
+        );
 
         // `vec!` macro
-        self.builtins.insert("vec".to_string(), MacroDefinition::Declarative(vec![
-            MacroRule {
+        self.builtins.insert(
+            "vec".to_string(),
+            MacroDefinition::Declarative(vec![MacroRule {
                 matcher: MacroMatcher {
-                    patterns: vec![
-                        MatcherToken::Repetition {
-                            name: "elem".to_string(),
-                            kind: RepetitionKind::ZeroOrMore,
-                            inner: vec![MatcherToken::Expr("e".to_string())],
-                        }
-                    ],
-                    meta: MacroMetadata {
-                        name: "vec".to_string(),
-                        span: Span::default(),
-                    },
+                    patterns: vec![MatcherToken::Repetition {
+                        name: "elem".to_string(),
+                        kind: RepetitionKind::ZeroOrMore,
+                        inner: vec![MatcherToken::Expr("e".to_string())],
+                    }],
+                    meta: MacroMetadata { name: "vec".to_string(), span: Span::default() },
                 },
                 expander: MacroExpander {
                     template: vec![
@@ -774,21 +752,19 @@ impl MacroEngine {
                     delimiter: Delimiter::Bracket,
                 },
                 span: Span::default(),
-            }
-        ]));
+            }]),
+        );
 
         // `assert_eq!` macro
-        self.builtins.insert("assert_eq".to_string(), MacroDefinition::Declarative(vec![
-            MacroRule {
+        self.builtins.insert(
+            "assert_eq".to_string(),
+            MacroDefinition::Declarative(vec![MacroRule {
                 matcher: MacroMatcher {
                     patterns: vec![
                         MatcherToken::Expr("left".to_string()),
                         MatcherToken::Expr("right".to_string()),
                     ],
-                    meta: MacroMetadata {
-                        name: "assert_eq".to_string(),
-                        span: Span::default(),
-                    },
+                    meta: MacroMetadata { name: "assert_eq".to_string(), span: Span::default() },
                 },
                 expander: MacroExpander {
                     template: vec![
@@ -803,18 +779,16 @@ impl MacroEngine {
                     delimiter: Delimiter::Parenthesis,
                 },
                 span: Span::default(),
-            }
-        ]));
+            }]),
+        );
 
         // `format!` macro
-        self.builtins.insert("format".to_string(), MacroDefinition::Declarative(vec![
-            MacroRule {
+        self.builtins.insert(
+            "format".to_string(),
+            MacroDefinition::Declarative(vec![MacroRule {
                 matcher: MacroMatcher {
                     patterns: vec![MatcherToken::Expr("fmt".to_string())],
-                    meta: MacroMetadata {
-                        name: "format".to_string(),
-                        span: Span::default(),
-                    },
+                    meta: MacroMetadata { name: "format".to_string(), span: Span::default() },
                 },
                 expander: MacroExpander {
                     template: vec![
@@ -829,8 +803,8 @@ impl MacroEngine {
                     delimiter: Delimiter::Parenthesis,
                 },
                 span: Span::default(),
-            }
-        ]));
+            }]),
+        );
     }
 
     /// Register a macro
@@ -941,29 +915,27 @@ impl TemplateToken {
     /// Expand this template token
     pub fn expand(&self, bindings: &TokenBindings) -> Result<Vec<Stmt>, MacroError> {
         match self {
-            TemplateToken::Literal(tk) => {
-                Ok(vec![Stmt {
-                    kind: StmtKind::Expr(Expr {
-                        kind: ExprKind::Identifier(match tk {
-                            TokenKind::Identifier(s) => s.clone(),
-                            TokenKind::String(s) => s.clone(),
-                            _ => "()".to_string(),
-                        }),
-                        span: Span::default(),
-                        annotations: vec![],
+            TemplateToken::Literal(tk) => Ok(vec![Stmt {
+                kind: StmtKind::Expr(Expr {
+                    kind: ExprKind::Identifier(match tk {
+                        TokenKind::Identifier(s) => s.clone(),
+                        TokenKind::String(s) => s.clone(),
+                        _ => "()".to_string(),
                     }),
                     span: Span::default(),
-                }])
-            }
+                    annotations: vec![],
+                }),
+                span: Span::default(),
+            }]),
             TemplateToken::Expr(name) => {
                 let exprs = bindings.get_exprs(name);
                 if exprs.is_empty() {
                     return Err(MacroError::MissingBinding { name: name.clone() });
                 }
-                Ok(exprs.iter().map(|e| Stmt {
-                    kind: StmtKind::Expr(e.clone()),
-                    span: e.span.clone(),
-                }).collect())
+                Ok(exprs
+                    .iter()
+                    .map(|e| Stmt { kind: StmtKind::Expr(e.clone()), span: e.span.clone() })
+                    .collect())
             }
             TemplateToken::Stmt(name) => {
                 let stmts = bindings.get_stmts(name);
@@ -972,22 +944,27 @@ impl TemplateToken {
                 }
                 Ok(stmts.to_vec())
             }
-            TemplateToken::Stmts(name) => {
-                Ok(bindings.get_stmts(name).to_vec())
-            }
+            TemplateToken::Stmts(name) => Ok(bindings.get_stmts(name).to_vec()),
             TemplateToken::Ident(name) => {
-                let idents = bindings.idents.get(name).map(|v| v.as_slice()).unwrap_or(&[]);
+                let idents = bindings
+                    .idents
+                    .get(name)
+                    .map(|v| v.as_slice())
+                    .unwrap_or(&[]);
                 if idents.is_empty() {
                     return Err(MacroError::MissingBinding { name: name.clone() });
                 }
-                Ok(idents.iter().map(|id| Stmt {
-                    kind: StmtKind::Expr(Expr {
-                        kind: ExprKind::Identifier(id.clone()),
+                Ok(idents
+                    .iter()
+                    .map(|id| Stmt {
+                        kind: StmtKind::Expr(Expr {
+                            kind: ExprKind::Identifier(id.clone()),
+                            span: Span::default(),
+                            annotations: vec![],
+                        }),
                         span: Span::default(),
-                        annotations: vec![],
-                    }),
-                    span: Span::default(),
-                }).collect())
+                    })
+                    .collect())
             }
             TemplateToken::Repetition { name, separator, inner, .. } => {
                 let items = bindings.get_exprs(name);

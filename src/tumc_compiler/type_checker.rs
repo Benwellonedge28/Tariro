@@ -1,8 +1,7 @@
 //! Type checking and inference for TUMC
 //! Implements Hindley-Milner type inference with constraint solving
 
-
-use super::ast::{ *};
+use super::ast::*;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 
@@ -141,9 +140,7 @@ impl Type {
             }
 
             // Optional unification
-            (Type::Optional(inner1), Type::Optional(inner2)) => {
-                inner1.unify(inner2)
-            }
+            (Type::Optional(inner1), Type::Optional(inner2)) => inner1.unify(inner2),
 
             // Result unification
             (Type::Result(ok1, err1), Type::Result(ok2, err2)) => {
@@ -162,9 +159,7 @@ impl Type {
             }
 
             // Enum unification by name
-            (Type::Enum { name: n1, .. }, Type::Enum { name: n2, .. }) if n1 == n2 => {
-                Ok(vec![])
-            }
+            (Type::Enum { name: n1, .. }, Type::Enum { name: n2, .. }) if n1 == n2 => Ok(vec![]),
 
             // Named types
             (Type::Named(n1), Type::Named(n2)) if n1 == n2 => Ok(vec![]),
@@ -173,10 +168,7 @@ impl Type {
             (Type::Error, _) | (_, Type::Error) => Ok(vec![]),
 
             // Mismatched types
-            _ => Err(TypeError::TypeMismatch {
-                expected: self.clone(),
-                found: other.clone(),
-            }),
+            _ => Err(TypeError::TypeMismatch { expected: self.clone(), found: other.clone() }),
         }
     }
 
@@ -192,17 +184,27 @@ impl Type {
             Type::Named(name) => name.clone(),
             Type::TypeVar(tv) => format!("T{}", tv.0),
             Type::Function(args, ret) => {
-                let args_str = args.iter().map(|a| a.display_name()).collect::<Vec<_>>().join(", ");
+                let args_str = args
+                    .iter()
+                    .map(|a| a.display_name())
+                    .collect::<Vec<_>>()
+                    .join(", ");
                 format!("fn({}) -> {}", args_str, ret.display_name())
             }
             Type::Tuple(elems) => {
-                let elems_str = elems.iter().map(|e| e.display_name()).collect::<Vec<_>>().join(", ");
+                let elems_str = elems
+                    .iter()
+                    .map(|e| e.display_name())
+                    .collect::<Vec<_>>()
+                    .join(", ");
                 format!("({})", elems_str)
             }
             Type::Array(inner) => format!("[{}]", inner.display_name()),
             Type::Dict(key, val) => format!("[{}: {}]", key.display_name(), val.display_name()),
             Type::Optional(inner) => format!("{}?", inner.display_name()),
-            Type::Result(ok, err) => format!("Result<{}, {}>", ok.display_name(), err.display_name()),
+            Type::Result(ok, err) => {
+                format!("Result<{}, {}>", ok.display_name(), err.display_name())
+            }
             Type::Struct { name, .. } => name.clone(),
             Type::Enum { name, .. } => name.clone(),
             Type::TraitObject { traits } => traits.join(" + "),
@@ -226,9 +228,7 @@ impl TypeConstraint {
     /// Solve a constraint, updating the type environment
     pub fn solve(&self, env: &mut TypeEnv) -> Result<(), TypeError> {
         match self {
-            TypeConstraint::Equal(t1, t2) => {
-                env.unify(t1, t2)
-            }
+            TypeConstraint::Equal(t1, t2) => env.unify(t1, t2),
             TypeConstraint::Implements { type_, trait_name } => {
                 env.add_trait_bound(type_, trait_name)
             }
@@ -237,10 +237,7 @@ impl TypeConstraint {
                 if env.is_subtype(sub, sup) {
                     Ok(())
                 } else {
-                    Err(TypeError::SubtypeViolation {
-                        sub: sub.clone(),
-                        sup: sup.clone(),
-                    })
+                    Err(TypeError::SubtypeViolation { sub: sub.clone(), sup: sup.clone() })
                 }
             }
         }
@@ -344,10 +341,7 @@ impl TypeEnv {
             (Type::TypeVar(v1), Type::TypeVar(v2)) if v1 == v2 => Ok(()),
             (Type::TypeVar(v), t) | (t, Type::TypeVar(v)) => {
                 if self.occurs_in(v, t) {
-                    return Err(TypeError::InfiniteType {
-                        var: v.clone(),
-                        type_: t.clone(),
-                    });
+                    return Err(TypeError::InfiniteType { var: v.clone(), type_: t.clone() });
                 }
                 self.substitutions.insert(v.clone(), t.clone());
                 Ok(())
@@ -376,13 +370,11 @@ impl TypeEnv {
             Type::Optional(inner) => self.occurs_in(var, inner),
             Type::Result(ok, err) => self.occurs_in(var, ok) || self.occurs_in(var, err),
             Type::Struct { fields, .. } => fields.iter().any(|(_, t)| self.occurs_in(var, t)),
-            Type::Enum { variants, .. } => {
-                variants.iter().any(|(_, t)| t.as_ref().map_or(false, |t| self.occurs_in(var, t)))
-            }
+            Type::Enum { variants, .. } => variants
+                .iter()
+                .any(|(_, t)| t.as_ref().map_or(false, |t| self.occurs_in(var, t))),
             Type::TraitObject { traits: _ } => false,
-            Type::Ref(inner) | Type::MutRef(inner) | Type::Ptr(inner) => {
-                self.occurs_in(var, inner)
-            }
+            Type::Ref(inner) | Type::MutRef(inner) | Type::Ptr(inner) => self.occurs_in(var, inner),
             _ => false,
         }
     }
@@ -390,18 +382,17 @@ impl TypeEnv {
     /// Apply substitutions to a type
     pub fn apply(&self, type_: &Type) -> Type {
         match type_ {
-            Type::TypeVar(v) => {
-                self.substitutions.get(v).cloned().map(|t| self.apply(&t)).unwrap_or_else(|| type_.clone())
-            }
-            Type::Function(args, ret) => {
-                Type::Function(
-                    args.iter().map(|a| self.apply(a)).collect(),
-                    Box::new(self.apply(ret)),
-                )
-            }
-            Type::Tuple(elems) => {
-                Type::Tuple(elems.iter().map(|e| self.apply(e)).collect())
-            }
+            Type::TypeVar(v) => self
+                .substitutions
+                .get(v)
+                .cloned()
+                .map(|t| self.apply(&t))
+                .unwrap_or_else(|| type_.clone()),
+            Type::Function(args, ret) => Type::Function(
+                args.iter().map(|a| self.apply(a)).collect(),
+                Box::new(self.apply(ret)),
+            ),
+            Type::Tuple(elems) => Type::Tuple(elems.iter().map(|e| self.apply(e)).collect()),
             Type::Array(inner) => Type::Array(Box::new(self.apply(inner))),
             Type::Dict(k, v) => Type::Dict(Box::new(self.apply(k)), Box::new(self.apply(v))),
             Type::Optional(inner) => Type::Optional(Box::new(self.apply(inner))),
@@ -419,7 +410,10 @@ impl TypeEnv {
     pub fn add_trait_bound(&mut self, type_: &Type, trait_name: &str) -> Result<(), TypeError> {
         match type_ {
             Type::TypeVar(v) => {
-                self.bounds.entry(v.clone()).or_default().insert(trait_name.to_string());
+                self.bounds
+                    .entry(v.clone())
+                    .or_default()
+                    .insert(trait_name.to_string());
                 Ok(())
             }
             _ => {
@@ -455,9 +449,12 @@ impl TypeEnv {
             (Type::Float, Type::Int) => true, // Float widens to int (lossy but allowed)
 
             // Struct subtyping (width subtyping)
-            (Type::Struct { name: n1, fields: f1 }, Type::Struct { name: n2, fields: f2 }) if n1 == n2 => {
+            (Type::Struct { name: n1, fields: f1 }, Type::Struct { name: n2, fields: f2 })
+                if n1 == n2 =>
+            {
                 f2.iter().all(|(name, ty2)| {
-                    f1.iter().any(|(name1, ty1)| name1 == name && self.is_subtype(ty1, ty2))
+                    f1.iter()
+                        .any(|(name1, ty1)| name1 == name && self.is_subtype(ty1, ty2))
                 })
             }
 
@@ -497,31 +494,64 @@ impl fmt::Display for TypeError {
                 write!(f, "Undefined variable: '{}'", name)
             }
             TypeError::TypeMismatch { expected, found } => {
-                write!(f, "Type mismatch: expected '{}', found '{}'", expected.display_name(), found.display_name())
+                write!(
+                    f,
+                    "Type mismatch: expected '{}', found '{}'",
+                    expected.display_name(),
+                    found.display_name()
+                )
             }
             TypeError::ArgCountMismatch { expected, found } => {
-                write!(f, "Argument count mismatch: expected {}, found {}", expected, found)
+                write!(
+                    f,
+                    "Argument count mismatch: expected {}, found {}",
+                    expected, found
+                )
             }
             TypeError::TupleLengthMismatch { expected, found } => {
-                write!(f, "Tuple length mismatch: expected {}, found {}", expected, found)
+                write!(
+                    f,
+                    "Tuple length mismatch: expected {}, found {}",
+                    expected, found
+                )
             }
             TypeError::InfiniteType { var, type_ } => {
                 write!(f, "Infinite type: T{} = {}", var.0, type_.display_name())
             }
             TypeError::SubtypeViolation { sub, sup } => {
-                write!(f, "Subtype violation: '{}' is not a subtype of '{}'", sub.display_name(), sup.display_name())
+                write!(
+                    f,
+                    "Subtype violation: '{}' is not a subtype of '{}'",
+                    sub.display_name(),
+                    sup.display_name()
+                )
             }
             TypeError::TraitNotImplemented { type_, trait_name } => {
-                write!(f, "Type '{}' does not implement trait '{}'", type_.display_name(), trait_name)
+                write!(
+                    f,
+                    "Type '{}' does not implement trait '{}'",
+                    type_.display_name(),
+                    trait_name
+                )
             }
             TypeError::RecursiveType { name } => {
                 write!(f, "Recursive type definition: '{}'", name)
             }
             TypeError::InvalidFieldAccess { type_, field } => {
-                write!(f, "Invalid field access: type '{}' has no field '{}'", type_.display_name(), field)
+                write!(
+                    f,
+                    "Invalid field access: type '{}' has no field '{}'",
+                    type_.display_name(),
+                    field
+                )
             }
             TypeError::InvalidMethodCall { type_, method } => {
-                write!(f, "Invalid method call: type '{}' has no method '{}'", type_.display_name(), method)
+                write!(
+                    f,
+                    "Invalid method call: type '{}' has no method '{}'",
+                    type_.display_name(),
+                    method
+                )
             }
             TypeError::CyclicDependency { types } => {
                 write!(f, "Cyclic type dependency: {}", types.join(" -> "))
@@ -530,7 +560,12 @@ impl fmt::Display for TypeError {
                 write!(f, "Cannot infer type in context: {}", context)
             }
             TypeError::InvalidPattern { pattern, type_ } => {
-                write!(f, "Invalid pattern '{}' for type '{}'", pattern, type_.display_name())
+                write!(
+                    f,
+                    "Invalid pattern '{}' for type '{}'",
+                    pattern,
+                    type_.display_name()
+                )
             }
             TypeError::UnhandledCase { discriminant } => {
                 write!(f, "Unhandled case in pattern matching: '{}'", discriminant)
@@ -550,10 +585,7 @@ pub struct TypeCheckResult {
 
 impl Default for TypeCheckResult {
     fn default() -> Self {
-        TypeCheckResult {
-            type_: Type::Error,
-            constraints: vec![],
-        }
+        TypeCheckResult { type_: Type::Error, constraints: vec![] }
     }
 }
 
@@ -590,7 +622,10 @@ impl TypeChecker {
 
     /// Type check a program
     pub fn check_program(&mut self, program: &Program) -> Result<Type, Vec<TypeError>> {
-        println!("TUMC: TypeChecker - Checking program with {} items", program.items.len());
+        println!(
+            "TUMC: TypeChecker - Checking program with {} items",
+            program.items.len()
+        );
 
         // First pass: collect all type definitions
         for item in &program.items {
@@ -613,24 +648,33 @@ impl TypeChecker {
     fn collect_type_def(&mut self, item: &Item) -> Result<(), TypeError> {
         match item {
             Item::Struct(def) => {
-                let fields: Vec<(String, Type)> = def.fields.iter().map(|f| {
-                    (f.name.clone(), self.convert_ann_type(&f.ann_type))
-                }).collect();
+                let fields: Vec<(String, Type)> = def
+                    .fields
+                    .iter()
+                    .map(|f| (f.name.clone(), self.convert_ann_type(&f.ann_type)))
+                    .collect();
 
-                self.env.add_type(def.name.clone(), Type::Struct {
-                    name: def.name.clone(),
-                    fields,
-                });
+                self.env.add_type(
+                    def.name.clone(),
+                    Type::Struct { name: def.name.clone(), fields },
+                );
             }
             Item::Enum(def) => {
-                let variants: Vec<(String, Option<Type>)> = def.variants.iter().map(|v| {
-                    (v.name.clone(), v.fields.as_ref().map(|f| self.convert_ann_type(f)))
-                }).collect();
+                let variants: Vec<(String, Option<Type>)> = def
+                    .variants
+                    .iter()
+                    .map(|v| {
+                        (
+                            v.name.clone(),
+                            v.fields.as_ref().map(|f| self.convert_ann_type(f)),
+                        )
+                    })
+                    .collect();
 
-                self.env.add_type(def.name.clone(), Type::Enum {
-                    name: def.name.clone(),
-                    variants,
-                });
+                self.env.add_type(
+                    def.name.clone(),
+                    Type::Enum { name: def.name.clone(), variants },
+                );
             }
             Item::TypeAlias(def) => {
                 let type_ = self.convert_ann_type(&def.ann_type);
@@ -638,9 +682,10 @@ impl TypeChecker {
             }
             Item::Trait(def) => {
                 // Register trait name
-                self.env.add_type(def.name.clone(), Type::TraitObject {
-                    traits: vec![def.name.clone()],
-                });
+                self.env.add_type(
+                    def.name.clone(),
+                    Type::TraitObject { traits: vec![def.name.clone()] },
+                );
             }
             _ => {}
         }
@@ -713,7 +758,10 @@ impl TypeChecker {
         }
 
         let func_type = Type::Function(
-            def.params.iter().map(|p| self.convert_ann_type(&p.ann_type)).collect(),
+            def.params
+                .iter()
+                .map(|p| self.convert_ann_type(&p.ann_type))
+                .collect(),
             Box::new(ret_type),
         );
 
@@ -742,7 +790,8 @@ impl TypeChecker {
                 };
 
                 self.env.unify(&declared_type, &value_type)?;
-                self.env.add_binding(pattern.to_string(), declared_type.clone());
+                self.env
+                    .add_binding(pattern.to_string(), declared_type.clone());
 
                 for s in body {
                     self.check_stmt(s)?;
@@ -785,7 +834,8 @@ impl TypeChecker {
 
                 // For now, assume iterator yields T
                 let elem_type = self.env.fresh_var();
-                self.env.unify(&Type::Array(Box::new(elem_type.clone())), &iter_type)?;
+                self.env
+                    .unify(&Type::Array(Box::new(elem_type.clone())), &iter_type)?;
 
                 self.env.add_binding(variable.clone(), elem_type);
 
@@ -864,11 +914,12 @@ impl TypeChecker {
         match &expr.kind {
             ExprKind::Literal(lit) => Ok(self.check_literal(lit)),
 
-            ExprKind::Identifier(name) => {
-                self.env.get_binding(name).cloned()
-                    .or_else(|| self.env.get_type(name).cloned())
-                    .ok_or_else(|| TypeError::UndefinedVariable { name: name.clone() })
-            }
+            ExprKind::Identifier(name) => self
+                .env
+                .get_binding(name)
+                .cloned()
+                .or_else(|| self.env.get_type(name).cloned())
+                .ok_or_else(|| TypeError::UndefinedVariable { name: name.clone() }),
 
             ExprKind::Binary { op, lhs, rhs } => self.check_binary_expr(op, lhs, rhs),
 
@@ -920,7 +971,8 @@ impl TypeChecker {
             }
 
             ExprKind::Tuple(elems) => {
-                let elem_types: Result<Vec<_>, _> = elems.iter().map(|e| self.check_expr(e)).collect();
+                let elem_types: Result<Vec<_>, _> =
+                    elems.iter().map(|e| self.check_expr(e)).collect();
                 Ok(Type::Tuple(elem_types?))
             }
 
@@ -928,7 +980,8 @@ impl TypeChecker {
                 if elements.is_empty() {
                     return Ok(Type::Array(Box::new(self.env.fresh_var())));
                 }
-                let elem_types: Result<Vec<_>, _> = elements.iter().map(|e| self.check_expr(e)).collect();
+                let elem_types: Result<Vec<_>, _> =
+                    elements.iter().map(|e| self.check_expr(e)).collect();
                 let elem_types = elem_types?;
 
                 let base_type = elem_types[0].clone();
@@ -964,14 +1017,16 @@ impl TypeChecker {
                 let base_type = self.check_expr(base)?;
 
                 match &self.env.apply(&base_type) {
-                    Type::Struct { fields, .. } => {
-                        fields.iter().find(|(n, _)| n == field)
-                            .map(|(_, t)| Ok(t.clone()))
-                            .unwrap_or_else(|| Err(TypeError::InvalidFieldAccess {
+                    Type::Struct { fields, .. } => fields
+                        .iter()
+                        .find(|(n, _)| n == field)
+                        .map(|(_, t)| Ok(t.clone()))
+                        .unwrap_or_else(|| {
+                            Err(TypeError::InvalidFieldAccess {
                                 type_: base_type,
                                 field: field.clone(),
-                            }))
-                    }
+                            })
+                        }),
                     _ => Err(TypeError::InvalidFieldAccess {
                         type_: base_type,
                         field: field.clone(),
@@ -1008,12 +1063,14 @@ impl TypeChecker {
             ExprKind::Closure(params, body, return_type) => {
                 let old_return = self.return_type.take();
 
-                let param_types: Vec<Type> = params.iter().map(|p| {
-                    self.convert_ann_type(&p.ann_type)
-                }).collect();
+                let param_types: Vec<Type> = params
+                    .iter()
+                    .map(|p| self.convert_ann_type(&p.ann_type))
+                    .collect();
 
                 for (i, param) in params.iter().enumerate() {
-                    self.env.add_binding(param.name.clone(), param_types[i].clone());
+                    self.env
+                        .add_binding(param.name.clone(), param_types[i].clone());
                 }
 
                 if let Some(rt) = return_type {
@@ -1041,21 +1098,13 @@ impl TypeChecker {
                 Ok(self.convert_ann_type(target_type))
             }
 
-            ExprKind::Await(expr) => {
-                self.check_expr(expr)
-            }
+            ExprKind::Await(expr) => self.check_expr(expr),
 
-            ExprKind::Try(expr) => {
-                self.check_expr(expr)
-            }
+            ExprKind::Try(expr) => self.check_expr(expr),
 
-            ExprKind::Parenthesis(expr) => {
-                self.check_expr(expr)
-            }
+            ExprKind::Parenthesis(expr) => self.check_expr(expr),
 
-            ExprKind::Path(_) => {
-                Ok(self.env.fresh_var())
-            }
+            ExprKind::Path(_) => Ok(self.env.fresh_var()),
 
             ExprKind::Assign { target, value } => {
                 let target_type = self.check_expr(target)?;
@@ -1111,10 +1160,7 @@ impl TypeChecker {
                     let value_type = self.check_expr(value)?;
                     field_types.push((name.clone(), value_type));
                 }
-                Ok(Type::Struct {
-                    name: String::from("__anon_struct"),
-                    fields: field_types,
-                })
+                Ok(Type::Struct { name: String::from("__anon_struct"), fields: field_types })
             }
 
             ExprKind::TupleField { object, .. } => {
@@ -1175,10 +1221,7 @@ impl TypeChecker {
                             self.env.unify(&Type::String, &rhs_type)?;
                             Ok(Type::String)
                         } else {
-                            Err(TypeError::TypeMismatch {
-                                expected: Type::String,
-                                found: rhs_type,
-                            })
+                            Err(TypeError::TypeMismatch { expected: Type::String, found: rhs_type })
                         }
                     }
                     Type::Array(_) => {
@@ -1229,22 +1272,17 @@ impl TypeChecker {
             BinOp::Pipe => Ok(rhs_type),
 
             // Exponentiation
-            BinOp::Pow => {
-                match &lhs_type {
-                    Type::Int => {
-                        self.env.unify(&Type::Int, &rhs_type)?;
-                        Ok(Type::Int)
-                    }
-                    Type::Float => {
-                        self.env.unify(&Type::Float, &rhs_type)?;
-                        Ok(Type::Float)
-                    }
-                    _ => Err(TypeError::TypeMismatch {
-                        expected: Type::Int,
-                        found: lhs_type,
-                    }),
+            BinOp::Pow => match &lhs_type {
+                Type::Int => {
+                    self.env.unify(&Type::Int, &rhs_type)?;
+                    Ok(Type::Int)
                 }
-            }
+                Type::Float => {
+                    self.env.unify(&Type::Float, &rhs_type)?;
+                    Ok(Type::Float)
+                }
+                _ => Err(TypeError::TypeMismatch { expected: Type::Int, found: lhs_type }),
+            },
         }
     }
 
@@ -1253,15 +1291,10 @@ impl TypeChecker {
         let operand_type = self.check_expr(operand)?;
 
         match op {
-            UnOp::Neg => {
-                match &operand_type {
-                    Type::Int | Type::Float => Ok(operand_type),
-                    _ => Err(TypeError::TypeMismatch {
-                        expected: Type::Int,
-                        found: operand_type,
-                    }),
-                }
-            }
+            UnOp::Neg => match &operand_type {
+                Type::Int | Type::Float => Ok(operand_type),
+                _ => Err(TypeError::TypeMismatch { expected: Type::Int, found: operand_type }),
+            },
             UnOp::Not => {
                 self.env.unify(&Type::Bool, &operand_type)?;
                 Ok(Type::Bool)
@@ -1270,15 +1303,13 @@ impl TypeChecker {
                 self.env.unify(&Type::Int, &operand_type)?;
                 Ok(Type::Int)
             }
-            UnOp::Deref => {
-                match &self.env.apply(&operand_type) {
-                    Type::Ref(inner) | Type::MutRef(inner) => Ok((**inner).clone()),
-                    _ => Err(TypeError::TypeMismatch {
-                        expected: Type::Ref(Box::new(self.env.fresh_var())),
-                        found: operand_type,
-                    }),
-                }
-            }
+            UnOp::Deref => match &self.env.apply(&operand_type) {
+                Type::Ref(inner) | Type::MutRef(inner) => Ok((**inner).clone()),
+                _ => Err(TypeError::TypeMismatch {
+                    expected: Type::Ref(Box::new(self.env.fresh_var())),
+                    found: operand_type,
+                }),
+            },
         }
     }
 
@@ -1305,7 +1336,8 @@ impl TypeChecker {
             _ => {
                 // Try to infer as a generic call
                 let ret_type = self.env.fresh_var();
-                let param_types: Vec<Type> = arguments.iter().map(|_| self.env.fresh_var()).collect();
+                let param_types: Vec<Type> =
+                    arguments.iter().map(|_| self.env.fresh_var()).collect();
 
                 let inferred_func_type = Type::Function(param_types, Box::new(ret_type.clone()));
                 self.env.unify(&func_type, &inferred_func_type)?;
@@ -1316,12 +1348,17 @@ impl TypeChecker {
     }
 
     /// Check method call
-    fn check_method_call(&mut self, object: &Expr, method: &str, arguments: &[Expr]) -> Result<Type, TypeError> {
+    fn check_method_call(
+        &mut self,
+        object: &Expr,
+        method: &str,
+        arguments: &[Expr],
+    ) -> Result<Type, TypeError> {
         let obj_type = self.check_expr(object)?;
 
         // Look up method on type
         match &self.env.apply(&obj_type) {
-            Type::Struct { name, fields } => {
+            Type::Struct { name: _, fields } => {
                 // Check if method is a field
                 if let Some(field_type) = fields.iter().find(|(n, _)| n == method) {
                     if arguments.is_empty() {
@@ -1337,10 +1374,7 @@ impl TypeChecker {
                 // Look for impl blocks
                 Ok(self.env.fresh_var())
             }
-            _ => Err(TypeError::InvalidMethodCall {
-                type_: obj_type,
-                method: method.to_string(),
-            }),
+            _ => Err(TypeError::InvalidMethodCall { type_: obj_type, method: method.to_string() }),
         }
     }
 
@@ -1360,13 +1394,17 @@ impl TypeChecker {
                 Ok(var_type)
             }
             Pattern::Constructor { name, args } => {
-                let type_ = self.env.get_type(name)
+                let type_ = self
+                    .env
+                    .get_type(name)
                     .cloned()
                     .ok_or_else(|| TypeError::UndefinedType { name: name.clone() })?;
 
                 match &type_ {
                     Type::Enum { variants, .. } => {
-                        if let Some((_, Some(field_type))) = variants.iter().find(|(n, _)| n == name) {
+                        if let Some((_, Some(field_type))) =
+                            variants.iter().find(|(n, _)| n == name)
+                        {
                             for arg in args {
                                 self.check_pattern(arg)?;
                             }
@@ -1391,7 +1429,8 @@ impl TypeChecker {
                 }
             }
             Pattern::Tuple(patterns) => {
-                let elem_types: Result<Vec<_>, _> = patterns.iter().map(|p| self.check_pattern(p)).collect();
+                let elem_types: Result<Vec<_>, _> =
+                    patterns.iter().map(|p| self.check_pattern(p)).collect();
                 Ok(Type::Tuple(elem_types?))
             }
             Pattern::Slice(patterns) => {
@@ -1438,9 +1477,11 @@ impl TypeChecker {
             AnnType::Float => Type::Float,
             AnnType::Char => Type::Char,
             AnnType::String => Type::String,
-            AnnType::Named(name) => {
-                self.env.get_type(name).cloned().unwrap_or_else(|| Type::Named(name.clone()))
-            }
+            AnnType::Named(name) => self
+                .env
+                .get_type(name)
+                .cloned()
+                .unwrap_or_else(|| Type::Named(name.clone())),
             AnnType::Ref(inner) => Type::Ref(Box::new(self.convert_ann_type(inner))),
             AnnType::MutRef(inner) => Type::MutRef(Box::new(self.convert_ann_type(inner))),
             AnnType::Ptr(inner) => Type::Ptr(Box::new(self.convert_ann_type(inner))),
@@ -1449,7 +1490,9 @@ impl TypeChecker {
                 params.iter().map(|p| self.convert_ann_type(p)).collect(),
                 Box::new(self.convert_ann_type(ret)),
             ),
-            AnnType::Tuple(elems) => Type::Tuple(elems.iter().map(|e| self.convert_ann_type(e)).collect()),
+            AnnType::Tuple(elems) => {
+                Type::Tuple(elems.iter().map(|e| self.convert_ann_type(e)).collect())
+            }
             AnnType::Optional(inner) => Type::Optional(Box::new(self.convert_ann_type(inner))),
             AnnType::Result(ok, err) => Type::Result(
                 Box::new(self.convert_ann_type(ok)),

@@ -31,10 +31,7 @@ pub struct X86Features {
 
 impl X86_64Target {
     pub fn new() -> Self {
-        Self {
-            cpu: "generic".to_string(),
-            features: X86Features::default(),
-        }
+        Self { cpu: "generic".to_string(), features: X86Features::default() }
     }
 
     /// Generate x86_64 instruction

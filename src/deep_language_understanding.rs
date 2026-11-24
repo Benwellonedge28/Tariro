@@ -1,9 +1,8 @@
 // Tariro AGI - Deep Language Understanding Module
 // Comprehensive natural language processing system for AGI
 
-use std::collections::{HashMap, HashSet, VecDeque};
-use std::sync::{ };
 use chrono::{DateTime, Utc};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::time::Duration;
 
 // ============================================================================
@@ -83,7 +82,10 @@ impl Token {
             TokenType::Number
         } else if text.chars().all(|c| c.is_whitespace()) {
             TokenType::Whitespace
-        } else if text.chars().all(|c| c.is_ascii_punctuation() || !c.is_alphabetic()) {
+        } else if text
+            .chars()
+            .all(|c| c.is_ascii_punctuation() || !c.is_alphabetic())
+        {
             TokenType::Punctuation
         } else {
             TokenType::Symbol
@@ -94,21 +96,21 @@ impl Token {
 /// Part-of-speech tags (Universal POS tags)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum POSTag {
-    NOUN,       // Noun
-    VERB,       // Verb
-    ADJ,       // Adjective
-    ADV,       // Adverb
-    PRON,      // Pronoun
-    DET,       // Determiner
-    ADP,       // Adposition
-    NUM,       // Numeral
-    CONJ,      // Conjunction
-    PRT,       // Particle
-    INTJ,      // Interjection
-    PROPN,     // Proper Noun
-    PUNCT,     // Punctuation
-    SYM,       // Symbol
-    X,         // Other
+    NOUN,  // Noun
+    VERB,  // Verb
+    ADJ,   // Adjective
+    ADV,   // Adverb
+    PRON,  // Pronoun
+    DET,   // Determiner
+    ADP,   // Adposition
+    NUM,   // Numeral
+    CONJ,  // Conjunction
+    PRT,   // Particle
+    INTJ,  // Interjection
+    PROPN, // Proper Noun
+    PUNCT, // Punctuation
+    SYM,   // Symbol
+    X,     // Other
 }
 
 impl POSTag {
@@ -125,7 +127,7 @@ impl POSTag {
             "CONJ" | "CC" => Some(POSTag::CONJ),
             "PRT" | "RP" => Some(POSTag::PRT),
             "INTJ" | "UH" => Some(POSTag::INTJ),
-            "PROPN" | "NNP" | "NNPS" => Some(POSTag::PROPN),
+            "PROPN" => Some(POSTag::PROPN),
             "PUNCT" => Some(POSTag::PUNCT),
             "SYM" => Some(POSTag::SYM),
             _ => Some(POSTag::X),
@@ -136,23 +138,23 @@ impl POSTag {
 /// Dependency labels
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum DependencyLabel {
-    Nsubj,      // Nominal subject
-    Nobj,       // Direct object
-    Niobj,      // Indirect object
-    Csubj,      // Clausal subject
-    Csubjpass,  // Clausal subject (passive)
-    Cobj,       // Clausal object
-    Amod,       // Adjectival modifier
-    Advmod,     // Adverbial modifier
-    Nmod,       // Nominal modifier
-    Pobj,       // Object of preposition
-    Det,        // Determiner
-    Poss,       // Possessive modifier
-    Case,       // Case marking
-    Conj,       // Conjunct
-    Cc,         // Coordinating conjunction
-    Root,       // Root
-    Dep,        // Unspecified dependency
+    Nsubj,     // Nominal subject
+    Nobj,      // Direct object
+    Niobj,     // Indirect object
+    Csubj,     // Clausal subject
+    Csubjpass, // Clausal subject (passive)
+    Cobj,      // Clausal object
+    Amod,      // Adjectival modifier
+    Advmod,    // Adverbial modifier
+    Nmod,      // Nominal modifier
+    Pobj,      // Object of preposition
+    Det,       // Determiner
+    Poss,      // Possessive modifier
+    Case,      // Case marking
+    Conj,      // Conjunct
+    Cc,        // Coordinating conjunction
+    Root,      // Root
+    Dep,       // Unspecified dependency
 }
 
 impl DependencyLabel {
@@ -186,9 +188,7 @@ pub struct Tokenizer {
 
 impl Tokenizer {
     pub fn new() -> Self {
-        Self {
-            config: NormalizationConfig::default(),
-        }
+        Self { config: NormalizationConfig::default() }
     }
 
     pub fn with_config(config: NormalizationConfig) -> Self {
@@ -218,9 +218,7 @@ impl Tokenizer {
 
     /// Simple word tokenization
     pub fn tokenize_words(&self, text: &str) -> Vec<String> {
-        text.split_whitespace()
-            .map(|w| self.normalize(w))
-            .collect()
+        text.split_whitespace().map(|w| self.normalize(w)).collect()
     }
 
     /// Normalize a single word
@@ -275,10 +273,7 @@ impl MorphologicalAnalyzer {
         prefix_rules.insert("inter".to_string(), "BET");
         prefix_rules.insert("trans".to_string(), "ACR");
 
-        Self {
-            suffix_rules,
-            prefix_rules,
-        }
+        Self { suffix_rules, prefix_rules }
     }
 
     /// Analyze word morphology
@@ -328,11 +323,7 @@ impl MorphologicalAnalyzer {
             features.insert("aspect".to_string(), "progressive".to_string());
         }
 
-        MorphologicalAnalysis {
-            root,
-            morphemes,
-            features,
-        }
+        MorphologicalAnalysis { root, morphemes, features }
     }
 }
 
@@ -410,15 +401,21 @@ pub struct SyntacticParser {
 impl SyntacticParser {
     pub fn new() -> Self {
         let mut phrase_rules = HashMap::new();
-        phrase_rules.insert(NodeType::Sentence, vec![
-            vec![NodeType::NounPhrase, NodeType::VerbPhrase],
-            vec![NodeType::VerbPhrase],
-        ]);
-        phrase_rules.insert(NodeType::NounPhrase, vec![
-            vec![NodeType::AdjectivePhrase, NodeType::NounPhrase],
-            vec![NodeType::Determiner, NodeType::NounPhrase],
-            vec![NodeType::NounPhrase, NodeType::PrepositionalPhrase],
-        ]);
+        phrase_rules.insert(
+            NodeType::Sentence,
+            vec![
+                vec![NodeType::NounPhrase, NodeType::VerbPhrase],
+                vec![NodeType::VerbPhrase],
+            ],
+        );
+        phrase_rules.insert(
+            NodeType::NounPhrase,
+            vec![
+                vec![NodeType::AdjectivePhrase, NodeType::NounPhrase],
+                vec![NodeType::Determiner, NodeType::NounPhrase],
+                vec![NodeType::NounPhrase, NodeType::PrepositionalPhrase],
+            ],
+        );
 
         Self { phrase_rules }
     }
@@ -444,10 +441,7 @@ impl SyntacticParser {
         // Build phrase structure
         let root_id = self.build_phrase_structure(tokens, &mut nodes, &mut next_id);
 
-        SyntacticTree {
-            nodes,
-            root: root_id,
-        }
+        SyntacticTree { nodes, root: root_id }
     }
 
     fn build_phrase_structure(
@@ -499,19 +493,22 @@ impl SyntacticParser {
         }
 
         // Find root (first verb typically)
-        let root = tokens.iter()
+        let root = tokens
+            .iter()
             .enumerate()
             .find(|(_, t)| t.pos_tag == Some(POSTag::VERB))
             .map(|(i, _)| i)
             .unwrap_or(0);
 
-        DependencyTree {
-            nodes,
-            root,
-        }
+        DependencyTree { nodes, root }
     }
 
-    fn find_head(&self, _index: usize, token: &Token, tokens: &[Token]) -> (usize, DependencyLabel) {
+    fn find_head(
+        &self,
+        _index: usize,
+        token: &Token,
+        tokens: &[Token],
+    ) -> (usize, DependencyLabel) {
         let pos = token.pos_tag;
 
         match pos {
@@ -715,34 +712,52 @@ impl SemanticParser {
         let mut frame_templates = HashMap::new();
 
         // Add basic ontology concepts
-        ontologies.insert("event".to_string(), OntologyConcept {
-            id: "event".to_string(),
-            name: "Event".to_string(),
-            supertypes: vec![],
-            properties: HashMap::new(),
-        });
-        ontologies.insert("agent".to_string(), OntologyConcept {
-            id: "agent".to_string(),
-            name: "Agent".to_string(),
-            supertypes: vec!["entity".to_string()],
-            properties: HashMap::new(),
-        });
+        ontologies.insert(
+            "event".to_string(),
+            OntologyConcept {
+                id: "event".to_string(),
+                name: "Event".to_string(),
+                supertypes: vec![],
+                properties: HashMap::new(),
+            },
+        );
+        ontologies.insert(
+            "agent".to_string(),
+            OntologyConcept {
+                id: "agent".to_string(),
+                name: "Agent".to_string(),
+                supertypes: vec!["entity".to_string()],
+                properties: HashMap::new(),
+            },
+        );
 
         // Add frame templates
-        frame_templates.insert("change".to_string(), FrameTemplate {
-            name: "Change".to_string(),
-            frame_type: "Event".to_string(),
-            elements: vec![
-                FrameElementDef { name: "Actor".to_string(), core: true, sem_type: "Agent".to_string() },
-                FrameElementDef { name: "Theme".to_string(), core: true, sem_type: "Entity".to_string() },
-                FrameElementDef { name: "Result".to_string(), core: true, sem_type: "State".to_string() },
-            ],
-        });
+        frame_templates.insert(
+            "change".to_string(),
+            FrameTemplate {
+                name: "Change".to_string(),
+                frame_type: "Event".to_string(),
+                elements: vec![
+                    FrameElementDef {
+                        name: "Actor".to_string(),
+                        core: true,
+                        sem_type: "Agent".to_string(),
+                    },
+                    FrameElementDef {
+                        name: "Theme".to_string(),
+                        core: true,
+                        sem_type: "Entity".to_string(),
+                    },
+                    FrameElementDef {
+                        name: "Result".to_string(),
+                        core: true,
+                        sem_type: "State".to_string(),
+                    },
+                ],
+            },
+        );
 
-        Self {
-            ontologies,
-            frame_templates,
-        }
+        Self { ontologies, frame_templates }
     }
 
     /// Parse into semantic representation
@@ -761,12 +776,15 @@ impl SemanticParser {
             if node.label == DependencyLabel::Nsubj {
                 if let Some(idx) = node.head {
                     if let Some(head_token) = tokens.get(idx) {
-                        elements.insert("Actor".to_string(), FrameElement {
-                            name: "Actor".to_string(),
-                            value: head_token.text.clone(),
-                            filler_type: ElementType::Entity,
-                            highlighted: true,
-                        });
+                        elements.insert(
+                            "Actor".to_string(),
+                            FrameElement {
+                                name: "Actor".to_string(),
+                                value: head_token.text.clone(),
+                                filler_type: ElementType::Entity,
+                                highlighted: true,
+                            },
+                        );
                     }
                 }
             }
@@ -774,12 +792,15 @@ impl SemanticParser {
             if node.label == DependencyLabel::Nobj {
                 if let Some(idx) = node.head {
                     if let Some(head_token) = tokens.get(idx) {
-                        elements.insert("Theme".to_string(), FrameElement {
-                            name: "Theme".to_string(),
-                            value: head_token.text.clone(),
-                            filler_type: ElementType::Entity,
-                            highlighted: false,
-                        });
+                        elements.insert(
+                            "Theme".to_string(),
+                            FrameElement {
+                                name: "Theme".to_string(),
+                                value: head_token.text.clone(),
+                                filler_type: ElementType::Entity,
+                                highlighted: false,
+                            },
+                        );
                     }
                 }
             }
@@ -1060,9 +1081,7 @@ pub struct DiscourseAnalyzer {
 
 impl DiscourseAnalyzer {
     pub fn new() -> Self {
-        Self {
-            coherence_threshold: 0.5,
-        }
+        Self { coherence_threshold: 0.5 }
     }
 
     /// Analyze discourse structure
@@ -1071,15 +1090,12 @@ impl DiscourseAnalyzer {
         let relations = self.compute_coherence(&segments);
         let topics = self.extract_topics(&segments);
 
-        DiscourseStructure {
-            segments,
-            coherence_relations: relations,
-            topics,
-        }
+        DiscourseStructure { segments, coherence_relations: relations, topics }
     }
 
     fn segment_text(&self, text: &str) -> Vec<DiscourseSegment> {
-        let sentences: Vec<&str> = text.split(|c| c == '.' || c == '!' || c == '?')
+        let sentences: Vec<&str> = text
+            .split(|c| c == '.' || c == '!' || c == '?')
             .filter(|s| !s.trim().is_empty())
             .collect();
 
@@ -1100,7 +1116,8 @@ impl DiscourseAnalyzer {
 
         for i in 0..segments.len().saturating_sub(1) {
             let coherence_type = self.classify_coherence(&segments[i].text, &segments[i + 1].text);
-            let strength = self.compute_coherence_strength(&segments[i].text, &segments[i + 1].text);
+            let strength =
+                self.compute_coherence_strength(&segments[i].text, &segments[i + 1].text);
 
             if strength > self.coherence_threshold {
                 relations.push(CoherenceRelation {
@@ -1160,22 +1177,53 @@ impl DiscourseAnalyzer {
         let mut topics: Vec<_> = word_freq.into_iter().collect();
         topics.sort_by(|a, b| b.1.cmp(&a.1));
 
-        topics.into_iter()
+        topics
+            .into_iter()
             .take(5)
-            .map(|(word, count)| Topic {
-                term: word,
-                frequency: count,
-            })
+            .map(|(word, count)| Topic { term: word, frequency: count })
             .collect()
     }
 
     fn is_stopword(word: &str) -> bool {
         matches!(
             word,
-            "the" | "a" | "an" | "is" | "are" | "was" | "were" | "be" | "been" | "being"
-            | "have" | "has" | "had" | "do" | "does" | "did" | "will" | "would" | "could"
-            | "should" | "may" | "might" | "must" | "shall" | "can" | "to" | "of" | "in"
-            | "for" | "on" | "with" | "at" | "by" | "from" | "as" | "into" | "through"
+            "the"
+                | "a"
+                | "an"
+                | "is"
+                | "are"
+                | "was"
+                | "were"
+                | "be"
+                | "been"
+                | "being"
+                | "have"
+                | "has"
+                | "had"
+                | "do"
+                | "does"
+                | "did"
+                | "will"
+                | "would"
+                | "could"
+                | "should"
+                | "may"
+                | "might"
+                | "must"
+                | "shall"
+                | "can"
+                | "to"
+                | "of"
+                | "in"
+                | "for"
+                | "on"
+                | "with"
+                | "at"
+                | "by"
+                | "from"
+                | "as"
+                | "into"
+                | "through"
         )
     }
 }
@@ -1212,10 +1260,7 @@ pub struct NGramModel {
 
 impl NGramModel {
     pub fn new(n: usize) -> Self {
-        Self {
-            n,
-            ngrams: HashMap::new(),
-        }
+        Self { n, ngrams: HashMap::new() }
     }
 
     pub fn train(&mut self, corpus: &[String]) {
@@ -1269,7 +1314,9 @@ impl TextGenerator {
             ("that".to_string(), 0.02),
             ("it".to_string(), 0.02),
             ("for".to_string(), 0.02),
-        ].into_iter().collect();
+        ]
+        .into_iter()
+        .collect();
 
         Self {
             vocabulary,
@@ -1299,9 +1346,7 @@ impl TextGenerator {
     /// Generate text from semantic input
     pub fn generate(&self, semantic: &SemanticRepresentation, max_length: usize) -> String {
         match semantic {
-            SemanticRepresentation::Frame(frame) => {
-                self.generate_from_frame(frame, max_length)
-            }
+            SemanticRepresentation::Frame(frame) => self.generate_from_frame(frame, max_length),
             SemanticRepresentation::PredicateLogic(logic) => {
                 self.generate_from_logic(logic, max_length)
             }
@@ -1337,18 +1382,23 @@ impl TextGenerator {
         let mut parts = Vec::new();
 
         for pred in &logic.predicates {
-            let args = pred.arguments
+            let args = pred
+                .arguments
                 .iter()
                 .map(|t| match t {
                     Term::Constant(s) => s.clone(),
                     Term::Variable(s) => s.clone(),
-                    Term::Function(name, args) => format!("{}({})", name, args.iter()
-                        .map(|a| match a {
-                            Term::Constant(s) => s.clone(),
-                            _ => "x".to_string(),
-                        })
-                        .collect::<Vec<_>>()
-                        .join(", ")),
+                    Term::Function(name, args) => format!(
+                        "{}({})",
+                        name,
+                        args.iter()
+                            .map(|a| match a {
+                                Term::Constant(s) => s.clone(),
+                                _ => "x".to_string(),
+                            })
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    ),
                 })
                 .collect::<Vec<_>>()
                 .join(" ");
@@ -1509,12 +1559,15 @@ impl DeepLanguageUnderstanding {
     }
 
     fn tag_pos(&self, tokens: &[Token]) -> Vec<Token> {
-        tokens.iter().map(|t| {
-            let mut token = t.clone();
-            token.pos_tag = self.guess_pos(t);
-            token.lemma = Some(self.guess_lemma(t));
-            token
-        }).collect()
+        tokens
+            .iter()
+            .map(|t| {
+                let mut token = t.clone();
+                token.pos_tag = self.guess_pos(t);
+                token.lemma = Some(self.guess_lemma(t));
+                token
+            })
+            .collect()
     }
 
     fn guess_pos(&self, token: &Token) -> Option<POSTag> {
@@ -1544,7 +1597,10 @@ impl DeepLanguageUnderstanding {
                         Some(POSTag::VERB)
                     } else if lower.ends_with("tion") || lower.ends_with("ness") {
                         Some(POSTag::NOUN)
-                    } else if lower.ends_with("ful") || lower.ends_with("less") || lower.ends_with("able") {
+                    } else if lower.ends_with("ful")
+                        || lower.ends_with("less")
+                        || lower.ends_with("able")
+                    {
                         Some(POSTag::ADJ)
                     } else if lower.ends_with("s") && lower.len() > 2 {
                         Some(POSTag::NOUN)
@@ -1645,7 +1701,8 @@ impl DeepLanguageUnderstanding {
 
     /// Summarize text
     pub fn summarize(&self, text: &str, max_sentences: usize) -> String {
-        let sentences: Vec<_> = text.split(|c| c == '.' || c == '!' || c == '?')
+        let sentences: Vec<_> = text
+            .split(|c| c == '.' || c == '!' || c == '?')
             .filter(|s| !s.trim().is_empty())
             .take(max_sentences)
             .map(|s| s.trim().to_string())
@@ -1717,13 +1774,16 @@ mod tests {
     #[test]
     fn test_pragmatic_analysis() {
         let analyzer = PragmaticAnalyzer::new();
-        let result = analyzer.analyze("Some people came", &SyntacticTree {
-            nodes: vec![],
-            root: 0,
-        });
+        let result = analyzer.analyze(
+            "Some people came",
+            &SyntacticTree { nodes: vec![], root: 0 },
+        );
 
         // Should detect scalar implicature
-        assert!(result.implicatures.iter().any(|i| i.implicature_type == ImplicatureType::Scalar));
+        assert!(result
+            .implicatures
+            .iter()
+            .any(|i| i.implicature_type == ImplicatureType::Scalar));
     }
 
     #[test]
@@ -1731,7 +1791,10 @@ mod tests {
         let analyzer = DiscourseAnalyzer::new();
         let result = analyzer.analyze("It was raining. However, we went outside.");
 
-        assert!(result.coherence_relations.iter().any(|r| r.relation_type == CoherenceType::Contrast));
+        assert!(result
+            .coherence_relations
+            .iter()
+            .any(|r| r.relation_type == CoherenceType::Contrast));
     }
 
     #[test]

@@ -2,12 +2,11 @@
 
 //! Module for Tariro AGI cloning and replication functionalities.
 
-
 use chrono::{DateTime, Utc};
 
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use std::collections::HashMap;
+use uuid::Uuid;
 
 /// Represents a request to initiate a cloning operation for a Tariro AGI instance.
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -42,7 +41,7 @@ pub enum DeploymentTarget {
     LocalHost,
     OMEGANetwork,
     QuantumSubstrate,
-    BioIntegrated(String),        // Biological system identifier
+    BioIntegrated(String), // Biological system identifier
 }
 
 /// Supported cloud providers for deployment.
@@ -112,11 +111,21 @@ impl CloningService {
 
     /// Initiates a new AGI cloning request.
     pub async fn initiate_cloning(&mut self, request: CloningRequest) -> Result<String, String> {
-        if self.active_cloning_requests.contains_key(&request.request_id) {
-            return Err(format!("Cloning request with ID {} already exists.", request.request_id));
+        if self
+            .active_cloning_requests
+            .contains_key(&request.request_id)
+        {
+            return Err(format!(
+                "Cloning request with ID {} already exists.",
+                request.request_id
+            ));
         }
-        println!("[CloningService] Initiating cloning request: {}", request.new_instance_name);
-        self.active_cloning_requests.insert(request.request_id.clone(), request.clone());
+        println!(
+            "[CloningService] Initiating cloning request: {}",
+            request.new_instance_name
+        );
+        self.active_cloning_requests
+            .insert(request.request_id.clone(), request.clone());
         // In a real system, this would trigger a complex workflow:
         // 1. Resource provisioning
         // 2. Code generation & customization
@@ -124,11 +133,14 @@ impl CloningService {
         // 4. Deployment to target
         // 5. Initial testing & validation
         tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
-        self.update_cloning_status(&request.request_id, CloningStatus::ResourceProvisioning).await;
+        self.update_cloning_status(&request.request_id, CloningStatus::ResourceProvisioning)
+            .await;
         tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
-        self.update_cloning_status(&request.request_id, CloningStatus::Deployment).await;
+        self.update_cloning_status(&request.request_id, CloningStatus::Deployment)
+            .await;
         tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
-        self.update_cloning_status(&request.request_id, CloningStatus::Live).await;
+        self.update_cloning_status(&request.request_id, CloningStatus::Live)
+            .await;
 
         // Simulate successful completion and creation of a new instance
         let new_instance_id = format!("agi_clone_{}", Uuid::new_v4());
@@ -142,21 +154,34 @@ impl CloningService {
             launch_date: Utc::now(),
             endpoint: Some(format!("https://{}.tariro-agi.com", new_instance_id)),
         };
-        self.cloned_instances.insert(new_instance_id.clone(), new_instance);
+        self.cloned_instances
+            .insert(new_instance_id.clone(), new_instance);
 
-        Ok(format!("Cloning of {} initiated. New instance ID: {}", request.new_instance_name, new_instance_id))
+        Ok(format!(
+            "Cloning of {} initiated. New instance ID: {}",
+            request.new_instance_name, new_instance_id
+        ))
     }
 
     /// Retrieves the status of a cloning request.
     pub fn get_cloning_status(&self, request_id: &str) -> Option<&CloningStatus> {
-        self.active_cloning_requests.get(request_id).map(|req| &req.status)
+        self.active_cloning_requests
+            .get(request_id)
+            .map(|req| &req.status)
     }
 
     /// Updates the status of a cloning request.
-    pub async fn update_cloning_status(&mut self, request_id: &str, new_status: CloningStatus) -> Result<(), String> {
+    pub async fn update_cloning_status(
+        &mut self,
+        request_id: &str,
+        new_status: CloningStatus,
+    ) -> Result<(), String> {
         if let Some(req) = self.active_cloning_requests.get_mut(request_id) {
             req.status = new_status;
-            println!("[CloningService] Request {} status updated to {:?}", request_id, req.status);
+            println!(
+                "[CloningService] Request {} status updated to {:?}",
+                request_id, req.status
+            );
             Ok(())
         } else {
             Err(format!("Cloning request with ID {} not found.", request_id))
@@ -211,8 +236,13 @@ mod tests {
         assert!(result.is_ok());
         let new_instance_id = result.unwrap().split(": ").last().unwrap().to_string();
 
-        assert_eq!(*cloning_service.get_cloning_status(&request_id).unwrap(), CloningStatus::Live);
-        assert!(cloning_service.get_cloned_instance(&new_instance_id).is_some());
+        assert_eq!(
+            *cloning_service.get_cloning_status(&request_id).unwrap(),
+            CloningStatus::Live
+        );
+        assert!(cloning_service
+            .get_cloned_instance(&new_instance_id)
+            .is_some());
         assert_eq!(cloning_service.list_active_requests().len(), 1); // Still in map until explicitly removed/archived
         assert_eq!(cloning_service.list_cloned_instances().len(), 1);
     }
@@ -239,13 +269,24 @@ mod tests {
             status: CloningStatus::Pending,
             notes: None,
         };
-        
-        let _ = cloning_service.initiate_cloning(request.clone()).await;
-        
-        assert_eq!(*cloning_service.get_cloning_status(&request_id).unwrap(), CloningStatus::Live);
 
-        let update_result = cloning_service.update_cloning_status(&request_id, CloningStatus::Failed("Resource exhaustion".to_string())).await;
+        let _ = cloning_service.initiate_cloning(request.clone()).await;
+
+        assert_eq!(
+            *cloning_service.get_cloning_status(&request_id).unwrap(),
+            CloningStatus::Live
+        );
+
+        let update_result = cloning_service
+            .update_cloning_status(
+                &request_id,
+                CloningStatus::Failed("Resource exhaustion".to_string()),
+            )
+            .await;
         assert!(update_result.is_ok());
-        assert_eq!(*cloning_service.get_cloning_status(&request_id).unwrap(), CloningStatus::Failed("Resource exhaustion".to_string()));
+        assert_eq!(
+            *cloning_service.get_cloning_status(&request_id).unwrap(),
+            CloningStatus::Failed("Resource exhaustion".to_string())
+        );
     }
 }

@@ -3,17 +3,12 @@
 //! The central orchestrator for the Tariro AGI authorship system.
 
 use crate::authorship::{
-    CreativeWork, CreativePrompt, CreativeWorkType, CreativeContent,
-    ideation::IdeationEngine,
-    generation::GenerationEngine,
-    critique::CritiqueEngine,
-    multimodal::MultimodalEngine,
-    attribution::AttributionManager,
-    collaboration::CollaborationEngine,
-    style::StyleEngine,
-    ethics::AuthorshipEthics};
+    attribution::AttributionManager, collaboration::CollaborationEngine, critique::CritiqueEngine,
+    ethics::AuthorshipEthics, generation::GenerationEngine, ideation::IdeationEngine,
+    multimodal::MultimodalEngine, style::StyleEngine, CreativePrompt, CreativeWork,
+    CreativeWorkType,
+};
 use serde::{Deserialize, Serialize};
-use std::sync::{ };
 use std::time::Instant;
 
 /// Configuration for the authorship engine

@@ -1,6 +1,5 @@
 // src/admin_omniversal_control/advanced_interface_ux/voice_controlled_interface.rs
 
-
 pub struct VoiceControlInterface;
 
 impl VoiceControlInterface {

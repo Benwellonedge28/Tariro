@@ -3,7 +3,8 @@
 //! Transpiles TypeScript source code to TUMC IR for compilation to any target.
 
 use crate::tumc_compiler::frontend::{
-    AstNode, Class, Expression, Function, Param, Program, Statement};
+    AstNode, Class, Expression, Function, Param, Program, Statement,
+};
 use crate::tumc_compiler::Type;
 use std::collections::HashMap;
 
@@ -26,49 +27,25 @@ pub enum TsAstNode {
         type_annotation: Type,
     },
     /// Enum declaration
-    Enum {
-        name: String,
-        members: Vec<EnumMember>,
-        is_const: bool,
-    },
+    Enum { name: String, members: Vec<EnumMember>, is_const: bool },
     /// Namespace/module declaration
-    Namespace {
-        name: String,
-        body: Vec<AstNode>,
-    },
+    Namespace { name: String, body: Vec<AstNode> },
     /// Import equals
-    ImportEquals {
-        name: String,
-        path: String,
-        is_default: bool,
-    },
+    ImportEquals { name: String, path: String, is_default: bool },
     /// Export assignment
     ExportAssignment(bool),
     /// As expression
-    As {
-        expression: Expression,
-        type_annotation: Type,
-    },
+    As { expression: Expression, type_annotation: Type },
     /// Type query (typeof)
     TypeQuery(String),
     /// Non-null assertion
     NonNull(Expression),
     /// Satisfies expression
-    Satisfies {
-        expression: Expression,
-        type_annotation: Type,
-    },
+    Satisfies { expression: Expression, type_annotation: Type },
     /// Index signature
-    IndexSignature {
-        key: String,
-        key_type: Type,
-        value_type: Type,
-    },
+    IndexSignature { key: String, key_type: Type, value_type: Type },
     /// Getter
-    Getter {
-        name: String,
-        body: Vec<Statement>,
-    },
+    Getter { name: String, body: Vec<Statement> },
     /// Setter
     Setter {
         name: String,
@@ -107,7 +84,8 @@ pub use crate::tumc_compiler::frontend::TypeMember as TsTypeMember;
 /// These types are owned by the shared frontend CST; re-exporting them keeps
 /// the public names of this module unchanged.
 pub use crate::tumc_compiler::frontend::{
-    CallSignature, ConstructSignature, EnumMember, IndexSignature};
+    CallSignature, ConstructSignature, EnumMember, IndexSignature,
+};
 
 /// TypeScript parser
 pub struct TypeScriptParser {
@@ -138,31 +116,122 @@ pub enum TsToken {
     Identifier(String),
 
     // Keywords
-    Break, Do, Instanceof, TypeOf, Case, Else, Var, Catch, Finally, Void,
-    Continue, For, New, Switch, While, Debugger, Function, Return, With,
-    Default, If, Throw, Delete, In, Try, Async, Await, Of, From, As,
-    Class, Enum, Extends, Const, Export, Import, Implements,
-    Interface, Let, Package, Private, Protected, Public, Static, Yield,
-    Abstract, Any, Boolean, Number, String, Symbol, Type,
-    Never, Readonly, Keyof, Infer, Require,
-    Get, Set, Namespace, Module,
+    Break,
+    Do,
+    Instanceof,
+    TypeOf,
+    Case,
+    Else,
+    Var,
+    Catch,
+    Finally,
+    Void,
+    Continue,
+    For,
+    New,
+    Switch,
+    While,
+    Debugger,
+    Function,
+    Return,
+    With,
+    Default,
+    If,
+    Throw,
+    Delete,
+    In,
+    Try,
+    Async,
+    Await,
+    Of,
+    From,
+    As,
+    Class,
+    Enum,
+    Extends,
+    Const,
+    Export,
+    Import,
+    Implements,
+    Interface,
+    Let,
+    Package,
+    Private,
+    Protected,
+    Public,
+    Static,
+    Yield,
+    Abstract,
+    Any,
+    Boolean,
+    Number,
+    String,
+    Symbol,
+    Type,
+    Never,
+    Readonly,
+    Keyof,
+    Infer,
+    Require,
+    Get,
+    Set,
+    Namespace,
+    Module,
 
     // Operators
-    Plus, Minus, Star, Slash, Percent, PlusPlus, MinusMinus,
-    Equal, PlusEqual, MinusEqual, StarEqual, SlashEqual, PercentEqual,
-    Bang, BangEqual, EqualEqual, EqualEqualEqual, StrictNotEqual,
-    Less, Greater, LessEqual, GreaterEqual,
-    Ampersand, AmpersandEqual, Pipe, PipeEqual, Caret, CaretEqual,
-    LeftShift, RightShift, ZeroFillRightShift,
-    LeftShiftEqual, RightShiftEqual, ZeroFillRightShiftEqual,
-    AmpersandAmpersand, PipePipe, Question, QuestionQuestion,
-    Semicolon, Comma, Dot, DotDotDot, Hash,
+    Plus,
+    Minus,
+    Star,
+    Slash,
+    Percent,
+    PlusPlus,
+    MinusMinus,
+    Equal,
+    PlusEqual,
+    MinusEqual,
+    StarEqual,
+    SlashEqual,
+    PercentEqual,
+    Bang,
+    BangEqual,
+    EqualEqual,
+    EqualEqualEqual,
+    StrictNotEqual,
+    Less,
+    Greater,
+    LessEqual,
+    GreaterEqual,
+    Ampersand,
+    AmpersandEqual,
+    Pipe,
+    PipeEqual,
+    Caret,
+    CaretEqual,
+    LeftShift,
+    RightShift,
+    ZeroFillRightShift,
+    LeftShiftEqual,
+    RightShiftEqual,
+    ZeroFillRightShiftEqual,
+    AmpersandAmpersand,
+    PipePipe,
+    Question,
+    QuestionQuestion,
+    Semicolon,
+    Comma,
+    Dot,
+    DotDotDot,
+    Hash,
 
     // Punctuation
-    OpenBrace, CloseBrace,
-    LeftParen, RightParen,
-    LeftBracket, RightBracket,
-    Colon, Arrow,
+    OpenBrace,
+    CloseBrace,
+    LeftParen,
+    RightParen,
+    LeftBracket,
+    RightBracket,
+    Colon,
+    Arrow,
 
     /// Opening bracket of the reserved index-signature type syntax.
     LsRo,
@@ -201,12 +270,7 @@ pub struct TypeScriptLexer {
 
 impl TypeScriptLexer {
     pub fn new(source: &str) -> Self {
-        Self {
-            source: source.to_string(),
-            pos: 0,
-            line: 1,
-            column: 1,
-        }
+        Self { source: source.to_string(), pos: 0, line: 1, column: 1 }
     }
 
     pub fn tokenize(&self) -> Result<Vec<TsToken>, TsLexerError> {
@@ -240,8 +304,11 @@ impl TypeScriptLexer {
         }
 
         // Numbers
-        if ch.is_ascii_digit() || (ch == b'.' && *pos + 1 < self.source.len() &&
-            self.source.as_bytes()[*pos + 1].is_ascii_digit()) {
+        if ch.is_ascii_digit()
+            || (ch == b'.'
+                && *pos + 1 < self.source.len()
+                && self.source.as_bytes()[*pos + 1].is_ascii_digit())
+        {
             return self.lex_number(pos);
         }
 
@@ -288,8 +355,9 @@ impl TypeScriptLexer {
                         // Multi-line comment
                         *pos += 2;
                         while *pos + 1 < self.source.len() {
-                            if self.source.as_bytes()[*pos] == b'*' &&
-                               self.source.as_bytes()[*pos + 1] == b'/' {
+                            if self.source.as_bytes()[*pos] == b'*'
+                                && self.source.as_bytes()[*pos + 1] == b'/'
+                            {
                                 *pos += 2;
                                 break;
                             }
@@ -304,7 +372,10 @@ impl TypeScriptLexer {
         }
     }
 
-    fn lex_identifier_or_keyword(&self, pos: &mut usize) -> Result<(Option<TsToken>, usize), TsLexerError> {
+    fn lex_identifier_or_keyword(
+        &self,
+        pos: &mut usize,
+    ) -> Result<(Option<TsToken>, usize), TsLexerError> {
         let start = *pos;
 
         while *pos < self.source.len() {
@@ -374,7 +445,6 @@ impl TypeScriptLexer {
             "string" => TsToken::String,
             "symbol" => TsToken::Symbol,
             "type" => TsToken::Type,
-            "void" => TsToken::Void,
             "never" => TsToken::Never,
             "unknown" => TsToken::Unknown("unknown".to_string()),
             "readonly" => TsToken::Readonly,
@@ -394,8 +464,6 @@ impl TypeScriptLexer {
 
     fn lex_number(&self, pos: &mut usize) -> Result<(Option<TsToken>, usize), TsLexerError> {
         let start = *pos;
-        let mut has_dot = false;
-        let mut has_exp = false;
 
         // Hex, octal, binary
         if self.source[*pos..].starts_with("0x") || self.source[*pos..].starts_with("0X") {
@@ -420,8 +488,9 @@ impl TypeScriptLexer {
 
         if self.source[*pos..].starts_with("0b") || self.source[*pos..].starts_with("0B") {
             *pos += 2;
-            while *pos < self.source.len() && (self.source.as_bytes()[*pos] == b'0' ||
-                self.source.as_bytes()[*pos] == b'1') {
+            while *pos < self.source.len()
+                && (self.source.as_bytes()[*pos] == b'0' || self.source.as_bytes()[*pos] == b'1')
+            {
                 *pos += 1;
             }
             let s = &self.source[start..*pos];
@@ -435,19 +504,19 @@ impl TypeScriptLexer {
         }
 
         if *pos < self.source.len() && self.source.as_bytes()[*pos] == b'.' {
-            has_dot = true;
             *pos += 1;
             while *pos < self.source.len() && self.source.as_bytes()[*pos].is_ascii_digit() {
                 *pos += 1;
             }
         }
 
-        if *pos < self.source.len() && (self.source.as_bytes()[*pos] == b'e' ||
-            self.source.as_bytes()[*pos] == b'E') {
-            has_exp = true;
+        if *pos < self.source.len()
+            && (self.source.as_bytes()[*pos] == b'e' || self.source.as_bytes()[*pos] == b'E')
+        {
             *pos += 1;
-            if *pos < self.source.len() && (self.source.as_bytes()[*pos] == b'+' ||
-                self.source.as_bytes()[*pos] == b'-') {
+            if *pos < self.source.len()
+                && (self.source.as_bytes()[*pos] == b'+' || self.source.as_bytes()[*pos] == b'-')
+            {
                 *pos += 1;
             }
             while *pos < self.source.len() && self.source.as_bytes()[*pos].is_ascii_digit() {
@@ -524,7 +593,8 @@ impl TypeScriptLexer {
             if ch == b'/' {
                 *pos += 1;
                 // Skip flags
-                while *pos < self.source.len() && self.source.as_bytes()[*pos].is_ascii_alphabetic() {
+                while *pos < self.source.len() && self.source.as_bytes()[*pos].is_ascii_alphabetic()
+                {
                     *pos += 1;
                 }
                 let s = &self.source[start..*pos - 1];
@@ -565,8 +635,11 @@ impl TypeScriptLexer {
 
         // Opening tag
         let start = *pos;
-        while *pos < self.source.len() && self.source.as_bytes()[*pos] != b' ' &&
-               self.source.as_bytes()[*pos] != b'>' && self.source.as_bytes()[*pos] != b'/' {
+        while *pos < self.source.len()
+            && self.source.as_bytes()[*pos] != b' '
+            && self.source.as_bytes()[*pos] != b'>'
+            && self.source.as_bytes()[*pos] != b'/'
+        {
             *pos += 1;
         }
         let name = &self.source[start..*pos];
@@ -580,90 +653,229 @@ impl TypeScriptLexer {
 
         match ch1 {
             b'+' => {
-                if self.source[*pos..].starts_with("++") { *pos += 2; (Some(TsToken::PlusPlus), *pos) }
-                else if self.source[*pos..].starts_with("+=") { *pos += 2; (Some(TsToken::PlusEqual), *pos) }
-                else { *pos += 1; (Some(TsToken::Plus), *pos) }
+                if self.source[*pos..].starts_with("++") {
+                    *pos += 2;
+                    (Some(TsToken::PlusPlus), *pos)
+                } else if self.source[*pos..].starts_with("+=") {
+                    *pos += 2;
+                    (Some(TsToken::PlusEqual), *pos)
+                } else {
+                    *pos += 1;
+                    (Some(TsToken::Plus), *pos)
+                }
             }
             b'-' => {
-                if self.source[*pos..].starts_with("--") { *pos += 2; (Some(TsToken::MinusMinus), *pos) }
-                else if self.source[*pos..].starts_with("-=") { *pos += 2; (Some(TsToken::MinusEqual), *pos) }
-                else { *pos += 1; (Some(TsToken::Minus), *pos) }
+                if self.source[*pos..].starts_with("--") {
+                    *pos += 2;
+                    (Some(TsToken::MinusMinus), *pos)
+                } else if self.source[*pos..].starts_with("-=") {
+                    *pos += 2;
+                    (Some(TsToken::MinusEqual), *pos)
+                } else {
+                    *pos += 1;
+                    (Some(TsToken::Minus), *pos)
+                }
             }
             b'*' => {
-                if self.source[*pos..].starts_with("**") { *pos += 2; (Some(TsToken::Star), *pos) }
-                else if self.source[*pos..].starts_with("*=") { *pos += 2; (Some(TsToken::StarEqual), *pos) }
-                else { *pos += 1; (Some(TsToken::Star), *pos) }
+                if self.source[*pos..].starts_with("**") {
+                    *pos += 2;
+                    (Some(TsToken::Star), *pos)
+                } else if self.source[*pos..].starts_with("*=") {
+                    *pos += 2;
+                    (Some(TsToken::StarEqual), *pos)
+                } else {
+                    *pos += 1;
+                    (Some(TsToken::Star), *pos)
+                }
             }
             b'/' => {
-                if self.source[*pos..].starts_with("/=") { *pos += 2; (Some(TsToken::SlashEqual), *pos) }
-                else { *pos += 1; (Some(TsToken::Slash), *pos) }
+                if self.source[*pos..].starts_with("/=") {
+                    *pos += 2;
+                    (Some(TsToken::SlashEqual), *pos)
+                } else {
+                    *pos += 1;
+                    (Some(TsToken::Slash), *pos)
+                }
             }
             b'%' => {
-                if self.source[*pos..].starts_with("%=") { *pos += 2; (Some(TsToken::PercentEqual), *pos) }
-                else { *pos += 1; (Some(TsToken::Percent), *pos) }
+                if self.source[*pos..].starts_with("%=") {
+                    *pos += 2;
+                    (Some(TsToken::PercentEqual), *pos)
+                } else {
+                    *pos += 1;
+                    (Some(TsToken::Percent), *pos)
+                }
             }
             b'=' => {
-                if self.source[*pos..].starts_with("===") { *pos += 3; (Some(TsToken::EqualEqualEqual), *pos) }
-                else if self.source[*pos..].starts_with("==") { *pos += 2; (Some(TsToken::EqualEqual), *pos) }
-                else if self.source[*pos..].starts_with("=>") { *pos += 2; (Some(TsToken::Arrow), *pos) }
-                else { *pos += 1; (Some(TsToken::Equal), *pos) }
+                if self.source[*pos..].starts_with("===") {
+                    *pos += 3;
+                    (Some(TsToken::EqualEqualEqual), *pos)
+                } else if self.source[*pos..].starts_with("==") {
+                    *pos += 2;
+                    (Some(TsToken::EqualEqual), *pos)
+                } else if self.source[*pos..].starts_with("=>") {
+                    *pos += 2;
+                    (Some(TsToken::Arrow), *pos)
+                } else {
+                    *pos += 1;
+                    (Some(TsToken::Equal), *pos)
+                }
             }
             b'!' => {
-                if self.source[*pos..].starts_with("!==") { *pos += 3; (Some(TsToken::StrictNotEqual), *pos) }
-                else if self.source[*pos..].starts_with("!=") { *pos += 2; (Some(TsToken::BangEqual), *pos) }
-                else { *pos += 1; (Some(TsToken::Bang), *pos) }
+                if self.source[*pos..].starts_with("!==") {
+                    *pos += 3;
+                    (Some(TsToken::StrictNotEqual), *pos)
+                } else if self.source[*pos..].starts_with("!=") {
+                    *pos += 2;
+                    (Some(TsToken::BangEqual), *pos)
+                } else {
+                    *pos += 1;
+                    (Some(TsToken::Bang), *pos)
+                }
             }
             b'<' => {
-                if self.source[*pos..].starts_with("<=") { *pos += 2; (Some(TsToken::LessEqual), *pos) }
-                else if self.source[*pos..].starts_with("<<=") { *pos += 3; (Some(TsToken::LeftShiftEqual), *pos) }
-                else if self.source[*pos..].starts_with("<<") { *pos += 2; (Some(TsToken::LeftShift), *pos) }
-                else { *pos += 1; (Some(TsToken::Less), *pos) }
+                if self.source[*pos..].starts_with("<=") {
+                    *pos += 2;
+                    (Some(TsToken::LessEqual), *pos)
+                } else if self.source[*pos..].starts_with("<<=") {
+                    *pos += 3;
+                    (Some(TsToken::LeftShiftEqual), *pos)
+                } else if self.source[*pos..].starts_with("<<") {
+                    *pos += 2;
+                    (Some(TsToken::LeftShift), *pos)
+                } else {
+                    *pos += 1;
+                    (Some(TsToken::Less), *pos)
+                }
             }
             b'>' => {
-                if self.source[*pos..].starts_with(">=") { *pos += 2; (Some(TsToken::GreaterEqual), *pos) }
-                else if self.source[*pos..].starts_with(">>>=") { *pos += 4; (Some(TsToken::ZeroFillRightShiftEqual), *pos) }
-                else if self.source[*pos..].starts_with(">>>") { *pos += 3; (Some(TsToken::ZeroFillRightShift), *pos) }
-                else if self.source[*pos..].starts_with(">>=") { *pos += 3; (Some(TsToken::RightShiftEqual), *pos) }
-                else if self.source[*pos..].starts_with(">>") { *pos += 2; (Some(TsToken::RightShift), *pos) }
-                else { *pos += 1; (Some(TsToken::Greater), *pos) }
+                if self.source[*pos..].starts_with(">=") {
+                    *pos += 2;
+                    (Some(TsToken::GreaterEqual), *pos)
+                } else if self.source[*pos..].starts_with(">>>=") {
+                    *pos += 4;
+                    (Some(TsToken::ZeroFillRightShiftEqual), *pos)
+                } else if self.source[*pos..].starts_with(">>>") {
+                    *pos += 3;
+                    (Some(TsToken::ZeroFillRightShift), *pos)
+                } else if self.source[*pos..].starts_with(">>=") {
+                    *pos += 3;
+                    (Some(TsToken::RightShiftEqual), *pos)
+                } else if self.source[*pos..].starts_with(">>") {
+                    *pos += 2;
+                    (Some(TsToken::RightShift), *pos)
+                } else {
+                    *pos += 1;
+                    (Some(TsToken::Greater), *pos)
+                }
             }
             b'&' => {
-                if self.source[*pos..].starts_with("&&=") { *pos += 3; (Some(TsToken::Ampersand), *pos) }
-                else if self.source[*pos..].starts_with("&&") { *pos += 2; (Some(TsToken::AmpersandAmpersand), *pos) }
-                else if self.source[*pos..].starts_with("&=") { *pos += 2; (Some(TsToken::AmpersandEqual), *pos) }
-                else { *pos += 1; (Some(TsToken::Ampersand), *pos) }
+                if self.source[*pos..].starts_with("&&=") {
+                    *pos += 3;
+                    (Some(TsToken::Ampersand), *pos)
+                } else if self.source[*pos..].starts_with("&&") {
+                    *pos += 2;
+                    (Some(TsToken::AmpersandAmpersand), *pos)
+                } else if self.source[*pos..].starts_with("&=") {
+                    *pos += 2;
+                    (Some(TsToken::AmpersandEqual), *pos)
+                } else {
+                    *pos += 1;
+                    (Some(TsToken::Ampersand), *pos)
+                }
             }
             b'|' => {
-                if self.source[*pos..].starts_with("||=") { *pos += 3; (Some(TsToken::Pipe), *pos) }
-                else if self.source[*pos..].starts_with("||") { *pos += 2; (Some(TsToken::PipePipe), *pos) }
-                else if self.source[*pos..].starts_with("|=") { *pos += 2; (Some(TsToken::PipeEqual), *pos) }
-                else { *pos += 1; (Some(TsToken::Pipe), *pos) }
+                if self.source[*pos..].starts_with("||=") {
+                    *pos += 3;
+                    (Some(TsToken::Pipe), *pos)
+                } else if self.source[*pos..].starts_with("||") {
+                    *pos += 2;
+                    (Some(TsToken::PipePipe), *pos)
+                } else if self.source[*pos..].starts_with("|=") {
+                    *pos += 2;
+                    (Some(TsToken::PipeEqual), *pos)
+                } else {
+                    *pos += 1;
+                    (Some(TsToken::Pipe), *pos)
+                }
             }
             b'^' => {
-                if self.source[*pos..].starts_with("^=") { *pos += 2; (Some(TsToken::CaretEqual), *pos) }
-                else { *pos += 1; (Some(TsToken::Caret), *pos) }
+                if self.source[*pos..].starts_with("^=") {
+                    *pos += 2;
+                    (Some(TsToken::CaretEqual), *pos)
+                } else {
+                    *pos += 1;
+                    (Some(TsToken::Caret), *pos)
+                }
             }
             b'?' => {
-                if self.source[*pos..].starts_with("?.") { *pos += 2; (Some(TsToken::Question), *pos) }
-                else if self.source[*pos..].starts_with("??") { *pos += 2; (Some(TsToken::QuestionQuestion), *pos) }
-                else if self.source[*pos..].starts_with("?=") { *pos += 2; (Some(TsToken::Question), *pos) }
-                else { *pos += 1; (Some(TsToken::Question), *pos) }
+                if self.source[*pos..].starts_with("?.") {
+                    *pos += 2;
+                    (Some(TsToken::Question), *pos)
+                } else if self.source[*pos..].starts_with("??") {
+                    *pos += 2;
+                    (Some(TsToken::QuestionQuestion), *pos)
+                } else if self.source[*pos..].starts_with("?=") {
+                    *pos += 2;
+                    (Some(TsToken::Question), *pos)
+                } else {
+                    *pos += 1;
+                    (Some(TsToken::Question), *pos)
+                }
             }
-            b':' => { *pos += 1; (Some(TsToken::Colon), *pos) }
-            b';' => { *pos += 1; (Some(TsToken::Semicolon), *pos) }
-            b',' => { *pos += 1; (Some(TsToken::Comma), *pos) }
+            b':' => {
+                *pos += 1;
+                (Some(TsToken::Colon), *pos)
+            }
+            b';' => {
+                *pos += 1;
+                (Some(TsToken::Semicolon), *pos)
+            }
+            b',' => {
+                *pos += 1;
+                (Some(TsToken::Comma), *pos)
+            }
             b'.' => {
-                if self.source[*pos..].starts_with("...") { *pos += 3; (Some(TsToken::DotDotDot), *pos) }
-                else { *pos += 1; (Some(TsToken::Dot), *pos) }
+                if self.source[*pos..].starts_with("...") {
+                    *pos += 3;
+                    (Some(TsToken::DotDotDot), *pos)
+                } else {
+                    *pos += 1;
+                    (Some(TsToken::Dot), *pos)
+                }
             }
-            b'{' => { *pos += 1; (Some(TsToken::OpenBrace), *pos) }
-            b'}' => { *pos += 1; (Some(TsToken::CloseBrace), *pos) }
-            b'(' => { *pos += 1; (Some(TsToken::LeftParen), *pos) }
-            b')' => { *pos += 1; (Some(TsToken::RightParen), *pos) }
-            b'[' => { *pos += 1; (Some(TsToken::LeftBracket), *pos) }
-            b']' => { *pos += 1; (Some(TsToken::RightBracket), *pos) }
-            b'#' => { *pos += 1; (Some(TsToken::Hash), *pos) }
-            _ => { *pos += 1; (None, *pos) }
+            b'{' => {
+                *pos += 1;
+                (Some(TsToken::OpenBrace), *pos)
+            }
+            b'}' => {
+                *pos += 1;
+                (Some(TsToken::CloseBrace), *pos)
+            }
+            b'(' => {
+                *pos += 1;
+                (Some(TsToken::LeftParen), *pos)
+            }
+            b')' => {
+                *pos += 1;
+                (Some(TsToken::RightParen), *pos)
+            }
+            b'[' => {
+                *pos += 1;
+                (Some(TsToken::LeftBracket), *pos)
+            }
+            b']' => {
+                *pos += 1;
+                (Some(TsToken::RightBracket), *pos)
+            }
+            b'#' => {
+                *pos += 1;
+                (Some(TsToken::Hash), *pos)
+            }
+            _ => {
+                *pos += 1;
+                (None, *pos)
+            }
         }
     }
 
@@ -675,16 +887,14 @@ impl TypeScriptLexer {
 /// TypeScript parser implementation
 impl TypeScriptParser {
     pub fn new(source: &str) -> Self {
-        Self {
-            source: source.to_string(),
-            pos: 0,
-            tokens: Vec::new(),
-        }
+        Self { source: source.to_string(), pos: 0, tokens: Vec::new() }
     }
 
     pub fn parse(&mut self) -> Result<Program, TsParseError> {
         let lexer = TypeScriptLexer::new(&self.source);
-        self.tokens = lexer.tokenize().map_err(|e| TsParseError::new(&e.message, 0))?;
+        self.tokens = lexer
+            .tokenize()
+            .map_err(|e| TsParseError::new(&e.message, 0))?;
         self.pos = 0;
 
         let mut nodes = Vec::new();
@@ -718,8 +928,14 @@ impl TypeScriptParser {
             TsToken::Try => self.parse_try(),
             TsToken::Return => self.parse_return(),
             TsToken::Throw => self.parse_throw(),
-            TsToken::Break => { self.advance(); Ok(Some(AstNode::Break)) }
-            TsToken::Continue => { self.advance(); Ok(Some(AstNode::Continue)) }
+            TsToken::Break => {
+                self.advance();
+                Ok(Some(AstNode::Break))
+            }
+            TsToken::Continue => {
+                self.advance();
+                Ok(Some(AstNode::Continue))
+            }
             TsToken::Export => self.parse_export(),
             TsToken::Import => self.parse_import(),
             TsToken::Interface => self.parse_interface(),
@@ -727,7 +943,10 @@ impl TypeScriptParser {
             TsToken::Enum => self.parse_enum(),
             TsToken::Namespace | TsToken::Module => self.parse_namespace(),
             TsToken::OpenBrace => self.parse_block(),
-            TsToken::Semicolon => { self.advance(); Ok(None) }
+            TsToken::Semicolon => {
+                self.advance();
+                Ok(None)
+            }
             _ => self.parse_expression_statement(),
         }
     }
@@ -847,7 +1066,7 @@ impl TypeScriptParser {
             self.expect(&TsToken::RightParen)?;
 
             let has_block = self.check(&TsToken::OpenBrace);
-        let body = if has_block {
+            let body = if has_block {
                 let block = self.parse_block()?;
                 self.block_statements(block)
             } else {
@@ -945,8 +1164,11 @@ impl TypeScriptParser {
                         }));
                     }
                 }
-            } else if self.check(&TsToken::Async) || self.check(&TsToken::Static) ||
-                      self.check(&TsToken::Get) || self.check(&TsToken::Set) {
+            } else if self.check(&TsToken::Async)
+                || self.check(&TsToken::Static)
+                || self.check(&TsToken::Get)
+                || self.check(&TsToken::Set)
+            {
                 self.advance();
             } else {
                 self.advance();
@@ -1043,11 +1265,15 @@ impl TypeScriptParser {
         self.expect(&TsToken::LeftParen)?;
 
         // Init
-        let init = if self.check(&TsToken::Const) || self.check(&TsToken::Let) ||
-                   self.check(&TsToken::Var) {
+        let init = if self.check(&TsToken::Const)
+            || self.check(&TsToken::Let)
+            || self.check(&TsToken::Var)
+        {
             self.parse_variable_declaration()?
         } else if !self.check(&TsToken::Semicolon) {
-            Some(AstNode::ExpressionStatement(Box::new(self.parse_expression()?)))
+            Some(AstNode::ExpressionStatement(Box::new(
+                self.parse_expression()?,
+            )))
         } else {
             None
         };
@@ -1084,11 +1310,11 @@ impl TypeScriptParser {
         // Desugar for loop into while loop with init/update
         Ok(Some(AstNode::Block(vec![
             init.unwrap_or(AstNode::ExpressionStatement(Box::new(Expression::Literal(
-                crate::tumc_compiler::ast::Literal::Unit
+                crate::tumc_compiler::ast::Literal::Unit,
             )))),
             AstNode::While {
                 condition: Box::new(condition.unwrap_or(Expression::Literal(
-                    crate::tumc_compiler::ast::Literal::Bool(true)
+                    crate::tumc_compiler::ast::Literal::Bool(true),
                 ))),
                 body: {
                     let mut stmts = body.clone();
@@ -1143,8 +1369,11 @@ impl TypeScriptParser {
                 self.expect(&TsToken::Colon)?;
 
                 let mut statements = Vec::new();
-                while !self.check(&TsToken::Case) && !self.check(&TsToken::Default) &&
-                      !self.check(&TsToken::CloseBrace) && !self.is_at_end() {
+                while !self.check(&TsToken::Case)
+                    && !self.check(&TsToken::Default)
+                    && !self.check(&TsToken::CloseBrace)
+                    && !self.is_at_end()
+                {
                     if let Some(stmt) = self.parse_statement()? {
                         statements.push(stmt);
                     }
@@ -1159,17 +1388,17 @@ impl TypeScriptParser {
                 self.expect(&TsToken::Colon)?;
 
                 let mut statements = Vec::new();
-                while !self.check(&TsToken::Case) && !self.check(&TsToken::Default) &&
-                      !self.check(&TsToken::CloseBrace) && !self.is_at_end() {
+                while !self.check(&TsToken::Case)
+                    && !self.check(&TsToken::Default)
+                    && !self.check(&TsToken::CloseBrace)
+                    && !self.is_at_end()
+                {
                     if let Some(stmt) = self.parse_statement()? {
                         statements.push(stmt);
                     }
                 }
 
-                cases.push(AstNode::SwitchCase {
-                    test: None,
-                    consequent: statements,
-                });
+                cases.push(AstNode::SwitchCase { test: None, consequent: statements });
             }
         }
 
@@ -1231,11 +1460,7 @@ impl TypeScriptParser {
                 (None, Vec::new())
             };
 
-            handlers.push(AstNode::ExceptHandler {
-                type_: None,
-                name: param,
-                body: handler_body,
-            });
+            handlers.push(AstNode::ExceptHandler { type_: None, name: param, body: handler_body });
         }
 
         if self.check(&TsToken::Finally) {
@@ -1560,17 +1785,18 @@ impl TypeScriptParser {
                     _ => next_value,
                 };
                 self.advance();
-                Some(Expression::Literal(crate::tumc_compiler::ast::Literal::Int(next_value)))
+                Some(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::Int(next_value),
+                ))
             } else {
                 let v = next_value;
                 next_value += 1;
-                Some(Expression::Literal(crate::tumc_compiler::ast::Literal::Int(v)))
+                Some(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::Int(v),
+                ))
             };
 
-            members.push(EnumMember {
-                name: member_name,
-                value,
-            });
+            members.push(EnumMember { name: member_name, value });
 
             if !self.check(&TsToken::CloseBrace) {
                 self.expect(&TsToken::Comma)?;
@@ -1579,11 +1805,7 @@ impl TypeScriptParser {
 
         self.expect(&TsToken::CloseBrace)?;
 
-        Ok(Some(AstNode::Enum {
-            name,
-            members,
-            is_const: false,
-        }))
+        Ok(Some(AstNode::Enum { name, members, is_const: false }))
     }
 
     fn parse_namespace(&mut self) -> Result<Option<AstNode>, TsParseError> {
@@ -1744,11 +1966,13 @@ impl TypeScriptParser {
                     self.advance();
                     let _ = self.parse_type()?;
                 }
-                Ok(Type::Function(Box::new(crate::tumc_compiler::FunctionType {
-                    parameters: Vec::new(),
-                    return_type: Box::new(Type::Unknown),
-                    variadic: false,
-                })))
+                Ok(Type::Function(Box::new(
+                    crate::tumc_compiler::FunctionType {
+                        parameters: Vec::new(),
+                        return_type: Box::new(Type::Unknown),
+                        variadic: false,
+                    },
+                )))
             }
             TsToken::Readonly => {
                 self.advance();
@@ -1798,21 +2022,22 @@ impl TypeScriptParser {
             TsToken::Equal => {
                 self.advance();
                 let value = Box::new(self.parse_assignment()?);
-                Ok(Expression::Assignment {
-                    target: Box::new(expr.clone().into()),
-                    value,
-                })
+                Ok(Expression::Assignment { target: Box::new(expr.clone().into()), value })
             }
-            TsToken::PlusEqual | TsToken::MinusEqual | TsToken::StarEqual |
-            TsToken::SlashEqual | TsToken::PercentEqual | TsToken::AmpersandEqual |
-            TsToken::PipeEqual | TsToken::CaretEqual | TsToken::LeftShiftEqual |
-            TsToken::RightShiftEqual | TsToken::ZeroFillRightShiftEqual => {
+            TsToken::PlusEqual
+            | TsToken::MinusEqual
+            | TsToken::StarEqual
+            | TsToken::SlashEqual
+            | TsToken::PercentEqual
+            | TsToken::AmpersandEqual
+            | TsToken::PipeEqual
+            | TsToken::CaretEqual
+            | TsToken::LeftShiftEqual
+            | TsToken::RightShiftEqual
+            | TsToken::ZeroFillRightShiftEqual => {
                 self.advance();
                 let value = Box::new(self.parse_assignment()?);
-                Ok(Expression::Assignment {
-                    target: Box::new(expr.clone().into()),
-                    value,
-                })
+                Ok(Expression::Assignment { target: Box::new(expr.clone().into()), value })
             }
             TsToken::QuestionQuestion => {
                 self.advance();
@@ -1981,11 +2206,7 @@ impl TypeScriptParser {
                 };
                 self.advance();
                 let right = Box::new(self.parse_comparison()?);
-                Ok(Expression::BinaryOp {
-                    left: Box::new(expr.clone().into()),
-                    op,
-                    right,
-                })
+                Ok(Expression::BinaryOp { left: Box::new(expr.clone().into()), op, right })
             }
             TsToken::Instanceof => {
                 self.advance();
@@ -2046,11 +2267,7 @@ impl TypeScriptParser {
             };
             self.advance();
             let right = Box::new(self.parse_multiplicative()?);
-            expr = Expression::BinaryOp {
-                left: Box::new(expr.clone().into()),
-                op,
-                right,
-            };
+            expr = Expression::BinaryOp { left: Box::new(expr.clone().into()), op, right };
         }
 
         Ok(expr)
@@ -2068,11 +2285,7 @@ impl TypeScriptParser {
             };
             self.advance();
             let right = Box::new(self.parse_exponentiation()?);
-            expr = Expression::BinaryOp {
-                left: Box::new(expr.clone().into()),
-                op,
-                right,
-            };
+            expr = Expression::BinaryOp { left: Box::new(expr.clone().into()), op, right };
         }
 
         Ok(expr)
@@ -2190,10 +2403,7 @@ impl TypeScriptParser {
                     self.expect(&TsToken::RightParen)?;
 
                     let function = Box::new(expr.clone().into());
-                    expr = Expression::Call {
-                        function,
-                        arguments: args,
-                    };
+                    expr = Expression::Call { function, arguments: args };
                 }
                 TsToken::Dot => {
                     self.advance();
@@ -2205,7 +2415,12 @@ impl TypeScriptParser {
                             };
                             self.advance();
                         }
-                        _ => return Err(TsParseError::new("Expected identifier after '.'", self.pos)),
+                        _ => {
+                            return Err(TsParseError::new(
+                                "Expected identifier after '.'",
+                                self.pos,
+                            ))
+                        }
                     }
                 }
                 TsToken::Question => {
@@ -2246,34 +2461,44 @@ impl TypeScriptParser {
                     self.advance();
                     let index = Box::new(self.parse_expression()?);
                     self.expect(&TsToken::RightBracket)?;
-                    expr = Expression::Index {
-                        array: Box::new(expr.clone().into()),
-                        index,
-                    };
+                    expr = Expression::Index { array: Box::new(expr.clone().into()), index };
                 }
                 TsToken::TemplateHead(_) | TsToken::TemplateMiddle(_) => {
                     // Template literal
                     let mut parts = vec![expr.clone().into()];
 
-                    while matches!(self.current(), TsToken::TemplateHead(_) |
-                                  TsToken::TemplateMiddle(_) | TsToken::TemplateTail(_)) {
+                    while matches!(
+                        self.current(),
+                        TsToken::TemplateHead(_)
+                            | TsToken::TemplateMiddle(_)
+                            | TsToken::TemplateTail(_)
+                    ) {
                         match self.current() {
                             TsToken::TemplateHead(s) => {
-                                parts.push(Expression::Literal(
-                                    crate::tumc_compiler::ast::Literal::String(s.clone())
-                                ).into());
+                                parts.push(
+                                    Expression::Literal(
+                                        crate::tumc_compiler::ast::Literal::String(s.clone()),
+                                    )
+                                    .into(),
+                                );
                                 self.advance();
                             }
                             TsToken::TemplateMiddle(s) => {
-                                parts.push(Expression::Literal(
-                                    crate::tumc_compiler::ast::Literal::String(s.clone())
-                                ).into());
+                                parts.push(
+                                    Expression::Literal(
+                                        crate::tumc_compiler::ast::Literal::String(s.clone()),
+                                    )
+                                    .into(),
+                                );
                                 self.advance();
                             }
                             TsToken::TemplateTail(s) => {
-                                parts.push(Expression::Literal(
-                                    crate::tumc_compiler::ast::Literal::String(s.clone())
-                                ).into());
+                                parts.push(
+                                    Expression::Literal(
+                                        crate::tumc_compiler::ast::Literal::String(s.clone()),
+                                    )
+                                    .into(),
+                                );
                                 self.advance();
                             }
                             _ => break,
@@ -2288,9 +2513,12 @@ impl TypeScriptParser {
                     }
 
                     if let TsToken::TemplateTail(s) = self.current() {
-                        parts.push(Expression::Literal(
-                            crate::tumc_compiler::ast::Literal::String(s.clone())
-                        ).into());
+                        parts.push(
+                            Expression::Literal(crate::tumc_compiler::ast::Literal::String(
+                                s.clone(),
+                            ))
+                            .into(),
+                        );
                         self.advance();
                     }
 
@@ -2331,31 +2559,39 @@ impl TypeScriptParser {
         match token {
             TsToken::NumericLiteral(n) => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Float(n)))
+                Ok(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::Float(n),
+                ))
             }
             TsToken::StringLiteral(s) => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::String(s)))
+                Ok(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::String(s),
+                ))
             }
             TsToken::True => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Bool(true)))
+                Ok(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::Bool(true),
+                ))
             }
             TsToken::False => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Bool(false)))
+                Ok(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::Bool(false),
+                ))
             }
             TsToken::Null => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Verbatim(
-                    "null".to_string(),
-                )))
+                Ok(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::Verbatim("null".to_string()),
+                ))
             }
             TsToken::Undefined => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Verbatim(
-                    "undefined".to_string(),
-                )))
+                Ok(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::Verbatim("undefined".to_string()),
+                ))
             }
             TsToken::This => {
                 self.advance();
@@ -2489,12 +2725,20 @@ impl TypeScriptParser {
                     None
                 };
 
-                Ok(Expression::Function(name.unwrap_or_default(), Vec::new(), Box::new(
-                    Expression::Block(body.map(|b| match b {
-                        AstNode::Block(s) => s,
-                        _ => vec![b],
-                    }).unwrap_or_default()).into()
-                )))
+                Ok(Expression::Function(
+                    name.unwrap_or_default(),
+                    Vec::new(),
+                    Box::new(
+                        Expression::Block(
+                            body.map(|b| match b {
+                                AstNode::Block(s) => s,
+                                _ => vec![b],
+                            })
+                            .unwrap_or_default(),
+                        )
+                        .into(),
+                    ),
+                ))
             }
             TsToken::Async => {
                 self.advance();
@@ -2521,12 +2765,20 @@ impl TypeScriptParser {
                         None
                     };
 
-                    Ok(Expression::Function(name.unwrap_or_default(), Vec::new(), Box::new(
-                        Expression::Block(body.map(|b| match b {
-                            AstNode::Block(s) => s,
-                            _ => vec![b],
-                        }).unwrap_or_default()).into()
-                    )))
+                    Ok(Expression::Function(
+                        name.unwrap_or_default(),
+                        Vec::new(),
+                        Box::new(
+                            Expression::Block(
+                                body.map(|b| match b {
+                                    AstNode::Block(s) => s,
+                                    _ => vec![b],
+                                })
+                                .unwrap_or_default(),
+                            )
+                            .into(),
+                        ),
+                    ))
                 } else if self.check(&TsToken::LeftParen) || self.at_identifier() {
                     self.parse_expression()
                 } else {
@@ -2572,10 +2824,7 @@ impl TypeScriptParser {
 
                 self.expect(&TsToken::RightParen)?;
 
-                Ok(Expression::New {
-                    constructor,
-                    arguments: args,
-                })
+                Ok(Expression::New { constructor, arguments: args })
             }
             TsToken::Super => {
                 self.advance();
@@ -2614,7 +2863,10 @@ impl TypeScriptParser {
             }
             _ => {
                 self.advance();
-                Err(TsParseError::new(&format!("Unexpected token: {:?}", token), self.pos))
+                Err(TsParseError::new(
+                    &format!("Unexpected token: {:?}", token),
+                    self.pos,
+                ))
             }
         }
     }
@@ -2645,8 +2897,7 @@ impl TypeScriptParser {
     /// Whether the parenthesised group at the cursor can be a parameter
     /// list, i.e. it starts with `name` followed by `:` or `,`.
     fn at_param_list(&self) -> bool {
-        self.at_identifier()
-            && matches!(self.peek(1), Some(TsToken::Colon) | Some(TsToken::Comma))
+        self.at_identifier() && matches!(self.peek(1), Some(TsToken::Colon) | Some(TsToken::Comma))
     }
 
     /// The statements of a parsed block.
@@ -2763,7 +3014,10 @@ impl TypeScriptParser {
             self.advance();
             Ok(())
         } else {
-            Err(TsParseError::new(&format!("Expected {:?}, found {:?}", token, self.current()), self.pos))
+            Err(TsParseError::new(
+                &format!("Expected {:?}, found {:?}", token, self.current()),
+                self.pos,
+            ))
         }
     }
 }
@@ -2777,10 +3031,7 @@ pub struct TsParseError {
 
 impl TsParseError {
     pub fn new(message: &str, position: usize) -> Self {
-        Self {
-            message: message.to_string(),
-            position,
-        }
+        Self { message: message.to_string(), position }
     }
 }
 
@@ -2815,9 +3066,7 @@ pub struct TypeScriptTranspiler {
 
 impl TypeScriptTranspiler {
     pub fn new() -> Self {
-        Self {
-            type_env: HashMap::new(),
-        }
+        Self { type_env: HashMap::new() }
     }
 
     pub fn transpile(&mut self, source: &str) -> Result<Program, TsParseError> {

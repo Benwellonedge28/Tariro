@@ -1,8 +1,8 @@
 // Tariro AGI - Semantic Memory Module
 // Knowledge graph-based semantic memory system
 
-use std::collections::{HashMap, HashSet, BinaryHeap};
 use chrono::{DateTime, Utc};
+use std::collections::{BinaryHeap, HashMap, HashSet};
 
 use std::cmp::Ordering;
 
@@ -79,19 +79,19 @@ pub struct ConceptRelation {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum RelationType {
-    IsA,           // Inheritance
-    PartOf,        // Composition
-    HasProperty,   // Attribution
-    Causes,        // Causation
-    Enables,       // Capability
-    Opposite,      // Antonymy
-    Similar,       // Similarity
-    Before,        // Temporal
-    LocatedIn,     // Spatial
-    ProducedBy,     // Production
-    MemberOf,       // Membership
-    Associated,     // General association
-    Correlates,    // Statistical correlation
+    IsA,         // Inheritance
+    PartOf,      // Composition
+    HasProperty, // Attribution
+    Causes,      // Causation
+    Enables,     // Capability
+    Opposite,    // Antonymy
+    Similar,     // Similarity
+    Before,      // Temporal
+    LocatedIn,   // Spatial
+    ProducedBy,  // Production
+    MemberOf,    // Membership
+    Associated,  // General association
+    Correlates,  // Statistical correlation
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -185,7 +185,7 @@ pub struct SemanticMemoryStore {
     // Indices
     name_index: HashMap<String, String>,
     category_index: HashMap<ConceptCategory, Vec<String>>,
-    relation_index: HashMap<String, Vec<(String, String)>>,  // (source, target)
+    relation_index: HashMap<String, Vec<(String, String)>>, // (source, target)
 
     // Graph structure
     adjacency_list: HashMap<String, HashSet<String>>,
@@ -245,7 +245,9 @@ struct PrioritizedConcept {
 
 impl Ord for PrioritizedConcept {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.priority.partial_cmp(&other.priority).unwrap_or(Ordering::Equal)
+        self.priority
+            .partial_cmp(&other.priority)
+            .unwrap_or(Ordering::Equal)
     }
 }
 
@@ -294,13 +296,15 @@ impl SemanticMemoryStore {
         self.concepts.insert(concept_id.clone(), concept.clone());
 
         // Update name index
-        self.name_index.insert(concept.name.clone(), concept_id.clone());
+        self.name_index
+            .insert(concept.name.clone(), concept_id.clone());
         for alias in &concept.aliases {
             self.name_index.insert(alias.clone(), concept_id.clone());
         }
 
         // Update category index
-        self.category_index.entry(concept.category)
+        self.category_index
+            .entry(concept.category)
             .or_insert_with(Vec::new)
             .push(concept_id.clone());
 
@@ -312,7 +316,11 @@ impl SemanticMemoryStore {
 
         // Update statistics
         self.stats.total_concepts += 1;
-        *self.stats.categories.entry(format!("{:?}", concept.category)).or_insert(0) += 1;
+        *self
+            .stats
+            .categories
+            .entry(format!("{:?}", concept.category))
+            .or_insert(0) += 1;
 
         concept_id
     }
@@ -322,13 +330,15 @@ impl SemanticMemoryStore {
         for relation in &concept.relations {
             let key = format!("{:?}_{}", relation.relation_type, relation.target_id);
 
-            self.relation_index.entry(key)
+            self.relation_index
+                .entry(key)
                 .or_insert_with(Vec::new)
                 .push((concept.concept_id.clone(), relation.target_id.clone()));
 
             if relation.bidirectional {
                 let rev_key = format!("{:?}_{}", relation.relation_type, concept.concept_id);
-                self.relation_index.entry(rev_key)
+                self.relation_index
+                    .entry(rev_key)
                     .or_insert_with(Vec::new)
                     .push((relation.target_id.clone(), concept.concept_id.clone()));
             }
@@ -337,15 +347,18 @@ impl SemanticMemoryStore {
 
     /// Update adjacency lists
     fn update_adjacency_lists(&mut self, concept: &SemanticMemory) {
-        self.adjacency_list.entry(concept.concept_id.clone())
+        self.adjacency_list
+            .entry(concept.concept_id.clone())
             .or_insert_with(HashSet::new);
 
         for relation in &concept.relations {
-            self.adjacency_list.entry(concept.concept_id.clone())
+            self.adjacency_list
+                .entry(concept.concept_id.clone())
                 .or_default()
                 .insert(relation.target_id.clone());
 
-            self.reverse_adjacency.entry(relation.target_id.clone())
+            self.reverse_adjacency
+                .entry(relation.target_id.clone())
                 .or_insert_with(HashSet::new)
                 .insert(concept.concept_id.clone());
         }
@@ -366,18 +379,16 @@ impl SemanticMemoryStore {
 
     /// Retrieve concept by name
     pub fn get_by_name(&self, name: &str) -> Option<&SemanticMemory> {
-        self.name_index.get(name)
+        self.name_index
+            .get(name)
             .and_then(|id| self.concepts.get(id))
     }
 
     /// Query concepts by category
     pub fn get_by_category(&self, category: ConceptCategory) -> Vec<&SemanticMemory> {
-        self.category_index.get(&category)
-            .map(|ids| {
-                ids.iter()
-                    .filter_map(|id| self.concepts.get(id))
-                    .collect()
-            })
+        self.category_index
+            .get(&category)
+            .map(|ids| ids.iter().filter_map(|id| self.concepts.get(id)).collect())
             .unwrap_or_default()
     }
 
@@ -412,14 +423,14 @@ impl SemanticMemoryStore {
                     for relation in &concept.relations {
                         let propagation = current_activation * relation.strength * 0.5;
 
-                        let current = new_activation.entry(relation.target_id.clone())
+                        let current = new_activation
+                            .entry(relation.target_id.clone())
                             .or_insert(0.0);
                         *current = (*current + propagation).min(1.0);
 
                         // Bidirectional
                         if relation.bidirectional {
-                            let rev = new_activation.entry(concept_id.clone())
-                                .or_insert(0.0);
+                            let rev = new_activation.entry(concept_id.clone()).or_insert(0.0);
                             *rev = (*rev + propagation).min(1.0);
                         }
                     }
@@ -429,14 +440,15 @@ impl SemanticMemoryStore {
                         for pred_id in predecessors {
                             if let Some(pred) = self.concepts.get(pred_id) {
                                 // Find relation strength
-                                let strength = pred.relations.iter()
+                                let strength = pred
+                                    .relations
+                                    .iter()
                                     .find(|r| r.target_id == *concept_id)
                                     .map(|r| r.strength)
                                     .unwrap_or(0.5);
 
                                 let propagation = current_activation * strength * 0.3;
-                                let current = new_activation.entry(pred_id.clone())
-                                    .or_insert(0.0);
+                                let current = new_activation.entry(pred_id.clone()).or_insert(0.0);
                                 *current = (*current + propagation).min(1.0);
                             }
                         }
@@ -475,10 +487,7 @@ impl SemanticMemoryStore {
                         }
                     }
 
-                    results.push(PrioritizedConcept {
-                        concept: concept.clone(),
-                        priority: score,
-                    });
+                    results.push(PrioritizedConcept { concept: concept.clone(), priority: score });
                 }
             }
         }
@@ -498,8 +507,13 @@ impl SemanticMemoryStore {
     }
 
     /// Add relation between concepts
-    pub fn add_relation(&mut self, source_id: &str, target_id: &str,
-                        relation_type: RelationType, strength: f32) -> bool {
+    pub fn add_relation(
+        &mut self,
+        source_id: &str,
+        target_id: &str,
+        relation_type: RelationType,
+        strength: f32,
+    ) -> bool {
         // Check if relation exists
         let exists = self
             .concepts
@@ -626,8 +640,9 @@ impl SemanticMemoryStore {
             }
 
             if let Some(condition_concept) = self.concepts.get(&condition.concept_id) {
-                let has_relation = condition_concept.relations.iter()
-                    .any(|r| r.relation_type == condition.relation && r.target_id == condition.value);
+                let has_relation = condition_concept.relations.iter().any(|r| {
+                    r.relation_type == condition.relation && r.target_id == condition.value
+                });
 
                 if !has_relation {
                     return false;
@@ -655,8 +670,8 @@ impl SemanticMemoryStore {
         let mut min_activation = f32::MAX;
 
         for (id, concept) in &self.concepts {
-            let effective_activation = concept.activation_level *
-                (1.0 - concept.access_frequency as f32 / 1000.0);
+            let effective_activation =
+                concept.activation_level * (1.0 - concept.access_frequency as f32 / 1000.0);
 
             if effective_activation < min_activation {
                 min_activation = effective_activation;
@@ -690,7 +705,8 @@ impl SemanticMemoryStore {
                     if let Some(pred) = self.concepts.get_mut(&pred_id) {
                         pred.relations.retain(|r| r.target_id != concept_id);
                     }
-                    self.adjacency_list.get_mut(&pred_id)
+                    self.adjacency_list
+                        .get_mut(&pred_id)
                         .map(|set| set.remove(concept_id));
                 }
             }
@@ -716,7 +732,11 @@ impl SemanticMemoryStore {
 
             // Merge relations (avoiding duplicates)
             for relation in &source.relations {
-                if !target.relations.iter().any(|r| r.target_id == relation.target_id) {
+                if !target
+                    .relations
+                    .iter()
+                    .any(|r| r.target_id == relation.target_id)
+                {
                     target.relations.push(relation.clone());
                 }
             }
@@ -762,7 +782,10 @@ pub struct InferenceResult {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("sem_{}", now % 1_000_000)
 }
 

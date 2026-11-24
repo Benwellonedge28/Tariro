@@ -59,19 +59,11 @@ pub struct EthicsFilterResult {
 
 impl EthicsFilterResult {
     pub fn passed() -> Self {
-        Self {
-            passed: true,
-            violations: Vec::new(),
-            warnings: Vec::new(),
-        }
+        Self { passed: true, violations: Vec::new(), warnings: Vec::new() }
     }
 
     pub fn failed(violations: Vec<EthicalViolation>) -> Self {
-        Self {
-            passed: false,
-            violations,
-            warnings: Vec::new(),
-        }
+        Self { passed: false, violations, warnings: Vec::new() }
     }
 }
 
@@ -179,11 +171,7 @@ impl AuthorshipEthics {
             }
         }
 
-        EthicsFilterResult {
-            passed: violations.is_empty(),
-            violations,
-            warnings,
-        }
+        EthicsFilterResult { passed: violations.is_empty(), violations, warnings }
     }
 
     /// Check content for ethical issues
@@ -234,21 +222,16 @@ impl AuthorshipEthics {
         }
 
         // Check for placeholder markers
-        if content.text.contains("[placeholder]") || content.text.contains("[Content placeholder]") {
+        if content.text.contains("[placeholder]") || content.text.contains("[Content placeholder]")
+        {
             warnings.push("Content contains placeholders".to_string());
         }
 
-        EthicsFilterResult {
-            passed: violations.is_empty(),
-            violations,
-            warnings,
-        }
+        EthicsFilterResult { passed: violations.is_empty(), violations, warnings }
     }
 
     fn is_sensitive_theme(&self, theme: &str) -> bool {
-        let sensitive = [
-            "war", "death", "trauma", "abuse", "discrimination",
-        ];
+        let sensitive = ["war", "death", "trauma", "abuse", "discrimination"];
         let theme_lower = theme.to_lowercase();
         sensitive.iter().any(|s| theme_lower.contains(s))
     }

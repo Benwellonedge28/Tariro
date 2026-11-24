@@ -68,6 +68,9 @@ full = [
 metrics = ["dep:prometheus", "dep:metrics"]
 profiling = ["dep:tracing-timing"]
 telemetry = ["dep:opentelemetry", "dep:opentelemetry-jaeger"]
+# The platform detection can use the system information crates.
+sys-info = ["dep:sys-info"]
+num-cpus = []
 
 [dependencies]
 # Core
@@ -97,6 +100,8 @@ num-traits = "0.2"
 num-derive = "0.4"
 rayon = "1.8"
 num_cpus = "1.17"
+# The system information crate reads the memory and the cpu of the host.
+sys-info = { version = "0.9", optional = true }
 
 # Error Handling & Logging
 thiserror = "1.0"

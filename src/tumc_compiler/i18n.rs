@@ -23,34 +23,34 @@ impl Locale {
         let parts: Vec<&str> = tag.split('-').collect();
 
         let language = parts.first().unwrap_or(&"en").to_string();
-        let script = parts.get(1).map(|s| {
-            if s.len() == 4 {
-                s.to_string()
-            } else {
-                String::new()
-            }
-        }).filter(|s| !s.is_empty());
+        let script = parts
+            .get(1)
+            .map(|s| {
+                if s.len() == 4 {
+                    s.to_string()
+                } else {
+                    String::new()
+                }
+            })
+            .filter(|s| !s.is_empty());
 
         let region = parts.get(1..).and_then(|p| {
             if script.is_some() {
                 p.get(1).map(|s| s.to_string())
             } else {
-                p.first().map(|s| {
-                    if s.len() == 2 || s.len() == 3 {
-                        s.to_string()
-                    } else {
-                        String::new()
-                    }
-                }).filter(|s| !s.is_empty())
+                p.first()
+                    .map(|s| {
+                        if s.len() == 2 || s.len() == 3 {
+                            s.to_string()
+                        } else {
+                            String::new()
+                        }
+                    })
+                    .filter(|s| !s.is_empty())
             }
         });
 
-        Self {
-            language,
-            script,
-            region,
-            variant: None,
-        }
+        Self { language, script, region, variant: None }
     }
 
     /// Get default locale
@@ -167,9 +167,7 @@ pub struct TranslationMap {
 impl TranslationMap {
     /// Create new map
     pub fn new() -> Self {
-        Self {
-            messages: HashMap::new(),
-        }
+        Self { messages: HashMap::new() }
     }
 
     /// Add translation
@@ -289,12 +287,7 @@ impl NumberFormatter {
             _ => (".".to_string(), ",".to_string(), "$".to_string()),
         };
 
-        Self {
-            locale,
-            decimal_sep,
-            group_sep,
-            currency_symbol,
-        }
+        Self { locale, decimal_sep, group_sep, currency_symbol }
     }
 
     /// Format integer
@@ -324,7 +317,11 @@ impl NumberFormatter {
         let multiplier = 10_f64.powi(decimals as i32);
         let int_part = (n * multiplier).round() as i64;
         let int_str = self.format_int(int_part / multiplier as i64);
-        let dec_str = format!("{:0>width$}", int_part % multiplier as i64, width = decimals);
+        let dec_str = format!(
+            "{:0>width$}",
+            int_part % multiplier as i64,
+            width = decimals
+        );
 
         if decimals > 0 {
             format!("{}{}{}", int_str, self.decimal_sep, dec_str)
@@ -367,11 +364,7 @@ impl DateFormatter {
             _ => ("YYYY-MM-DD".to_string(), "HH:mm".to_string()),
         };
 
-        Self {
-            locale,
-            date_format,
-            time_format,
-        }
+        Self { locale, date_format, time_format }
     }
 
     /// Format date
@@ -421,7 +414,8 @@ impl DateTime {
             day: 1,
             hour: ((secs / 3600) % 24) as u8,
             minute: ((secs / 60) % 60) as u8,
-            second: (secs % 60) as u8}
+            second: (secs % 60) as u8,
+        }
     }
 }
 
@@ -430,14 +424,13 @@ pub struct MessageCatalog {
     /// Messages by locale
     messages: HashMap<String, TranslationMap>,
     /// Current locale
-    current: Locale}
+    current: Locale,
+}
 
 impl MessageCatalog {
     /// Create new catalog
     pub fn new() -> Self {
-        Self {
-            messages: HashMap::new(),
-            current: Locale::default()}
+        Self { messages: HashMap::new(), current: Locale::default() }
     }
 
     /// Load from JSON
@@ -488,11 +481,7 @@ pub struct ResourceBundle {
 impl ResourceBundle {
     /// Create new bundle
     pub fn new(name: &str, locale: Locale) -> Self {
-        Self {
-            name: name.to_string(),
-            locale,
-            resources: HashMap::new(),
-        }
+        Self { name: name.to_string(), locale, resources: HashMap::new() }
     }
 
     /// Add string resource

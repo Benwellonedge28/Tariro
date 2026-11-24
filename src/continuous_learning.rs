@@ -5,7 +5,7 @@
 
 use crate::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap};
+use std::collections::HashMap;
 
 /// Represents a learned skill or capability
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -231,7 +231,10 @@ impl ContinuousLearning {
                     deductive: 0.8,
                     inductive: 0.7,
                 },
-                cognitive_strengths: vec!["Pattern recognition".to_string(), "Logical reasoning".to_string()],
+                cognitive_strengths: vec![
+                    "Pattern recognition".to_string(),
+                    "Logical reasoning".to_string(),
+                ],
                 cognitive_weaknesses: vec!["Long-term retention".to_string()],
                 preferred_modalities: vec!["Text".to_string(), "Code".to_string()],
                 optimal_difficulty: 0.6,
@@ -275,7 +278,12 @@ impl ContinuousLearning {
     }
 
     /// Learn from experience
-    pub fn learn_from_experience(&mut self, experience: &str, outcome: &str, feedback: f64) -> LearningResult {
+    pub fn learn_from_experience(
+        &mut self,
+        experience: &str,
+        outcome: &str,
+        feedback: f64,
+    ) -> LearningResult {
         println!("[Learning] Learning from experience: {}", experience);
 
         let event = LearningEvent {
@@ -342,7 +350,11 @@ impl ContinuousLearning {
 
     fn predict_retention(&self, _knowledge: &str) -> f64 {
         // Simple retention prediction
-        let recency_factor = if self.learning_history.len() > 10 { 0.8 } else { 0.5 };
+        let recency_factor = if self.learning_history.len() > 10 {
+            0.8
+        } else {
+            0.5
+        };
         recency_factor
     }
 
@@ -454,7 +466,13 @@ impl ContinuousLearning {
         // Adjust for time since last practice
         let time_factor = if let Some(last) = skill.last_practiced {
             let days_since = (Utc::now() - last).num_days() as f64;
-            if days_since < 1.0 { 1.2 } else if days_since > 7.0 { 0.5 } else { 1.0 }
+            if days_since < 1.0 {
+                1.2
+            } else if days_since > 7.0 {
+                0.5
+            } else {
+                1.0
+            }
         } else {
             1.0
         };
@@ -474,29 +492,38 @@ impl ContinuousLearning {
 
     /// Transfer learning from one domain to another
     pub fn transfer_learning(&mut self, source_skill: &str, target_domain: &str) -> TransferResult {
-        println!("[Learning] Transferring {} to {}", source_skill, target_domain);
+        println!(
+            "[Learning] Transferring {} to {}",
+            source_skill, target_domain
+        );
 
-        let transferability = self.skills.get(source_skill)
+        let transferability = self
+            .skills
+            .get(source_skill)
             .map(|s| s.transferability)
             .unwrap_or(0.3);
 
-        let transferred_knowledge = self.identify_transferable_knowledge(source_skill, target_domain);
+        let transferred_knowledge =
+            self.identify_transferable_knowledge(source_skill, target_domain);
 
         TransferResult {
             source_skill: source_skill.to_string(),
             target_domain: target_domain.to_string(),
             transferred_elements: transferred_knowledge,
             transfer_efficiency: transferability * 0.8,
-            adaptation_required: vec![
-                "Adjust for new context".to_string(),
-            ],
+            adaptation_required: vec!["Adjust for new context".to_string()],
         }
     }
 
     fn identify_transferable_knowledge(&self, source: &str, _target: &str) -> Vec<String> {
         // Find related knowledge in the knowledge graph
-        self.knowledge.nodes.iter()
-            .filter(|n| n.concept.contains(source) || n.concept.to_lowercase().contains(&source.to_lowercase()))
+        self.knowledge
+            .nodes
+            .iter()
+            .filter(|n| {
+                n.concept.contains(source)
+                    || n.concept.to_lowercase().contains(&source.to_lowercase())
+            })
             .map(|n| n.concept.clone())
             .collect()
     }
@@ -522,7 +549,11 @@ impl ContinuousLearning {
     }
 
     /// Learn from mistakes
-    pub fn learn_from_mistake(&mut self, mistake: &str, correct_answer: &str) -> ErrorLearningResult {
+    pub fn learn_from_mistake(
+        &mut self,
+        mistake: &str,
+        correct_answer: &str,
+    ) -> ErrorLearningResult {
         println!("[Learning] Learning from mistake: {}", mistake);
 
         // Create error knowledge node
@@ -593,18 +624,19 @@ impl ContinuousLearning {
             ],
             estimated_time: 10,
             strategy: optimal_strategy,
-            checkpoints: vec![
-                Checkpoint {
-                    milestone: "Basic understanding".to_string(),
-                    criteria: "Can explain core concepts".to_string(),
-                    deadline: Utc::now() + ChronoDuration::days(3),
-                },
-            ],
+            checkpoints: vec![Checkpoint {
+                milestone: "Basic understanding".to_string(),
+                criteria: "Can explain core concepts".to_string(),
+                deadline: Utc::now() + ChronoDuration::days(3),
+            }],
         }
     }
 
     fn get_current_knowledge(&self, topic: &str) -> f64 {
-        let relevant_nodes: Vec<_> = self.knowledge.nodes.iter()
+        let relevant_nodes: Vec<_> = self
+            .knowledge
+            .nodes
+            .iter()
             .filter(|n| n.concept.to_lowercase().contains(&topic.to_lowercase()))
             .collect();
 
@@ -651,7 +683,7 @@ impl ContinuousLearning {
                 consolidated_count += 1;
             } else {
                 // Apply forgetting to weak nodes
-                node.confidence *= (1.0 - self.config.forgetting_rate);
+                node.confidence *= 1.0 - self.config.forgetting_rate;
                 if node.confidence < 0.2 {
                     improved_count += 1;
                 }
@@ -677,11 +709,14 @@ impl ContinuousLearning {
             } else {
                 self.skills.values().map(|s| s.proficiency).sum::<f64>() / self.skills.len() as f64
             },
-            recent_improvements: self.learning_history.iter()
+            recent_improvements: self
+                .learning_history
+                .iter()
                 .rev()
                 .take(10)
                 .map(|e| e.improvement)
-                .sum::<f64>() / 10.0,
+                .sum::<f64>()
+                / 10.0,
         }
     }
 }
@@ -796,8 +831,14 @@ pub struct LearningStats {
 /// Integration with Tariro's existing systems
 impl ContinuousLearning {
     /// Learn from user feedback
-    pub fn learn_from_feedback(&mut self, input: &str, output: &str, user_feedback: &str) -> FeedbackLearningResult {
-        let feedback_score = if user_feedback.contains("good") || user_feedback.contains("correct") {
+    pub fn learn_from_feedback(
+        &mut self,
+        input: &str,
+        output: &str,
+        user_feedback: &str,
+    ) -> FeedbackLearningResult {
+        let feedback_score = if user_feedback.contains("good") || user_feedback.contains("correct")
+        {
             0.8
         } else if user_feedback.contains("wrong") || user_feedback.contains("incorrect") {
             0.2

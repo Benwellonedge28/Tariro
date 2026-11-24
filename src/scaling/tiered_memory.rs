@@ -15,7 +15,6 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, VecDeque};
-use std::sync::{ };
 
 /// Memory tier enumeration
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -40,11 +39,11 @@ impl MemoryTier {
     /// Get maximum size for this tier
     pub fn max_size(&self) -> u64 {
         match self {
-            MemoryTier::L1Cache => 256 * 1024,                    // 256KB
-            MemoryTier::L2Heap => 64 * 1024 * 1024,                // 64MB
-            MemoryTier::L3Dram => 4 * 1024 * 1024 * 1024,          // 4GB
-            MemoryTier::L4Disk => 1 * 1024 * 1024 * 1024 * 1024,   // 1TB
-            MemoryTier::L5Network => u64::MAX,                      // Unlimited
+            MemoryTier::L1Cache => 256 * 1024,                   // 256KB
+            MemoryTier::L2Heap => 64 * 1024 * 1024,              // 64MB
+            MemoryTier::L3Dram => 4 * 1024 * 1024 * 1024,        // 4GB
+            MemoryTier::L4Disk => 1 * 1024 * 1024 * 1024 * 1024, // 1TB
+            MemoryTier::L5Network => u64::MAX,                   // Unlimited
         }
     }
 
@@ -61,7 +60,10 @@ impl MemoryTier {
 
     /// Check if this tier is volatile
     pub fn is_volatile(&self) -> bool {
-        matches!(self, MemoryTier::L1Cache | MemoryTier::L2Heap | MemoryTier::L3Dram)
+        matches!(
+            self,
+            MemoryTier::L1Cache | MemoryTier::L2Heap | MemoryTier::L3Dram
+        )
     }
 
     /// Check if this tier supports random access
@@ -299,10 +301,10 @@ pub struct TieredMemoryConfig {
 impl Default for TieredMemoryConfig {
     fn default() -> Self {
         Self {
-            l1_limit: 256 * 1024,                 // 256KB
-            l2_limit: 64 * 1024 * 1024,          // 64MB
-            l3_limit: 4 * 1024 * 1024 * 1024,    // 4GB
-            l4_limit: 1 * 1024 * 1024 * 1024,    // 1TB
+            l1_limit: 256 * 1024,             // 256KB
+            l2_limit: 64 * 1024 * 1024,       // 64MB
+            l3_limit: 4 * 1024 * 1024 * 1024, // 4GB
+            l4_limit: 1 * 1024 * 1024 * 1024, // 1TB
             auto_migrate: true,
             migration_threshold: 100,
             defrag_interval_ms: 60_000,
@@ -417,12 +419,8 @@ impl TieredMemory {
             crate::scaling::capability::DeviceTier::Microcontroller => {
                 TieredMemoryConfig::for_microcontroller()
             }
-            crate::scaling::capability::DeviceTier::Embedded => {
-                TieredMemoryConfig::for_embedded()
-            }
-            crate::scaling::capability::DeviceTier::Edge => {
-                TieredMemoryConfig::for_edge()
-            }
+            crate::scaling::capability::DeviceTier::Embedded => TieredMemoryConfig::for_embedded(),
+            crate::scaling::capability::DeviceTier::Edge => TieredMemoryConfig::for_edge(),
             _ => TieredMemoryConfig::for_cloud(),
         };
         Self::new(config)
@@ -431,7 +429,9 @@ impl TieredMemory {
     /// Allocate memory with automatic tier selection
     pub fn allocate(&mut self, request: AllocationRequest) -> Result<Allocation, MemoryError> {
         // Determine target tier
-        let tier = request.tier.unwrap_or_else(|| MemoryTier::from_size(request.size));
+        let tier = request
+            .tier
+            .unwrap_or_else(|| MemoryTier::from_size(request.size));
 
         // Check if tier is available
         if self.tier_limits.get(&tier) == Some(&0) {
@@ -531,11 +531,7 @@ impl TieredMemory {
             if let Some(addr) = self.eviction_queue.pop_front() {
                 freed += self.free_region(addr)?;
             } else {
-                return Err(MemoryError::OutOfMemory {
-                    tier,
-                    requested: needed,
-                    available: freed,
-                });
+                return Err(MemoryError::OutOfMemory { tier, requested: needed, available: freed });
             }
         }
 
@@ -701,7 +697,9 @@ impl TieredMemory {
     /// Migrate a region to a different tier
     #[allow(dead_code)]
     pub fn migrate(&mut self, addr: u64, target_tier: MemoryTier) -> Result<(), MemoryError> {
-        let region = self.find_region(addr).ok_or(MemoryError::InvalidAddress { addr })?;
+        let region = self
+            .find_region(addr)
+            .ok_or(MemoryError::InvalidAddress { addr })?;
 
         if region.tier == target_tier {
             return Ok(());
@@ -756,36 +754,22 @@ impl TieredMemory {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MemoryError {
     /// Out of memory in tier
-    OutOfMemory {
-        tier: MemoryTier,
-        requested: u64,
-        available: u64,
-    },
+    OutOfMemory { tier: MemoryTier, requested: u64, available: u64 },
 
     /// Tier not available
-    TierUnavailable {
-        tier: MemoryTier,
-    },
+    TierUnavailable { tier: MemoryTier },
 
     /// Invalid address
-    InvalidAddress {
-        addr: u64,
-    },
+    InvalidAddress { addr: u64 },
 
     /// Allocation failed
-    AllocationFailed {
-        reason: String,
-    },
+    AllocationFailed { reason: String },
 }
 
 impl std::fmt::Display for MemoryError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            MemoryError::OutOfMemory {
-                tier,
-                requested,
-                available,
-            } => write!(
+            MemoryError::OutOfMemory { tier, requested, available } => write!(
                 f,
                 "Out of memory in {:?}: requested {} bytes, {} available",
                 tier, requested, available

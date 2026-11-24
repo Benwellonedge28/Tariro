@@ -29,8 +29,14 @@ pub struct DimensionScores {
 
 impl DimensionScores {
     pub fn average(&self) -> f64 {
-        (self.originality + self.coherence + self.engagement +
-         self.depth + self.clarity + self.style + self.emotional_impact) / 7.0
+        (self.originality
+            + self.coherence
+            + self.engagement
+            + self.depth
+            + self.clarity
+            + self.style
+            + self.emotional_impact)
+            / 7.0
     }
 }
 
@@ -60,9 +66,7 @@ pub struct CritiqueEngine {
 impl CritiqueEngine {
     /// Create a new critique engine
     pub fn new(min_quality_threshold: f64) -> Self {
-        Self {
-            min_quality_threshold,
-        }
+        Self { min_quality_threshold }
     }
 
     /// Critique content against a concept
@@ -71,11 +75,14 @@ impl CritiqueEngine {
         let mut suggestions = Vec::new();
 
         // Evaluate dimensions
-        let dimension_scores = self.evaluate_dimensions(content, concept, &mut issues, &mut suggestions);
+        let dimension_scores =
+            self.evaluate_dimensions(content, concept, &mut issues, &mut suggestions);
 
         let overall_score = dimension_scores.average();
-        let is_satisfied = overall_score >= self.min_quality_threshold &&
-                           issues.iter().all(|i| i.severity < IssueSeverity::Significant);
+        let is_satisfied = overall_score >= self.min_quality_threshold
+            && issues
+                .iter()
+                .all(|i| i.severity < IssueSeverity::Significant);
 
         CritiqueReport {
             overall_score,
@@ -136,7 +143,8 @@ impl CritiqueEngine {
         let mut score: f64 = 0.7; // Base score
 
         // Check for template-like patterns
-        if content.text.contains("[placeholder]") || content.text.contains("[Content placeholder]") {
+        if content.text.contains("[placeholder]") || content.text.contains("[Content placeholder]")
+        {
             issues.push(CritiqueIssue {
                 dimension: "originality".to_string(),
                 severity: IssueSeverity::Significant,
@@ -248,9 +256,7 @@ impl CritiqueEngine {
         let mut score: f64 = 0.85;
 
         // Simple heuristic: check for very long sentences
-        let long_sentences = content.text.lines()
-            .filter(|l| l.len() > 200)
-            .count();
+        let long_sentences = content.text.lines().filter(|l| l.len() > 200).count();
 
         if long_sentences > 5 {
             issues.push(CritiqueIssue {
@@ -296,7 +302,9 @@ impl CritiqueEngine {
         let mut score: f64 = 0.7;
 
         // This is subjective - simplified heuristic
-        let emotional_words = ["love", "fear", "hope", "joy", "anger", "sorrow", "wonder", "passion"];
+        let emotional_words = [
+            "love", "fear", "hope", "joy", "anger", "sorrow", "wonder", "passion",
+        ];
         let text_lower = content.text.to_lowercase();
         let emotional_count: usize = emotional_words
             .iter()

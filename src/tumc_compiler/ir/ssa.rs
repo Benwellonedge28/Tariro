@@ -1,7 +1,7 @@
 // SSA (Static Single Assignment) Form Construction and Manipulation
 
-use std::collections::HashMap;
 use super::*;
+use std::collections::HashMap;
 
 /// SSA form builder and utilities
 pub struct SsaBuilder {
@@ -32,12 +32,17 @@ impl SsaBuilder {
 
     /// Get the current version of a variable
     pub fn get_value(&self, name: &str) -> Option<ValueId> {
-        self.value_to_version.get(name).and_then(|versions| versions.last().copied())
+        self.value_to_version
+            .get(name)
+            .and_then(|versions| versions.last().copied())
     }
 
     /// Create a new version of a variable
     pub fn create_value(&mut self, name: &str, version: ValueId) {
-        self.value_to_version.entry(name.to_string()).or_default().push(version);
+        self.value_to_version
+            .entry(name.to_string())
+            .or_default()
+            .push(version);
     }
 
     /// Rename a variable to a new version
@@ -53,11 +58,7 @@ impl SsaBuilder {
     pub fn add_phi(&mut self, name: &str, block: BasicBlockId, ty: IrType) -> PhiNode {
         let result = ValueId(self.value_to_version.values().map(|v| v.len()).sum());
 
-        let phi = PhiNode {
-            result,
-            arguments: Vec::new(),
-            ty,
-        };
+        let phi = PhiNode { result, arguments: Vec::new(), ty };
 
         self.phi_nodes.entry(block).or_default().push(phi.clone());
         self.create_value(name, result);
@@ -67,7 +68,10 @@ impl SsaBuilder {
 
     /// Get phi nodes for a block
     pub fn get_phis(&self, block: BasicBlockId) -> &[PhiNode] {
-        self.phi_nodes.get(&block).map(|v| v.as_slice()).unwrap_or(&[])
+        self.phi_nodes
+            .get(&block)
+            .map(|v| v.as_slice())
+            .unwrap_or(&[])
     }
 
     /// Get phi nodes for a block (mutable)
@@ -98,11 +102,7 @@ impl SsaConverter {
         let dom_tree = DominatorTree::new(function);
         let dom_frontier = Self::compute_dominance_frontiers(function, &dom_tree);
 
-        Self {
-            dom_tree,
-            dom_frontier,
-            phi_placeholders: HashMap::new(),
-        }
+        Self { dom_tree, dom_frontier, phi_placeholders: HashMap::new() }
     }
 
     fn compute_dominance_frontiers(
@@ -209,7 +209,13 @@ impl SsaConverter {
         }
 
         // For each successor, update phi arguments
-        for &succ in self.dom_tree.tree.get(block.0).map(|n| &n.children).unwrap_or(&vec![]) {
+        for &succ in self
+            .dom_tree
+            .tree
+            .get(block.0)
+            .map(|n| &n.children)
+            .unwrap_or(&vec![])
+        {
             // Update phi arguments in successor
             let _ = succ;
         }
@@ -245,7 +251,7 @@ pub struct Allocation {
 pub enum AllocationSlot {
     Register(usize),      // Physical register number
     Stack(StackLocation), // Stack slot
-    Immediate(ValueDef),   // Constant value
+    Immediate(ValueDef),  // Constant value
 }
 
 #[derive(Debug, Clone)]
@@ -280,10 +286,10 @@ impl IrPass for IdentityOptimization {
                 block.instructions.retain(|inst| {
                     let keep = !matches!(
                         inst.op,
-                        Operation::Binary(BinOp::And, _, _) |
-                        Operation::Binary(BinOp::Or, _, _) |
-                        Operation::Unary(UnOp::Not, _) |
-                        Operation::Unary(UnOp::BitNot, _)
+                        Operation::Binary(BinOp::And, _, _)
+                            | Operation::Binary(BinOp::Or, _, _)
+                            | Operation::Unary(UnOp::Not, _)
+                            | Operation::Unary(UnOp::BitNot, _)
                     );
                     if !keep {
                         changed = true;
@@ -353,9 +359,7 @@ pub struct InductionVariable {
 
 impl InductionVariableAnalysis {
     pub fn new() -> Self {
-        Self {
-            induction_vars: HashMap::new(),
-        }
+        Self { induction_vars: HashMap::new() }
     }
 
     pub fn analyze(&mut self, function: &Function, loops: &[NaturalLoop]) {
@@ -373,12 +377,15 @@ impl InductionVariableAnalysis {
                         match op {
                             BinOp::Add | BinOp::Sub => {
                                 // Check if one operand is a constant or another induction var
-                                self.induction_vars.insert(inst.result_value(), InductionVariable {
-                                    base: *lhs,
-                                    step: *rhs,
-                                    initial: *lhs,
-                                    loop_header: r#loop.header,
-                                });
+                                self.induction_vars.insert(
+                                    inst.result_value(),
+                                    InductionVariable {
+                                        base: *lhs,
+                                        step: *rhs,
+                                        initial: *lhs,
+                                        loop_header: r#loop.header,
+                                    },
+                                );
                             }
                             _ => {}
                         }
@@ -432,7 +439,10 @@ impl DominatorTreeBuilder {
 pub struct DominanceFrontierCalculator;
 
 impl DominanceFrontierCalculator {
-    pub fn compute(function: &Function, dom_tree: &DominatorTree) -> HashMap<BasicBlockId, Vec<BasicBlockId>> {
+    pub fn compute(
+        function: &Function,
+        dom_tree: &DominatorTree,
+    ) -> HashMap<BasicBlockId, Vec<BasicBlockId>> {
         let mut frontiers: HashMap<BasicBlockId, Vec<BasicBlockId>> = HashMap::new();
         let cfg = ControlFlowGraph::from_function(function);
 
@@ -442,9 +452,15 @@ impl DominanceFrontierCalculator {
             if preds.len() >= 2 {
                 for &pred in &preds {
                     let mut runner = pred;
-                    while runner != dom_tree.tree[block.id.0].immediate_dominator.unwrap_or(runner) {
+                    while runner
+                        != dom_tree.tree[block.id.0]
+                            .immediate_dominator
+                            .unwrap_or(runner)
+                    {
                         frontiers.entry(runner).or_default().push(block.id);
-                        runner = dom_tree.tree[runner.0].immediate_dominator.unwrap_or(runner);
+                        runner = dom_tree.tree[runner.0]
+                            .immediate_dominator
+                            .unwrap_or(runner);
                     }
                 }
             }

@@ -1,9 +1,7 @@
 // Tariro AGI - Model Quantization Module
 // INT8/FP16/ONNX optimization for local inference
 
-use std::collections::{ };
 use chrono::{DateTime, Utc};
-
 
 // ============================================================================
 // Quantization Types
@@ -492,7 +490,11 @@ impl QuantizationEngine {
     }
 
     /// Quantize model with GPTQ
-    pub fn quantize_gptq(&mut self, model_path: &str, config: GPTQQuantization) -> Result<CalibratedModel, QuantError> {
+    pub fn quantize_gptq(
+        &mut self,
+        _model_path: &str,
+        config: GPTQQuantization,
+    ) -> Result<CalibratedModel, QuantError> {
         // Simulate quantization process
         let mut layer_info = Vec::new();
 
@@ -515,7 +517,11 @@ impl QuantizationEngine {
         let calibrated = CalibratedModel {
             model_id: generate_id(),
             original_precision: QuantPrecision::FP16,
-            quantized_precision: if config.quantization_bits == 4 { QuantPrecision::INT4 } else { QuantPrecision::INT8 },
+            quantized_precision: if config.quantization_bits == 4 {
+                QuantPrecision::INT4
+            } else {
+                QuantPrecision::INT8
+            },
             quantization_date: Utc::now(),
             calibration_data: CalibrationData {
                 dataset_name: "wikitext".to_string(),
@@ -542,7 +548,11 @@ impl QuantizationEngine {
     }
 
     /// Quantize model with AWQ
-    pub fn quantize_awq(&mut self, model_path: &str, config: AWQQuantization) -> Result<CalibratedModel, QuantError> {
+    pub fn quantize_awq(
+        &mut self,
+        _model_path: &str,
+        config: AWQQuantization,
+    ) -> Result<CalibratedModel, QuantError> {
         let mut layer_info = Vec::new();
 
         for i in 0..10 {
@@ -590,15 +600,18 @@ impl QuantizationEngine {
     }
 
     /// Apply ONNX optimizations
-    pub fn optimize_onnx(&self, model_path: &str, config: &ONNXOptimizer) -> Result<OptimizationResult, QuantError> {
+    pub fn optimize_onnx(
+        &self,
+        _model_path: &str,
+        config: &ONNXOptimizer,
+    ) -> Result<OptimizationResult, QuantError> {
         let mut fusions_applied = Vec::new();
         let mut nodes_eliminated = 0;
 
         // Apply operator fusions
         for fusion in &config.operators_to_fuse {
-            fusions_applied.push(FusionResult {
-                fusion_type: fusion.fusion_type.clone(),
-                nodes_fused: 10});
+            fusions_applied
+                .push(FusionResult { fusion_type: fusion.fusion_type.clone(), nodes_fused: 10 });
         }
 
         // Simulate node elimination
@@ -616,7 +629,11 @@ impl QuantizationEngine {
     }
 
     /// Calculate memory requirements
-    pub fn calculate_memory(&self, precision: QuantPrecision, num_parameters: usize) -> MemoryEstimate {
+    pub fn calculate_memory(
+        &self,
+        precision: QuantPrecision,
+        num_parameters: usize,
+    ) -> MemoryEstimate {
         let bytes_per_param = match precision {
             QuantPrecision::FP32 => 4.0,
             QuantPrecision::FP16 | QuantPrecision::BF16 => 2.0,
@@ -629,12 +646,7 @@ impl QuantizationEngine {
         let memory_mb = (num_parameters as f32 * bytes_per_param) / (1024.0 * 1024.0);
         let compression_ratio = 32.0 / (bytes_per_param * 8.0);
 
-        MemoryEstimate {
-            precision,
-            memory_mb,
-            compression_ratio,
-            num_parameters,
-        }
+        MemoryEstimate { precision, memory_mb, compression_ratio, num_parameters }
     }
 
     /// Get best quantization for hardware
@@ -642,7 +654,8 @@ impl QuantizationEngine {
         match hardware {
             HardwareTarget::CPU => {
                 // Return INT8 dynamic for CPU
-                self.quantization_methods.iter()
+                self.quantization_methods
+                    .iter()
                     .find(|m| m.method_type == QuantMethodType::Dynamic)
                     .cloned()
                     .unwrap_or_else(|| self.quantization_methods[0].clone())
@@ -725,7 +738,10 @@ pub struct MemoryEstimate {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("quant_{}", now % 1_000_000)
 }
 

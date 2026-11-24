@@ -29,19 +29,11 @@ pub struct ProgramState {
 
 impl ProgramState {
     pub fn new(pc: usize) -> Self {
-        Self {
-            pc,
-            variables: HashMap::new(),
-            memory: HashMap::new(),
-        }
+        Self { pc, variables: HashMap::new(), memory: HashMap::new() }
     }
 
     pub fn with_vars(pc: usize, vars: HashMap<String, i64>) -> Self {
-        Self {
-            pc,
-            variables: vars,
-            memory: HashMap::new(),
-        }
+        Self { pc, variables: vars, memory: HashMap::new() }
     }
 }
 
@@ -136,11 +128,7 @@ pub struct ModelChecker {
 
 impl ModelChecker {
     pub fn new(max_states: usize) -> Self {
-        Self {
-            max_states,
-            max_depth: 1000,
-            use_bfs: true,
-        }
+        Self { max_states, max_depth: 1000, use_bfs: true }
     }
 
     /// Check a block for safety properties
@@ -402,16 +390,12 @@ pub struct Predicate {
 
 impl PredicateAbstraction {
     pub fn new() -> Self {
-        Self {
-            predicates: Vec::new(),
-        }
+        Self { predicates: Vec::new() }
     }
 
     pub fn add_predicate(&mut self, name: &str, condition: Condition) {
-        self.predicates.push(Predicate {
-            name: name.to_string(),
-            condition,
-        });
+        self.predicates
+            .push(Predicate { name: name.to_string(), condition });
     }
 
     /// Abstract a concrete state
@@ -423,10 +407,7 @@ impl PredicateAbstraction {
     }
 
     /// Generate abstract transition system
-    pub fn generate_abstract_system(
-        &self,
-        concrete_system: &TransitionSystem,
-    ) -> TransitionSystem {
+    pub fn generate_abstract_system(&self, concrete_system: &TransitionSystem) -> TransitionSystem {
         let mut abstract_states: HashMap<Vec<bool>, usize> = HashMap::new();
         let mut abstract_transitions: Vec<Transition> = Vec::new();
 

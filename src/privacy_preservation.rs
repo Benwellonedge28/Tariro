@@ -1,8 +1,8 @@
 // Tariro AGI - Privacy Preservation Module
 // Privacy protection and data governance
 
-use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
+use std::collections::{HashMap, VecDeque};
 use std::time::Duration;
 
 // ============================================================================
@@ -32,14 +32,14 @@ pub struct PrivacyRule {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RuleType {
-    Collection,      // Data collection rules
-    Processing,      // Processing rules
-    Storage,         // Storage rules
-    Sharing,         // Sharing/disclosure rules
-    Retention,       // Retention rules
-    Deletion,       // Deletion rules
-    Access,         // Access control rules
-    Consent,        // Consent rules
+    Collection, // Data collection rules
+    Processing, // Processing rules
+    Storage,    // Storage rules
+    Sharing,    // Sharing/disclosure rules
+    Retention,  // Retention rules
+    Deletion,   // Deletion rules
+    Access,     // Access control rules
+    Consent,    // Consent rules
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -51,9 +51,9 @@ pub struct PrivacyScope {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum EnforcementLevel {
-    Strict,    // Block non-compliance
-    Warn,     // Warn but allow
-    Monitor,   // Just log
+    Strict,  // Block non-compliance
+    Warn,    // Warn but allow
+    Monitor, // Just log
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -282,7 +282,11 @@ impl PrivacyPreservationEngine {
                     description: "Require consent for personal data collection".to_string(),
                     rule_type: RuleType::Collection,
                     scope: PrivacyScope {
-                        data_types: vec![DataType::UserProfile, DataType::Location, DataType::Behavioral],
+                        data_types: vec![
+                            DataType::UserProfile,
+                            DataType::Location,
+                            DataType::Behavioral,
+                        ],
                         user_types: vec!["all".to_string()],
                         purposes: vec!["all".to_string()],
                     },
@@ -307,7 +311,9 @@ impl PrivacyPreservationEngine {
                     rule_type: RuleType::Sharing,
                     scope: PrivacyScope {
                         data_types: vec![
-                            DataType::Health, DataType::Financial, DataType::Biometric
+                            DataType::Health,
+                            DataType::Financial,
+                            DataType::Biometric,
                         ],
                         user_types: vec!["all".to_string()],
                         purposes: vec!["marketing".to_string(), "third_party".to_string()],
@@ -396,7 +402,9 @@ impl PrivacyPreservationEngine {
     /// Check consent status
     pub fn has_consent(&self, user_id: &str, data_type: DataType) -> bool {
         let key = format!("{}_{}", user_id, format!("{:?}", data_type));
-        self.consent_registry.consents.get(&key)
+        self.consent_registry
+            .consents
+            .get(&key)
             .map(|c| c.granted)
             .unwrap_or(false)
     }
@@ -406,23 +414,23 @@ impl PrivacyPreservationEngine {
         match method {
             AnonymizationMethod::Redaction => {
                 let words: Vec<&str> = data.split_whitespace().collect();
-                words.iter().map(|w| {
-                    if w.len() > 2 {
-                        format!("{}{}", &w[..1], "*".repeat(w.len() - 1))
-                    } else {
-                        "*".repeat(w.len())
-                    }
-                }).collect::<Vec<_>>().join(" ")
+                words
+                    .iter()
+                    .map(|w| {
+                        if w.len() > 2 {
+                            format!("{}{}", &w[..1], "*".repeat(w.len() - 1))
+                        } else {
+                            "*".repeat(w.len())
+                        }
+                    })
+                    .collect::<Vec<_>>()
+                    .join(" ")
             }
-            AnonymizationMethod::Generalization => {
-                "[REDACTED]".to_string()
-            }
+            AnonymizationMethod::Generalization => "[REDACTED]".to_string(),
             AnonymizationMethod::Pseudonymization => {
                 format!("USER_{}", generate_id())
             }
-            AnonymizationMethod::Aggregation => {
-                "[AGGREGATED]".to_string()
-            }
+            AnonymizationMethod::Aggregation => "[AGGREGATED]".to_string(),
         }
     }
 
@@ -562,7 +570,10 @@ pub struct PrivacyAuditReport {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("priv_{}", now % 1_000_000)
 }
 

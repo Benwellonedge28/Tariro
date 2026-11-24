@@ -85,9 +85,7 @@ pub struct JitPipeline {
 
 impl JitPipeline {
     pub fn new() -> Self {
-        Self {
-            optimizer: OptimizationManager::new(OptLevel::O2),
-        }
+        Self { optimizer: OptimizationManager::new(OptLevel::O2) }
     }
 
     pub fn optimize(&self, function: &Function) -> Function {
@@ -96,7 +94,11 @@ impl JitPipeline {
 
         self.optimizer.run(&mut module);
 
-        module.functions.into_iter().next().unwrap_or(function.clone())
+        module
+            .functions
+            .into_iter()
+            .next()
+            .unwrap_or(function.clone())
     }
 
     pub fn generate_code(&self, _function: &Function) -> Option<Vec<u8>> {
@@ -120,11 +122,7 @@ pub struct CodeCache {
 
 impl CodeCache {
     pub fn new(max_size: usize) -> Self {
-        Self {
-            entries: HashMap::new(),
-            max_size,
-            current_size: 0,
-        }
+        Self { entries: HashMap::new(), max_size, current_size: 0 }
     }
 
     pub fn insert(&mut self, func_id: FunctionId, code: CompiledCode) {
@@ -187,10 +185,7 @@ impl TieredCompilation {
             },
         ];
 
-        Self {
-            tiers,
-            current_tier: 0,
-        }
+        Self { tiers, current_tier: 0 }
     }
 
     pub fn get_tier(&self, invocations: usize) -> usize {
@@ -229,19 +224,21 @@ pub struct InlineCacheEntry {
 
 impl InlineCache {
     pub fn new(size: usize) -> Self {
-        Self {
-            entries: Vec::with_capacity(size),
-            size,
-        }
+        Self { entries: Vec::with_capacity(size), size }
     }
 
     pub fn lookup(&self, receiver_class: Option<ClassId>) -> Option<&InlineCacheEntry> {
-        self.entries.iter()
+        self.entries
+            .iter()
             .find(|e| e.receiver_class == receiver_class)
     }
 
     pub fn update(&mut self, receiver_class: Option<ClassId>, method: FunctionId) {
-        if let Some(entry) = self.entries.iter_mut().find(|e| e.receiver_class == receiver_class) {
+        if let Some(entry) = self
+            .entries
+            .iter_mut()
+            .find(|e| e.receiver_class == receiver_class)
+        {
             entry.hit_count += 1;
         } else {
             if self.entries.len() >= self.size {

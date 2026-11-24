@@ -9,9 +9,7 @@ pub struct CallGraphAnalysis {
 
 impl Default for CallGraphAnalysis {
     fn default() -> Self {
-        Self {
-            context_sensitive: false,
-        }
+        Self { context_sensitive: false }
     }
 }
 
@@ -176,7 +174,16 @@ impl CallGraph {
 
         for &v in self.nodes.keys() {
             if !indices.contains_key(&v) {
-                strongconnect(self, v, &mut index, &mut stack, &mut indices, &mut lowlinks, &mut on_stack, &mut sccs);
+                strongconnect(
+                    self,
+                    v,
+                    &mut index,
+                    &mut stack,
+                    &mut indices,
+                    &mut lowlinks,
+                    &mut on_stack,
+                    &mut sccs,
+                );
             }
         }
 
@@ -272,11 +279,7 @@ impl<'a> IntoIterator for &'a CallGraph {
     type IntoIter = CallGraphEdges<'a>;
 
     fn into_iter(self) -> Self::IntoIter {
-        CallGraphEdges {
-            graph: self,
-            current: FunctionId(0),
-            edge_idx: 0,
-        }
+        CallGraphEdges { graph: self, current: FunctionId(0), edge_idx: 0 }
     }
 }
 

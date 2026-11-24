@@ -1,9 +1,8 @@
 //! Tariro Bytecode Virtual Machine
 //! A register-based VM for executing TUMC bytecode
 
-
 use crate::tumc_compiler::ast::Span;
-use std::collections::{HashMap};
+use std::collections::HashMap;
 use std::fmt;
 
 /// Maximum number of registers
@@ -524,10 +523,7 @@ pub struct Object {
 
 impl Object {
     pub fn new(class: String) -> Self {
-        Object {
-            class,
-            fields: HashMap::new(),
-        }
+        Object { class, fields: HashMap::new() }
     }
 }
 
@@ -549,10 +545,7 @@ impl Array {
     }
 
     pub fn with_elements(elements: Vec<Value>) -> Self {
-        Array {
-            element_type: "Any".to_string(),
-            elements,
-        }
+        Array { element_type: "Any".to_string(), elements }
     }
 }
 
@@ -567,10 +560,7 @@ pub struct Closure {
 
 impl Closure {
     pub fn new(function: GcPtr<Function>, upvars: Vec<Value>) -> Self {
-        Closure {
-            function,
-            upvars,
-        }
+        Closure { function, upvars }
     }
 }
 
@@ -616,12 +606,7 @@ pub struct Frame {
 
 impl Frame {
     pub fn new(function: GcPtr<Function>) -> Self {
-        Frame {
-            function,
-            ip: 0,
-            sp: 0,
-            bp: 0,
-        }
+        Frame { function, ip: 0, sp: 0, bp: 0 }
     }
 }
 
@@ -707,8 +692,8 @@ impl VM {
                 break;
             }
 
-            let opcode = Opcode::try_from(code[ip])
-                .map_err(|_| VMError::InvalidOpcode(code[ip]))?;
+            let opcode =
+                Opcode::try_from(code[ip]).map_err(|_| VMError::InvalidOpcode(code[ip]))?;
 
             if self.trace {
                 println!("IP: {} | Opcode: {:?}", ip, opcode);
@@ -750,21 +735,15 @@ impl VM {
             Opcode::JmpFalse => {
                 let target = self.read_u16(code, ip + 1) as usize;
                 let cond = self.registers[code[ip + 3] as usize].clone();
-                self.current_frame.as_mut().unwrap().ip = if !cond.is_truthy() {
-                    target
-                } else {
-                    ip + 4
-                };
+                self.current_frame.as_mut().unwrap().ip =
+                    if !cond.is_truthy() { target } else { ip + 4 };
             }
 
             Opcode::JmpTrue => {
                 let target = self.read_u16(code, ip + 1) as usize;
                 let cond = self.registers[code[ip + 3] as usize].clone();
-                self.current_frame.as_mut().unwrap().ip = if cond.is_truthy() {
-                    target
-                } else {
-                    ip + 4
-                };
+                self.current_frame.as_mut().unwrap().ip =
+                    if cond.is_truthy() { target } else { ip + 4 };
             }
 
             Opcode::Mov => {
@@ -883,8 +862,12 @@ impl VM {
 
             Opcode::AddF64 => {
                 let dest = code[ip + 1] as usize;
-                let a = self.registers[code[ip + 2] as usize].as_f64().unwrap_or(0.0);
-                let b = self.registers[code[ip + 3] as usize].as_f64().unwrap_or(0.0);
+                let a = self.registers[code[ip + 2] as usize]
+                    .as_f64()
+                    .unwrap_or(0.0);
+                let b = self.registers[code[ip + 3] as usize]
+                    .as_f64()
+                    .unwrap_or(0.0);
                 self.registers[dest] = Value::F64(a + b);
                 self.current_frame.as_mut().unwrap().ip = ip + 4;
             }
@@ -1032,20 +1015,37 @@ impl VM {
     }
 
     fn read_i32(&self, code: &[u8], offset: usize) -> i32 {
-        i32::from_le_bytes([code[offset], code[offset + 1], code[offset + 2], code[offset + 3]])
+        i32::from_le_bytes([
+            code[offset],
+            code[offset + 1],
+            code[offset + 2],
+            code[offset + 3],
+        ])
     }
 
     fn read_i64(&self, code: &[u8], offset: usize) -> i64 {
         i64::from_le_bytes([
-            code[offset], code[offset + 1], code[offset + 2], code[offset + 3],
-            code[offset + 4], code[offset + 5], code[offset + 6], code[offset + 7],
+            code[offset],
+            code[offset + 1],
+            code[offset + 2],
+            code[offset + 3],
+            code[offset + 4],
+            code[offset + 5],
+            code[offset + 6],
+            code[offset + 7],
         ])
     }
 
     fn read_f64(&self, code: &[u8], offset: usize) -> f64 {
         f64::from_le_bytes([
-            code[offset], code[offset + 1], code[offset + 2], code[offset + 3],
-            code[offset + 4], code[offset + 5], code[offset + 6], code[offset + 7],
+            code[offset],
+            code[offset + 1],
+            code[offset + 2],
+            code[offset + 3],
+            code[offset + 4],
+            code[offset + 5],
+            code[offset + 6],
+            code[offset + 7],
         ])
     }
 
@@ -1084,10 +1084,7 @@ pub enum VMError {
     /// Division by zero
     DivisionByZero,
     /// Type error
-    TypeError {
-        expected: String,
-        found: String,
-    },
+    TypeError { expected: String, found: String },
     /// Null pointer
     NullPointer,
     /// Function not found
@@ -1133,10 +1130,7 @@ pub struct JITContext {
 
 impl JITContext {
     pub fn new() -> Self {
-        JITContext {
-            compiled: HashMap::new(),
-            code_cache: Vec::new(),
-        }
+        JITContext { compiled: HashMap::new(), code_cache: Vec::new() }
     }
 }
 
@@ -1174,11 +1168,22 @@ mod tests {
 
         // Simple bytecode: 10 + 20 = 30
         let mut code = vec![
-            Opcode::LdImm32 as u8, 0, // dest = r0
-            10, 0, 0, 0, // value = 10
-            Opcode::LdImm32 as u8, 1, // dest = r1
-            20, 0, 0, 0, // value = 20
-            Opcode::AddI32 as u8, 2, 0, 1, // r2 = r0 + r1
+            Opcode::LdImm32 as u8,
+            0, // dest = r0
+            10,
+            0,
+            0,
+            0, // value = 10
+            Opcode::LdImm32 as u8,
+            1, // dest = r1
+            20,
+            0,
+            0,
+            0, // value = 20
+            Opcode::AddI32 as u8,
+            2,
+            0,
+            1, // r2 = r0 + r1
             Opcode::Halt as u8,
         ];
 

@@ -6,13 +6,12 @@
 //! allowing fine-grained control over self-modification, learning, decision-making,
 //! and various operational aspects of the AGI system.
 
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
-
 
 /// Configuration for autonomous behavior
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -421,10 +420,7 @@ impl Default for SecurityConfig {
             two_factor_enabled: false,
             whitelist_enabled: false,
             allowed_operations: Vec::new(),
-            blocked_operations: vec![
-                "system_format".to_string(),
-                "delete_all".to_string(),
-            ],
+            blocked_operations: vec!["system_format".to_string(), "delete_all".to_string()],
         }
     }
 }
@@ -463,11 +459,9 @@ impl ConfigurationProfile {
     }
 
     pub fn create_restricted() -> Self {
-        let mut profile = Self::new(
-            "Restricted Mode".to_string(),
-            ProfileType::Restricted,
-        );
-        profile.description = "Highly restricted operational mode with minimal autonomous capabilities".to_string();
+        let mut profile = Self::new("Restricted Mode".to_string(), ProfileType::Restricted);
+        profile.description =
+            "Highly restricted operational mode with minimal autonomous capabilities".to_string();
         profile.self_modification.enabled = false;
         profile.learning.continuous_learning = false;
         profile.decision_making.max_decision_complexity = DecisionComplexity::Low;
@@ -475,10 +469,7 @@ impl ConfigurationProfile {
     }
 
     pub fn create_full_autonomy() -> Self {
-        let mut profile = Self::new(
-            "Full Autonomy Mode".to_string(),
-            ProfileType::FullAutonomy,
-        );
+        let mut profile = Self::new("Full Autonomy Mode".to_string(), ProfileType::FullAutonomy);
         profile.description = "Maximum autonomous operational capabilities".to_string();
         profile.self_modification.enabled = true;
         profile.self_modification.require_approval_for_critical = false;
@@ -488,10 +479,7 @@ impl ConfigurationProfile {
     }
 
     pub fn create_development() -> Self {
-        let mut profile = Self::new(
-            "Development Mode".to_string(),
-            ProfileType::Development,
-        );
+        let mut profile = Self::new("Development Mode".to_string(), ProfileType::Development);
         profile.description = "Development and testing mode with relaxed constraints".to_string();
         profile.self_modification.test_before_deploy = true;
         profile.learning.enabled = true;
@@ -541,7 +529,10 @@ impl ConfigurationManager {
         profiles.insert(development.id.clone(), development);
     }
 
-    pub async fn create_configuration(&self, config: AutonomousConfiguration) -> Result<String, String> {
+    pub async fn create_configuration(
+        &self,
+        config: AutonomousConfiguration,
+    ) -> Result<String, String> {
         let mut configs = self.configurations.write().await;
         let id = config.id.clone();
         configs.insert(id.clone(), config);
@@ -553,7 +544,10 @@ impl ConfigurationManager {
         configs.get(id).cloned()
     }
 
-    pub async fn update_configuration(&self, mut config: AutonomousConfiguration) -> Result<(), String> {
+    pub async fn update_configuration(
+        &self,
+        mut config: AutonomousConfiguration,
+    ) -> Result<(), String> {
         let mut configs = self.configurations.write().await;
         config.last_modified = Utc::now();
         config.version += 1;
@@ -652,9 +646,15 @@ impl ConfigurationManager {
         let history = self.change_history.read().await;
 
         // Find the target version in history
-        let _change = history.iter()
+        let _change = history
+            .iter()
             .find(|c| c.configuration_id == configuration_id && c.new_version == target_version)
-            .ok_or_else(|| format!("Version {} not found for configuration '{}'", target_version, configuration_id))?;
+            .ok_or_else(|| {
+                format!(
+                    "Version {} not found for configuration '{}'",
+                    target_version, configuration_id
+                )
+            })?;
 
         drop(history);
 
@@ -676,7 +676,10 @@ impl ConfigurationManager {
         Ok(())
     }
 
-    pub async fn validate_configuration(&self, config: &AutonomousConfiguration) -> Result<Vec<ValidationWarning>, String> {
+    pub async fn validate_configuration(
+        &self,
+        config: &AutonomousConfiguration,
+    ) -> Result<Vec<ValidationWarning>, String> {
         let mut warnings = Vec::new();
 
         // Check for conflicting constraints
@@ -800,7 +803,8 @@ mod tests {
         let profiles: Vec<_> = manager.profiles.read().await.values().cloned().collect();
         assert!(!profiles.is_empty());
 
-        let restricted_id = profiles.iter()
+        let restricted_id = profiles
+            .iter()
             .find(|p| p.name == "Restricted Mode")
             .map(|p| p.id.clone())
             .unwrap();
@@ -815,10 +819,7 @@ mod tests {
     async fn test_configuration_validation() {
         let manager = ConfigurationManager::new();
 
-        let mut config = AutonomousConfiguration::new(
-            "test".to_string(),
-            "Test".to_string(),
-        );
+        let mut config = AutonomousConfiguration::new("test".to_string(), "Test".to_string());
 
         // Add conflicting constraints
         let c1 = Constraint::new(

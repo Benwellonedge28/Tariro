@@ -2,11 +2,10 @@
 //!
 //! Explicit common sense knowledge and reasoning about everyday situations.
 
-use std::sync::RwLock;
-use crate::prelude::*;
 use crate::knowledge::knowledge_graph::{KnowledgeGraph, Probability};
-use std::collections::{ };
+use crate::prelude::*;
 use std::sync::Arc;
+use std::sync::RwLock;
 
 // ============================================================================
 // Common Sense Types
@@ -113,11 +112,7 @@ pub struct Situation {
 impl Situation {
     /// Create an empty situation
     pub fn new() -> Self {
-        Situation {
-            entities: Vec::new(),
-            conditions: Vec::new(),
-            temporal: None,
-        }
+        Situation { entities: Vec::new(), conditions: Vec::new(), temporal: None }
     }
 
     /// Add an entity
@@ -189,10 +184,7 @@ pub struct Expectation {
 
 impl Expectation {
     pub fn new(outcomes: Vec<Outcome>) -> Self {
-        Expectation {
-            outcomes,
-            reasoning: String::new(),
-        }
+        Expectation { outcomes, reasoning: String::new() }
     }
 }
 
@@ -280,228 +272,267 @@ impl CommonsenseKB {
     /// Initialize physical common sense
     fn init_physics(&mut self) {
         // Objects fall down, not up
-        self.physics.push(CommonsenseRule::new(
-            "physics_fall",
-            Situation::new().with_entity(EntityDescription {
-                entity_type: "Object".to_string(),
-                properties: vec!["above_ground".to_string()],
-                location: None,
-                state: None,
-            }),
-            Expectation::new(vec![Outcome {
-                description: "Object moves downward".to_string(),
-                probability: 1.0,
-                conditions: vec![],
-            }]),
-        ).with_certainty(Certainty::Always));
-
-        // Fire causes heat
-        self.physics.push(CommonsenseRule::new(
-            "fire_heat",
-            Situation::new().with_entity(EntityDescription {
-                entity_type: "Fire".to_string(),
-                properties: vec!["burning".to_string()],
-                location: None,
-                state: None,
-            }),
-            Expectation::new(vec![Outcome {
-                description: "Nearby objects may become hot".to_string(),
-                probability: 0.9,
-                conditions: vec![],
-            }]),
-        ).with_certainty(Certainty::Usually));
-
-        // Water is wet
-        self.physics.push(CommonsenseRule::new(
-            "water_wet",
-            Situation::new().with_entity(EntityDescription {
-                entity_type: "Water".to_string(),
-                properties: vec![],
-                location: None,
-                state: Some("liquid".to_string()),
-            }),
-            Expectation::new(vec![Outcome {
-                description: "Water makes things wet".to_string(),
-                probability: 1.0,
-                conditions: vec![],
-            }]),
-        ).with_certainty(Certainty::Always));
-
-        // Glass breaks when dropped
-        self.physics.push(CommonsenseRule::new(
-            "glass_break",
-            Situation::new()
-                .with_entity(EntityDescription {
-                    entity_type: "Glass".to_string(),
-                    properties: vec![],
-                    location: None,
-                    state: None,
-                })
-                .with_entity(EntityDescription {
-                    entity_type: "Floor".to_string(),
-                    properties: vec!["hard".to_string()],
+        self.physics.push(
+            CommonsenseRule::new(
+                "physics_fall",
+                Situation::new().with_entity(EntityDescription {
+                    entity_type: "Object".to_string(),
+                    properties: vec!["above_ground".to_string()],
                     location: None,
                     state: None,
                 }),
-            Expectation::new(vec![Outcome {
-                description: "Glass may break".to_string(),
-                probability: 0.85,
-                conditions: vec![],
-            }]),
-        ).with_certainty(Certainty::Usually));
+                Expectation::new(vec![Outcome {
+                    description: "Object moves downward".to_string(),
+                    probability: 1.0,
+                    conditions: vec![],
+                }]),
+            )
+            .with_certainty(Certainty::Always),
+        );
+
+        // Fire causes heat
+        self.physics.push(
+            CommonsenseRule::new(
+                "fire_heat",
+                Situation::new().with_entity(EntityDescription {
+                    entity_type: "Fire".to_string(),
+                    properties: vec!["burning".to_string()],
+                    location: None,
+                    state: None,
+                }),
+                Expectation::new(vec![Outcome {
+                    description: "Nearby objects may become hot".to_string(),
+                    probability: 0.9,
+                    conditions: vec![],
+                }]),
+            )
+            .with_certainty(Certainty::Usually),
+        );
+
+        // Water is wet
+        self.physics.push(
+            CommonsenseRule::new(
+                "water_wet",
+                Situation::new().with_entity(EntityDescription {
+                    entity_type: "Water".to_string(),
+                    properties: vec![],
+                    location: None,
+                    state: Some("liquid".to_string()),
+                }),
+                Expectation::new(vec![Outcome {
+                    description: "Water makes things wet".to_string(),
+                    probability: 1.0,
+                    conditions: vec![],
+                }]),
+            )
+            .with_certainty(Certainty::Always),
+        );
+
+        // Glass breaks when dropped
+        self.physics.push(
+            CommonsenseRule::new(
+                "glass_break",
+                Situation::new()
+                    .with_entity(EntityDescription {
+                        entity_type: "Glass".to_string(),
+                        properties: vec![],
+                        location: None,
+                        state: None,
+                    })
+                    .with_entity(EntityDescription {
+                        entity_type: "Floor".to_string(),
+                        properties: vec!["hard".to_string()],
+                        location: None,
+                        state: None,
+                    }),
+                Expectation::new(vec![Outcome {
+                    description: "Glass may break".to_string(),
+                    probability: 0.85,
+                    conditions: vec![],
+                }]),
+            )
+            .with_certainty(Certainty::Usually),
+        );
 
         // Hot things cool down over time
-        self.physics.push(CommonsenseRule::new(
-            "hot_cool",
-            Situation::new().with_entity(EntityDescription {
-                entity_type: "HotObject".to_string(),
-                properties: vec!["hot".to_string()],
-                location: None,
-                state: None,
-            }),
-            Expectation::new(vec![Outcome {
-                description: "Object cools down to room temperature".to_string(),
-                probability: 1.0,
-                conditions: vec![],
-            }]),
-        ).with_certainty(Certainty::Always));
+        self.physics.push(
+            CommonsenseRule::new(
+                "hot_cool",
+                Situation::new().with_entity(EntityDescription {
+                    entity_type: "HotObject".to_string(),
+                    properties: vec!["hot".to_string()],
+                    location: None,
+                    state: None,
+                }),
+                Expectation::new(vec![Outcome {
+                    description: "Object cools down to room temperature".to_string(),
+                    probability: 1.0,
+                    conditions: vec![],
+                }]),
+            )
+            .with_certainty(Certainty::Always),
+        );
     }
 
     /// Initialize social common sense
     fn init_social(&mut self) {
         // People greet each other
-        self.social.push(CommonsenseRule::new(
-            "social_greet",
-            Situation::new().with_entity(EntityDescription {
-                entity_type: "Person".to_string(),
-                properties: vec!["meeting".to_string()],
-                location: None,
-                state: None,
-            }),
-            Expectation::new(vec![Outcome {
-                description: "People may greet each other".to_string(),
-                probability: 0.7,
-                conditions: vec![],
-            }]),
-        ).with_certainty(Certainty::Sometimes));
+        self.social.push(
+            CommonsenseRule::new(
+                "social_greet",
+                Situation::new().with_entity(EntityDescription {
+                    entity_type: "Person".to_string(),
+                    properties: vec!["meeting".to_string()],
+                    location: None,
+                    state: None,
+                }),
+                Expectation::new(vec![Outcome {
+                    description: "People may greet each other".to_string(),
+                    probability: 0.7,
+                    conditions: vec![],
+                }]),
+            )
+            .with_certainty(Certainty::Sometimes),
+        );
 
         // People work for money
-        self.social.push(CommonsenseRule::new(
-            "work_money",
-            Situation::new().with_entity(EntityDescription {
-                entity_type: "Person".to_string(),
-                properties: vec!["working".to_string()],
-                location: None,
-                state: None,
-            }),
-            Expectation::new(vec![Outcome {
-                description: "Person expects compensation".to_string(),
-                probability: 0.9,
-                conditions: vec![],
-            }]),
-        ).with_certainty(Certainty::Usually));
+        self.social.push(
+            CommonsenseRule::new(
+                "work_money",
+                Situation::new().with_entity(EntityDescription {
+                    entity_type: "Person".to_string(),
+                    properties: vec!["working".to_string()],
+                    location: None,
+                    state: None,
+                }),
+                Expectation::new(vec![Outcome {
+                    description: "Person expects compensation".to_string(),
+                    probability: 0.9,
+                    conditions: vec![],
+                }]),
+            )
+            .with_certainty(Certainty::Usually),
+        );
 
         // Children need supervision
-        self.social.push(CommonsenseRule::new(
-            "children_supervision",
-            Situation::new().with_entity(EntityDescription {
-                entity_type: "Child".to_string(),
-                properties: vec![],
-                location: Some("dangerous_place".to_string()),
-                state: None,
-            }),
-            Expectation::new(vec![Outcome {
-                description: "Adult supervision is needed".to_string(),
-                probability: 0.95,
-                conditions: vec![],
-            }]),
-        ).with_certainty(Certainty::Usually));
+        self.social.push(
+            CommonsenseRule::new(
+                "children_supervision",
+                Situation::new().with_entity(EntityDescription {
+                    entity_type: "Child".to_string(),
+                    properties: vec![],
+                    location: Some("dangerous_place".to_string()),
+                    state: None,
+                }),
+                Expectation::new(vec![Outcome {
+                    description: "Adult supervision is needed".to_string(),
+                    probability: 0.95,
+                    conditions: vec![],
+                }]),
+            )
+            .with_certainty(Certainty::Usually),
+        );
     }
 
     /// Initialize mental common sense
     fn init_mental(&mut self) {
         // Hungry people seek food
-        self.mental.push(CommonsenseRule::new(
-            "hungry_seek_food",
-            Situation::new().with_entity(EntityDescription {
-                entity_type: "Person".to_string(),
-                properties: vec!["hungry".to_string()],
-                location: None,
-                state: None,
-            }),
-            Expectation::new(vec![Outcome {
-                description: "Person will look for food".to_string(),
-                probability: 0.85,
-                conditions: vec![],
-            }]),
-        ).with_certainty(Certainty::Usually));
+        self.mental.push(
+            CommonsenseRule::new(
+                "hungry_seek_food",
+                Situation::new().with_entity(EntityDescription {
+                    entity_type: "Person".to_string(),
+                    properties: vec!["hungry".to_string()],
+                    location: None,
+                    state: None,
+                }),
+                Expectation::new(vec![Outcome {
+                    description: "Person will look for food".to_string(),
+                    probability: 0.85,
+                    conditions: vec![],
+                }]),
+            )
+            .with_certainty(Certainty::Usually),
+        );
 
         // Tired people sleep
-        self.mental.push(CommonsenseRule::new(
-            "tired_sleep",
-            Situation::new().with_entity(EntityDescription {
-                entity_type: "Person".to_string(),
-                properties: vec!["tired".to_string()],
-                location: None,
-                state: None,
-            }),
-            Expectation::new(vec![Outcome {
-                description: "Person may sleep or rest".to_string(),
-                probability: 0.8,
-                conditions: vec![],
-            }]),
-        ).with_certainty(Certainty::Usually));
+        self.mental.push(
+            CommonsenseRule::new(
+                "tired_sleep",
+                Situation::new().with_entity(EntityDescription {
+                    entity_type: "Person".to_string(),
+                    properties: vec!["tired".to_string()],
+                    location: None,
+                    state: None,
+                }),
+                Expectation::new(vec![Outcome {
+                    description: "Person may sleep or rest".to_string(),
+                    probability: 0.8,
+                    conditions: vec![],
+                }]),
+            )
+            .with_certainty(Certainty::Usually),
+        );
 
         // Happy people smile
-        self.mental.push(CommonsenseRule::new(
-            "happy_smile",
-            Situation::new().with_entity(EntityDescription {
-                entity_type: "Person".to_string(),
-                properties: vec!["happy".to_string()],
-                location: None,
-                state: None,
-            }),
-            Expectation::new(vec![Outcome {
-                description: "Person may smile".to_string(),
-                probability: 0.7,
-                conditions: vec![],
-            }]),
-        ).with_certainty(Certainty::Sometimes));
+        self.mental.push(
+            CommonsenseRule::new(
+                "happy_smile",
+                Situation::new().with_entity(EntityDescription {
+                    entity_type: "Person".to_string(),
+                    properties: vec!["happy".to_string()],
+                    location: None,
+                    state: None,
+                }),
+                Expectation::new(vec![Outcome {
+                    description: "Person may smile".to_string(),
+                    probability: 0.7,
+                    conditions: vec![],
+                }]),
+            )
+            .with_certainty(Certainty::Sometimes),
+        );
     }
 
     /// Initialize temporal common sense
     fn init_temporal(&mut self) {
         // Night follows day
-        self.temporal.push(CommonsenseRule::new(
-            "night_after_day",
-            Situation::new().with_entity(EntityDescription {
-                entity_type: "TimePeriod".to_string(),
-                properties: vec!["daytime".to_string()],
-                location: None,
-                state: None,
-            }),
-            Expectation::new(vec![Outcome {
-                description: "Night will come".to_string(),
-                probability: 1.0,
-                conditions: vec![],
-            }]),
-        ).with_certainty(Certainty::Always));
+        self.temporal.push(
+            CommonsenseRule::new(
+                "night_after_day",
+                Situation::new().with_entity(EntityDescription {
+                    entity_type: "TimePeriod".to_string(),
+                    properties: vec!["daytime".to_string()],
+                    location: None,
+                    state: None,
+                }),
+                Expectation::new(vec![Outcome {
+                    description: "Night will come".to_string(),
+                    probability: 1.0,
+                    conditions: vec![],
+                }]),
+            )
+            .with_certainty(Certainty::Always),
+        );
 
         // Seasons change
-        self.temporal.push(CommonsenseRule::new(
-            "seasons_change",
-            Situation::new().with_entity(EntityDescription {
-                entity_type: "Season".to_string(),
-                properties: vec![],
-                location: None,
-                state: None,
-            }),
-            Expectation::new(vec![Outcome {
-                description: "Season will eventually change".to_string(),
-                probability: 1.0,
-                conditions: vec![],
-            }]),
-        ).with_certainty(Certainty::Always));
+        self.temporal.push(
+            CommonsenseRule::new(
+                "seasons_change",
+                Situation::new().with_entity(EntityDescription {
+                    entity_type: "Season".to_string(),
+                    properties: vec![],
+                    location: None,
+                    state: None,
+                }),
+                Expectation::new(vec![Outcome {
+                    description: "Season will eventually change".to_string(),
+                    probability: 1.0,
+                    conditions: vec![],
+                }]),
+            )
+            .with_certainty(Certainty::Always),
+        );
     }
 
     /// Get rules for a domain
@@ -712,9 +743,7 @@ pub struct SpatialReasoner {
 
 impl SpatialReasoner {
     pub fn new() -> Self {
-        let mut reasoner = SpatialReasoner {
-            spatial_kb: Vec::new(),
-        };
+        let mut reasoner = SpatialReasoner { spatial_kb: Vec::new() };
         reasoner.init_spatial_rules();
         reasoner
     }
@@ -786,9 +815,7 @@ pub struct TemporalReasoner {
 
 impl TemporalReasoner {
     pub fn new() -> Self {
-        let mut reasoner = TemporalReasoner {
-            temporal_kb: Vec::new(),
-        };
+        let mut reasoner = TemporalReasoner { temporal_kb: Vec::new() };
         reasoner.init_temporal_rules();
         reasoner
     }
@@ -798,7 +825,8 @@ impl TemporalReasoner {
         self.temporal_kb.push(TemporalRule {
             name: "causality_precedence".to_string(),
             rule: "A cause must occur before or simultaneously with its effect".to_string(),
-            certainty: Certainty::Always});
+            certainty: Certainty::Always,
+        });
 
         // Duration
         self.temporal_kb.push(TemporalRule {
@@ -853,13 +881,12 @@ mod tests {
 
     #[test]
     fn test_situation_creation() {
-        let situation = Situation::new()
-            .with_entity(EntityDescription {
-                entity_type: "Glass".to_string(),
-                properties: vec![],
-                location: None,
-                state: None,
-            });
+        let situation = Situation::new().with_entity(EntityDescription {
+            entity_type: "Glass".to_string(),
+            properties: vec![],
+            location: None,
+            state: None,
+        });
 
         assert_eq!(situation.entities.len(), 1);
     }

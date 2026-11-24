@@ -1,9 +1,8 @@
 // Tariro AGI - Goal Generation Module
 // Autonomous goal self-generation and management
 
-
-use std::collections::{ VecDeque};
 use chrono::{DateTime, Utc};
+use std::collections::VecDeque;
 use std::time::Duration;
 
 // ============================================================================
@@ -66,19 +65,19 @@ pub struct GoalScope {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TimeHorizon {
-    Immediate,   // < 1 hour
-    ShortTerm,   // 1 hour - 1 day
-    MediumTerm,  // 1 day - 1 month
-    LongTerm,    // 1 month - 1 year
+    Immediate,    // < 1 hour
+    ShortTerm,    // 1 hour - 1 day
+    MediumTerm,   // 1 day - 1 month
+    LongTerm,     // 1 month - 1 year
     VeryLongTerm, // > 1 year
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Complexity {
-    Simple,       // Single action
-    Moderate,     // Few steps
-    Complex,      // Multiple steps
-    VeryComplex,  // Many interdependent steps
+    Simple,      // Single action
+    Moderate,    // Few steps
+    Complex,     // Multiple steps
+    VeryComplex, // Many interdependent steps
     ExtremelyComplex,
 }
 
@@ -221,20 +220,16 @@ impl GoalGeneration {
                 template_id: "improve_capability".to_string(),
                 name: "Improve Capability".to_string(),
                 description: "Improve performance in a specific area".to_string(),
-                trigger_conditions: vec![
-                    TriggerCondition {
-                        condition_type: ConditionType::PerformanceBelow,
-                        threshold: 0.7,
-                        comparison: Comparison::LessThan,
-                    },
-                ],
+                trigger_conditions: vec![TriggerCondition {
+                    condition_type: ConditionType::PerformanceBelow,
+                    threshold: 0.7,
+                    comparison: Comparison::LessThan,
+                }],
                 template_content: GoalContent {
                     description: "Improve {capability} to {target_level}".to_string(),
                     intent: "Enhance {capability}".to_string(),
                     expected_outcome: "{capability} performs at {target_level}".to_string(),
-                    success_criteria: vec![
-                        "Achieve {target_level} performance".to_string(),
-                    ],
+                    success_criteria: vec!["Achieve {target_level} performance".to_string()],
                     constraints: vec!["Within available resources".to_string()],
                 },
                 default_priority: Priority::High,
@@ -271,13 +266,11 @@ impl GoalGeneration {
                 template_id: "explore_domain".to_string(),
                 name: "Explore Domain".to_string(),
                 description: "Explore and understand a new domain".to_string(),
-                trigger_conditions: vec![
-                    TriggerCondition {
-                        condition_type: ConditionType::CuriosityTriggered,
-                        threshold: 0.7,
-                        comparison: Comparison::GreaterThan,
-                    },
-                ],
+                trigger_conditions: vec![TriggerCondition {
+                    condition_type: ConditionType::CuriosityTriggered,
+                    threshold: 0.7,
+                    comparison: Comparison::GreaterThan,
+                }],
                 template_content: GoalContent {
                     description: "Explore {domain}".to_string(),
                     intent: "Understand {domain}".to_string(),
@@ -364,7 +357,11 @@ impl GoalGeneration {
         generated_goals
     }
 
-    fn generate_from_motivation(&self, motivation: &IntrinsicMotivation, state: &SystemState) -> Option<Goal> {
+    fn generate_from_motivation(
+        &self,
+        motivation: &IntrinsicMotivation,
+        state: &SystemState,
+    ) -> Option<Goal> {
         let content = match motivation.motivation_type {
             MotivationType::Curiosity => GoalContent {
                 description: format!("Satisfy curiosity about {}", state.unknown_areas.join(", ")),
@@ -487,7 +484,11 @@ impl GoalGeneration {
         result
     }
 
-    fn check_trigger_conditions(&self, conditions: &[TriggerCondition], state: &SystemState) -> bool {
+    fn check_trigger_conditions(
+        &self,
+        conditions: &[TriggerCondition],
+        state: &SystemState,
+    ) -> bool {
         // Simplified condition checking
         for condition in conditions {
             match condition.condition_type {
@@ -575,7 +576,8 @@ impl GoalGeneration {
 
     /// Get active goals
     pub fn get_active_goals(&self) -> Vec<&Goal> {
-        self.goals.iter()
+        self.goals
+            .iter()
             .filter(|g| matches!(g.status, GoalStatus::Active | GoalStatus::Accepted))
             .collect()
     }
@@ -599,7 +601,10 @@ pub struct SystemState {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("goal_{}", now % 1_000_000)
 }
 

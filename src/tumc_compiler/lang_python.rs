@@ -3,7 +3,8 @@
 //! Transpiles Python source code to TUMC IR for compilation to any target.
 
 use crate::tumc_compiler::frontend::{
-    AstNode, Class, Expression, Function, Param, Program, Statement};
+    AstNode, Class, Expression, Function, Param, Program, Statement,
+};
 use crate::tumc_compiler::Type;
 use std::collections::HashMap;
 
@@ -33,10 +34,7 @@ pub enum PyAstNode {
         body: Vec<Statement>,
     },
     /// For comprehension
-    ListComp {
-        element: Expression,
-        generators: Vec<Comprehension>,
-    },
+    ListComp { element: Expression, generators: Vec<Comprehension> },
     /// Dict comprehension
     DictComp {
         key: Expression,
@@ -44,15 +42,9 @@ pub enum PyAstNode {
         generators: Vec<Comprehension>,
     },
     /// Generator expression
-    GeneratorExp {
-        element: Expression,
-        generators: Vec<Comprehension>,
-    },
+    GeneratorExp { element: Expression, generators: Vec<Comprehension> },
     /// Walrus operator (:=)
-    NamedExpression {
-        target: Box<Expression>,
-        value: Box<Expression>,
-    },
+    NamedExpression { target: Box<Expression>, value: Box<Expression> },
     /// Await expression
     Await(Expression),
     /// Yield expression
@@ -130,7 +122,7 @@ pub enum Token {
     DoubleSlash,
     Percent,
     DoubleStar,
-    At,           // @
+    At, // @
     Colon,
     Equal,
     PlusEqual,
@@ -232,7 +224,8 @@ pub enum Token {
     Yield,
 
     // Walrus operator
-    Walrus}
+    Walrus,
+}
 
 impl PythonParser {
     /// Create new Python parser
@@ -385,9 +378,7 @@ impl PythonParser {
                 let target = Box::new(self.parse_expression()?);
                 AstNode::Delete { target }
             }
-            Token::Import | Token::From => {
-                self.parse_import()?
-            }
+            Token::Import | Token::From => self.parse_import()?,
             _ => {
                 // Expression statement or assignment
                 let expr = self.parse_expression()?;
@@ -402,11 +393,7 @@ impl PythonParser {
                     let right = Box::new(self.parse_expression()?);
                     AstNode::Assignment {
                         target: Box::new(expr.clone()),
-                        value: Box::new(Expression::BinaryOp {
-                            left: Box::new(expr),
-                            op,
-                            right,
-                        }),
+                        value: Box::new(Expression::BinaryOp { left: Box::new(expr), op, right }),
                     }
                 } else {
                     AstNode::ExpressionStatement(Box::new(expr))
@@ -452,7 +439,11 @@ impl PythonParser {
     }
 
     /// Parse function definition
-    fn parse_function(&mut self, _decorators: Vec<String>, is_async: bool) -> Result<AstNode, ParseError> {
+    fn parse_function(
+        &mut self,
+        _decorators: Vec<String>,
+        is_async: bool,
+    ) -> Result<AstNode, ParseError> {
         let name = if let Token::Ident(n) = self.current() {
             let n = n.clone();
             self.advance();
@@ -596,11 +587,7 @@ impl PythonParser {
             self.expect(&Token::Colon)?;
             let _elif_body = self.parse_block()?;
 
-            else_branch = vec![AstNode::If {
-                condition: elif_cond,
-                then_branch,
-                else_branch,
-            }];
+            else_branch = vec![AstNode::If { condition: elif_cond, then_branch, else_branch }];
             return Ok(else_branch.pop().unwrap());
         }
 
@@ -610,11 +597,7 @@ impl PythonParser {
             else_branch = self.parse_block()?;
         }
 
-        Ok(AstNode::If {
-            condition,
-            then_branch,
-            else_branch,
-        })
+        Ok(AstNode::If { condition, then_branch, else_branch })
     }
 
     /// Parse while loop
@@ -631,11 +614,7 @@ impl PythonParser {
             Vec::new()
         };
 
-        Ok(AstNode::While {
-            condition,
-            body,
-            else_body,
-        })
+        Ok(AstNode::While { condition, body, else_body })
     }
 
     /// Parse for loop
@@ -654,12 +633,7 @@ impl PythonParser {
             Vec::new()
         };
 
-        Ok(AstNode::For {
-            target,
-            iter,
-            body,
-            else_body,
-        })
+        Ok(AstNode::For { target, iter, body, else_body })
     }
 
     /// Parse try-except block
@@ -680,8 +654,9 @@ impl PythonParser {
                 None
             };
 
-            let name = if self.check(&Token::Ident(String::new())) ||
-                       (self.check(&Token::Comma) || self.check(&Token::Colon)) == false {
+            let name = if self.check(&Token::Ident(String::new()))
+                || (self.check(&Token::Comma) || self.check(&Token::Colon)) == false
+            {
                 self.advance();
                 if let Token::Ident(n) = self.previous() {
                     Some(n.clone())
@@ -695,11 +670,7 @@ impl PythonParser {
             self.expect(&Token::Colon)?;
             let handler_body = self.parse_block()?;
 
-            handlers.push(AstNode::ExceptHandler {
-                type_: exc_type,
-                name,
-                body: handler_body,
-            });
+            handlers.push(AstNode::ExceptHandler { type_: exc_type, name, body: handler_body });
         }
 
         if self.check(&Token::Else) {
@@ -714,12 +685,7 @@ impl PythonParser {
             finally_body = self.parse_block()?;
         }
 
-        Ok(AstNode::Try {
-            body,
-            handlers,
-            else_body,
-            finally_body,
-        })
+        Ok(AstNode::Try { body, handlers, else_body, finally_body })
     }
 
     /// Parse with statement
@@ -814,7 +780,11 @@ impl PythonParser {
         }
 
         Ok(AstNode::Import {
-            module: if module.is_empty() { None } else { Some(module) },
+            module: if module.is_empty() {
+                None
+            } else {
+                Some(module)
+            },
             names,
             is_from,
         })
@@ -849,20 +819,14 @@ impl PythonParser {
         if self.check(&Token::Walrus) {
             self.advance();
             let value = Box::new(self.parse_assignment()?);
-            return Ok(Expression::NamedExpr {
-                target: Box::new(expr.into()),
-                value,
-            });
+            return Ok(Expression::NamedExpr { target: Box::new(expr.into()), value });
         }
 
         // Regular assignment
         if self.check(&Token::Equal) {
             self.advance();
             let value = Box::new(self.parse_assignment()?);
-            return Ok(Expression::Assignment {
-                target: Box::new(expr.into()),
-                value,
-            });
+            return Ok(Expression::Assignment { target: Box::new(expr.into()), value });
         }
 
         Ok(expr)
@@ -889,7 +853,8 @@ impl PythonParser {
     fn parse_and(&mut self) -> Result<Expression, ParseError> {
         let mut left = self.parse_not()?;
 
-        while self.check(&Token::And) || matches!(self.current(), Token::Ident(ref n) if n == "and") {
+        while self.check(&Token::And) || matches!(self.current(), Token::Ident(ref n) if n == "and")
+        {
             self.advance();
             let right = Box::new(self.parse_not()?);
             left = Expression::BinaryOp {
@@ -923,11 +888,7 @@ impl PythonParser {
         while let Some(op) = self.get_comparison_op() {
             self.advance();
             let right = Box::new(self.parse_bitwise_or()?);
-            left = Expression::BinaryOp {
-                left: Box::new(left.into()),
-                op,
-                right,
-            };
+            left = Expression::BinaryOp { left: Box::new(left.into()), op, right };
         }
 
         Ok(left)
@@ -1038,11 +999,7 @@ impl PythonParser {
             };
             self.advance();
             let right = Box::new(self.parse_multiplicative()?);
-            left = Expression::BinaryOp {
-                left: Box::new(left.into()),
-                op,
-                right,
-            };
+            left = Expression::BinaryOp { left: Box::new(left.into()), op, right };
         }
 
         Ok(left)
@@ -1052,8 +1009,11 @@ impl PythonParser {
     fn parse_multiplicative(&mut self) -> Result<Expression, ParseError> {
         let mut left = self.parse_power()?;
 
-        while self.check(&Token::Star) || self.check(&Token::Slash) ||
-              self.check(&Token::DoubleSlash) || self.check(&Token::Percent) {
+        while self.check(&Token::Star)
+            || self.check(&Token::Slash)
+            || self.check(&Token::DoubleSlash)
+            || self.check(&Token::Percent)
+        {
             let op = if self.check(&Token::Star) {
                 crate::tumc_compiler::frontend::BinaryOp::Mul
             } else if self.check(&Token::DoubleSlash) {
@@ -1065,11 +1025,7 @@ impl PythonParser {
             };
             self.advance();
             let right = Box::new(self.parse_power()?);
-            left = Expression::BinaryOp {
-                left: Box::new(left.into()),
-                op,
-                right,
-            };
+            left = Expression::BinaryOp { left: Box::new(left.into()), op, right };
         }
 
         Ok(left)
@@ -1147,19 +1103,13 @@ impl PythonParser {
                 }
 
                 self.expect(&Token::RightParen)?;
-                expr = Expression::Call {
-                    function: Box::new(expr.into()),
-                    arguments: args,
-                };
+                expr = Expression::Call { function: Box::new(expr.into()), arguments: args };
             } else if self.check(&Token::Dot) {
                 self.advance();
                 if let Token::Ident(name) = self.current() {
                     let name = name.clone();
                     self.advance();
-                    expr = Expression::FieldAccess {
-                        object: Box::new(expr.into()),
-                        field: name,
-                    };
+                    expr = Expression::FieldAccess { object: Box::new(expr.into()), field: name };
                 } else {
                     return Err(ParseError::new("Expected identifier after '.'", self.pos));
                 }
@@ -1167,10 +1117,7 @@ impl PythonParser {
                 self.advance();
                 let index = Box::new(self.parse_expression()?);
                 self.expect(&Token::RightBracket)?;
-                expr = Expression::Index {
-                    array: Box::new(expr.into()),
-                    index,
-                };
+                expr = Expression::Index { array: Box::new(expr.into()), index };
             } else {
                 break;
             }
@@ -1186,25 +1133,35 @@ impl PythonParser {
         match token {
             Token::Int(n) => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Int(n)))
+                Ok(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::Int(n),
+                ))
             }
             Token::Float(n) => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Float(n)))
+                Ok(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::Float(n),
+                ))
             }
             Token::String(s) => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::String(s.clone())))
+                Ok(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::String(s.clone()),
+                ))
             }
             Token::Bool(b) => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Bool(b)))
+                Ok(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::Bool(b),
+                ))
             }
             Token::None => {
                 self.advance();
                 // The IR literal set has no dedicated null literal; `Unit` is the
                 // crate's representation of a value-less literal.
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Unit))
+                Ok(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::Unit,
+                ))
             }
             Token::Ident(name) => {
                 self.advance();
@@ -1293,7 +1250,10 @@ impl PythonParser {
                     Ok(Expression::Yield(None))
                 }
             }
-            _ => Err(ParseError::new(&format!("Unexpected token: {:?}", token), self.pos)),
+            _ => Err(ParseError::new(
+                &format!("Unexpected token: {:?}", token),
+                self.pos,
+            )),
         }
     }
 
@@ -1322,10 +1282,7 @@ impl PythonParser {
         self.expect(&Token::Colon)?;
         let body = Box::new(self.parse_expression()?);
 
-        Ok(Expression::Lambda {
-            params,
-            body,
-        })
+        Ok(Expression::Lambda { params, body })
     }
 
     // ==== Helper methods ====
@@ -1407,12 +1364,7 @@ pub struct PythonLexer {
 impl PythonLexer {
     /// Create new lexer
     pub fn new(source: &str) -> Self {
-        Self {
-            source: source.to_string(),
-            pos: 0,
-            line: 1,
-            column: 1,
-        }
+        Self { source: source.to_string(), pos: 0, line: 1, column: 1 }
     }
 
     /// Tokenize source code
@@ -1438,8 +1390,10 @@ impl PythonLexer {
         let mut p = pos;
 
         // Skip whitespace (but not newlines)
-        while p < source.len() && source[p..].starts_with(' ') ||
-              source[p..].starts_with('\t') || source[p..].starts_with('\r') {
+        while p < source.len() && source[p..].starts_with(' ')
+            || source[p..].starts_with('\t')
+            || source[p..].starts_with('\r')
+        {
             p += 1;
         }
 
@@ -1463,7 +1417,11 @@ impl PythonLexer {
         }
 
         // String literals
-        if ch == b'"' || ch == b'\'' || source[p..].starts_with("'''") || source[p..].starts_with("\"\"\"") {
+        if ch == b'"'
+            || ch == b'\''
+            || source[p..].starts_with("'''")
+            || source[p..].starts_with("\"\"\"")
+        {
             return self.lex_string(source, pos);
         }
 
@@ -1473,14 +1431,20 @@ impl PythonLexer {
         }
 
         // Raw/f-strings
-        if source[p..].starts_with("r'") || source[p..].starts_with("r\"") ||
-           source[p..].starts_with("rf'") || source[p..].starts_with("rf\"") ||
-           source[p..].starts_with("fr'") || source[p..].starts_with("fr\"") {
+        if source[p..].starts_with("r'")
+            || source[p..].starts_with("r\"")
+            || source[p..].starts_with("rf'")
+            || source[p..].starts_with("rf\"")
+            || source[p..].starts_with("fr'")
+            || source[p..].starts_with("fr\"")
+        {
             return self.lex_string(source, pos);
         }
 
         // Numbers
-        if ch.is_ascii_digit() || (ch == b'.' && p + 1 < source.len() && source.as_bytes()[p + 1].is_ascii_digit()) {
+        if ch.is_ascii_digit()
+            || (ch == b'.' && p + 1 < source.len() && source.as_bytes()[p + 1].is_ascii_digit())
+        {
             return self.lex_number(source, pos);
         }
 
@@ -1507,7 +1471,11 @@ impl PythonLexer {
         };
 
         let quote = if is_triple == 3 {
-            if source[p..].starts_with("'''") { "'''" } else { "\"\"\"" }
+            if source[p..].starts_with("'''") {
+                "'''"
+            } else {
+                "\"\"\""
+            }
         } else {
             &source[p..p + 1]
         };
@@ -1567,7 +1535,9 @@ impl PythonLexer {
         // Hex, octal, binary
         if source[p..].starts_with("0x") || source[p..].starts_with("0X") {
             p += 2;
-            while p < source.len() && (source.as_bytes()[p].is_ascii_hexdigit() || source.as_bytes()[p] == b'_') {
+            while p < source.len()
+                && (source.as_bytes()[p].is_ascii_hexdigit() || source.as_bytes()[p] == b'_')
+            {
                 p += 1;
             }
             let s = &source[pos..p];
@@ -1577,7 +1547,9 @@ impl PythonLexer {
 
         if source[p..].starts_with("0o") || source[p..].starts_with("0O") {
             p += 2;
-            while p < source.len() && (source.as_bytes()[p].is_ascii_digit() || source.as_bytes()[p] == b'_') {
+            while p < source.len()
+                && (source.as_bytes()[p].is_ascii_digit() || source.as_bytes()[p] == b'_')
+            {
                 p += 1;
             }
             let s = &source[pos..p];
@@ -1587,7 +1559,11 @@ impl PythonLexer {
 
         if source[p..].starts_with("0b") || source[p..].starts_with("0B") {
             p += 2;
-            while p < source.len() && (source.as_bytes()[p] == b'0' || source.as_bytes()[p] == b'1' || source.as_bytes()[p] == b'_') {
+            while p < source.len()
+                && (source.as_bytes()[p] == b'0'
+                    || source.as_bytes()[p] == b'1'
+                    || source.as_bytes()[p] == b'_')
+            {
                 p += 1;
             }
             let s = &source[pos..p];
@@ -1596,15 +1572,23 @@ impl PythonLexer {
         }
 
         // Decimal
-        while p < source.len() && (source.as_bytes()[p].is_ascii_digit() || source.as_bytes()[p] == b'_') {
+        while p < source.len()
+            && (source.as_bytes()[p].is_ascii_digit() || source.as_bytes()[p] == b'_')
+        {
             p += 1;
         }
 
         // Float
-        if p < source.len() && source.as_bytes()[p] == b'.' && p + 1 < source.len() && source.as_bytes()[p + 1].is_ascii_digit() {
+        if p < source.len()
+            && source.as_bytes()[p] == b'.'
+            && p + 1 < source.len()
+            && source.as_bytes()[p + 1].is_ascii_digit()
+        {
             is_float = true;
             p += 1;
-            while p < source.len() && (source.as_bytes()[p].is_ascii_digit() || source.as_bytes()[p] == b'_') {
+            while p < source.len()
+                && (source.as_bytes()[p].is_ascii_digit() || source.as_bytes()[p] == b'_')
+            {
                 p += 1;
             }
         }
@@ -1633,10 +1617,16 @@ impl PythonLexer {
     }
 
     /// Lex identifier or keyword
-    fn lex_identifier(&self, source: &str, pos: usize) -> Result<(Option<Token>, usize), LexerError> {
+    fn lex_identifier(
+        &self,
+        source: &str,
+        pos: usize,
+    ) -> Result<(Option<Token>, usize), LexerError> {
         let mut p = pos;
 
-        while p < source.len() && (source.as_bytes()[p].is_ascii_alphanumeric() || source.as_bytes()[p] == b'_') {
+        while p < source.len()
+            && (source.as_bytes()[p].is_ascii_alphanumeric() || source.as_bytes()[p] == b'_')
+        {
             p += 1;
         }
 
@@ -1691,71 +1681,123 @@ impl PythonLexer {
 
         let token = match ch {
             b'+' => {
-                if source[p..].starts_with("+=") { Token::PlusEqual }
-                else { Token::Plus }
+                if source[p..].starts_with("+=") {
+                    Token::PlusEqual
+                } else {
+                    Token::Plus
+                }
             }
             b'-' => {
-                if source[p..].starts_with("-=") { Token::MinusEqual }
-                else if source[p..].starts_with("->") { Token::Colon } // Simplified
-                else { Token::Minus }
+                if source[p..].starts_with("-=") {
+                    Token::MinusEqual
+                } else if source[p..].starts_with("->") {
+                    Token::Colon
+                }
+                // Simplified
+                else {
+                    Token::Minus
+                }
             }
             b'*' => {
                 if source[p..].starts_with("**") {
-                    if source[p..].starts_with("**=") { Token::DoubleStarEqual }
-                    else { Token::DoubleStar }
-                } else if source[p..].starts_with("*=") { Token::StarEqual }
-                else { Token::Star }
+                    if source[p..].starts_with("**=") {
+                        Token::DoubleStarEqual
+                    } else {
+                        Token::DoubleStar
+                    }
+                } else if source[p..].starts_with("*=") {
+                    Token::StarEqual
+                } else {
+                    Token::Star
+                }
             }
             b'/' => {
                 if source[p..].starts_with("//") {
-                    if source[p..].starts_with("//=") { Token::DoubleSlashEqual }
-                    else { Token::DoubleSlash }
-                } else if source[p..].starts_with("/=") { Token::SlashEqual }
-                else { Token::Slash }
+                    if source[p..].starts_with("//=") {
+                        Token::DoubleSlashEqual
+                    } else {
+                        Token::DoubleSlash
+                    }
+                } else if source[p..].starts_with("/=") {
+                    Token::SlashEqual
+                } else {
+                    Token::Slash
+                }
             }
             b'%' => {
-                if source[p..].starts_with("%=") { Token::PercentEqual }
-                else { Token::Percent }
+                if source[p..].starts_with("%=") {
+                    Token::PercentEqual
+                } else {
+                    Token::Percent
+                }
             }
             b'@' => {
-                if source[p..].starts_with("@=") { Token::AtEqual }
-                else { Token::At }
+                if source[p..].starts_with("@=") {
+                    Token::AtEqual
+                } else {
+                    Token::At
+                }
             }
             b'=' => {
-                if source[p..].starts_with("==") { Token::EqEqual }
-                else { Token::Equal }
+                if source[p..].starts_with("==") {
+                    Token::EqEqual
+                } else {
+                    Token::Equal
+                }
             }
             b'!' => {
-                if source[p..].starts_with("!=") { Token::NotEqual }
-                else { return Err(LexerError::new("Invalid character '!'", pos)); }
+                if source[p..].starts_with("!=") {
+                    Token::NotEqual
+                } else {
+                    return Err(LexerError::new("Invalid character '!'", pos));
+                }
             }
             b'<' => {
-                if source[p..].starts_with("<=") { Token::LessEqual }
-                else if source[p..].starts_with("<<") {
-                    if source[p..].starts_with("<<=") { Token::LeftShiftEqual }
-                    else { Token::LeftShift }
+                if source[p..].starts_with("<=") {
+                    Token::LessEqual
+                } else if source[p..].starts_with("<<") {
+                    if source[p..].starts_with("<<=") {
+                        Token::LeftShiftEqual
+                    } else {
+                        Token::LeftShift
+                    }
+                } else {
+                    Token::Less
                 }
-                else { Token::Less }
             }
             b'>' => {
-                if source[p..].starts_with(">=") { Token::GreaterEqual }
-                else if source[p..].starts_with(">>") {
-                    if source[p..].starts_with(">>=") { Token::RightShiftEqual }
-                    else { Token::RightShift }
+                if source[p..].starts_with(">=") {
+                    Token::GreaterEqual
+                } else if source[p..].starts_with(">>") {
+                    if source[p..].starts_with(">>=") {
+                        Token::RightShiftEqual
+                    } else {
+                        Token::RightShift
+                    }
+                } else {
+                    Token::Greater
                 }
-                else { Token::Greater }
             }
             b'&' => {
-                if source[p..].starts_with("&=") { Token::AmpersandEqual }
-                else { Token::Ampersand }
+                if source[p..].starts_with("&=") {
+                    Token::AmpersandEqual
+                } else {
+                    Token::Ampersand
+                }
             }
             b'|' => {
-                if source[p..].starts_with("|=") { Token::PipeEqual }
-                else { Token::Pipe }
+                if source[p..].starts_with("|=") {
+                    Token::PipeEqual
+                } else {
+                    Token::Pipe
+                }
             }
             b'^' => {
-                if source[p..].starts_with("^=") { Token::CaretEqual }
-                else { Token::Caret }
+                if source[p..].starts_with("^=") {
+                    Token::CaretEqual
+                } else {
+                    Token::Caret
+                }
             }
             b'~' => Token::Tilde,
             b':' => Token::Colon,
@@ -1772,11 +1814,25 @@ impl PythonLexer {
         };
 
         let next = match token {
-            Token::PlusEqual | Token::MinusEqual | Token::StarEqual | Token::SlashEqual |
-            Token::DoubleSlashEqual | Token::PercentEqual | Token::DoubleStarEqual | Token::AtEqual |
-            Token::EqEqual | Token::NotEqual | Token::LessEqual | Token::GreaterEqual |
-            Token::LeftShift | Token::RightShift | Token::LeftShiftEqual | Token::RightShiftEqual |
-            Token::AmpersandEqual | Token::PipeEqual | Token::CaretEqual => p + 2,
+            Token::PlusEqual
+            | Token::MinusEqual
+            | Token::StarEqual
+            | Token::SlashEqual
+            | Token::DoubleSlashEqual
+            | Token::PercentEqual
+            | Token::DoubleStarEqual
+            | Token::AtEqual
+            | Token::EqEqual
+            | Token::NotEqual
+            | Token::LessEqual
+            | Token::GreaterEqual
+            | Token::LeftShift
+            | Token::RightShift
+            | Token::LeftShiftEqual
+            | Token::RightShiftEqual
+            | Token::AmpersandEqual
+            | Token::PipeEqual
+            | Token::CaretEqual => p + 2,
             _ => p + 1,
         };
 
@@ -1793,16 +1849,17 @@ pub struct ParseError {
 
 impl ParseError {
     pub fn new(message: &str, position: usize) -> Self {
-        Self {
-            message: message.to_string(),
-            position,
-        }
+        Self { message: message.to_string(), position }
     }
 }
 
 impl std::fmt::Display for ParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Parse error at position {}: {}", self.position, self.message)
+        write!(
+            f,
+            "Parse error at position {}: {}",
+            self.position, self.message
+        )
     }
 }
 
@@ -1823,7 +1880,11 @@ impl LexerError {
 
 impl std::fmt::Display for LexerError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Lexer error at position {}: {}", self.position, self.message)
+        write!(
+            f,
+            "Lexer error at position {}: {}",
+            self.position, self.message
+        )
     }
 }
 
@@ -1838,9 +1899,7 @@ pub struct PythonTranspiler {
 impl PythonTranspiler {
     /// Create new transpiler
     pub fn new() -> Self {
-        Self {
-            type_hints: HashMap::new(),
-        }
+        Self { type_hints: HashMap::new() }
     }
 
     /// Transpile Python source to TUMC IR
@@ -1857,7 +1916,11 @@ impl PythonTranspiler {
     /// Convert Python AST to TUMC AST
     fn convert_program(&self, py_ast: Program) -> Program {
         Program {
-            nodes: py_ast.nodes.into_iter().map(|n| self.convert_node(n)).collect(),
+            nodes: py_ast
+                .nodes
+                .into_iter()
+                .map(|n| self.convert_node(n))
+                .collect(),
         }
     }
 

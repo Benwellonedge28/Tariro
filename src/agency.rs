@@ -5,7 +5,7 @@
 
 use crate::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap};
+use std::collections::HashMap;
 
 /// Represents an agent's goals
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -234,12 +234,12 @@ pub enum UtilityType {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum AutonomyLevel {
-    None,           // Fully controlled
-    Assisted,       // Suggestions accepted
-    Supervisory,    // Reviews decisions
-    Delegated,      // Acts within constraints
-    Autonomous,     // Acts independently
-    Sovereign,      // Ultimate authority
+    None,        // Fully controlled
+    Assisted,    // Suggestions accepted
+    Supervisory, // Reviews decisions
+    Delegated,   // Acts within constraints
+    Autonomous,  // Acts independently
+    Sovereign,   // Ultimate authority
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -316,15 +316,13 @@ impl Agency {
                         hierarchy: 3,
                     },
                 ],
-                ethical_rules: vec![
-                    EthicalRule {
-                        rule_id: "harm_prevention".to_string(),
-                        description: "Do no harm".to_string(),
-                        priority: 1,
-                        exceptions: vec![],
-                        enforced: true,
-                    },
-                ],
+                ethical_rules: vec![EthicalRule {
+                    rule_id: "harm_prevention".to_string(),
+                    description: "Do no harm".to_string(),
+                    priority: 1,
+                    exceptions: vec![],
+                    enforced: true,
+                }],
                 utility_functions: Vec::new(),
                 preferences: HashMap::new(),
             },
@@ -358,7 +356,10 @@ impl Agency {
         };
 
         self.goals.push(goal.clone());
-        println!("[Agency] Set goal: {} (priority: {})", description, priority);
+        println!(
+            "[Agency] Set goal: {} (priority: {})",
+            description, priority
+        );
         goal
     }
 
@@ -411,7 +412,12 @@ impl Agency {
                     action_type: ActionType::Mental,
                     preconditions: vec![],
                     effects: vec![],
-                    cost: ActionCost { computational: 0.1, temporal: 0.1, resource: 0.0, risk: 0.0 },
+                    cost: ActionCost {
+                        computational: 0.1,
+                        temporal: 0.1,
+                        resource: 0.0,
+                        risk: 0.0,
+                    },
                     duration: 1.0,
                     risks: vec![],
                     applicable_goals: vec![goal.id.clone()],
@@ -422,8 +428,17 @@ impl Agency {
                     description: "Execute plan steps".to_string(),
                     action_type: ActionType::Compound,
                     preconditions: vec![],
-                    effects: vec![Effect { effect_type: EffectType::Add, description: "Goal achieved".to_string(), probability: 0.9 }],
-                    cost: ActionCost { computational: 0.5, temporal: 0.5, resource: 0.3, risk: 0.2 },
+                    effects: vec![Effect {
+                        effect_type: EffectType::Add,
+                        description: "Goal achieved".to_string(),
+                        probability: 0.9,
+                    }],
+                    cost: ActionCost {
+                        computational: 0.5,
+                        temporal: 0.5,
+                        resource: 0.3,
+                        risk: 0.2,
+                    },
                     duration: 5.0,
                     risks: vec![],
                     applicable_goals: vec![goal.id.clone()],
@@ -436,8 +451,17 @@ impl Agency {
                     description: "Gather information".to_string(),
                     action_type: ActionType::Mental,
                     preconditions: vec![],
-                    effects: vec![Effect { effect_type: EffectType::Increase, description: "Knowledge increased".to_string(), probability: 0.8 }],
-                    cost: ActionCost { computational: 0.3, temporal: 0.3, resource: 0.1, risk: 0.0 },
+                    effects: vec![Effect {
+                        effect_type: EffectType::Increase,
+                        description: "Knowledge increased".to_string(),
+                        probability: 0.8,
+                    }],
+                    cost: ActionCost {
+                        computational: 0.3,
+                        temporal: 0.3,
+                        resource: 0.1,
+                        risk: 0.0,
+                    },
                     duration: 3.0,
                     risks: vec![],
                     applicable_goals: vec![goal.id.clone()],
@@ -452,7 +476,9 @@ impl Agency {
     fn calculate_success_probability(&self, actions: &[Action]) -> f64 {
         let mut probability = 1.0;
         for action in actions {
-            let action_success = action.effects.iter()
+            let action_success = action
+                .effects
+                .iter()
                 .map(|e| e.probability)
                 .fold(1.0, |acc, p| acc * p);
             probability *= action_success;
@@ -537,9 +563,11 @@ impl Agency {
                 status: ExecutionStatus::Running,
                 start_time: Utc::now(),
                 progress: 0.0,
-                checkpoints: vec![
-                    Checkpoint { name: "Start".to_string(), completed: true, timestamp: Some(Utc::now()) },
-                ],
+                checkpoints: vec![Checkpoint {
+                    name: "Start".to_string(),
+                    completed: true,
+                    timestamp: Some(Utc::now()),
+                }],
             };
 
             self.execution_monitor.active_executions.push(execution);
@@ -562,7 +590,8 @@ impl Agency {
     pub fn make_decision(&self, context: &str, options: Vec<String>) -> DecisionResult {
         println!("[Agency] Making decision in context: {}", context);
 
-        let mut evaluated_options: Vec<(String, f64)> = options.iter()
+        let mut evaluated_options: Vec<(String, f64)> = options
+            .iter()
             .map(|name| {
                 let utility = self.calculate_option_utility(name, context);
                 (name.clone(), utility)
@@ -571,7 +600,8 @@ impl Agency {
 
         evaluated_options.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
 
-        let best_option = evaluated_options.first()
+        let best_option = evaluated_options
+            .first()
             .map(|(name, _)| name.clone())
             .unwrap_or_default();
 
@@ -648,17 +678,27 @@ impl Agency {
 
     /// Update autonomy level
     pub fn update_autonomy(&mut self, new_level: AutonomyLevel) {
-        println!("[Agency] Autonomy level changed from {:?} to {:?}", self.autonomy_level, new_level);
+        println!(
+            "[Agency] Autonomy level changed from {:?} to {:?}",
+            self.autonomy_level, new_level
+        );
         self.autonomy_level = new_level;
     }
 
     /// Handle goal completion
     pub fn complete_goal(&mut self, goal_id: &str, success: bool) {
         if let Some(goal) = self.goals.iter_mut().find(|g| g.id == goal_id) {
-            goal.state = if success { GoalState::Completed } else { GoalState::Failed };
+            goal.state = if success {
+                GoalState::Completed
+            } else {
+                GoalState::Failed
+            };
             goal.progress = if success { 1.0 } else { goal.progress };
 
-            println!("[Agency] Goal {} marked as {:?}", goal.description, goal.state);
+            println!(
+                "[Agency] Goal {} marked as {:?}",
+                goal.description, goal.state
+            );
         }
     }
 
@@ -680,7 +720,11 @@ impl Agency {
     /// Get current agency status
     pub fn get_status(&self) -> AgencyStatus {
         AgencyStatus {
-            active_goals: self.goals.iter().filter(|g| g.state == GoalState::Active).count(),
+            active_goals: self
+                .goals
+                .iter()
+                .filter(|g| g.state == GoalState::Active)
+                .count(),
             active_intentions: self.intentions.len(),
             active_executions: self.execution_monitor.active_executions.len(),
             autonomy_level: self.autonomy_level.clone(),
@@ -747,8 +791,14 @@ impl Agency {
     pub fn conscious_decision_making(&self, context: &str) -> ConsciousDecision {
         ConsciousDecision {
             context: context.to_string(),
-            options: self.actions.iter().map(|a| a.name.clone()).take(5).collect(),
-            self_awareness_note: "Decision made with consideration of own capabilities and limitations".to_string(),
+            options: self
+                .actions
+                .iter()
+                .map(|a| a.name.clone())
+                .take(5)
+                .collect(),
+            self_awareness_note:
+                "Decision made with consideration of own capabilities and limitations".to_string(),
             metacognitive_check: true,
         }
     }
@@ -764,7 +814,10 @@ impl Agency {
             .map(|execution| execution.status)
             .collect();
 
-        if let Some(execution) = self.execution_monitor.active_executions.iter_mut()
+        if let Some(execution) = self
+            .execution_monitor
+            .active_executions
+            .iter_mut()
             .find(|e| e.execution_id == execution_id)
         {
             execution.status = if outcome.contains("success") {
@@ -783,12 +836,14 @@ impl Agency {
 
             // Analyze failure if applicable
             if execution.status == ExecutionStatus::Failed {
-                self.execution_monitor.failure_analysis.push(FailureAnalysis {
-                    execution_id: execution_id.to_string(),
-                    failure_reason: outcome.to_string(),
-                    recovery_suggestions: vec!["Review preconditions".to_string()],
-                    lessons_learned: vec!["Adjust planning parameters".to_string()],
-                });
+                self.execution_monitor
+                    .failure_analysis
+                    .push(FailureAnalysis {
+                        execution_id: execution_id.to_string(),
+                        failure_reason: outcome.to_string(),
+                        recovery_suggestions: vec!["Review preconditions".to_string()],
+                        lessons_learned: vec!["Adjust planning parameters".to_string()],
+                    });
             }
         }
     }

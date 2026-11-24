@@ -3,8 +3,8 @@
 //! Provides high-level cognitive reasoning for compiler optimization decisions,
 //! including planning, decomposition, and causal reasoning.
 
-use crate::tumc_compiler::ir::Module;
 use crate::tumc_compiler::agi_integration::AgiInsight;
+use crate::tumc_compiler::ir::Module;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 
@@ -136,13 +136,14 @@ impl CognitiveReasoningEngine {
     }
 
     /// Deductive reasoning: apply general rules to specific cases
-    fn deductive_reasoning(&self, function: &crate::tumc_compiler::ir::Function) -> Vec<AgiInsight> {
+    fn deductive_reasoning(
+        &self,
+        function: &crate::tumc_compiler::ir::Function,
+    ) -> Vec<AgiInsight> {
         let mut insights = Vec::new();
 
         // Rule 1: Small functions should be inlined
-        let instruction_count: usize = function.body.iter()
-            .map(|b| b.instructions.len())
-            .sum();
+        let instruction_count: usize = function.body.iter().map(|b| b.instructions.len()).sum();
 
         if instruction_count < 10 && instruction_count > 0 {
             insights.push(AgiInsight {
@@ -160,7 +161,10 @@ impl CognitiveReasoningEngine {
                 },
                 reasoning_chain: vec![
                     "Rule: Functions with <10 instructions benefit from inlining".to_string(),
-                    format!("Function '{}' has {} instructions", function.name, instruction_count),
+                    format!(
+                        "Function '{}' has {} instructions",
+                        function.name, instruction_count
+                    ),
                     "Conclusion: Apply inlining transformation".to_string(),
                 ],
             });
@@ -204,7 +208,10 @@ impl CognitiveReasoningEngine {
     }
 
     /// Inductive reasoning: find patterns from observations
-    fn inductive_reasoning(&self, function: &crate::tumc_compiler::ir::Function) -> Vec<AgiInsight> {
+    fn inductive_reasoning(
+        &self,
+        function: &crate::tumc_compiler::ir::Function,
+    ) -> Vec<AgiInsight> {
         let mut insights = Vec::new();
 
         // Count operation types
@@ -216,17 +223,18 @@ impl CognitiveReasoningEngine {
             for inst in &block.instructions {
                 match &inst.op {
                     crate::tumc_compiler::ir::Operation::Binary(op, _, _) => {
-                        if matches!(op,
-                            crate::tumc_compiler::ir::BinOp::Add |
-                            crate::tumc_compiler::ir::BinOp::Sub |
-                            crate::tumc_compiler::ir::BinOp::Mul |
-                            crate::tumc_compiler::ir::BinOp::Div
+                        if matches!(
+                            op,
+                            crate::tumc_compiler::ir::BinOp::Add
+                                | crate::tumc_compiler::ir::BinOp::Sub
+                                | crate::tumc_compiler::ir::BinOp::Mul
+                                | crate::tumc_compiler::ir::BinOp::Div
                         ) {
                             arithmetic_count += 1;
                         }
                     }
-                    crate::tumc_compiler::ir::Operation::Load(_, _, _, _) |
-                    crate::tumc_compiler::ir::Operation::Store(_, _, _, _) => {
+                    crate::tumc_compiler::ir::Operation::Load(_, _, _, _)
+                    | crate::tumc_compiler::ir::Operation::Store(_, _, _, _) => {
                         memory_count += 1;
                     }
                     _ => {}
@@ -289,7 +297,10 @@ impl CognitiveReasoningEngine {
     }
 
     /// Abductive reasoning: find best explanations for observations
-    fn abductive_reasoning(&self, function: &crate::tumc_compiler::ir::Function) -> Vec<AgiInsight> {
+    fn abductive_reasoning(
+        &self,
+        function: &crate::tumc_compiler::ir::Function,
+    ) -> Vec<AgiInsight> {
         let mut insights = Vec::new();
 
         // Observation: Function has many branches
@@ -316,7 +327,8 @@ impl CognitiveReasoningEngine {
                     function.name, branch_count
                 ),
                 suggestion: crate::tumc_compiler::agi_integration::AgiSuggestion {
-                    transform_type: crate::tumc_compiler::agi_integration::TransformType::CacheOptimize,
+                    transform_type:
+                        crate::tumc_compiler::agi_integration::TransformType::CacheOptimize,
                     target_location: function.name.clone(),
                     expected_improvement: 0.08,
                     risk_level: crate::tumc_compiler::agi_integration::RiskLevel::Low,
@@ -419,7 +431,12 @@ impl CognitiveReasoningEngine {
     }
 
     /// Integrate feedback from execution
-    pub fn integrate_feedback(&mut self, _compilation_id: &str, _success: bool, _metrics: &crate::tumc_compiler::agi_integration::PerformanceMetrics) {
+    pub fn integrate_feedback(
+        &mut self,
+        _compilation_id: &str,
+        _success: bool,
+        _metrics: &crate::tumc_compiler::agi_integration::PerformanceMetrics,
+    ) {
         // Update causal graph with new information
         // Adjust reasoning confidence based on outcomes
     }
@@ -442,12 +459,18 @@ impl CognitiveReasoningEngine {
             explanation.push_str(&format!("{}. {}\n", i + 1, step));
         }
 
-        explanation.push_str(&format!("\nConfidence: {:.1}%\n", insight.confidence * 100.0));
+        explanation.push_str(&format!(
+            "\nConfidence: {:.1}%\n",
+            insight.confidence * 100.0
+        ));
         explanation.push_str(&format!(
             "Expected Improvement: {:.1}%\n",
             insight.suggestion.expected_improvement * 100.0
         ));
-        explanation.push_str(&format!("Risk Level: {:?}\n", insight.suggestion.risk_level));
+        explanation.push_str(&format!(
+            "Risk Level: {:?}\n",
+            insight.suggestion.risk_level
+        ));
 
         explanation
     }

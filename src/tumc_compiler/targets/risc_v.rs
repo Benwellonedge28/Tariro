@@ -35,10 +35,7 @@ impl Default for RiscVExtensions {
 
 impl RiscVTarget {
     pub fn new() -> Self {
-        Self {
-            extensions: RiscVExtensions::default(),
-            xlen: 64,
-        }
+        Self { extensions: RiscVExtensions::default(), xlen: 64 }
     }
 
     /// Emit RISC-V instruction
@@ -53,12 +50,12 @@ impl RiscVTarget {
                 let funct3 = 0x0; // add
                 let funct7 = 0x00;
 
-                let encoding = (funct7 as u32) << 25 |
-                               (rs2 as u32) << 20 |
-                               (rs1 as u32) << 15 |
-                               (funct3 as u32) << 12 |
-                               (rd as u32) << 7 |
-                               opcode;
+                let encoding = (funct7 as u32) << 25
+                    | (rs2 as u32) << 20
+                    | (rs1 as u32) << 15
+                    | (funct3 as u32) << 12
+                    | (rd as u32) << 7
+                    | opcode;
 
                 buf.extend_from_slice(&encoding.to_le_bytes());
                 let _ = (lhs, rhs);
@@ -76,11 +73,11 @@ impl RiscVTarget {
         let addi_opcode = 0x13;
         let funct3 = 0x0;
 
-        let encoding = ((imm & 0xFFF) as u32) << 20 |
-                       (rs1 as u32) << 15 |
-                       (funct3 as u32) << 12 |
-                       (rd as u32) << 7 |
-                       addi_opcode;
+        let encoding = ((imm & 0xFFF) as u32) << 20
+            | (rs1 as u32) << 15
+            | (funct3 as u32) << 12
+            | (rd as u32) << 7
+            | addi_opcode;
         buf.extend_from_slice(&encoding.to_le_bytes());
 
         // Save return address if needed
@@ -96,11 +93,11 @@ impl RiscVTarget {
         let addi_opcode = 0x13;
         let funct3 = 0x0;
 
-        let encoding = ((imm & 0xFFF) as u32) << 20 |
-                       (rs1 as u32) << 15 |
-                       (funct3 as u32) << 12 |
-                       (rd as u32) << 7 |
-                       addi_opcode;
+        let encoding = ((imm & 0xFFF) as u32) << 20
+            | (rs1 as u32) << 15
+            | (funct3 as u32) << 12
+            | (rd as u32) << 7
+            | addi_opcode;
         buf.extend_from_slice(&encoding.to_le_bytes());
 
         // jalr x0, x1, 0 (ret)

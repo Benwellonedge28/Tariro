@@ -3,12 +3,12 @@
 //! The integrated cognitive system combining consciousness, working memory,
 //! world model, and motivation into a unified architecture.
 
-
 use crate::cognition::{
-    consciousness::{Consciousness, Thought, ThoughtContent, FocusLevel},
-    working_memory::{WorkingMemory, MentalItem, ItemContent, Context},
-    world_model::{WorldModel, WorldEntity, WorldEntityType},
-    motivation::{MotivationSystem, Goal, GoalType, Emotion, ValueAlignment}};
+    consciousness::{Consciousness, Thought, ThoughtContent},
+    motivation::{Goal, GoalType, MotivationSystem, ValueAlignment},
+    working_memory::{ItemContent, MentalItem, WorkingMemory},
+    world_model::{WorldEntity, WorldEntityType, WorldModel},
+};
 use std::collections::{HashMap, VecDeque};
 
 // ============================================================================
@@ -184,16 +184,20 @@ impl CognitionEngine {
         let config = CognitionConfig::default();
 
         CognitionEngine {
-            consciousness: Consciousness::with_config(crate::cognition::consciousness::ConsciousnessConfig {
-                max_stream_size: config.thought_stream_size,
-                max_insights: 100,
-                insight_threshold: 0.7,
-            }),
-            working_memory: WorkingMemory::with_config(crate::cognition::working_memory::WorkingMemoryConfig {
-                capacity: config.working_memory_capacity,
-                decay_rate: config.memory_decay,
-                ..Default::default()
-            }),
+            consciousness: Consciousness::with_config(
+                crate::cognition::consciousness::ConsciousnessConfig {
+                    max_stream_size: config.thought_stream_size,
+                    max_insights: 100,
+                    insight_threshold: 0.7,
+                },
+            ),
+            working_memory: WorkingMemory::with_config(
+                crate::cognition::working_memory::WorkingMemoryConfig {
+                    capacity: config.working_memory_capacity,
+                    decay_rate: config.memory_decay,
+                    ..Default::default()
+                },
+            ),
             world_model: WorldModel::new(),
             motivation: MotivationSystem::new(),
             config,
@@ -214,12 +218,13 @@ impl CognitionEngine {
                 modality: crate::cognition::working_memory::Modality::Internal,
                 description: perception.clone(),
                 features: vec![],
-            }
+            },
         ));
         self.working_memory.store(item);
 
         // Add to consciousness
-        self.consciousness.attend(Thought::new(ThoughtContent::Perception(perception)));
+        self.consciousness
+            .attend(Thought::new(ThoughtContent::Perception(perception)));
     }
 
     /// Think about something
@@ -229,12 +234,13 @@ impl CognitionEngine {
 
         // Add to working memory
         let item = MentalItem::new(ItemContent::Concept(
-            crate::cognition::working_memory::Concept::new(&thought)
+            crate::cognition::working_memory::Concept::new(&thought),
         ));
         self.working_memory.store(item);
 
         // Add to consciousness
-        self.consciousness.attend(Thought::new(ThoughtContent::Reasoning(thought)));
+        self.consciousness
+            .attend(Thought::new(ThoughtContent::Reasoning(thought)));
     }
 
     /// Plan to achieve a goal
@@ -243,8 +249,7 @@ impl CognitionEngine {
         self.stats.total_plans += 1;
 
         // Create goal
-        let goal = Goal::new(goal_description, GoalType::Achievement)
-            .with_priority(0.8);
+        let goal = Goal::new(goal_description, GoalType::Achievement).with_priority(0.8);
 
         // Add to motivation system
         self.motivation.add_goal(goal);
@@ -261,7 +266,8 @@ impl CognitionEngine {
 
         // Add plan to consciousness
         for step in &plan {
-            self.consciousness.attend(Thought::new(ThoughtContent::Reasoning(step.clone())));
+            self.consciousness
+                .attend(Thought::new(ThoughtContent::Reasoning(step.clone())));
         }
 
         plan
@@ -273,7 +279,8 @@ impl CognitionEngine {
         self.stats.total_decisions += 1;
 
         // Evaluate options against values
-        let mut scored_options: Vec<(&String, f64)> = options.iter()
+        let mut scored_options: Vec<(&String, f64)> = options
+            .iter()
             .map(|opt| {
                 let alignment = self.motivation.evaluate_action(opt);
                 let score = match alignment {
@@ -290,17 +297,22 @@ impl CognitionEngine {
         scored_options.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
 
         // Select best option
-        let decision = scored_options.first()
+        let decision = scored_options
+            .first()
             .map(|(opt, _)| (*opt).clone())
             .unwrap_or_else(|| "No decision possible".to_string());
 
         // Generate emotion
-        let emotion = self.motivation.generate_emotion(&format!("Decision: {}", decision));
+        let emotion = self
+            .motivation
+            .generate_emotion(&format!("Decision: {}", decision));
 
         // Add to consciousness
-        self.consciousness.attend(Thought::new(ThoughtContent::Decision(
-            format!("Chose: {} (confidence: {:.2})", decision, emotion.intensity)
-        )));
+        self.consciousness
+            .attend(Thought::new(ThoughtContent::Decision(format!(
+                "Chose: {} (confidence: {:.2})",
+                decision, emotion.intensity
+            ))));
 
         decision
     }
@@ -311,10 +323,7 @@ impl CognitionEngine {
         self.stats.total_learning += 1;
 
         // Add entity to world model
-        let entity = WorldEntity::new(
-            format!("Learned: {}", knowledge),
-            WorldEntityType::Abstract,
-        );
+        let entity = WorldEntity::new(format!("Learned: {}", knowledge), WorldEntityType::Abstract);
         self.world_model.add_entity(entity);
 
         // Add to working memory
@@ -324,7 +333,7 @@ impl CognitionEngine {
                 emotional_valence: 0.5,
                 importance: 0.7,
                 context: "Learning".to_string(),
-            }
+            },
         ));
         self.working_memory.store(item);
 
@@ -339,7 +348,10 @@ impl CognitionEngine {
         self.stats.total_imaginations += 1;
 
         // Add to consciousness
-        self.consciousness.attend(Thought::new(ThoughtContent::Imagination(scenario.to_string())));
+        self.consciousness
+            .attend(Thought::new(ThoughtContent::Imagination(
+                scenario.to_string(),
+            )));
 
         // Create simulated action
         let action = crate::cognition::world_model::SimulatedAction {
@@ -467,30 +479,44 @@ pub struct CognitionStats {
 
 impl CognitionEngine {
     /// Think using knowledge
-    pub fn reason_with_knowledge(&mut self, question: &str, knowledge_graph: &crate::knowledge::knowledge_graph::KnowledgeGraph) -> String {
+    pub fn reason_with_knowledge(
+        &mut self,
+        question: &str,
+        knowledge_graph: &crate::knowledge::knowledge_graph::KnowledgeGraph,
+    ) -> String {
         self.state.mode = CognitiveMode::Reasoning;
         self.stats.total_thoughts += 1;
 
         // Add question to consciousness
-        self.consciousness.attend(Thought::new(ThoughtContent::Introspection(
-            format!("Question: {}", question)
-        )));
+        self.consciousness
+            .attend(Thought::new(ThoughtContent::Introspection(format!(
+                "Question: {}",
+                question
+            ))));
 
         // Query knowledge graph
         let query = crate::knowledge::reasoning::Query::new();
-        let results = crate::knowledge::reasoning::ReasoningEngine::new(
-            std::sync::Arc::new(std::sync::RwLock::new(knowledge_graph.clone()))
-        ).deduce(&query);
+        let results = crate::knowledge::reasoning::ReasoningEngine::new(std::sync::Arc::new(
+            std::sync::RwLock::new(knowledge_graph.clone()),
+        ))
+        .deduce(&query);
 
         // Format answer
         let answer = if results.deductions.is_empty() {
-            format!("Based on my knowledge, I don't have specific information about: {}", question)
+            format!(
+                "Based on my knowledge, I don't have specific information about: {}",
+                question
+            )
         } else {
-            format!("From my knowledge: Found {} relevant facts", results.deductions.len())
+            format!(
+                "From my knowledge: Found {} relevant facts",
+                results.deductions.len()
+            )
         };
 
         // Add answer to consciousness
-        self.consciousness.attend(Thought::new(ThoughtContent::Reasoning(answer.clone())));
+        self.consciousness
+            .attend(Thought::new(ThoughtContent::Reasoning(answer.clone())));
 
         answer
     }

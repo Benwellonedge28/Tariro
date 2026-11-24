@@ -38,9 +38,7 @@ impl Default for WasmFeatures {
 
 impl WasmTarget {
     pub fn new() -> Self {
-        Self {
-            features: WasmFeatures::default(),
-        }
+        Self { features: WasmFeatures::default() }
     }
 
     /// Generate WebAssembly binary
@@ -236,17 +234,13 @@ impl Target for WasmTarget {
         Ok(TargetCode {
             data: binary,
             relocations: Vec::new(),
-            debug_info: DebugInfo {
-                dwarf: None,
-                source_map: None,
-            },
+            debug_info: DebugInfo { dwarf: None, source_map: None },
         })
     }
 
     fn verify(&self, code: &TargetCode) -> bool {
         // Check magic number
-        code.data.len() >= 8 &&
-        code.data[0..4] == [0x00, 0x61, 0x73, 0x6D]
+        code.data.len() >= 8 && code.data[0..4] == [0x00, 0x61, 0x73, 0x6D]
     }
 }
 
@@ -263,9 +257,7 @@ struct WasmBinary {
 
 impl WasmBinary {
     fn new() -> Self {
-        Self {
-            data: Vec::new(),
-        }
+        Self { data: Vec::new() }
     }
 
     fn len(&self) -> usize {

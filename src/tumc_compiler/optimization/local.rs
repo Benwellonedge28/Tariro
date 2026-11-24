@@ -113,16 +113,6 @@ impl AlgebraicSimplification {
                 }
                 None
             }
-            // x * 0 = 0
-            Operation::Binary(BinOp::Mul, _, rhs) => {
-                if *rhs == ValueId(0) {
-                    return Some(Operation::Const(
-                        Box::new(Const::Int(0)),
-                        IrType::Int32,
-                    ));
-                }
-                None
-            }
             _ => None,
         }
     }
@@ -190,9 +180,9 @@ impl OptimizationPass for DeadCodeElimination {
                 // Remove dead instructions
                 for block in &mut func.body {
                     let original_len = block.instructions.len();
-                    block.instructions.retain(|inst| {
-                        live.contains(&inst.id) || !is_pure_instruction(&inst.op)
-                    });
+                    block
+                        .instructions
+                        .retain(|inst| live.contains(&inst.id) || !is_pure_instruction(&inst.op));
 
                     if block.instructions.len() < original_len {
                         changed = true;
@@ -250,12 +240,8 @@ impl OptimizationPass for CommonSubexpressionElimination {
 impl CommonSubexpressionElimination {
     fn hash_instruction(&self, inst: &Instruction) -> Option<ExpressionHash> {
         match &inst.op {
-            Operation::Binary(op, lhs, rhs) => {
-                Some(ExpressionHash::Binary(*op, *lhs, *rhs))
-            }
-            Operation::Unary(op, operand) => {
-                Some(ExpressionHash::Unary(*op, *operand))
-            }
+            Operation::Binary(op, lhs, rhs) => Some(ExpressionHash::Binary(*op, *lhs, *rhs)),
+            Operation::Unary(op, operand) => Some(ExpressionHash::Unary(*op, *operand)),
             _ => None,
         }
     }

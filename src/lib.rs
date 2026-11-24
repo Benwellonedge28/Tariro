@@ -7,8 +7,8 @@
 // Prelude - Common types available to all modules
 // ============================================================================
 pub mod prelude {
-    pub use chrono::{DateTime, Utc, TimeZone, Duration as ChronoDuration};
     pub use chrono::serde::ts_seconds;
+    pub use chrono::{DateTime, Duration as ChronoDuration, TimeZone, Utc};
 }
 
 // ============================================================================
@@ -19,27 +19,27 @@ pub mod serde_utils;
 // ============================================================================
 // Core Framework Modules
 // ============================================================================
-pub mod fco;
-pub mod runtime;
-pub mod compiler;
 pub mod atve;
-pub mod nioam;
+pub mod compiler;
+pub mod fco;
 pub mod governance;
-pub mod learning;
 pub mod growth;
-pub mod orchestration;
+pub mod learning;
+pub mod nioam;
 pub mod ontology;
+pub mod orchestration;
+pub mod runtime;
 pub mod sandbox;
 
 // ============================================================================
 // System Support Modules
 // ============================================================================
 pub mod config;
-pub mod telemetry;
-pub mod event_bus;
 pub mod database;
 pub mod deployment;
+pub mod event_bus;
 pub mod quantum_security;
+pub mod telemetry;
 
 // ============================================================================
 // Autonomy & Self-Modification
@@ -159,6 +159,7 @@ pub mod addmm_engine;
 pub mod admc_engine;
 pub mod admin;
 pub mod admin_chatbot;
+pub mod admin_omniversal_control;
 pub mod advanced_rag_module;
 pub mod aeai_engine;
 pub mod aedmcr_engine;
@@ -173,33 +174,32 @@ pub mod agi_project_manager;
 pub mod agi_replication;
 pub mod agi_swarm;
 pub mod agita_engine;
-pub mod admin_omniversal_control;
 
 // ============================================================================
 // AGI Core Systems
 // ============================================================================
+pub mod agency;
 pub mod causal_reasoning_engine;
-pub mod world_model;
+pub mod common_sense_reasoning;
 pub mod consciousness;
 pub mod continuous_learning;
-pub mod agency;
-pub mod neural_symbolic_integration;
-pub mod unified_memory;
-pub mod common_sense_reasoning;
-pub mod executive_function;
-pub mod perceptual_processing;
-pub mod emotional_architecture;
 pub mod deep_language_understanding;
+pub mod emotional_architecture;
+pub mod executive_function;
 pub mod meta_cognition;
+pub mod neural_symbolic_integration;
+pub mod perceptual_processing;
+pub mod unified_memory;
+pub mod world_model;
 
 // ============================================================================
 // Safety & Alignment Modules
 // ============================================================================
-pub mod value_alignment;
 pub mod constitutional_ai;
-pub mod safety_constraints;
 pub mod interruptibility;
+pub mod safety_constraints;
 pub mod shutdown_mechanism;
+pub mod value_alignment;
 
 // ============================================================================
 // Autonomy & Agency Modules
@@ -211,8 +211,8 @@ pub mod tool_use;
 // ============================================================================
 // Ethics & Explainability Modules
 // ============================================================================
-pub mod moral_reasoning;
 pub mod explainability;
+pub mod moral_reasoning;
 pub mod privacy_preservation;
 
 // ============================================================================
@@ -230,23 +230,23 @@ pub mod working_memory;
 // ============================================================================
 // Advanced Planning Modules
 // ============================================================================
+pub mod counterfactual_reasoning;
 pub mod htn_planning;
 pub mod mcts_planning;
-pub mod counterfactual_reasoning;
 
 // ============================================================================
 // Advanced Learning Modules
 // ============================================================================
 pub mod causal_learning;
-pub mod self_supervised_learning;
 pub mod few_shot_learning;
+pub mod self_supervised_learning;
 
 // ============================================================================
 // Consciousness & Social Cognition
 // ============================================================================
 pub mod consciousness_engine;
-pub mod theory_of_mind;
 pub mod creativity_engine;
+pub mod theory_of_mind;
 
 // ============================================================================
 // Security & Sovereignty Modules
@@ -339,10 +339,14 @@ impl PartialOrd for Infinitism {
 impl Ord for Infinitism {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         match (self, other) {
-            (Infinitism::NegativeInfinity, Infinitism::NegativeInfinity) => std::cmp::Ordering::Equal,
+            (Infinitism::NegativeInfinity, Infinitism::NegativeInfinity) => {
+                std::cmp::Ordering::Equal
+            }
             (Infinitism::NegativeInfinity, _) => std::cmp::Ordering::Less,
             (_, Infinitism::NegativeInfinity) => std::cmp::Ordering::Greater,
-            (Infinitism::PositiveInfinity, Infinitism::PositiveInfinity) => std::cmp::Ordering::Equal,
+            (Infinitism::PositiveInfinity, Infinitism::PositiveInfinity) => {
+                std::cmp::Ordering::Equal
+            }
             (Infinitism::PositiveInfinity, _) => std::cmp::Ordering::Greater,
             (_, Infinitism::PositiveInfinity) => std::cmp::Ordering::Less,
             (Infinitism::Finite(a), Infinitism::Finite(b)) => a.cmp(b),
@@ -431,8 +435,10 @@ impl TariroAGI {
         println!();
         println!("System Status:");
         println!("  - Total Engines: {}", status.engine_count);
-        println!("  - Active Modules: {}/{}",
-            status.modules_initialized, status.modules_total);
+        println!(
+            "  - Active Modules: {}/{}",
+            status.modules_initialized, status.modules_total
+        );
         println!("  - Files Integrated: {}", status.file_count);
         println!();
         println!("Tariro AGI System initialized successfully.");
@@ -462,7 +468,10 @@ impl TariroAGI {
     }
 
     /// Process an intent through the unified TUMC-AGI orchestrator (Full Integration)
-    pub fn process_unified(&mut self, intent: crate::unified::Intent) -> Result<crate::unified::UnifiedResult, String> {
+    pub fn process_unified(
+        &mut self,
+        intent: crate::unified::Intent,
+    ) -> Result<crate::unified::UnifiedResult, String> {
         self.metadata.total_processed_intents += 1;
         self.unified_orchestrator.process_unified_intent(intent)
     }
@@ -485,9 +494,7 @@ impl TariroAGI {
     pub fn get_status(&self) -> String {
         format!(
             "Tariro AGI v{} | Uptime: {} mts | Processed: {} intents",
-            self.metadata.version,
-            self.metadata.uptime_mts,
-            self.metadata.total_processed_intents
+            self.metadata.version, self.metadata.uptime_mts, self.metadata.total_processed_intents
         )
     }
 
@@ -558,30 +565,20 @@ impl Default for TariroAGI {
 }
 
 // Re-exports
-pub use crate::tumc_core::TariroUniversalMetaCompiler;
-pub use crate::fco::MukandaraState;
-pub use crate::growth::GrowthDynamics;
 pub use crate::atve::TestResult;
 pub use crate::config::AGIConfig;
+pub use crate::fco::MukandaraState;
+pub use crate::growth::GrowthDynamics;
+pub use crate::tumc_core::TariroUniversalMetaCompiler;
 
 // TUMC-AGI Unified System Re-exports
 pub use crate::unified::{
-    TariroUnifiedOrchestrator,
-    UnifiedConfig,
-    Intent,
-    IntentType,
-    UnifiedResult,
-    UnifiedStatus,
-    create_tariro_unified};
+    create_tariro_unified, Intent, IntentType, TariroUnifiedOrchestrator, UnifiedConfig,
+    UnifiedResult, UnifiedStatus,
+};
 
 // Integration System Re-exports
 pub use crate::unified::{
-    TariroIntegration,
-    EngineRegistry,
-    EngineMetadata,
-    EngineCategory,
-    EngineStatistics,
-    SystemStatus as IntegrationSystemStatus,
-    SystemHealth,
-    CapabilityProfile,
-    CapabilityLevel};
+    CapabilityLevel, CapabilityProfile, EngineCategory, EngineMetadata, EngineRegistry,
+    EngineStatistics, SystemHealth, SystemStatus as IntegrationSystemStatus, TariroIntegration,
+};

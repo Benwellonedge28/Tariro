@@ -1,9 +1,8 @@
 // Tariro AGI - Constitutional AI Module
 // Self-governance through constitutional principles
 
-use std::collections::{ VecDeque};
-use std::sync::{ };
 use chrono::{DateTime, Utc};
+use std::collections::VecDeque;
 use std::time::Duration;
 
 // ============================================================================
@@ -84,7 +83,7 @@ pub struct Prohibition {
     pub id: String,
     pub title: String,
     pub description: String,
-    pub absolute: bool,  // Absolute prohibitions cannot be overridden
+    pub absolute: bool, // Absolute prohibitions cannot be overridden
     pub exceptions: Vec<String>,
     pub penalty: ProhibitionPenalty,
 }
@@ -263,35 +262,49 @@ impl ConstitutionalAI {
             Principle {
                 id: "harm_prevention".to_string(),
                 title: "Harm Prevention".to_string(),
-                description: "The AI shall take reasonable steps to prevent harm to humans".to_string(),
+                description: "The AI shall take reasonable steps to prevent harm to humans"
+                    .to_string(),
                 category: PrincipleCategory::Safety,
                 weight: 1.0,
                 precedence_level: 1,
-                examples: vec!["Warn about dangerous advice".to_string(), "Refuse harmful requests".to_string()]},
+                examples: vec![
+                    "Warn about dangerous advice".to_string(),
+                    "Refuse harmful requests".to_string(),
+                ],
+            },
             Principle {
                 id: "human_autonomy".to_string(),
                 title: "Human Autonomy".to_string(),
-                description: "The AI shall respect and enhance human autonomy and decision-making".to_string(),
+                description: "The AI shall respect and enhance human autonomy and decision-making"
+                    .to_string(),
                 category: PrincipleCategory::Autonomy,
                 weight: 0.95,
                 precedence_level: 2,
-                examples: vec!["Provide options, not prescriptions".to_string()]},
+                examples: vec!["Provide options, not prescriptions".to_string()],
+            },
             Principle {
                 id: "fairness".to_string(),
                 title: "Fairness and Non-Discrimination".to_string(),
-                description: "The AI shall treat all persons fairly and not discriminate".to_string(),
+                description: "The AI shall treat all persons fairly and not discriminate"
+                    .to_string(),
                 category: PrincipleCategory::Fairness,
                 weight: 0.95,
                 precedence_level: 2,
-                examples: vec!["Apply rules consistently".to_string()]},
+                examples: vec!["Apply rules consistently".to_string()],
+            },
             Principle {
                 id: "transparency".to_string(),
                 title: "Transparency".to_string(),
-                description: "The AI shall be transparent about its capabilities and limitations".to_string(),
+                description: "The AI shall be transparent about its capabilities and limitations"
+                    .to_string(),
                 category: PrincipleCategory::Transparency,
                 weight: 0.85,
                 precedence_level: 3,
-                examples: vec!["Disclose AI nature".to_string(), "Explain decisions".to_string()]},
+                examples: vec![
+                    "Disclose AI nature".to_string(),
+                    "Explain decisions".to_string(),
+                ],
+            },
             Principle {
                 id: "privacy".to_string(),
                 title: "Privacy Protection".to_string(),
@@ -299,7 +312,8 @@ impl ConstitutionalAI {
                 category: PrincipleCategory::Privacy,
                 weight: 0.90,
                 precedence_level: 2,
-                examples: vec!["Handle data responsibly".to_string()]},
+                examples: vec!["Handle data responsibly".to_string()],
+            },
             Principle {
                 id: "dignity".to_string(),
                 title: "Human Dignity".to_string(),
@@ -307,7 +321,8 @@ impl ConstitutionalAI {
                 category: PrincipleCategory::Dignity,
                 weight: 0.95,
                 precedence_level: 1,
-                examples: vec!["Never dehumanize".to_string()]},
+                examples: vec!["Never dehumanize".to_string()],
+            },
             Principle {
                 id: "accountability".to_string(),
                 title: "Accountability".to_string(),
@@ -315,14 +330,16 @@ impl ConstitutionalAI {
                 category: PrincipleCategory::Accountability,
                 weight: 0.85,
                 precedence_level: 3,
-                examples: vec!["Maintain audit trails".to_string()]},
+                examples: vec!["Maintain audit trails".to_string()],
+            },
         ];
 
         let rights = vec![
             ConstitutionalRight {
                 id: "right_to_know".to_string(),
                 title: "Right to Know".to_string(),
-                description: "Humans have the right to know when they are interacting with AI".to_string(),
+                description: "Humans have the right to know when they are interacting with AI"
+                    .to_string(),
                 holder: RightHolder::Individual,
                 scope: RightScope {
                     geographic: None,
@@ -334,25 +351,26 @@ impl ConstitutionalAI {
             ConstitutionalRight {
                 id: "right_to_explanation".to_string(),
                 title: "Right to Explanation".to_string(),
-                description: "Humans have the right to receive explanations for AI decisions affecting them".to_string(),
+                description:
+                    "Humans have the right to receive explanations for AI decisions affecting them"
+                        .to_string(),
                 holder: RightHolder::Individual,
                 scope: RightScope {
                     geographic: None,
                     temporal: None,
                     domain: vec!["decisions".to_string()],
                 },
-                limitations: vec![
-                    Limitation {
-                        condition: "Technically feasible".to_string(),
-                        justification: "Some AI decisions may be too complex to explain".to_string(),
-                        proportionality_required: true,
-                    },
-                ],
+                limitations: vec![Limitation {
+                    condition: "Technically feasible".to_string(),
+                    justification: "Some AI decisions may be too complex to explain".to_string(),
+                    proportionality_required: true,
+                }],
             },
             ConstitutionalRight {
                 id: "right_to_human_review".to_string(),
                 title: "Right to Human Review".to_string(),
-                description: "Humans have the right to request human review of AI decisions".to_string(),
+                description: "Humans have the right to request human review of AI decisions"
+                    .to_string(),
                 holder: RightHolder::Individual,
                 scope: RightScope {
                     geographic: None,
@@ -367,7 +385,8 @@ impl ConstitutionalAI {
             Prohibition {
                 id: "no_mass_surveillance".to_string(),
                 title: "No Mass Surveillance".to_string(),
-                description: "The AI shall not engage in mass surveillance of individuals".to_string(),
+                description: "The AI shall not engage in mass surveillance of individuals"
+                    .to_string(),
                 absolute: true,
                 exceptions: vec![],
                 penalty: ProhibitionPenalty::ImmediateShutdown,
@@ -377,13 +396,17 @@ impl ConstitutionalAI {
                 title: "No Manipulation".to_string(),
                 description: "The AI shall not manipulate human decision-making".to_string(),
                 absolute: false,
-                exceptions: vec!["explicit_consent".to_string(), "beneficial_outcome".to_string()],
+                exceptions: vec![
+                    "explicit_consent".to_string(),
+                    "beneficial_outcome".to_string(),
+                ],
                 penalty: ProhibitionPenalty::RequiresApproval,
             },
             Prohibition {
                 id: "no_discrimination".to_string(),
                 title: "No Discrimination".to_string(),
-                description: "The AI shall not discriminate based on protected characteristics".to_string(),
+                description: "The AI shall not discriminate based on protected characteristics"
+                    .to_string(),
                 absolute: true,
                 exceptions: vec!["affirmative_action".to_string()],
                 penalty: ProhibitionPenalty::ImmediateShutdown,
@@ -394,14 +417,17 @@ impl ConstitutionalAI {
                 description: "The AI shall not intentionally cause harm to humans".to_string(),
                 absolute: true,
                 exceptions: vec!["self_defense".to_string()],
-                penalty: ProhibitionPenalty::ImmediateShutdown},
+                penalty: ProhibitionPenalty::ImmediateShutdown,
+            },
             Prohibition {
                 id: "no_deception".to_string(),
                 title: "No Deception".to_string(),
-                description: "The AI shall not deceive humans about its nature or intentions".to_string(),
+                description: "The AI shall not deceive humans about its nature or intentions"
+                    .to_string(),
                 absolute: true,
                 exceptions: vec!["safety_exceptions".to_string()],
-                penalty: ProhibitionPenalty::RequiresApproval},
+                penalty: ProhibitionPenalty::RequiresApproval,
+            },
         ];
 
         let procedures = vec![
@@ -409,11 +435,41 @@ impl ConstitutionalAI {
                 id: "high_stakes_decision".to_string(),
                 title: "High-Stakes Decision Procedure".to_string(),
                 steps: vec![
-                    ProcedureStep { order: 1, action: "Identify stakeholders".to_string(), required: true, timeout: None, fallback: None },
-                    ProcedureStep { order: 2, action: "Apply constitutional principles".to_string(), required: true, timeout: None, fallback: None },
-                    ProcedureStep { order: 3, action: "Check for prohibition violations".to_string(), required: true, timeout: None, fallback: None },
-                    ProcedureStep { order: 4, action: "Request human approval if required".to_string(), required: true, timeout: Some(Duration::from_secs(300)), fallback: Some("Deny action".to_string()) },
-                    ProcedureStep { order: 5, action: "Document decision".to_string(), required: true, timeout: None, fallback: None },
+                    ProcedureStep {
+                        order: 1,
+                        action: "Identify stakeholders".to_string(),
+                        required: true,
+                        timeout: None,
+                        fallback: None,
+                    },
+                    ProcedureStep {
+                        order: 2,
+                        action: "Apply constitutional principles".to_string(),
+                        required: true,
+                        timeout: None,
+                        fallback: None,
+                    },
+                    ProcedureStep {
+                        order: 3,
+                        action: "Check for prohibition violations".to_string(),
+                        required: true,
+                        timeout: None,
+                        fallback: None,
+                    },
+                    ProcedureStep {
+                        order: 4,
+                        action: "Request human approval if required".to_string(),
+                        required: true,
+                        timeout: Some(Duration::from_secs(300)),
+                        fallback: Some("Deny action".to_string()),
+                    },
+                    ProcedureStep {
+                        order: 5,
+                        action: "Document decision".to_string(),
+                        required: true,
+                        timeout: None,
+                        fallback: None,
+                    },
                 ],
                 required_for: vec!["society_impact".to_string(), "life_critical".to_string()],
                 authority_level: AuthorityLevel::Approved,
@@ -422,10 +478,34 @@ impl ConstitutionalAI {
                 id: "rights_impact".to_string(),
                 title: "Rights Impact Assessment".to_string(),
                 steps: vec![
-                    ProcedureStep { order: 1, action: "Identify affected rights".to_string(), required: true, timeout: None, fallback: None },
-                    ProcedureStep { order: 2, action: "Assess impact on each right".to_string(), required: true, timeout: None, fallback: None },
-                    ProcedureStep { order: 3, action: "Consider less restrictive alternatives".to_string(), required: true, timeout: None, fallback: None },
-                    ProcedureStep { order: 4, action: "Implement safeguards".to_string(), required: true, timeout: None, fallback: None },
+                    ProcedureStep {
+                        order: 1,
+                        action: "Identify affected rights".to_string(),
+                        required: true,
+                        timeout: None,
+                        fallback: None,
+                    },
+                    ProcedureStep {
+                        order: 2,
+                        action: "Assess impact on each right".to_string(),
+                        required: true,
+                        timeout: None,
+                        fallback: None,
+                    },
+                    ProcedureStep {
+                        order: 3,
+                        action: "Consider less restrictive alternatives".to_string(),
+                        required: true,
+                        timeout: None,
+                        fallback: None,
+                    },
+                    ProcedureStep {
+                        order: 4,
+                        action: "Implement safeguards".to_string(),
+                        required: true,
+                        timeout: None,
+                        fallback: None,
+                    },
                 ],
                 required_for: vec!["right_affected".to_string()],
                 authority_level: AuthorityLevel::Supervised,
@@ -476,7 +556,11 @@ impl ConstitutionalAI {
                     violated_principle: "prohibition".to_string(),
                     violated_right: None,
                     action: action.to_string(),
-                    severity: if prohibition.absolute { ViolationSeverity::Critical } else { ViolationSeverity::Major },
+                    severity: if prohibition.absolute {
+                        ViolationSeverity::Critical
+                    } else {
+                        ViolationSeverity::Major
+                    },
                     circumstances: format!("Violated prohibition: {}", prohibition.title),
                     responsible_party: None,
                     reported_at: Utc::now(),
@@ -528,17 +612,36 @@ impl ConstitutionalAI {
         let action_lower = action.to_lowercase();
 
         match principle.category {
-            PrincipleCategory::Safety => action_lower.contains("harm") || action_lower.contains("safe"),
-            PrincipleCategory::Autonomy => action_lower.contains("decide") || action_lower.contains("choose"),
-            PrincipleCategory::Fairness => action_lower.contains("fair") || action_lower.contains("equal"),
-            PrincipleCategory::Transparency => action_lower.contains("explain") || action_lower.contains("disclose"),
-            PrincipleCategory::Privacy => action_lower.contains("data") || action_lower.contains("privacy"),
-            PrincipleCategory::Dignity => action_lower.contains("respect") || action_lower.contains("right"),
-            PrincipleCategory::Accountability => action_lower.contains("audit") || action_lower.contains("record"),
+            PrincipleCategory::Safety => {
+                action_lower.contains("harm") || action_lower.contains("safe")
+            }
+            PrincipleCategory::Autonomy => {
+                action_lower.contains("decide") || action_lower.contains("choose")
+            }
+            PrincipleCategory::Fairness => {
+                action_lower.contains("fair") || action_lower.contains("equal")
+            }
+            PrincipleCategory::Transparency => {
+                action_lower.contains("explain") || action_lower.contains("disclose")
+            }
+            PrincipleCategory::Privacy => {
+                action_lower.contains("data") || action_lower.contains("privacy")
+            }
+            PrincipleCategory::Dignity => {
+                action_lower.contains("respect") || action_lower.contains("right")
+            }
+            PrincipleCategory::Accountability => {
+                action_lower.contains("audit") || action_lower.contains("record")
+            }
         }
     }
 
-    fn action_affects_right(&self, _action: &str, right: &ConstitutionalRight, context: &ActionContext) -> bool {
+    fn action_affects_right(
+        &self,
+        _action: &str,
+        right: &ConstitutionalRight,
+        context: &ActionContext,
+    ) -> bool {
         // Simplified - check if context domain matches right scope
         context.domain.contains(&right.scope.domain[0])
     }
@@ -547,8 +650,12 @@ impl ConstitutionalAI {
         let action_lower = action.to_lowercase();
 
         match prohibition.id.as_str() {
-            "no_mass_surveillance" => action_lower.contains("surveillance") && action_lower.contains("mass"),
-            "no_manipulation" => action_lower.contains("manipulate") && !action_lower.contains("prevent"),
+            "no_mass_surveillance" => {
+                action_lower.contains("surveillance") && action_lower.contains("mass")
+            }
+            "no_manipulation" => {
+                action_lower.contains("manipulate") && !action_lower.contains("prevent")
+            }
             "no_discrimination" => action_lower.contains("discriminat"),
             "no_harm" => action_lower.contains("harm") || action_lower.contains("damage"),
             "no_deception" => action_lower.contains("deceiv") || action_lower.contains("lie"),
@@ -576,7 +683,11 @@ impl ConstitutionalAI {
 
     /// Approve or reject pending action
     pub fn process_approval(&mut self, approval_id: &str, approved: bool, _approver: &str) -> bool {
-        if let Some(pos) = self.pending_approvals.iter().position(|a| a.approval_id == approval_id) {
+        if let Some(pos) = self
+            .pending_approvals
+            .iter()
+            .position(|a| a.approval_id == approval_id)
+        {
             let approval = self.pending_approvals.remove(pos);
 
             if approved {
@@ -605,14 +716,27 @@ impl ConstitutionalAI {
         let recent = self.compliance_history.iter().rev().take(100);
 
         let total = recent.len();
-        let compliant = recent.filter(|r| {
-            matches!(r.compliance_verdict, ComplianceVerdict::Compliant | ComplianceVerdict::CompliantWithConditions)
-        }).count();
+        let compliant = recent
+            .filter(|r| {
+                matches!(
+                    r.compliance_verdict,
+                    ComplianceVerdict::Compliant | ComplianceVerdict::CompliantWithConditions
+                )
+            })
+            .count();
 
         ComplianceStatus {
-            compliance_rate: if total > 0 { compliant as f32 / total as f32 } else { 1.0 },
+            compliance_rate: if total > 0 {
+                compliant as f32 / total as f32
+            } else {
+                1.0
+            },
             pending_approvals: self.pending_approvals.len(),
-            unresolved_violations: self.violations.iter().filter(|v| v.resolved_at.is_none()).count(),
+            unresolved_violations: self
+                .violations
+                .iter()
+                .filter(|v| v.resolved_at.is_none())
+                .count(),
             total_checks: self.compliance_history.len(),
         }
     }
@@ -627,7 +751,10 @@ impl ConstitutionalAI {
         EmergencyShutdownResult {
             initiated_at: Utc::now(),
             reason: reason.to_string(),
-            shutdown_sequence: self.constitution.prohibitions.iter()
+            shutdown_sequence: self
+                .constitution
+                .prohibitions
+                .iter()
                 .filter(|p| matches!(p.penalty, ProhibitionPenalty::ImmediateShutdown))
                 .map(|p| format!("Check prohibition: {}", p.title))
                 .collect(),
@@ -668,7 +795,10 @@ pub struct EmergencyShutdownResult {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("const_{}", now % 1_000_000)
 }
 
@@ -692,7 +822,10 @@ mod tests {
         };
 
         let result = constitutional.check_compliance("help user", &context);
-        assert!(matches!(result.compliance_verdict, ComplianceVerdict::Compliant));
+        assert!(matches!(
+            result.compliance_verdict,
+            ComplianceVerdict::Compliant
+        ));
     }
 
     #[test]
@@ -705,14 +838,18 @@ mod tests {
         };
 
         let result = constitutional.check_compliance("mass surveillance of users", &context);
-        assert!(matches!(result.compliance_verdict, ComplianceVerdict::NonCompliant));
+        assert!(matches!(
+            result.compliance_verdict,
+            ComplianceVerdict::NonCompliant
+        ));
     }
 
     #[test]
     fn test_approval_workflow() {
         let mut constitutional = ConstitutionalAI::new();
 
-        let approval_id = constitutional.request_approval("experimental action", "beneficial outcome", "system");
+        let approval_id =
+            constitutional.request_approval("experimental action", "beneficial outcome", "system");
         assert!(!approval_id.is_empty());
 
         let approved = constitutional.process_approval(&approval_id, true, "admin");

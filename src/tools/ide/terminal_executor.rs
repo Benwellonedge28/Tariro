@@ -2,9 +2,8 @@
 //!
 //! Handles terminal command execution for the IDE tool.
 
-use std::process::{Command, Stdio};
 use std::path::Path;
-
+use std::process::{Command, Stdio};
 
 /// Command execution result
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -94,9 +93,9 @@ impl TerminalExecutor {
         timeout_seconds: u64,
         max_output: usize,
     ) -> Result<CommandResult, String> {
-        use std::time::Duration;
-        use std::thread;
         use std::sync::mpsc;
+        use std::thread;
+        use std::time::Duration;
 
         let command = command.to_string();
         let cwd = cwd.to_string();
@@ -128,9 +127,7 @@ impl TerminalExecutor {
         #[cfg(not(target_os = "windows"))]
         let which_cmd = "which";
 
-        let result = Command::new(which_cmd)
-            .arg(command)
-            .output();
+        let result = Command::new(which_cmd).arg(command).output();
 
         result.map(|o| o.status.success()).unwrap_or(false)
     }

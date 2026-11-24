@@ -1,8 +1,8 @@
 // Tariro AGI - Trusted Execution Environment Module
 // Hardware-backed security for sovereign AI operations
 
-use std::collections::HashMap;
 use chrono::{DateTime, Utc};
+use std::collections::HashMap;
 use std::time::Duration;
 
 // ============================================================================
@@ -485,11 +485,7 @@ impl TEEEngine {
             tee_type: config.tee_type,
             enclave_manager: EnclaveManager {
                 enclaves: HashMap::new(),
-                supported_types: vec![
-                    TEEType::IntelSGX,
-                    TEEType::ARMTrustZone,
-                    TEEType::AWSNitro,
-                ],
+                supported_types: vec![TEEType::IntelSGX, TEEType::ARMTrustZone, TEEType::AWSNitro],
                 hardware_features: HardwareFeatures {
                     sgx_available: true,
                     sgx_version: Some("2.0".to_string()),
@@ -577,7 +573,7 @@ impl TEEEngine {
     }
 
     /// Create enclave
-    pub fn create_enclave(&mut self, name: &str, memory_mb: usize) -> Result<String, TEEError> {
+    pub fn create_enclave(&mut self, _name: &str, memory_mb: usize) -> Result<String, TEEError> {
         let enclave_id = generate_id();
 
         let enclave = Enclave {
@@ -602,14 +598,19 @@ impl TEEEngine {
             ],
         };
 
-        self.enclave_manager.enclaves.insert(enclave_id.clone(), enclave);
+        self.enclave_manager
+            .enclaves
+            .insert(enclave_id.clone(), enclave);
 
         Ok(enclave_id)
     }
 
     /// Generate attestation quote
     pub fn generate_attestation(&self, enclave_id: &str) -> Result<AttestationEvidence, TEEError> {
-        let enclave = self.enclave_manager.enclaves.get(enclave_id)
+        let enclave = self
+            .enclave_manager
+            .enclaves
+            .get(enclave_id)
             .ok_or(TEEError::EnclaveNotFound)?;
 
         if enclave.state != EnclaveState::Running {
@@ -660,7 +661,9 @@ impl TEEEngine {
         };
 
         // Verify measurement matches
-        let measurement_valid = evidence.quote.starts_with(enclave.measurements.mr_enclave.as_bytes());
+        let measurement_valid = evidence
+            .quote
+            .starts_with(enclave.measurements.mr_enclave.as_bytes());
 
         VerificationResult {
             is_valid: measurement_valid,
@@ -673,14 +676,12 @@ impl TEEEngine {
             tcb_status: TCBStatus {
                 tcb_level: "UpToDate".to_string(),
                 tcb_date: "2024-01-01".to_string(),
-                components: vec![
-                    TCBComponent {
-                        component_name: "CPU".to_string(),
-                        version: "1.0".to_string(),
-                        svn: 1,
-                        status: ComponentStatus::UpToDate,
-                    },
-                ],
+                components: vec![TCBComponent {
+                    component_name: "CPU".to_string(),
+                    version: "1.0".to_string(),
+                    svn: 1,
+                    status: ComponentStatus::UpToDate,
+                }],
                 is_up_to_date: true,
             },
             signature_valid: measurement_valid,
@@ -691,7 +692,10 @@ impl TEEEngine {
 
     /// Seal data for enclave
     pub fn seal_data(&mut self, enclave_id: &str, data: &[u8]) -> Result<SealedData, TEEError> {
-        let enclave = self.enclave_manager.enclaves.get(enclave_id)
+        let enclave = self
+            .enclave_manager
+            .enclaves
+            .get(enclave_id)
             .ok_or(TEEError::EnclaveNotFound)?;
 
         // Generate sealed blob (simplified)
@@ -721,7 +725,10 @@ impl TEEEngine {
 
     /// Unseal data
     pub fn unseal_data(&self, enclave_id: &str, sealed: &SealedData) -> Result<Vec<u8>, TEEError> {
-        let enclave = self.enclave_manager.enclaves.get(enclave_id)
+        let enclave = self
+            .enclave_manager
+            .enclaves
+            .get(enclave_id)
             .ok_or(TEEError::EnclaveNotFound)?;
 
         // Verify sealing policy
@@ -742,7 +749,10 @@ impl TEEEngine {
 
     /// Generate secure random
     pub fn generate_random(&self, enclave_id: &str, length: usize) -> Result<Vec<u8>, TEEError> {
-        let _enclave = self.enclave_manager.enclaves.get(enclave_id)
+        let _enclave = self
+            .enclave_manager
+            .enclaves
+            .get(enclave_id)
             .ok_or(TEEError::EnclaveNotFound)?;
 
         // Generate random bytes
@@ -755,8 +765,16 @@ impl TEEEngine {
     }
 
     /// Generate encryption key
-    pub fn generate_key(&mut self, enclave_id: &str, key_type: KeyType, size_bits: usize) -> Result<String, TEEError> {
-        let _enclave = self.enclave_manager.enclaves.get(enclave_id)
+    pub fn generate_key(
+        &mut self,
+        enclave_id: &str,
+        key_type: KeyType,
+        size_bits: usize,
+    ) -> Result<String, TEEError> {
+        let _enclave = self
+            .enclave_manager
+            .enclaves
+            .get(enclave_id)
             .ok_or(TEEError::EnclaveNotFound)?;
 
         let key_id = generate_id();
@@ -814,13 +832,19 @@ impl std::fmt::Display for TEEError {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("tee_{}", now % 1_000_000)
 }
 
 fn generate_measurement() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("{:032x}", now)
 }
 

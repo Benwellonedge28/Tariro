@@ -1,9 +1,7 @@
 //! Optimization passes for TUMC compiler
 //! Implements various optimizations for improved code quality and performance
 
-
 use super::ast::{self, *};
-
 
 /// Errors that can occur during optimization.
 ///
@@ -26,7 +24,6 @@ impl std::error::Error for OptimizerError {}
 /// This is the same level type the pass manager uses, so a level can be handed
 /// from the compiler to the optimizer without translating it.
 pub use super::optimization::OptLevel as OptimizationLevel;
-
 
 /// Statistics about optimizations applied
 #[derive(Debug, Clone, Default)]
@@ -113,7 +110,10 @@ impl Optimizer {
             return;
         }
 
-        println!("TUMC: Optimizer - Running optimization passes at level {:?}", self.level);
+        println!(
+            "TUMC: Optimizer - Running optimization passes at level {:?}",
+            self.level
+        );
 
         // Run passes in order of effectiveness/safety
         self.eliminate_dead_code(program);
@@ -124,7 +124,10 @@ impl Optimizer {
         self.simplify_expressions(program);
         self.remove_unreachable_blocks(program);
 
-        println!("TUMC: Optimizer - Optimization complete. Stats: {:?}", self.stats);
+        println!(
+            "TUMC: Optimizer - Optimization complete. Stats: {:?}",
+            self.stats
+        );
     }
 
     /// Get optimization statistics
@@ -315,9 +318,10 @@ impl Optimizer {
             }
 
             // String concatenation
-            (BinOp::Add, Literal::String(a), Literal::String(b)) => {
-                Some(Expr::new_literal(Literal::String(format!("{}{}", a, b)), lhs.span.clone()))
-            }
+            (BinOp::Add, Literal::String(a), Literal::String(b)) => Some(Expr::new_literal(
+                Literal::String(format!("{}{}", a, b)),
+                lhs.span.clone(),
+            )),
 
             // Comparisons
             (BinOp::Eq, Literal::Int(a), Literal::Int(b)) => {
@@ -348,10 +352,14 @@ impl Optimizer {
             }
 
             // Division by constant powers of 2 -> shift
-            (BinOp::Div, Literal::Int(a), Literal::Int(b)) if (*b as u64).is_power_of_two() && *b > 0 => {
+            (BinOp::Div, Literal::Int(a), Literal::Int(b))
+                if (*b as u64).is_power_of_two() && *b > 0 =>
+            {
                 Some(Expr::new_literal(Literal::Int(a / b), lhs.span.clone()))
             }
-            (BinOp::Mod, Literal::Int(a), Literal::Int(b)) if (*b as u64).is_power_of_two() && *b > 0 => {
+            (BinOp::Mod, Literal::Int(a), Literal::Int(b))
+                if (*b as u64).is_power_of_two() && *b > 0 =>
+            {
                 Some(Expr::new_literal(Literal::Int(a % b), lhs.span.clone()))
             }
 
@@ -366,10 +374,18 @@ impl Optimizer {
         };
 
         match (op, &lit) {
-            (UnOp::Neg, Literal::Int(n)) => Some(Expr::new_literal(Literal::Int(-n), operand.span.clone())),
-            (UnOp::Neg, Literal::Float(n)) => Some(Expr::new_literal(Literal::Float(-n), operand.span.clone())),
-            (UnOp::Not, Literal::Bool(b)) => Some(Expr::new_literal(Literal::Bool(!b), operand.span.clone())),
-            (UnOp::BitNot, Literal::Int(n)) => Some(Expr::new_literal(Literal::Int(!n), operand.span.clone())),
+            (UnOp::Neg, Literal::Int(n)) => {
+                Some(Expr::new_literal(Literal::Int(-n), operand.span.clone()))
+            }
+            (UnOp::Neg, Literal::Float(n)) => {
+                Some(Expr::new_literal(Literal::Float(-n), operand.span.clone()))
+            }
+            (UnOp::Not, Literal::Bool(b)) => {
+                Some(Expr::new_literal(Literal::Bool(!b), operand.span.clone()))
+            }
+            (UnOp::BitNot, Literal::Int(n)) => {
+                Some(Expr::new_literal(Literal::Int(!n), operand.span.clone()))
+            }
             _ => None,
         }
     }
@@ -403,8 +419,13 @@ impl Optimizer {
                 if let Some(Literal::Bool(value)) = condition.to_literal() {
                     let value = *value;
                     // Keep the live branch, remove the dead one
-                    let live_stmts = if value { then_block.clone() } else {
-                        else_block.as_ref().map(|(_, s)| s.clone()).unwrap_or_default()
+                    let live_stmts = if value {
+                        then_block.clone()
+                    } else {
+                        else_block
+                            .as_ref()
+                            .map(|(_, s)| s.clone())
+                            .unwrap_or_default()
                     };
 
                     if live_stmts.is_empty() {
@@ -467,10 +488,19 @@ impl Optimizer {
     fn stmt_size(&self, stmt: &Stmt) -> usize {
         match &stmt.kind {
             StmtKind::Expr(e) => 1 + self.expr_size(e),
-            StmtKind::Let(_, _, Some(v), body) => 1 + self.expr_size(v) + body.iter().map(|s| self.stmt_size(s)).sum::<usize>(),
-            StmtKind::Let(_, _, None, body) => 1 + body.iter().map(|s| self.stmt_size(s)).sum::<usize>(),
-            StmtKind::If(_, then_b, else_b) => 2 + then_b.iter().map(|s| self.stmt_size(s)).sum::<usize>()
-                + else_b.as_ref().map(|(_, s)| s.iter().map(|s| self.stmt_size(s)).sum::<usize>()).unwrap_or(0),
+            StmtKind::Let(_, _, Some(v), body) => {
+                1 + self.expr_size(v) + body.iter().map(|s| self.stmt_size(s)).sum::<usize>()
+            }
+            StmtKind::Let(_, _, None, body) => {
+                1 + body.iter().map(|s| self.stmt_size(s)).sum::<usize>()
+            }
+            StmtKind::If(_, then_b, else_b) => {
+                2 + then_b.iter().map(|s| self.stmt_size(s)).sum::<usize>()
+                    + else_b
+                        .as_ref()
+                        .map(|(_, s)| s.iter().map(|s| self.stmt_size(s)).sum::<usize>())
+                        .unwrap_or(0)
+            }
             StmtKind::While(_, body) => 2 + body.iter().map(|s| self.stmt_size(s)).sum::<usize>(),
             StmtKind::For(_, _, body) => 2 + body.iter().map(|s| self.stmt_size(s)).sum::<usize>(),
             StmtKind::Loop(body) => 1 + body.iter().map(|s| self.stmt_size(s)).sum::<usize>(),
@@ -489,15 +519,31 @@ impl Optimizer {
             ExprKind::Identifier(_) => 1,
             ExprKind::Binary { lhs, rhs, .. } => 1 + self.expr_size(lhs) + self.expr_size(rhs),
             ExprKind::Unary { operand, .. } => 1 + self.expr_size(operand),
-            ExprKind::Call { arguments, .. } => 1 + arguments.iter().map(|a| self.expr_size(a)).sum::<usize>(),
-            ExprKind::MethodCall { arguments, .. } => 1 + arguments.iter().map(|a| self.expr_size(a)).sum::<usize>(),
-            ExprKind::If { then_block, else_expr, .. } => 1 + then_block.iter().map(|(_, s)| s.iter().map(|s| self.stmt_size(s)).sum::<usize>()).sum::<usize>()
-                + else_expr.as_ref().map(|(_, s)| s.iter().map(|s| self.stmt_size(s)).sum::<usize>()).unwrap_or(0),
-            ExprKind::Match { arms, .. } => 1 + arms.iter().map(|a| self.expr_size(&a.body)).sum::<usize>(),
+            ExprKind::Call { arguments, .. } => {
+                1 + arguments.iter().map(|a| self.expr_size(a)).sum::<usize>()
+            }
+            ExprKind::MethodCall { arguments, .. } => {
+                1 + arguments.iter().map(|a| self.expr_size(a)).sum::<usize>()
+            }
+            ExprKind::If { then_block, else_expr, .. } => {
+                1 + then_block
+                    .iter()
+                    .map(|(_, s)| s.iter().map(|s| self.stmt_size(s)).sum::<usize>())
+                    .sum::<usize>()
+                    + else_expr
+                        .as_ref()
+                        .map(|(_, s)| s.iter().map(|s| self.stmt_size(s)).sum::<usize>())
+                        .unwrap_or(0)
+            }
+            ExprKind::Match { arms, .. } => {
+                1 + arms.iter().map(|a| self.expr_size(&a.body)).sum::<usize>()
+            }
             ExprKind::Block(stmts) => stmts.iter().map(|s| self.stmt_size(s)).sum::<usize>(),
             ExprKind::Tuple(elems) => 1 + elems.iter().map(|e| self.expr_size(e)).sum::<usize>(),
             ExprKind::Array(elems) => 1 + elems.iter().map(|e| self.expr_size(e)).sum::<usize>(),
-            ExprKind::Closure(params, body, _) => params.len() + body.iter().map(|s| self.stmt_size(s)).sum::<usize>(),
+            ExprKind::Closure(params, body, _) => {
+                params.len() + body.iter().map(|s| self.stmt_size(s)).sum::<usize>()
+            }
             ExprKind::FieldAccess(base, _) => 1 + self.expr_size(base),
             ExprKind::Index(base, index) => 1 + self.expr_size(base) + self.expr_size(index),
             ExprKind::Range(start, end, _) => 1 + self.expr_size(start) + self.expr_size(end),
@@ -626,13 +672,18 @@ impl Optimizer {
     fn eliminate_common_subexpressions(&mut self, program: &mut Program) {
         for item in &mut program.items {
             if let Item::Function(func) = item {
-                let mut seen: std::collections::HashMap<String, Expr> = std::collections::HashMap::new();
+                let mut seen: std::collections::HashMap<String, Expr> =
+                    std::collections::HashMap::new();
                 self.eliminate_cse_in_stmts(&mut func.body, &mut seen);
             }
         }
     }
 
-    fn eliminate_cse_in_stmts(&mut self, stmts: &mut Vec<Stmt>, seen: &mut std::collections::HashMap<String, Expr>) {
+    fn eliminate_cse_in_stmts(
+        &mut self,
+        stmts: &mut Vec<Stmt>,
+        seen: &mut std::collections::HashMap<String, Expr>,
+    ) {
         let mut i = 0;
         while i < stmts.len() {
             let stmt = &mut stmts[i];
@@ -657,7 +708,11 @@ impl Optimizer {
         }
     }
 
-    fn eliminate_cse_in_stmt(&mut self, stmt: &mut Stmt, seen: &mut std::collections::HashMap<String, Expr>) {
+    fn eliminate_cse_in_stmt(
+        &mut self,
+        stmt: &mut Stmt,
+        seen: &mut std::collections::HashMap<String, Expr>,
+    ) {
         match &mut stmt.kind {
             StmtKind::Expr(e) => {
                 self.try_replace_with_cse(e, seen);
@@ -693,7 +748,11 @@ impl Optimizer {
         }
     }
 
-    fn try_replace_with_cse(&mut self, expr: &mut Expr, seen: &std::collections::HashMap<String, Expr>) {
+    fn try_replace_with_cse(
+        &mut self,
+        expr: &mut Expr,
+        seen: &std::collections::HashMap<String, Expr>,
+    ) {
         let key = format!("{:?}", expr.kind);
         if let Some(cached) = seen.get(&key) {
             // Found common subexpression
@@ -727,8 +786,8 @@ impl Optimizer {
             StmtKind::If(condition, then_block, else_block) => {
                 self.reduce_strength_in_expr(condition);
                 for s in then_block {
-                        self.reduce_strength_in_stmt(s);
-                    }
+                    self.reduce_strength_in_stmt(s);
+                }
                 if let Some((_, else_stmts)) = else_block {
                     for s in else_stmts {
                         self.reduce_strength_in_stmt(s);
@@ -752,12 +811,16 @@ impl Optimizer {
                 self.reduce_strength_in_expr(rhs);
 
                 // x * 2 -> x + x (or x << 1)
-                if let (BinOp::Mul, ExprKind::Literal(Literal::Int(n)), _) = (&op, &lhs.kind, &rhs.kind) {
+                if let (BinOp::Mul, ExprKind::Literal(Literal::Int(n)), _) =
+                    (&op, &lhs.kind, &rhs.kind)
+                {
                     if *n == 2 {
                         self.stats.strength_reductions += 1;
                     }
                 }
-                if let (BinOp::Mul, _, ExprKind::Literal(Literal::Int(n))) = (&op, &lhs.kind, &rhs.kind) {
+                if let (BinOp::Mul, _, ExprKind::Literal(Literal::Int(n))) =
+                    (&op, &lhs.kind, &rhs.kind)
+                {
                     if *n == 2 {
                         self.stats.strength_reductions += 1;
                     }
@@ -809,8 +872,8 @@ impl Optimizer {
             StmtKind::If(condition, then_block, else_block) => {
                 self.simplify_in_expr(condition);
                 for s in then_block {
-                        self.simplify_in_stmt(s);
-                    }
+                    self.simplify_in_stmt(s);
+                }
                 if let Some((_, else_stmts)) = else_block {
                     for s in else_stmts {
                         self.simplify_in_stmt(s);

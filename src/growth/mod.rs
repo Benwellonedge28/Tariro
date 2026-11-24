@@ -1,8 +1,7 @@
 //! Universal Growth Engine - Orchestrating Parallel Self-Expansion
 
-
-use async_trait::async_trait;
 use crate::orchestration::SystemFabric;
+use async_trait::async_trait;
 use std::sync::Arc;
 
 /// Trait for growth dynamics behavior
@@ -20,17 +19,14 @@ pub struct SovereignGrowthEngine {
 
 impl SovereignGrowthEngine {
     pub fn new() -> Self {
-        Self {
-            fabric: Arc::new(SystemFabric::new()),
-            complexity_index: 1,
-        }
+        Self { fabric: Arc::new(SystemFabric::new()), complexity_index: 1 }
     }
 
     /// Triggers parallel growth across all infinite dimensions
     pub async fn grow_parallel(&mut self) {
         println!("Executing Parallel Growth Burst...");
         let fabric = self.fabric.clone();
-        
+
         // Parallel scaling of the system fabric
         tokio::spawn(async move {
             fabric.scaling_burst(1000).await;

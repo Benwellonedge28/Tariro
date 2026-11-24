@@ -4,9 +4,9 @@
 //! Implements Pearl's do-calculus and causal inference
 
 use crate::prelude::*;
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use rand::Rng;
 
 /// Represents a causal relationship between variables
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -15,7 +15,7 @@ pub struct CausalEdge {
     pub to: String,
     pub mechanism: CausalMechanism,
     pub strength: f64, // 0.0 to 1.0
-    pub delay: u32, // Time steps for effect
+    pub delay: u32,    // Time steps for effect
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -140,7 +140,12 @@ impl CausalReasoningEngine {
         self.has_path(edge.to.clone(), edge.from.clone(), &mut visited)
     }
 
-    fn has_path(&self, from: String, to: String, visited: &mut std::collections::HashSet<String>) -> bool {
+    fn has_path(
+        &self,
+        from: String,
+        to: String,
+        visited: &mut std::collections::HashSet<String>,
+    ) -> bool {
         if from == to {
             return true;
         }
@@ -160,8 +165,16 @@ impl CausalReasoningEngine {
     }
 
     /// Estimate causal effect using do-calculus
-    pub fn estimate_causal_effect(&mut self, treatment: &str, outcome: &str, confounders: Vec<String>) -> CausalEffect {
-        println!("[CausalReasoning] Estimating causal effect: {} -> {}", treatment, outcome);
+    pub fn estimate_causal_effect(
+        &mut self,
+        treatment: &str,
+        outcome: &str,
+        confounders: Vec<String>,
+    ) -> CausalEffect {
+        println!(
+            "[CausalReasoning] Estimating causal effect: {} -> {}",
+            treatment, outcome
+        );
 
         // Step 1: Identify confounders
         let adjusted_confounders = self.identify_backdoor_paths(treatment, outcome, confounders);
@@ -182,7 +195,12 @@ impl CausalReasoningEngine {
     }
 
     /// Identify backdoor paths that need adjustment
-    fn identify_backdoor_paths(&self, treatment: &str, outcome: &str, confounders: Vec<String>) -> Vec<String> {
+    fn identify_backdoor_paths(
+        &self,
+        treatment: &str,
+        outcome: &str,
+        confounders: Vec<String>,
+    ) -> Vec<String> {
         // Find all paths from treatment to outcome
         // Select paths that start with an arrow into treatment (backdoor paths)
         // Return common causes that block these paths
@@ -199,13 +217,26 @@ impl CausalReasoningEngine {
 
     fn is_backdoor_blocker(&self, treatment: &str, outcome: &str, node: &str) -> bool {
         // Check if node is a common cause of treatment and outcome
-        let affects_treatment = self.causal_graph.edges.iter().any(|e| e.from == node && e.to == treatment);
-        let affects_outcome = self.causal_graph.edges.iter().any(|e| e.from == node && e.to == outcome);
+        let affects_treatment = self
+            .causal_graph
+            .edges
+            .iter()
+            .any(|e| e.from == node && e.to == treatment);
+        let affects_outcome = self
+            .causal_graph
+            .edges
+            .iter()
+            .any(|e| e.from == node && e.to == outcome);
         affects_treatment && affects_outcome
     }
 
     /// Compute adjusted causal effect
-    fn compute_adjusted_effect(&self, treatment: &str, outcome: &str, confounders: &[String]) -> f64 {
+    fn compute_adjusted_effect(
+        &self,
+        treatment: &str,
+        outcome: &str,
+        confounders: &[String],
+    ) -> f64 {
         // Stratification: compute effect within each stratum of confounders
         // Then weight by prevalence of each stratum
         let mut weighted_effect = 0.0;
@@ -222,8 +253,14 @@ impl CausalReasoningEngine {
             let treatment_value = obs.variables.get(treatment);
             let outcome_value = obs.variables.get(outcome);
 
-            if let (Some(Value::Binary(treated)), Some(Value::Continuous(outcome_val))) = (treatment_value, outcome_value) {
-                let effect = if *treated { *outcome_val } else { -0.1 * outcome_val };
+            if let (Some(Value::Binary(treated)), Some(Value::Continuous(outcome_val))) =
+                (treatment_value, outcome_value)
+            {
+                let effect = if *treated {
+                    *outcome_val
+                } else {
+                    -0.1 * outcome_val
+                };
                 weighted_effect += effect * stratum_weight;
             }
         }
@@ -237,7 +274,12 @@ impl CausalReasoningEngine {
     }
 
     /// Bootstrap confidence intervals
-    fn bootstrap_confidence_interval(&self, _treatment: &str, _outcome: &str, n_iterations: usize) -> (f64, f64) {
+    fn bootstrap_confidence_interval(
+        &self,
+        _treatment: &str,
+        _outcome: &str,
+        n_iterations: usize,
+    ) -> (f64, f64) {
         let mut rng = rand::thread_rng();
         let mut estimates = Vec::new();
 
@@ -262,8 +304,16 @@ impl CausalReasoningEngine {
     }
 
     /// Counterfactual reasoning: "What if X had been different?"
-    pub fn reason_counterfactually(&self, premise: &str, intervention: &str, observation: &Observation) -> CounterfactualResult {
-        println!("[CausalReasoning] Counterfactual reasoning: {} under {}", premise, intervention);
+    pub fn reason_counterfactually(
+        &self,
+        premise: &str,
+        intervention: &str,
+        observation: &Observation,
+    ) -> CounterfactualResult {
+        println!(
+            "[CausalReasoning] Counterfactual reasoning: {} under {}",
+            premise, intervention
+        );
 
         // Step 1: Abduction - infer most likely explanation
         let explanation = self.abduce_explanation(observation);
@@ -285,7 +335,13 @@ impl CausalReasoningEngine {
 
     fn abduce_explanation(&self, obs: &Observation) -> String {
         // Find most likely causal configuration consistent with observation
-        format!("Most likely causal mechanism: confounded by {}", obs.variables.keys().next().unwrap_or(&"unknown".to_string()))
+        format!(
+            "Most likely causal mechanism: confounded by {}",
+            obs.variables
+                .keys()
+                .next()
+                .unwrap_or(&"unknown".to_string())
+        )
     }
 
     fn apply_counterfactual(&self, intervention: &str, obs: &Observation) -> Observation {
@@ -294,7 +350,9 @@ impl CausalReasoningEngine {
         // Parse intervention (e.g., "do(X=5)") and modify observation
         if intervention.starts_with("do(") {
             // Extract variable and value
-            cf_obs.variables.insert("intervention_applied".to_string(), Value::Binary(true));
+            cf_obs
+                .variables
+                .insert("intervention_applied".to_string(), Value::Binary(true));
         }
         cf_obs
     }
@@ -316,7 +374,8 @@ impl CausalReasoningEngine {
     }
 
     fn get_descendants(&self, node: &str) -> Vec<String> {
-        self.causal_graph.edges
+        self.causal_graph
+            .edges
             .iter()
             .filter(|e| e.from == node)
             .map(|e| e.to.clone())
@@ -373,7 +432,10 @@ pub enum ViolationSeverity {
 impl CausalReasoningEngine {
     /// Use causal reasoning to improve RAG retrieval
     pub fn causal_rag_retrieval(&self, query: &str) -> Vec<RetrievedKnowledge> {
-        println!("[CausalReasoning] Using causal knowledge for retrieval: {}", query);
+        println!(
+            "[CausalReasoning] Using causal knowledge for retrieval: {}",
+            query
+        );
 
         // Extract causal relationships from query
         let causal_elements = self.extract_causal_elements(query);
@@ -382,24 +444,40 @@ impl CausalReasoningEngine {
         let cf_queries = self.generate_counterfactual_queries(&causal_elements);
 
         // Return knowledge that addresses causal structure
-        cf_queries.into_iter().map(|q| RetrievedKnowledge {
-            content: q,
-            causal_relevance: 0.9,
-            retrieval_score: 0.85,
-        }).collect()
+        cf_queries
+            .into_iter()
+            .map(|q| RetrievedKnowledge {
+                content: q,
+                causal_relevance: 0.9,
+                retrieval_score: 0.85,
+            })
+            .collect()
     }
 
     fn extract_causal_elements(&self, query: &str) -> Vec<String> {
         // Simple keyword extraction for causal terms
-        let causal_terms = ["cause", "effect", "because", "therefore", "lead to", "result in", "why", "how"];
-        causal_terms.iter()
+        let causal_terms = [
+            "cause",
+            "effect",
+            "because",
+            "therefore",
+            "lead to",
+            "result in",
+            "why",
+            "how",
+        ];
+        causal_terms
+            .iter()
             .filter(|t| query.to_lowercase().contains(*t))
             .map(|t| t.to_string())
             .collect()
     }
 
     fn generate_counterfactual_queries(&self, elements: &[String]) -> Vec<String> {
-        elements.iter().map(|e| format!("What if {} were different?", e)).collect()
+        elements
+            .iter()
+            .map(|e| format!("What if {} were different?", e))
+            .collect()
     }
 }
 
@@ -482,12 +560,12 @@ mod tests {
         vars.insert("Outcome".to_string(), Value::Continuous(10.0));
         vars.insert("Confounder".to_string(), Value::Binary(true));
 
-        engine.observations.push(Observation {
-            timestamp: Utc::now(),
-            variables: vars,
-        });
+        engine
+            .observations
+            .push(Observation { timestamp: Utc::now(), variables: vars });
 
-        let effect = engine.estimate_causal_effect("Treatment", "Outcome", vec!["Confounder".to_string()]);
+        let effect =
+            engine.estimate_causal_effect("Treatment", "Outcome", vec!["Confounder".to_string()]);
 
         assert_eq!(effect.treatment, "Treatment");
         assert_eq!(effect.outcome, "Outcome");

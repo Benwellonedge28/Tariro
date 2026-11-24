@@ -3,9 +3,8 @@
 //! Common Sense Reasoning Engine for Tariro AGI
 //! Implements everyday reasoning about physical, social, and temporal concepts
 
-
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap};
+use std::collections::HashMap;
 
 /// Main common sense reasoning engine
 pub struct CommonSenseReasoning {
@@ -287,7 +286,10 @@ impl CommonSenseReasoning {
 
     /// Reason about physical causality
     pub fn reason_physical(&self, scenario: &str) -> PhysicalReasoningResult {
-        println!("[CommonSense] Reasoning about physical scenario: {}", scenario);
+        println!(
+            "[CommonSense] Reasoning about physical scenario: {}",
+            scenario
+        );
 
         let mut predictions = Vec::new();
 
@@ -321,9 +323,7 @@ impl CommonSenseReasoning {
         PhysicalReasoningResult {
             scenario: scenario.to_string(),
             predictions: predictions.clone(),
-            explanations: vec![
-                "Based on naive physics principles".to_string(),
-            ],
+            explanations: vec!["Based on naive physics principles".to_string()],
             confidence: predictions.iter().map(|p| p.confidence).sum::<f64>()
                 / predictions.len().max(1) as f64,
         }
@@ -331,7 +331,10 @@ impl CommonSenseReasoning {
 
     /// Reason about social situations
     pub fn reason_social(&self, scenario: &str) -> SocialReasoningResult {
-        println!("[CommonSense] Reasoning about social scenario: {}", scenario);
+        println!(
+            "[CommonSense] Reasoning about social scenario: {}",
+            scenario
+        );
 
         let mut inferences = Vec::new();
 
@@ -400,22 +403,35 @@ impl CommonSenseReasoning {
     }
 
     /// Reason about time and sequences
-    pub fn reason_temporal(&self, event1: &str, event2: &str, relation: &str) -> TemporalReasoningResult {
-        println!("[CommonSense] Temporal reasoning: {} {} {}", event1, relation, event2);
+    pub fn reason_temporal(
+        &self,
+        event1: &str,
+        event2: &str,
+        relation: &str,
+    ) -> TemporalReasoningResult {
+        println!(
+            "[CommonSense] Temporal reasoning: {} {} {}",
+            event1, relation, event2
+        );
 
         let (temporal_order, confidence) = match relation {
             "before" => ("E1 happens earlier than E2".to_string(), 0.9),
             "after" => ("E2 happens earlier than E1".to_string(), 0.9),
             "during" => ("Events overlap in time".to_string(), 0.7),
             "causes" => ("E1 is likely cause of E2".to_string(), 0.8),
-            _ => ("Unknown temporal relation".to_string(), 0.3)};
+            _ => ("Unknown temporal relation".to_string(), 0.3),
+        };
 
         TemporalReasoningResult {
             event1: event1.to_string(),
             event2: event2.to_string(),
             relation: relation.to_string(),
             temporal_order,
-            implied_causality: if relation == "causes" { Some(0.8) } else { None },
+            implied_causality: if relation == "causes" {
+                Some(0.8)
+            } else {
+                None
+            },
             duration_inference: self.infer_duration(event1, event2),
             confidence,
         }
@@ -443,7 +459,10 @@ impl CommonSenseReasoning {
 
     /// Make analogical reasoning
     pub fn reason_analogical(&self, source: &str, target: &str) -> AnalogicalReasoningResult {
-        println!("[CommonSense] Analogical reasoning: {} -> {}", source, target);
+        println!(
+            "[CommonSense] Analogical reasoning: {} -> {}",
+            source, target
+        );
 
         let mappings = self.find_structural_mappings(source, target);
         let analogical_strength = if mappings.len() > 3 { 0.8 } else { 0.4 };
@@ -519,19 +538,23 @@ impl CommonSenseReasoning {
         let question_lower = question.to_lowercase();
 
         // Physics questions
-        if question_lower.contains("why") && (question_lower.contains("fall") || question_lower.contains("drop")) {
+        if question_lower.contains("why")
+            && (question_lower.contains("fall") || question_lower.contains("drop"))
+        {
             return AnswerResult {
                 question: question.to_string(),
                 answer: "Because of gravity pulling objects toward the ground".to_string(),
                 confidence: 0.95,
-                domain: "physics".to_string()};
+                domain: "physics".to_string(),
+            };
         }
 
         // Social questions
         if question_lower.contains("why") && question_lower.contains("sad") {
             return AnswerResult {
                 question: question.to_string(),
-                answer: "People feel sad when they experience loss, failure, or disappointment".to_string(),
+                answer: "People feel sad when they experience loss, failure, or disappointment"
+                    .to_string(),
                 confidence: 0.8,
                 domain: "social".to_string(),
             };
@@ -644,45 +667,47 @@ pub struct AnswerResult {
 impl Default for PhysicsKnowledge {
     fn default() -> Self {
         let mut objects = HashMap::new();
-        objects.insert("chair".to_string(), PhysicalObjectSchema {
-            name: "chair".to_string(),
-            typical_size: SizeRange { min_cm: 30.0, max_cm: 100.0, typical: 50.0 },
-            typical_weight: 5.0,
-            states: vec!["sitting_on".to_string(), "stacked".to_string()],
-            affordances: vec!["sit".to_string(), "move".to_string()],
-            can_contain: false,
-            is_container: false,
-            is_rigid: true,
-        });
-        objects.insert("cup".to_string(), PhysicalObjectSchema {
-            name: "cup".to_string(),
-            typical_size: SizeRange { min_cm: 5.0, max_cm: 20.0, typical: 10.0 },
-            typical_weight: 0.2,
-            states: vec!["empty".to_string(), "filled".to_string()],
-            affordances: vec!["drink_from".to_string(), "hold".to_string()],
-            can_contain: true,
-            is_container: true,
-            is_rigid: true,
-        });
+        objects.insert(
+            "chair".to_string(),
+            PhysicalObjectSchema {
+                name: "chair".to_string(),
+                typical_size: SizeRange { min_cm: 30.0, max_cm: 100.0, typical: 50.0 },
+                typical_weight: 5.0,
+                states: vec!["sitting_on".to_string(), "stacked".to_string()],
+                affordances: vec!["sit".to_string(), "move".to_string()],
+                can_contain: false,
+                is_container: false,
+                is_rigid: true,
+            },
+        );
+        objects.insert(
+            "cup".to_string(),
+            PhysicalObjectSchema {
+                name: "cup".to_string(),
+                typical_size: SizeRange { min_cm: 5.0, max_cm: 20.0, typical: 10.0 },
+                typical_weight: 0.2,
+                states: vec!["empty".to_string(), "filled".to_string()],
+                affordances: vec!["drink_from".to_string(), "hold".to_string()],
+                can_contain: true,
+                is_container: true,
+                is_rigid: true,
+            },
+        );
 
         PhysicsKnowledge {
             objects,
             substances: HashMap::new(),
-            spatial_relations: vec![
-                SpatialRelation {
-                    relation_type: SpatialRelationType::Above,
-                    examples: vec!["sky above ground".to_string()],
-                    inference_rules: vec!["Above implies not touching".to_string()],
-                },
-            ],
-            causal_physics: vec![
-                CausalPhysicsRule {
-                    condition: "Object without support".to_string(),
-                    effect: "Object falls".to_string(),
-                    certainty: 0.95,
-                    counter_examples: vec!["Floating objects".to_string(), "Helicopter".to_string()],
-                },
-            ],
+            spatial_relations: vec![SpatialRelation {
+                relation_type: SpatialRelationType::Above,
+                examples: vec!["sky above ground".to_string()],
+                inference_rules: vec!["Above implies not touching".to_string()],
+            }],
+            causal_physics: vec![CausalPhysicsRule {
+                condition: "Object without support".to_string(),
+                effect: "Object falls".to_string(),
+                certainty: 0.95,
+                counter_examples: vec!["Floating objects".to_string(), "Helicopter".to_string()],
+            }],
         }
     }
 }
@@ -691,15 +716,13 @@ impl Default for SocialKnowledge {
     fn default() -> Self {
         SocialKnowledge {
             agent_stereotypes: HashMap::new(),
-            social_norms: vec![
-                SocialNorm {
-                    domain: "general".to_string(),
-                    norm_type: NormCategory::Moral,
-                    description: "Help others in need".to_string(),
-                    violation_consequences: vec!["Social disapproval".to_string()],
-                    enforcement: EnforcementType::Informal,
-                },
-            ],
+            social_norms: vec![SocialNorm {
+                domain: "general".to_string(),
+                norm_type: NormCategory::Moral,
+                description: "Help others in need".to_string(),
+                violation_consequences: vec!["Social disapproval".to_string()],
+                enforcement: EnforcementType::Informal,
+            }],
             institution_schemas: HashMap::new(),
             social_roles: HashMap::new(),
         }
@@ -709,31 +732,35 @@ impl Default for SocialKnowledge {
 impl Default for TemporalKnowledge {
     fn default() -> Self {
         let mut time_units = HashMap::new();
-        time_units.insert("second".to_string(), TimeUnit {
-            name: "second".to_string(),
-            seconds: 1.0,
-            subdivisions: vec!["millisecond".to_string(), "microsecond".to_string()],
-            super_units: vec!["minute".to_string()],
-        });
-        time_units.insert("minute".to_string(), TimeUnit {
-            name: "minute".to_string(),
-            seconds: 60.0,
-            subdivisions: vec!["second".to_string()],
-            super_units: vec!["hour".to_string()],
-        });
+        time_units.insert(
+            "second".to_string(),
+            TimeUnit {
+                name: "second".to_string(),
+                seconds: 1.0,
+                subdivisions: vec!["millisecond".to_string(), "microsecond".to_string()],
+                super_units: vec!["minute".to_string()],
+            },
+        );
+        time_units.insert(
+            "minute".to_string(),
+            TimeUnit {
+                name: "minute".to_string(),
+                seconds: 60.0,
+                subdivisions: vec!["second".to_string()],
+                super_units: vec!["hour".to_string()],
+            },
+        );
 
         TemporalKnowledge {
             time_units,
             event_durations: HashMap::new(),
             sequence_patterns: Vec::new(),
-            causality_rules: vec![
-                TemporalCausalityRule {
-                    cause_type: "action".to_string(),
-                    effect_type: "result".to_string(),
-                    typical_delay: 1.0,
-                    delay_variance: 0.5,
-                },
-            ],
+            causality_rules: vec![TemporalCausalityRule {
+                cause_type: "action".to_string(),
+                effect_type: "result".to_string(),
+                typical_delay: 1.0,
+                delay_variance: 0.5,
+            }],
         }
     }
 }
@@ -741,18 +768,24 @@ impl Default for TemporalKnowledge {
 impl Default for NaivePhysics {
     fn default() -> Self {
         let mut shape_knowledge = HashMap::new();
-        shape_knowledge.insert("sphere".to_string(), ShapeProperty {
-            shape_type: "sphere".to_string(),
-            rolling: true,
-            stacking: false,
-            fitting: vec!["container_round".to_string()],
-        });
-        shape_knowledge.insert("cube".to_string(), ShapeProperty {
-            shape_type: "cube".to_string(),
-            rolling: false,
-            stacking: true,
-            fitting: vec!["container_square".to_string()],
-        });
+        shape_knowledge.insert(
+            "sphere".to_string(),
+            ShapeProperty {
+                shape_type: "sphere".to_string(),
+                rolling: true,
+                stacking: false,
+                fitting: vec!["container_round".to_string()],
+            },
+        );
+        shape_knowledge.insert(
+            "cube".to_string(),
+            ShapeProperty {
+                shape_type: "cube".to_string(),
+                rolling: false,
+                stacking: true,
+                fitting: vec!["container_square".to_string()],
+            },
+        );
 
         NaivePhysics {
             object_permanence: true,
@@ -761,13 +794,11 @@ impl Default for NaivePhysics {
                 strength: 1.0,
                 exceptions: vec!["underwater".to_string(), "floating".to_string()],
             },
-            support_knowledge: vec![
-                SupportRule {
-                    condition: "Object on flat surface".to_string(),
-                    stability: 0.9,
-                    toppling_threshold: 45.0,
-                },
-            ],
+            support_knowledge: vec![SupportRule {
+                condition: "Object on flat surface".to_string(),
+                stability: 0.9,
+                toppling_threshold: 45.0,
+            }],
             shape_knowledge,
         }
     }
@@ -776,11 +807,17 @@ impl Default for NaivePhysics {
 impl Default for NaivePsychology {
     fn default() -> Self {
         let mut personality_types = HashMap::new();
-        personality_types.insert("introvert".to_string(), PersonalitySchema {
-            name: "introvert".to_string(),
-            typical_behaviors: vec!["prefers solitude".to_string(), "thinks before speaking".to_string()],
-            typical_reactions: HashMap::new(),
-        });
+        personality_types.insert(
+            "introvert".to_string(),
+            PersonalitySchema {
+                name: "introvert".to_string(),
+                typical_behaviors: vec![
+                    "prefers solitude".to_string(),
+                    "thinks before speaking".to_string(),
+                ],
+                typical_reactions: HashMap::new(),
+            },
+        );
 
         NaivePsychology {
             emotion_inference: true,

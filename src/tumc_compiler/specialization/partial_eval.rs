@@ -1,6 +1,8 @@
 // Partial Evaluation for Program Specialization
 
-use crate::tumc_compiler::ir::{ Function, BasicBlock, Instruction, Operation, IrType, Const, ValueId};
+use crate::tumc_compiler::ir::{
+    BasicBlock, Const, Function, Instruction, IrType, Operation, ValueId,
+};
 
 use std::collections::HashMap;
 
@@ -17,11 +19,19 @@ pub enum StaticValue {
 
 impl StaticValue {
     pub fn as_int(&self) -> Option<i64> {
-        if let StaticValue::Int(i) = self { Some(*i) } else { None }
+        if let StaticValue::Int(i) = self {
+            Some(*i)
+        } else {
+            None
+        }
     }
 
     pub fn as_bool(&self) -> Option<bool> {
-        if let StaticValue::Bool(b) = self { Some(*b) } else { None }
+        if let StaticValue::Bool(b) = self {
+            Some(*b)
+        } else {
+            None
+        }
     }
 
     pub fn is_defined(&self) -> bool {
@@ -126,12 +136,8 @@ impl PartialEvaluator {
     /// Check if all operands are static
     fn operands_are_static(&self, inst: &Instruction, env: &HashMap<ValueId, StaticValue>) -> bool {
         match &inst.op {
-            Operation::Binary(_, lhs, rhs) => {
-                env.contains_key(lhs) && env.contains_key(rhs)
-            }
-            Operation::Unary(_, operand) => {
-                env.contains_key(operand)
-            }
+            Operation::Binary(_, lhs, rhs) => env.contains_key(lhs) && env.contains_key(rhs),
+            Operation::Unary(_, operand) => env.contains_key(operand),
             _ => false,
         }
     }
@@ -267,11 +273,7 @@ impl PartialEvaluator {
     }
 
     /// Substitute variables in an operation
-    fn substitute_operation(
-        &self,
-        op: &Operation,
-        subst: &HashMap<ValueId, ValueId>,
-    ) -> Operation {
+    fn substitute_operation(&self, op: &Operation, subst: &HashMap<ValueId, ValueId>) -> Operation {
         match op {
             Operation::Binary(binop, lhs, rhs) => {
                 let new_lhs = subst.get(lhs).copied().unwrap_or(*lhs);
@@ -327,10 +329,7 @@ pub struct ResidualGenerator {
 
 impl ResidualGenerator {
     pub fn new() -> Self {
-        Self {
-            preserve_types: true,
-            generate_debug_info: false,
-        }
+        Self { preserve_types: true, generate_debug_info: false }
     }
 
     /// Generate residual function with dynamic values

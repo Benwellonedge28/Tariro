@@ -6,10 +6,10 @@
 //! - Surprise maximization
 //! - Novel idea generation
 
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet, VecDeque};
 use uuid::Uuid;
-use chrono::Utc;
 
 // ============================================================================
 // Core Types
@@ -66,8 +66,8 @@ impl CreativeIdea {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CreativityType {
-    Divergent,       // Multiple solutions
-    Convergent,      // Single best solution
+    Divergent,        // Multiple solutions
+    Convergent,       // Single best solution
     Conceptual,       // Novel combinations
     Transformational, // Radical change
 }
@@ -224,10 +224,7 @@ pub struct ConceptualCombiner {
 
 impl ConceptualCombiner {
     pub fn new() -> Self {
-        Self {
-            max_depth: 3,
-            mutation_rate: 0.1,
-        }
+        Self { max_depth: 3, mutation_rate: 0.1 }
     }
 
     /// Combine two concepts
@@ -290,10 +287,7 @@ pub struct SurpriseMaximizer {
 
 impl SurpriseMaximizer {
     pub fn new() -> Self {
-        Self {
-            expectation_model: HashMap::new(),
-            baseline_surprise: 0.5,
-        }
+        Self { expectation_model: HashMap::new(), baseline_surprise: 0.5 }
     }
 
     /// Calculate surprise of an idea
@@ -320,7 +314,10 @@ impl SurpriseMaximizer {
     pub fn update_expectations(&mut self, ideas: &[CreativeIdea]) {
         for idea in ideas {
             for word in idea.description.split_whitespace() {
-                *self.expectation_model.entry(word.to_lowercase()).or_insert(0.0) += 0.1;
+                *self
+                    .expectation_model
+                    .entry(word.to_lowercase())
+                    .or_insert(0.0) += 0.1;
             }
         }
     }
@@ -396,18 +393,8 @@ impl CreativityEngine {
 
     /// Combine two existing ideas
     pub fn combine_ideas(&self, idea1: &CreativeIdea, idea2: &CreativeIdea) -> Vec<CreativeIdea> {
-        let concepts1: Vec<Concept> = idea1
-            .components
-            .iter()
-            .take(1)
-            .cloned()
-            .collect();
-        let concepts2: Vec<Concept> = idea2
-            .components
-            .iter()
-            .take(1)
-            .cloned()
-            .collect();
+        let concepts1: Vec<Concept> = idea1.components.iter().take(1).cloned().collect();
+        let concepts2: Vec<Concept> = idea2.components.iter().take(1).cloned().collect();
 
         if concepts1.is_empty() || concepts2.is_empty() {
             return vec![CreativeIdea::new(
@@ -416,9 +403,7 @@ impl CreativityEngine {
             )];
         }
 
-        let combined = self
-            .combiner
-            .combine(&concepts1[0], &concepts2[0]);
+        let combined = self.combiner.combine(&concepts1[0], &concepts2[0]);
 
         combined
             .into_iter()
@@ -529,7 +514,10 @@ mod surprise_tests {
     #[test]
     fn test_calculate_surprise() {
         let maximizer = SurpriseMaximizer::new();
-        let idea = CreativeIdea::new("This is a very long creative idea description", CreativityType::Divergent);
+        let idea = CreativeIdea::new(
+            "This is a very long creative idea description",
+            CreativityType::Divergent,
+        );
 
         let surprise = maximizer.calculate_surprise(&idea);
         assert!(surprise >= 0.0);

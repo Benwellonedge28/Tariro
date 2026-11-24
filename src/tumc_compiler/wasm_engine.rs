@@ -144,7 +144,9 @@ impl WasmMemory {
         if addr + 4 > self.data.len() as u32 {
             return None;
         }
-        let bytes: [u8; 4] = self.data[addr as usize..addr as usize + 4].try_into().ok()?;
+        let bytes: [u8; 4] = self.data[addr as usize..addr as usize + 4]
+            .try_into()
+            .ok()?;
         Some(i32::from_le_bytes(bytes))
     }
 
@@ -162,7 +164,9 @@ impl WasmMemory {
         if addr + 8 > self.data.len() as u32 {
             return None;
         }
-        let bytes: [u8; 8] = self.data[addr as usize..addr as usize + 8].try_into().ok()?;
+        let bytes: [u8; 8] = self.data[addr as usize..addr as usize + 8]
+            .try_into()
+            .ok()?;
         Some(i64::from_le_bytes(bytes))
     }
 
@@ -371,11 +375,7 @@ struct ControlFrame {
 impl WasmEngine {
     /// Create new engine
     pub fn new(module: WasmModule) -> Self {
-        let globals = module
-            .globals
-            .iter()
-            .map(|g| g.value.clone())
-            .collect();
+        let globals = module.globals.iter().map(|g| g.value.clone()).collect();
 
         let tables = module.tables.clone();
         let memory = module
@@ -396,7 +396,11 @@ impl WasmEngine {
     }
 
     /// Execute a function
-    pub fn execute(&mut self, func_index: u32, args: &[WasmValue]) -> Result<Vec<WasmValue>, WasmError> {
+    pub fn execute(
+        &mut self,
+        func_index: u32,
+        args: &[WasmValue],
+    ) -> Result<Vec<WasmValue>, WasmError> {
         if self.control_stack.len() >= self.call_stack_limit {
             return Err(WasmError::StackOverflow);
         }
@@ -532,7 +536,8 @@ impl WasmEngine {
             }
             0x3F => {
                 // memory.size
-                self.operand_stack.push(WasmValue::I32(self.memory.size() as i32));
+                self.operand_stack
+                    .push(WasmValue::I32(self.memory.size() as i32));
             }
             0x40 => {
                 // memory.grow
@@ -550,36 +555,42 @@ impl WasmEngine {
                 // i32.add
                 let rhs = self.pop_i32()?;
                 let lhs = self.pop_i32()?;
-                self.operand_stack.push(WasmValue::I32(lhs.wrapping_add(rhs)));
+                self.operand_stack
+                    .push(WasmValue::I32(lhs.wrapping_add(rhs)));
             }
             0x6B => {
                 // i32.sub
                 let rhs = self.pop_i32()?;
                 let lhs = self.pop_i32()?;
-                self.operand_stack.push(WasmValue::I32(lhs.wrapping_sub(rhs)));
+                self.operand_stack
+                    .push(WasmValue::I32(lhs.wrapping_sub(rhs)));
             }
             0x6C => {
                 // i32.mul
                 let rhs = self.pop_i32()?;
                 let lhs = self.pop_i32()?;
-                self.operand_stack.push(WasmValue::I32(lhs.wrapping_mul(rhs)));
+                self.operand_stack
+                    .push(WasmValue::I32(lhs.wrapping_mul(rhs)));
             }
             0x71 => {
                 // i32.eqz
                 let val = self.pop_i32()?;
-                self.operand_stack.push(WasmValue::I32(if val == 0 { 1 } else { 0 }));
+                self.operand_stack
+                    .push(WasmValue::I32(if val == 0 { 1 } else { 0 }));
             }
             0x46 => {
                 // i32.eq
                 let rhs = self.pop_i32()?;
                 let lhs = self.pop_i32()?;
-                self.operand_stack.push(WasmValue::I32(if lhs == rhs { 1 } else { 0 }));
+                self.operand_stack
+                    .push(WasmValue::I32(if lhs == rhs { 1 } else { 0 }));
             }
             0x47 => {
                 // i32.ne
                 let rhs = self.pop_i32()?;
                 let lhs = self.pop_i32()?;
-                self.operand_stack.push(WasmValue::I32(if lhs != rhs { 1 } else { 0 }));
+                self.operand_stack
+                    .push(WasmValue::I32(if lhs != rhs { 1 } else { 0 }));
             }
 
             // Control flow
@@ -595,7 +606,10 @@ impl WasmEngine {
                 // call
                 let func_index = code[*pc] as u32;
                 *pc += 1;
-                let args: Vec<_> = (0..self.module.types[self.module.functions[func_index as usize].type_index as usize].params.len())
+                let args: Vec<_> = (0..self.module.types
+                    [self.module.functions[func_index as usize].type_index as usize]
+                    .params
+                    .len())
                     .map(|_| self.operand_stack.pop().unwrap())
                     .collect();
                 let args: Vec<_> = args.into_iter().rev().collect();
@@ -748,7 +762,10 @@ pub struct WasmLinker;
 
 impl WasmLinker {
     /// Link module with imports
-    pub fn link(module: &mut WasmModule, imports: HashMap<String, WasmExport>) -> Result<(), LinkError> {
+    pub fn link(
+        module: &mut WasmModule,
+        imports: HashMap<String, WasmExport>,
+    ) -> Result<(), LinkError> {
         for (name, export) in imports {
             module.exports.insert(name, export);
         }
@@ -778,10 +795,7 @@ mod tests {
     fn test_wasm_engine_execution() {
         // Simple function: i32.const 42
         let module = WasmModule {
-            types: vec![WasmFuncType {
-                params: vec![],
-                results: vec![WasmValType::I32],
-            }],
+            types: vec![WasmFuncType { params: vec![], results: vec![WasmValType::I32] }],
             functions: vec![WasmFunction {
                 type_index: 0,
                 code: vec![0x41, 0x2A, 0x00, 0x00], // i32.const 42

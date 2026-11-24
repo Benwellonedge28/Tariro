@@ -4,13 +4,11 @@
 /// This SIMD-driven feature accelerates molecular dynamics simulations, protein folding predictions,
 /// and drug-target interaction analyses. It leverages RAG for chemical databases and biological pathways,
 /// and SIMD for parallel force field calculations.
-
-
 use std::collections::HashMap;
 
+use rand::Rng;
 use std::thread;
 use std::time::Duration;
-use rand::Rng;
 
 // --- Conceptual Structures --- //
 
@@ -30,7 +28,7 @@ pub struct Protein {
     pub pdb_id: String, // Protein Data Bank ID
     pub amino_acid_sequence: String,
     pub structure_coordinates: Vec<(f32, f32, f32)>, // Coordinates of alpha-carbons
-    pub binding_sites: Vec<((f32, f32, f32), f32)>, // Center, radius
+    pub binding_sites: Vec<((f32, f32, f32), f32)>,  // Center, radius
 }
 
 /// Represents a force field for molecular mechanics.
@@ -90,13 +88,21 @@ impl AddmmEngine {
 
         AddmmEngine {
             chemical_databases_biological_pathways_rag_db: cdbp_db,
-            parallel_force_field_calculations_simd_accelerator: "SIMD_Molecular_FF_Calc_v1.0".to_string(),
+            parallel_force_field_calculations_simd_accelerator: "SIMD_Molecular_FF_Calc_v1.0"
+                .to_string(),
         }
     }
 
     /// Loads molecular data (molecules and proteins) from databases.
-    pub fn load_molecular_data(&self, molecule_smiles: &str, protein_pdb: &str) -> (Molecule, Protein) {
-        println!("  [ADDMM]: Loading molecular data (SMIILES: {}, PDB: {}).", molecule_smiles, protein_pdb);
+    pub fn load_molecular_data(
+        &self,
+        molecule_smiles: &str,
+        protein_pdb: &str,
+    ) -> (Molecule, Protein) {
+        println!(
+            "  [ADDMM]: Loading molecular data (SMIILES: {}, PDB: {}).",
+            molecule_smiles, protein_pdb
+        );
         thread::sleep(Duration::from_millis(50));
         let mut rng = rand::thread_rng();
 
@@ -104,37 +110,76 @@ impl AddmmEngine {
             molecule_id: format!("mol_{}", rng.gen::<u32>()),
             smiles_string: molecule_smiles.to_string(),
             atom_count: rng.gen_range(10..50),
-            atomic_coordinates: (0..20).map(|_| (rng.gen_range(-5.0..5.0), rng.gen_range(-5.0..5.0), rng.gen_range(-5.0..5.0))).collect(),
+            atomic_coordinates: (0..20)
+                .map(|_| {
+                    (
+                        rng.gen_range(-5.0..5.0),
+                        rng.gen_range(-5.0..5.0),
+                        rng.gen_range(-5.0..5.0),
+                    )
+                })
+                .collect(),
         };
         let protein = Protein {
             protein_id: format!("prot_{}", rng.gen::<u32>()),
             pdb_id: protein_pdb.to_string(),
             amino_acid_sequence: "AGCTAGCTAGCT".to_string(),
-            structure_coordinates: (0..100).map(|_| (rng.gen_range(-20.0..20.0), rng.gen_range(-20.0..20.0), rng.gen_range(-20.0..20.0))).collect(),
+            structure_coordinates: (0..100)
+                .map(|_| {
+                    (
+                        rng.gen_range(-20.0..20.0),
+                        rng.gen_range(-20.0..20.0),
+                        rng.gen_range(-20.0..20.0),
+                    )
+                })
+                .collect(),
             binding_sites: vec![((0.0, 0.0, 0.0), 5.0)],
         };
         (molecule, protein)
     }
 
     /// Performs parallel force field calculations for molecular dynamics (conceptual SIMD).
-    pub fn perform_parallel_force_field_calculations_simd(&self, molecule: &Molecule, protein: &Protein, _force_field: &ForceField) -> Vec<f32> {
+    pub fn perform_parallel_force_field_calculations_simd(
+        &self,
+        molecule: &Molecule,
+        protein: &Protein,
+        _force_field: &ForceField,
+    ) -> Vec<f32> {
         println!("  [ADDMM]: Performing parallel force field calculations for molecule '{}' and protein '{}' using {} (SIMD acceleration).", molecule.molecule_id, protein.protein_id, self.parallel_force_field_calculations_simd_accelerator);
         thread::sleep(Duration::from_millis(150));
         let mut rng = rand::thread_rng();
 
         // Simulate calculating interaction energies
         let num_interactions = molecule.atom_count as usize * protein.structure_coordinates.len();
-        (0..num_interactions).map(|_| rng.gen_range(-10.0..10.0)).collect()
+        (0..num_interactions)
+            .map(|_| rng.gen_range(-10.0..10.0))
+            .collect()
     }
 
     /// Runs a molecular dynamics simulation (conceptual SIMD).
-    pub fn run_molecular_dynamics_simulation_simd(&self, molecule: &Molecule, _force_field: &ForceField, time_steps: u32, temperature_k: f32) -> MolecularDynamicsSimulation {
+    pub fn run_molecular_dynamics_simulation_simd(
+        &self,
+        molecule: &Molecule,
+        _force_field: &ForceField,
+        time_steps: u32,
+        temperature_k: f32,
+    ) -> MolecularDynamicsSimulation {
         println!("  [ADDMM]: Running molecular dynamics simulation for molecule '{}' over {} time steps at {}K (SIMD for parallel MD).", molecule.molecule_id, time_steps, temperature_k);
         thread::sleep(Duration::from_millis(250));
         let mut rng = rand::thread_rng();
 
-        let final_conformation = (0..molecule.atomic_coordinates.len()).map(|_| (rng.gen_range(-5.0..5.0), rng.gen_range(-5.0..5.0), rng.gen_range(-5.0..5.0))).collect();
-        let energy_trace = (0..time_steps).map(|_| rng.gen_range(-50.0..-10.0)).collect();
+        let final_conformation = (0..molecule.atomic_coordinates.len())
+            .map(|_| {
+                (
+                    rng.gen_range(-5.0..5.0),
+                    rng.gen_range(-5.0..5.0),
+                    rng.gen_range(-5.0..5.0),
+                )
+            })
+            .collect();
+        let energy_trace = (0..time_steps)
+            .map(|_| rng.gen_range(-50.0..-10.0))
+            .collect();
 
         MolecularDynamicsSimulation {
             sim_id: format!("md_sim_{}", rng.gen::<u32>()),
@@ -147,10 +192,20 @@ impl AddmmEngine {
     }
 
     /// Analyzes drug-target interactions (conceptual RAG).
-    pub fn analyze_drug_target_interaction_rag(&self, simulation: &MolecularDynamicsSimulation, protein: &Protein) -> DrugTargetInteractionResult {
+    pub fn analyze_drug_target_interaction_rag(
+        &self,
+        simulation: &MolecularDynamicsSimulation,
+        protein: &Protein,
+    ) -> DrugTargetInteractionResult {
         println!("  [ADDMM]: Analyzing drug-target interaction between molecule '{}' and protein '{}' (RAG for chemical databases and biological pathways).", simulation.target_molecule_id, protein.protein_id);
-        if let Some(cdbp_info) = self.chemical_databases_biological_pathways_rag_db.get("ChEMBL_Database_Extract") {
-            format!("CDBP RAG insight for interaction analysis: {}. Molecule: '{}'", cdbp_info, simulation.target_molecule_id);
+        if let Some(cdbp_info) = self
+            .chemical_databases_biological_pathways_rag_db
+            .get("ChEMBL_Database_Extract")
+        {
+            format!(
+                "CDBP RAG insight for interaction analysis: {}. Molecule: '{}'",
+                cdbp_info, simulation.target_molecule_id
+            );
         }
         thread::sleep(Duration::from_millis(100));
         let mut rng = rand::thread_rng();
@@ -166,8 +221,14 @@ impl AddmmEngine {
     }
 
     /// Generates a comprehensive report for drug discovery and molecular modeling.
-    pub fn generate_addmm_report_rag(&self, interaction_result: &DrugTargetInteractionResult) -> String {
-        println!("  [ADDMM]: Generating ADDMM report for interaction '{}' (RAG for report generation).", interaction_result.interaction_id);
+    pub fn generate_addmm_report_rag(
+        &self,
+        interaction_result: &DrugTargetInteractionResult,
+    ) -> String {
+        println!(
+            "  [ADDMM]: Generating ADDMM report for interaction '{}' (RAG for report generation).",
+            interaction_result.interaction_id
+        );
         thread::sleep(Duration::from_millis(50));
 
         format!("Accelerated Drug Discovery & Molecular Modeling Report for Interaction '{}':\n  Drug Molecule: {}\n  Target Protein: {}\n  Binding Affinity (nM): {:.2}\n  Binding Site: ({:.2}, {:.2}, {:.2})\n  Confidence Score: {:.2}\n  (Conceptual summary based on RAG for hit identification and lead optimization).",
@@ -195,7 +256,11 @@ mod tests {
         assert!(!mol.atomic_coordinates.is_empty());
         assert!(!prot.structure_coordinates.is_empty());
 
-        let ff = ForceField { name: "AMBER".to_string(), description: "General protein/ligand force field".to_string(), parameters: HashMap::new() };
+        let ff = ForceField {
+            name: "AMBER".to_string(),
+            description: "General protein/ligand force field".to_string(),
+            parameters: HashMap::new(),
+        };
         let _ = engine.perform_parallel_force_field_calculations_simd(&mol, &prot, &ff);
 
         let md_sim = engine.run_molecular_dynamics_simulation_simd(&mol, &ff, 100, 300.0);
@@ -218,11 +283,12 @@ fn main() {
     println!("--- Scenario 1: Load Molecular Data ---");
     let drug_candidate_smiles = "CC(=O)NC1=CC=C(C=C1)O"; // Paracetamol/Acetaminophen
     let target_protein_pdb = "1A2C"; // Conceptual protein PDB ID
-    let (drug_molecule, target_protein) = addmm_engine.load_molecular_data(
-        drug_candidate_smiles,
-        target_protein_pdb,
+    let (drug_molecule, target_protein) =
+        addmm_engine.load_molecular_data(drug_candidate_smiles, target_protein_pdb);
+    println!(
+        "  Loaded drug molecule '{}' and target protein '{}'.\n",
+        drug_molecule.molecule_id, target_protein.protein_id
     );
-    println!("  Loaded drug molecule '{}' and target protein '{}'.\n", drug_molecule.molecule_id, target_protein.protein_id);
 
     // Scenario 2: Define force field
     let amber_force_field = ForceField {
@@ -245,14 +311,18 @@ fn main() {
     let md_simulation = addmm_engine.run_molecular_dynamics_simulation_simd(
         &drug_molecule,
         &amber_force_field,
-        10000, // 10,000 time steps
+        10000,  // 10,000 time steps
         310.15, // 37 C
     );
-    println!("  Molecular dynamics simulation '{}' completed for molecule '{}'.\n", md_simulation.sim_id, md_simulation.target_molecule_id);
+    println!(
+        "  Molecular dynamics simulation '{}' completed for molecule '{}'.\n",
+        md_simulation.sim_id, md_simulation.target_molecule_id
+    );
 
     // Scenario 5: Analyze drug-target interaction
     println!("--- Scenario 5: Analyze Drug-Target Interaction ---");
-    let interaction_result = addmm_engine.analyze_drug_target_interaction_rag(&md_simulation, &target_protein);
+    let interaction_result =
+        addmm_engine.analyze_drug_target_interaction_rag(&md_simulation, &target_protein);
     println!("  Drug-target interaction analysis completed for '{}' and '{}'. Binding Affinity: {:.2} nM.\n",
         interaction_result.drug_molecule_id,
         interaction_result.target_protein_id,

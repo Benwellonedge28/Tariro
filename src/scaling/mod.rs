@@ -41,24 +41,24 @@
 // ============================================================================
 // Core Types and Traits
 // ============================================================================
+pub mod adaptive_compute;
 pub mod capability;
+pub mod consensus;
+pub mod edge_sync;
+pub mod federated;
 pub mod resource_loader;
 pub mod tiered_memory;
-pub mod adaptive_compute;
-pub mod consensus;
-pub mod federated;
-pub mod edge_sync;
 
 // ============================================================================
 // Re-exports for convenience
 // ============================================================================
-pub use capability::{DeviceTier, CapabilityProfile, StorageType, PowerMode, FeatureFlags};
-pub use resource_loader::{ResourceAwareLoader, ModuleDescriptor, ModuleTier, ModuleHandle};
-pub use tiered_memory::{TieredMemory, MemoryTier, AccessPriority};
 pub use adaptive_compute::{AdaptiveComputation, ComputationPath, PartitionStrategy};
-pub use consensus::{DistributedConsensus, ConsensusConfig, ConsensusState, NodeId};
-pub use federated::{FederatedProtocol, AggregationStrategy, PrivacyConfig};
-pub use edge_sync::{EdgeCloudSync, SyncRole, SyncPolicy};
+pub use capability::{CapabilityProfile, DeviceTier, FeatureFlags, PowerMode, StorageType};
+pub use consensus::{ConsensusConfig, ConsensusState, DistributedConsensus, NodeId};
+pub use edge_sync::{EdgeCloudSync, SyncPolicy, SyncRole};
+pub use federated::{AggregationStrategy, FederatedProtocol, PrivacyConfig};
+pub use resource_loader::{ModuleDescriptor, ModuleHandle, ModuleTier, ResourceAwareLoader};
+pub use tiered_memory::{AccessPriority, MemoryTier, TieredMemory};
 
 // ============================================================================
 // Constants
@@ -93,23 +93,13 @@ pub const SCALING_VERSION: &str = "1.0.0";
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ScalingError {
     /// Device does not meet minimum requirements
-    InsufficientResources {
-        required: u64,
-        available: u64,
-        resource: String,
-    },
+    InsufficientResources { required: u64, available: u64, resource: String },
 
     /// Module failed to load
-    ModuleLoadFailed {
-        module: String,
-        reason: String,
-    },
+    ModuleLoadFailed { module: String, reason: String },
 
     /// Memory allocation failed
-    MemoryAllocationFailed {
-        requested: u64,
-        available: u64,
-    },
+    MemoryAllocationFailed { requested: u64, available: u64 },
 
     /// Consensus protocol error
     ConsensusError(String),
@@ -121,10 +111,7 @@ pub enum ScalingError {
     SyncError(String),
 
     /// Invalid device tier for operation
-    InvalidTier {
-        operation: String,
-        tier: DeviceTier,
-    },
+    InvalidTier { operation: String, tier: DeviceTier },
 
     /// Feature not supported on this platform
     FeatureNotSupported(String),
@@ -185,11 +172,11 @@ pub fn estimate_module_overhead(module_count: usize) -> u64 {
 /// Calculate the minimum memory needed for a specific tier
 pub fn minimum_memory_for_tier(tier: DeviceTier) -> u64 {
     match tier {
-        DeviceTier::Microcontroller => 8 * 1024,       // 8KB
-        DeviceTier::Embedded => 64 * 1024,              // 64KB
-        DeviceTier::Edge => 16 * 1024 * 1024,          // 16MB
-        DeviceTier::Cloud => 512 * 1024 * 1024,        // 512MB
-        DeviceTier::Planet => 1024 * 1024 * 1024,      // 1GB
+        DeviceTier::Microcontroller => 8 * 1024,  // 8KB
+        DeviceTier::Embedded => 64 * 1024,        // 64KB
+        DeviceTier::Edge => 16 * 1024 * 1024,     // 16MB
+        DeviceTier::Cloud => 512 * 1024 * 1024,   // 512MB
+        DeviceTier::Planet => 1024 * 1024 * 1024, // 1GB
     }
 }
 
@@ -321,7 +308,8 @@ pub struct ScalingConfig {
     pub consensus: Option<ConsensusConfig>,
 
     /// Federated learning configuration
-    pub federated: Option<FederatedConfig>}
+    pub federated: Option<FederatedConfig>,
+}
 
 impl Default for ScalingConfig {
     fn default() -> Self {
@@ -333,7 +321,8 @@ impl Default for ScalingConfig {
             enable_monitoring: true,
             enable_adaptive_compute: true,
             consensus: None,
-            federated: None}
+            federated: None,
+        }
     }
 }
 
@@ -348,7 +337,8 @@ impl ScalingConfig {
             enable_monitoring: false,
             enable_adaptive_compute: false,
             consensus: None,
-            federated: None}
+            federated: None,
+        }
     }
 
     /// Create a configuration for embedded devices
@@ -361,7 +351,8 @@ impl ScalingConfig {
             enable_monitoring: true,
             enable_adaptive_compute: true,
             consensus: None,
-            federated: None}
+            federated: None,
+        }
     }
 
     /// Create a configuration for cloud deployment
@@ -374,7 +365,8 @@ impl ScalingConfig {
             enable_monitoring: true,
             enable_adaptive_compute: true,
             consensus: Some(ConsensusConfig::default()),
-            federated: Some(FederatedConfig::default())}
+            federated: Some(FederatedConfig::default()),
+        }
     }
 }
 
@@ -391,7 +383,8 @@ pub struct FederatedConfig {
     pub privacy: PrivacyConfig,
 
     /// Sync frequency in seconds
-    pub sync_frequency_s: u32}
+    pub sync_frequency_s: u32,
+}
 
 impl Default for FederatedConfig {
     fn default() -> Self {
@@ -399,7 +392,8 @@ impl Default for FederatedConfig {
             min_peers: 3,
             aggregation: AggregationStrategy::FedAvg,
             privacy: PrivacyConfig::default(),
-            sync_frequency_s: 300}
+            sync_frequency_s: 300,
+        }
     }
 }
 
@@ -421,11 +415,20 @@ mod tests {
 
     #[test]
     fn test_minimum_memory_for_tier() {
-        assert_eq!(minimum_memory_for_tier(DeviceTier::Microcontroller), 8 * 1024);
+        assert_eq!(
+            minimum_memory_for_tier(DeviceTier::Microcontroller),
+            8 * 1024
+        );
         assert_eq!(minimum_memory_for_tier(DeviceTier::Embedded), 64 * 1024);
         assert_eq!(minimum_memory_for_tier(DeviceTier::Edge), 16 * 1024 * 1024);
-        assert_eq!(minimum_memory_for_tier(DeviceTier::Cloud), 512 * 1024 * 1024);
-        assert_eq!(minimum_memory_for_tier(DeviceTier::Planet), 1024 * 1024 * 1024);
+        assert_eq!(
+            minimum_memory_for_tier(DeviceTier::Cloud),
+            512 * 1024 * 1024
+        );
+        assert_eq!(
+            minimum_memory_for_tier(DeviceTier::Planet),
+            1024 * 1024 * 1024
+        );
     }
 
     #[test]

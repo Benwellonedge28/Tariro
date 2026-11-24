@@ -197,15 +197,9 @@ pub enum TypeMember {
         return_type: Type,
     },
     /// `get name(): T`
-    GetAccessor {
-        name: String,
-        type_annotation: Type,
-    },
+    GetAccessor { name: String, type_annotation: Type },
     /// `set name(v: T)`
-    SetAccessor {
-        name: String,
-        param_type: Type,
-    },
+    SetAccessor { name: String, param_type: Type },
     /// `[key: K]: V`
     Index(IndexSignature),
     /// `(...) => T`
@@ -264,7 +258,6 @@ pub struct EnumMember {
 #[derive(Debug, Clone)]
 pub enum AstNode {
     // -- Declarations ----------------------------------------------------
-
     /// A function, method or function expression.
     Function(Function),
 
@@ -340,7 +333,6 @@ pub enum AstNode {
     },
 
     // -- Blocks and control flow ----------------------------------------
-
     /// A nested block of statements.
     Block(Vec<AstNode>),
 
@@ -423,7 +415,6 @@ pub enum AstNode {
     },
 
     // -- Simple statements -----------------------------------------------
-
     /// An expression evaluated for its effect.
     ExpressionStatement(Box<Expression>),
 

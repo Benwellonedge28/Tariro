@@ -8,14 +8,13 @@
 /// assurance to ensure seamless execution and optimal outcomes. It leverages RAG for
 /// project management methodologies and workflow automation patterns, and SIMD for
 /// parallel task scheduling and real-time workflow state monitoring.
-
 use crate::prelude::*;
 use std::collections::HashMap;
 
+use rand::Rng;
+use serde::{Deserialize, Serialize};
 use std::thread;
 use std::time::Duration;
-use rand::Rng;
-use serde::{Serialize, Deserialize};
 
 // --- Conceptual Structures --- //
 
@@ -30,7 +29,7 @@ pub struct WorkflowTask {
     pub status: String, // e.g., "Pending", "In_Progress", "Review", "Completed", "Blocked"
     #[serde(with = "chrono::serde::ts_seconds")]
     pub due_date: DateTime<Utc>,
-    pub dependencies: Vec<String>, // IDs of tasks this task depends on
+    pub dependencies: Vec<String>,  // IDs of tasks this task depends on
     pub quality_score: Option<f32>, // 0.0 to 1.0
     pub rag_derived_instructions: String, // Detailed instructions for the assignee
 }
@@ -41,13 +40,13 @@ pub struct Workflow {
     pub workflow_id: String,
     pub name: String,
     pub description: String,
-    pub owner: String, // e.g., "Samuel", "Tariro_Project_Manager_AI"
+    pub owner: String,  // e.g., "Samuel", "Tariro_Project_Manager_AI"
     pub status: String, // e.g., "Active", "Paused", "Completed", "Archived"
     #[serde(with = "chrono::serde::ts_seconds")]
     pub start_date: DateTime<Utc>,
     pub end_date: Option<DateTime<Utc>>,
-    pub tasks: Vec<WorkflowTask>, // List of tasks in the workflow
-    pub overall_progress: f32, // 0.0 to 1.0
+    pub tasks: Vec<WorkflowTask>,   // List of tasks in the workflow
+    pub overall_progress: f32,      // 0.0 to 1.0
     pub critical_path: Vec<String>, // IDs of tasks on the critical path
     pub rag_derived_optimization: String, // RAG-derived strategy for workflow optimization
 }
@@ -58,9 +57,9 @@ pub struct MonitoringUpdate {
     pub update_id: String,
     #[serde(with = "chrono::serde::ts_seconds")]
     pub timestamp: DateTime<Utc>,
-    pub entity_id: String, // Task or Workflow ID
+    pub entity_id: String,   // Task or Workflow ID
     pub entity_type: String, // "Task" or "Workflow"
-    pub metric: String, // e.g., "Progress_Update", "Blockage_Detected", "Resource_Deviation"
+    pub metric: String,      // e.g., "Progress_Update", "Blockage_Detected", "Resource_Deviation"
     pub value: String,
     pub alert_level: String, // e.g., "Info", "Warning", "Critical"
     pub rag_derived_insight: String,
@@ -101,14 +100,19 @@ impl AAWOPMEngine {
     }
 
     /// Performs parallel task scheduling and real-time workflow state monitoring (SIMD conceptualization).
-    fn parallel_task_scheduling_workflow_monitoring_simd(&self, workflow: &Workflow) -> Vec<MonitoringUpdate> { // list of monitoring updates
+    fn parallel_task_scheduling_workflow_monitoring_simd(
+        &self,
+        workflow: &Workflow,
+    ) -> Vec<MonitoringUpdate> {
+        // list of monitoring updates
         println!("    [AAWOPM-SIMD]: Scheduling tasks for workflow '{}' and monitoring state in parallel.", workflow.name);
         thread::sleep(Duration::from_millis(150));
         let mut rng = rand::thread_rng();
 
         let mut updates = Vec::new();
         // Simulate SIMD-accelerated dependency resolution, resource allocation checks, and progress aggregation
-        if rng.gen_bool(0.1) { // Simulate a task blockage
+        if rng.gen_bool(0.1) {
+            // Simulate a task blockage
             updates.push(MonitoringUpdate {
                 update_id: format!("mon_upd_{}", rng.gen::<u32>()),
                 timestamp: Utc::now(),
@@ -120,39 +124,70 @@ impl AAWOPMEngine {
                 rag_derived_insight: "RAG-derived: Proactive detection of human bottleneck. Suggesting alternative assignee.".to_string(),
             });
         }
-         if rng.gen_bool(0.3) { // Simulate a progress update
+        if rng.gen_bool(0.3) {
+            // Simulate a progress update
             updates.push(MonitoringUpdate {
                 update_id: format!("mon_upd_prog_{}", rng.gen::<u32>()),
                 timestamp: Utc::now(),
                 entity_id: workflow.workflow_id.clone(),
                 entity_type: "Workflow".to_string(),
                 metric: "Progress_Update".to_string(),
-                value: format!("Workflow overall progress: {:.2}.", workflow.overall_progress + rng.gen_range(0.01..0.05)),
+                value: format!(
+                    "Workflow overall progress: {:.2}.",
+                    workflow.overall_progress + rng.gen_range(0.01..0.05)
+                ),
                 alert_level: "Info".to_string(),
-                rag_derived_insight: "RAG-derived: Workflow proceeding as expected. No immediate action required.".to_string(),
+                rag_derived_insight:
+                    "RAG-derived: Workflow proceeding as expected. No immediate action required."
+                        .to_string(),
             });
         }
         updates
     }
 
     /// Autonomously orchestrates complex, multi-stage workflows and projects (RAG-amplified).
-    pub fn orchestrate_workflow_rag(&self, mut workflow: Workflow) -> (Workflow, Vec<MonitoringUpdate>) {
-        println!("  [AAWOPM]: Orchestrating workflow '{}'. Status: '{}'.", workflow.name, workflow.status);
-        if let Some(pmm) = self.project_management_methodologies_rag_db.get("agile_scrum_kanban_principles_and_practices") {
-            format!("RAG knowledge for project management: '{}'", pmm.chars().take(100).collect::<String>());
+    pub fn orchestrate_workflow_rag(
+        &self,
+        mut workflow: Workflow,
+    ) -> (Workflow, Vec<MonitoringUpdate>) {
+        println!(
+            "  [AAWOPM]: Orchestrating workflow '{}'. Status: '{}'.",
+            workflow.name, workflow.status
+        );
+        if let Some(pmm) = self
+            .project_management_methodologies_rag_db
+            .get("agile_scrum_kanban_principles_and_practices")
+        {
+            format!(
+                "RAG knowledge for project management: '{}'",
+                pmm.chars().take(100).collect::<String>()
+            );
         }
-        if let Some(wap) = self.workflow_automation_patterns_rag_db.get("business_process_modeling_notation_bpmn_standards") {
-            format!("RAG knowledge for workflow automation: '{}'", wap.chars().take(100).collect::<String>());
+        if let Some(wap) = self
+            .workflow_automation_patterns_rag_db
+            .get("business_process_modeling_notation_bpmn_standards")
+        {
+            format!(
+                "RAG knowledge for workflow automation: '{}'",
+                wap.chars().take(100).collect::<String>()
+            );
         }
         thread::sleep(Duration::from_millis(2000));
         let mut rng = rand::thread_rng();
 
         // Conceptual: RAG-driven dynamic task allocation and dependency management
         for task in workflow.tasks.iter_mut() {
-            if task.status == "Pending" && task.dependencies.is_empty() { // Simple dependency check
-                println!("  [AAWOPM]: Assigning task '{}' to '{}'.", task.name, task.assignee_id);
+            if task.status == "Pending" && task.dependencies.is_empty() {
+                // Simple dependency check
+                println!(
+                    "  [AAWOPM]: Assigning task '{}' to '{}'.",
+                    task.name, task.assignee_id
+                );
                 task.status = "In_Progress".to_string();
-                task.rag_derived_instructions = format!("RAG-derived: Execute task based on best practices for {}.", task.assignee_type);
+                task.rag_derived_instructions = format!(
+                    "RAG-derived: Execute task based on best practices for {}.",
+                    task.assignee_type
+                );
             }
         }
 
@@ -161,7 +196,10 @@ impl AAWOPMEngine {
         // Conceptual: RAG-driven response to monitoring updates (e.g., resolve blockages)
         for update in &monitoring_updates {
             if update.metric == "Blockage_Detected" && update.alert_level == "Warning" {
-                println!("  [AAWOPM]: Detected blockage for task '{}'. Proposing resolution: '{}'.", update.entity_id, update.rag_derived_insight);
+                println!(
+                    "  [AAWOPM]: Detected blockage for task '{}'. Proposing resolution: '{}'.",
+                    update.entity_id, update.rag_derived_insight
+                );
                 // In a real system, this might trigger a new task to re-assign or unblock
             }
         }
@@ -178,8 +216,13 @@ impl AAWOPMEngine {
     }
 
     /// Generates a comprehensive report for AAWOPM.
-    pub fn generate_aawopm_report_rag(&self, total_workflows: u64, total_tasks: u64, avg_completion_rate: f32) -> String {
-        println!("  [AAWOPM]: Generating AAWOPM report (RAG for report generation).", );
+    pub fn generate_aawopm_report_rag(
+        &self,
+        total_workflows: u64,
+        total_tasks: u64,
+        avg_completion_rate: f32,
+    ) -> String {
+        println!("  [AAWOPM]: Generating AAWOPM report (RAG for report generation).",);
         thread::sleep(Duration::from_millis(80));
 
         format!("Autonomous Advanced Workflow Orchestration & Project Management Report:\n  Total Workflows Managed: {}\n  Total Tasks Executed: {}\n  Average Workflow Completion Rate: {:.2}%\n  (Conceptual summary based on RAG for project management/workflow automation and SIMD for parallel scheduling).",
@@ -199,14 +242,42 @@ mod tests {
         let engine = AAWOPMEngine::new();
 
         let initial_workflow = Workflow {
-            workflow_id: "wf_001".to_string(), name: "Launch New Product".to_string(), description: "Oversee the launch of Tariro's next-gen product.".to_string(), owner: "Samuel".to_string(), status: "Active".to_string(), start_date: Utc::now(), end_date: None, tasks: vec![
+            workflow_id: "wf_001".to_string(),
+            name: "Launch New Product".to_string(),
+            description: "Oversee the launch of Tariro's next-gen product.".to_string(),
+            owner: "Samuel".to_string(),
+            status: "Active".to_string(),
+            start_date: Utc::now(),
+            end_date: None,
+            tasks: vec![
                 WorkflowTask {
-                    task_id: "task_001".to_string(), name: "Market Research".to_string(), description: "Conduct extensive market research.".to_string(), assignee_type: "Human".to_string(), assignee_id: "analyst_alpha".to_string(), status: "Pending".to_string(), due_date: Utc::now() + Duration::from_secs(3600 * 24 * 7), dependencies: vec![], quality_score: None, rag_derived_instructions: "".to_string(),
+                    task_id: "task_001".to_string(),
+                    name: "Market Research".to_string(),
+                    description: "Conduct extensive market research.".to_string(),
+                    assignee_type: "Human".to_string(),
+                    assignee_id: "analyst_alpha".to_string(),
+                    status: "Pending".to_string(),
+                    due_date: Utc::now() + Duration::from_secs(3600 * 24 * 7),
+                    dependencies: vec![],
+                    quality_score: None,
+                    rag_derived_instructions: "".to_string(),
                 },
                 WorkflowTask {
-                    task_id: "task_002".to_string(), name: "Product Design".to_string(), description: "Design product features.".to_string(), assignee_type: "Tariro_Sub_Agent".to_string(), assignee_id: "design_ai".to_string(), status: "Pending".to_string(), due_date: Utc::now() + Duration::from_secs(3600 * 24 * 14), dependencies: vec!["task_001".to_string()], quality_score: None, rag_derived_instructions: "".to_string(),
+                    task_id: "task_002".to_string(),
+                    name: "Product Design".to_string(),
+                    description: "Design product features.".to_string(),
+                    assignee_type: "Tariro_Sub_Agent".to_string(),
+                    assignee_id: "design_ai".to_string(),
+                    status: "Pending".to_string(),
+                    due_date: Utc::now() + Duration::from_secs(3600 * 24 * 14),
+                    dependencies: vec!["task_001".to_string()],
+                    quality_score: None,
+                    rag_derived_instructions: "".to_string(),
                 },
-            ], overall_progress: 0.1, critical_path: vec![], rag_derived_optimization: "".to_string(),
+            ],
+            overall_progress: 0.1,
+            critical_path: vec![],
+            rag_derived_optimization: "".to_string(),
         };
 
         let (updated_workflow, updates) = engine.orchestrate_workflow_rag(initial_workflow);
@@ -277,15 +348,20 @@ fn main() {
         rag_derived_optimization: "RAG-derived: Identified parallelizable tasks for concurrent execution. Adjusted deadlines based on predictive resource availability.".to_string(),
     };
 
-    let (updated_workflow_1, updates_1) = aawopm_engine.orchestrate_workflow_rag(product_dev_workflow);
-    println!("  Workflow '{}' status: '{}'. Overall Progress: {:.2}. Generated {} monitoring updates.\n",
+    let (updated_workflow_1, updates_1) =
+        aawopm_engine.orchestrate_workflow_rag(product_dev_workflow);
+    println!(
+        "  Workflow '{}' status: '{}'. Overall Progress: {:.2}. Generated {} monitoring updates.\n",
         updated_workflow_1.name,
         updated_workflow_1.status,
         updated_workflow_1.overall_progress,
         updates_1.len()
     );
     if let Some(task) = updated_workflow_1.tasks.get(0) {
-        println!("  First task ('{}') status: '{}'. Instructions: '{}'.\n", task.name, task.status, task.rag_derived_instructions);
+        println!(
+            "  First task ('{}') status: '{}'. Instructions: '{}'.\n",
+            task.name, task.status, task.rag_derived_instructions
+        );
     }
 
     // Scenario 2: Tariro detects a blockage due to an unresponsive human collaborator and proposes a solution
@@ -342,19 +418,28 @@ fn main() {
     };
 
     // Simulate the human review task being stuck - the SIMD monitoring will detect it
-    if let Some(task) = sales_campaign_workflow.tasks.iter_mut().find(|t| t.task_id == "task_human_review_legal") {
+    if let Some(task) = sales_campaign_workflow
+        .tasks
+        .iter_mut()
+        .find(|t| t.task_id == "task_human_review_legal")
+    {
         task.status = "In_Progress".to_string();
     }
 
-    let (updated_workflow_2, updates_2) = aawopm_engine.orchestrate_workflow_rag(sales_campaign_workflow);
-    println!("  Workflow '{}' status: '{}'. Overall Progress: {:.2}. Generated {} monitoring updates.\n",
+    let (updated_workflow_2, updates_2) =
+        aawopm_engine.orchestrate_workflow_rag(sales_campaign_workflow);
+    println!(
+        "  Workflow '{}' status: '{}'. Overall Progress: {:.2}. Generated {} monitoring updates.\n",
         updated_workflow_2.name,
         updated_workflow_2.status,
         updated_workflow_2.overall_progress,
         updates_2.len()
     );
     if let Some(blockage_update) = updates_2.iter().find(|u| u.metric == "Blockage_Detected") {
-        println!("  Detected Blockage Insight: '{}'.\n", blockage_update.rag_derived_insight);
+        println!(
+            "  Detected Blockage Insight: '{}'.\n",
+            blockage_update.rag_derived_insight
+        );
     }
 
     // Scenario 3: Generate a comprehensive AAWOPM Report

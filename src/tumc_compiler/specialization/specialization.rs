@@ -1,7 +1,6 @@
 // Advanced Specialization Techniques
 
-use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction, Operation, IrType};
-
+use crate::tumc_compiler::ir::{BasicBlock, Function, Instruction, IrType, Module, Operation};
 
 // Re-exported so that sibling modules can name the constant type through
 // `specialization::StaticValue`.
@@ -39,11 +38,7 @@ pub struct Supercompiler {
 
 impl Supercompiler {
     pub fn new(config: SupercompilerConfig) -> Self {
-        Self {
-            config,
-            history: Vec::new(),
-            residual_functions: Vec::new(),
-        }
+        Self { config, history: Vec::new(), residual_functions: Vec::new() }
     }
 
     /// Supercompile a function
@@ -62,26 +57,23 @@ impl Supercompiler {
     }
 
     /// Drive phase: explore program states
-    fn drive(
-        &mut self,
-        function: &Function,
-        args: Vec<(String, IrType)>,
-    ) -> DrivingResult {
+    fn drive(&mut self, function: &Function, args: Vec<(String, IrType)>) -> DrivingResult {
         let mut states = vec![ProgramState {
             function: function.clone(),
             arguments: args,
             history: Vec::new(),
         }];
 
-        let mut driving_result = DrivingResult {
-            states: Vec::new(),
-            residual_instructions: Vec::new(),
-        };
+        let mut driving_result =
+            DrivingResult { states: Vec::new(), residual_instructions: Vec::new() };
 
         // Explore states until fixed point
         while let Some(state) = states.pop() {
             // Check if we've seen this state before
-            if state.history.contains(&format!("{:?}", state.function.name)) {
+            if state
+                .history
+                .contains(&format!("{:?}", state.function.name))
+            {
                 continue;
             }
 
@@ -130,10 +122,7 @@ impl Supercompiler {
         // Check for loops
         if state.history.len() > 10 {
             is_loop = true;
-            loop_info = Some(LoopInfo {
-                iterations_unknown: true,
-                body_static: true,
-            });
+            loop_info = Some(LoopInfo { iterations_unknown: true, body_static: true });
         }
 
         StateAnalysis {
@@ -205,15 +194,9 @@ impl Supercompiler {
 
     /// Build residual program
     fn build_residual(&self, driving_result: &DrivingResult) -> Function {
-        let mut residual = Function {
-            name: "supercompiled".to_string(),
-            ..Default::default()
-        };
+        let mut residual = Function { name: "supercompiled".to_string(), ..Default::default() };
 
-        let mut block = BasicBlock {
-            name: "entry".to_string(),
-            ..Default::default()
-        };
+        let mut block = BasicBlock { name: "entry".to_string(), ..Default::default() };
         block.instructions = driving_result.residual_instructions.clone();
         residual.body.push(block);
 
@@ -266,13 +249,15 @@ pub struct PolyvariantSpecializer {
 
 impl PolyvariantSpecializer {
     pub fn new() -> Self {
-        Self {
-            specialization_cache: HashMap::new(),
-        }
+        Self { specialization_cache: HashMap::new() }
     }
 
     /// Polyvariant specialization: create multiple versions based on usage
-    pub fn specialize_polyvariant(&mut self, function: &Function, call_sites: &[CallSite]) -> Vec<Function> {
+    pub fn specialize_polyvariant(
+        &mut self,
+        function: &Function,
+        call_sites: &[CallSite],
+    ) -> Vec<Function> {
         let mut specialized_versions = Vec::new();
 
         // Group call sites by argument types
@@ -325,15 +310,13 @@ pub struct HotPathSpecializer {
 
 impl HotPathSpecializer {
     pub fn new(threshold: f64) -> Self {
-        Self {
-            profiler_data: HashMap::new(),
-            threshold,
-        }
+        Self { profiler_data: HashMap::new(), threshold }
     }
 
     /// Add profiling data
     pub fn add_profile(&mut self, function: &str, execution_time: f64) {
-        self.profiler_data.insert(function.to_string(), execution_time);
+        self.profiler_data
+            .insert(function.to_string(), execution_time);
     }
 
     /// Check if function is hot
@@ -398,9 +381,7 @@ pub struct RuntimeTypeSpecializer {
 
 impl RuntimeTypeSpecializer {
     pub fn new() -> Self {
-        Self {
-            type_feedback: HashMap::new(),
-        }
+        Self { type_feedback: HashMap::new() }
     }
 
     /// Record type information from runtime
@@ -460,9 +441,7 @@ pub struct Devirtualizer {
 
 impl Devirtualizer {
     pub fn new() -> Self {
-        Self {
-            call_targets: HashMap::new(),
-        }
+        Self { call_targets: HashMap::new() }
     }
 
     /// Record possible call targets

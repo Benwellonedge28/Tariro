@@ -4,12 +4,11 @@
 //! Includes semantic parsing, dialogue management, and rule-based generation.
 
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap};
-use std::sync::Arc;
+use std::collections::HashMap;
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
-
 
 // ============================================================================
 // Core Types
@@ -65,21 +64,17 @@ pub struct Predicate {
 
 impl Predicate {
     pub fn new(name: &str, arity: usize) -> Self {
-        Self {
-            name: name.to_string(),
-            arity,
-            type_constraints: Vec::new(),
-        }
+        Self { name: name.to_string(), arity, type_constraints: Vec::new() }
     }
 }
 
 /// Argument in semantic representation
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum MeaningArgument {
-    Individual(String),         // e.g., "John"
-    Variable(String),          // e.g., "X"
+    Individual(String),                                 // e.g., "John"
+    Variable(String),                                   // e.g., "X"
     Quantified(Quantifier, Box<MeaningRepresentation>), // e.g., "every X"
-    Event(String),             // e.g., "event_1"
+    Event(String),                                      // e.g., "event_1"
 }
 
 impl MeaningArgument {
@@ -96,9 +91,9 @@ impl MeaningArgument {
 /// Quantifiers
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Quantifier {
-    Universal,  // "every", "all"
+    Universal,   // "every", "all"
     Existential, // "some", "a"
-    None,       // "no"
+    None,        // "no"
     Most,
     Few,
 }
@@ -110,7 +105,7 @@ pub enum SemanticModality {
     Interrogative,
     Imperative,
     Conditional,
-    Optative,  // wishes
+    Optative, // wishes
 }
 
 /// Semantic tense
@@ -154,18 +149,18 @@ impl SemanticParser {
     fn initialize_default_lexicon(&mut self) -> Lexicon {
         // Common verbs
         let verbs = vec![
-            ("is", "be", 1),           // is(X)
+            ("is", "be", 1), // is(X)
             ("are", "be", 1),
             ("was", "be", 1),
-            ("loves", "love", 2),      // love(X, Y)
+            ("loves", "love", 2), // love(X, Y)
             ("loved", "love", 2),
-            ("hits", "hit", 2),        // hit(X, Y)
+            ("hits", "hit", 2), // hit(X, Y)
             ("saw", "see", 2),
             ("sees", "see", 2),
-            ("gives", "give", 3),      // give(X, Y, Z)
-            ("wants", "want", 2),       // want(X, Y)
-            ("knows", "know", 2),      // know(X, Y)
-            ("thinks", "think", 2),     // think(X, Y)
+            ("gives", "give", 3),   // give(X, Y, Z)
+            ("wants", "want", 2),   // want(X, Y)
+            ("knows", "know", 2),   // know(X, Y)
+            ("thinks", "think", 2), // think(X, Y)
             ("believes", "believe", 2),
             ("says", "say", 2),
             ("walks", "walk", 1),
@@ -204,7 +199,8 @@ impl SemanticParser {
         let determiners = vec![
             ("a", Quantifier::Existential),
             ("an", Quantifier::Existential),
-            ("the", Quantifier::Existential),            ("every", Quantifier::Universal),
+            ("the", Quantifier::Existential),
+            ("every", Quantifier::Universal),
             ("all", Quantifier::Universal),
             ("some", Quantifier::Existential),
             ("no", Quantifier::None),
@@ -257,36 +253,44 @@ impl SemanticParser {
 
     fn tokenize(&self, text: &str) -> Vec<String> {
         text.split_whitespace()
-            .map(|s| s.trim_matches(|c: char| c.is_ascii_punctuation()).to_lowercase())
+            .map(|s| {
+                s.trim_matches(|c: char| c.is_ascii_punctuation())
+                    .to_lowercase()
+            })
             .filter(|s| !s.is_empty())
             .collect()
     }
 
     fn pos_tag(&self, tokens: &[String]) -> Vec<PartOfSpeech> {
-        tokens
-            .iter()
-            .map(|t| self.guess_pos(t))
-            .collect()
+        tokens.iter().map(|t| self.guess_pos(t)).collect()
     }
 
     fn guess_pos(&self, word: &str) -> PartOfSpeech {
         let w = word.to_lowercase();
 
         // Determiners
-        if ["a", "an", "the", "every", "some", "no", "all", "most", "few"].contains(&w.as_str()) {
+        if [
+            "a", "an", "the", "every", "some", "no", "all", "most", "few",
+        ]
+        .contains(&w.as_str())
+        {
             return PartOfSpeech::Determiner;
         }
 
         // Pronouns
-        if ["i", "you", "he", "she", "it", "we", "they", "me", "him", "her", "us", "them"]
-            .contains(&w.as_str())
+        if [
+            "i", "you", "he", "she", "it", "we", "they", "me", "him", "her", "us", "them",
+        ]
+        .contains(&w.as_str())
         {
             return PartOfSpeech::Pronoun;
         }
 
         // Prepositions
-        if ["in", "on", "at", "by", "with", "for", "to", "from", "of", "about"]
-            .contains(&w.as_str())
+        if [
+            "in", "on", "at", "by", "with", "for", "to", "from", "of", "about",
+        ]
+        .contains(&w.as_str())
         {
             return PartOfSpeech::Preposition;
         }
@@ -312,7 +316,12 @@ impl SemanticParser {
         }
 
         // Capitalized = likely proper noun
-        if word.chars().next().map(|c| c.is_uppercase()).unwrap_or(false) {
+        if word
+            .chars()
+            .next()
+            .map(|c| c.is_uppercase())
+            .unwrap_or(false)
+        {
             return PartOfSpeech::ProperNoun;
         }
 
@@ -336,39 +345,25 @@ impl SemanticParser {
                         i += 1;
                     }
                     if i < tokens.len() && matches!(pos_tags[i], PartOfSpeech::CommonNoun) {
-                        constituents.push(Constituent::NP {
-                            words: tokens[start..=i].to_vec(),
-                            head: i,
-                        });
+                        constituents
+                            .push(Constituent::NP { words: tokens[start..=i].to_vec(), head: i });
                         i += 1;
                     }
                 }
                 PartOfSpeech::Pronoun => {
-                    constituents.push(Constituent::NP {
-                        words: vec![tokens[i].clone()],
-                        head: i,
-                    });
+                    constituents.push(Constituent::NP { words: vec![tokens[i].clone()], head: i });
                     i += 1;
                 }
                 PartOfSpeech::ProperNoun => {
-                    constituents.push(Constituent::NP {
-                        words: vec![tokens[i].clone()],
-                        head: i,
-                    });
+                    constituents.push(Constituent::NP { words: vec![tokens[i].clone()], head: i });
                     i += 1;
                 }
                 PartOfSpeech::Verb => {
-                    constituents.push(Constituent::VP {
-                        words: vec![tokens[i].clone()],
-                        head: i,
-                    });
+                    constituents.push(Constituent::VP { words: vec![tokens[i].clone()], head: i });
                     i += 1;
                 }
                 PartOfSpeech::Preposition => {
-                    constituents.push(Constituent::PP {
-                        words: vec![tokens[i].clone()],
-                        head: i,
-                    });
+                    constituents.push(Constituent::PP { words: vec![tokens[i].clone()], head: i });
                     i += 1;
                 }
                 _ => i += 1,
@@ -541,11 +536,7 @@ impl Lexicon {
     pub fn add_verb(&mut self, surface: &str, lemma: &str, arity: usize) {
         self.verbs.insert(
             surface.to_lowercase(),
-            VerbEntry {
-                lemma: lemma.to_string(),
-                arity,
-                subcategorization: vec![],
-            },
+            VerbEntry { lemma: lemma.to_string(), arity, subcategorization: vec![] },
         );
     }
 
@@ -785,7 +776,11 @@ impl DialogueManager {
         );
     }
 
-    pub async fn process(&mut self, utterance: &str, parser: &mut SemanticParser) -> DialogueResponse {
+    pub async fn process(
+        &mut self,
+        utterance: &str,
+        parser: &mut SemanticParser,
+    ) -> DialogueResponse {
         self.state.turn += 1;
 
         // Parse utterance
@@ -806,11 +801,7 @@ impl DialogueManager {
         // Generate response
         let response_text = self.generate_response(&intent);
 
-        DialogueResponse {
-            text: response_text,
-            intent: intent.clone(),
-            slots,
-        }
+        DialogueResponse { text: response_text, intent: intent.clone(), slots }
     }
 
     fn classify_intent(&self, parse: &ParseResult) -> Intent {
@@ -820,8 +811,10 @@ impl DialogueManager {
         // Question detection
         if text_lower.contains('?')
             || tokens.first().map(|t| {
-                ["who", "what", "where", "when", "why", "how", "is", "are", "do", "does", "can"]
-                    .contains(&t.as_str())
+                [
+                    "who", "what", "where", "when", "why", "how", "is", "are", "do", "does", "can",
+                ]
+                .contains(&t.as_str())
             }) == Some(true)
         {
             return Intent {
@@ -856,9 +849,7 @@ impl DialogueManager {
         }
 
         // Help detection
-        if text_lower.contains("help")
-            || text_lower.contains("what can you do")
-        {
+        if text_lower.contains("help") || text_lower.contains("what can you do") {
             return Intent {
                 name: IntentType::Help,
                 confidence: 0.9,
@@ -882,11 +873,13 @@ impl DialogueManager {
             if let Constituent::NP { words, .. } = const_ {
                 if let Some(first) = words.first() {
                     // Capitalized words are likely entities
-                    if first.chars().next().map(|c| c.is_uppercase()).unwrap_or(false) {
-                        slots.insert(
-                            "entity".to_string(),
-                            SlotValue::Entity(first.clone()),
-                        );
+                    if first
+                        .chars()
+                        .next()
+                        .map(|c| c.is_uppercase())
+                        .unwrap_or(false)
+                    {
+                        slots.insert("entity".to_string(), SlotValue::Entity(first.clone()));
                     }
                 }
             }
@@ -895,7 +888,10 @@ impl DialogueManager {
         // Extract question word
         for tag in &parse.pos_tags {
             if matches!(tag, PartOfSpeech::QuestionWord) {
-                slots.insert("question_type".to_string(), SlotValue::String("wh".to_string()));
+                slots.insert(
+                    "question_type".to_string(),
+                    SlotValue::String("wh".to_string()),
+                );
             }
         }
 
@@ -1015,7 +1011,6 @@ impl TextGenerator {
                 "want" => "wants",
                 "know" => "knows",
                 "think" => "thinks",
-                "see" => "sees",
                 _ => pred,
             };
 
@@ -1051,14 +1046,18 @@ pub struct RealizationGrammar {
 
 impl RealizationGrammar {
     pub fn new() -> Self {
-        let mut grammar = Self {
-            rules: HashMap::new(),
-        };
+        let mut grammar = Self { rules: HashMap::new() };
 
         // Simple phrase structure rules
-        grammar.rules.insert("S".to_string(), vec!["NP VP".to_string()]);
-        grammar.rules.insert("NP".to_string(), vec!["Det N".to_string(), "N".to_string()]);
-        grammar.rules.insert("VP".to_string(), vec!["V".to_string(), "V NP".to_string()]);
+        grammar
+            .rules
+            .insert("S".to_string(), vec!["NP VP".to_string()]);
+        grammar
+            .rules
+            .insert("NP".to_string(), vec!["Det N".to_string(), "N".to_string()]);
+        grammar
+            .rules
+            .insert("VP".to_string(), vec!["V".to_string(), "V NP".to_string()]);
 
         grammar
     }
@@ -1135,7 +1134,9 @@ impl LanguageSystem {
     /// Full dialogue turn
     pub async fn dialogue_turn(&mut self, utterance: &str) -> DialogueResponse {
         self.stats.dialogues_managed.fetch_add(1, Ordering::Relaxed);
-        self.dialogue_manager.process(utterance, &mut self.parser).await
+        self.dialogue_manager
+            .process(utterance, &mut self.parser)
+            .await
     }
 
     /// Realize logical form as text
@@ -1201,7 +1202,9 @@ mod dialogue_manager_tests {
     #[tokio::test]
     async fn test_question_classification() {
         let mut manager = DialogueManager::new();
-        let response = manager.process("What is the answer?", &mut SemanticParser::new()).await;
+        let response = manager
+            .process("What is the answer?", &mut SemanticParser::new())
+            .await;
 
         assert_eq!(response.intent.name, IntentType::Question);
     }
@@ -1209,7 +1212,9 @@ mod dialogue_manager_tests {
     #[tokio::test]
     async fn test_farewell_classification() {
         let mut manager = DialogueManager::new();
-        let response = manager.process("Goodbye!", &mut SemanticParser::new()).await;
+        let response = manager
+            .process("Goodbye!", &mut SemanticParser::new())
+            .await;
 
         assert_eq!(response.intent.name, IntentType::Farewell);
     }

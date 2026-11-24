@@ -1,6 +1,6 @@
 // Abstract Interpretation for Static Analysis
 
-use crate::tumc_compiler::ir::{Instruction, Operation, BinOp, ValueId};
+use crate::tumc_compiler::ir::{BinOp, Instruction, Operation, ValueId};
 use std::collections::{HashMap, HashSet};
 
 /// Abstract domain type
@@ -30,10 +30,7 @@ pub struct Interval {
 
 impl Interval {
     pub fn top() -> Self {
-        Self {
-            lower: i64::MIN,
-            upper: i64::MAX,
-        }
+        Self { lower: i64::MIN, upper: i64::MAX }
     }
 
     pub fn bottom() -> Self {
@@ -140,8 +137,18 @@ impl Interval {
             self.upper / other.upper.min(-1).max(1),
         ];
         Interval {
-            lower: candidates.iter().cloned().filter(|&x| x != i64::MIN).min().unwrap_or(i64::MIN),
-            upper: candidates.iter().cloned().filter(|&x| x != i64::MAX).max().unwrap_or(i64::MAX),
+            lower: candidates
+                .iter()
+                .cloned()
+                .filter(|&x| x != i64::MIN)
+                .min()
+                .unwrap_or(i64::MIN),
+            upper: candidates
+                .iter()
+                .cloned()
+                .filter(|&x| x != i64::MAX)
+                .max()
+                .unwrap_or(i64::MAX),
         }
     }
 
@@ -212,15 +219,11 @@ pub struct AbstractValue {
 
 impl AbstractValue {
     pub fn top() -> Self {
-        Self {
-            domain_type: AbstractDomainType::Top,
-        }
+        Self { domain_type: AbstractDomainType::Top }
     }
 
     pub fn bottom() -> Self {
-        Self {
-            domain_type: AbstractDomainType::Bottom,
-        }
+        Self { domain_type: AbstractDomainType::Bottom }
     }
 
     pub fn interval(lower: i64, upper: i64) -> Self {
@@ -230,15 +233,11 @@ impl AbstractValue {
     }
 
     pub fn constant(c: i64) -> Self {
-        Self {
-            domain_type: AbstractDomainType::Constant(c),
-        }
+        Self { domain_type: AbstractDomainType::Constant(c) }
     }
 
     pub fn sign(sign: Sign) -> Self {
-        Self {
-            domain_type: AbstractDomainType::Sign(sign),
-        }
+        Self { domain_type: AbstractDomainType::Sign(sign) }
     }
 
     pub fn is_bottom(&self) -> bool {
@@ -255,9 +254,7 @@ impl AbstractValue {
             (AbstractDomainType::Bottom, _) => other.clone(),
             (_, AbstractDomainType::Bottom) => self.clone(),
             (AbstractDomainType::Interval(a), AbstractDomainType::Interval(b)) => {
-                AbstractValue {
-                    domain_type: AbstractDomainType::Interval(a.join(b)),
-                }
+                AbstractValue { domain_type: AbstractDomainType::Interval(a.join(b)) }
             }
             (AbstractDomainType::Constant(a), AbstractDomainType::Constant(b)) if a == b => {
                 self.clone()
@@ -272,9 +269,7 @@ impl AbstractValue {
                 AbstractValue::bottom()
             }
             (AbstractDomainType::Interval(a), AbstractDomainType::Interval(b)) => {
-                AbstractValue {
-                    domain_type: AbstractDomainType::Interval(a.meet(b)),
-                }
+                AbstractValue { domain_type: AbstractDomainType::Interval(a.meet(b)) }
             }
             _ => AbstractValue::top(),
         }
@@ -283,9 +278,7 @@ impl AbstractValue {
     pub fn widening(&self, other: &AbstractValue) -> AbstractValue {
         match (&self.domain_type, &other.domain_type) {
             (AbstractDomainType::Interval(a), AbstractDomainType::Interval(b)) => {
-                AbstractValue {
-                    domain_type: AbstractDomainType::Interval(a.widening(b)),
-                }
+                AbstractValue { domain_type: AbstractDomainType::Interval(a.widening(b)) }
             }
             _ => AbstractValue::top(),
         }
@@ -302,21 +295,18 @@ pub struct AbstractDomain {
 
 impl AbstractDomain {
     pub fn top() -> Self {
-        Self {
-            variables: HashMap::new(),
-            memory: HashMap::new(),
-        }
+        Self { variables: HashMap::new(), memory: HashMap::new() }
     }
 
     pub fn bottom() -> Self {
-        Self {
-            variables: HashMap::new(),
-            memory: HashMap::new(),
-        }
+        Self { variables: HashMap::new(), memory: HashMap::new() }
     }
 
     pub fn get(&self, value: ValueId) -> AbstractValue {
-        self.variables.get(&value).cloned().unwrap_or(AbstractValue::top())
+        self.variables
+            .get(&value)
+            .cloned()
+            .unwrap_or(AbstractValue::top())
     }
 
     pub fn set(&mut self, value: ValueId, abstract_value: AbstractValue) {
@@ -354,7 +344,9 @@ impl AbstractDomain {
         let mut result = AbstractDomain::top();
         for (name, val) in &self.variables {
             if let Some(other_val) = other.variables.get(name) {
-                result.variables.insert(name.clone(), val.widening(other_val));
+                result
+                    .variables
+                    .insert(name.clone(), val.widening(other_val));
             } else {
                 result.variables.insert(name.clone(), val.clone());
             }
@@ -385,11 +377,10 @@ impl AbstractInterpreter {
     /// Analyze a function
     pub fn analyze(&self, instructions: &[Instruction]) -> AbstractDomain {
         let mut state = AbstractDomain::top();
-        let mut new_state = AbstractDomain::top();
         let mut iterations = 0;
 
         loop {
-            new_state = state.clone();
+            let mut new_state = state.clone();
             for inst in instructions {
                 new_state = self.analyze_instruction(inst, &new_state);
             }
@@ -447,7 +438,12 @@ impl AbstractInterpreter {
     }
 
     /// Compute binary operation in abstract domain
-    fn compute_binary_op(&self, op: &BinOp, lhs: &AbstractValue, rhs: &AbstractValue) -> AbstractValue {
+    fn compute_binary_op(
+        &self,
+        op: &BinOp,
+        lhs: &AbstractValue,
+        rhs: &AbstractValue,
+    ) -> AbstractValue {
         match (&lhs.domain_type, &rhs.domain_type) {
             (AbstractDomainType::Interval(a), AbstractDomainType::Interval(b)) => {
                 let result = match op {
@@ -457,9 +453,7 @@ impl AbstractInterpreter {
                     BinOp::Div => a.div(b),
                     _ => Interval::top(),
                 };
-                AbstractValue {
-                    domain_type: AbstractDomainType::Interval(result),
-                }
+                AbstractValue { domain_type: AbstractDomainType::Interval(result) }
             }
             _ => AbstractValue::top(),
         }

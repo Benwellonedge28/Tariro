@@ -1,7 +1,6 @@
 //! Native code generation for x86_64 and AArch64
 //! Generates machine code for native execution
 
-
 use super::ast::*;
 use std::collections::HashMap;
 use std::fmt;
@@ -46,38 +45,22 @@ pub struct Target {
 impl Target {
     /// Linux x86_64 GNU
     pub fn x86_64_linux_gnu() -> Self {
-        Target {
-            arch: Arch::X86_64,
-            os: OS::Linux,
-            env: Env::Gnu,
-        }
+        Target { arch: Arch::X86_64, os: OS::Linux, env: Env::Gnu }
     }
 
     /// Linux AArch64 GNU
     pub fn aarch64_linux_gnu() -> Self {
-        Target {
-            arch: Arch::AArch64,
-            os: OS::Linux,
-            env: Env::Gnu,
-        }
+        Target { arch: Arch::AArch64, os: OS::Linux, env: Env::Gnu }
     }
 
     /// macOS x86_64
     pub fn x86_64_macos() -> Self {
-        Target {
-            arch: Arch::X86_64,
-            os: OS::MacOS,
-            env: Env::Gnu,
-        }
+        Target { arch: Arch::X86_64, os: OS::MacOS, env: Env::Gnu }
     }
 
     /// Windows x86_64 MSVC
     pub fn x86_64_windows() -> Self {
-        Target {
-            arch: Arch::X86_64,
-            os: OS::Windows,
-            env: Env::MsVC,
-        }
+        Target { arch: Arch::X86_64, os: OS::Windows, env: Env::MsVC }
     }
 }
 
@@ -94,18 +77,61 @@ pub enum Register {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum R8 {
-    Rax, Rcx, Rdx, Rbx, Rsp, Rbp, Rsi, Rdi,
-    R8, R9, R10, R11, R12, R13, R14, R15,
+    Rax,
+    Rcx,
+    Rdx,
+    Rbx,
+    Rsp,
+    Rbp,
+    Rsi,
+    Rdi,
+    R8,
+    R9,
+    R10,
+    R11,
+    R12,
+    R13,
+    R14,
+    R15,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum A64 {
-    X0, X1, X2, X3, X4, X5, X6, X7,
-    X8, X9, X10, X11, X12, X13, X14, X15,
-    X16, X17, X18, X19, X20, X21, X22, X23,
-    X24, X25, X26, X27, X28, X29, X30, XZR,
+    X0,
+    X1,
+    X2,
+    X3,
+    X4,
+    X5,
+    X6,
+    X7,
+    X8,
+    X9,
+    X10,
+    X11,
+    X12,
+    X13,
+    X14,
+    X15,
+    X16,
+    X17,
+    X18,
+    X19,
+    X20,
+    X21,
+    X22,
+    X23,
+    X24,
+    X25,
+    X26,
+    X27,
+    X28,
+    X29,
+    X30,
+    XZR,
     // Aliases
-    Sp, Wzr,
+    Sp,
+    Wzr,
 }
 
 /// Memory operand
@@ -220,8 +246,22 @@ pub enum X86Inst {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Xmm {
-    Xmm0, Xmm1, Xmm2, Xmm3, Xmm4, Xmm5, Xmm6, Xmm7,
-    Xmm8, Xmm9, Xmm10, Xmm11, Xmm12, Xmm13, Xmm14, Xmm15,
+    Xmm0,
+    Xmm1,
+    Xmm2,
+    Xmm3,
+    Xmm4,
+    Xmm5,
+    Xmm6,
+    Xmm7,
+    Xmm8,
+    Xmm9,
+    Xmm10,
+    Xmm11,
+    Xmm12,
+    Xmm13,
+    Xmm14,
+    Xmm15,
 }
 
 /// AArch64 instruction
@@ -287,7 +327,7 @@ pub enum A64Inst {
     BMi { target: String }, // Negative
     BVs { target: String }, // Overflow set
     BVc { target: String }, // Overflow clear
-    Bl { target: String }, // Branch with link
+    Bl { target: String },  // Branch with link
     Br { target: Register },
     Ret,
     Cbz { dest: A64, target: String },
@@ -314,28 +354,80 @@ pub enum A64Inst {
     // Other
     Nop,
     Brk,
-   Svc { imm: u8 },
+    Svc { imm: u8 },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum V {
-    V0, V1, V2, V3, V4, V5, V6, V7,
-    V8, V9, V10, V11, V12, V13, V14, V15,
-    V16, V17, V18, V19, V20, V21, V22, V23,
-    V24, V25, V26, V27, V28, V29, V30, V31,
+    V0,
+    V1,
+    V2,
+    V3,
+    V4,
+    V5,
+    V6,
+    V7,
+    V8,
+    V9,
+    V10,
+    V11,
+    V12,
+    V13,
+    V14,
+    V15,
+    V16,
+    V17,
+    V18,
+    V19,
+    V20,
+    V21,
+    V22,
+    V23,
+    V24,
+    V25,
+    V26,
+    V27,
+    V28,
+    V29,
+    V30,
+    V31,
 }
 
 impl V {
     pub fn from_idx(idx: u8) -> Option<V> {
         match idx {
-            0 => Some(V::V0), 1 => Some(V::V1), 2 => Some(V::V2), 3 => Some(V::V3),
-            4 => Some(V::V4), 5 => Some(V::V5), 6 => Some(V::V6), 7 => Some(V::V7),
-            8 => Some(V::V8), 9 => Some(V::V9), 10 => Some(V::V10), 11 => Some(V::V11),
-            12 => Some(V::V12), 13 => Some(V::V13), 14 => Some(V::V14), 15 => Some(V::V15),
-            16 => Some(V::V16), 17 => Some(V::V17), 18 => Some(V::V18), 19 => Some(V::V19),
-            20 => Some(V::V20), 21 => Some(V::V21), 22 => Some(V::V22), 23 => Some(V::V23),
-            24 => Some(V::V24), 25 => Some(V::V25), 26 => Some(V::V26), 27 => Some(V::V27),
-            28 => Some(V::V28), 29 => Some(V::V29), 30 => Some(V::V30), 31 => Some(V::V31),
+            0 => Some(V::V0),
+            1 => Some(V::V1),
+            2 => Some(V::V2),
+            3 => Some(V::V3),
+            4 => Some(V::V4),
+            5 => Some(V::V5),
+            6 => Some(V::V6),
+            7 => Some(V::V7),
+            8 => Some(V::V8),
+            9 => Some(V::V9),
+            10 => Some(V::V10),
+            11 => Some(V::V11),
+            12 => Some(V::V12),
+            13 => Some(V::V13),
+            14 => Some(V::V14),
+            15 => Some(V::V15),
+            16 => Some(V::V16),
+            17 => Some(V::V17),
+            18 => Some(V::V18),
+            19 => Some(V::V19),
+            20 => Some(V::V20),
+            21 => Some(V::V21),
+            22 => Some(V::V22),
+            23 => Some(V::V23),
+            24 => Some(V::V24),
+            25 => Some(V::V25),
+            26 => Some(V::V26),
+            27 => Some(V::V27),
+            28 => Some(V::V28),
+            29 => Some(V::V29),
+            30 => Some(V::V30),
+            31 => Some(V::V31),
             _ => None,
         }
     }
@@ -402,7 +494,10 @@ impl NativeCodegen {
 
     /// Compile a function
     pub fn compile_function(&mut self, func: &Function) -> Result<NativeFunction, CodegenError> {
-        println!("TUMC: NativeCodegen - Compiling function '{}' for {:?}", func.name, self.target.arch);
+        println!(
+            "TUMC: NativeCodegen - Compiling function '{}' for {:?}",
+            func.name, self.target.arch
+        );
 
         let mut native_func = NativeFunction {
             name: func.name.clone(),
@@ -433,12 +528,17 @@ impl NativeCodegen {
             Arch::X86_64 => {
                 // push rbp
                 func.instructions.push(CompiledInst {
-                    inst: Instruction::X86_64(X86Inst::Push { src: Operand::Reg(Register::X86_64(R8::Rbp)) }),
+                    inst: Instruction::X86_64(X86Inst::Push {
+                        src: Operand::Reg(Register::X86_64(R8::Rbp)),
+                    }),
                     size: 1,
                 });
                 // mov rbp, rsp
                 func.instructions.push(CompiledInst {
-                    inst: Instruction::X86_64(X86Inst::Mov { dest: R8::Rbp, src: Operand::Reg(Register::X86_64(R8::Rsp)) }),
+                    inst: Instruction::X86_64(X86Inst::Mov {
+                        dest: R8::Rbp,
+                        src: Operand::Reg(Register::X86_64(R8::Rsp)),
+                    }),
                     size: 3,
                 });
             }
@@ -447,7 +547,12 @@ impl NativeCodegen {
                 func.instructions.push(CompiledInst {
                     inst: Instruction::AArch64(A64Inst::Stp {
                         src: (A64::X29, A64::X30),
-                        dest: Operand::Mem { base: Register::AArch64(A64::Sp), offset: -16, scale: 1, index: None },
+                        dest: Operand::Mem {
+                            base: Register::AArch64(A64::Sp),
+                            offset: -16,
+                            scale: 1,
+                            index: None,
+                        },
                     }),
                     size: 4,
                 });
@@ -474,25 +579,26 @@ impl NativeCodegen {
                     size: 1,
                 });
                 // ret
-                func.instructions.push(CompiledInst {
-                    inst: Instruction::X86_64(X86Inst::Ret),
-                    size: 1,
-                });
+                func.instructions
+                    .push(CompiledInst { inst: Instruction::X86_64(X86Inst::Ret), size: 1 });
             }
             Arch::AArch64 => {
                 // ldp x29, x30, [sp], #16
                 func.instructions.push(CompiledInst {
                     inst: Instruction::AArch64(A64Inst::Ldp {
                         dest: (A64::X29, A64::X30),
-                        src: Operand::Mem { base: Register::AArch64(A64::Sp), offset: 0, scale: 1, index: None },
+                        src: Operand::Mem {
+                            base: Register::AArch64(A64::Sp),
+                            offset: 0,
+                            scale: 1,
+                            index: None,
+                        },
                     }),
                     size: 4,
                 });
                 // ret
-                func.instructions.push(CompiledInst {
-                    inst: Instruction::AArch64(A64Inst::Ret),
-                    size: 4,
-                });
+                func.instructions
+                    .push(CompiledInst { inst: Instruction::AArch64(A64Inst::Ret), size: 4 });
             }
             _ => {}
         }
@@ -587,20 +693,18 @@ impl NativeCodegen {
                     _ => {}
                 }
             }
-            Arch::AArch64 => {
-                match lit {
-                    Literal::Int(n) => {
-                        func.instructions.push(CompiledInst {
-                            inst: Instruction::AArch64(A64Inst::Mov {
-                                dest: A64::X0,
-                                src: Operand::Imm(*n as i64),
-                            }),
-                            size: 4,
-                        });
-                    }
-                    _ => {}
+            Arch::AArch64 => match lit {
+                Literal::Int(n) => {
+                    func.instructions.push(CompiledInst {
+                        inst: Instruction::AArch64(A64Inst::Mov {
+                            dest: A64::X0,
+                            src: Operand::Imm(*n as i64),
+                        }),
+                        size: 4,
+                    });
                 }
-            }
+                _ => {}
+            },
             _ => {}
         }
     }
@@ -645,36 +749,69 @@ impl NativeCodegen {
         match self.target.arch {
             Arch::X86_64 => {
                 let inst = match op {
-                    BinOp::Add => X86Inst::Add { dest: R8::Rax, src: Operand::Reg(Register::X86_64(R8::Rbx)) },
-                    BinOp::Sub => X86Inst::Sub { dest: R8::Rax, src: Operand::Reg(Register::X86_64(R8::Rbx)) },
-                    BinOp::Mul => X86Inst::Imul { dest: R8::Rax, src: Operand::Reg(Register::X86_64(R8::Rbx)) },
+                    BinOp::Add => {
+                        X86Inst::Add { dest: R8::Rax, src: Operand::Reg(Register::X86_64(R8::Rbx)) }
+                    }
+                    BinOp::Sub => {
+                        X86Inst::Sub { dest: R8::Rax, src: Operand::Reg(Register::X86_64(R8::Rbx)) }
+                    }
+                    BinOp::Mul => X86Inst::Imul {
+                        dest: R8::Rax,
+                        src: Operand::Reg(Register::X86_64(R8::Rbx)),
+                    },
                     BinOp::Div => X86Inst::Idiv { src: Operand::Reg(Register::X86_64(R8::Rbx)) },
-                    BinOp::BitAnd => X86Inst::And { dest: R8::Rax, src: Operand::Reg(Register::X86_64(R8::Rbx)) },
-                    BinOp::BitOr => X86Inst::Or { dest: R8::Rax, src: Operand::Reg(Register::X86_64(R8::Rbx)) },
-                    BinOp::BitXor => X86Inst::Xor { dest: R8::Rax, src: Operand::Reg(Register::X86_64(R8::Rbx)) },
-                    BinOp::Shl => X86Inst::Shl { dest: R8::Rax, src: Operand::Reg(Register::X86_64(R8::Rcx)) },
-                    BinOp::Shr => X86Inst::Shr { dest: R8::Rax, src: Operand::Reg(Register::X86_64(R8::Rcx)) },
+                    BinOp::BitAnd => {
+                        X86Inst::And { dest: R8::Rax, src: Operand::Reg(Register::X86_64(R8::Rbx)) }
+                    }
+                    BinOp::BitOr => {
+                        X86Inst::Or { dest: R8::Rax, src: Operand::Reg(Register::X86_64(R8::Rbx)) }
+                    }
+                    BinOp::BitXor => {
+                        X86Inst::Xor { dest: R8::Rax, src: Operand::Reg(Register::X86_64(R8::Rbx)) }
+                    }
+                    BinOp::Shl => {
+                        X86Inst::Shl { dest: R8::Rax, src: Operand::Reg(Register::X86_64(R8::Rcx)) }
+                    }
+                    BinOp::Shr => {
+                        X86Inst::Shr { dest: R8::Rax, src: Operand::Reg(Register::X86_64(R8::Rcx)) }
+                    }
                     _ => X86Inst::Nop,
                 };
-                func.instructions.push(CompiledInst {
-                    inst: Instruction::X86_64(inst),
-                    size: 3,
-                });
+                func.instructions
+                    .push(CompiledInst { inst: Instruction::X86_64(inst), size: 3 });
             }
             Arch::AArch64 => {
                 let inst = match op {
-                    BinOp::Add => A64Inst::Add { dest: A64::X0, a: A64::X0, b: Operand::Reg(Register::AArch64(A64::X1)) },
-                    BinOp::Sub => A64Inst::Sub { dest: A64::X0, a: A64::X0, b: Operand::Reg(Register::AArch64(A64::X1)) },
+                    BinOp::Add => A64Inst::Add {
+                        dest: A64::X0,
+                        a: A64::X0,
+                        b: Operand::Reg(Register::AArch64(A64::X1)),
+                    },
+                    BinOp::Sub => A64Inst::Sub {
+                        dest: A64::X0,
+                        a: A64::X0,
+                        b: Operand::Reg(Register::AArch64(A64::X1)),
+                    },
                     BinOp::Mul => A64Inst::Mul { dest: A64::X0, a: A64::X0, b: A64::X1 },
-                    BinOp::BitAnd => A64Inst::And { dest: A64::X0, a: A64::X0, b: Operand::Reg(Register::AArch64(A64::X1)) },
-                    BinOp::BitOr => A64Inst::Orr { dest: A64::X0, a: A64::X0, b: Operand::Reg(Register::AArch64(A64::X1)) },
-                    BinOp::BitXor => A64Inst::Eor { dest: A64::X0, a: A64::X0, b: Operand::Reg(Register::AArch64(A64::X1)) },
+                    BinOp::BitAnd => A64Inst::And {
+                        dest: A64::X0,
+                        a: A64::X0,
+                        b: Operand::Reg(Register::AArch64(A64::X1)),
+                    },
+                    BinOp::BitOr => A64Inst::Orr {
+                        dest: A64::X0,
+                        a: A64::X0,
+                        b: Operand::Reg(Register::AArch64(A64::X1)),
+                    },
+                    BinOp::BitXor => A64Inst::Eor {
+                        dest: A64::X0,
+                        a: A64::X0,
+                        b: Operand::Reg(Register::AArch64(A64::X1)),
+                    },
                     _ => A64Inst::Nop,
                 };
-                func.instructions.push(CompiledInst {
-                    inst: Instruction::AArch64(inst),
-                    size: 4,
-                });
+                func.instructions
+                    .push(CompiledInst { inst: Instruction::AArch64(inst), size: 4 });
             }
             _ => {}
         }
@@ -746,12 +883,12 @@ impl NativeCodegen {
             X86Inst::Pop { dest } => {
                 bytes.push(0x58 + self.x86_reg_num(&Operand::Reg(Register::X86_64(*dest))));
             }
-            X86Inst::Call { target } => {
+            X86Inst::Call { target: _ } => {
                 bytes.push(0xE8);
                 // Would add relative offset
                 bytes.extend_from_slice(&0i32.to_le_bytes());
             }
-            X86Inst::Jmp { target } => {
+            X86Inst::Jmp { target: _ } => {
                 bytes.push(0xE9);
                 bytes.extend_from_slice(&0i32.to_le_bytes());
             }
@@ -776,9 +913,7 @@ impl NativeCodegen {
             A64Inst::Mov { dest, src } => {
                 if let Operand::Imm(imm) = src {
                     // movz
-                    let enc = 0xD2800000u32
-                        | ((*imm as u32) << 5)
-                        | (Self::a64_reg_num(dest));
+                    let enc = 0xD2800000u32 | ((*imm as u32) << 5) | (Self::a64_reg_num(dest));
                     bytes.extend_from_slice(&enc.to_le_bytes());
                 } else {
                     // orr xd, xzr, xs
@@ -786,9 +921,7 @@ impl NativeCodegen {
                         Operand::Reg(Register::AArch64(r)) => Self::a64_reg_num(r),
                         _ => 0,
                     };
-                    let enc = 0xAA2003E0u32
-                        | (Self::a64_reg_num(dest))
-                        | (src_reg << 5);
+                    let enc = 0xAA2003E0u32 | (Self::a64_reg_num(dest)) | (src_reg << 5);
                     bytes.extend_from_slice(&enc.to_le_bytes());
                 }
             }
@@ -807,11 +940,11 @@ impl NativeCodegen {
                     bytes.extend_from_slice(&enc.to_le_bytes());
                 }
             }
-            A64Inst::Bl { target } => {
+            A64Inst::Bl { target: _ } => {
                 // bl
                 bytes.extend_from_slice(&0x94000000u32.to_le_bytes());
             }
-            A64Inst::B { target } => {
+            A64Inst::B { target: _ } => {
                 // b
                 bytes.extend_from_slice(&0x14000000u32.to_le_bytes());
             }
@@ -828,15 +961,26 @@ impl NativeCodegen {
     fn x86_reg_num(&self, reg: &Operand) -> u8 {
         match reg {
             Operand::Reg(Register::X86_64(r)) => match r {
-                R8::Rax => 0, R8::Rcx => 1, R8::Rdx => 2, R8::Rbx => 3,
-                R8::Rsp => 4, R8::Rbp => 5, R8::Rsi => 6, R8::Rdi => 7,
-                R8::R8 => 8, R8::R9 => 9, R8::R10 => 10, R8::R11 => 11,
-                R8::R12 => 12, R8::R13 => 13, R8::R14 => 14, R8::R15 => 15,
+                R8::Rax => 0,
+                R8::Rcx => 1,
+                R8::Rdx => 2,
+                R8::Rbx => 3,
+                R8::Rsp => 4,
+                R8::Rbp => 5,
+                R8::Rsi => 6,
+                R8::Rdi => 7,
+                R8::R8 => 8,
+                R8::R9 => 9,
+                R8::R10 => 10,
+                R8::R11 => 11,
+                R8::R12 => 12,
+                R8::R13 => 13,
+                R8::R14 => 14,
+                R8::R15 => 15,
             },
             _ => 0,
         }
     }
-
 
     /// The encoding number of an AArch64 register held in an operand.
     ///
@@ -895,8 +1039,16 @@ impl NativeCodegen {
         let mut bytes = vec![];
 
         let (mod_, rm, reg) = match src {
-            Operand::Reg(Register::X86_64(_r)) => (0xC0, self.x86_reg_num(src), self.x86_reg_num(&Operand::Reg(Register::X86_64(dest)))),
-            Operand::Imm(_) => (0xC0, self.x86_reg_num(&Operand::Reg(Register::X86_64(dest))), 0),
+            Operand::Reg(Register::X86_64(_r)) => (
+                0xC0,
+                self.x86_reg_num(src),
+                self.x86_reg_num(&Operand::Reg(Register::X86_64(dest))),
+            ),
+            Operand::Imm(_) => (
+                0xC0,
+                self.x86_reg_num(&Operand::Reg(Register::X86_64(dest))),
+                0,
+            ),
             _ => (0x00, 0x00, 0x00),
         };
 
@@ -925,7 +1077,9 @@ pub enum CodegenError {
 impl fmt::Display for CodegenError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            CodegenError::UnsupportedArch(arch) => write!(f, "Unsupported architecture: {:?}", arch),
+            CodegenError::UnsupportedArch(arch) => {
+                write!(f, "Unsupported architecture: {:?}", arch)
+            }
             CodegenError::UnsupportedOS(os) => write!(f, "Unsupported OS: {:?}", os),
             CodegenError::RegisterAllocationFailed => write!(f, "Register allocation failed"),
             CodegenError::OutOfRegisters => write!(f, "Out of registers"),

@@ -1,12 +1,11 @@
 // Tariro AGI - Monte Carlo Tree Search (MCTS) Planning Module
 // Simulation-based planning for complex decision spaces
 
-
-use std::collections::{HashMap};
 use chrono::{DateTime, Utc};
-use std::time::Duration;
-use std::cmp::Ordering;
 use rand::Rng;
+use std::cmp::Ordering;
+use std::collections::HashMap;
+use std::time::Duration;
 
 // ============================================================================
 // MCTS Types
@@ -114,7 +113,8 @@ impl MCTSNode {
         }
 
         let exploitation = self.value;
-        let exploration_term = exploration * ((parent_visits as f32).ln() / (self.visits as f32)).sqrt();
+        let exploration_term =
+            exploration * ((parent_visits as f32).ln() / (self.visits as f32)).sqrt();
 
         exploitation + exploration_term
     }
@@ -126,8 +126,11 @@ impl MCTSNode {
 
         let exploitation = self.value;
         let variance = (self.wins / self.visits as f32) - (self.value * self.value);
-        let exploration_term = exploration * ((parent_visits as f32).ln() / (self.visits as f32)).sqrt()
-            * (variance.max(0.0) + (4.0 * (2.0 * (parent_visits as f32).ln() / (self.visits as f32)).sqrt())).min(0.25);
+        let exploration_term = exploration
+            * ((parent_visits as f32).ln() / (self.visits as f32)).sqrt()
+            * (variance.max(0.0)
+                + (4.0 * (2.0 * (parent_visits as f32).ln() / (self.visits as f32)).sqrt()))
+            .min(0.25);
 
         exploitation + exploration_term
     }
@@ -162,7 +165,7 @@ pub struct MCTSConfig {
 impl Default for MCTSConfig {
     fn default() -> Self {
         Self {
-            exploration_constant: 1.414,  // sqrt(2)
+            exploration_constant: 1.414, // sqrt(2)
             max_iterations: 100000,
             time_limit: Duration::from_secs(10),
             ucb_type: UCBType::UCB1,
@@ -237,7 +240,10 @@ impl MCTSTree {
     }
 
     /// Run MCTS iterations
-    pub fn search(&mut self, environment: &mut impl MCTSEnvironment) -> Result<MCTSResult, MCTSError> {
+    pub fn search(
+        &mut self,
+        environment: &mut impl MCTSEnvironment,
+    ) -> Result<MCTSResult, MCTSError> {
         let start_time = Utc::now();
         let mut iterations = 0;
 
@@ -265,7 +271,12 @@ impl MCTSTree {
         if iterations >= self.config.max_iterations {
             return false;
         }
-        if Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default() >= self.config.time_limit {
+        if Utc::now()
+            .signed_duration_since(start_time)
+            .to_std()
+            .unwrap_or_default()
+            >= self.config.time_limit
+        {
             return false;
         }
         true
@@ -276,7 +287,12 @@ impl MCTSTree {
         let mut current = self.root.clone();
         let mut path = vec![current.clone()];
 
-        while !self.nodes.get(&current).map(|n| n.is_fully_expanded).unwrap_or(false) {
+        while !self
+            .nodes
+            .get(&current)
+            .map(|n| n.is_fully_expanded)
+            .unwrap_or(false)
+        {
             if let Some(node) = self.nodes.get(&current) {
                 if node.children.is_empty() {
                     return Ok(current);
@@ -286,7 +302,12 @@ impl MCTSTree {
                 current = self.find_best_child(&current)?;
                 path.push(current.clone());
 
-                if self.nodes.get(&current).map(|n| n.is_terminal).unwrap_or(false) {
+                if self
+                    .nodes
+                    .get(&current)
+                    .map(|n| n.is_terminal)
+                    .unwrap_or(false)
+                {
                     return Ok(current);
                 }
             } else {
@@ -299,8 +320,7 @@ impl MCTSTree {
 
     /// Find best child using UCB
     fn find_best_child(&self, node_id: &str) -> Result<String, MCTSError> {
-        let node = self.nodes.get(node_id)
-            .ok_or(MCTSError::NodeNotFound)?;
+        let node = self.nodes.get(node_id).ok_or(MCTSError::NodeNotFound)?;
 
         let parent_visits = node.visits.max(1);
 
@@ -331,7 +351,11 @@ impl MCTSTree {
     }
 
     /// Expansion phase - add new child nodes
-    fn expand(&mut self, node_id: &str, environment: &mut impl MCTSEnvironment) -> Result<(), MCTSError> {
+    fn expand(
+        &mut self,
+        node_id: &str,
+        environment: &mut impl MCTSEnvironment,
+    ) -> Result<(), MCTSError> {
         let (node_state, node_visits, is_terminal) = {
             let node = self.nodes.get(node_id).ok_or(MCTSError::NodeNotFound)?;
             (node.state.clone(), node.visits, node.is_terminal)
@@ -347,7 +371,9 @@ impl MCTSTree {
         // Select actions to expand based on policy
         let actions_to_expand = match self.config.expansion_policy {
             ExpansionPolicy::AllChildren => actions,
-            ExpansionPolicy::SingleChild => actions.first().map(|a| vec![a.clone()]).unwrap_or_default(),
+            ExpansionPolicy::SingleChild => {
+                actions.first().map(|a| vec![a.clone()]).unwrap_or_default()
+            }
             ExpansionPolicy::Progressive => {
                 let node_visits = node_visits.max(1);
                 let depth = (node_visits as f32).ln().floor() as usize;
@@ -368,7 +394,9 @@ impl MCTSTree {
 
             // Update parent
             if let Some(parent) = self.nodes.get_mut(node_id) {
-                parent.children.insert(child_ref.move_id.clone(), child_ref.clone());
+                parent
+                    .children
+                    .insert(child_ref.move_id.clone(), child_ref.clone());
             }
 
             self.nodes.insert(child_node.node_id.clone(), child_node);
@@ -390,9 +418,12 @@ impl MCTSTree {
     }
 
     /// Simulation phase - play out to terminal state
-    fn simulate(&self, node_id: &str, environment: &mut impl MCTSEnvironment) -> Result<f32, MCTSError> {
-        let node = self.nodes.get(node_id)
-            .ok_or(MCTSError::NodeNotFound)?;
+    fn simulate(
+        &self,
+        node_id: &str,
+        environment: &mut impl MCTSEnvironment,
+    ) -> Result<f32, MCTSError> {
+        let node = self.nodes.get(node_id).ok_or(MCTSError::NodeNotFound)?;
 
         let mut current_state = node.state.clone();
         let mut depth = 0;
@@ -413,9 +444,11 @@ impl MCTSTree {
                 }
                 SimulationPolicy::Greedy => {
                     // Select best action based on utility
-                    actions.into_iter()
+                    actions
+                        .into_iter()
                         .max_by(|a, b| {
-                            environment.get_action_utility(&current_state, a)
+                            environment
+                                .get_action_utility(&current_state, a)
                                 .partial_cmp(&environment.get_action_utility(&current_state, b))
                                 .unwrap_or(Ordering::Equal)
                         })
@@ -423,11 +456,13 @@ impl MCTSTree {
                 }
                 SimulationPolicy::Softmax => {
                     // Softmax selection based on utilities
-                    let utilities: Vec<f32> = actions.iter()
+                    let utilities: Vec<f32> = actions
+                        .iter()
                         .map(|a| environment.get_action_utility(&current_state, a))
                         .collect();
 
-                    let softmax = |x: f32| (x.exp()) / utilities.iter().map(|u| u.exp()).sum::<f32>();
+                    let softmax =
+                        |x: f32| (x.exp()) / utilities.iter().map(|u| u.exp()).sum::<f32>();
                     let probs: Vec<f32> = utilities.iter().map(|u| softmax(*u)).collect();
 
                     let r = rand::thread_rng().gen_range(0.0..1.0);
@@ -486,15 +521,16 @@ impl MCTSTree {
 
     /// Get best result/action from search
     fn get_best_result(&self) -> Result<MCTSResult, MCTSError> {
-        let root = self.nodes.get(&self.root)
-            .ok_or(MCTSError::NodeNotFound)?;
+        let root = self.nodes.get(&self.root).ok_or(MCTSError::NodeNotFound)?;
 
         if root.children.is_empty() {
             return Err(MCTSError::NoChildren);
         }
 
         // Find child with most visits (most robust)
-        let best_child = root.children.values()
+        let best_child = root
+            .children
+            .values()
             .max_by(|a, b| {
                 let a_visits = self.nodes.get(&a.node_id).map(|n| n.visits).unwrap_or(0);
                 let b_visits = self.nodes.get(&b.node_id).map(|n| n.visits).unwrap_or(0);
@@ -503,7 +539,9 @@ impl MCTSTree {
             .cloned()
             .ok_or(MCTSError::NoChildren)?;
 
-        let child_node = self.nodes.get(&best_child.node_id)
+        let child_node = self
+            .nodes
+            .get(&best_child.node_id)
             .ok_or(MCTSError::NodeNotFound)?;
 
         Ok(MCTSResult {
@@ -534,10 +572,10 @@ impl MCTSTree {
     }
 
     fn calculate_avg_branching(&self) -> f32 {
-        let total_children: usize = self.nodes.values()
-            .map(|n| n.children.len())
-            .sum();
-        let nodes_with_children = self.nodes.values()
+        let total_children: usize = self.nodes.values().map(|n| n.children.len()).sum();
+        let nodes_with_children = self
+            .nodes
+            .values()
             .filter(|n| !n.children.is_empty())
             .count();
 
@@ -550,8 +588,7 @@ impl MCTSTree {
 
     /// Get root statistics
     pub fn get_root_stats(&self) -> Option<(usize, f32)> {
-        self.nodes.get(&self.root)
-            .map(|n| (n.visits, n.value))
+        self.nodes.get(&self.root).map(|n| (n.visits, n.value))
     }
 }
 
@@ -605,7 +642,10 @@ impl std::fmt::Display for MCTSError {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("mcts_{}", now % 1_000_000)
 }
 

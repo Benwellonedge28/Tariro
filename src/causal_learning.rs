@@ -1,10 +1,8 @@
 // Tariro AGI - Causal Learning Module
 // Learning causal relationships from observations
 
-use std::collections::{HashMap, HashSet};
 use chrono::{DateTime, Utc};
-
-
+use std::collections::{HashMap, HashSet};
 
 // ============================================================================
 // Causal Learning Types
@@ -72,7 +70,7 @@ pub struct CausalMechanism {
     pub function_type: MechanismType,
     pub parameters: Vec<f32>,
     pub noise_distribution: NoiseDistribution,
-    pub learned_from: Vec<String>,  // Observation IDs
+    pub learned_from: Vec<String>, // Observation IDs
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -214,7 +212,7 @@ pub enum OrientationRule {
 
 #[derive(Debug, Clone)]
 pub struct CausalLearningConfig {
-    pub alpha: f32,  // Significance level
+    pub alpha: f32, // Significance level
     pub max_conditioning_set: usize,
     pub orient_using_background_knowledge: bool,
     pub handle_latent_confounders: bool,
@@ -266,7 +264,11 @@ impl CausalLearner {
     }
 
     /// Learn causal structure from observations
-    pub fn learn_structure(&mut self, variables: &[String], observations: &[Observation]) -> CausalGraph {
+    pub fn learn_structure(
+        &mut self,
+        variables: &[String],
+        observations: &[Observation],
+    ) -> CausalGraph {
         let start_time = Utc::now();
 
         // Step 1: Initialize complete undirected graph
@@ -284,7 +286,11 @@ impl CausalLearner {
         // Build final causal graph
         let graph = self.build_causal_graph(variables);
 
-        self.stats.learning_time_ms = Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default().as_millis() as u64;
+        self.stats.learning_time_ms = Utc::now()
+            .signed_duration_since(start_time)
+            .to_std()
+            .unwrap_or_default()
+            .as_millis() as u64;
 
         graph
     }
@@ -307,7 +313,11 @@ impl CausalLearner {
     }
 
     /// Conditional independence screening
-    fn conditional_independence_screening(&mut self, variables: &[String], observations: &[Observation]) {
+    fn conditional_independence_screening(
+        &mut self,
+        variables: &[String],
+        observations: &[Observation],
+    ) {
         let mut depth = 0;
 
         while depth <= self.config.max_conditioning_set {
@@ -323,7 +333,8 @@ impl CausalLearner {
 
             for (node1, node2) in edges {
                 // Get conditioning set candidates
-                let others: Vec<String> = variables.iter()
+                let others: Vec<String> = variables
+                    .iter()
                     .filter(|v| *v != &node1 && *v != &node2)
                     .cloned()
                     .collect();
@@ -336,12 +347,8 @@ impl CausalLearner {
                 // Test all conditioning sets of current depth
                 let cond_sets = self.combinations(&others, depth);
                 for cond_set in cond_sets {
-                    let test = self.test_conditional_independence(
-                        &node1,
-                        &node2,
-                        &cond_set,
-                        observations
-                    );
+                    let test =
+                        self.test_conditional_independence(&node1, &node2, &cond_set, observations);
 
                     self.stats.ci_tests_performed += 1;
 
@@ -378,17 +385,21 @@ impl CausalLearner {
         observations: &[Observation],
     ) -> ConditionalIndependenceTest {
         // Compute partial correlation or conditional mutual information
-        let x_values: Vec<f32> = observations.iter()
+        let x_values: Vec<f32> = observations
+            .iter()
             .filter_map(|o| o.values.get(x).and_then(|v| v.parse().ok()))
             .collect();
 
-        let y_values: Vec<f32> = observations.iter()
+        let y_values: Vec<f32> = observations
+            .iter()
             .filter_map(|o| o.values.get(y).and_then(|v| v.parse().ok()))
             .collect();
 
-        let z_values: Vec<Vec<f32>> = z.iter()
+        let z_values: Vec<Vec<f32>> = z
+            .iter()
             .map(|zv| {
-                observations.iter()
+                observations
+                    .iter()
                     .filter_map(|o| o.values.get(zv).and_then(|v| v.parse().ok()))
                     .collect()
             })
@@ -399,7 +410,7 @@ impl CausalLearner {
 
         // Chi-square test or Fisher's z-test
         let statistic = cmi * 2.0 * observations.len() as f32;
-        let df = 1;  // Degrees of freedom
+        let df = 1; // Degrees of freedom
 
         // Approximate p-value using chi-square distribution
         let p_value = self.chi_square_pvalue(statistic, df);
@@ -428,10 +439,12 @@ impl CausalLearner {
         let mean_y: f32 = y.iter().sum::<f32>() / n;
 
         // Correlation-based approximation
-        let covariance: f32 = x.iter()
+        let covariance: f32 = x
+            .iter()
             .zip(y.iter())
             .map(|(xi, yi)| (xi - mean_x) * (yi - mean_y))
-            .sum::<f32>() / n;
+            .sum::<f32>()
+            / n;
 
         let std_x = (x.iter().map(|xi| (xi - mean_x).powi(2)).sum::<f32>() / n).sqrt();
         let std_y = (y.iter().map(|yi| (yi - mean_y).powi(2)).sum::<f32>() / n).sqrt();
@@ -459,10 +472,15 @@ impl CausalLearner {
         }
 
         // Wilson-Hilferty approximation
-        let z = ((x / k).powf(1.0/3.0) - (1.0 - 2.0/(9.0*k))).sqrt() * 3.0 / (2.0 / (9.0 * k)).sqrt();
+        let z = ((x / k).powf(1.0 / 3.0) - (1.0 - 2.0 / (9.0 * k))).sqrt() * 3.0
+            / (2.0 / (9.0 * k)).sqrt();
 
         // Standard normal CDF approximation
-        let cdf = 0.5 * (1.0 + (z / (1.0 + 0.2316419 * z.abs())).exp().powf(-2.0 * z.powi(2)));
+        let cdf = 0.5
+            * (1.0
+                + (z / (1.0 + 0.2316419 * z.abs()))
+                    .exp()
+                    .powf(-2.0 * z.powi(2)));
 
         1.0 - cdf
     }
@@ -565,12 +583,11 @@ impl CausalLearner {
 
     /// Check if two nodes are adjacent
     fn is_adjacent(&self, node1: &str, node2: &str) -> bool {
-        self.skeleton.undirected_edges.iter()
-            .any(|e| {
-                !e.removed &&
-                ((e.node1 == node1 && e.node2 == node2) ||
-                 (e.node1 == node2 && e.node2 == node1))
-            })
+        self.skeleton.undirected_edges.iter().any(|e| {
+            !e.removed
+                && ((e.node1 == node1 && e.node2 == node2)
+                    || (e.node1 == node2 && e.node2 == node1))
+        })
     }
 
     /// Apply Meek rules for additional orientations
@@ -592,14 +609,17 @@ impl CausalLearner {
 
                 // Check for patterns
                 let oriented_as_source = |target: &str| -> Vec<String> {
-                    self.oriented_edges.iter()
+                    self.oriented_edges
+                        .iter()
                         .filter(|e| e.target == target)
                         .map(|e| e.source.clone())
                         .collect()
                 };
 
                 let y_parents = oriented_as_source(&edge.node1);
-                let y_children = self.oriented_edges.iter()
+                let y_children = self
+                    .oriented_edges
+                    .iter()
                     .filter(|e| e.source == edge.node1)
                     .map(|e| e.target.clone())
                     .collect::<Vec<_>>();
@@ -626,7 +646,8 @@ impl CausalLearner {
 
     /// Check if edge is already oriented
     fn is_oriented(&self, source: &str, target: &str) -> bool {
-        self.oriented_edges.iter()
+        self.oriented_edges
+            .iter()
             .any(|e| e.source == source && e.target == target)
     }
 
@@ -699,11 +720,7 @@ impl CausalLearner {
             }
         }
 
-        CausalGraph {
-            nodes,
-            edges,
-            adj_matrix,
-        }
+        CausalGraph { nodes, edges, adj_matrix }
     }
 
     /// Estimate causal effect using do-calculus
@@ -732,7 +749,7 @@ impl CausalLearner {
             treatment: treatment.to_string(),
             outcome: outcome.to_string(),
             effect_type: EffectType::AverageTreatmentEffect,
-            estimate: 0.0,  // Would be computed from data
+            estimate: 0.0, // Would be computed from data
             standard_error: 0.0,
             confidence_interval: (0.0, 0.0),
             identification_method,
@@ -740,9 +757,17 @@ impl CausalLearner {
         }
     }
 
-    fn has_backdoor_path(&self, graph: &CausalGraph, treatment: &str, outcome: &str, _covariates: &[String]) -> bool {
+    fn has_backdoor_path(
+        &self,
+        graph: &CausalGraph,
+        treatment: &str,
+        outcome: &str,
+        _covariates: &[String],
+    ) -> bool {
         // Check if covariates block all backdoor paths
-        !self.find_backdoor_paths(graph, treatment, outcome).is_empty()
+        !self
+            .find_backdoor_paths(graph, treatment, outcome)
+            .is_empty()
     }
 
     fn has_frontdoor_path(&self, graph: &CausalGraph, treatment: &str, outcome: &str) -> bool {
@@ -757,18 +782,38 @@ impl CausalLearner {
         false
     }
 
-    fn find_backdoor_paths(&self, graph: &CausalGraph, source: &str, target: &str) -> Vec<Vec<String>> {
+    fn find_backdoor_paths(
+        &self,
+        graph: &CausalGraph,
+        source: &str,
+        target: &str,
+    ) -> Vec<Vec<String>> {
         let mut paths = Vec::new();
         let mut visited = HashSet::new();
         visited.insert(source.to_string());
         let mut current_path = vec![source.to_string()];
 
-        self.dfs_backdoor(graph, source, target, &mut visited, &mut paths, &mut current_path);
+        self.dfs_backdoor(
+            graph,
+            source,
+            target,
+            &mut visited,
+            &mut paths,
+            &mut current_path,
+        );
 
         paths
     }
 
-    fn dfs_backdoor(&self, graph: &CausalGraph, current: &str, target: &str, visited: &mut HashSet<String>, paths: &mut Vec<Vec<String>>, current_path: &mut Vec<String>) {
+    fn dfs_backdoor(
+        &self,
+        graph: &CausalGraph,
+        current: &str,
+        target: &str,
+        visited: &mut HashSet<String>,
+        paths: &mut Vec<Vec<String>>,
+        current_path: &mut Vec<String>,
+    ) {
         if current == target && current_path.len() > 1 {
             paths.push(current_path.clone());
             return;
@@ -776,8 +821,9 @@ impl CausalLearner {
 
         for edge in &graph.edges {
             if edge.source == current && !visited.contains(&edge.target) {
-                if edge.edge_type == CausalEdgeType::Bidirected ||
-                   edge.edge_type == CausalEdgeType::Indirect {
+                if edge.edge_type == CausalEdgeType::Bidirected
+                    || edge.edge_type == CausalEdgeType::Indirect
+                {
                     visited.insert(edge.target.clone());
                     current_path.push(edge.target.clone());
                     self.dfs_backdoor(graph, &edge.target, target, visited, paths, current_path);
@@ -791,11 +837,26 @@ impl CausalLearner {
     fn find_paths(&self, graph: &CausalGraph, source: &str, target: &str) -> Vec<Vec<String>> {
         let mut paths = Vec::new();
         let mut current_path = vec![source.to_string()];
-        self.dfs_paths(graph, source, target, &mut HashSet::new(), &mut paths, &mut current_path);
+        self.dfs_paths(
+            graph,
+            source,
+            target,
+            &mut HashSet::new(),
+            &mut paths,
+            &mut current_path,
+        );
         paths
     }
 
-    fn dfs_paths(&self, graph: &CausalGraph, current: &str, target: &str, visited: &mut HashSet<String>, paths: &mut Vec<Vec<String>>, current_path: &mut Vec<String>) {
+    fn dfs_paths(
+        &self,
+        graph: &CausalGraph,
+        current: &str,
+        target: &str,
+        visited: &mut HashSet<String>,
+        paths: &mut Vec<Vec<String>>,
+        current_path: &mut Vec<String>,
+    ) {
         if current == target && current_path.len() > 1 {
             paths.push(current_path.clone());
             return;
@@ -859,7 +920,10 @@ pub enum IdentificationMethod {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("cl_{}", now % 1_000_000)
 }
 

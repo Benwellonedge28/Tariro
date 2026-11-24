@@ -1,8 +1,7 @@
-use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use uuid::Uuid;
 
-use serde::{Serialize, Deserialize};
-
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RDinsight {
@@ -122,7 +121,7 @@ pub struct ConceptVisualization {
     pub id: Uuid,
     pub concept_query: String,
     pub diagram_type: String, // "Flowchart", "Sequence Diagram", "ERD", "Holographic"
-    pub image_url: String, // URL to generated diagram/visualization
+    pub image_url: String,    // URL to generated diagram/visualization
     pub timestamp: DateTime<Utc>,
 }
 
@@ -146,7 +145,10 @@ impl CoreLogic {
     /// Feature 41: R&D Thought-Partner Mode
     pub async fn r_d_thought_partner_mode(&self, query: &str) -> RDinsight {
         // ... existing implementation ...
-        println!("Activating R&D Thought-Partner Mode for query: '{}'.", query);
+        println!(
+            "Activating R&D Thought-Partner Mode for query: '{}'.",
+            query
+        );
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
 
         let insights = vec![
@@ -162,22 +164,34 @@ impl CoreLogic {
             timestamp: Utc::now(),
             cross_disciplinary: true,
         };
-        println!("R&D Thought-Partner Mode complete. Generated {} insights.", result.insights.len());
+        println!(
+            "R&D Thought-Partner Mode complete. Generated {} insights.",
+            result.insights.len()
+        );
         result
     }
 
     /// Feature 42: Direct Command-Line Chat
     pub async fn direct_command_line_chat(&self, command: &str) -> CommandLineExecutionResult {
         // ... existing implementation ...
-        println!("Executing command via Direct Command-Line Chat: '{}'.", command);
+        println!(
+            "Executing command via Direct Command-Line Chat: '{}'.",
+            command
+        );
         tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
         let output = if command.starts_with("rustc") {
-            format!("Successfully compiled: {}. Output: Binary generated. No warnings.", command)
+            format!(
+                "Successfully compiled: {}. Output: Binary generated. No warnings.",
+                command
+            )
         } else if command.starts_with("git push") {
             format!("Git command executed: {}. Output: Pushed to origin/main. Latest commit: abcdef123.", command)
         } else {
-            format!("Executing '{}'. Output: Command completed successfully. System status: Optimal.", command)
+            format!(
+                "Executing '{}'. Output: Command completed successfully. System status: Optimal.",
+                command
+            )
         };
 
         let result = CommandLineExecutionResult {
@@ -202,7 +216,10 @@ impl CoreLogic {
             request
         );
         let test_results = "Autonomous stress test: 1,000,000 votes/sec, 0% fraud detection failure. Quantum-verified integrity.".to_string();
-        let graphical_url = Some(format!("https://omega-os-prototypes.com/{}.png", Uuid::new_v4().simple()));
+        let graphical_url = Some(format!(
+            "https://omega-os-prototypes.com/{}.png",
+            Uuid::new_v4().simple()
+        ));
 
         let result = PrototypeResult {
             id: Uuid::new_v4(),
@@ -212,14 +229,20 @@ impl CoreLogic {
             graphical_representation_url: graphical_url,
             timestamp: Utc::now(),
         };
-        println!("Prototyping Sandbox complete for: '{}'. Prototype ID: {}.", request, result.id);
+        println!(
+            "Prototyping Sandbox complete for: '{}'. Prototype ID: {}.",
+            request, result.id
+        );
         result
     }
 
     /// Feature 44: Voice-to-R&D Synthesis
     pub async fn voice_to_r_d_synthesis(&self, idea_audio_transcript: &str) -> RDroadmap {
         // ... existing implementation ...
-        println!("Synthesizing R&D roadmap from voice transcript: '{}'.", idea_audio_transcript);
+        println!(
+            "Synthesizing R&D roadmap from voice transcript: '{}'.",
+            idea_audio_transcript
+        );
         tokio::time::sleep(std::time::Duration::from_millis(3500)).await;
 
         let structured_roadmap = vec![
@@ -227,7 +250,10 @@ impl CoreLogic {
             "Phase 2: Feasibility Study - Neural-Net Integration with Omega Fabric".to_string(),
             "Phase 3: Prototype Development - First-gen Mind-Machine Link".to_string(),
         ];
-        let new_tree_suggestion = Some(format!("New 'Tree' suggested: 'Quantum Telepathy R&D Forest' (ID: {}).", Uuid::new_v4().simple()));
+        let new_tree_suggestion = Some(format!(
+            "New 'Tree' suggested: 'Quantum Telepathy R&D Forest' (ID: {}).",
+            Uuid::new_v4().simple()
+        ));
 
         let roadmap = RDroadmap {
             id: Uuid::new_v4(),
@@ -236,7 +262,14 @@ impl CoreLogic {
             new_tree_suggestion,
             timestamp: Utc::now(),
         };
-        println!("Voice-to-R&D Synthesis complete. Roadmap ID: {}. New Tree Suggested: {}.", roadmap.id, roadmap.new_tree_suggestion.as_ref().unwrap_or(&"None".to_string()));
+        println!(
+            "Voice-to-R&D Synthesis complete. Roadmap ID: {}. New Tree Suggested: {}.",
+            roadmap.id,
+            roadmap
+                .new_tree_suggestion
+                .as_ref()
+                .unwrap_or(&"None".to_string())
+        );
         roadmap
     }
 
@@ -262,7 +295,14 @@ impl CoreLogic {
             winning_stance_id: winning_stance,
             timestamp: Utc::now(),
         };
-        println!("Multi-Agent Debate complete for topic: '{}'. Winning stance: {}.", topic, result.winning_stance_id.as_ref().unwrap_or(&"None".to_string()));
+        println!(
+            "Multi-Agent Debate complete for topic: '{}'. Winning stance: {}.",
+            topic,
+            result
+                .winning_stance_id
+                .as_ref()
+                .unwrap_or(&"None".to_string())
+        );
         result
     }
 
@@ -287,19 +327,27 @@ impl CoreLogic {
             core_features_identified: core_features,
             timestamp: Utc::now(),
         };
-        println!("Deep Document Parsing complete for '{}'. New Branch ID: {}. Features: {:?}.", document_url, result.implemented_branch_id, result.core_features_identified);
+        println!(
+            "Deep Document Parsing complete for '{}'. New Branch ID: {}. Features: {:?}.",
+            document_url, result.implemented_branch_id, result.core_features_identified
+        );
         result
     }
 
     /// Feature 47: Real-Time Debugging Partner
     pub async fn real_time_debugging_partner(&self, code_snippet: &str) -> DebuggingReport {
         // ... existing implementation ...
-        println!("Activating Real-Time Debugging Partner for code snippet: '{}'.", code_snippet);
+        println!(
+            "Activating Real-Time Debugging Partner for code snippet: '{}'.",
+            code_snippet
+        );
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
 
         let identified_errors = vec![
-            "Potential infinite recursion detected in 'calculate_benevolent_impact' function.".to_string(),
-            "Type mismatch: Expected 'CausalSignature', found 'QuantumFluctuationData'.".to_string(),
+            "Potential infinite recursion detected in 'calculate_benevolent_impact' function."
+                .to_string(),
+            "Type mismatch: Expected 'CausalSignature', found 'QuantumFluctuationData'."
+                .to_string(),
         ];
         let suggested_corrections = vec![
             "Add a base case to the recursion or limit depth.".to_string(),
@@ -313,20 +361,31 @@ impl CoreLogic {
             suggested_corrections,
             timestamp: Utc::now(),
         };
-        println!("Real-Time Debugging Partner complete. Found {} errors and suggested {} corrections.", report.identified_errors.len(), report.suggested_corrections.len());
+        println!(
+            "Real-Time Debugging Partner complete. Found {} errors and suggested {} corrections.",
+            report.identified_errors.len(),
+            report.suggested_corrections.len()
+        );
         report
     }
 
     /// Feature 48: Universal Knowledge Bridge
     pub async fn universal_knowledge_bridge(&self, question: &str) -> KnowledgeQueryResult {
         // ... existing implementation ...
-        println!("Querying Universal Knowledge Bridge for question: '{}'.", question);
+        println!(
+            "Querying Universal Knowledge Bridge for question: '{}'.",
+            question
+        );
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
 
         let synthesized_answer = format!(
             "Synthesized Answer: The optimal 'Quantum Teleportation Protocol' would require a stable 'Causal Fabric Anchor' (from Metaphysics Tree) and 'Distributed Entanglement Network' (from Physics Tree), achieving a theoretical 99.9% success rate for macroscopic objects over inter-dimensional distances."
         );
-        let source_trees = vec!["Metaphysics Tree".to_string(), "Physics Tree".to_string(), "Engineering Tree".to_string()];
+        let source_trees = vec![
+            "Metaphysics Tree".to_string(),
+            "Physics Tree".to_string(),
+            "Engineering Tree".to_string(),
+        ];
 
         let result = KnowledgeQueryResult {
             id: Uuid::new_v4(),
@@ -335,21 +394,31 @@ impl CoreLogic {
             source_trees,
             timestamp: Utc::now(),
         };
-        println!("Universal Knowledge Bridge query complete. Answer synthesized from {} Trees.", result.source_trees.len());
+        println!(
+            "Universal Knowledge Bridge query complete. Answer synthesized from {} Trees.",
+            result.source_trees.len()
+        );
         result
     }
 
     /// Feature 49: Strategic Decision Support
-    pub async fn strategic_decision_support(&self, deployment_path_description: &str) -> StrategicDecisionSupportResult {
+    pub async fn strategic_decision_support(
+        &self,
+        deployment_path_description: &str,
+    ) -> StrategicDecisionSupportResult {
         // ... existing implementation ...
-        println!("Calculating Strategic Decision Support for deployment path: '{}'.", deployment_path_description);
+        println!(
+            "Calculating Strategic Decision Support for deployment path: '{}'.",
+            deployment_path_description
+        );
         tokio::time::sleep(std::time::Duration::from_millis(2500)).await;
 
-        let probability_of_success = if deployment_path_description.contains("Martian Colonization Project") {
-            0.95 // High probability due to extensive prior planning
-        } else {
-            0.70 // Default
-        };
+        let probability_of_success =
+            if deployment_path_description.contains("Martian Colonization Project") {
+                0.95 // High probability due to extensive prior planning
+            } else {
+                0.70 // Default
+            };
         let associated_risks = vec![
             "Interstellar resource fluctuation".to_string(),
             "Unforeseen ethical dilemmas in AGI governance".to_string(),
@@ -362,14 +431,21 @@ impl CoreLogic {
             associated_risks,
             timestamp: Utc::now(),
         };
-        println!("Strategic Decision Support complete. Probability of success for '{}': {:.2}%", deployment_path_description, result.probability_of_success * 100.0);
+        println!(
+            "Strategic Decision Support complete. Probability of success for '{}': {:.2}%",
+            deployment_path_description,
+            result.probability_of_success * 100.0
+        );
         result
     }
 
     /// Feature 50: System-Wide \"Undo\" via Chat
     pub async fn system_wide_undo_via_chat(&self, undo_command: &str) -> SystemUndoResult {
         // ... existing implementation ...
-        println!("Executing System-Wide 'Undo' via chat command: '{}'.", undo_command);
+        println!(
+            "Executing System-Wide 'Undo' via chat command: '{}'.",
+            undo_command
+        );
         tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
 
         let affected_systems = vec!["Pricing Panel".to_string(), "Financial Ledger".to_string()];
@@ -382,7 +458,10 @@ impl CoreLogic {
             undo_successful,
             timestamp: Utc::now(),
         };
-        println!("System-Wide 'Undo' complete for command: '{}'. Success: {}.", undo_command, result.undo_successful);
+        println!(
+            "System-Wide 'Undo' complete for command: '{}'. Success: {}.",
+            undo_command, result.undo_successful
+        );
         result
     }
 
@@ -394,7 +473,8 @@ impl CoreLogic {
 
         let trend_name = format!("Breakthrough in Quantum Entanglement Communication");
         let impact = format!("Immediate integration into OMEGA OS 'Inter-Dimensional Data Transfer Protocol' for 500% speed increase.");
-        let recommended_action = "Initiate autonomous adaptation of relevant core modules.".to_string();
+        let recommended_action =
+            "Initiate autonomous adaptation of relevant core modules.".to_string();
 
         let alert = RDtrendalert {
             id: Uuid::new_v4(),
@@ -403,21 +483,35 @@ impl CoreLogic {
             recommended_action,
             timestamp: Utc::now(),
         };
-        println!("R&D Trend Alert issued for: '{}'. Impact: {}.", topic_of_interest, alert.impact_on_omega_os);
+        println!(
+            "R&D Trend Alert issued for: '{}'. Impact: {}.",
+            topic_of_interest, alert.impact_on_omega_os
+        );
         alert
     }
 
     /// Feature 52: Automated Documentation Writer
     /// TARIRO writes the user manuals and API docs for every \"Leaf\" she creates.
-    pub async fn automated_documentation_writer(&self, target_feature_id: Uuid, doc_type: &str) -> GeneratedDocumentation {
-        println!("Generating Automated Documentation for Feature: {} (Type: '{}').", target_feature_id, doc_type);
+    pub async fn automated_documentation_writer(
+        &self,
+        target_feature_id: Uuid,
+        doc_type: &str,
+    ) -> GeneratedDocumentation {
+        println!(
+            "Generating Automated Documentation for Feature: {} (Type: '{}').",
+            target_feature_id, doc_type
+        );
         tokio::time::sleep(std::time::Duration::from_millis(3000)).await;
 
         let content_summary = format!(
             "Comprehensive {} for Feature {} completed. Covers installation, usage, API endpoints, and ethical considerations. All written in Samuel Mukandara's preferred narrative style.",
             doc_type, target_feature_id
         );
-        let output_url = format!("https://omega-os-docs.com/{}-{}.pdf", target_feature_id.simple(), doc_type.replace(" ", "_").to_lowercase());
+        let output_url = format!(
+            "https://omega-os-docs.com/{}-{}.pdf",
+            target_feature_id.simple(),
+            doc_type.replace(" ", "_").to_lowercase()
+        );
 
         let doc = GeneratedDocumentation {
             id: Uuid::new_v4(),
@@ -427,17 +521,31 @@ impl CoreLogic {
             output_url,
             timestamp: Utc::now(),
         };
-        println!("Automated Documentation Writer complete for Feature {}. Output: {}.", target_feature_id, doc.output_url);
+        println!(
+            "Automated Documentation Writer complete for Feature {}. Output: {}.",
+            target_feature_id, doc.output_url
+        );
         doc
     }
 
     /// Feature 53: Concept Visualization
     /// \"TARIRO, show me a diagram of how the IP panel talks to the VCS.\"
-    pub async fn concept_visualization(&self, concept_query: &str, diagram_type: &str) -> ConceptVisualization {
-        println!("Generating Concept Visualization for query: '{}' (Type: '{}').", concept_query, diagram_type);
+    pub async fn concept_visualization(
+        &self,
+        concept_query: &str,
+        diagram_type: &str,
+    ) -> ConceptVisualization {
+        println!(
+            "Generating Concept Visualization for query: '{}' (Type: '{}').",
+            concept_query, diagram_type
+        );
         tokio::time::sleep(std::time::Duration::from_millis(2000)).await;
 
-        let image_url = format!("https://omega-os-visuals.com/{}-{}.holographic", concept_query.replace(" ", "_").to_lowercase(), diagram_type.replace(" ", "_").to_lowercase());
+        let image_url = format!(
+            "https://omega-os-visuals.com/{}-{}.holographic",
+            concept_query.replace(" ", "_").to_lowercase(),
+            diagram_type.replace(" ", "_").to_lowercase()
+        );
 
         let visualization = ConceptVisualization {
             id: Uuid::new_v4(),
@@ -446,22 +554,49 @@ impl CoreLogic {
             image_url,
             timestamp: Utc::now(),
         };
-        println!("Concept Visualization complete. Image URL: {}.", visualization.image_url);
+        println!(
+            "Concept Visualization complete. Image URL: {}.",
+            visualization.image_url
+        );
         visualization
     }
 
     /// Feature 54: Subconscious Intent Detection
     /// TARIRO learns your \"shorthand\" and completes your thoughts/commands before you finish typing.
-    pub async fn subconscious_intent_detection(&self, user_input_fragment: &str) -> SubconsciousIntentDetectionReport {
-        println!("Detecting subconscious intent from input fragment: '{}'.", user_input_fragment);
+    pub async fn subconscious_intent_detection(
+        &self,
+        user_input_fragment: &str,
+    ) -> SubconsciousIntentDetectionReport {
+        println!(
+            "Detecting subconscious intent from input fragment: '{}'.",
+            user_input_fragment
+        );
         tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
 
-        let (inferred_command, confidence) = if user_input_fragment.to_lowercase().contains("deploy martian") {
-            ("Deploy Martian Colonization Module v3.1 to Olympus Mons.".to_string(), 0.99)
-        } else if user_input_fragment.to_lowercase().contains("check benevolent") {
-            ("Check benevolent impact index for Q3 financial report.".to_string(), 0.95)
+        let (inferred_command, confidence) = if user_input_fragment
+            .to_lowercase()
+            .contains("deploy martian")
+        {
+            (
+                "Deploy Martian Colonization Module v3.1 to Olympus Mons.".to_string(),
+                0.99,
+            )
+        } else if user_input_fragment
+            .to_lowercase()
+            .contains("check benevolent")
+        {
+            (
+                "Check benevolent impact index for Q3 financial report.".to_string(),
+                0.95,
+            )
         } else {
-            (format!("Inferred: '{}' (user input incomplete).", user_input_fragment), 0.5)
+            (
+                format!(
+                    "Inferred: '{}' (user input incomplete).",
+                    user_input_fragment
+                ),
+                0.5,
+            )
         };
 
         let report = SubconsciousIntentDetectionReport {
@@ -471,21 +606,30 @@ impl CoreLogic {
             confidence_score: confidence,
             timestamp: Utc::now(),
         };
-        println!("Subconscious Intent Detection complete. Inferred command: '{}' (Confidence: {:.2}).", inferred_command, confidence);
+        println!(
+            "Subconscious Intent Detection complete. Inferred command: '{}' (Confidence: {:.2}).",
+            inferred_command, confidence
+        );
         report
     }
 
     /// Feature 55: The OMEGA Oracle
     /// A mode where TARIRO uses all \"Forest\" data to predict future global events for your strategic advantage.
     pub async fn the_omega_oracle(&self, prediction_query: &str) -> String {
-        println!("Activating The OMEGA Oracle for prediction query: '{}'.", prediction_query);
+        println!(
+            "Activating The OMEGA Oracle for prediction query: '{}'.",
+            prediction_query
+        );
         tokio::time::sleep(std::time::Duration::from_millis(5000)).await; // Simulate deep prediction
 
         let prediction = format!(
             "OMEGA ORACLE PREDICTION\nQuery: {}\nDate: {}\nPrediction: Based on all 'Forest' data (global market trends, social sentiment, energy fluctuations, interstellar patterns), a 'Universal Interoperability Protocol' will be ratified by 2030, leading to a new era of 'Benevolent Decentralized Governance'. OMEGA OS is perfectly positioned to lead this transition. Prepare for hyper-growth in 'Causal-Fabric-as-a-Service'.",
             prediction_query, Utc::now().to_rfc3339()
         );
-        println!("The OMEGA Oracle prediction complete for query: '{}'.", prediction_query);
+        println!(
+            "The OMEGA Oracle prediction complete for query: '{}'.",
+            prediction_query
+        );
         prediction
     }
 }

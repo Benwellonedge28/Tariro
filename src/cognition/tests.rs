@@ -5,8 +5,8 @@
 use std::collections::HashMap;
 #[cfg(test)]
 mod consciousness_tests {
-    use super::super::*;
     use super::super::consciousness::*;
+    use super::super::*;
 
     // ==========================================================================
     // Thought Tests
@@ -39,7 +39,10 @@ mod consciousness_tests {
             .with_metadata("importance", "high");
 
         assert_eq!(thought.metadata.get("source"), Some(&"memory".to_string()));
-        assert_eq!(thought.metadata.get("importance"), Some(&"high".to_string()));
+        assert_eq!(
+            thought.metadata.get("importance"),
+            Some(&"high".to_string())
+        );
     }
 
     // ==========================================================================
@@ -84,7 +87,10 @@ mod consciousness_tests {
     fn test_identity_defaults() {
         let identity = Identity::default();
 
-        assert_eq!(identity.roles, vec!["AGI".to_string(), "Learner".to_string()]);
+        assert_eq!(
+            identity.roles,
+            vec!["AGI".to_string(), "Learner".to_string()]
+        );
         assert_eq!(identity.purpose, Some("Understand and assist".to_string()));
     }
 
@@ -151,14 +157,12 @@ mod consciousness_tests {
 
     #[test]
     fn test_insight_creation() {
-        let connections = vec![
-            ConceptConnection {
-                concept_a: "Fire".to_string(),
-                concept_b: "Heat".to_string(),
-                connection_type: ConnectionType::Causal,
-                strength: 0.9,
-            },
-        ];
+        let connections = vec![ConceptConnection {
+            concept_a: "Fire".to_string(),
+            concept_b: "Heat".to_string(),
+            connection_type: ConnectionType::Causal,
+            strength: 0.9,
+        }];
 
         let insight = Insight::new(connections, "Fire produces heat".to_string());
 
@@ -209,9 +213,15 @@ mod consciousness_tests {
         let mut consciousness = Consciousness::new();
 
         // Add some thoughts with related content
-        consciousness.attend(Thought::new(ThoughtContent::Reasoning("Fire is hot".to_string())));
-        consciousness.attend(Thought::new(ThoughtContent::Reasoning("Hot things burn".to_string())));
-        consciousness.attend(Thought::new(ThoughtContent::Reasoning("Fire burns".to_string())));
+        consciousness.attend(Thought::new(ThoughtContent::Reasoning(
+            "Fire is hot".to_string(),
+        )));
+        consciousness.attend(Thought::new(ThoughtContent::Reasoning(
+            "Hot things burn".to_string(),
+        )));
+        consciousness.attend(Thought::new(ThoughtContent::Reasoning(
+            "Fire burns".to_string(),
+        )));
 
         let insight = consciousness.generate_insight("Fire");
         assert!(insight.is_some());
@@ -230,8 +240,8 @@ mod consciousness_tests {
 
 #[cfg(test)]
 mod working_memory_tests {
-    use super::super::*;
     use super::super::working_memory::*;
+    use super::super::*;
 
     // ==========================================================================
     // Mental Item Tests
@@ -355,10 +365,8 @@ mod working_memory_tests {
 
     #[test]
     fn test_capacity_limit() {
-        let mut wm = WorkingMemory::with_config(WorkingMemoryConfig {
-            capacity: 3,
-            ..Default::default()
-        });
+        let mut wm =
+            WorkingMemory::with_config(WorkingMemoryConfig { capacity: 3, ..Default::default() });
 
         for i in 0..5 {
             let item = MentalItem::new(ItemContent::Concept(Concept::new(format!("Item {}", i))));
@@ -370,10 +378,8 @@ mod working_memory_tests {
 
     #[test]
     fn test_lru_eviction() {
-        let mut wm = WorkingMemory::with_config(WorkingMemoryConfig {
-            capacity: 2,
-            ..Default::default()
-        });
+        let mut wm =
+            WorkingMemory::with_config(WorkingMemoryConfig { capacity: 2, ..Default::default() });
 
         let item1 = MentalItem::new(ItemContent::Concept(Concept::new("First")));
         let item2 = MentalItem::new(ItemContent::Concept(Concept::new("Second")));
@@ -467,10 +473,7 @@ mod working_memory_tests {
 
     #[test]
     fn test_chunk_creation() {
-        let chunk = Chunk::new(vec![
-            ItemId::new(),
-            ItemId::new(),
-        ]);
+        let chunk = Chunk::new(vec![ItemId::new(), ItemId::new()]);
 
         assert_eq!(chunk.items.len(), 2);
         assert_eq!(chunk.binding_type, BindingType::Associative);
@@ -479,8 +482,7 @@ mod working_memory_tests {
 
     #[test]
     fn test_chunk_with_binding() {
-        let chunk = Chunk::new(vec![ItemId::new()])
-            .with_binding(BindingType::Temporal);
+        let chunk = Chunk::new(vec![ItemId::new()]).with_binding(BindingType::Temporal);
 
         assert_eq!(chunk.binding_type, BindingType::Temporal);
     }
@@ -488,8 +490,8 @@ mod working_memory_tests {
 
 #[cfg(test)]
 mod world_model_tests {
-    use super::super::*;
     use super::super::world_model::*;
+    use super::super::*;
 
     // ==========================================================================
     // World Entity Tests
@@ -507,19 +509,24 @@ mod world_model_tests {
     #[test]
     fn test_world_entity_properties() {
         let entity = WorldEntity::new("Fire", WorldEntityType::Process)
-            .with_property("temperature", Property::new("temperature", PropertyValue::Number(500.0)))
-            .with_property("state", Property::new("state", PropertyValue::String("active".to_string())));
+            .with_property(
+                "temperature",
+                Property::new("temperature", PropertyValue::Number(500.0)),
+            )
+            .with_property(
+                "state",
+                Property::new("state", PropertyValue::String("active".to_string())),
+            );
 
         assert_eq!(entity.properties.len(), 2);
     }
 
     #[test]
     fn test_world_entity_location() {
-        let entity = WorldEntity::new("Fire", WorldEntityType::Process)
-            .with_location(Location {
-                space: Space::Physical,
-                coordinates: Coordinates { x: 10.0, y: 20.0, z: 0.0 },
-            });
+        let entity = WorldEntity::new("Fire", WorldEntityType::Process).with_location(Location {
+            space: Space::Physical,
+            coordinates: Coordinates { x: 10.0, y: 20.0, z: 0.0 },
+        });
 
         assert!(entity.location.is_some());
         assert_eq!(entity.location.unwrap().coordinates.x, 10.0);
@@ -783,8 +790,8 @@ mod world_model_tests {
 
 #[cfg(test)]
 mod motivation_tests {
-    use super::super::*;
     use super::super::motivation::*;
+    use super::super::*;
 
     // ==========================================================================
     // Drive Tests
@@ -848,9 +855,18 @@ mod motivation_tests {
 
     #[test]
     fn test_goal_types() {
-        assert!(matches!(GoalType::Learn("test".to_string()).goal_type(), "Learn"));
-        assert!(matches!(GoalType::Explore("test".to_string()).goal_type(), "Explore"));
-        assert!(matches!(GoalType::Create("test".to_string()).goal_type(), "Create"));
+        assert!(matches!(
+            GoalType::Learn("test".to_string()).goal_type(),
+            "Learn"
+        ));
+        assert!(matches!(
+            GoalType::Explore("test".to_string()).goal_type(),
+            "Explore"
+        ));
+        assert!(matches!(
+            GoalType::Create("test".to_string()).goal_type(),
+            "Create"
+        ));
     }
 
     #[test]
@@ -912,7 +928,10 @@ mod motivation_tests {
     fn test_complex_emotions_exist() {
         assert!(matches!(EmotionType::Curiosity, EmotionType::Curiosity));
         assert!(matches!(EmotionType::Confusion, EmotionType::Confusion));
-        assert!(matches!(EmotionType::Satisfaction, EmotionType::Satisfaction));
+        assert!(matches!(
+            EmotionType::Satisfaction,
+            EmotionType::Satisfaction
+        ));
     }
 
     // ==========================================================================
@@ -1010,8 +1029,8 @@ mod motivation_tests {
 
 #[cfg(test)]
 mod cognition_engine_tests {
-    use super::super::*;
     use super::super::cognition_engine::*;
+    use super::super::*;
 
     // ==========================================================================
     // Engine Creation Tests

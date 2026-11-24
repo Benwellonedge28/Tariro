@@ -34,7 +34,11 @@ impl MultimodalEngine {
     }
 
     /// Generate multimodal content
-    pub fn generate(&self, primary_content: &CreativeContent, modalities: &[String]) -> CreativeContent {
+    pub fn generate(
+        &self,
+        primary_content: &CreativeContent,
+        modalities: &[String],
+    ) -> CreativeContent {
         let mut output = CreativeContent::default();
 
         // Copy text content
@@ -67,7 +71,8 @@ impl MultimodalEngine {
             "format": "mp3",
             "description": "Generated audio representation",
             "style": "narrative"
-        }).to_string()
+        })
+        .to_string()
     }
 
     fn generate_image_description(&self, text: &str) -> String {
@@ -78,7 +83,8 @@ impl MultimodalEngine {
             "format": "png",
             "style": "illustrated",
             "description": "Generated visual representation"
-        }).to_string()
+        })
+        .to_string()
     }
 
     fn generate_video_description(&self, text: &str) -> String {
@@ -90,7 +96,8 @@ impl MultimodalEngine {
             "resolution": "1920x1080",
             "fps": 30,
             "description": "Generated video representation"
-        }).to_string()
+        })
+        .to_string()
     }
 
     /// Get supported modalities

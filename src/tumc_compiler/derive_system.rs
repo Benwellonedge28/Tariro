@@ -1,7 +1,6 @@
 //! Derive/Attribute System for TUMC
 //! Implements procedural macros for derive macros like Clone, Debug, etc.
 
-
 use super::ast::*;
 use std::collections::HashMap;
 use std::fmt;
@@ -103,7 +102,8 @@ impl DeriveMacro {
             DeriveMacro::AsMut => "AsMut",
             DeriveMacro::Borrow => "Borrow",
             DeriveMacro::Custom(name) => name,
-        }.to_string()
+        }
+        .to_string()
     }
 }
 
@@ -150,16 +150,13 @@ impl std::fmt::Display for AttributeValue {
             AttributeValue::Bool(b) => write!(f, "{}", b),
             AttributeValue::Path(p) => write!(f, "{}", p),
             AttributeValue::List(items) => {
-                let rendered: Vec<String> = items
-                    .iter()
-                    .map(|item| item.value.to_string())
-                    .collect();
+                let rendered: Vec<String> =
+                    items.iter().map(|item| item.value.to_string()).collect();
                 write!(f, "[{}]", rendered.join(", "))
             }
         }
     }
 }
-
 
 /// Derive implementation generator
 pub struct DeriveGenerator {
@@ -173,9 +170,7 @@ pub type DeriveHandler = fn(&Struct, &[AttributeArg]) -> Result<Vec<Item>, Deriv
 impl DeriveGenerator {
     /// Create new derive generator
     pub fn new() -> Self {
-        let mut gen = DeriveGenerator {
-            custom_derives: HashMap::new(),
-        };
+        let mut gen = DeriveGenerator { custom_derives: HashMap::new() };
 
         // Register default derives
         gen.register_default_derives();
@@ -186,25 +181,26 @@ impl DeriveGenerator {
     /// Register default derive handlers
     fn register_default_derives(&mut self) {
         // Clone
-        self.custom_derives.insert("Clone".to_string(), |struct_, _| {
-            Ok(vec![Item::Impl(ImplBlock {
-                constants: Vec::new(),
-                trait_name: None,
-                type_name: struct_.name.clone(),
-                ty_params: struct_.ty_params.clone(),
-                functions: vec![
-                    Function {
+        self.custom_derives
+            .insert("Clone".to_string(), |struct_, _| {
+                Ok(vec![Item::Impl(ImplBlock {
+                    constants: Vec::new(),
+                    trait_name: None,
+                    type_name: struct_.name.clone(),
+                    ty_params: struct_.ty_params.clone(),
+                    functions: vec![Function {
                         name: "clone".to_string(),
                         params: vec![],
                         return_type: AnnType::Named(struct_.name.clone()),
-                        body: vec![Stmt::new_expr(Expr::new_identifier(struct_.name.to_lowercase()))],
+                        body: vec![Stmt::new_expr(Expr::new_identifier(
+                            struct_.name.to_lowercase(),
+                        ))],
                         span: Span::default(),
-..Default::default()
-}
-                ],
-                span: Span::default(),
-            })])
-        });
+                        ..Default::default()
+                    }],
+                    span: Span::default(),
+                })])
+            });
     }
 
     /// Register custom derive
@@ -213,7 +209,11 @@ impl DeriveGenerator {
     }
 
     /// Process derive attribute
-    pub fn process_derive(&self, derive_attr: &Attribute, struct_: &Struct) -> Result<Vec<Item>, DeriveError> {
+    pub fn process_derive(
+        &self,
+        derive_attr: &Attribute,
+        struct_: &Struct,
+    ) -> Result<Vec<Item>, DeriveError> {
         let mut items = Vec::new();
 
         for derive_macro in &derive_attr.derives {
@@ -271,8 +271,8 @@ impl DeriveGenerator {
                 return_type: AnnType::Named(struct_.name.clone()),
                 body: stmts,
                 span: Span::default(),
-..Default::default()
-}],
+                ..Default::default()
+            }],
             span: Span::default(),
         })])
     }
@@ -285,7 +285,10 @@ impl DeriveGenerator {
         stmts.push(Stmt::new_expr(Expr::new_method_call(
             Expr::new_identifier("f"),
             "debug_struct",
-            vec![Expr::new_literal(Literal::String(struct_.name.clone()), Span::default())],
+            vec![Expr::new_literal(
+                Literal::String(struct_.name.clone()),
+                Span::default(),
+            )],
             Span::default(),
         )));
 
@@ -317,14 +320,15 @@ impl DeriveGenerator {
             ty_params: struct_.ty_params.clone(),
             functions: vec![Function {
                 name: "fmt".to_string(),
-                params: vec![
-                    FunctionParam { name: "f".to_string(), ann_type: AnnType::Named("Formatter".to_string()) }
-                ],
+                params: vec![FunctionParam {
+                    name: "f".to_string(),
+                    ann_type: AnnType::Named("Formatter".to_string()),
+                }],
                 return_type: AnnType::Named("Result".to_string()),
                 body: vec![Stmt::new_expr(Expr::new_identifier("builder"))],
                 span: Span::default(),
-..Default::default()
-}],
+                ..Default::default()
+            }],
             span: Span::default(),
         })])
     }
@@ -351,10 +355,12 @@ impl DeriveGenerator {
                 name: "default".to_string(),
                 params: vec![],
                 return_type: AnnType::Named(struct_.name.clone()),
-                body: vec![Stmt::new_expr(Expr::new_identifier(struct_.name.to_lowercase()))],
+                body: vec![Stmt::new_expr(Expr::new_identifier(
+                    struct_.name.to_lowercase(),
+                ))],
                 span: Span::default(),
-..Default::default()
-}],
+                ..Default::default()
+            }],
             span: Span::default(),
         })])
     }
@@ -383,7 +389,10 @@ impl DeriveGenerator {
             ));
         }
 
-        stmts.push(Stmt::new_return(Some(Expr::new_literal(Literal::Bool(true), Span::default()))));
+        stmts.push(Stmt::new_return(Some(Expr::new_literal(
+            Literal::Bool(true),
+            Span::default(),
+        ))));
 
         Ok(vec![Item::Impl(ImplBlock {
             constants: Vec::new(),
@@ -392,17 +401,15 @@ impl DeriveGenerator {
             ty_params: struct_.ty_params.clone(),
             functions: vec![Function {
                 name: "eq".to_string(),
-                params: vec![
-                    FunctionParam {
-                        name: "other".to_string(),
-                        ann_type: AnnType::Named(format!("&{}", struct_.name))
-                    }
-                ],
+                params: vec![FunctionParam {
+                    name: "other".to_string(),
+                    ann_type: AnnType::Named(format!("&{}", struct_.name)),
+                }],
                 return_type: AnnType::Named("bool".to_string()),
                 body: stmts,
                 span: Span::default(),
-..Default::default()
-}],
+                ..Default::default()
+            }],
             span: Span::default(),
         })])
     }
@@ -417,8 +424,8 @@ impl DeriveGenerator {
             ty_params: vec![],
             functions: vec![],
             span: Span::default(),
-..Default::default()
-})])
+            ..Default::default()
+        })])
     }
 
     /// Derive Hash implementation
@@ -441,17 +448,15 @@ impl DeriveGenerator {
             ty_params: struct_.ty_params.clone(),
             functions: vec![Function {
                 name: "hash".to_string(),
-                params: vec![
-                    FunctionParam {
-                        name: "state".to_string(),
-                        ann_type: AnnType::Named("Hasher".to_string())
-                    }
-                ],
+                params: vec![FunctionParam {
+                    name: "state".to_string(),
+                    ann_type: AnnType::Named("Hasher".to_string()),
+                }],
                 return_type: AnnType::Unit,
                 body: stmts,
                 span: Span::default(),
-..Default::default()
-}],
+                ..Default::default()
+            }],
             span: Span::default(),
         })])
     }
@@ -464,7 +469,10 @@ impl DeriveGenerator {
         stmts.push(Stmt::new_expr(Expr::new_method_call(
             Expr::new_identifier("serializer"),
             "serialize_struct",
-            vec![Expr::new_literal(Literal::String(struct_.name.clone()), Span::default())],
+            vec![Expr::new_literal(
+                Literal::String(struct_.name.clone()),
+                Span::default(),
+            )],
             Span::default(),
         )));
 
@@ -491,17 +499,15 @@ impl DeriveGenerator {
             ty_params: struct_.ty_params.clone(),
             functions: vec![Function {
                 name: "serialize".to_string(),
-                params: vec![
-                    FunctionParam {
-                        name: "serializer".to_string(),
-                        ann_type: AnnType::Named("S".to_string())
-                    }
-                ],
+                params: vec![FunctionParam {
+                    name: "serializer".to_string(),
+                    ann_type: AnnType::Named("S".to_string()),
+                }],
                 return_type: AnnType::Named("Result<S::Ok, S::Error>".to_string()),
                 body: stmts,
                 span: Span::default(),
-..Default::default()
-}],
+                ..Default::default()
+            }],
             span: Span::default(),
         })])
     }
@@ -514,7 +520,10 @@ impl DeriveGenerator {
         stmts.push(Stmt::new_expr(Expr::new_method_call(
             Expr::new_identifier("deserializer"),
             "deserialize_struct",
-            vec![Expr::new_literal(Literal::String(struct_.name.clone()), Span::default())],
+            vec![Expr::new_literal(
+                Literal::String(struct_.name.clone()),
+                Span::default(),
+            )],
             Span::default(),
         )));
 
@@ -525,17 +534,15 @@ impl DeriveGenerator {
             ty_params: struct_.ty_params.clone(),
             functions: vec![Function {
                 name: "deserialize".to_string(),
-                params: vec![
-                    FunctionParam {
-                        name: "deserializer".to_string(),
-                        ann_type: AnnType::Named("D".to_string())
-                    }
-                ],
+                params: vec![FunctionParam {
+                    name: "deserializer".to_string(),
+                    ann_type: AnnType::Named("D".to_string()),
+                }],
                 return_type: AnnType::Named("Result<Self, D::Error>".to_string()),
                 body: stmts,
                 span: Span::default(),
-..Default::default()
-}],
+                ..Default::default()
+            }],
             span: Span::default(),
         })])
     }
@@ -555,24 +562,20 @@ impl DeriveGenerator {
             ty_params: struct_.ty_params.clone(),
             functions: vec![Function {
                 name: "fmt".to_string(),
-                params: vec![
-                    FunctionParam {
-                        name: "f".to_string(),
-                        ann_type: AnnType::Named("Formatter".to_string())
-                    }
-                ],
+                params: vec![FunctionParam {
+                    name: "f".to_string(),
+                    ann_type: AnnType::Named("Formatter".to_string()),
+                }],
                 return_type: AnnType::Named("fmt::Result".to_string()),
-                body: vec![
-                    Stmt::new_expr(Expr::new_method_call(
-                        Expr::new_identifier("self"),
-                        "debug_fmt",
-                        vec![Expr::new_identifier("f")],
-                        Span::default(),
-                    ))
-                ],
+                body: vec![Stmt::new_expr(Expr::new_method_call(
+                    Expr::new_identifier("self"),
+                    "debug_fmt",
+                    vec![Expr::new_identifier("f")],
+                    Span::default(),
+                ))],
                 span: Span::default(),
-..Default::default()
-}],
+                ..Default::default()
+            }],
             span: Span::default(),
         })])
     }
@@ -703,9 +706,7 @@ impl std::error::Error for AttributeError {}
 impl AttributeTransformer {
     /// Create new attribute transformer
     pub fn new() -> Self {
-        let mut transformer = AttributeTransformer {
-            builtins: HashMap::new(),
-        };
+        let mut transformer = AttributeTransformer { builtins: HashMap::new() };
         transformer.register_builtins();
         transformer
     }
@@ -735,9 +736,14 @@ impl AttributeTransformer {
         // #[repr]
         self.builtins.insert("repr".to_string(), |args| {
             if let Some(arg) = args.first() {
-                Ok(vec![Transformation::Validate(format!("repr({})", arg.value))])
+                Ok(vec![Transformation::Validate(format!(
+                    "repr({})",
+                    arg.value
+                ))])
             } else {
-                Err(AttributeError::InvalidAttribute("repr requires argument".to_string()))
+                Err(AttributeError::InvalidAttribute(
+                    "repr requires argument".to_string(),
+                ))
             }
         });
     }
@@ -748,7 +754,11 @@ impl AttributeTransformer {
     }
 
     /// Transform item based on attributes
-    pub fn transform(&self, attrs: &[Attribute], _item: &mut Item) -> Result<Vec<Transformation>, AttributeError> {
+    pub fn transform(
+        &self,
+        attrs: &[Attribute],
+        _item: &mut Item,
+    ) -> Result<Vec<Transformation>, AttributeError> {
         let mut transformations = Vec::new();
 
         for attr in attrs {
@@ -836,7 +846,10 @@ mod tests {
     fn test_derive_macro_parsing() {
         assert_eq!(DeriveMacro::parse("Clone"), Some(DeriveMacro::Clone));
         assert_eq!(DeriveMacro::parse("Debug"), Some(DeriveMacro::Debug));
-        assert_eq!(DeriveMacro::parse("Custom"), Some(DeriveMacro::Custom("Custom".to_string())));
+        assert_eq!(
+            DeriveMacro::parse("Custom"),
+            Some(DeriveMacro::Custom("Custom".to_string()))
+        );
     }
 
     #[test]

@@ -13,7 +13,7 @@ use std::collections::HashMap;
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AdminCommand {
     pub command_id: String,
-    pub initiator: String, // User ID or AGI module ID
+    pub initiator: String,    // User ID or AGI module ID
     pub command_type: String, // e.g., "update_config", "reboot_module", "query_logs"
     pub payload: HashMap<String, String>,
     pub timestamp: DateTime<Utc>,
@@ -45,11 +45,13 @@ impl AdminService {
 
     /// Executes an administrative command.
     pub async fn execute_admin_command(&mut self, command: AdminCommand) -> AdminCommandResult {
-        self.telemetry_logger.log_event(TelemetryEvent::AdminCommandIssued { 
-            command_id: command.command_id.clone(), 
-            command_type: command.command_type.clone(),
-            initiator: command.initiator.clone(),
-        }).await;
+        self.telemetry_logger
+            .log_event(TelemetryEvent::AdminCommandIssued {
+                command_id: command.command_id.clone(),
+                command_type: command.command_type.clone(),
+                initiator: command.initiator.clone(),
+            })
+            .await;
 
         println!("[AdminService] Executing command: {:?}", command);
         // Simulate command execution time
@@ -72,11 +74,13 @@ impl AdminService {
             },
         };
 
-        self.telemetry_logger.log_event(TelemetryEvent::AdminCommandCompleted { 
-            command_id: result.command_id.clone(), 
-            status: result.status.clone(),
-            message: result.message.clone(),
-        }).await;
+        self.telemetry_logger
+            .log_event(TelemetryEvent::AdminCommandCompleted {
+                command_id: result.command_id.clone(),
+                status: result.status.clone(),
+                message: result.message.clone(),
+            })
+            .await;
         result
     }
 
@@ -85,7 +89,10 @@ impl AdminService {
             "update_config" => self.handle_update_config(command).await,
             "reboot_module" => self.handle_reboot_module(command).await,
             "query_system_status" => self.handle_query_system_status(command).await,
-            _ => Err(format!("Unknown admin command type: {}", command.command_type)),
+            _ => Err(format!(
+                "Unknown admin command type: {}",
+                command.command_type
+            )),
         }
     }
 
@@ -94,7 +101,10 @@ impl AdminService {
             if let Some(value) = command.payload.get("value") {
                 // In a real system, this would update the actual config struct
                 // For simulation, we just print and log.
-                println!("  [AdminService] Updating config key '{}' to '{}'.", key, value);
+                println!(
+                    "  [AdminService] Updating config key '{}' to '{}'.",
+                    key, value
+                );
                 self.config.update_setting(key, value);
                 Ok(format!("Config key '{}' updated successfully.", key))
             } else {
@@ -107,9 +117,15 @@ impl AdminService {
 
     async fn handle_reboot_module(&self, command: &AdminCommand) -> Result<String, String> {
         if let Some(module_name) = command.payload.get("module_name") {
-            println!("  [AdminService] Initiating reboot for module: {}", module_name);
+            println!(
+                "  [AdminService] Initiating reboot for module: {}",
+                module_name
+            );
             // Simulate reboot logic
-            Ok(format!("Reboot of module '{}' initiated successfully.", module_name))
+            Ok(format!(
+                "Reboot of module '{}' initiated successfully.",
+                module_name
+            ))
         } else {
             Err("Missing 'module_name' in reboot_module payload.".to_string())
         }
@@ -127,7 +143,10 @@ impl AdminService {
     }
 
     /// Applies a set of `AGIControl` settings, typically from an Admin UI or a self-governance process.
-    pub async fn apply_agi_controls(&mut self, controls: &[crate::config::AGIControl]) -> Result<Vec<AdminCommandResult>, String> {
+    pub async fn apply_agi_controls(
+        &mut self,
+        controls: &[crate::config::AGIControl],
+    ) -> Result<Vec<AdminCommandResult>, String> {
         let mut results = Vec::new();
         println!("[AdminService] Applying {} AGI controls.", controls.len());
         for control in controls {
@@ -140,13 +159,18 @@ impl AdminService {
                     ("value".to_string(), control.value.clone()),
                 ]),
                 timestamp: Utc::now(),
-                expected_outcome: Some(format!("Config key {} updated to {}", control.control_key, control.value)),
+                expected_outcome: Some(format!(
+                    "Config key {} updated to {}",
+                    control.control_key, control.value
+                )),
             };
             results.push(self.execute_admin_command(command).await);
         }
-        println!("[AdminService] Finished applying AGI controls. {} successful, {} failed.", 
-                   results.iter().filter(|r| r.status == "success").count(),
-                   results.iter().filter(|r| r.status == "failure").count());
+        println!(
+            "[AdminService] Finished applying AGI controls. {} successful, {} failed.",
+            results.iter().filter(|r| r.status == "success").count(),
+            results.iter().filter(|r| r.status == "failure").count()
+        );
         Ok(results)
     }
 }
@@ -182,12 +206,19 @@ mod tests {
         assert!(result.message.contains("updated successfully"));
 
         // Check if config was actually updated (simulated)
-        assert_eq!(admin_service.get_current_config().get_setting("core.log_level"), Some("debug".to_string()));
+        assert_eq!(
+            admin_service
+                .get_current_config()
+                .get_setting("core.log_level"),
+            Some("debug".to_string())
+        );
 
         // Check telemetry logs
         let event1 = rx.recv().await.unwrap();
         match event1 {
-            TelemetryEvent::AdminCommandIssued { command_id, .. } => assert_eq!(command_id, "test_cmd_1"),
+            TelemetryEvent::AdminCommandIssued { command_id, .. } => {
+                assert_eq!(command_id, "test_cmd_1")
+            }
             _ => panic!("Unexpected event type"),
         }
         let event2 = rx.recv().await.unwrap();
@@ -195,7 +226,7 @@ mod tests {
             TelemetryEvent::AdminCommandCompleted { command_id, status, .. } => {
                 assert_eq!(command_id, "test_cmd_1");
                 assert_eq!(status, "success");
-            },
+            }
             _ => panic!("Unexpected event type"),
         }
     }
@@ -234,8 +265,18 @@ mod tests {
         assert_eq!(results[1].status, "success");
 
         // Verify config updates (simulated)
-        assert_eq!(admin_service.get_current_config().get_setting("autonomy.evast_filter_enabled"), Some("false".to_string()));
-        assert_eq!(admin_service.get_current_config().get_setting("core.log_level"), Some("error".to_string()));
+        assert_eq!(
+            admin_service
+                .get_current_config()
+                .get_setting("autonomy.evast_filter_enabled"),
+            Some("false".to_string())
+        );
+        assert_eq!(
+            admin_service
+                .get_current_config()
+                .get_setting("core.log_level"),
+            Some("error".to_string())
+        );
 
         // Verify telemetry events (4 events: 2 issued, 2 completed)
         for _ in 0..4 {

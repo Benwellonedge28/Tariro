@@ -4,7 +4,7 @@
 
 use std::sync::RwLock;
 
-use crate::knowledge::knowledge_graph::{KnowledgeGraph, EntityId};
+use crate::knowledge::knowledge_graph::{EntityId, KnowledgeGraph};
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
@@ -20,10 +20,7 @@ pub enum Term {
     /// Variable term
     Variable(String),
     /// Compound term
-    Compound {
-        functor: String,
-        args: Vec<Term>,
-    },
+    Compound { functor: String, args: Vec<Term> },
 }
 
 impl Term {
@@ -39,10 +36,7 @@ impl Term {
 
     /// Create a compound term
     pub fn compound(functor: impl Into<String>, args: Vec<Term>) -> Self {
-        Term::Compound {
-            functor: functor.into(),
-            args,
-        }
+        Term::Compound { functor: functor.into(), args }
     }
 
     /// Get all variables in this term
@@ -54,9 +48,7 @@ impl Term {
                 vars.insert(name.as_str());
                 vars
             }
-            Term::Compound { args, .. } => {
-                args.iter().flat_map(|t| t.variables()).collect()
-            }
+            Term::Compound { args, .. } => args.iter().flat_map(|t| t.variables()).collect(),
         }
     }
 
@@ -64,15 +56,11 @@ impl Term {
     pub fn apply(&self, subst: &Substitution) -> Term {
         match self {
             Term::Constant(_) => self.clone(),
-            Term::Variable(name) => {
-                subst.get(name).cloned().unwrap_or_else(|| self.clone())
-            }
-            Term::Compound { functor, args } => {
-                Term::Compound {
-                    functor: functor.clone(),
-                    args: args.iter().map(|a| a.apply(subst)).collect(),
-                }
-            }
+            Term::Variable(name) => subst.get(name).cloned().unwrap_or_else(|| self.clone()),
+            Term::Compound { functor, args } => Term::Compound {
+                functor: functor.clone(),
+                args: args.iter().map(|a| a.apply(subst)).collect(),
+            },
         }
     }
 }
@@ -129,11 +117,7 @@ impl Literal {
     }
 
     pub fn new(predicate: impl Into<String>, terms: Vec<Term>) -> Self {
-        Literal {
-            predicate: predicate.into(),
-            terms,
-            negated: false,
-        }
+        Literal { predicate: predicate.into(), terms, negated: false }
     }
 
     pub fn negated(mut self) -> Self {
@@ -160,18 +144,15 @@ impl Literal {
 #[derive(Debug, Clone)]
 pub enum Clause {
     /// Fact: Head.
-    Fact {
-        head: Literal},
+    Fact { head: Literal },
     /// Rule: Head :- Body.
-    Rule {
-        head: Literal,
-        body: Vec<Literal>}}
+    Rule { head: Literal, body: Vec<Literal> },
+}
 
 impl Clause {
     /// Create a fact
     pub fn fact(predicate: impl Into<String>, terms: Vec<Term>) -> Self {
-        Clause::Fact {
-            head: Literal::new(predicate, terms)}
+        Clause::Fact { head: Literal::new(predicate, terms) }
     }
 
     /// Create a rule
@@ -190,9 +171,7 @@ impl Clause {
             }
 
             let head = Self::parse_literal(parts[0].trim())?;
-            let body_strs: Vec<&str> = parts[1].split(',')
-                .map(|s| s.trim())
-                .collect();
+            let body_strs: Vec<&str> = parts[1].split(',').map(|s| s.trim()).collect();
             let mut body = Vec::new();
             for body_str in body_strs {
                 body.push(Self::parse_literal(body_str)?);
@@ -214,15 +193,12 @@ impl Clause {
         if let Some(paren_start) = s.find('(') {
             let pred = &s[..paren_start];
             let terms_str = &s[paren_start + 1..s.len() - 1];
-            let terms: Vec<Term> = terms_str.split(',')
+            let terms: Vec<Term> = terms_str
+                .split(',')
                 .map(|s| Self::parse_term(s.trim()))
                 .collect();
 
-            Ok(Literal {
-                predicate: pred.to_string(),
-                terms,
-                negated,
-            })
+            Ok(Literal { predicate: pred.to_string(), terms, negated })
         } else {
             Ok(Literal::new(s, vec![]))
         }
@@ -242,9 +218,7 @@ impl Clause {
             if let Some(paren) = s.find('(') {
                 let functor = &s[..paren];
                 let args_str = &s[paren + 1..s.len() - 1];
-                let args: Vec<Term> = args_str.split(',')
-                    .map(Self::parse_term)
-                    .collect();
+                let args: Vec<Term> = args_str.split(',').map(Self::parse_term).collect();
                 Term::compound(functor, args)
             } else {
                 Term::constant(s)
@@ -256,9 +230,9 @@ impl Clause {
 
     fn fact_from_string(s: &str) -> Self {
         let s = s.trim().trim_end_matches('.');
-        Self::parse_literal(s).map(|head| Clause::Fact { head }).unwrap_or_else(|_| {
-            Clause::fact("unknown", vec![])
-        })
+        Self::parse_literal(s)
+            .map(|head| Clause::Fact { head })
+            .unwrap_or_else(|_| Clause::fact("unknown", vec![]))
     }
 }
 
@@ -328,8 +302,12 @@ impl EDB {
     }
 
     pub fn match_atoms(&self, pattern: &Atom) -> Vec<Substitution> {
-        self.facts.iter()
-            .filter(|atom| atom.unifies_with(pattern, &mut Substitution::new()).is_some())
+        self.facts
+            .iter()
+            .filter(|atom| {
+                atom.unifies_with(pattern, &mut Substitution::new())
+                    .is_some()
+            })
             .filter_map(|atom| atom.unifies_with(pattern, &mut Substitution::new()))
             .collect()
     }
@@ -355,7 +333,8 @@ impl IDB {
     }
 
     pub fn get_rules_for(&self, predicate: &str) -> Vec<&Clause> {
-        self.rules.iter()
+        self.rules
+            .iter()
             .filter(|clause| clause.head_predicate() == Some(predicate))
             .collect()
     }
@@ -384,7 +363,8 @@ fn unify_terms(t1: &Term, t2: &Term, subst: &mut Substitution) -> Option<Substit
         (Term::Constant(c1), Term::Constant(c2)) if c1 == c2 => Some(subst.clone()),
         // Compound terms
         (Term::Compound { functor: f1, args: a1 }, Term::Compound { functor: f2, args: a2 })
-            if f1 == f2 && a1.len() == a2.len() => {
+            if f1 == f2 && a1.len() == a2.len() =>
+        {
             let mut sub = subst.clone();
             for (arg1, arg2) in a1.iter().zip(a2.iter()) {
                 if let Some(s) = unify_terms(arg1, arg2, &mut sub) {
@@ -411,7 +391,8 @@ impl Clause {
     pub fn head_predicate(&self) -> Option<&str> {
         match self {
             Clause::Fact { head } => Some(head.predicate.as_str()),
-            Clause::Rule { head, .. } => Some(head.predicate.as_str())}
+            Clause::Rule { head, .. } => Some(head.predicate.as_str()),
+        }
     }
 }
 
@@ -431,16 +412,13 @@ pub struct LogicEngine {
     kb: Arc<RwLock<KnowledgeGraph>>,
 
     /// Maximum recursion depth
-    max_depth: usize}
+    max_depth: usize,
+}
 
 impl LogicEngine {
     /// Create a new logic engine
     pub fn new(kb: Arc<RwLock<KnowledgeGraph>>) -> Self {
-        LogicEngine {
-            edb: EDB::new(),
-            idb: IDB::new(),
-            kb,
-            max_depth: 10}
+        LogicEngine { edb: EDB::new(), idb: IDB::new(), kb, max_depth: 10 }
     }
 
     /// Add a fact
@@ -508,7 +486,9 @@ impl LogicEngine {
         match clause {
             Clause::Fact { head } => {
                 let mut subst = Substitution::new();
-                head.unifies_with(goal, &mut subst).map(|s| vec![s]).unwrap_or_default()
+                head.unifies_with(goal, &mut subst)
+                    .map(|s| vec![s])
+                    .unwrap_or_default()
             }
             Clause::Rule { head, body } => {
                 // Unify head with goal
@@ -524,7 +504,12 @@ impl LogicEngine {
     }
 
     /// Prove a list of goals (conjunction)
-    fn prove_goals(&self, goals: &[Literal], subst: Substitution, depth: usize) -> Vec<Substitution> {
+    fn prove_goals(
+        &self,
+        goals: &[Literal],
+        subst: Substitution,
+        depth: usize,
+    ) -> Vec<Substitution> {
         if goals.is_empty() {
             return vec![subst];
         }
@@ -561,11 +546,7 @@ impl LogicEngine {
     pub fn all_solutions(&self, predicate: &str, terms: &[Term]) -> Vec<HashMap<String, Term>> {
         self.query(predicate, terms)
             .into_iter()
-            .map(|subst| {
-                subst.bindings
-                    .into_iter()
-                    .collect()
-            })
+            .map(|subst| subst.bindings.into_iter().collect())
             .collect()
     }
 
@@ -603,15 +584,18 @@ impl LogicEngine {
         self.assert_string("mortal(X) :- human(X)").ok();
 
         // All birds can fly (with exceptions via negation)
-        self.assert_string("can_fly(X) :- bird(X), not penguin(X)").ok();
+        self.assert_string("can_fly(X) :- bird(X), not penguin(X)")
+            .ok();
 
         // Ancestor relationship
         self.assert_string("ancestor(X, Y) :- parent(X, Y)").ok();
-        self.assert_string("ancestor(X, Y) :- parent(X, Z), ancestor(Z, Y)").ok();
+        self.assert_string("ancestor(X, Y) :- parent(X, Z), ancestor(Z, Y)")
+            .ok();
 
         // Transitive closure
         self.assert_string("connected(X, Y) :- edge(X, Y)").ok();
-        self.assert_string("connected(X, Y) :- edge(X, Z), connected(Z, Y)").ok();
+        self.assert_string("connected(X, Y) :- edge(X, Z), connected(Z, Y)")
+            .ok();
     }
 }
 
@@ -634,10 +618,7 @@ mod tests {
 
     #[test]
     fn test_literal_creation() {
-        let lit = Literal::new("father", vec![
-            Term::constant("socrates"),
-            Term::var("X"),
-        ]);
+        let lit = Literal::new("father", vec![Term::constant("socrates"), Term::var("X")]);
 
         assert_eq!(lit.predicate, "father");
         assert_eq!(lit.terms.len(), 2);
@@ -673,15 +654,9 @@ mod tests {
 
     #[test]
     fn test_atom_unification() {
-        let a1 = Atom::new("parent", vec![
-            Term::constant("john"),
-            Term::var("Y"),
-        ]);
+        let a1 = Atom::new("parent", vec![Term::constant("john"), Term::var("Y")]);
 
-        let a2 = Atom::new("parent", vec![
-            Term::var("X"),
-            Term::constant("jane"),
-        ]);
+        let a2 = Atom::new("parent", vec![Term::var("X"), Term::constant("jane")]);
 
         let mut subst = Substitution::new();
         let result = a1.unifies_with(&a2, &mut subst);
@@ -698,20 +673,17 @@ mod tests {
         let mut engine = LogicEngine::new(kb);
 
         // Add facts
-        engine.assert_fact("parent", vec![
-            Term::constant("alice"),
-            Term::constant("bob"),
-        ]);
-        engine.assert_fact("parent", vec![
-            Term::constant("bob"),
-            Term::constant("charlie"),
-        ]);
+        engine.assert_fact(
+            "parent",
+            vec![Term::constant("alice"), Term::constant("bob")],
+        );
+        engine.assert_fact(
+            "parent",
+            vec![Term::constant("bob"), Term::constant("charlie")],
+        );
 
         // Query
-        let results = engine.query("parent", &[
-            Term::var("X"),
-            Term::constant("charlie"),
-        ]);
+        let results = engine.query("parent", &[Term::var("X"), Term::constant("charlie")]);
 
         assert_eq!(results.len(), 1);
         assert_eq!(results[0].get("X"), Some(&Term::constant("bob")));
@@ -738,14 +710,15 @@ mod tests {
         engine.assert_string("parent(bob, charlie)").unwrap();
 
         // Recursive rule
-        engine.assert_string("ancestor(X, Y) :- parent(X, Y)").unwrap();
-        engine.assert_string("ancestor(X, Y) :- parent(X, Z), ancestor(Z, Y)").unwrap();
+        engine
+            .assert_string("ancestor(X, Y) :- parent(X, Y)")
+            .unwrap();
+        engine
+            .assert_string("ancestor(X, Y) :- parent(X, Z), ancestor(Z, Y)")
+            .unwrap();
 
         // Query
-        let results = engine.query("ancestor", &[
-            Term::var("X"),
-            Term::constant("charlie"),
-        ]);
+        let results = engine.query("ancestor", &[Term::var("X"), Term::constant("charlie")]);
 
         // Should find bob and alice as ancestors of charlie
         assert!(results.len() >= 2);

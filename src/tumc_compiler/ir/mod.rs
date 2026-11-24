@@ -1,16 +1,16 @@
 // TUMC Intermediate Representations Module
 // Provides multiple IR levels: SSA, Control Flow Graph, and Sea of Nodes
 
-pub mod ssa;
 pub mod cfg;
-pub mod sea_of_nodes;
 pub mod dialects;
+pub mod sea_of_nodes;
+pub mod ssa;
 
-use std::collections::HashMap;
-pub use ssa::*;
 pub use cfg::*;
-pub use sea_of_nodes::*;
 pub use dialects::*;
+pub use sea_of_nodes::*;
+pub use ssa::*;
+use std::collections::HashMap;
 
 // ============================================================================
 // Common IR Types
@@ -82,9 +82,10 @@ impl IrType {
             IrType::Pointer(_) => Some(8), // 64-bit pointer
             IrType::Vector(ety, len) => ety.size().map(|s| s * len),
             IrType::Array(ety, len) => ety.size().map(|s| s * len),
-            IrType::Struct(types) => types.iter().map(|t| t.size()).fold(Some(0), |acc, s| {
-                acc.and_then(|a| s.map(|s| a + s))
-            }),
+            IrType::Struct(types) => types
+                .iter()
+                .map(|t| t.size())
+                .fold(Some(0), |acc, s| acc.and_then(|a| s.map(|s| a + s))),
             _ => None,
         }
     }
@@ -94,10 +95,19 @@ impl IrType {
     }
 
     pub fn is_integer(&self) -> bool {
-        matches!(self,
-            IrType::Int8 | IrType::Int16 | IrType::Int32 | IrType::Int64 |
-            IrType::Int128 | IrType::Int(_) |
-            IrType::Uint8 | IrType::Uint16 | IrType::Uint32 | IrType::Uint64 | IrType::Uint128
+        matches!(
+            self,
+            IrType::Int8
+                | IrType::Int16
+                | IrType::Int32
+                | IrType::Int64
+                | IrType::Int128
+                | IrType::Int(_)
+                | IrType::Uint8
+                | IrType::Uint16
+                | IrType::Uint32
+                | IrType::Uint64
+                | IrType::Uint128
         )
     }
 
@@ -118,14 +128,38 @@ impl IrType {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum BinOp {
     // Arithmetic
-    Add, Sub, Mul, Div, Rem,
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Rem,
     // Bitwise
-    And, Or, Xor, Shl, Shr, Rotl, Rotr,
+    And,
+    Or,
+    Xor,
+    Shl,
+    Shr,
+    Rotl,
+    Rotr,
     // Comparison
-    Eq, Ne, Lt, Le, Gt, Ge,
+    Eq,
+    Ne,
+    Lt,
+    Le,
+    Gt,
+    Ge,
     // Floating point
-    FAdd, FSub, FMul, FDiv, FRem,
-    FEq, FNe, FLt, FLe, FGt, FGe,
+    FAdd,
+    FSub,
+    FMul,
+    FDiv,
+    FRem,
+    FEq,
+    FNe,
+    FLt,
+    FLe,
+    FGt,
+    FGe,
 }
 
 /// Type alias for BinaryOp (for compatibility)
@@ -134,9 +168,20 @@ pub type BinaryOp = BinOp;
 /// Unary operators
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum UnOp {
-    Neg, Not, BitNot,
+    Neg,
+    Not,
+    BitNot,
     // Floating point
-    FNeg, FAbs, FSqrt, FCeil, FFloor, FRound, FTrunc, FExp, FLog, FPow,
+    FNeg,
+    FAbs,
+    FSqrt,
+    FCeil,
+    FFloor,
+    FRound,
+    FTrunc,
+    FExp,
+    FLog,
+    FPow,
 }
 
 /// Type alias for UnaryOp (for compatibility)
@@ -145,9 +190,12 @@ pub type UnaryOp = UnOp;
 /// Memory operations
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum MemOp {
-    Load, Store,
-    LoadAtomic, StoreAtomic,
-    Cmpxchg, AtomicRMW,
+    Load,
+    Store,
+    LoadAtomic,
+    StoreAtomic,
+    Cmpxchg,
+    AtomicRMW,
 }
 
 /// Memory ordering for atomics
@@ -516,7 +564,7 @@ pub enum Operation {
     Unary(UnOp, ValueId),
 
     // Memory operations
-    Alloca(IrType, Option<usize>),  // type, array size
+    Alloca(IrType, Option<usize>), // type, array size
     Load(MemOp, ValueId, IrType, MemoryOrdering),
     Store(MemOp, ValueId, ValueId, MemoryOrdering),
     LoadElementPtr(ValueId, Vec<ValueId>),
@@ -524,8 +572,8 @@ pub enum Operation {
 
     // Function calls
     Call(FunctionId, Vec<ValueId>),
-    CallIndirect(ValueId, Vec<ValueId>),  // fn ptr, args
-    InlineAsm(String, Vec<ValueId>, Vec<(String, ValueId)>),  // asm, args, clobbers
+    CallIndirect(ValueId, Vec<ValueId>), // fn ptr, args
+    InlineAsm(String, Vec<ValueId>, Vec<(String, ValueId)>), // asm, args, clobbers
 
     // Type conversions
     Cast(ValueId, IrType, CastKind),
@@ -561,7 +609,7 @@ pub enum Operation {
     Fence(MemoryOrdering),
 
     // Virtual register operations
-    PhiPseudo(Vec<(ValueId, BasicBlockId)>, IrType),  // For non-SSA lowering
+    PhiPseudo(Vec<(ValueId, BasicBlockId)>, IrType), // For non-SSA lowering
 
     // Debug information
     DebugValue(ValueId, DbgInfo),
@@ -614,19 +662,49 @@ pub enum CastKind {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum IntCmpOp {
-    Eq, Ne, UgT, UgE, ULt, ULe,
-    SgT, SgE, SLt, SLe,
+    Eq,
+    Ne,
+    UgT,
+    UgE,
+    ULt,
+    ULe,
+    SgT,
+    SgE,
+    SLt,
+    SLe,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum FloatCmpOp {
-    False, OEq, Ogt, Oge, Olt, Ole, ONE,
-    ORd, UGT, UGE, ULT, ULE, UNE, OR,
+    False,
+    OEq,
+    Ogt,
+    Oge,
+    Olt,
+    Ole,
+    ONE,
+    ORd,
+    UGT,
+    UGE,
+    ULT,
+    ULE,
+    UNE,
+    OR,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum AtomicRMWOp {
-    Xchg, Add, Sub, And, Nand, Or, Xor, Max, Min, UMax, UMin,
+    Xchg,
+    Add,
+    Sub,
+    And,
+    Nand,
+    Or,
+    Xor,
+    Max,
+    Min,
+    UMax,
+    UMin,
 }
 
 /// Terminator instructions
@@ -952,7 +1030,11 @@ impl IrBuilder {
     }
 
     pub fn build_add(&mut self, lhs: ValueId, rhs: ValueId, ty: IrType) -> ValueId {
-        let op = if ty.is_float() { BinOp::FAdd } else { BinOp::Add };
+        let op = if ty.is_float() {
+            BinOp::FAdd
+        } else {
+            BinOp::Add
+        };
         let inst = Instruction::new(Operation::Binary(op, lhs, rhs), ty);
         let id = ValueId(self.instructions.len());
         self.instructions.push(inst);
@@ -960,7 +1042,11 @@ impl IrBuilder {
     }
 
     pub fn build_sub(&mut self, lhs: ValueId, rhs: ValueId, ty: IrType) -> ValueId {
-        let op = if ty.is_float() { BinOp::FSub } else { BinOp::Sub };
+        let op = if ty.is_float() {
+            BinOp::FSub
+        } else {
+            BinOp::Sub
+        };
         let inst = Instruction::new(Operation::Binary(op, lhs, rhs), ty);
         let id = ValueId(self.instructions.len());
         self.instructions.push(inst);
@@ -968,7 +1054,11 @@ impl IrBuilder {
     }
 
     pub fn build_mul(&mut self, lhs: ValueId, rhs: ValueId, ty: IrType) -> ValueId {
-        let op = if ty.is_float() { BinOp::FMul } else { BinOp::Mul };
+        let op = if ty.is_float() {
+            BinOp::FMul
+        } else {
+            BinOp::Mul
+        };
         let inst = Instruction::new(Operation::Binary(op, lhs, rhs), ty);
         let id = ValueId(self.instructions.len());
         self.instructions.push(inst);
@@ -976,7 +1066,11 @@ impl IrBuilder {
     }
 
     pub fn build_div(&mut self, lhs: ValueId, rhs: ValueId, ty: IrType) -> ValueId {
-        let op = if ty.is_float() { BinOp::FDiv } else { BinOp::Div };
+        let op = if ty.is_float() {
+            BinOp::FDiv
+        } else {
+            BinOp::Div
+        };
         let inst = Instruction::new(Operation::Binary(op, lhs, rhs), ty);
         let id = ValueId(self.instructions.len());
         self.instructions.push(inst);
@@ -1001,7 +1095,12 @@ impl IrBuilder {
         Terminator::Br(target)
     }
 
-    pub fn build_cond_br(&mut self, cond: ValueId, then: BasicBlockId, else_: BasicBlockId) -> Terminator {
+    pub fn build_cond_br(
+        &mut self,
+        cond: ValueId,
+        then: BasicBlockId,
+        else_: BasicBlockId,
+    ) -> Terminator {
         Terminator::BrCond(cond, then, else_)
     }
 
@@ -1009,7 +1108,12 @@ impl IrBuilder {
         Terminator::Ret(val)
     }
 
-    pub fn build_call(&mut self, func: FunctionId, args: Vec<ValueId>, ret_type: IrType) -> ValueId {
+    pub fn build_call(
+        &mut self,
+        func: FunctionId,
+        args: Vec<ValueId>,
+        ret_type: IrType,
+    ) -> ValueId {
         let inst = Instruction::new(Operation::Call(func, args), ret_type);
         let id = ValueId(self.instructions.len());
         self.instructions.push(inst);
@@ -1115,7 +1219,10 @@ mod tests {
         assert_eq!(IrType::Int32.size(), Some(4));
         assert_eq!(IrType::Float64.size(), Some(8));
         assert_eq!(IrType::Pointer(Box::new(IrType::Int32)).size(), Some(8));
-        assert_eq!(IrType::Vector(Box::new(IrType::Float32), 4).size(), Some(16));
+        assert_eq!(
+            IrType::Vector(Box::new(IrType::Float32), 4).size(),
+            Some(16)
+        );
     }
 
     #[test]
@@ -1140,9 +1247,15 @@ mod tests {
         let mut builder = IrBuilder::new();
 
         let alloca = builder.build_alloca(IrType::Int32, None);
-        assert!(matches!(builder.instructions[0].op, Operation::Alloca(_, _)));
+        assert!(matches!(
+            builder.instructions[0].op,
+            Operation::Alloca(_, _)
+        ));
 
         let load = builder.build_load(alloca, IrType::Int32);
-        assert!(matches!(builder.instructions[1].op, Operation::Load(_, _, _, _)));
+        assert!(matches!(
+            builder.instructions[1].op,
+            Operation::Load(_, _, _, _)
+        ));
     }
 }

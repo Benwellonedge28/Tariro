@@ -297,7 +297,11 @@ impl ComponentBuilder {
     }
 
     /// Add function type
-    pub fn add_func_type(&mut self, params: Vec<ComponentValType>, results: Vec<ComponentValType>) -> &mut Self {
+    pub fn add_func_type(
+        &mut self,
+        params: Vec<ComponentValType>,
+        results: Vec<ComponentValType>,
+    ) -> &mut Self {
         self.types.push(ComponentTypeDef {
             index: self.types.len() as u32,
             kind: ComponentTypeDefKind::Func(FunctionType { params, results }),
@@ -320,10 +324,8 @@ impl ComponentBuilder {
 
     /// Add core module
     pub fn add_core_module(&mut self, name: &str, binary: Vec<u8>) -> &mut Self {
-        self.core_modules.push(CoreModule {
-            name: name.to_string(),
-            binary,
-        });
+        self.core_modules
+            .push(CoreModule { name: name.to_string(), binary });
         self
     }
 
@@ -545,10 +547,7 @@ pub struct ComponentLinker {
 impl ComponentLinker {
     /// Create new linker
     pub fn new() -> Self {
-        Self {
-            instances: HashMap::new(),
-            args: HashMap::new(),
-        }
+        Self { instances: HashMap::new(), args: HashMap::new() }
     }
 
     /// Add instance
@@ -677,9 +676,7 @@ pub enum WitType {
 impl WitParser {
     /// Create new parser
     pub fn new() -> Self {
-        Self {
-            packages: Vec::new(),
-        }
+        Self { packages: Vec::new() }
     }
 
     /// Parse WIT document
@@ -689,7 +686,8 @@ impl WitParser {
             name: "parsed".to_string(),
             version: "0.1.0".to_string(),
             world: World::default(),
-            types: Vec::new()};
+            types: Vec::new(),
+        };
         self.packages.push(package);
         Ok(self.packages.last().unwrap())
     }

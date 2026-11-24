@@ -10,10 +10,7 @@ pub struct GpuTarget {
 
 impl GpuTarget {
     pub fn new(backend: GpuBackend) -> Self {
-        Self {
-            backend,
-            cpu: "generic".to_string(),
-        }
+        Self { backend, cpu: "generic".to_string() }
     }
 
     /// Generate CUDA code

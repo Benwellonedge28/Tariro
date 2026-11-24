@@ -106,10 +106,10 @@ fn test_error_types_exist() {
 #[test]
 fn test_module_exports() {
     // Verify key modules are exported
-    use tariro::prelude::*;
     use tariro::executive_function::ExecutiveFunction;
-    use tariro::meta_cognition::MetacognitiveMonitor;
     use tariro::goal_management::GoalManager;
+    use tariro::meta_cognition::MetacognitiveMonitor;
+    use tariro::prelude::*;
 
     // Verify constructors work
     let _exec = ExecutiveFunction::new();
@@ -157,11 +157,7 @@ fn test_serialization_roundtrip() {
         enabled: bool,
     }
 
-    let original = SerializationTest {
-        name: "test".to_string(),
-        value: 42,
-        enabled: true,
-    };
+    let original = SerializationTest { name: "test".to_string(), value: 42, enabled: true };
 
     let json = serde_json::to_string(&original).unwrap();
     let parsed: SerializationTest = serde_json::from_str(&json).unwrap();

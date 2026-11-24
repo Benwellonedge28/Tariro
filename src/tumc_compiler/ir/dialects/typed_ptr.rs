@@ -1,6 +1,5 @@
 // Typed Pointer Dialect
 
-
 use super::*;
 
 /// Typed pointer operations
@@ -30,10 +29,15 @@ impl Dialect for TypedPtrDialect {
                 for inst in &block.instructions {
                     match &inst.op {
                         Operation::Load(_, ptr, ty, _) => {
-                            self.operations.push(TypedPtrOp::TypedLoad(*ptr, ty.clone()));
+                            self.operations
+                                .push(TypedPtrOp::TypedLoad(*ptr, ty.clone()));
                         }
                         Operation::Store(_, ptr, val, _) => {
-                            self.operations.push(TypedPtrOp::TypedStore(*ptr, *val, inst.result_type.clone()));
+                            self.operations.push(TypedPtrOp::TypedStore(
+                                *ptr,
+                                *val,
+                                inst.result_type.clone(),
+                            ));
                         }
                         _ => {}
                     }
@@ -96,9 +100,7 @@ pub struct TypedPtrDialect {
 
 impl TypedPtrDialect {
     pub fn new() -> Self {
-        Self {
-            operations: Vec::new(),
-        }
+        Self { operations: Vec::new() }
     }
 }
 

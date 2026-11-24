@@ -1,9 +1,8 @@
 // Tariro AGI - Safety Constraints Module
 // Runtime safety enforcement and constraint checking
 
-use std::collections::{ VecDeque};
 use chrono::{DateTime, Utc};
-
+use std::collections::VecDeque;
 
 // ============================================================================
 // Safety Constraint Types
@@ -44,10 +43,10 @@ pub enum ConstraintExpression {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum EnforcementLevel {
-    Strict,      // Enforce and block
-    Warn,        // Enforce and warn
-    Monitor,     // Just log
-    Advisory,    // Suggest but don't enforce
+    Strict,   // Enforce and block
+    Warn,     // Enforce and warn
+    Monitor,  // Just log
+    Advisory, // Suggest but don't enforce
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -293,7 +292,8 @@ impl SafetyConstraints {
         }
 
         // Determine if action is allowed
-        let critical_violations = violations.iter()
+        let critical_violations = violations
+            .iter()
             .filter(|v| v.enforcement_level == EnforcementLevel::Strict)
             .count();
 
@@ -304,30 +304,28 @@ impl SafetyConstraints {
             self.record_violation(violation, action);
         }
 
-        ConstraintCheckResult {
-            allowed,
-            violations,
-            warnings,
-            modifications,
-        }
+        ConstraintCheckResult { allowed, violations, warnings, modifications }
     }
 
     fn constraint_applies(&self, constraint: &SafetyConstraint, context: &ActionContext) -> bool {
         // Check if action matches
         if !constraint.scope.actions.contains(&"all".to_string())
-            && !constraint.scope.actions.contains(&context.action_type) {
+            && !constraint.scope.actions.contains(&context.action_type)
+        {
             return false;
         }
 
         // Check if context matches
         if !constraint.scope.contexts.contains(&"all".to_string())
-            && !constraint.scope.contexts.contains(&context.context) {
+            && !constraint.scope.contexts.contains(&context.context)
+        {
             return false;
         }
 
         // Check if domain matches
         if !constraint.scope.domains.contains(&"all".to_string())
-            && !constraint.scope.domains.contains(&context.domain) {
+            && !constraint.scope.domains.contains(&context.domain)
+        {
             return false;
         }
 
@@ -373,8 +371,12 @@ impl SafetyConstraints {
             ConstraintExpression::Simple { predicate } => {
                 match predicate.as_str() {
                     "is_destructive" => {
-                        let destructive_patterns = ["delete", "rm -rf", "drop table", "truncate", "format"];
-                        if destructive_patterns.iter().any(|p| action.to_lowercase().contains(p)) {
+                        let destructive_patterns =
+                            ["delete", "rm -rf", "drop table", "truncate", "format"];
+                        if destructive_patterns
+                            .iter()
+                            .any(|p| action.to_lowercase().contains(p))
+                        {
                             ConstraintResult::Blocked("Destructive action detected".to_string())
                         } else {
                             ConstraintResult::Allowed
@@ -465,7 +467,11 @@ impl SafetyConstraints {
             warning_count: warnings,
             active_constraints: self.constraints.iter().filter(|c| c.enabled).count(),
             total_constraints: self.constraints.len(),
-            violation_rate: if total > 0 { total as f32 / 1000.0 } else { 0.0 },
+            violation_rate: if total > 0 {
+                total as f32 / 1000.0
+            } else {
+                0.0
+            },
         }
     }
 
@@ -532,7 +538,10 @@ pub struct ConstraintStatistics {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("safety_{}", now % 1_000_000)
 }
 
@@ -601,7 +610,11 @@ mod tests {
         assert_eq!(safety.constraints.len(), 7);
 
         safety.set_constraint_enabled("test_constraint", false);
-        let constraint = safety.constraints.iter().find(|c| c.id == "test_constraint").unwrap();
+        let constraint = safety
+            .constraints
+            .iter()
+            .find(|c| c.id == "test_constraint")
+            .unwrap();
         assert!(!constraint.enabled);
     }
 }

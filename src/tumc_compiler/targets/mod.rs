@@ -2,14 +2,14 @@
 
 pub mod cpu;
 pub mod gpu;
-pub mod wasm;
-pub mod vm;
 pub mod risc_v;
+pub mod vm;
+pub mod wasm;
 
 pub use cpu::*;
 pub use gpu::*;
-pub use wasm::*;
 pub use vm::*;
+pub use wasm::*;
 
 // ============================================================================
 // Target Infrastructure
@@ -131,9 +131,7 @@ pub struct TargetRegistry {
 
 impl TargetRegistry {
     pub fn new() -> Self {
-        let mut registry = Self {
-            targets: HashMap::new(),
-        };
+        let mut registry = Self { targets: HashMap::new() };
         registry.register_builtins();
         registry
     }
@@ -147,7 +145,8 @@ impl TargetRegistry {
     }
 
     pub fn register<T: Target + 'static>(&mut self, target: T) {
-        self.targets.insert(target.name().to_string(), Box::new(target));
+        self.targets
+            .insert(target.name().to_string(), Box::new(target));
     }
 
     pub fn get(&self, name: &str) -> Option<&dyn Target> {

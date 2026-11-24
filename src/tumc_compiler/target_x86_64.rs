@@ -8,29 +8,144 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum X86Reg {
     // 64-bit general purpose
-    Rax, Rcx, Rdx, Rbx, Rsp, Rbp, Rsi, Rdi,
-    R8, R9, R10, R11, R12, R13, R14, R15,
+    Rax,
+    Rcx,
+    Rdx,
+    Rbx,
+    Rsp,
+    Rbp,
+    Rsi,
+    Rdi,
+    R8,
+    R9,
+    R10,
+    R11,
+    R12,
+    R13,
+    R14,
+    R15,
     // 32-bit general purpose
-    Eax, Ecx, Edx, Ebx, Esp, Ebp, Esi, Edi,
-    R8d, R9d, R10d, R11d, R12d, R13d, R14d, R15d,
+    Eax,
+    Ecx,
+    Edx,
+    Ebx,
+    Esp,
+    Ebp,
+    Esi,
+    Edi,
+    R8d,
+    R9d,
+    R10d,
+    R11d,
+    R12d,
+    R13d,
+    R14d,
+    R15d,
     // 16-bit
-    Ax, Cx, Dx, Bx, Sp, Bp, Si, Di,
-    R8w, R9w, R10w, R11w, R12w, R13w, R14w, R15w,
+    Ax,
+    Cx,
+    Dx,
+    Bx,
+    Sp,
+    Bp,
+    Si,
+    Di,
+    R8w,
+    R9w,
+    R10w,
+    R11w,
+    R12w,
+    R13w,
+    R14w,
+    R15w,
     // 8-bit
-    Al, Cl, Dl, Bl, Ah, Ch, Dh, Bh,
-    Spl, Bpl, Sil, Dil,
-    R8b, R9b, R10b, R11b, R12b, R13b, R14b, R15b,
+    Al,
+    Cl,
+    Dl,
+    Bl,
+    Ah,
+    Ch,
+    Dh,
+    Bh,
+    Spl,
+    Bpl,
+    Sil,
+    Dil,
+    R8b,
+    R9b,
+    R10b,
+    R11b,
+    R12b,
+    R13b,
+    R14b,
+    R15b,
     // XMM registers (SSE/AVX)
-    Xmm0, Xmm1, Xmm2, Xmm3, Xmm4, Xmm5, Xmm6, Xmm7,
-    Xmm8, Xmm9, Xmm10, Xmm11, Xmm12, Xmm13, Xmm14, Xmm15,
+    Xmm0,
+    Xmm1,
+    Xmm2,
+    Xmm3,
+    Xmm4,
+    Xmm5,
+    Xmm6,
+    Xmm7,
+    Xmm8,
+    Xmm9,
+    Xmm10,
+    Xmm11,
+    Xmm12,
+    Xmm13,
+    Xmm14,
+    Xmm15,
     // YMM registers (AVX)
-    Ymm0, Ymm1, Ymm2, Ymm3, Ymm4, Ymm5, Ymm6, Ymm7,
-    Ymm8, Ymm9, Ymm10, Ymm11, Ymm12, Ymm13, Ymm14, Ymm15,
+    Ymm0,
+    Ymm1,
+    Ymm2,
+    Ymm3,
+    Ymm4,
+    Ymm5,
+    Ymm6,
+    Ymm7,
+    Ymm8,
+    Ymm9,
+    Ymm10,
+    Ymm11,
+    Ymm12,
+    Ymm13,
+    Ymm14,
+    Ymm15,
     // ZMM registers (AVX-512)
-    Zmm0, Zmm1, Zmm2, Zmm3, Zmm4, Zmm5, Zmm6, Zmm7,
-    Zmm8, Zmm9, Zmm10, Zmm11, Zmm12, Zmm13, Zmm14, Zmm15,
-    Zmm16, Zmm17, Zmm18, Zmm19, Zmm20, Zmm21, Zmm22, Zmm23,
-    Zmm24, Zmm25, Zmm26, Zmm27, Zmm28, Zmm29, Zmm30, Zmm31,
+    Zmm0,
+    Zmm1,
+    Zmm2,
+    Zmm3,
+    Zmm4,
+    Zmm5,
+    Zmm6,
+    Zmm7,
+    Zmm8,
+    Zmm9,
+    Zmm10,
+    Zmm11,
+    Zmm12,
+    Zmm13,
+    Zmm14,
+    Zmm15,
+    Zmm16,
+    Zmm17,
+    Zmm18,
+    Zmm19,
+    Zmm20,
+    Zmm21,
+    Zmm22,
+    Zmm23,
+    Zmm24,
+    Zmm25,
+    Zmm26,
+    Zmm27,
+    Zmm28,
+    Zmm29,
+    Zmm30,
+    Zmm31,
 }
 
 impl X86Reg {
@@ -79,15 +194,42 @@ impl X86Reg {
     pub fn needs_rex(&self) -> bool {
         matches!(
             self,
-            X86Reg::R8 | X86Reg::R9 | X86Reg::R10 | X86Reg::R11 |
-            X86Reg::R12 | X86Reg::R13 | X86Reg::R14 | X86Reg::R15 |
-            X86Reg::R8d | X86Reg::R9d | X86Reg::R10d | X86Reg::R11d |
-            X86Reg::R12d | X86Reg::R13d | X86Reg::R14d | X86Reg::R15d |
-            X86Reg::R8w | X86Reg::R9w | X86Reg::R10w | X86Reg::R11w |
-            X86Reg::R12w | X86Reg::R13w | X86Reg::R14w | X86Reg::R15w |
-            X86Reg::R8b | X86Reg::R9b | X86Reg::R10b | X86Reg::R11b |
-            X86Reg::R12b | X86Reg::R13b | X86Reg::R14b | X86Reg::R15b |
-            X86Reg::Spl | X86Reg::Bpl | X86Reg::Sil | X86Reg::Dil
+            X86Reg::R8
+                | X86Reg::R9
+                | X86Reg::R10
+                | X86Reg::R11
+                | X86Reg::R12
+                | X86Reg::R13
+                | X86Reg::R14
+                | X86Reg::R15
+                | X86Reg::R8d
+                | X86Reg::R9d
+                | X86Reg::R10d
+                | X86Reg::R11d
+                | X86Reg::R12d
+                | X86Reg::R13d
+                | X86Reg::R14d
+                | X86Reg::R15d
+                | X86Reg::R8w
+                | X86Reg::R9w
+                | X86Reg::R10w
+                | X86Reg::R11w
+                | X86Reg::R12w
+                | X86Reg::R13w
+                | X86Reg::R14w
+                | X86Reg::R15w
+                | X86Reg::R8b
+                | X86Reg::R9b
+                | X86Reg::R10b
+                | X86Reg::R11b
+                | X86Reg::R12b
+                | X86Reg::R13b
+                | X86Reg::R14b
+                | X86Reg::R15b
+                | X86Reg::Spl
+                | X86Reg::Bpl
+                | X86Reg::Sil
+                | X86Reg::Dil
         )
     }
 }
@@ -108,12 +250,7 @@ pub struct MemOperand {
 impl MemOperand {
     /// Create new memory operand
     pub fn new(disp: i32) -> Self {
-        Self {
-            base: None,
-            index: None,
-            scale: 1,
-            disp,
-        }
+        Self { base: None, index: None, scale: 1, disp }
     }
 
     /// With base register
@@ -165,11 +302,7 @@ pub struct X86Inst {
 impl X86Inst {
     /// Create new instruction
     pub fn new(opcode: Vec<u8>) -> Self {
-        Self {
-            opcode,
-            operands: Vec::new(),
-            prefixes: Vec::new(),
-        }
+        Self { opcode, operands: Vec::new(), prefixes: Vec::new() }
     }
 
     /// Add operand
@@ -256,10 +389,18 @@ impl X86Asm {
     /// Emit REX prefix
     pub fn emit_rex(&mut self, w: bool, r: bool, x: bool, b: bool) {
         let mut rex = 0x40u8;
-        if w { rex |= 0x08; }
-        if r { rex |= 0x04; }
-        if x { rex |= 0x02; }
-        if b { rex |= 0x01; }
+        if w {
+            rex |= 0x08;
+        }
+        if r {
+            rex |= 0x04;
+        }
+        if x {
+            rex |= 0x02;
+        }
+        if b {
+            rex |= 0x01;
+        }
         if rex != 0x40 {
             self.emit_byte(rex);
         }
@@ -529,12 +670,7 @@ impl X86Frame {
     pub fn new(locals: usize, saved_regs: Vec<X86Reg>) -> Self {
         let saved_size = saved_regs.len() * 8;
         let frame_size = 128 + locals + saved_size; // 128 for red zone
-        Self {
-            size: frame_size,
-            red_zone: 128,
-            locals,
-            saved_regs,
-        }
+        Self { size: frame_size, red_zone: 128, locals, saved_regs }
     }
 
     /// Get stack offset for local
@@ -610,14 +746,24 @@ impl X86CodeGen {
 
     /// Emit MOV r64, r/m64
     pub fn emit_mov_r64_rm64(&mut self, dst: X86Reg, src: MemOperand) {
-        self.asm.emit_rex(true, false, false, src.base.map_or(false, |r| r.needs_rex()));
+        self.asm.emit_rex(
+            true,
+            false,
+            false,
+            src.base.map_or(false, |r| r.needs_rex()),
+        );
         self.asm.emit_byte(0x8B);
         self.emit_mem_operand(dst.encode(), src);
     }
 
     /// Emit MOV r/m64, r64
     pub fn emit_mov_r64_mem(&mut self, src: X86Reg, dst: MemOperand) {
-        self.asm.emit_rex(true, false, false, dst.base.map_or(false, |r| r.needs_rex()));
+        self.asm.emit_rex(
+            true,
+            false,
+            false,
+            dst.base.map_or(false, |r| r.needs_rex()),
+        );
         self.asm.emit_byte(0x89);
         self.emit_mem_operand(src.encode(), dst);
     }
@@ -656,7 +802,8 @@ impl X86CodeGen {
             }
             (Some(base), Some(index)) => {
                 self.asm.emit_modrm(0, reg, 4);
-                self.asm.emit_sib(mem.scale, index.encode() & 7, base.encode() & 7);
+                self.asm
+                    .emit_sib(mem.scale, index.encode() & 7, base.encode() & 7);
                 self.asm.emit_dword(mem.disp as u32);
             }
             (None, Some(index)) => {

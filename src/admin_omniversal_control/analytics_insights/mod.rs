@@ -6,12 +6,12 @@
 //! capabilities for monitoring and understanding the AGI's operational patterns,
 //! performance metrics, decision-making processes, and self-optimization trajectories.
 
+use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
-use chrono::{DateTime, Utc, Duration};
 
 /// Analytics data point representing a single metric observation
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -490,14 +490,16 @@ impl AnalyticsService {
         let points = self.data_points.read().await;
         points
             .iter()
-            .filter(|dp| {
-                dp.timestamp >= time_range.start && dp.timestamp <= time_range.end
-            })
+            .filter(|dp| dp.timestamp >= time_range.start && dp.timestamp <= time_range.end)
             .cloned()
             .collect()
     }
 
-    pub async fn generate_report(&self, report_type: ReportType, time_range: TimeRange) -> AnalyticsReport {
+    pub async fn generate_report(
+        &self,
+        report_type: ReportType,
+        time_range: TimeRange,
+    ) -> AnalyticsReport {
         let metrics = self.get_all_metrics_in_range(&time_range).await;
         let mut report = AnalyticsReport::new(report_type, time_range.clone());
 
@@ -507,14 +509,23 @@ impl AnalyticsService {
             let count = metrics.len() as f64;
             report.add_summary_metric("total_observations".to_string(), count);
             report.add_summary_metric("average_value".to_string(), total_values / count);
-            report.add_summary_metric("unique_metrics".to_string(),
-                metrics.iter().map(|dp| dp.metric_name.clone()).collect::<std::collections::HashSet<_>>().len() as f64);
+            report.add_summary_metric(
+                "unique_metrics".to_string(),
+                metrics
+                    .iter()
+                    .map(|dp| dp.metric_name.clone())
+                    .collect::<std::collections::HashSet<_>>()
+                    .len() as f64,
+            );
         }
 
         // Group by category and calculate metrics
         let mut category_groups: HashMap<MetricCategory, Vec<&AnalyticsDataPoint>> = HashMap::new();
         for dp in &metrics {
-            category_groups.entry(dp.metric_category.clone()).or_default().push(dp);
+            category_groups
+                .entry(dp.metric_category.clone())
+                .or_default()
+                .push(dp);
         }
 
         for (category, dps) in category_groups {
@@ -523,25 +534,36 @@ impl AnalyticsService {
                 let mut cat_metrics = CategoryMetrics::default();
                 cat_metrics.total_observations = values.len() as u64;
                 cat_metrics.average_value = values.iter().sum::<f64>() / values.len() as f64;
-                cat_metrics.min_value = *values.iter().min_by(|a, b| a.partial_cmp(b).unwrap()).unwrap_or(&0.0);
-                cat_metrics.max_value = *values.iter().max_by(|a, b| a.partial_cmp(b).unwrap()).unwrap_or(&0.0);
+                cat_metrics.min_value = *values
+                    .iter()
+                    .min_by(|a, b| a.partial_cmp(b).unwrap())
+                    .unwrap_or(&0.0);
+                cat_metrics.max_value = *values
+                    .iter()
+                    .max_by(|a, b| a.partial_cmp(b).unwrap())
+                    .unwrap_or(&0.0);
 
                 // Calculate percentiles
                 let mut sorted = values.clone();
                 sorted.sort_by(|a, b| a.partial_cmp(b).unwrap());
                 let n = sorted.len();
-                cat_metrics.percentile_25 = sorted[(n as f64 * 0.25) as usize].min(sorted[n-1]);
-                cat_metrics.percentile_50 = sorted[(n as f64 * 0.50) as usize].min(sorted[n-1]);
-                cat_metrics.percentile_75 = sorted[(n as f64 * 0.75) as usize].min(sorted[n-1]);
-                cat_metrics.percentile_95 = sorted[(n as f64 * 0.95) as usize].min(sorted[n-1]);
+                cat_metrics.percentile_25 = sorted[(n as f64 * 0.25) as usize].min(sorted[n - 1]);
+                cat_metrics.percentile_50 = sorted[(n as f64 * 0.50) as usize].min(sorted[n - 1]);
+                cat_metrics.percentile_75 = sorted[(n as f64 * 0.75) as usize].min(sorted[n - 1]);
+                cat_metrics.percentile_95 = sorted[(n as f64 * 0.95) as usize].min(sorted[n - 1]);
 
                 // Calculate standard deviation
                 let mean = cat_metrics.average_value;
-                let variance = values.iter().map(|v| (v - mean).powi(2)).sum::<f64>() / values.len() as f64;
+                let variance =
+                    values.iter().map(|v| (v - mean).powi(2)).sum::<f64>() / values.len() as f64;
                 cat_metrics.standard_deviation = variance.sqrt();
 
                 // Calculate health score based on variance
-                let cv = if mean != 0.0 { cat_metrics.standard_deviation / mean.abs() } else { 0.0 };
+                let cv = if mean != 0.0 {
+                    cat_metrics.standard_deviation / mean.abs()
+                } else {
+                    0.0
+                };
                 cat_metrics.health_score = (1.0 - cv.min(1.0)) as f32;
 
                 report.add_category_metrics(category, cat_metrics);
@@ -569,7 +591,10 @@ impl AnalyticsService {
         // Group by metric name
         let mut metric_groups: HashMap<String, Vec<&AnalyticsDataPoint>> = HashMap::new();
         for dp in metrics {
-            metric_groups.entry(dp.metric_name.clone()).or_default().push(dp);
+            metric_groups
+                .entry(dp.metric_name.clone())
+                .or_default()
+                .push(dp);
         }
 
         for (metric_name, dps) in metric_groups {
@@ -579,7 +604,8 @@ impl AnalyticsService {
 
             let values: Vec<f64> = dps.iter().map(|dp| dp.value).collect();
             let mean = values.iter().sum::<f64>() / values.len() as f64;
-            let variance = values.iter().map(|v| (v - mean).powi(2)).sum::<f64>() / values.len() as f64;
+            let variance =
+                values.iter().map(|v| (v - mean).powi(2)).sum::<f64>() / values.len() as f64;
             let std_dev = variance.sqrt();
 
             // Check for anomalies (values more than 2 standard deviations from mean)
@@ -589,8 +615,16 @@ impl AnalyticsService {
                     anomalies.push(AnomalyReport::new(
                         metric_name.clone(),
                         dps[0].metric_category.clone(),
-                        if dp > &mean { AnomalyType::Spike } else { AnomalyType::Drop },
-                        if deviation > 3.0 * std_dev { AnomalySeverity::High } else { AnomalySeverity::Medium },
+                        if dp > &mean {
+                            AnomalyType::Spike
+                        } else {
+                            AnomalyType::Drop
+                        },
+                        if deviation > 3.0 * std_dev {
+                            AnomalySeverity::High
+                        } else {
+                            AnomalySeverity::Medium
+                        },
                         mean,
                         *dp,
                     ));
@@ -608,7 +642,11 @@ impl AnalyticsService {
         for (category, metrics) in &report.detailed_breakdown {
             if metrics.health_score < 0.5 {
                 let mut rec = Recommendation::new(
-                    if metrics.health_score < 0.3 { RecommendationPriority::High } else { RecommendationPriority::Medium },
+                    if metrics.health_score < 0.3 {
+                        RecommendationPriority::High
+                    } else {
+                        RecommendationPriority::Medium
+                    },
                     category.clone(),
                     format!("Improve {} stability", category.to_string()),
                 );
@@ -629,9 +667,12 @@ impl AnalyticsService {
 
         // Check for anomalies
         if !report.anomalies_detected.is_empty() {
-            let critical_anomalies: Vec<_> = report.anomalies_detected
+            let critical_anomalies: Vec<_> = report
+                .anomalies_detected
                 .iter()
-                .filter(|a| a.severity == AnomalySeverity::Critical || a.severity == AnomalySeverity::High)
+                .filter(|a| {
+                    a.severity == AnomalySeverity::Critical || a.severity == AnomalySeverity::High
+                })
                 .collect();
 
             if !critical_anomalies.is_empty() {
@@ -644,7 +685,8 @@ impl AnalyticsService {
                     "{} critical/high anomalies were detected requiring immediate attention.",
                     critical_anomalies.len()
                 );
-                rec.rationale = "Unaddressed anomalies can lead to system degradation or failure.".to_string();
+                rec.rationale =
+                    "Unaddressed anomalies can lead to system degradation or failure.".to_string();
                 rec.action_steps = vec![
                     "Review anomaly details in the report".to_string(),
                     "Identify common causes across anomalies".to_string(),
@@ -666,7 +708,9 @@ impl AnalyticsService {
         if points.len() >= 10 {
             // Calculate aggregate statistics
             let avg_value = points.iter().map(|dp| dp.value).sum::<f64>() / points.len() as f64;
-            let max_metric = points.iter().max_by(|a, b| a.value.partial_cmp(&b.value).unwrap());
+            let max_metric = points
+                .iter()
+                .max_by(|a, b| a.value.partial_cmp(&b.value).unwrap());
 
             if let Some(max_dp) = max_metric {
                 insights.push(AnalyticsInsight {
@@ -674,9 +718,7 @@ impl AnalyticsService {
                     title: "Peak metric value detected".to_string(),
                     description: format!(
                         "Peak value {:.2} detected for metric '{}' at {}",
-                        max_dp.value,
-                        max_dp.metric_name,
-                        max_dp.timestamp
+                        max_dp.value, max_dp.metric_name, max_dp.timestamp
                     ),
                     confidence: 0.85,
                     related_metrics: vec![max_dp.metric_name.clone()],
@@ -686,10 +728,16 @@ impl AnalyticsService {
             // Analyze trend
             let recent_points: Vec<_> = points.iter().rev().take(5).collect();
             if recent_points.len() >= 3 {
-                let first_half_avg: f64 = recent_points[..recent_points.len()/2]
-                    .iter().map(|dp| dp.value).sum::<f64>() / (recent_points.len()/2) as f64;
-                let second_half_avg: f64 = recent_points[recent_points.len()/2..]
-                    .iter().map(|dp| dp.value).sum::<f64>() / (recent_points.len() - recent_points.len()/2) as f64;
+                let first_half_avg: f64 = recent_points[..recent_points.len() / 2]
+                    .iter()
+                    .map(|dp| dp.value)
+                    .sum::<f64>()
+                    / (recent_points.len() / 2) as f64;
+                let second_half_avg: f64 = recent_points[recent_points.len() / 2..]
+                    .iter()
+                    .map(|dp| dp.value)
+                    .sum::<f64>()
+                    / (recent_points.len() - recent_points.len() / 2) as f64;
 
                 if (second_half_avg - first_half_avg).abs() > avg_value * 0.2 {
                     insights.push(AnalyticsInsight {
@@ -700,7 +748,10 @@ impl AnalyticsService {
                             ((second_half_avg - first_half_avg) / avg_value * 100.0).abs()
                         ),
                         confidence: 0.75,
-                        related_metrics: recent_points.iter().map(|dp| dp.metric_name.clone()).collect(),
+                        related_metrics: recent_points
+                            .iter()
+                            .map(|dp| dp.metric_name.clone())
+                            .collect(),
                     });
                 }
             }
@@ -721,9 +772,19 @@ impl AnalyticsService {
             total_data_points: points.len(),
             max_capacity: self.max_data_points,
             storage_utilization: points.len() as f64 / self.max_data_points as f64,
-            unique_metrics: points.iter().map(|dp| dp.metric_name.clone()).collect::<std::collections::HashSet<_>>().len(),
-            oldest_data_point: points.iter().min_by(|a, b| a.timestamp.cmp(&b.timestamp)).map(|dp| dp.timestamp),
-            newest_data_point: points.iter().max_by(|a, b| a.timestamp.cmp(&b.timestamp)).map(|dp| dp.timestamp),
+            unique_metrics: points
+                .iter()
+                .map(|dp| dp.metric_name.clone())
+                .collect::<std::collections::HashSet<_>>()
+                .len(),
+            oldest_data_point: points
+                .iter()
+                .min_by(|a, b| a.timestamp.cmp(&b.timestamp))
+                .map(|dp| dp.timestamp),
+            newest_data_point: points
+                .iter()
+                .max_by(|a, b| a.timestamp.cmp(&b.timestamp))
+                .map(|dp| dp.timestamp),
         }
     }
 }
@@ -778,7 +839,9 @@ mod tests {
         service.record_metric(dp).await;
 
         let time_range = TimeRange::last_hours(1);
-        let retrieved = service.get_metrics_in_range("test_metric", &time_range).await;
+        let retrieved = service
+            .get_metrics_in_range("test_metric", &time_range)
+            .await;
 
         assert_eq!(retrieved.len(), 1);
         assert_eq!(retrieved[0].value, 42.0);
@@ -799,13 +862,14 @@ mod tests {
             service.record_metric(dp).await;
         }
 
-        let report = service.generate_report(
-            ReportType::PerformanceSummary,
-            TimeRange::last_hours(1),
-        ).await;
+        let report = service
+            .generate_report(ReportType::PerformanceSummary, TimeRange::last_hours(1))
+            .await;
 
         assert!(report.summary_metrics.contains_key("total_observations"));
-        assert!(report.detailed_breakdown.contains_key(&MetricCategory::Performance));
+        assert!(report
+            .detailed_breakdown
+            .contains_key(&MetricCategory::Performance));
     }
 
     #[tokio::test]
@@ -834,10 +898,9 @@ mod tests {
         );
         service.record_metric(dp).await;
 
-        let report = service.generate_report(
-            ReportType::AnomalyAlert,
-            TimeRange::last_hours(1),
-        ).await;
+        let report = service
+            .generate_report(ReportType::AnomalyAlert, TimeRange::last_hours(1))
+            .await;
 
         // Anomaly should be detected
         assert!(!report.anomalies_detected.is_empty());

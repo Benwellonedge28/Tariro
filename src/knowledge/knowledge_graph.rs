@@ -6,8 +6,8 @@
 use crate::prelude::*;
 use std::collections::{HashMap, HashSet};
 
-use std::hash::{Hash};
 use std::cmp::Ordering;
+use std::hash::Hash;
 
 // ============================================================================
 // Core Types
@@ -173,11 +173,7 @@ pub struct Property {
 
 impl Property {
     pub fn new(name: impl Into<String>, value: Value) -> Self {
-        Property {
-            name: name.into(),
-            value,
-            confidence: Probability::certain(),
-        }
+        Property { name: name.into(), value, confidence: Probability::certain() }
     }
 }
 
@@ -252,16 +248,23 @@ impl Predicate {
     pub fn is_causal(&self) -> bool {
         matches!(
             self,
-            Predicate::Causes | Predicate::Enables | Predicate::Prevents
-            | Predicate::Produces | Predicate::Consumes
+            Predicate::Causes
+                | Predicate::Enables
+                | Predicate::Prevents
+                | Predicate::Produces
+                | Predicate::Consumes
         )
     }
 
     pub fn is_temporal(&self) -> bool {
         matches!(
             self,
-            Predicate::Before | Predicate::After | Predicate::During
-            | Predicate::Overlaps | Predicate::StartsAt | Predicate::EndsAt
+            Predicate::Before
+                | Predicate::After
+                | Predicate::During
+                | Predicate::Overlaps
+                | Predicate::StartsAt
+                | Predicate::EndsAt
         )
     }
 }
@@ -383,7 +386,7 @@ impl Probability {
         Probability {
             value: clamped,
             lower: (clamped - 0.1).max(0.0),
-            upper: (clamped + 0.1).min(1.0)
+            upper: (clamped + 0.1).min(1.0),
         }
     }
 
@@ -535,12 +538,14 @@ impl KnowledgeGraph {
 
     /// Build the fact that describes a relation.
     pub fn fact_for_relation(&self, relation: &Relation) -> Fact {
-        let subject = self.get_entity(&relation.subject).cloned().unwrap_or_else(|| {
-            Entity::new(&relation.subject.0, EntityType::Concept)
-        });
-        let object = self.get_entity(&relation.object).cloned().unwrap_or_else(|| {
-            Entity::new(&relation.object.0, EntityType::Concept)
-        });
+        let subject = self
+            .get_entity(&relation.subject)
+            .cloned()
+            .unwrap_or_else(|| Entity::new(&relation.subject.0, EntityType::Concept));
+        let object = self
+            .get_entity(&relation.object)
+            .cloned()
+            .unwrap_or_else(|| Entity::new(&relation.object.0, EntityType::Concept));
 
         Fact {
             subject,
@@ -683,7 +688,10 @@ impl KnowledgeGraph {
             .entry(relation_predicate)
             .or_default()
             .push(id.clone());
-        self.object_index.entry(object.clone()).or_default().push(id);
+        self.object_index
+            .entry(object.clone())
+            .or_default()
+            .push(id);
 
         // Track causal edges
         if is_causal {
@@ -699,11 +707,7 @@ impl KnowledgeGraph {
     pub fn get_subject_relations(&self, subject: &EntityId) -> Vec<&Relation> {
         self.subject_index
             .get(subject)
-            .map(|ids| {
-                ids.iter()
-                    .filter_map(|id| self.relations.get(id))
-                    .collect()
-            })
+            .map(|ids| ids.iter().filter_map(|id| self.relations.get(id)).collect())
             .unwrap_or_default()
     }
 
@@ -711,11 +715,7 @@ impl KnowledgeGraph {
     pub fn get_predicate_relations(&self, predicate: &Predicate) -> Vec<&Relation> {
         self.predicate_index
             .get(predicate)
-            .map(|ids| {
-                ids.iter()
-                    .filter_map(|id| self.relations.get(id))
-                    .collect()
-            })
+            .map(|ids| ids.iter().filter_map(|id| self.relations.get(id)).collect())
             .unwrap_or_default()
     }
 
@@ -723,11 +723,7 @@ impl KnowledgeGraph {
     pub fn get_object_relations(&self, object: &EntityId) -> Vec<&Relation> {
         self.object_index
             .get(object)
-            .map(|ids| {
-                ids.iter()
-                    .filter_map(|id| self.relations.get(id))
-                    .collect()
-            })
+            .map(|ids| ids.iter().filter_map(|id| self.relations.get(id)).collect())
             .unwrap_or_default()
     }
 
@@ -745,10 +741,15 @@ impl KnowledgeGraph {
     }
 
     /// Query: Check if a relation exists
-    pub fn has_relation(&self, subject: &EntityId, predicate: &Predicate, object: &EntityId) -> bool {
-        self.relations.values().any(|r|
-            r.subject == *subject && r.predicate == *predicate && r.object == *object
-        )
+    pub fn has_relation(
+        &self,
+        subject: &EntityId,
+        predicate: &Predicate,
+        object: &EntityId,
+    ) -> bool {
+        self.relations
+            .values()
+            .any(|r| r.subject == *subject && r.predicate == *predicate && r.object == *object)
     }
 
     /// Query: Get all causal predecessors (causes)
@@ -800,11 +801,19 @@ impl KnowledgeGraph {
     }
 
     /// Retract (remove) a fact
-    pub fn retract_fact(&mut self, subject: &EntityId, predicate: &Predicate, object: &EntityId) -> bool {
+    pub fn retract_fact(
+        &mut self,
+        subject: &EntityId,
+        predicate: &Predicate,
+        object: &EntityId,
+    ) -> bool {
         // Find the relation
-        let relation_id = self.relations
+        let relation_id = self
+            .relations
             .iter()
-            .find(|(_, r)| r.subject == *subject && r.predicate == *predicate && r.object == *object)
+            .find(|(_, r)| {
+                r.subject == *subject && r.predicate == *predicate && r.object == *object
+            })
             .map(|(id, _)| id.clone());
 
         if let Some(id) = relation_id {
@@ -821,7 +830,8 @@ impl KnowledgeGraph {
 
             // Remove causal edge if applicable
             if predicate.is_causal() {
-                self.causal_edges.retain(|(c, e)| !(c == subject && e == object));
+                self.causal_edges
+                    .retain(|(c, e)| !(c == subject && e == object));
             }
 
             // Remove relation
@@ -835,11 +845,19 @@ impl KnowledgeGraph {
     }
 
     /// Update a fact's confidence
-    pub fn update_confidence(&mut self, subject: &EntityId, predicate: &Predicate,
-                            object: &EntityId, new_confidence: Probability) -> bool {
-        let relation_id = self.relations
+    pub fn update_confidence(
+        &mut self,
+        subject: &EntityId,
+        predicate: &Predicate,
+        object: &EntityId,
+        new_confidence: Probability,
+    ) -> bool {
+        let relation_id = self
+            .relations
             .iter()
-            .find(|(_, r)| r.subject == *subject && r.predicate == *predicate && r.object == *object)
+            .find(|(_, r)| {
+                r.subject == *subject && r.predicate == *predicate && r.object == *object
+            })
             .map(|(id, _)| id.clone());
 
         if let Some(id) = relation_id {
@@ -864,7 +882,7 @@ impl KnowledgeGraph {
             if let (Some(start), Some(end)) = (temporal.start, temporal.end) {
                 if start > end {
                     return Err(KnowledgeError::InvalidTemporal(
-                        "Start is after end".to_string()
+                        "Start is after end".to_string(),
                     ));
                 }
             }
@@ -880,13 +898,21 @@ impl KnowledgeGraph {
         // Count entity types
         self.stats.entity_types.clear();
         for entity in self.entities.values() {
-            *self.stats.entity_types.entry(entity.entity_type.clone()).or_insert(0) += 1;
+            *self
+                .stats
+                .entity_types
+                .entry(entity.entity_type.clone())
+                .or_insert(0) += 1;
         }
 
         // Count predicates
         self.stats.predicate_counts.clear();
         for rel in self.relations.values() {
-            *self.stats.predicate_counts.entry(rel.predicate.name().to_string()).or_insert(0) += 1;
+            *self
+                .stats
+                .predicate_counts
+                .entry(rel.predicate.name().to_string())
+                .or_insert(0) += 1;
         }
     }
 
@@ -902,8 +928,7 @@ impl KnowledgeGraph {
 
     /// Import from JSON
     pub fn from_json(json: &str) -> Result<Self, KnowledgeError> {
-        serde_json::from_str(json)
-            .map_err(|e| KnowledgeError::ParseError(e.to_string()))
+        serde_json::from_str(json).map_err(|e| KnowledgeError::ParseError(e.to_string()))
     }
 }
 
@@ -994,8 +1019,10 @@ mod tests {
         let human = Entity::new("Human", EntityType::Concept);
         let mortal = Entity::new("Mortal", EntityType::Concept);
 
-        kg.assert_fact(Fact::new(socrates.clone(), Predicate::IsA, human.clone())).unwrap();
-        kg.assert_fact(Fact::new(human.clone(), Predicate::IsA, mortal.clone())).unwrap();
+        kg.assert_fact(Fact::new(socrates.clone(), Predicate::IsA, human.clone()))
+            .unwrap();
+        kg.assert_fact(Fact::new(human.clone(), Predicate::IsA, mortal.clone()))
+            .unwrap();
 
         // Query
         let human_relations = kg.get_subject_relations(&human.id);
@@ -1034,9 +1061,12 @@ mod tests {
         let c = Entity::new("C", EntityType::Concept);
         let d = Entity::new("D", EntityType::Concept);
 
-        kg.assert_fact(Fact::new(a.clone(), Predicate::RelatedTo, b.clone())).unwrap();
-        kg.assert_fact(Fact::new(b.clone(), Predicate::RelatedTo, c.clone())).unwrap();
-        kg.assert_fact(Fact::new(c.clone(), Predicate::RelatedTo, d.clone())).unwrap();
+        kg.assert_fact(Fact::new(a.clone(), Predicate::RelatedTo, b.clone()))
+            .unwrap();
+        kg.assert_fact(Fact::new(b.clone(), Predicate::RelatedTo, c.clone()))
+            .unwrap();
+        kg.assert_fact(Fact::new(c.clone(), Predicate::RelatedTo, d.clone()))
+            .unwrap();
 
         let path = kg.find_path(&a.id, &d.id);
         assert!(path.is_some());
@@ -1062,7 +1092,8 @@ mod tests {
         let a = Entity::new("A", EntityType::Concept);
         let b = Entity::new("B", EntityType::Concept);
 
-        kg.assert_fact(Fact::new(a.clone(), Predicate::RelatedTo, b.clone())).unwrap();
+        kg.assert_fact(Fact::new(a.clone(), Predicate::RelatedTo, b.clone()))
+            .unwrap();
         assert_eq!(kg.stats().total_relations, 1);
 
         let removed = kg.retract_fact(&a.id, &Predicate::RelatedTo, &b.id);

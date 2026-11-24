@@ -1,12 +1,9 @@
 // Tariro AGI - Zero Trust Security Architecture
 // Sovereign, defense-in-depth security model
 
-use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
+use std::collections::{HashMap, VecDeque};
 use std::time::Duration;
-use std::sync::{ };
-use std::hash::{ };
-
 
 // ============================================================================
 // Zero Trust Types
@@ -1121,8 +1118,8 @@ impl ZeroTrustEngine {
                 sessions: HashMap::new(),
                 config: SessionConfig {
                     max_session_duration: Duration::from_secs(28800), // 8 hours
-                    idle_timeout: Duration::from_secs(1800),         // 30 minutes
-                    absolute_timeout: Duration::from_secs(86400),    // 24 hours
+                    idle_timeout: Duration::from_secs(1800),          // 30 minutes
+                    absolute_timeout: Duration::from_secs(86400),     // 24 hours
                     max_concurrent_sessions: 3,
                     require_reauth_for_sensitive: true,
                 },
@@ -1154,9 +1151,17 @@ impl ZeroTrustEngine {
     }
 
     /// Authenticate user
-    pub fn authenticate(&mut self, username: &str, password: &str, device_id: Option<&str>) -> Result<AuthResult, AuthError> {
+    pub fn authenticate(
+        &mut self,
+        username: &str,
+        password: &str,
+        device_id: Option<&str>,
+    ) -> Result<AuthResult, AuthError> {
         // Find identity
-        let identity = self.identity_provider.identity_store.get(username)
+        let identity = self
+            .identity_provider
+            .identity_store
+            .get(username)
             .ok_or(AuthError::UserNotFound)?;
 
         // Extract values needed before mutable borrow
@@ -1165,14 +1170,20 @@ impl ZeroTrustEngine {
         let risk_score_for_session = self.calculate_risk_score(&identity, device_id);
 
         // Verify credentials
-        let credential = identity.credentials.iter()
+        let credential = identity
+            .credentials
+            .iter()
             .find(|c| c.credential_type == CredentialType::Password && c.is_primary)
             .ok_or(AuthError::InvalidCredentials)?;
 
         // Hash and compare password
         let hashed_input = hash_password(password, &credential.salt);
         if hashed_input != credential.hashed_value {
-            self.log_audit_event(AuditEventType::Authentication, &identity_id, Outcome::Failure);
+            self.log_audit_event(
+                AuditEventType::Authentication,
+                &identity_id,
+                Outcome::Failure,
+            );
             return Err(AuthError::InvalidCredentials);
         }
 
@@ -1204,10 +1215,16 @@ impl ZeroTrustEngine {
         };
 
         let session_id = session.session_id.clone();
-        self.identity_provider.session_store.insert(session_id.clone(), session);
+        self.identity_provider
+            .session_store
+            .insert(session_id.clone(), session);
         self.session_manager.active_sessions += 1;
 
-        self.log_audit_event(AuditEventType::Authentication, &identity_id, Outcome::Success);
+        self.log_audit_event(
+            AuditEventType::Authentication,
+            &identity_id,
+            Outcome::Success,
+        );
 
         Ok(AuthResult {
             session_id,
@@ -1224,8 +1241,16 @@ impl ZeroTrustEngine {
     }
 
     /// Authorize access request
-    pub fn authorize(&mut self, session_id: &str, resource: &str, action: &str) -> Result<PolicyDecision, AuthError> {
-        let session = self.identity_provider.session_store.get(session_id)
+    pub fn authorize(
+        &mut self,
+        session_id: &str,
+        resource: &str,
+        action: &str,
+    ) -> Result<PolicyDecision, AuthError> {
+        let session = self
+            .identity_provider
+            .session_store
+            .get(session_id)
             .ok_or(AuthError::InvalidSession)?;
 
         // Check if session is valid
@@ -1242,7 +1267,9 @@ impl ZeroTrustEngine {
         // Update last activity
         let mut session = session.clone();
         session.last_activity = Utc::now();
-        self.identity_provider.session_store.insert(session_id.to_string(), session);
+        self.identity_provider
+            .session_store
+            .insert(session_id.to_string(), session);
 
         // Build authorization request
         let authz_request = AuthorizationRequest {
@@ -1263,7 +1290,10 @@ impl ZeroTrustEngine {
     }
 
     /// Evaluate policies
-    fn evaluate_policies(&self, request: &AuthorizationRequest) -> Result<PolicyDecision, AuthError> {
+    fn evaluate_policies(
+        &self,
+        request: &AuthorizationRequest,
+    ) -> Result<PolicyDecision, AuthError> {
         let mut matched_policies = Vec::new();
 
         // Find applicable policies
@@ -1273,12 +1303,10 @@ impl ZeroTrustEngine {
             }
 
             // Check if policy applies to this request
-            let applies = policy.applies_to.iter().any(|t| {
-                match t.target_type {
-                    TargetType::Resource => t.identifiers.contains(&request.resource),
-                    TargetType::User | TargetType::Group | TargetType::Role => true,
-                    _ => false,
-                }
+            let applies = policy.applies_to.iter().any(|t| match t.target_type {
+                TargetType::Resource => t.identifiers.contains(&request.resource),
+                TargetType::User | TargetType::Group | TargetType::Role => true,
+                _ => false,
             });
 
             if !applies {
@@ -1286,9 +1314,10 @@ impl ZeroTrustEngine {
             }
 
             // Evaluate conditions
-            let conditions_met = policy.conditions.iter().all(|c| {
-                self.evaluate_condition(c, request)
-            });
+            let conditions_met = policy
+                .conditions
+                .iter()
+                .all(|c| self.evaluate_condition(c, request));
 
             if conditions_met {
                 matched_policies.push(policy);
@@ -1312,7 +1341,11 @@ impl ZeroTrustEngine {
             // Default deny if no policy matches
             Ok(PolicyDecision {
                 decision_id: generate_id(),
-                decision: if self.config.default_deny { PolicyEffect::Deny } else { PolicyEffect::Permit },
+                decision: if self.config.default_deny {
+                    PolicyEffect::Deny
+                } else {
+                    PolicyEffect::Permit
+                },
                 matched_policy: None,
                 reasons: vec!["No matching policy found".to_string()],
                 obligations: vec![],
@@ -1323,7 +1356,11 @@ impl ZeroTrustEngine {
     }
 
     /// Evaluate single condition
-    fn evaluate_condition(&self, condition: &PolicyCondition, request: &AuthorizationRequest) -> bool {
+    fn evaluate_condition(
+        &self,
+        condition: &PolicyCondition,
+        request: &AuthorizationRequest,
+    ) -> bool {
         match condition.condition_type {
             ConditionType::Identity => {
                 let value = match condition.operator {
@@ -1394,13 +1431,18 @@ impl ZeroTrustEngine {
 
     /// Add identity
     pub fn add_identity(&mut self, identity: Identity) {
-        self.identity_provider.identity_store.insert(identity.username.clone(), identity);
+        self.identity_provider
+            .identity_store
+            .insert(identity.username.clone(), identity);
     }
 
     /// Add policy
     pub fn add_policy(&mut self, policy: SecurityPolicy) {
         self.policy_engine.policies.push(policy.clone());
-        self.policy_engine.policy_store.policies_by_id.insert(policy.policy_id.clone(), policy);
+        self.policy_engine
+            .policy_store
+            .policies_by_id
+            .insert(policy.policy_id.clone(), policy);
     }
 }
 
@@ -1474,7 +1516,10 @@ fn hash_password(password: &str, salt: &str) -> String {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("zt_{}", now % 1_000_000)
 }
 

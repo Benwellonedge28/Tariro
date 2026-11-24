@@ -3,12 +3,12 @@
 pub mod inference;
 
 use crate::tumc_compiler::ast::AnnType;
-pub mod gradual;
 pub mod dependent;
+pub mod gradual;
 
-pub use inference::*;
-pub use gradual::*;
 pub use dependent::*;
+pub use gradual::*;
+pub use inference::*;
 
 // ============================================================================
 // Type System Core
@@ -73,10 +73,9 @@ impl MonoType {
                 safety: Safety::Safe,
                 abi: None,
             })),
-            AnnType::Named(name) => MonoType::Struct(StructType {
-                name: name.clone(),
-                fields: Vec::new(),
-            }),
+            AnnType::Named(name) => {
+                MonoType::Struct(StructType { name: name.clone(), fields: Vec::new() })
+            }
             AnnType::Error | AnnType::Optional(_) | AnnType::Result(_, _) => MonoType::Wildcard,
         }
     }
@@ -84,13 +83,25 @@ impl MonoType {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
 pub enum IntSize {
-    I8, I16, I32, I64, I128, Isize,
-    U8, U16, U32, U64, U128, Usize,
+    I8,
+    I16,
+    I32,
+    I64,
+    I128,
+    Isize,
+    U8,
+    U16,
+    U32,
+    U64,
+    U128,
+    Usize,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
 pub enum FloatSize {
-    F16, F32, F64,
+    F16,
+    F32,
+    F64,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -168,10 +179,7 @@ pub struct UnificationContext {
 
 impl UnificationContext {
     pub fn new() -> Self {
-        Self {
-            substitutions: HashMap::new(),
-            constraints: Vec::new(),
-        }
+        Self { substitutions: HashMap::new(), constraints: Vec::new() }
     }
 
     pub fn unify(&mut self, a: &MonoType, b: &MonoType) -> UnificationResult {
@@ -180,18 +188,20 @@ impl UnificationContext {
             (_, MonoType::Wildcard) => UnificationResult::Success,
             (MonoType::Unit, MonoType::Unit) => UnificationResult::Success,
             (MonoType::Bool, MonoType::Bool) => UnificationResult::Success,
-            (MonoType::Int(a_size), MonoType::Int(b_size)) if a_size == b_size => UnificationResult::Success,
-            (MonoType::Float(a_size), MonoType::Float(b_size)) if a_size == b_size => UnificationResult::Success,
+            (MonoType::Int(a_size), MonoType::Int(b_size)) if a_size == b_size => {
+                UnificationResult::Success
+            }
+            (MonoType::Float(a_size), MonoType::Float(b_size)) if a_size == b_size => {
+                UnificationResult::Success
+            }
             (MonoType::Char, MonoType::Char) => UnificationResult::Success,
             (MonoType::String, MonoType::String) => UnificationResult::Success,
             (MonoType::Never, MonoType::Never) => UnificationResult::Success,
-            (MonoType::Array(a_elem), MonoType::Array(b_elem)) => {
-                self.unify(a_elem, b_elem)
-            }
-            (MonoType::Slice(a_elem), MonoType::Slice(b_elem)) => {
-                self.unify(a_elem, b_elem)
-            }
-            (MonoType::Tuple(a_fields), MonoType::Tuple(b_fields)) if a_fields.len() == b_fields.len() => {
+            (MonoType::Array(a_elem), MonoType::Array(b_elem)) => self.unify(a_elem, b_elem),
+            (MonoType::Slice(a_elem), MonoType::Slice(b_elem)) => self.unify(a_elem, b_elem),
+            (MonoType::Tuple(a_fields), MonoType::Tuple(b_fields))
+                if a_fields.len() == b_fields.len() =>
+            {
                 for (a, b) in a_fields.iter().zip(b_fields.iter()) {
                     if let UnificationResult::Failure(e) = self.unify(a, b) {
                         return UnificationResult::Failure(e);
@@ -257,18 +267,21 @@ pub struct TraitContext {
 
 impl TraitContext {
     pub fn new() -> Self {
-        Self {
-            impls: HashMap::new(),
-            where_clauses: Vec::new(),
-        }
+        Self { impls: HashMap::new(), where_clauses: Vec::new() }
     }
 
     pub fn add_impl(&mut self, impl_: TraitImpl) {
-        self.impls.entry(impl_.trait_name.clone()).or_default().push(impl_);
+        self.impls
+            .entry(impl_.trait_name.clone())
+            .or_default()
+            .push(impl_);
     }
 
     pub fn resolve_trait(&self, type_: &MonoType, trait_name: &str) -> Option<&TraitImpl> {
-        self.impls.get(trait_name)?.iter().find(|i| self.types_equal(&i.self_type, type_))
+        self.impls
+            .get(trait_name)?
+            .iter()
+            .find(|i| self.types_equal(&i.self_type, type_))
     }
 
     fn types_equal(&self, a: &MonoType, b: &MonoType) -> bool {
@@ -291,17 +304,20 @@ pub struct TraitImpl {
 
 #[derive(Debug, Clone)]
 pub struct WhereClause {
-    pub predicates: Vec<WherePredicate>}
+    pub predicates: Vec<WherePredicate>,
+}
 
 #[derive(Debug, Clone)]
 pub enum WherePredicate {
     TraitBound { ty: MonoType, trait_name: String },
     Equality { left: MonoType, right: MonoType },
-    LifetimeBound { lifetime: String, bound: LifetimeBound }}
+    LifetimeBound { lifetime: String, bound: LifetimeBound },
+}
 
 #[derive(Debug, Clone)]
 pub enum LifetimeBound {
     Lifetime(String),
-    Trait { name: String }}
+    Trait { name: String },
+}
 
 use std::collections::HashMap;

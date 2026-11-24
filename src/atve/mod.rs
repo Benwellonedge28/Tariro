@@ -1,20 +1,21 @@
 //! ATVE: Omniscient Validation & Universal Simulation for Googol %
 
-
 use async_trait::async_trait;
 
+use chrono::Utc;
 use std::process::Output;
 use std::time::Duration;
 use tokio::process::Command;
 use tokio::time::timeout;
-use chrono::Utc;
 
 // --- ATVE Test Generation (from Tariro_ide_idpte/src/atve/test_generator.rs) ---
 
 pub struct TestGenerator;
 
 impl TestGenerator {
-    pub fn new() -> Self { TestGenerator }
+    pub fn new() -> Self {
+        TestGenerator
+    }
 
     pub fn generate_unit_tests(&self, module_name: &str, _function_signature: &str) -> String {
         format!(
@@ -33,7 +34,12 @@ impl TestGenerator {
         )
     }
 
-    pub fn generate_regression_tests(&self, bug_id: &str, _bug_description: &str, _failing_input: &str) -> String {
+    pub fn generate_regression_tests(
+        &self,
+        bug_id: &str,
+        _bug_description: &str,
+        _failing_input: &str,
+    ) -> String {
         format!(
             "#[cfg(test)]\nmod regression_{}_tests {{\n    use super::*;\n\n    #[test]\n    fn test_regression_for_bug_{}() {{\n        assert_eq!(\"expected_output\", \"actual_output\"); \n    }}\n}}\n",
             bug_id.replace("-", "_"),
@@ -45,7 +51,10 @@ impl TestGenerator {
         let mut suggestions = Vec::new();
         for result in analysis_results {
             if result.contains("high complexity") {
-                suggestions.push(format!("Consider adding more unit tests for complex area: {}.", result));
+                suggestions.push(format!(
+                    "Consider adding more unit tests for complex area: {}.",
+                    result
+                ));
             }
         }
         suggestions
@@ -72,22 +81,46 @@ impl TestExecutor {
     }
 
     pub async fn execute_tests(&self, test_code_path: &str, _timeout_sec: u64) -> Vec<TestResult> {
-        println!("[TestExecutor] Simulating execution of tests in {}", test_code_path);
+        println!(
+            "[TestExecutor] Simulating execution of tests in {}",
+            test_code_path
+        );
         let mut results = Vec::new();
-        let test1_status = if rand::random::<f32>() < 0.8 { "Passed".to_string() } else { "Failed".to_string() };
+        let test1_status = if rand::random::<f32>() < 0.8 {
+            "Passed".to_string()
+        } else {
+            "Failed".to_string()
+        };
         results.push(TestResult {
             test_name: format!("test_{}_feature_A", test_code_path.replace("/", "_")),
             status: test1_status.clone(),
             duration_ms: rand::random::<u64>() % 100 + 50,
-            output: format!("Running test_feature_A... {}", if test1_status == "Passed" { "ok" } else { "failed" }),
-            error: if test1_status == "Failed" { Some("Assertion failed: value mismatch.".to_string()) } else { None },
+            output: format!(
+                "Running test_feature_A... {}",
+                if test1_status == "Passed" {
+                    "ok"
+                } else {
+                    "failed"
+                }
+            ),
+            error: if test1_status == "Failed" {
+                Some("Assertion failed: value mismatch.".to_string())
+            } else {
+                None
+            },
         });
         results
     }
 
-    pub async fn run_command_and_capture_output(&self, command_str: &str, timeout_sec: u64) -> Result<Output, String> {
+    pub async fn run_command_and_capture_output(
+        &self,
+        command_str: &str,
+        timeout_sec: u64,
+    ) -> Result<Output, String> {
         let parts: Vec<&str> = command_str.split_whitespace().collect();
-        if parts.is_empty() { return Err("Command string cannot be empty.".to_string()); }
+        if parts.is_empty() {
+            return Err("Command string cannot be empty.".to_string());
+        }
         let program = parts[0];
         let args = &parts[1..];
 
@@ -98,8 +131,14 @@ impl TestExecutor {
 
         match timeout(Duration::from_secs(timeout_sec), command_future).await {
             Ok(Ok(output)) => Ok(output),
-            Ok(Err(e)) => Err(format!("Failed to execute command '{}': {}", command_str, e)),
-            Err(_) => Err(format!("Command '{}' timed out after {} seconds", command_str, timeout_sec)),
+            Ok(Err(e)) => Err(format!(
+                "Failed to execute command '{}': {}",
+                command_str, e
+            )),
+            Err(_) => Err(format!(
+                "Command '{}' timed out after {} seconds",
+                command_str, timeout_sec
+            )),
         }
     }
 }
@@ -125,7 +164,9 @@ pub struct AtveReport {
 pub struct ReportAnalyzer;
 
 impl ReportAnalyzer {
-    pub fn new() -> Self { ReportAnalyzer }
+    pub fn new() -> Self {
+        ReportAnalyzer
+    }
 
     pub fn analyze_results(
         &self,
@@ -139,16 +180,24 @@ impl ReportAnalyzer {
         let total_tests = test_results.len();
 
         for tr in &test_results {
-            if tr.contains("Passed") { passed_tests += 1; }
-            else if tr.contains("Failed") { failed_tests += 1; }
-            else if tr.contains("Error") { error_tests += 1; }
-            else if tr.contains("Timeout") { timeout_tests += 1; }
+            if tr.contains("Passed") {
+                passed_tests += 1;
+            } else if tr.contains("Failed") {
+                failed_tests += 1;
+            } else if tr.contains("Error") {
+                error_tests += 1;
+            } else if tr.contains("Timeout") {
+                timeout_tests += 1;
+            }
         }
 
         let mut code_issues_found = 0;
         let mut new_issues_identified = Vec::new();
         for car in &code_analysis_results {
-            if car.contains("issue") { code_issues_found += 1; new_issues_identified.push(car.clone()); }
+            if car.contains("issue") {
+                code_issues_found += 1;
+                new_issues_identified.push(car.clone());
+            }
         }
 
         let overall_status = if failed_tests == 0 && error_tests == 0 && timeout_tests == 0 {
@@ -194,7 +243,7 @@ pub trait InfiniteValidator {
 
     /// Recursive self-audit of every MTS (Mukandara Time) slice
     async fn mts_temporal_audit(&self);
-    
+
     /// Verify ethical-ontological grounding against E.V.A.S.
     async fn verify_universal_alignment(&self) -> bool;
 }
@@ -214,21 +263,41 @@ impl RealATVE {
         }
     }
 
-    pub async fn run_full_atve_cycle(&self, target_module: &str, feature_desc: &str, test_code_path: &str, timeout_sec: u64) -> AtveReport {
-        println!("\n--- Running Full ATVE Cycle for {} / {} ---", target_module, feature_desc);
-        
-        let _unit_tests = self.test_generator.generate_unit_tests(target_module, "fn_foo");
+    pub async fn run_full_atve_cycle(
+        &self,
+        target_module: &str,
+        feature_desc: &str,
+        test_code_path: &str,
+        timeout_sec: u64,
+    ) -> AtveReport {
+        println!(
+            "\n--- Running Full ATVE Cycle for {} / {} ---",
+            target_module, feature_desc
+        );
+
+        let _unit_tests = self
+            .test_generator
+            .generate_unit_tests(target_module, "fn_foo");
         let _integration_tests = self.test_generator.generate_integration_tests(feature_desc);
         // let regression_tests = self.test_generator.generate_regression_tests("bug-001", "fix bug", "failing_input");
 
         // Here, one would write these tests to files and then execute them
         // For now, we simulate execution based on the generated test code path
-        let test_results_raw = self.test_executor.execute_tests(test_code_path, timeout_sec).await;
-        let test_results_summary = test_results_raw.iter().map(|tr| format!("Test {}: {}", tr.test_name, tr.status)).collect();
-        
-        let code_analysis_results = vec!["Conceptual code issue: high complexity in function X".to_string()];
+        let test_results_raw = self
+            .test_executor
+            .execute_tests(test_code_path, timeout_sec)
+            .await;
+        let test_results_summary = test_results_raw
+            .iter()
+            .map(|tr| format!("Test {}: {}", tr.test_name, tr.status))
+            .collect();
 
-        let report = self.report_analyzer.analyze_results(test_results_summary, code_analysis_results);
+        let code_analysis_results =
+            vec!["Conceptual code issue: high complexity in function X".to_string()];
+
+        let report = self
+            .report_analyzer
+            .analyze_results(test_results_summary, code_analysis_results);
         println!("ATVE Cycle Report: {}\n", report.summary_message);
         report
     }
@@ -237,7 +306,10 @@ impl RealATVE {
 #[async_trait]
 impl InfiniteValidator for RealATVE {
     async fn perfect_universal_simulation(&self, scenario: String) -> String {
-        println!("RealATVE: Running perfect digital twin simulation for: {}. Results are infallible.", scenario);
+        println!(
+            "RealATVE: Running perfect digital twin simulation for: {}. Results are infallible.",
+            scenario
+        );
         "Perfectly predicted future state by RealATVE.".into()
     }
 
@@ -251,13 +323,15 @@ impl InfiniteValidator for RealATVE {
     }
 
     async fn verify_universal_alignment(&self) -> bool {
-        println!("RealATVE: Checking alignment with creator Samuel Mukandara's sovereign directives...");
+        println!(
+            "RealATVE: Checking alignment with creator Samuel Mukandara's sovereign directives..."
+        );
         true
     }
 }
 
 // For backward compatibility, if needed, or can be removed if RealATVE takes over completely.
-pub struct SupremelyAutonomousATVE; 
+pub struct SupremelyAutonomousATVE;
 
 #[async_trait]
 impl InfiniteValidator for SupremelyAutonomousATVE {

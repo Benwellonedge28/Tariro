@@ -2,8 +2,8 @@
 //!
 //! Generates creative content from concepts.
 
-use crate::authorship::{CreativeConcept, CreativeContent, RefinementSuggestion};
 use crate::authorship::style::WritingStyle;
+use crate::authorship::{CreativeConcept, CreativeContent, RefinementSuggestion};
 use serde::{Deserialize, Serialize};
 
 /// Content type
@@ -52,14 +52,15 @@ pub struct GenerationEngine {
 impl GenerationEngine {
     /// Create a new generation engine
     pub fn new(max_length: usize) -> Self {
-        Self {
-            config: GenerationConfig::default(),
-            max_length,
-        }
+        Self { config: GenerationConfig::default(), max_length }
     }
 
     /// Generate content from a concept
-    pub fn generate(&mut self, concept: &CreativeConcept, style: &WritingStyle) -> Result<CreativeContent, String> {
+    pub fn generate(
+        &mut self,
+        concept: &CreativeConcept,
+        style: &WritingStyle,
+    ) -> Result<CreativeContent, String> {
         let mut content = CreativeContent::default();
 
         // Generate text content
@@ -78,16 +79,10 @@ impl GenerationEngine {
         let mut output = String::new();
 
         // Introduction
-        output.push_str(&format!(
-            "# {}\n\n",
-            concept.title
-        ));
+        output.push_str(&format!("# {}\n\n", concept.title));
 
         // Synopsis
-        output.push_str(&format!(
-            "{}\n\n",
-            concept.synopsis
-        ));
+        output.push_str(&format!("{}\n\n", concept.synopsis));
 
         // Thematic exploration
         output.push_str("## Themes\n\n");
@@ -183,7 +178,11 @@ impl GenerationEngine {
     }
 
     /// Refine content based on suggestions
-    pub fn refine(&mut self, content: &CreativeContent, suggestion: &RefinementSuggestion) -> CreativeContent {
+    pub fn refine(
+        &mut self,
+        content: &CreativeContent,
+        suggestion: &RefinementSuggestion,
+    ) -> CreativeContent {
         let mut refined = content.clone();
 
         match suggestion.aspect.as_str() {
@@ -201,7 +200,8 @@ impl GenerationEngine {
             }
             _ => {
                 // Generic refinement
-                refined.text = format!("[Refined: {}] {}", suggestion.proposed_change, refined.text);
+                refined.text =
+                    format!("[Refined: {}] {}", suggestion.proposed_change, refined.text);
             }
         }
 
@@ -216,7 +216,11 @@ impl GenerationEngine {
     }
 
     fn adjust_pacing(&self, text: &str, intensity: f32) -> String {
-        let modifier = if intensity > 0.5 { "accelerated" } else { "relaxed" };
+        let modifier = if intensity > 0.5 {
+            "accelerated"
+        } else {
+            "relaxed"
+        };
         format!(
             "[Pacing {}] {}\n\n[Adjustment applied: {:.1}%]",
             modifier,
@@ -233,11 +237,7 @@ impl GenerationEngine {
     }
 
     fn adjust_voice(&self, text: &str, change: &str) -> String {
-        format!(
-            "[Voice adjusted: {}]\n\n{}",
-            change,
-            text
-        )
+        format!("[Voice adjusted: {}]\n\n{}", change, text)
     }
 
     /// Generate dialogue
@@ -264,8 +264,7 @@ impl GenerationEngine {
             Capturing essence, standing the test of time.\n\
             Each verse a brushstroke, painting meaning deep,\n\
             Through imagery and metaphor, truths we keep.",
-            theme,
-            theme
+            theme, theme
         )
     }
 }

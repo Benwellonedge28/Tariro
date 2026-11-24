@@ -1,13 +1,13 @@
 // Garbage Collection Module
 
-pub mod mark_sweep;
-pub mod generational;
 pub mod concurrent;
+pub mod generational;
+pub mod mark_sweep;
 pub mod tracing;
 
-pub use mark_sweep::*;
-pub use generational::*;
 pub use concurrent::*;
+pub use generational::*;
+pub use mark_sweep::*;
 pub use tracing::*;
 
 // ============================================================================
@@ -77,10 +77,10 @@ pub struct HeapConfig {
 impl Default for HeapConfig {
     fn default() -> Self {
         Self {
-            initial_size: 1024 * 1024,      // 1 MB
-            max_size: 1024 * 1024 * 1024,   // 1 GB
+            initial_size: 1024 * 1024,    // 1 MB
+            max_size: 1024 * 1024 * 1024, // 1 GB
             growth_factor: 1.5,
-            min_free: 64 * 1024,            // 64 KB
+            min_free: 64 * 1024, // 64 KB
             gc_threshold: 0.7,
         }
     }
@@ -131,10 +131,8 @@ impl HeapRegion {
 
                 // Split block if there's remaining space
                 if block.size > size {
-                    self.free_list.push(FreeBlock {
-                        offset: block.offset + size,
-                        size: block.size - size,
-                    });
+                    self.free_list
+                        .push(FreeBlock { offset: block.offset + size, size: block.size - size });
                 }
 
                 self.allocated += size;
@@ -192,7 +190,8 @@ impl RootSet {
     }
 
     pub fn all_roots(&self) -> impl Iterator<Item = &*mut u8> {
-        self.stack_roots.iter()
+        self.stack_roots
+            .iter()
             .chain(self.global_roots.iter())
             .chain(self.register_roots.iter())
     }
@@ -206,10 +205,7 @@ pub struct WeakReference<T> {
 
 impl<T> WeakReference<T> {
     pub fn new(ptr: *mut u8) -> Self {
-        Self {
-            ptr,
-            _phantom: std::marker::PhantomData,
-        }
+        Self { ptr, _phantom: std::marker::PhantomData }
     }
 
     pub fn upgrade(&self) -> Option<std::rc::Rc<T>> {
@@ -225,9 +221,7 @@ pub struct FinalizerQueue {
 
 impl FinalizerQueue {
     pub fn new() -> Self {
-        Self {
-            queue: Vec::new(),
-        }
+        Self { queue: Vec::new() }
     }
 
     pub fn enqueue(&mut self, ptr: *mut u8, finalizer: impl FnOnce() + 'static) {

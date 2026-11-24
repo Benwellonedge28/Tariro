@@ -2,7 +2,6 @@
 
 //! Manages the configuration and settings for the Tariro AGI.
 
-
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
@@ -10,11 +9,21 @@ use std::path::Path;
 
 // Re-export specific types from the SDK (stub types if SDK not available)
 #[cfg(feature = "tariro_sdk")]
-pub use tariro_sdk::entities::{AGIControlSetting, AGICategory, AutonomyPolicy, CapabilityStatus, WorkflowRule, ServicePrice};
+pub use tariro_sdk::entities::{
+    AGICategory, AGIControlSetting, AutonomyPolicy, CapabilityStatus, ServicePrice, WorkflowRule,
+};
 
 #[cfg(not(feature = "tariro_sdk"))]
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AGIControlSetting;
+pub struct AGIControlSetting {
+    pub id: Option<String>,
+    pub control_key: String,
+    pub value: String,
+    pub category: Option<String>,
+    pub label: String,
+    pub description: Option<String>,
+    pub last_modified_by: Option<String>,
+}
 
 #[cfg(not(feature = "tariro_sdk"))]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -44,7 +53,10 @@ pub type AGIControl = AGIControlSetting;
 pub type AGIControl = AGIControlSetting;
 
 #[cfg(feature = "tariro_sdk")]
-pub use tariro_sdk::entities::{Goal, WellbeingLog, ExplainabilityLog, PerformanceLog, LearningInsight, FeatureProposal, SystemHealthLog};
+pub use tariro_sdk::entities::{
+    ExplainabilityLog, FeatureProposal, Goal, LearningInsight, PerformanceLog, SystemHealthLog,
+    WellbeingLog,
+};
 
 #[cfg(not(feature = "tariro_sdk"))]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -95,7 +107,7 @@ pub struct GitHubProjectContext;
 pub struct IDEProfile;
 
 #[cfg(feature = "tariro_sdk")]
-pub use tariro_sdk::entities::{ProjectTask, NotificationRecord};
+pub use tariro_sdk::entities::{NotificationRecord, ProjectTask};
 
 #[cfg(not(feature = "tariro_sdk"))]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -105,7 +117,7 @@ pub struct ProjectTask;
 pub struct NotificationRecord;
 
 #[cfg(feature = "tariro_sdk")]
-pub use tariro_sdk::entities::{NanoAgent, MetaProject, DeploymentRecord};
+pub use tariro_sdk::entities::{DeploymentRecord, MetaProject, NanoAgent};
 
 #[cfg(not(feature = "tariro_sdk"))]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -117,7 +129,7 @@ pub struct MetaProject;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeploymentRecord;
 
-pub use crate::compiler::{CompilerSnapshot, MetaProjectStatus, CompilationMetrics};
+pub use crate::compiler::{CompilationMetrics, CompilerSnapshot, MetaProjectStatus};
 
 /// Represents the overall configuration for the Tariro AGI.
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -129,10 +141,10 @@ pub struct AGIConfig {
     pub database_url: String,
     pub api_port: u16,
     pub agi_settings: HashMap<String, String>, // Dynamic AGI-specific settings
-    pub super_admin_email: String, // For critical notifications
-    pub qsm_monitoring_interval_seconds: u64, // Interval for QSM threat monitoring
+    pub super_admin_email: String,             // For critical notifications
+    pub qsm_monitoring_interval_seconds: u64,  // Interval for QSM threat monitoring
     pub system_health_monitoring_interval_seconds: u64, // Interval for general system health checks
-    pub self_correction_enabled: bool, // Enable/disable self-correction mechanisms
+    pub self_correction_enabled: bool,         // Enable/disable self-correction mechanisms
     pub self_modification_interval_seconds: u64, // NEW: Interval for autonomous self-modification cycles
     pub self_modification_approval: String, // NEW: "full_auto", "confirm_admin", "always_confirm"
 }
@@ -140,13 +152,28 @@ pub struct AGIConfig {
 impl Default for AGIConfig {
     fn default() -> Self {
         let mut agi_settings = HashMap::new();
-        agi_settings.insert("autonomy.default_level".to_string(), "suggest_only".to_string());
-        agi_settings.insert("autonomy.evas_filter_enabled".to_string(), "true".to_string());
-        agi_settings.insert("agi.self_modification_enabled".to_string(), "true".to_string());
+        agi_settings.insert(
+            "autonomy.default_level".to_string(),
+            "suggest_only".to_string(),
+        );
+        agi_settings.insert(
+            "autonomy.evas_filter_enabled".to_string(),
+            "true".to_string(),
+        );
+        agi_settings.insert(
+            "agi.self_modification_enabled".to_string(),
+            "true".to_string(),
+        );
         agi_settings.insert("agi.learning_rate".to_string(), "0.01".to_string());
         agi_settings.insert("omega_network.enabled".to_string(), "true".to_string());
-        agi_settings.insert("omega_network.mesh_protocol_version".to_string(), "1.0".to_string());
-        agi_settings.insert("compiler.default_target_platform".to_string(), "wasm".to_string());
+        agi_settings.insert(
+            "omega_network.mesh_protocol_version".to_string(),
+            "1.0".to_string(),
+        );
+        agi_settings.insert(
+            "compiler.default_target_platform".to_string(),
+            "wasm".to_string(),
+        );
 
         AGIConfig {
             system_name: "Tariro AGI".to_string(),
@@ -169,18 +196,16 @@ impl Default for AGIConfig {
 impl AGIConfig {
     /// Loads the configuration from a TOML file.
     pub fn load<P: AsRef<Path>>(path: P) -> Result<Self, String> {
-        let config_str = fs::read_to_string(path)
-            .map_err(|e| format!("Failed to read config file: {}", e))?;
-        toml::from_str(&config_str)
-            .map_err(|e| format!("Failed to parse config file: {}", e))?
+        let config_str =
+            fs::read_to_string(path).map_err(|e| format!("Failed to read config file: {}", e))?;
+        toml::from_str(&config_str).map_err(|e| format!("Failed to parse config file: {}", e))?
     }
 
     /// Saves the current configuration to a TOML file.
     pub fn save<P: AsRef<Path>>(&self, path: P) -> Result<(), String> {
         let toml_string = toml::to_string_pretty(self)
             .map_err(|e| format!("Failed to serialize config: {}", e))?;
-        fs::write(path, toml_string)
-            .map_err(|e| format!("Failed to write config file: {}", e))
+        fs::write(path, toml_string).map_err(|e| format!("Failed to write config file: {}", e))
     }
 
     /// Retrieves a setting from `agi_settings`.
@@ -196,7 +221,10 @@ impl AGIConfig {
     /// Merges an `AGIControlSetting` entity into the current configuration.
     pub fn apply_agi_control(&mut self, control: &AGIControlSetting) {
         self.update_setting(&control.control_key, &control.value);
-        println!("[Config] Applied AGI Control: {} = {}", control.control_key, control.value);
+        println!(
+            "[Config] Applied AGI Control: {} = {}",
+            control.control_key, control.value
+        );
     }
 }
 
@@ -215,8 +243,8 @@ mod tests {
         assert_eq!(config.qsm_monitoring_interval_seconds, 600);
         assert_eq!(config.system_health_monitoring_interval_seconds, 300);
         assert_eq!(config.self_correction_enabled, true);
-        assert_eq!(config.self_modification_interval_seconds, 900); 
-        assert_eq!(config.self_modification_approval, "full_auto"); 
+        assert_eq!(config.self_modification_interval_seconds, 900);
+        assert_eq!(config.self_modification_approval, "full_auto");
     }
 
     #[test]
@@ -228,8 +256,8 @@ mod tests {
         config.qsm_monitoring_interval_seconds = 300;
         config.system_health_monitoring_interval_seconds = 120;
         config.self_correction_enabled = false;
-        config.self_modification_interval_seconds = 60; 
-        config.self_modification_approval = "confirm_admin".to_string(); 
+        config.self_modification_interval_seconds = 60;
+        config.self_modification_approval = "confirm_admin".to_string();
 
         let temp_dir = tempfile::tempdir().unwrap();
         let file_path = temp_dir.path().join("test_config.toml");
@@ -243,8 +271,8 @@ mod tests {
         assert_eq!(loaded_config.qsm_monitoring_interval_seconds, 300);
         assert_eq!(loaded_config.system_health_monitoring_interval_seconds, 120);
         assert_eq!(loaded_config.self_correction_enabled, false);
-        assert_eq!(loaded_config.self_modification_interval_seconds, 60); 
-        assert_eq!(loaded_config.self_modification_approval, "confirm_admin"); 
+        assert_eq!(loaded_config.self_modification_interval_seconds, 60);
+        assert_eq!(loaded_config.self_modification_approval, "confirm_admin");
 
         temp_dir.close().unwrap();
     }

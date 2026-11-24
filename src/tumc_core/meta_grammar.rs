@@ -1,4 +1,3 @@
-
 pub struct MetaGrammarEngine;
 
 impl MetaGrammarEngine {
@@ -10,7 +9,10 @@ impl MetaGrammarEngine {
     /// This process is "extra super extremely autonomous advanced infinitely," allowing for a deep,
     /// contextual understanding of the user's ultimate goal.
     pub fn parse_and_understand_intent(&self, intent_description: &str) -> (String, String) {
-        println!("TUMC: MetaGrammarEngine - Parsing and understanding intent: '{}'", intent_description);
+        println!(
+            "TUMC: MetaGrammarEngine - Parsing and understanding intent: '{}'",
+            intent_description
+        );
 
         // 1. Multimodal Input Processing:
         //    Determine the modality of the input (natural language text, audio command, visual blueprint,
@@ -31,8 +33,12 @@ impl MetaGrammarEngine {
         //    but deep semantic meaning, causal relationships, and underlying intent.
         //    Incorporate user context (preferences, project history, cognitive state)
         //    and prevailing environmental factors to further refine understanding.
-        let (semantic_representation, extracted_context) = self.perform_deep_semantic_analysis(intent_description, &selected_grammar);
-        println!("TUMC: Semantic analysis complete. Extracted Context: '{}'", extracted_context);
+        let (semantic_representation, extracted_context) =
+            self.perform_deep_semantic_analysis(intent_description, &selected_grammar);
+        println!(
+            "TUMC: Semantic analysis complete. Extracted Context: '{}'",
+            extracted_context
+        );
 
         // 4. Verification and Refinement:
         //    Self-verify the parsed representation against E.V.A.S. ethical filters and user goals.
@@ -63,7 +69,10 @@ impl MetaGrammarEngine {
     }
 
     fn perform_deep_semantic_analysis(&self, input: &str, _grammar: &str) -> (String, String) {
-        (format!("SemanticTree({})", input), "high_focus_mode_active".to_string())
+        (
+            format!("SemanticTree({})", input),
+            "high_focus_mode_active".to_string(),
+        )
     }
 
     fn verify_and_refine_representation(&self, representation: String) -> String {

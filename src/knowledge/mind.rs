@@ -3,17 +3,17 @@
 //! Combines knowledge graph, reasoning, logic, causal reasoning,
 //! common sense, and formal verification into a unified cognitive system.
 
-
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::RwLock;
 
-use crate::knowledge::knowledge_graph::{
-    KnowledgeGraph, EntityId, Entity, Fact, Predicate, Probability};
-use crate::knowledge::reasoning::{ReasoningEngine, Query, QueryResult, Deduction};
-use crate::knowledge::logic::LogicEngine;
-use crate::knowledge::causal::{CausalReasoningEngine, CausalEffect, CounterfactualResult};
-use crate::knowledge::commonsense::{CommonSenseEngine, Situation, Inference};
+use crate::knowledge::causal::{CausalEffect, CausalReasoningEngine, CounterfactualResult};
+use crate::knowledge::commonsense::{CommonSenseEngine, Inference, Situation};
 use crate::knowledge::formal::{FormalVerifier, VerificationResult};
+use crate::knowledge::knowledge_graph::{
+    Entity, EntityId, Fact, KnowledgeGraph, Predicate, Probability,
+};
+use crate::knowledge::logic::LogicEngine;
+use crate::knowledge::reasoning::{Deduction, Query, QueryResult, ReasoningEngine};
 use std::sync::Arc;
 
 // ============================================================================
@@ -65,8 +65,12 @@ impl Clone for MindStats {
             facts_learned: AtomicUsize::new(self.facts_learned.load(Ordering::Relaxed)),
             deductions_made: AtomicUsize::new(self.deductions_made.load(Ordering::Relaxed)),
             causal_inferences: AtomicUsize::new(self.causal_inferences.load(Ordering::Relaxed)),
-            contradictions_found: AtomicUsize::new(self.contradictions_found.load(Ordering::Relaxed)),
-            verifications_passed: AtomicUsize::new(self.verifications_passed.load(Ordering::Relaxed)),
+            contradictions_found: AtomicUsize::new(
+                self.contradictions_found.load(Ordering::Relaxed),
+            ),
+            verifications_passed: AtomicUsize::new(
+                self.verifications_passed.load(Ordering::Relaxed),
+            ),
         }
     }
 }
@@ -150,7 +154,9 @@ impl TariroMind {
 
         // Verify if enabled
         if self.config.auto_verify {
-            let verification = self.verifier.verify_invariants(&self.knowledge_graph.read().unwrap());
+            let verification = self
+                .verifier
+                .verify_invariants(&self.knowledge_graph.read().unwrap());
             if !verification.is_valid() {
                 return Err(LearningError::VerificationFailed(verification));
             }
@@ -176,10 +182,13 @@ impl TariroMind {
             let subject = fact.subject.name.clone();
             let predicate = fact.predicate.name().to_string();
             let object = fact.object.name.clone();
-            self.logic.assert_fact(&predicate, vec![
-                crate::knowledge::logic::Term::constant(subject),
-                crate::knowledge::logic::Term::constant(object),
-            ]);
+            self.logic.assert_fact(
+                &predicate,
+                vec![
+                    crate::knowledge::logic::Term::constant(subject),
+                    crate::knowledge::logic::Term::constant(object),
+                ],
+            );
         }
 
         // Run forward chaining
@@ -244,20 +253,27 @@ impl TariroMind {
         let kb = self.knowledge_graph.read().unwrap();
 
         // Check direct support
-        let supporting_facts: Vec<_> = kb.get_subject_relations(&conclusion.subject.id)
+        let supporting_facts: Vec<_> = kb
+            .get_subject_relations(&conclusion.subject.id)
             .iter()
             .filter(|r| r.predicate == conclusion.predicate)
             .map(|r| {
-                kb.get_entity(&r.object)
-                    .cloned()
-                    .unwrap_or_else(|| Entity::new(&r.object.0, crate::knowledge::knowledge_graph::EntityType::Concept))
+                kb.get_entity(&r.object).cloned().unwrap_or_else(|| {
+                    Entity::new(
+                        &r.object.0,
+                        crate::knowledge::knowledge_graph::EntityType::Concept,
+                    )
+                })
             })
             .collect();
 
         for (i, fact) in supporting_facts.iter().enumerate() {
             proof_steps.push(ProofStep {
                 step_number: i,
-                description: format!("Supported by fact: {} -> {:?}", fact.name, conclusion.predicate),
+                description: format!(
+                    "Supported by fact: {} -> {:?}",
+                    fact.name, conclusion.predicate
+                ),
                 support: SupportLevel::Direct,
             });
         }
@@ -341,7 +357,9 @@ impl TariroMind {
         let result = self.verifier.verify_invariants(&kb);
 
         if result.is_valid() {
-            self.stats.verifications_passed.fetch_add(1, Ordering::Relaxed);
+            self.stats
+                .verifications_passed
+                .fetch_add(1, Ordering::Relaxed);
         }
 
         result
@@ -374,7 +392,9 @@ impl TariroMind {
                     fact2: None,
                     contradiction_type: ContradictionType::MutualExclusion,
                 });
-                self.stats.contradictions_found.fetch_add(1, Ordering::Relaxed);
+                self.stats
+                    .contradictions_found
+                    .fetch_add(1, Ordering::Relaxed);
             }
         }
 
@@ -386,12 +406,19 @@ impl TariroMind {
     // ========================================================================
 
     /// Query with logic engine
-    pub fn logic_query(&self, predicate: &str, terms: &[crate::knowledge::logic::Term]) -> Vec<std::collections::HashMap<String, crate::knowledge::logic::Term>> {
+    pub fn logic_query(
+        &self,
+        predicate: &str,
+        terms: &[crate::knowledge::logic::Term],
+    ) -> Vec<std::collections::HashMap<String, crate::knowledge::logic::Term>> {
         self.logic.all_solutions(predicate, terms)
     }
 
     /// Add logic rule
-    pub fn add_logic_rule(&mut self, rule: &str) -> Result<(), crate::knowledge::logic::ParseError> {
+    pub fn add_logic_rule(
+        &mut self,
+        rule: &str,
+    ) -> Result<(), crate::knowledge::logic::ParseError> {
         self.logic.assert_string(rule)
     }
 
@@ -593,8 +620,14 @@ mod tests {
     fn test_learn_fact() {
         let mut mind = TariroMind::new();
 
-        let subject = Entity::new("Socrates", crate::knowledge::knowledge_graph::EntityType::Agent);
-        let object = Entity::new("Human", crate::knowledge::knowledge_graph::EntityType::Concept);
+        let subject = Entity::new(
+            "Socrates",
+            crate::knowledge::knowledge_graph::EntityType::Agent,
+        );
+        let object = Entity::new(
+            "Human",
+            crate::knowledge::knowledge_graph::EntityType::Concept,
+        );
         let fact = Fact::new(subject, Predicate::IsA, object);
 
         let result = mind.learn_fact(fact);
@@ -606,8 +639,14 @@ mod tests {
     fn test_verify() {
         let mut mind = TariroMind::new();
 
-        let subject = Entity::new("Test", crate::knowledge::knowledge_graph::EntityType::Concept);
-        let object = Entity::new("Other", crate::knowledge::knowledge_graph::EntityType::Concept);
+        let subject = Entity::new(
+            "Test",
+            crate::knowledge::knowledge_graph::EntityType::Concept,
+        );
+        let object = Entity::new(
+            "Other",
+            crate::knowledge::knowledge_graph::EntityType::Concept,
+        );
         let fact = Fact::new(subject, Predicate::RelatedTo, object);
 
         let _ = mind.learn_fact(fact);
@@ -626,8 +665,7 @@ mod tests {
 
         let _ = mind.learn_fact(fact);
 
-        let query = Query::new()
-            .with_subject(EntityId::new("A"));
+        let query = Query::new().with_subject(EntityId::new("A"));
 
         let result = mind.query(query);
         assert_eq!(mind.stats.queries_processed, 1);
@@ -638,8 +676,14 @@ mod tests {
         let mut mind = TariroMind::new();
 
         // Add causal fact
-        let fire = Entity::new("Fire", crate::knowledge::knowledge_graph::EntityType::Concrete);
-        let smoke = Entity::new("Smoke", crate::knowledge::knowledge_graph::EntityType::Event);
+        let fire = Entity::new(
+            "Fire",
+            crate::knowledge::knowledge_graph::EntityType::Concrete,
+        );
+        let smoke = Entity::new(
+            "Smoke",
+            crate::knowledge::knowledge_graph::EntityType::Event,
+        );
         let fact = Fact::new(fire, Predicate::Causes, smoke);
 
         let _ = mind.learn_fact(fact);
@@ -652,8 +696,14 @@ mod tests {
     fn test_export_import() {
         let mut mind = TariroMind::new();
 
-        let subject = Entity::new("Test", crate::knowledge::knowledge_graph::EntityType::Concept);
-        let object = Entity::new("Value", crate::knowledge::knowledge_graph::EntityType::Concept);
+        let subject = Entity::new(
+            "Test",
+            crate::knowledge::knowledge_graph::EntityType::Concept,
+        );
+        let object = Entity::new(
+            "Value",
+            crate::knowledge::knowledge_graph::EntityType::Concept,
+        );
         let fact = Fact::new(subject, Predicate::RelatedTo, object);
 
         let _ = mind.learn_fact(fact);

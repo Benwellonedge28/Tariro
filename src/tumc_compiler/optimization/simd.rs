@@ -112,10 +112,15 @@ impl SimdFeatures {
     }
 
     pub fn max_vector_bits(&self) -> usize {
-        if self.avx512f { 512 }
-        else if self.avx2 { 256 }
-        else if self.sse { 128 }
-        else { 0 }
+        if self.avx512f {
+            512
+        } else if self.avx2 {
+            256
+        } else if self.sse {
+            128
+        } else {
+            0
+        }
     }
 }
 
@@ -127,10 +132,7 @@ pub struct SimdCodeGenerator {
 
 impl SimdCodeGenerator {
     pub fn new(target: SimdTarget) -> Self {
-        Self {
-            target,
-            features: SimdFeatures::detect(),
-        }
+        Self { target, features: SimdFeatures::detect() }
     }
 
     /// Generate SIMD operation
@@ -275,23 +277,17 @@ impl SimdReduction {
     /// Generate sum reduction
     pub fn gen_sum_reduction(&self, ty: &IrType) -> Vec<String> {
         match ty {
-            IrType::Float32 => {
-                match self.target {
-                    SimdTarget::NEON => vec![
-                        "faddp v0.4s, v0.4s".to_string(),
-                        "faddp s0, v0.4s".to_string(),
-                    ],
-                    _ => vec![],
-                }
-            }
-            IrType::Int32 => {
-                match self.target {
-                    SimdTarget::NEON => vec![
-                        "addv s0, v0.4s".to_string(),
-                    ],
-                    _ => vec![],
-                }
-            }
+            IrType::Float32 => match self.target {
+                SimdTarget::NEON => vec![
+                    "faddp v0.4s, v0.4s".to_string(),
+                    "faddp s0, v0.4s".to_string(),
+                ],
+                _ => vec![],
+            },
+            IrType::Int32 => match self.target {
+                SimdTarget::NEON => vec!["addv s0, v0.4s".to_string()],
+                _ => vec![],
+            },
             _ => vec![],
         }
     }
@@ -299,22 +295,14 @@ impl SimdReduction {
     /// Generate min reduction
     pub fn gen_min_reduction(&self, ty: &IrType) -> Vec<String> {
         match ty {
-            IrType::Float32 => {
-                match self.target {
-                    SimdTarget::NEON => vec![
-                        "fminnmv s0, v0.4s".to_string(),
-                    ],
-                    _ => vec![],
-                }
-            }
-            IrType::Int32 => {
-                match self.target {
-                    SimdTarget::NEON => vec![
-                        "minv s0, v0.4s".to_string(),
-                    ],
-                    _ => vec![],
-                }
-            }
+            IrType::Float32 => match self.target {
+                SimdTarget::NEON => vec!["fminnmv s0, v0.4s".to_string()],
+                _ => vec![],
+            },
+            IrType::Int32 => match self.target {
+                SimdTarget::NEON => vec!["minv s0, v0.4s".to_string()],
+                _ => vec![],
+            },
             _ => vec![],
         }
     }
@@ -322,22 +310,14 @@ impl SimdReduction {
     /// Generate max reduction
     pub fn gen_max_reduction(&self, ty: &IrType) -> Vec<String> {
         match ty {
-            IrType::Float32 => {
-                match self.target {
-                    SimdTarget::NEON => vec![
-                        "fmaxnmv s0, v0.4s".to_string(),
-                    ],
-                    _ => vec![],
-                }
-            }
-            IrType::Int32 => {
-                match self.target {
-                    SimdTarget::NEON => vec![
-                        "maxv s0, v0.4s".to_string(),
-                    ],
-                    _ => vec![],
-                }
-            }
+            IrType::Float32 => match self.target {
+                SimdTarget::NEON => vec!["fmaxnmv s0, v0.4s".to_string()],
+                _ => vec![],
+            },
+            IrType::Int32 => match self.target {
+                SimdTarget::NEON => vec!["maxv s0, v0.4s".to_string()],
+                _ => vec![],
+            },
             _ => vec![],
         }
     }
@@ -356,9 +336,7 @@ impl MaskedSimdOperations {
     /// Generate masked load
     pub fn gen_masked_load(&self, _mask_reg: &str, _passthru: &str) -> Vec<String> {
         match self.target {
-            SimdTarget::AVX512 => vec![
-                format!("vmovaps.zmm{{k1}}{{z}}, (%rdi), %zmm0",),
-            ],
+            SimdTarget::AVX512 => vec![format!("vmovaps.zmm{{k1}}{{z}}, (%rdi), %zmm0",)],
             _ => vec![],
         }
     }
@@ -366,9 +344,7 @@ impl MaskedSimdOperations {
     /// Generate masked store
     pub fn gen_masked_store(&self, _mask_reg: &str) -> Vec<String> {
         match self.target {
-            SimdTarget::AVX512 => vec![
-                format!("vmovaps.zmm %zmm0, (%rdi){{k1}}",),
-            ],
+            SimdTarget::AVX512 => vec![format!("vmovaps.zmm %zmm0, (%rdi){{k1}}",)],
             _ => vec![],
         }
     }

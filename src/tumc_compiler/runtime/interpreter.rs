@@ -273,9 +273,7 @@ pub enum StackValue {
 
 impl StackMachine {
     pub fn new() -> Self {
-        Self {
-            stack: Vec::new(),
-        }
+        Self { stack: Vec::new() }
     }
 
     pub fn push(&mut self, val: StackValue) {

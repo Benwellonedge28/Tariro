@@ -2,10 +2,11 @@
 //!
 //! Integrates the TUMC compiler with the unified AGI system.
 
-use crate::tumc_compiler::ir::{
-    Module, Function, BasicBlock, BasicBlockId, Instruction, Operation, IrType, Terminator};
-use crate::tumc_compiler::optimization::{OptLevel, OptimizationManager};
 use crate::tumc_compiler::agi_integration::AgiInsight;
+use crate::tumc_compiler::ir::{
+    BasicBlock, BasicBlockId, Function, Instruction, IrType, Module, Operation, Terminator,
+};
+use crate::tumc_compiler::optimization::{OptLevel, OptimizationManager};
 use crate::unified::orchestrator::CompilationResult;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -36,7 +37,12 @@ impl CompilerIntegration {
     }
 
     /// Compile with AGI insights
-    pub fn compile_with_insights(&mut self, source: &str, target: &str, insights: &[AgiInsight]) -> CompilationResult {
+    pub fn compile_with_insights(
+        &mut self,
+        source: &str,
+        target: &str,
+        insights: &[AgiInsight],
+    ) -> CompilationResult {
         self.compilation_count += 1;
 
         // Parse source to IR
@@ -102,7 +108,10 @@ impl CompilerIntegration {
                 };
 
                 block.instructions.push(Instruction {
-                    op: Operation::Const(Box::new(crate::tumc_compiler::ir::Const::Int(0)), IrType::Int64),
+                    op: Operation::Const(
+                        Box::new(crate::tumc_compiler::ir::Const::Int(0)),
+                        IrType::Int64,
+                    ),
                     result_type: IrType::Int64,
                     result_name: Some("result".to_string()),
                     ..Default::default()
@@ -123,7 +132,10 @@ impl CompilerIntegration {
                     id: BasicBlockId(0),
                     name: Some("entry".to_string()),
                     instructions: vec![Instruction {
-                        op: Operation::Const(Box::new(crate::tumc_compiler::ir::Const::Int(0)), IrType::Int64),
+                        op: Operation::Const(
+                            Box::new(crate::tumc_compiler::ir::Const::Int(0)),
+                            IrType::Int64,
+                        ),
                         result_type: IrType::Int64,
                         result_name: Some("main_result".to_string()),
                         ..Default::default()

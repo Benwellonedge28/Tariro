@@ -284,7 +284,7 @@ pub struct RehearsalItem {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ConsolidationLevel {
-    Labile,      // Easily modified
+    Labile,       // Easily modified
     Transitional, // Being consolidated
     Stabilized,   // Long-term memory
 }
@@ -380,17 +380,27 @@ impl UnifiedMemory {
     }
 
     /// Process new input through attention gate
-    pub fn process_input(&mut self, content: MemoryContent, source: MemorySource) -> Option<String> {
+    pub fn process_input(
+        &mut self,
+        content: MemoryContent,
+        source: MemorySource,
+    ) -> Option<String> {
         let saliency = self.calculate_saliency(&content);
 
         if saliency < self.attention_gate.saliency_threshold {
-            println!("[Memory] Content filtered by attention gate (saliency: {:.2})", saliency);
+            println!(
+                "[Memory] Content filtered by attention gate (saliency: {:.2})",
+                saliency
+            );
             return None;
         }
 
         // Create working memory item
         let item = WorkingMemoryItem {
-            id: format!("wm_{}", Utc::now().timestamp_nanos()),
+            id: format!(
+                "wm_{}",
+                Utc::now().timestamp_nanos_opt().unwrap_or_default()
+            ),
             content,
             activation: saliency,
             decay_rate: 0.1,
@@ -484,7 +494,10 @@ impl UnifiedMemory {
         };
 
         self.episodic_memory.add_episode(episode);
-        println!("[Memory] Episode encoded with significance {:.2}", significance);
+        println!(
+            "[Memory] Episode encoded with significance {:.2}",
+            significance
+        );
     }
 
     fn integrate_semantic(&mut self, _item_id: &str) {
@@ -585,8 +598,11 @@ impl UnifiedMemory {
         }
 
         report.successful = true;
-        println!("[Memory] Consolidation complete: {} episodes, {} replays",
-                 report.episodes_consolidated, report.replayed_memories.len());
+        println!(
+            "[Memory] Consolidation complete: {} episodes, {} replays",
+            report.episodes_consolidated,
+            report.replayed_memories.len()
+        );
         report
     }
 
@@ -595,7 +611,10 @@ impl UnifiedMemory {
         self.working_memory.focus_of_attention = Some(memory_id.to_string());
 
         // Boost activation of associated items
-        if let Some(item) = self.working_memory.items.iter_mut()
+        if let Some(item) = self
+            .working_memory
+            .items
+            .iter_mut()
             .find(|i| i.id == memory_id)
         {
             item.activation = 1.0;
@@ -603,8 +622,17 @@ impl UnifiedMemory {
         }
 
         // Update bindings
-        for link in &self.memory_binding.cross_references.get(memory_id).cloned().unwrap_or_default() {
-            if let Some(item) = self.working_memory.items.iter_mut()
+        for link in &self
+            .memory_binding
+            .cross_references
+            .get(memory_id)
+            .cloned()
+            .unwrap_or_default()
+        {
+            if let Some(item) = self
+                .working_memory
+                .items
+                .iter_mut()
                 .find(|i| i.id == link.to_id)
             {
                 item.activation = (item.activation + 0.2).min(1.0);
@@ -615,7 +643,14 @@ impl UnifiedMemory {
     }
 
     /// Create memory binding
-    pub fn bind(&mut self, from_id: &str, from_type: MemoryType, to_id: &str, to_type: MemoryType, link_type: LinkType) {
+    pub fn bind(
+        &mut self,
+        from_id: &str,
+        from_type: MemoryType,
+        to_id: &str,
+        to_type: MemoryType,
+        link_type: LinkType,
+    ) {
         let link = MemoryLink {
             from_id: from_id.to_string(),
             from_type,
@@ -625,7 +660,8 @@ impl UnifiedMemory {
             strength: 0.5,
         };
 
-        self.memory_binding.cross_references
+        self.memory_binding
+            .cross_references
             .entry(from_id.to_string())
             .or_insert_with(Vec::new)
             .push(link.clone());
@@ -640,7 +676,8 @@ impl UnifiedMemory {
                 link_type,
                 strength: 0.5,
             };
-            self.memory_binding.cross_references
+            self.memory_binding
+                .cross_references
                 .entry(to_id.to_string())
                 .or_insert_with(Vec::new)
                 .push(reverse_link);
@@ -664,7 +701,9 @@ impl UnifiedMemory {
             transferability: 0.3,
         };
 
-        self.procedural_memory.skills.insert(skill_id.clone(), skill);
+        self.procedural_memory
+            .skills
+            .insert(skill_id.clone(), skill);
         println!("[Memory] Learned new skill: {} in {}", name, domain);
         skill_id
     }
@@ -674,7 +713,10 @@ impl UnifiedMemory {
         if let Some(skill) = self.procedural_memory.skills.get_mut(skill_id) {
             skill.practiced_count += 1;
             skill.automaticity = (skill.automaticity + 0.1).min(1.0);
-            println!("[Memory] Practiced skill {}: automaticity now {:.2}", skill.name, skill.automaticity);
+            println!(
+                "[Memory] Practiced skill {}: automaticity now {:.2}",
+                skill.name, skill.automaticity
+            );
         }
     }
 }
@@ -693,9 +735,14 @@ impl WorkingMemory {
     pub fn add(&mut self, item: WorkingMemoryItem) {
         if self.items.len() >= self.capacity {
             // Remove lowest activation item
-            if let Some(pos) = self.items.iter()
-                .position(|i| i.activation == self.items.iter().map(|x| x.activation).fold(f64::INFINITY, f64::min))
-            {
+            if let Some(pos) = self.items.iter().position(|i| {
+                i.activation
+                    == self
+                        .items
+                        .iter()
+                        .map(|x| x.activation)
+                        .fold(f64::INFINITY, f64::min)
+            }) {
                 self.items.remove(pos);
             }
         }
@@ -739,17 +786,18 @@ impl EpisodicMemory {
 impl SemanticMemory {
     pub fn new() -> Self {
         SemanticMemory {
-            concept_graph: ConceptGraph {
-                nodes: HashMap::new(),
-                edges: Vec::new(),
-            },
+            concept_graph: ConceptGraph { nodes: HashMap::new(), edges: Vec::new() },
             knowledge_base: KnowledgeBase {
                 facts: HashMap::new(),
                 rules: Vec::new(),
                 theories: Vec::new(),
             },
             ontological_structure: Ontology {
-                root_concepts: vec!["Entity".to_string(), "Event".to_string(), "Concept".to_string()],
+                root_concepts: vec![
+                    "Entity".to_string(),
+                    "Event".to_string(),
+                    "Concept".to_string(),
+                ],
                 hierarchies: HashMap::new(),
                 domain_boundaries: Vec::new(),
             },
@@ -759,16 +807,19 @@ impl SemanticMemory {
 
     pub fn add_concept(&mut self, name: &str, definition: &str) -> String {
         let id = format!("concept_{}", Utc::now().timestamp());
-        self.concept_graph.nodes.insert(id.clone(), ConceptNode {
-            id: id.clone(),
-            name: name.to_string(),
-            definition: definition.to_string(),
-            properties: HashMap::new(),
-            examples: Vec::new(),
-            abstractions: Vec::new(),
-            concreteness: 0.5,
-            activation_threshold: 0.3,
-        });
+        self.concept_graph.nodes.insert(
+            id.clone(),
+            ConceptNode {
+                id: id.clone(),
+                name: name.to_string(),
+                definition: definition.to_string(),
+                properties: HashMap::new(),
+                examples: Vec::new(),
+                abstractions: Vec::new(),
+                concreteness: 0.5,
+                activation_threshold: 0.3,
+            },
+        );
         id
     }
 }
@@ -854,7 +905,7 @@ fn rand_simple() -> f64 {
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .subsec_nanos();
-    (nanos as f64 / u32::MAX as f64)
+    nanos as f64 / u32::MAX as f64
 }
 
 #[cfg(test)]
@@ -872,7 +923,7 @@ mod tests {
         let mut memory = UnifiedMemory::new(7);
         let result = memory.process_input(
             MemoryContent::Thought("Important discovery".to_string()),
-            MemorySource::Reasoning
+            MemorySource::Reasoning,
         );
         assert!(result.is_some());
     }
@@ -889,7 +940,7 @@ mod tests {
         let mut memory = UnifiedMemory::new(7);
         memory.process_input(
             MemoryContent::Thought("Significant event".to_string()),
-            MemorySource::Reasoning
+            MemorySource::Reasoning,
         );
         assert!(!memory.episodic_memory.episodes.is_empty());
     }

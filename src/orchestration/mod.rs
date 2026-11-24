@@ -1,9 +1,8 @@
 //! Parallel Orchestration Engine - Enabling Infinite Concurrent Scaling
 
-
+use async_trait::async_trait;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use async_trait::async_trait;
 
 #[async_trait]
 pub trait ParallelComponent: Send + Sync {

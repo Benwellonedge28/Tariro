@@ -3,9 +3,9 @@
 //! Package management system for TUMC including dependency resolution,
 //! versioning, publishing, and caching.
 
-use std::collections::{HashMap};
-use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::path::{Path, PathBuf};
 
 /// Package identifier
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -163,13 +163,7 @@ impl VersionRequirement {
             let v = s[1..].trim();
             return Version::parse(v).map(|v| {
                 Self::Range(
-                    Version {
-                        major: v.major,
-                        minor: 0,
-                        patch: 0,
-                        pre: None,
-                        build: None,
-                    },
+                    Version { major: v.major, minor: 0, patch: 0, pre: None, build: None },
                     Version {
                         major: v.major + 1,
                         minor: 0,
@@ -183,12 +177,8 @@ impl VersionRequirement {
 
         if s.starts_with('~') {
             let v = s[1..].trim();
-            return Version::parse(v).map(|v| {
-                Self::Range(v.clone(), Version {
-                    minor: v.minor + 1,
-                    ..v.clone()
-                })
-            });
+            return Version::parse(v)
+                .map(|v| Self::Range(v.clone(), Version { minor: v.minor + 1, ..v.clone() }));
         }
 
         // Exact version
@@ -283,8 +273,8 @@ impl Package {
     /// Load package from directory
     pub fn load(root: &Path) -> Result<Self, PackageError> {
         let manifest_path = root.join("Tumc.toml");
-        let manifest_content = std::fs::read_to_string(&manifest_path)
-            .map_err(|_| PackageError::ManifestNotFound)?;
+        let manifest_content =
+            std::fs::read_to_string(&manifest_path).map_err(|_| PackageError::ManifestNotFound)?;
 
         let manifest: PackageManifest = toml::from_str(&manifest_content)
             .map_err(|e| PackageError::InvalidManifest(e.to_string()))?;
@@ -292,18 +282,9 @@ impl Package {
         let name = manifest.name.clone();
         let version = manifest.version.clone();
 
-        let id = PackageId {
-            registry: "local".to_string(),
-            name,
-            version,
-        };
+        let id = PackageId { registry: "local".to_string(), name, version };
 
-        Ok(Self {
-            id,
-            manifest,
-            root: root.to_path_buf(),
-            files: Vec::new(),
-        })
+        Ok(Self { id, manifest, root: root.to_path_buf(), files: Vec::new() })
     }
 
     /// Save package
@@ -311,8 +292,7 @@ impl Package {
         let manifest_path = self.root.join("Tumc.toml");
         let content = toml::to_string_pretty(&self.manifest)
             .map_err(|e| PackageError::InvalidManifest(e.to_string()))?;
-        std::fs::write(manifest_path, content)
-            .map_err(|e| PackageError::IoError(e.to_string()))?;
+        std::fs::write(manifest_path, content).map_err(|e| PackageError::IoError(e.to_string()))?;
         Ok(())
     }
 }
@@ -388,10 +368,7 @@ impl Resolver {
             }
         }
 
-        Ok(Resolution {
-            packages: resolved,
-            manifest: manifest.clone(),
-        })
+        Ok(Resolution { packages: resolved, manifest: manifest.clone() })
     }
 }
 
@@ -420,9 +397,7 @@ impl Default for PackageRegistry {
 impl PackageRegistry {
     /// Create new registry
     pub fn new() -> Self {
-        Self {
-            packages: HashMap::new(),
-        }
+        Self { packages: HashMap::new() }
     }
 
     /// Register package
@@ -439,13 +414,7 @@ impl PackageRegistry {
             PackageError::NotFound(PackageId {
                 registry: "unknown".to_string(),
                 name: name.to_string(),
-                version: Version {
-                    major: 0,
-                    minor: 0,
-                    patch: 0,
-                    pre: None,
-                    build: None,
-                },
+                version: Version { major: 0, minor: 0, patch: 0, pre: None, build: None },
             })
         })?;
 
@@ -455,17 +424,13 @@ impl PackageRegistry {
             .filter(|p| req.matches(&p.id.version))
             .max_by_key(|p| &p.id.version);
 
-        best.cloned().ok_or_else(|| PackageError::NotFound(PackageId {
-            registry: "unknown".to_string(),
-            name: name.to_string(),
-            version: Version {
-                major: 0,
-                minor: 0,
-                patch: 0,
-                pre: None,
-                build: None,
-            },
-        }))
+        best.cloned().ok_or_else(|| {
+            PackageError::NotFound(PackageId {
+                registry: "unknown".to_string(),
+                name: name.to_string(),
+                version: Version { major: 0, minor: 0, patch: 0, pre: None, build: None },
+            })
+        })
     }
 }
 
@@ -480,29 +445,30 @@ pub struct Downloader {
 impl Downloader {
     /// Create new downloader
     pub fn new(cache: PathBuf) -> Self {
-        Self {
-            cache,
-            max_concurrent: 4,
-        }
+        Self { cache, max_concurrent: 4 }
     }
 
     /// Download package
     pub async fn download(&self, id: &PackageId) -> Result<PathBuf, PackageError> {
-        let path = self.cache.join(format!("{}-{}-{}", id.registry, id.name, id.version));
+        let path = self
+            .cache
+            .join(format!("{}-{}-{}", id.registry, id.name, id.version));
 
         if path.exists() {
             return Ok(path);
         }
 
         // In a real implementation, this would download from registry
-        std::fs::create_dir_all(&path)
-            .map_err(|e| PackageError::IoError(e.to_string()))?;
+        std::fs::create_dir_all(&path).map_err(|e| PackageError::IoError(e.to_string()))?;
 
         Ok(path)
     }
 
     /// Download all packages in resolution
-    pub async fn download_all(&self, resolution: &Resolution) -> Result<HashMap<String, PathBuf>, PackageError> {
+    pub async fn download_all(
+        &self,
+        resolution: &Resolution,
+    ) -> Result<HashMap<String, PathBuf>, PackageError> {
         let mut paths = HashMap::new();
 
         for (name, package) in &resolution.packages {
@@ -542,10 +508,7 @@ pub struct Uploader {
 impl Uploader {
     /// Create new uploader
     pub fn new(registry_url: &str) -> Self {
-        Self {
-            registry_url: registry_url.to_string(),
-            token: None,
-        }
+        Self { registry_url: registry_url.to_string(), token: None }
     }
 
     /// Set token

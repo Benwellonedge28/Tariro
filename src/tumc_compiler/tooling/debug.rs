@@ -1,6 +1,6 @@
 // Debugger Implementation with DWARF support
 
-use crate::tumc_compiler::ir::{Module, Instruction};
+use crate::tumc_compiler::ir::{Instruction, Module};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -167,10 +167,7 @@ impl Breakpoint {
     pub fn new_source(file: &str, line: u32) -> Self {
         Self {
             id: 0,
-            location: BreakpointLocation::Source {
-                file: file.to_string(),
-                line,
-            },
+            location: BreakpointLocation::Source { file: file.to_string(), line },
             enabled: true,
             condition: None,
             hit_count: 0,
@@ -340,7 +337,9 @@ impl Debugger {
         match command {
             DebugCommand::Continue => {
                 self.state.stopped = false;
-                Ok(DebugEvent::BreakpointHit(self.breakpoints.values().next().cloned().unwrap()))
+                Ok(DebugEvent::BreakpointHit(
+                    self.breakpoints.values().next().cloned().unwrap(),
+                ))
             }
             DebugCommand::Step => {
                 self.step();
@@ -356,14 +355,18 @@ impl Debugger {
             }
             DebugCommand::Finish => {
                 self.finish();
-                Ok(DebugEvent::FunctionExit(self.state.current_function.clone().unwrap_or_default()))
+                Ok(DebugEvent::FunctionExit(
+                    self.state.current_function.clone().unwrap_or_default(),
+                ))
             }
             DebugCommand::Breakpoint(bp) => {
                 let id = self.breakpoints.len() as u64 + 1;
                 let mut bp = bp;
                 bp.id = id;
                 self.breakpoints.insert(id, bp);
-                Ok(DebugEvent::BreakpointHit(self.breakpoints.get(&id).cloned().unwrap()))
+                Ok(DebugEvent::BreakpointHit(
+                    self.breakpoints.get(&id).cloned().unwrap(),
+                ))
             }
             DebugCommand::DeleteBreakpoint(id) => {
                 self.breakpoints.remove(&id);
@@ -435,7 +438,10 @@ impl Debugger {
     /// Print backtrace
     fn print_backtrace(&self) {
         for (i, frame) in self.state.call_stack.iter().enumerate() {
-            println!("#{} {} at 0x{:016x}", i, frame.function, frame.return_address);
+            println!(
+                "#{} {} at 0x{:016x}",
+                i, frame.function, frame.return_address
+            );
         }
     }
 
@@ -455,8 +461,7 @@ impl Debugger {
                 match &bp.location {
                     BreakpointLocation::Address(addr) => format!("0x{:x}", addr),
                     BreakpointLocation::Function(name) => name.clone(),
-                    BreakpointLocation::Source { file, line } =>
-                        format!("{}:{}", file, line),
+                    BreakpointLocation::Source { file, line } => format!("{}:{}", file, line),
                 },
                 if bp.enabled { "enabled" } else { "disabled" },
                 bp.hit_count,
@@ -481,10 +486,14 @@ impl Debugger {
                 continue;
             }
             match (&bp.location, location) {
-                (BreakpointLocation::Function(name), BreakpointLocation::Function(n)) if name == n => {
+                (BreakpointLocation::Function(name), BreakpointLocation::Function(n))
+                    if name == n =>
+                {
                     return Some(bp);
                 }
-                (BreakpointLocation::Address(addr), BreakpointLocation::Address(a)) if addr == a => {
+                (BreakpointLocation::Address(addr), BreakpointLocation::Address(a))
+                    if addr == a =>
+                {
                     return Some(bp);
                 }
                 _ => {}
@@ -504,26 +513,22 @@ impl Debugger {
             die_tree.push(dwarf::DebugInfoEntry {
                 tag: 0x11, // DW_TAG_compile_unit
                 has_children: true,
-                attributes: vec![
-                    dwarf::Attribute {
-                        name: 0x03, // DW_AT_name
-                        form: 0x0e, // DW_FORM_string
-                        value: dwarf::AttributeValue::String("source.tum".to_string()),
-                    },
-                ],
+                attributes: vec![dwarf::Attribute {
+                    name: 0x03, // DW_AT_name
+                    form: 0x0e, // DW_FORM_string
+                    value: dwarf::AttributeValue::String("source.tum".to_string()),
+                }],
             });
 
             // DW_TAG_subprogram for function
             die_tree.push(dwarf::DebugInfoEntry {
                 tag: 0x2e, // DW_TAG_subprogram
                 has_children: false,
-                attributes: vec![
-                    dwarf::Attribute {
-                        name: 0x47, // DW_AT_name
-                        form: 0x0e, // DW_FORM_string
-                        value: dwarf::AttributeValue::String(func.name.clone()),
-                    },
-                ],
+                attributes: vec![dwarf::Attribute {
+                    name: 0x47, // DW_AT_name
+                    form: 0x0e, // DW_FORM_string
+                    value: dwarf::AttributeValue::String(func.name.clone()),
+                }],
             });
 
             units.push(dwarf::CompilationUnit {

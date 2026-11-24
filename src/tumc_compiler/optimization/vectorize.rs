@@ -22,9 +22,8 @@ impl VectorizationCostModel {
     }
 
     pub fn should_vectorize(&self, trip_count: usize, vector_width: usize) -> bool {
-        let estimated_speedup = self.scalar_cost * trip_count as f64 /
-            (self.vector_cost * (trip_count / vector_width) as f64 +
-             self.memory_cost * 2.0);
+        let estimated_speedup = self.scalar_cost * trip_count as f64
+            / (self.vector_cost * (trip_count / vector_width) as f64 + self.memory_cost * 2.0);
         estimated_speedup > 1.5
     }
 }
@@ -43,10 +42,7 @@ pub struct VectorizationPlanner {
 
 impl VectorizationPlanner {
     pub fn new() -> Self {
-        Self {
-            vector_width: 4,
-            force_vector_width: None,
-        }
+        Self { vector_width: 4, force_vector_width: None }
     }
 
     /// Analyze loop for vectorization opportunities
@@ -147,10 +143,18 @@ impl SimdInstructionGenerator {
     pub fn gen_vector_load(&self, align: usize) -> &'static str {
         match self.target {
             SimdTarget::SSE => {
-                if align >= 16 { "movaps" } else { "movups" }
+                if align >= 16 {
+                    "movaps"
+                } else {
+                    "movups"
+                }
             }
             SimdTarget::AVX | SimdTarget::AVX2 => {
-                if align >= 32 { "vmovaps" } else { "vmovups" }
+                if align >= 32 {
+                    "vmovaps"
+                } else {
+                    "vmovups"
+                }
             }
             SimdTarget::AVX512 => "vmovaps.zmm",
             SimdTarget::NEON => "ldr q0, [x0]",
@@ -162,10 +166,18 @@ impl SimdInstructionGenerator {
     pub fn gen_vector_store(&self, align: usize) -> &'static str {
         match self.target {
             SimdTarget::SSE => {
-                if align >= 16 { "movaps" } else { "movups" }
+                if align >= 16 {
+                    "movaps"
+                } else {
+                    "movups"
+                }
             }
             SimdTarget::AVX | SimdTarget::AVX2 => {
-                if align >= 32 { "vmovaps" } else { "vmovups" }
+                if align >= 32 {
+                    "vmovaps"
+                } else {
+                    "vmovups"
+                }
             }
             SimdTarget::AVX512 => "vmovaps.zmm",
             SimdTarget::NEON => "str q0, [x0]",
@@ -190,10 +202,7 @@ pub struct VectorType {
 
 impl VectorType {
     pub fn new(element_type: IrType, num_elements: usize) -> Self {
-        Self {
-            element_type,
-            num_elements,
-        }
+        Self { element_type, num_elements }
     }
 
     pub fn total_bits(&self) -> usize {

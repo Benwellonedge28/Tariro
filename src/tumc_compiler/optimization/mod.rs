@@ -1,17 +1,17 @@
 // Optimization Module - Local, Loop, and Global Optimizations
 use crate::tumc_compiler::ir::*;
 
+pub mod global;
 pub mod local;
 pub mod loop_opt;
-pub mod global;
-pub mod vectorize;
 pub mod simd;
+pub mod vectorize;
 
+pub use global::*;
 pub use local::*;
 pub use loop_opt::*;
-pub use global::*;
-pub use vectorize::*;
 pub use simd::*;
+pub use vectorize::*;
 
 // ============================================================================
 // Optimization Pass Infrastructure
@@ -20,12 +20,12 @@ pub use simd::*;
 /// Optimization level
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OptLevel {
-    O0,  // No optimization
-    O1,  // Basic optimization
-    O2,  // Standard optimization
-    O3,  // Aggressive optimization
-    Os,  // Size optimization
-    Oz,  // Aggressive size optimization
+    O0, // No optimization
+    O1, // Basic optimization
+    O2, // Standard optimization
+    O3, // Aggressive optimization
+    Os, // Size optimization
+    Oz, // Aggressive size optimization
 }
 
 impl Default for OptLevel {
@@ -74,10 +74,7 @@ pub trait OptimizationPass {
 
 impl OptimizationManager {
     pub fn new(level: OptLevel) -> Self {
-        let mut manager = Self {
-            passes: Vec::new(),
-            level,
-        };
+        let mut manager = Self { passes: Vec::new(), level };
 
         // Add default passes based on optimization level
         manager.add_default_passes(level);
@@ -213,10 +210,7 @@ pub struct PassResult {
 
 impl PassResult {
     pub fn new(changed: bool) -> Self {
-        Self {
-            changed,
-            stats: OptimizationStats::default(),
-        }
+        Self { changed, stats: OptimizationStats::default() }
     }
 
     pub fn with_stats(mut self, stats: OptimizationStats) -> Self {

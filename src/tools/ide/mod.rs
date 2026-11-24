@@ -24,15 +24,15 @@
 //! └─────────────────────────────────────────────────────────────┘
 //! ```
 
-pub mod ide_tool;
 pub mod file_manager;
-pub mod terminal_executor;
+pub mod ide_tool;
 pub mod lsp_client;
+pub mod terminal_executor;
 
-pub use ide_tool::{IDETool, IDEToolConfig, IDEToolCapabilities, IDEToolResult};
 pub use file_manager::{FileManager, FileResult};
-pub use terminal_executor::{TerminalExecutor, CommandResult};
+pub use ide_tool::{IDETool, IDEToolCapabilities, IDEToolConfig, IDEToolResult};
 pub use lsp_client::{LSPClient, LSPRequest, LSPResponse};
+pub use terminal_executor::{CommandResult, TerminalExecutor};
 
 use serde::{Deserialize, Serialize};
 

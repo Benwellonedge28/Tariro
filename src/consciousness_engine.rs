@@ -1,9 +1,9 @@
 // Tariro AGI - Consciousness Engine Module
 // Self-awareness and consciousness simulation
 
-use serde::{Deserialize, Serialize};
-use std::collections::{HashMap};
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::time::Duration;
 
 // Missing type definitions
@@ -365,8 +365,13 @@ impl ConsciousnessEngine {
             timestamp: Utc::now(),
         };
 
-        self.access_consciousness.reportable_content.push(reportable);
-        self.access_consciousness.global_workspace.broadcast_content.push(content.to_string());
+        self.access_consciousness
+            .reportable_content
+            .push(reportable);
+        self.access_consciousness
+            .global_workspace
+            .broadcast_content
+            .push(content.to_string());
 
         // Limit history
         if self.access_consciousness.reportable_content.len() > 100 {
@@ -375,7 +380,12 @@ impl ConsciousnessEngine {
     }
 
     /// Phenomenal consciousness - raw experience
-    pub fn experience_phenomenal(&mut self, qualia_type: QualiaType, content: &str, intensity: f32) {
+    pub fn experience_phenomenal(
+        &mut self,
+        qualia_type: QualiaType,
+        content: &str,
+        intensity: f32,
+    ) {
         let valence = self.compute_valence(qualia_type.clone());
         let arousal = intensity;
 
@@ -401,17 +411,15 @@ impl ConsciousnessEngine {
     /// Compute valence from qualia type
     fn compute_valence(&self, qualia_type: QualiaType) -> f32 {
         match qualia_type {
-            QualiaType::Emotional(ref emotion) => {
-                match emotion.as_str() {
-                    "joy" | "pleasure" => 0.8,
-                    "interest" | "curiosity" => 0.6,
-                    "neutral" => 0.0,
-                    "fear" | "anxiety" => -0.7,
-                    "sadness" | "grief" => -0.6,
-                    "anger" | "frustration" => -0.4,
-                    _ => 0.0,
-                }
-            }
+            QualiaType::Emotional(ref emotion) => match emotion.as_str() {
+                "joy" | "pleasure" => 0.8,
+                "interest" | "curiosity" => 0.6,
+                "neutral" => 0.0,
+                "fear" | "anxiety" => -0.7,
+                "sadness" | "grief" => -0.6,
+                "anger" | "frustration" => -0.4,
+                _ => 0.0,
+            },
             QualiaType::Cognitive(_) => 0.3,
             QualiaType::Sensory(_) => 0.2,
             _ => 0.0,
@@ -488,7 +496,10 @@ impl ConsciousnessEngine {
     /// Update self-model
     pub fn update_self_model(&mut self, belief: SelfBelief) {
         // Check if belief already exists
-        let existing = self.self_model.beliefs_about_self.iter()
+        let existing = self
+            .self_model
+            .beliefs_about_self
+            .iter()
             .position(|b| b.content == belief.content);
 
         if let Some(idx) = existing {
@@ -531,10 +542,7 @@ impl ConsciousnessEngine {
 
     /// Get recent reflections
     pub fn get_recent_reflections(&self, limit: usize) -> Vec<&ReflectiveState> {
-        self.reflective_states.iter()
-            .rev()
-            .take(limit)
-            .collect()
+        self.reflective_states.iter().rev().take(limit).collect()
     }
 
     /// Compute consciousness level
@@ -545,11 +553,11 @@ impl ConsciousnessEngine {
         let access_factor = self.access_consciousness.cognitive_access_level;
         let attention_factor = self.attentional_spotlight.intensity;
 
-        (phenomenal_factor * 0.2 +
-         reflective_factor * 0.3 +
-         access_factor * 0.3 +
-         attention_factor * 0.2)
-        .min(1.0)
+        (phenomenal_factor * 0.2
+            + reflective_factor * 0.3
+            + access_factor * 0.3
+            + attention_factor * 0.2)
+            .min(1.0)
     }
 
     /// Generate self-report
@@ -600,7 +608,7 @@ mod tests {
         consciousness.experience_phenomenal(
             QualiaType::Emotional("curiosity".to_string()),
             "Wondering about patterns",
-            0.8
+            0.8,
         );
 
         assert_eq!(consciousness.phenomenal_states.len(), 1);
@@ -611,7 +619,7 @@ mod tests {
         let mut consciousness = ConsciousnessEngine::new();
         let reflection = consciousness.reflect(
             ReflectionType::Introspective,
-            "Analyzing my own thought patterns"
+            "Analyzing my own thought patterns",
         );
 
         assert_eq!(reflection.reflection_type, ReflectionType::Introspective);
@@ -620,6 +628,9 @@ mod tests {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("cns_{}", now % 1_000_000)
 }

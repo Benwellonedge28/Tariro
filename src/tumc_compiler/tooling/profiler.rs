@@ -51,11 +51,7 @@ impl PerformanceCounter {
     pub fn new(name: &str, counter_type: CounterType) -> Self {
         Self {
             name: name.to_string(),
-            config: CounterConfig {
-                counter_type,
-                enabled: true,
-                frequency: None,
-            },
+            config: CounterConfig { counter_type, enabled: true, frequency: None },
             value: 0,
         }
     }
@@ -152,12 +148,30 @@ pub struct Profiler {
 impl Profiler {
     pub fn new() -> Self {
         let mut counters = HashMap::new();
-        counters.insert(CounterType::Instructions, PerformanceCounter::new("instructions", CounterType::Instructions));
-        counters.insert(CounterType::Cycles, PerformanceCounter::new("cycles", CounterType::Cycles));
-        counters.insert(CounterType::CacheReferences, PerformanceCounter::new("cache_refs", CounterType::CacheReferences));
-        counters.insert(CounterType::CacheMisses, PerformanceCounter::new("cache_misses", CounterType::CacheMisses));
-        counters.insert(CounterType::BranchInstructions, PerformanceCounter::new("branches", CounterType::BranchInstructions));
-        counters.insert(CounterType::BranchMisses, PerformanceCounter::new("branch_misses", CounterType::BranchMisses));
+        counters.insert(
+            CounterType::Instructions,
+            PerformanceCounter::new("instructions", CounterType::Instructions),
+        );
+        counters.insert(
+            CounterType::Cycles,
+            PerformanceCounter::new("cycles", CounterType::Cycles),
+        );
+        counters.insert(
+            CounterType::CacheReferences,
+            PerformanceCounter::new("cache_refs", CounterType::CacheReferences),
+        );
+        counters.insert(
+            CounterType::CacheMisses,
+            PerformanceCounter::new("cache_misses", CounterType::CacheMisses),
+        );
+        counters.insert(
+            CounterType::BranchInstructions,
+            PerformanceCounter::new("branches", CounterType::BranchInstructions),
+        );
+        counters.insert(
+            CounterType::BranchMisses,
+            PerformanceCounter::new("branch_misses", CounterType::BranchMisses),
+        );
 
         Self {
             enabled: false,
@@ -202,16 +216,13 @@ impl Profiler {
             return;
         }
 
-        let timestamp = self.start_time
+        let timestamp = self
+            .start_time
             .map(|t| t.elapsed().as_nanos() as u64)
             .unwrap_or(0);
 
-        self.samples.push(Sample {
-            timestamp,
-            instruction_pointer: ip,
-            stack_trace,
-            weight,
-        });
+        self.samples
+            .push(Sample { timestamp, instruction_pointer: ip, stack_trace, weight });
 
         *self.hotspots.entry(ip).or_insert(0) += 1;
     }
@@ -225,7 +236,10 @@ impl Profiler {
 
     /// Get counter value
     pub fn get_counter(&self, counter_type: CounterType) -> u64 {
-        self.counters.get(&counter_type).map(|c| c.value).unwrap_or(0)
+        self.counters
+            .get(&counter_type)
+            .map(|c| c.value)
+            .unwrap_or(0)
     }
 
     /// Record allocation
@@ -234,17 +248,21 @@ impl Profiler {
             return;
         }
 
-        let timestamp = self.start_time
+        let timestamp = self
+            .start_time
             .map(|t| t.elapsed().as_nanos() as u64)
             .unwrap_or(0);
 
-        let site = self.allocation_sites.entry(stack_trace.clone()).or_insert(AllocationSite {
-            stack_trace: stack_trace.clone(),
-            allocation_count: 0,
-            total_size: 0,
-            peak_size: 0,
-            current_size: 0,
-        });
+        let site = self
+            .allocation_sites
+            .entry(stack_trace.clone())
+            .or_insert(AllocationSite {
+                stack_trace: stack_trace.clone(),
+                allocation_count: 0,
+                total_size: 0,
+                peak_size: 0,
+                current_size: 0,
+            });
 
         site.allocation_count += 1;
         site.total_size += size;
@@ -273,7 +291,11 @@ impl Profiler {
         }
 
         if let Some(profile) = &mut self.memory_profile {
-            if let Some(alloc) = profile.allocations.iter_mut().find(|a| a.address == address && !a.freed) {
+            if let Some(alloc) = profile
+                .allocations
+                .iter_mut()
+                .find(|a| a.address == address && !a.freed)
+            {
                 alloc.freed = true;
                 profile.total_freed += alloc.size;
                 profile.current_allocated -= alloc.size;
@@ -294,10 +316,13 @@ impl Profiler {
             return Vec::new();
         }
 
-        let mut hotspots: Vec<HotSpot> = self.hotspots
+        let mut hotspots: Vec<HotSpot> = self
+            .hotspots
             .iter()
             .map(|(&addr, &samples)| {
-                let function = module.functions.iter()
+                let function = module
+                    .functions
+                    .iter()
                     .find(|f| f.name.contains(&addr.to_string()))
                     .map(|f| f.name.clone())
                     .unwrap_or_else(|| format!("0x{:x}", addr));
@@ -405,14 +430,17 @@ impl Profiler {
     /// Export profile data
     pub fn export(&self, format: ExportFormat) -> Vec<u8> {
         match format {
-            ExportFormat::Json => {
-                serde_json::to_vec_pretty(&ProfileData {
-                    samples: self.samples.clone(),
-                    counters: self.counters.values().map(|c| (c.config.counter_type, c.value)).collect(),
-                    hotspots: self.hotspots.clone(),
-                    duration: self.get_duration().map(|d| d.as_nanos() as u64),
-                }).unwrap_or_default()
-            }
+            ExportFormat::Json => serde_json::to_vec_pretty(&ProfileData {
+                samples: self.samples.clone(),
+                counters: self
+                    .counters
+                    .values()
+                    .map(|c| (c.config.counter_type, c.value))
+                    .collect(),
+                hotspots: self.hotspots.clone(),
+                duration: self.get_duration().map(|d| d.as_nanos() as u64),
+            })
+            .unwrap_or_default(),
             ExportFormat::Pprof => {
                 // Simplified pprof format
                 Vec::new()
@@ -468,8 +496,13 @@ impl ProfileReport {
         println!("Branch miss rate: {:.2}%", self.branch_miss_rate * 100.0);
         println!("\nTop Hotspots:");
         for (i, hotspot) in self.hotspots.iter().take(10).enumerate() {
-            println!("  {}. {}: {} samples ({:.1}%)",
-                i + 1, hotspot.function, hotspot.samples, hotspot.percentage);
+            println!(
+                "  {}. {}: {} samples ({:.1}%)",
+                i + 1,
+                hotspot.function,
+                hotspot.samples,
+                hotspot.percentage
+            );
         }
         if let Some(profile) = &self.memory_profile {
             println!("\nMemory:");

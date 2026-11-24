@@ -7,14 +7,13 @@
 /// intelligence tailored to his active projects and strategic interests. It leverages RAG
 /// for natural language processing and market analysis techniques, and SIMD for parallel
 /// data ingestion and real-time sentiment analysis.
-
 use crate::prelude::*;
 use std::collections::HashMap;
 
+use rand::Rng;
+use serde::{Deserialize, Serialize};
 use std::thread;
 use std::time::Duration;
-use rand::Rng;
-use serde::{Serialize, Deserialize};
 
 // --- Conceptual Structures --- //
 
@@ -38,11 +37,11 @@ pub struct IntelligenceItem {
     pub timestamp: DateTime<Utc>,
     pub original_data_ids: Vec<String>,
     pub title: String,
-    pub summary: String, // RAG-derived condensed summary
+    pub summary: String,                // RAG-derived condensed summary
     pub relevant_projects: Vec<String>, // Samuel's projects relevant to this intel
     pub strategic_implications: String, // RAG-derived analysis
-    pub sentiment_score: f32, // -1.0 (negative) to 1.0 (positive)
-    pub trend_affinity_score: f32, // 0.0 to 1.0, how strongly it aligns with identified trends
+    pub sentiment_score: f32,           // -1.0 (negative) to 1.0 (positive)
+    pub trend_affinity_score: f32,      // 0.0 to 1.0, how strongly it aligns with identified trends
     pub actionable_recommendation: String,
 }
 
@@ -54,10 +53,10 @@ pub struct GlobalTrend {
     pub description: String,
     #[serde(with = "chrono::serde::ts_seconds")]
     pub detected_start_date: DateTime<Utc>,
-    pub current_momentum: f32, // Rate of change
+    pub current_momentum: f32,                      // Rate of change
     pub associated_intelligence_items: Vec<String>, // List of item_ids
-    pub long_term_impact_projection: String, // RAG-derived projection
-    pub relevance_to_samuel_goals: f32, // 0.0 to 1.0
+    pub long_term_impact_projection: String,        // RAG-derived projection
+    pub relevance_to_samuel_goals: f32,             // 0.0 to 1.0
 }
 
 /// Overall Autonomous Global Intelligence & Trend Analysis system report.
@@ -95,7 +94,8 @@ impl AGITAEngine {
     }
 
     /// Performs parallel data ingestion and real-time sentiment analysis (SIMD conceptualization).
-    fn parallel_data_sentiment_simd(&self, raw_data: &[RawGlobalDatum]) -> HashMap<String, f32> { // data_id -> sentiment_score
+    fn parallel_data_sentiment_simd(&self, raw_data: &[RawGlobalDatum]) -> HashMap<String, f32> {
+        // data_id -> sentiment_score
         println!("    [AGITA-SIMD]: Ingesting {} raw global data items in parallel and performing sentiment analysis.", raw_data.len());
         thread::sleep(Duration::from_millis(90));
         let mut rng = rand::thread_rng();
@@ -109,13 +109,32 @@ impl AGITAEngine {
     }
 
     /// Automates global intelligence acquisition, processing, and contextualization (RAG-amplified).
-    pub fn process_global_intelligence_rag(&self, raw_data_batch: Vec<RawGlobalDatum>, samuel_active_projects: Vec<String>) -> Vec<IntelligenceItem> {
-        println!("  [AGITA]: Processing {} raw global data items for Samuel's active projects.", raw_data_batch.len());
-        if let Some(nlp) = self.natural_language_processing_rag_db.get("advanced_text_summarization_models") {
-            format!("RAG knowledge for NLP: '{}'", nlp.chars().take(100).collect::<String>());
+    pub fn process_global_intelligence_rag(
+        &self,
+        raw_data_batch: Vec<RawGlobalDatum>,
+        samuel_active_projects: Vec<String>,
+    ) -> Vec<IntelligenceItem> {
+        println!(
+            "  [AGITA]: Processing {} raw global data items for Samuel's active projects.",
+            raw_data_batch.len()
+        );
+        if let Some(nlp) = self
+            .natural_language_processing_rag_db
+            .get("advanced_text_summarization_models")
+        {
+            format!(
+                "RAG knowledge for NLP: '{}'",
+                nlp.chars().take(100).collect::<String>()
+            );
         }
-        if let Some(mat) = self.market_analysis_techniques_rag_db.get("algorithmic_trading_strategies_for_trend_detection") {
-            format!("RAG knowledge for market analysis: '{}'", mat.chars().take(100).collect::<String>());
+        if let Some(mat) = self
+            .market_analysis_techniques_rag_db
+            .get("algorithmic_trading_strategies_for_trend_detection")
+        {
+            format!(
+                "RAG knowledge for market analysis: '{}'",
+                mat.chars().take(100).collect::<String>()
+            );
         }
         thread::sleep(Duration::from_millis(800));
         let mut rng = rand::thread_rng();
@@ -125,10 +144,26 @@ impl AGITAEngine {
         let mut intelligence_items = Vec::new();
         for datum in raw_data_batch {
             // Conceptual: RAG-driven contextualization, summarization, and strategic implication analysis
-            let summary = format!("RAG-generated summary of '{}' from {}.", datum.raw_content.chars().take(50).collect::<String>(), datum.source);
-            let implications = format!("RAG-analyzed strategic implications for Samuel's goals, possibly affecting {}.", samuel_active_projects.get(0).unwrap_or(&"future projects".to_string()));
-            let actionable_recommendation = format!("RAG-derived action: Consider research into '{}'.", datum.data_type);
-            let relevant_projects: Vec<String> = samuel_active_projects.iter().filter(|_| rng.gen_bool(0.7)).cloned().collect();
+            let summary = format!(
+                "RAG-generated summary of '{}' from {}.",
+                datum.raw_content.chars().take(50).collect::<String>(),
+                datum.source
+            );
+            let implications = format!(
+                "RAG-analyzed strategic implications for Samuel's goals, possibly affecting {}.",
+                samuel_active_projects
+                    .get(0)
+                    .unwrap_or(&"future projects".to_string())
+            );
+            let actionable_recommendation = format!(
+                "RAG-derived action: Consider research into '{}'.",
+                datum.data_type
+            );
+            let relevant_projects: Vec<String> = samuel_active_projects
+                .iter()
+                .filter(|_| rng.gen_bool(0.7))
+                .cloned()
+                .collect();
 
             let data_id = datum.data_id.clone();
             let sentiment = *sentiment_scores.get(&data_id).unwrap_or(&0.0);
@@ -146,13 +181,24 @@ impl AGITAEngine {
             });
         }
 
-        println!("  Generated {} intelligence items. First item title: '{}'.\n", intelligence_items.len(), intelligence_items.get(0).map_or("N/A".to_string(), |i| i.title.clone()));
+        println!(
+            "  Generated {} intelligence items. First item title: '{}'.\n",
+            intelligence_items.len(),
+            intelligence_items
+                .get(0)
+                .map_or("N/A".to_string(), |i| i.title.clone())
+        );
         intelligence_items
     }
 
     /// Generates a comprehensive report for AGITA.
-    pub fn generate_agita_report_rag(&self, total_items: u64, total_trends: u64, avg_freshness: f32) -> String {
-        println!("  [AGITA]: Generating AGITA report (RAG for report generation).", );
+    pub fn generate_agita_report_rag(
+        &self,
+        total_items: u64,
+        total_trends: u64,
+        avg_freshness: f32,
+    ) -> String {
+        println!("  [AGITA]: Generating AGITA report (RAG for report generation).",);
         thread::sleep(Duration::from_millis(80));
 
         format!("Autonomous Global Intelligence & Trend Analysis Report:\n  Total Intelligence Items Generated: {}\n  Total Trends Identified: {}\n  Average Intelligence Freshness: {:.2} minutes\n  (Conceptual summary based on RAG for NLP/market analysis and SIMD for parallel data ingestion).",
@@ -173,10 +219,20 @@ mod tests {
 
         let raw_data = vec![
             RawGlobalDatum {
-                data_id: "data_001".to_string(), timestamp: Utc::now(), source: "NYT".to_string(), raw_content: "Article about AI's impact on job markets.".to_string(), data_type: "NewsArticle".to_string(), geopolitical_context: None,
+                data_id: "data_001".to_string(),
+                timestamp: Utc::now(),
+                source: "NYT".to_string(),
+                raw_content: "Article about AI's impact on job markets.".to_string(),
+                data_type: "NewsArticle".to_string(),
+                geopolitical_context: None,
             },
             RawGlobalDatum {
-                data_id: "data_002".to_string(), timestamp: Utc::now(), source: "Twitter".to_string(), raw_content: "Public sentiment on new energy policies.".to_string(), data_type: "SocialMediaPost".to_string(), geopolitical_context: None,
+                data_id: "data_002".to_string(),
+                timestamp: Utc::now(),
+                source: "Twitter".to_string(),
+                raw_content: "Public sentiment on new energy policies.".to_string(),
+                data_type: "SocialMediaPost".to_string(),
+                geopolitical_context: None,
             },
         ];
 
@@ -191,7 +247,9 @@ mod tests {
 }
 
 fn main() {
-    println!("\n--- Autonomous Global Intelligence & Trend Analysis (RAG-Driven) Demonstration ---");
+    println!(
+        "\n--- Autonomous Global Intelligence & Trend Analysis (RAG-Driven) Demonstration ---"
+    );
 
     let agita_engine = AGITAEngine::new();
     let _now = Utc::now();
@@ -225,12 +283,19 @@ fn main() {
         },
     ];
 
-    let samuel_strategic_projects = vec!["Project Quantum AI".to_string(), "Tariro Governance Framework".to_string()];
+    let samuel_strategic_projects = vec![
+        "Project Quantum AI".to_string(),
+        "Tariro Governance Framework".to_string(),
+    ];
 
-    let intel_items_1 = agita_engine.process_global_intelligence_rag(incoming_data_batch, samuel_strategic_projects);
-    println!("  Generated {} intelligence items. First item recommendation: '{}'.\n",
+    let intel_items_1 = agita_engine
+        .process_global_intelligence_rag(incoming_data_batch, samuel_strategic_projects);
+    println!(
+        "  Generated {} intelligence items. First item recommendation: '{}'.\n",
         intel_items_1.len(),
-        intel_items_1.get(0).map_or("N/A".to_string(), |i| i.actionable_recommendation.clone())
+        intel_items_1
+            .get(0)
+            .map_or("N/A".to_string(), |i| i.actionable_recommendation.clone())
     );
 
     // Scenario 2: Detecting a significant market trend from diverse financial reports and news feeds
@@ -256,8 +321,10 @@ fn main() {
 
     let samuel_investment_interests = vec!["Clean Energy Investments".to_string()];
 
-    let intel_items_2 = agita_engine.process_global_intelligence_rag(market_data_batch, samuel_investment_interests);
-    println!("  Generated {} market intelligence items. Sentiment for first item: {:.2}.\n",
+    let intel_items_2 = agita_engine
+        .process_global_intelligence_rag(market_data_batch, samuel_investment_interests);
+    println!(
+        "  Generated {} market intelligence items. Sentiment for first item: {:.2}.\n",
         intel_items_2.len(),
         intel_items_2.get(0).map_or(0.0, |i| i.sentiment_score)
     );
@@ -267,5 +334,7 @@ fn main() {
     let agita_report_summary = agita_engine.generate_agita_report_rag(1000, 10, 30.0);
     println!("  {}\n", agita_report_summary);
 
-    println!("\nAutonomous Global Intelligence & Trend Analysis (RAG-Driven) Demonstration Complete.");
+    println!(
+        "\nAutonomous Global Intelligence & Trend Analysis (RAG-Driven) Demonstration Complete."
+    );
 }

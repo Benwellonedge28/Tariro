@@ -3,15 +3,15 @@
 //! Reasoning is symbolic manipulation, NOT token prediction.
 //! Uses formal logic, inference rules, and deduction.
 
-use std::sync::RwLock;
 use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::RwLock;
 
 use crate::knowledge::knowledge_graph::{
-    KnowledgeGraph, EntityId, Entity, Relation, Fact, Predicate, Probability,
-    Evidence, KnowledgeError, Attribute, Value};
+    Entity, EntityId, Fact, KnowledgeGraph, Predicate, Probability, Relation,
+};
 use std::collections::{HashMap, VecDeque};
-use std::sync::Arc;
 use std::fmt::Debug;
+use std::sync::Arc;
 
 // ============================================================================
 // Inference Rules
@@ -240,11 +240,7 @@ pub struct QueryResult {
 
 impl QueryResult {
     pub fn new(deductions: Vec<Deduction>) -> Self {
-        QueryResult {
-            deductions,
-            proof_tree: None,
-            execution_time_ms: 0,
-        }
+        QueryResult { deductions, proof_tree: None, execution_time_ms: 0 }
     }
 
     pub fn with_proof(mut self, proof: Proof) -> Self {
@@ -309,42 +305,55 @@ impl ReasoningEngine {
     /// Initialize built-in inference rules
     fn init_builtin_rules(&mut self) {
         // Modus ponens: If A and (A → B) then B
-        self.rules.push(InferenceRule::new("modus_ponens")
-            .when(Pattern::Wildcard)
-            .when(Pattern::Wildcard)
-            .then(Pattern::Wildcard)
-            .with_confidence(Probability::certain())
+        self.rules.push(
+            InferenceRule::new("modus_ponens")
+                .when(Pattern::Wildcard)
+                .when(Pattern::Wildcard)
+                .then(Pattern::Wildcard)
+                .with_confidence(Probability::certain()),
         );
 
         // Transitivity of IsA: If A is-a B and B is-a C, then A is-a C
-        self.rules.push(InferenceRule::new("transitivity_is_a")
-            .when(Pattern::TypedVariable("X".into(), EntityTypeConstraint::Any))
-            .when(Pattern::Predicate(Predicate::IsA))
-            .when(Pattern::TypedVariable("Y".into(), EntityTypeConstraint::Any))
-            .when(Pattern::TypedVariable("Z".into(), EntityTypeConstraint::Any))
-            .then(Pattern::Wildcard)
-            .with_confidence(Probability::from_f64(0.95))
+        self.rules.push(
+            InferenceRule::new("transitivity_is_a")
+                .when(Pattern::TypedVariable(
+                    "X".into(),
+                    EntityTypeConstraint::Any,
+                ))
+                .when(Pattern::Predicate(Predicate::IsA))
+                .when(Pattern::TypedVariable(
+                    "Y".into(),
+                    EntityTypeConstraint::Any,
+                ))
+                .when(Pattern::TypedVariable(
+                    "Z".into(),
+                    EntityTypeConstraint::Any,
+                ))
+                .then(Pattern::Wildcard)
+                .with_confidence(Probability::from_f64(0.95)),
         );
 
         // Symmetry of SimilarTo: If A similar-to B, then B similar-to A
-        self.rules.push(InferenceRule::new("symmetry_similar_to")
-            .when(Pattern::Variable("A".into()))
-            .when(Pattern::Predicate(Predicate::SimilarTo))
-            .when(Pattern::Variable("B".into()))
-            .then(Pattern::Wildcard)
-            .with_confidence(Probability::certain())
+        self.rules.push(
+            InferenceRule::new("symmetry_similar_to")
+                .when(Pattern::Variable("A".into()))
+                .when(Pattern::Predicate(Predicate::SimilarTo))
+                .when(Pattern::Variable("B".into()))
+                .then(Pattern::Wildcard)
+                .with_confidence(Probability::certain()),
         );
 
         // Causation chains: If A causes B and B causes C, then A causes C (with uncertainty)
-        self.rules.push(InferenceRule::new("causation_chain")
-            .when(Pattern::Variable("A".into()))
-            .when(Pattern::Predicate(Predicate::Causes))
-            .when(Pattern::Variable("B".into()))
-            .when(Pattern::Variable("B".into()))
-            .when(Pattern::Predicate(Predicate::Causes))
-            .when(Pattern::Variable("C".into()))
-            .then(Pattern::Wildcard)
-            .with_confidence(Probability::from_f64(0.85))
+        self.rules.push(
+            InferenceRule::new("causation_chain")
+                .when(Pattern::Variable("A".into()))
+                .when(Pattern::Predicate(Predicate::Causes))
+                .when(Pattern::Variable("B".into()))
+                .when(Pattern::Variable("B".into()))
+                .when(Pattern::Predicate(Predicate::Causes))
+                .when(Pattern::Variable("C".into()))
+                .then(Pattern::Wildcard)
+                .with_confidence(Probability::from_f64(0.85)),
         );
     }
 
@@ -421,15 +430,21 @@ impl ReasoningEngine {
     }
 
     /// Apply a rule to produce a new fact
-    fn apply_rule(&self, rule: &InferenceRule, facts: &[Fact], _subst: &Substitution) -> Option<Fact> {
+    fn apply_rule(
+        &self,
+        rule: &InferenceRule,
+        facts: &[Fact],
+        _subst: &Substitution,
+    ) -> Option<Fact> {
         match rule.name.as_str() {
             "transitivity_is_a" => {
                 // A is-a B, B is-a C => A is-a C
                 if facts.len() >= 2 {
                     let subject = facts[0].subject.clone();
                     let object = facts[1].object.clone();
-                    return Some(Fact::new(subject, Predicate::IsA, object)
-                        .with_confidence(rule.confidence));
+                    return Some(
+                        Fact::new(subject, Predicate::IsA, object).with_confidence(rule.confidence),
+                    );
                 }
             }
             "symmetry_similar_to" => {
@@ -437,8 +452,10 @@ impl ReasoningEngine {
                 if facts.len() >= 2 {
                     let subject = facts[0].object.clone();
                     let object = facts[0].subject.clone();
-                    return Some(Fact::new(subject, Predicate::SimilarTo, object)
-                        .with_confidence(rule.confidence));
+                    return Some(
+                        Fact::new(subject, Predicate::SimilarTo, object)
+                            .with_confidence(rule.confidence),
+                    );
                 }
             }
             _ => {}
@@ -457,12 +474,14 @@ impl ReasoningEngine {
 
         for rel in all_relations {
             // Create a dummy fact for matching
-            let subject = kb.get_entity(&rel.subject).cloned().unwrap_or_else(|| {
-                Entity::new(&rel.subject.0, EntityType::Concept)
-            });
-            let object = kb.get_entity(&rel.object).cloned().unwrap_or_else(|| {
-                Entity::new(&rel.object.0, EntityType::Concept)
-            });
+            let subject = kb
+                .get_entity(&rel.subject)
+                .cloned()
+                .unwrap_or_else(|| Entity::new(&rel.subject.0, EntityType::Concept));
+            let object = kb
+                .get_entity(&rel.object)
+                .cloned()
+                .unwrap_or_else(|| Entity::new(&rel.object.0, EntityType::Concept));
             let fact = Fact::new(subject, rel.predicate.clone(), object);
 
             for (i, pattern) in patterns.iter().enumerate() {
@@ -536,9 +555,15 @@ impl ReasoningEngine {
             if all_proven {
                 return Some(Proof {
                     rule_name: rule.name.clone(),
-                    antecedents: antecedent_proofs.iter().flat_map(|p| p.antecedents.clone()).collect(),
+                    antecedents: antecedent_proofs
+                        .iter()
+                        .flat_map(|p| p.antecedents.clone())
+                        .collect(),
                     substitutions: Vec::new(),
-                    steps: antecedent_proofs.into_iter().flat_map(|p| p.steps).collect(),
+                    steps: antecedent_proofs
+                        .into_iter()
+                        .flat_map(|p| p.steps)
+                        .collect(),
                 });
             }
         }
@@ -552,12 +577,14 @@ impl ReasoningEngine {
         let kb = self.kb.read().unwrap();
 
         for rel in kb.relations().values() {
-            let subject = kb.get_entity(&rel.subject).cloned().unwrap_or_else(|| {
-                Entity::new(&rel.subject.0, EntityType::Concept)
-            });
-            let object = kb.get_entity(&rel.object).cloned().unwrap_or_else(|| {
-                Entity::new(&rel.object.0, EntityType::Concept)
-            });
+            let subject = kb
+                .get_entity(&rel.subject)
+                .cloned()
+                .unwrap_or_else(|| Entity::new(&rel.subject.0, EntityType::Concept));
+            let object = kb
+                .get_entity(&rel.object)
+                .cloned()
+                .unwrap_or_else(|| Entity::new(&rel.object.0, EntityType::Concept));
             let fact = Fact::new(subject, rel.predicate.clone(), object);
 
             return Some(Proof {
@@ -587,11 +614,7 @@ pub struct Query {
 
 impl Query {
     pub fn new() -> Self {
-        Query {
-            subject: None,
-            predicate: None,
-            object: None,
-        }
+        Query { subject: None, predicate: None, object: None }
     }
 
     pub fn with_subject(mut self, subject: EntityId) -> Self {
@@ -659,7 +682,9 @@ impl AbductionEngine {
         explanations.sort_by(|a, b| {
             let score_a = a.probability.value * a.coverage / a.simplicity;
             let score_b = b.probability.value * b.coverage / b.simplicity;
-            score_b.partial_cmp(&score_a).unwrap_or(std::cmp::Ordering::Equal)
+            score_b
+                .partial_cmp(&score_a)
+                .unwrap_or(std::cmp::Ordering::Equal)
         });
 
         explanations

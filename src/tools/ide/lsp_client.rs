@@ -2,9 +2,9 @@
 //!
 //! Language Server Protocol client for IDE intelligence features.
 
-use std::process::{Command, Stdio};
-use std::io::{Write};
 use serde::{Deserialize, Serialize};
+use std::io::Write;
+use std::process::{Command, Stdio};
 
 /// LSP completion item
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -77,11 +77,7 @@ pub struct LSPClient {
 impl LSPClient {
     /// Create a new LSP client
     pub fn new(command: &[String], port: Option<u16>) -> Self {
-        Self {
-            command: command.to_vec(),
-            port,
-            process: None,
-        }
+        Self { command: command.to_vec(), port, process: None }
     }
 
     /// Start the LSP server
@@ -99,7 +95,8 @@ impl LSPClient {
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
 
-        let child = cmd.spawn()
+        let child = cmd
+            .spawn()
             .map_err(|e| format!("Failed to start LSP server: {}", e))?;
 
         self.process = Some(child);
@@ -114,7 +111,11 @@ impl LSPClient {
     }
 
     /// Get completions at a position
-    pub fn get_completions(&mut self, path: &str, _position: (u32, u32)) -> Result<Vec<CompletionItem>, String> {
+    pub fn get_completions(
+        &mut self,
+        path: &str,
+        _position: (u32, u32),
+    ) -> Result<Vec<CompletionItem>, String> {
         // Simulated completions based on path extension
         let items = match path.rsplit('.').next().unwrap_or("") {
             "rs" => vec![
@@ -165,14 +166,12 @@ impl LSPClient {
                     documentation: Some("Define a class".to_string()),
                 },
             ],
-            _ => vec![
-                CompletionItem {
-                    label: "TODO".to_string(),
-                    kind: Some("text".to_string()),
-                    detail: Some("Todo comment".to_string()),
-                    documentation: None,
-                },
-            ],
+            _ => vec![CompletionItem {
+                label: "TODO".to_string(),
+                kind: Some("text".to_string()),
+                detail: Some("Todo comment".to_string()),
+                documentation: None,
+            }],
         };
 
         Ok(items)
@@ -186,7 +185,11 @@ impl LSPClient {
     }
 
     /// Go to definition
-    pub fn goto_definition(&mut self, path: &str, position: (u32, u32)) -> Result<Option<Location>, String> {
+    pub fn goto_definition(
+        &mut self,
+        path: &str,
+        position: (u32, u32),
+    ) -> Result<Option<Location>, String> {
         // Simulated goto definition
         Ok(Some(Location {
             uri: format!("file://{}", path),
@@ -200,20 +203,22 @@ impl LSPClient {
     }
 
     /// Find references
-    pub fn find_references(&mut self, path: &str, position: (u32, u32)) -> Result<Vec<Reference>, String> {
+    pub fn find_references(
+        &mut self,
+        path: &str,
+        position: (u32, u32),
+    ) -> Result<Vec<Reference>, String> {
         // Simulated references
-        Ok(vec![
-            Reference {
-                uri: format!("file://{}", path),
-                range: DiagnosticRange {
-                    start_line: position.0 + 1,
-                    start_column: 0,
-                    end_line: position.0 + 1,
-                    end_column: 20,
-                },
-                name: "reference".to_string(),
+        Ok(vec![Reference {
+            uri: format!("file://{}", path),
+            range: DiagnosticRange {
+                start_line: position.0 + 1,
+                start_column: 0,
+                end_line: position.0 + 1,
+                end_column: 20,
             },
-        ])
+            name: "reference".to_string(),
+        }])
     }
 
     /// Send a request to the LSP server
@@ -223,7 +228,8 @@ impl LSPClient {
 
         if let Some(ref mut child) = self.process {
             if let Some(ref mut stdin) = child.stdin {
-                stdin.write_all(json.as_bytes())
+                stdin
+                    .write_all(json.as_bytes())
                     .map_err(|e| format!("Failed to write to LSP server: {}", e))?;
             }
         }

@@ -124,10 +124,7 @@ pub struct GcEventLog {
 
 impl GcEventLog {
     pub fn new(max_events: usize) -> Self {
-        Self {
-            events: Vec::new(),
-            max_events,
-        }
+        Self { events: Vec::new(), max_events }
     }
 
     pub fn log(&mut self, event_type: GcEventType, details: impl Into<String>) {
@@ -179,9 +176,9 @@ impl Default for GcConfig {
     fn default() -> Self {
         Self {
             collector_type: CollectorType::MarkSweep,
-            heap_size: 1024 * 1024 * 1024,  // 1 GB
-            min_heap_size: 64 * 1024 * 1024,  // 64 MB
-            max_heap_size: 8 * 1024 * 1024 * 1024,  // 8 GB
+            heap_size: 1024 * 1024 * 1024,         // 1 GB
+            min_heap_size: 64 * 1024 * 1024,       // 64 MB
+            max_heap_size: 8 * 1024 * 1024 * 1024, // 8 GB
             gc_threshold: 0.7,
             gc_threads: 4,
             concurrent: false,
@@ -207,10 +204,7 @@ impl GcHandle {
             CollectorType::ZGC => Box::new(Zgc::new()),
         };
 
-        Self {
-            config,
-            collector,
-        }
+        Self { config, collector }
     }
 
     pub fn allocate(&mut self, size: usize) -> *mut u8 {

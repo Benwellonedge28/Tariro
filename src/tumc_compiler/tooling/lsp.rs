@@ -1,6 +1,6 @@
 // Language Server Protocol (LSP) Implementation
 
-use crate::tumc_compiler::ir::{Module, Function};
+use crate::tumc_compiler::ir::{Function, Module};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -239,10 +239,7 @@ pub enum DiagnosticCode {
 
 impl LspServer {
     pub fn new(port: u16) -> Self {
-        Self {
-            port,
-            connections: Vec::new(),
-        }
+        Self { port, connections: Vec::new() }
     }
 
     pub fn get_capabilities(&self) -> ServerCapabilities {
@@ -254,11 +251,7 @@ impl LspServer {
             hover_provider: Some(true),
             completion_provider: Some(CompletionOptions {
                 resolve_provider: Some(true),
-                trigger_characters: Some(vec![
-                    ".".to_string(),
-                    ":".to_string(),
-                    "(".to_string(),
-                ]),
+                trigger_characters: Some(vec![".".to_string(), ":".to_string(), "(".to_string()]),
             }),
             definition_provider: Some(true),
             references_provider: Some(true),
@@ -270,7 +263,12 @@ impl LspServer {
     }
 
     /// Get hover information for a position
-    pub fn get_hover(&self, module: &Module, _uri: &str, position: Position) -> Option<HoverResponse> {
+    pub fn get_hover(
+        &self,
+        module: &Module,
+        _uri: &str,
+        position: Position,
+    ) -> Option<HoverResponse> {
         // Find symbol at position
         for func in &module.functions {
             if let Some(type_info) = self.get_type_at_position(func, &position) {
@@ -287,7 +285,12 @@ impl LspServer {
     }
 
     /// Get completions at a position
-    pub fn get_completions(&self, module: &Module, _uri: &str, _position: Position) -> CompletionResponse {
+    pub fn get_completions(
+        &self,
+        module: &Module,
+        _uri: &str,
+        _position: Position,
+    ) -> CompletionResponse {
         let mut items = Vec::new();
 
         // Add function names
@@ -338,33 +341,38 @@ impl LspServer {
             insert_text: None,
         });
 
-        CompletionResponse {
-            is_incomplete: false,
-            items,
-        }
+        CompletionResponse { is_incomplete: false, items }
     }
 
     /// Get definition at a position
-    pub fn get_definition(&self, module: &Module, uri: &str, position: Position) -> Option<DefinitionResponse> {
+    pub fn get_definition(
+        &self,
+        module: &Module,
+        uri: &str,
+        position: Position,
+    ) -> Option<DefinitionResponse> {
         for func in &module.functions {
             let range = Range {
                 start: Position { line: 0, character: 0 },
                 end: Position { line: 0, character: func.name.len() as u32 },
             };
 
-            if position.character >= range.start.character &&
-               position.character <= range.end.character {
-                return Some(DefinitionResponse {
-                    uri: uri.to_string(),
-                    range,
-                });
+            if position.character >= range.start.character
+                && position.character <= range.end.character
+            {
+                return Some(DefinitionResponse { uri: uri.to_string(), range });
             }
         }
         None
     }
 
     /// Find all references to a symbol
-    pub fn find_references(&self, module: &Module, uri: &str, _position: Position) -> ReferencesResponse {
+    pub fn find_references(
+        &self,
+        module: &Module,
+        uri: &str,
+        _position: Position,
+    ) -> ReferencesResponse {
         let mut references = Vec::new();
 
         for (line, block) in module.functions.iter().enumerate() {
@@ -414,13 +422,14 @@ impl LspServer {
             }
         }
 
-        PublishDiagnosticsParams {
-            uri: uri.to_string(),
-            diagnostics,
-        }
+        PublishDiagnosticsParams { uri: uri.to_string(), diagnostics }
     }
 
-    fn get_type_at_position(&self, func: &Function, position: &Position) -> Option<(String, String)> {
+    fn get_type_at_position(
+        &self,
+        func: &Function,
+        position: &Position,
+    ) -> Option<(String, String)> {
         let _ = (func, position);
         Some(("i32".to_string(), "32-bit signed integer".to_string()))
     }

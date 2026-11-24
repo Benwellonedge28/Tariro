@@ -74,11 +74,8 @@ impl Goal {
 
     /// Update goal progress
     pub fn update_progress(&mut self, progress: f32, notes: String) {
-        self.progress_history.push(ProgressUpdate {
-            timestamp: Utc::now(),
-            progress,
-            notes,
-        });
+        self.progress_history
+            .push(ProgressUpdate { timestamp: Utc::now(), progress, notes });
         self.updated_at = Utc::now();
     }
 

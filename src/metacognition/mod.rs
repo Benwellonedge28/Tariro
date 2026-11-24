@@ -6,10 +6,10 @@
 //! - Cognitive style adaptation
 //! - Learning to learn
 
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use uuid::Uuid;
-use chrono::Utc;
 
 // ============================================================================
 // Core Types
@@ -53,10 +53,7 @@ impl SelfModel {
 
     /// Assess capability
     pub fn assess_capability(&self, name: &str) -> f64 {
-        self.capabilities
-            .get(name)
-            .map(|c| c.level)
-            .unwrap_or(0.5)
+        self.capabilities.get(name).map(|c| c.level).unwrap_or(0.5)
     }
 }
 
@@ -140,16 +137,13 @@ pub struct Strategy {
 /// Calibration state
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CalibrationState {
-    pub bias: f64,  // Difference between confidence and accuracy
+    pub bias: f64, // Difference between confidence and accuracy
     pub last_calibration: chrono::DateTime<Utc>,
 }
 
 impl Default for CalibrationState {
     fn default() -> Self {
-        Self {
-            bias: 0.0,
-            last_calibration: Utc::now(),
-        }
+        Self { bias: 0.0, last_calibration: Utc::now() }
     }
 }
 
@@ -196,7 +190,11 @@ impl SelfModelCalibrator {
         let mut total_diff = 0.0;
         for record in &self.performance_history {
             let predicted = if record.confidence > 0.5 { true } else { false };
-            let diff: f64 = if predicted == record.success { 0.0 } else { 1.0 };
+            let diff: f64 = if predicted == record.success {
+                0.0
+            } else {
+                1.0
+            };
             total_diff += diff.abs();
         }
 
@@ -242,10 +240,7 @@ pub struct BiasDetector {
 
 impl BiasDetector {
     pub fn new() -> Self {
-        let mut detector = Self {
-            known_biases: HashMap::new(),
-            detected_biases: Vec::new(),
-        };
+        let mut detector = Self { known_biases: HashMap::new(), detected_biases: Vec::new() };
         detector.initialize_patterns();
         detector
     }
@@ -288,7 +283,11 @@ impl BiasDetector {
 
         for bias in &reasoning.potential_biases {
             if let Some(pattern) = self.known_biases.get(&bias.bias_type) {
-                if reasoning.evidence.iter().any(|e| pattern.indicators.iter().any(|i| e.contains(i))) {
+                if reasoning
+                    .evidence
+                    .iter()
+                    .any(|e| pattern.indicators.iter().any(|i| e.contains(i)))
+                {
                     detected.push(DetectedBias {
                         bias_type: bias.bias_type,
                         strength: bias.strength,
@@ -309,7 +308,10 @@ impl BiasDetector {
             Some(DetectedBias {
                 bias_type: BiasType::Overconfidence,
                 strength: diff,
-                evidence: vec![format!("Confidence {} vs success rate {}", confidence, success_rate)],
+                evidence: vec![format!(
+                    "Confidence {} vs success rate {}",
+                    confidence, success_rate
+                )],
                 suggestion: "Reduce confidence estimate".to_string(),
             })
         } else {
@@ -477,7 +479,10 @@ impl MetaLearning {
         });
 
         // Update effectiveness
-        let current = self.strategy_effectiveness.entry(strategy.to_string()).or_insert(0.5);
+        let current = self
+            .strategy_effectiveness
+            .entry(strategy.to_string())
+            .or_insert(0.5);
         if success {
             *current = (*current * 0.9 + 0.1).min(1.0);
         } else {
@@ -497,7 +502,9 @@ impl MetaLearning {
             .max_by(|a, b| {
                 let eff_a = self.strategy_effectiveness.get(&a.strategy).unwrap_or(&0.5);
                 let eff_b = self.strategy_effectiveness.get(&b.strategy).unwrap_or(&0.5);
-                eff_a.partial_cmp(eff_b).unwrap_or(std::cmp::Ordering::Equal)
+                eff_a
+                    .partial_cmp(eff_b)
+                    .unwrap_or(std::cmp::Ordering::Equal)
             })
             .map(|r| r.strategy.clone())
     }
@@ -578,7 +585,8 @@ impl MetacognitionSystem {
     /// Evaluate reasoning
     pub fn evaluate_reasoning(&mut self, reasoning: &str, success: bool) {
         self.calibrator.record(reasoning, 0.7, success);
-        self.meta_learning.record_episode(reasoning, "current", success);
+        self.meta_learning
+            .record_episode(reasoning, "current", success);
     }
 
     /// Get self-awareness report
@@ -700,7 +708,10 @@ mod style_adapter_tests {
         let mut adapter = CognitiveStyleAdapter::new();
 
         adapter.adapt("logical");
-        assert_eq!(adapter.current_style.reasoning_style, ReasoningStyle::Deductive);
+        assert_eq!(
+            adapter.current_style.reasoning_style,
+            ReasoningStyle::Deductive
+        );
     }
 
     #[test]

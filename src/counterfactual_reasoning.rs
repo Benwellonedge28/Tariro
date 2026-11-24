@@ -1,11 +1,8 @@
 // Tariro AGI - Counterfactual Reasoning Module
 // Abductive reasoning about alternative possibilities
 
-
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::sync::atomic::{AtomicUsize, Ordering};
-use chrono::{ };
-
 
 // ============================================================================
 // Counterfactual Types
@@ -255,7 +252,13 @@ impl CounterfactualEngine {
     }
 
     /// Add causal knowledge
-    pub fn add_causal_knowledge(&mut self, cause: &str, effect: &str, link_type: CausalLinkType, strength: f32) {
+    pub fn add_causal_knowledge(
+        &mut self,
+        cause: &str,
+        effect: &str,
+        link_type: CausalLinkType,
+        strength: f32,
+    ) {
         let edge_id = generate_id();
 
         // Add edge
@@ -269,16 +272,22 @@ impl CounterfactualEngine {
             conditions: vec![],
         };
 
-        self.causal_graph.edges.entry(cause.to_string())
+        self.causal_graph
+            .edges
+            .entry(cause.to_string())
             .or_insert_with(Vec::new)
             .push(edge);
 
-        self.causal_graph.reverse_edges.entry(effect.to_string())
+        self.causal_graph
+            .reverse_edges
+            .entry(effect.to_string())
             .or_insert_with(Vec::new)
             .push(cause.to_string());
 
         // Add nodes if not exist
-        self.causal_graph.nodes.entry(cause.to_string())
+        self.causal_graph
+            .nodes
+            .entry(cause.to_string())
             .or_insert_with(|| CausalNode {
                 node_id: cause.to_string(),
                 name: cause.to_string(),
@@ -287,7 +296,9 @@ impl CounterfactualEngine {
                 mechanisms: vec![],
             });
 
-        self.causal_graph.nodes.entry(effect.to_string())
+        self.causal_graph
+            .nodes
+            .entry(effect.to_string())
             .or_insert_with(|| CausalNode {
                 node_id: effect.to_string(),
                 name: effect.to_string(),
@@ -298,7 +309,11 @@ impl CounterfactualEngine {
     }
 
     /// Reason about counterfactual
-    pub fn reason_counterfactual(&mut self, antecedent: &Condition, consequent: &str) -> CounterfactualReasoning {
+    pub fn reason_counterfactual(
+        &mut self,
+        antecedent: &Condition,
+        consequent: &str,
+    ) -> CounterfactualReasoning {
         let reasoning_id = generate_id();
 
         // Find causal path from antecedent to consequent
@@ -424,7 +439,11 @@ impl CounterfactualEngine {
     }
 
     /// Generate minimal change alternative world
-    fn generate_minimal_change_world(&self, antecedent: &Condition, consequent: &str) -> AlternativeWorld {
+    fn generate_minimal_change_world(
+        &self,
+        antecedent: &Condition,
+        consequent: &str,
+    ) -> AlternativeWorld {
         let modification = if antecedent.negation {
             Modification {
                 original: antecedent.proposition.clone(),
@@ -506,23 +525,27 @@ impl CounterfactualEngine {
     }
 
     /// Calculate plausibility of counterfactual
-    fn calculate_plausibility(&self, causal_chain: &[CausalLink], worlds: &[AlternativeWorld]) -> f32 {
+    fn calculate_plausibility(
+        &self,
+        causal_chain: &[CausalLink],
+        worlds: &[AlternativeWorld],
+    ) -> f32 {
         if causal_chain.is_empty() {
             return 0.0;
         }
 
         // Calculate causal strength
-        let avg_strength: f32 = causal_chain.iter()
-            .map(|l| l.strength)
-            .sum::<f32>() / causal_chain.len() as f32;
+        let avg_strength: f32 =
+            causal_chain.iter().map(|l| l.strength).sum::<f32>() / causal_chain.len() as f32;
 
         // Calculate world similarity
-        let avg_similarity: f32 = worlds.iter()
-            .map(|w| w.similarity)
-            .sum::<f32>() / worlds.len().max(1) as f32;
+        let avg_similarity: f32 =
+            worlds.iter().map(|w| w.similarity).sum::<f32>() / worlds.len().max(1) as f32;
 
         // Combine factors
-        (avg_strength * 0.6 + avg_similarity * 0.4).max(0.0).min(1.0)
+        (avg_strength * 0.6 + avg_similarity * 0.4)
+            .max(0.0)
+            .min(1.0)
     }
 
     /// Abductive reasoning - infer best explanation
@@ -538,20 +561,26 @@ impl CounterfactualEngine {
                     hypothesized_cause: cause.clone(),
                     confidence: self.calculate_abduction_confidence(cause, observation),
                     supporting_evidence: self.find_supporting_evidence(cause),
-                    alternatives: vec![]};
+                    alternatives: vec![],
+                };
                 explanations.push(explanation);
             }
         }
 
         // Sort by confidence
-        explanations.sort_by(|a, b| b.confidence.partial_cmp(&a.confidence).unwrap_or(std::cmp::Ordering::Equal));
+        explanations.sort_by(|a, b| {
+            b.confidence
+                .partial_cmp(&a.confidence)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
 
         explanations
     }
 
     fn calculate_abduction_confidence(&self, cause: &str, effect: &str) -> f32 {
         if let Some(edges) = self.causal_graph.edges.get(cause) {
-            edges.iter()
+            edges
+                .iter()
                 .filter(|e| e.target == effect)
                 .map(|e| e.strength)
                 .fold(0.0f32, |max, val| max.max(val))
@@ -563,7 +592,9 @@ impl CounterfactualEngine {
 
     fn find_supporting_evidence(&self, cause: &str) -> Vec<String> {
         // Find all effects of this cause
-        self.causal_graph.edges.get(cause)
+        self.causal_graph
+            .edges
+            .get(cause)
             .map(|edges| edges.iter().map(|e| e.target.clone()).collect())
             .unwrap_or_default()
     }
@@ -590,8 +621,10 @@ impl CounterfactualEngine {
                     then_action: action.to_string(),
                     predicted_effect: edge.target.clone(),
                     probability: edge.strength,
-                    causal_explanation: format!("{:?} causation: {} -> {}",
-                        edge.edge_type, action, edge.target),
+                    causal_explanation: format!(
+                        "{:?} causation: {} -> {}",
+                        edge.edge_type, action, edge.target
+                    ),
                     confidence: edge.strength,
                 };
 
@@ -661,7 +694,10 @@ pub enum ConditionType {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("cf_{}", now % 1_000_000)
 }
 

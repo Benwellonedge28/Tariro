@@ -4,7 +4,6 @@
 
 use std::collections::HashMap;
 
-
 use super::ast;
 use crate::tumc_compiler::OptimizationLevel;
 
@@ -93,7 +92,11 @@ impl JitCompiler {
     }
 
     /// Compile function
-    pub fn compile_function(&mut self, func_name: &str, ast: &ast::Program) -> Result<(), JitError> {
+    pub fn compile_function(
+        &mut self,
+        func_name: &str,
+        ast: &ast::Program,
+    ) -> Result<(), JitError> {
         // Check code size limit
         if self.total_code_size >= self.config.max_code_size {
             return Err(JitError::CodeSizeLimit);
@@ -117,7 +120,11 @@ impl JitCompiler {
     }
 
     /// Generate native code
-    fn generate_native_code(&mut self, func_name: &str, ast: &ast::Program) -> Result<Vec<u8>, JitError> {
+    fn generate_native_code(
+        &mut self,
+        func_name: &str,
+        ast: &ast::Program,
+    ) -> Result<Vec<u8>, JitError> {
         // Simplified code generation - in reality would use LLVM, Cranelift, etc.
         let mut code = Vec::new();
 
@@ -178,7 +185,11 @@ impl JitCompiler {
     pub fn stats(&self) -> JitStats {
         JitStats {
             total_functions: self.compiled_functions.len(),
-            hot_functions: self.compiled_functions.values().filter(|f| f.is_hot).count(),
+            hot_functions: self
+                .compiled_functions
+                .values()
+                .filter(|f| f.is_hot)
+                .count(),
             total_code_size: self.total_code_size,
             pending_compilations: self.compilation_queue.len(),
         }
@@ -242,7 +253,10 @@ impl TieredJit {
     /// Call function
     pub fn call(&mut self, func_name: &str, args: &[Value]) -> Result<Value, JitError> {
         // Get or set tier
-        let tier = self.tiers.entry(func_name.to_string()).or_insert(CompilationTier::Interpreter);
+        let tier = self
+            .tiers
+            .entry(func_name.to_string())
+            .or_insert(CompilationTier::Interpreter);
 
         match tier {
             CompilationTier::Interpreter => {
@@ -293,9 +307,7 @@ pub struct Interpreter {
 impl Interpreter {
     /// Create new interpreter
     pub fn new() -> Self {
-        Self {
-            call_counts: HashMap::new(),
-        }
+        Self { call_counts: HashMap::new() }
     }
 
     /// Execute function
@@ -384,10 +396,7 @@ pub struct ColdRegion {
 impl JitProfiler {
     /// Create new profiler
     pub fn new() -> Self {
-        Self {
-            hot_functions: Vec::new(),
-            cold_regions: Vec::new(),
-        }
+        Self { hot_functions: Vec::new(), cold_regions: Vec::new() }
     }
 
     /// Record function execution

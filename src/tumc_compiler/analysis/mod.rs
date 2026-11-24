@@ -1,17 +1,19 @@
 // Analysis Module - Dataflow, Points-to, Escape Analysis
 
-pub mod dataflow;
-pub mod points_to;
-pub mod escape;
 pub mod alias;
 pub mod call_graph;
+pub mod dataflow;
+pub mod escape;
+pub mod points_to;
 
-use std::collections::HashMap;
-pub use dataflow::*;
-pub use points_to::*;
-pub use escape::*;
 pub use alias::*;
-pub use call_graph::*;
+// The constant value of the dataflow analysis is named explicitly, because the
+// IR has a type of the same name.
+pub use dataflow::ConstValue;
+pub use dataflow::*;
+pub use escape::{EscapeAnalysis, EscapeLevel, EscapeResult, FunctionEscapeResult};
+pub use points_to::*;
+use std::collections::HashMap;
 
 // ============================================================================
 // Analysis Infrastructure
@@ -50,10 +52,8 @@ impl Analysis for ReachingDefinitions {
 
 impl ReachingDefinitions {
     fn analyze(&self, function: &Function, cfg: &ControlFlowGraph) -> ReachingDefinitionsResult {
-        let mut result = ReachingDefinitionsResult {
-            in_sets: HashMap::new(),
-            out_sets: HashMap::new(),
-        };
+        let mut result =
+            ReachingDefinitionsResult { in_sets: HashMap::new(), out_sets: HashMap::new() };
 
         // Initialize
         for block in &function.body {
@@ -99,7 +99,9 @@ impl ReachingDefinitions {
     }
 
     fn gen_set(&self, block: &BasicBlock) -> HashSet<DefId> {
-        block.instructions.iter()
+        block
+            .instructions
+            .iter()
             .enumerate()
             .map(|(i, _)| DefId { block: block.id, idx: i })
             .collect()
@@ -152,10 +154,7 @@ impl Analysis for LiveVariables {
 
 impl LiveVariables {
     fn analyze(&self, function: &Function, cfg: &ControlFlowGraph) -> LiveVariablesResult {
-        let mut result = LiveVariablesResult {
-            in_sets: HashMap::new(),
-            out_sets: HashMap::new(),
-        };
+        let mut result = LiveVariablesResult { in_sets: HashMap::new(), out_sets: HashMap::new() };
 
         // Initialize
         for block in &function.body {
@@ -247,10 +246,8 @@ impl Analysis for AvailableExpressions {
 
 impl AvailableExpressions {
     fn analyze(&self, function: &Function, cfg: &ControlFlowGraph) -> AvailableExpressionsResult {
-        let mut result = AvailableExpressionsResult {
-            in_sets: HashMap::new(),
-            out_sets: HashMap::new(),
-        };
+        let mut result =
+            AvailableExpressionsResult { in_sets: HashMap::new(), out_sets: HashMap::new() };
 
         // Initialize entry with empty, others with universal
         for block in &function.body {
@@ -357,10 +354,8 @@ impl Analysis for VeryBusyExpressions {
 
 impl VeryBusyExpressions {
     fn analyze(&self, function: &Function, cfg: &ControlFlowGraph) -> VeryBusyExpressionsResult {
-        let mut result = VeryBusyExpressionsResult {
-            in_sets: HashMap::new(),
-            out_sets: HashMap::new(),
-        };
+        let mut result =
+            VeryBusyExpressionsResult { in_sets: HashMap::new(), out_sets: HashMap::new() };
 
         // Initialize with empty
         for block in &function.body {

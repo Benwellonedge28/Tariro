@@ -1,10 +1,10 @@
 // Specialization Module - Partial Evaluation and Auto-Differentiation
 
-pub mod partial_eval;
 pub mod auto_diff;
+pub mod partial_eval;
 pub mod specialization;
 
-use crate::tumc_compiler::ir::{Module, Function};
+use crate::tumc_compiler::ir::{Function, Module};
 
 /// Specialization result
 #[derive(Debug, Clone)]
@@ -83,7 +83,9 @@ impl SpecializationEngine {
 
         // Perform partial evaluation
         for function in &module.functions {
-            let specialized = self.partial_evaluator.specialize_function(function, static_args);
+            let specialized = self
+                .partial_evaluator
+                .specialize_function(function, static_args);
             result.specialized_module.functions.push(specialized);
         }
 

@@ -49,7 +49,12 @@ pub struct NotificationRecord {
 }
 
 impl NotificationRecord {
-    pub fn new(notification_type: NotificationType, title: String, message: String, source: String) -> Self {
+    pub fn new(
+        notification_type: NotificationType,
+        title: String,
+        message: String,
+        source: String,
+    ) -> Self {
         Self {
             id: uuid::Uuid::new_v4().to_string(),
             notification_type,

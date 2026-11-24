@@ -3,10 +3,10 @@
 //! World Model for Tariro AGI
 //! Implements mental simulation of physical and social environments
 
+use crate::causal_reasoning_engine::CausalReasoningEngine;
 use crate::prelude::*;
-use crate::causal_reasoning_engine::{CausalReasoningEngine};
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap};
+use std::collections::HashMap;
 
 /// Represents an entity in the world model
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -313,7 +313,12 @@ impl SocialDynamicsEngine {
     }
 
     /// Simulate an interaction between agents
-    pub fn simulate_interaction(&mut self, agent1_id: &str, agent2_id: &str, interaction_type: InteractionType) -> SocialInteraction {
+    pub fn simulate_interaction(
+        &mut self,
+        agent1_id: &str,
+        agent2_id: &str,
+        interaction_type: InteractionType,
+    ) -> SocialInteraction {
         let interaction = SocialInteraction {
             id: format!("interaction_{}", Utc::now().timestamp()),
             timestamp: Utc::now(),
@@ -326,13 +331,22 @@ impl SocialDynamicsEngine {
         self.interactions.push(interaction.clone());
         self.update_relationships(agent1_id, agent2_id, &interaction.outcomes);
 
-        println!("[Social] Simulated {} interaction: {} <-> {}",
-            format!("{:?}", interaction_type), agent1_id, agent2_id);
+        println!(
+            "[Social] Simulated {} interaction: {} <-> {}",
+            format!("{:?}", interaction_type),
+            agent1_id,
+            agent2_id
+        );
 
         interaction
     }
 
-    fn compute_interaction_outcomes(&self, agent1_id: &str, agent2_id: &str, _interaction_type: &InteractionType) -> HashMap<String, f64> {
+    fn compute_interaction_outcomes(
+        &self,
+        agent1_id: &str,
+        agent2_id: &str,
+        _interaction_type: &InteractionType,
+    ) -> HashMap<String, f64> {
         let mut outcomes = HashMap::new();
 
         let p1 = self.agents.get(agent1_id).map(|a| &a.personality);
@@ -344,13 +358,21 @@ impl SocialDynamicsEngine {
 
             outcomes.insert("cooperation".to_string(), cooperation_prob);
             outcomes.insert("conflict".to_string(), conflict_prob);
-            outcomes.insert("satisfaction".to_string(), (cooperation_prob - conflict_prob + 1.0) / 2.0);
+            outcomes.insert(
+                "satisfaction".to_string(),
+                (cooperation_prob - conflict_prob + 1.0) / 2.0,
+            );
         }
 
         outcomes
     }
 
-    fn update_relationships(&mut self, agent1_id: &str, agent2_id: &str, outcomes: &HashMap<String, f64>) {
+    fn update_relationships(
+        &mut self,
+        agent1_id: &str,
+        agent2_id: &str,
+        outcomes: &HashMap<String, f64>,
+    ) {
         if let Some(agent1) = self.agents.get_mut(agent1_id) {
             if let Some(relationship) = agent1.relationships.get_mut(agent2_id) {
                 if let Some(&satisfaction) = outcomes.get("satisfaction") {
@@ -414,7 +436,12 @@ impl SocialDynamicsEngine {
     }
 
     /// Model opinion dynamics in a group
-    pub fn model_opinion_dynamics(&self, group_id: &str, topic: &str, iterations: usize) -> OpinionResult {
+    pub fn model_opinion_dynamics(
+        &self,
+        group_id: &str,
+        topic: &str,
+        iterations: usize,
+    ) -> OpinionResult {
         let group = self.group_structures.iter().find(|g| g.id == group_id);
 
         let mut opinions: HashMap<String, f64> = HashMap::new();
@@ -451,7 +478,10 @@ impl SocialDynamicsEngine {
                         let open_mindedness = personality.openness;
 
                         // Weighted average based on open-mindedness
-                        new_opinions.insert(id1.clone(), new_opinion * (1.0 - open_mindedness) + op1 * open_mindedness);
+                        new_opinions.insert(
+                            id1.clone(),
+                            new_opinion * (1.0 - open_mindedness) + op1 * open_mindedness,
+                        );
                     }
                 }
                 opinions = new_opinions;
@@ -473,9 +503,8 @@ impl SocialDynamicsEngine {
         let sum: f64 = opinions.values().sum();
         let mean = sum / opinions.len() as f64;
 
-        let variance: f64 = opinions.values()
-            .map(|&v| (v - mean).powi(2))
-            .sum::<f64>() / opinions.len() as f64;
+        let variance: f64 =
+            opinions.values().map(|&v| (v - mean).powi(2)).sum::<f64>() / opinions.len() as f64;
 
         // Higher convergence = lower variance
         (1.0 - variance).max(0.0)
@@ -610,7 +639,11 @@ impl PlanningHorizon {
     }
 
     /// Simulate possible futures
-    pub fn simulate_futures(&mut self, initial_state: WorldState, actions: Vec<String>) -> Vec<FutureScenario> {
+    pub fn simulate_futures(
+        &mut self,
+        initial_state: WorldState,
+        actions: Vec<String>,
+    ) -> Vec<FutureScenario> {
         let mut scenarios = Vec::new();
 
         for action in actions {
@@ -694,26 +727,29 @@ impl PlanningHorizon {
         RiskAssessment {
             max_deviation,
             volatility,
-            risk_level: if volatility > 0.5 { "high".to_string() } else if volatility > 0.2 { "medium".to_string() } else { "low".to_string() },
+            risk_level: if volatility > 0.5 {
+                "high".to_string()
+            } else if volatility > 0.2 {
+                "medium".to_string()
+            } else {
+                "low".to_string()
+            },
         }
     }
 
     /// Plan optimal sequence of actions using MCTS-like approach
-    pub fn plan(&self, _initial_state: &WorldState, _goal_state: &WorldState, max_depth: u32) -> ActionPlan {
-        let mut best_plan = ActionPlan {
-            actions: Vec::new(),
-            expected_outcome: 0.0,
-            confidence: 0.0,
-        };
+    pub fn plan(
+        &self,
+        _initial_state: &WorldState,
+        _goal_state: &WorldState,
+        max_depth: u32,
+    ) -> ActionPlan {
+        let mut best_plan =
+            ActionPlan { actions: Vec::new(), expected_outcome: 0.0, confidence: 0.0 };
 
         // Simple planning: try common action sequences
         let common_actions = vec![
-            "observe",
-            "analyze",
-            "plan",
-            "execute",
-            "evaluate",
-            "adjust",
+            "observe", "analyze", "plan", "execute", "evaluate", "adjust",
         ];
 
         for action in &common_actions[..max_depth.min(common_actions.len() as u32) as usize] {
@@ -723,7 +759,10 @@ impl PlanningHorizon {
         best_plan.expected_outcome = 0.8;
         best_plan.confidence = 0.7;
 
-        println!("[Planning] Generated plan with {} actions", best_plan.actions.len());
+        println!(
+            "[Planning] Generated plan with {} actions",
+            best_plan.actions.len()
+        );
         best_plan
     }
 }
@@ -739,10 +778,7 @@ impl Default for WorldState {
         WorldState {
             timestamp: Utc::now(),
             entities: HashMap::new(),
-            physical_state: PhysicalWorldState {
-                objects: HashMap::new(),
-                forces: Vec::new(),
-            },
+            physical_state: PhysicalWorldState { objects: HashMap::new(), forces: Vec::new() },
             social_state: SocialWorldState {
                 active_agents: Vec::new(),
                 relationships: HashMap::new(),
@@ -883,7 +919,10 @@ impl WorldModel {
 
     /// Simulate mental model of an action
     pub fn mental_simulation(&self, action: &str) -> MentalSimulationResult {
-        println!("[WorldModel] Running mental simulation for action: {}", action);
+        println!(
+            "[WorldModel] Running mental simulation for action: {}",
+            action
+        );
 
         let mut predicted_changes = Vec::new();
 
@@ -915,7 +954,10 @@ impl WorldModel {
         // Use causal reasoning if available
         if let Some(ref causal) = self.causal_reasoning {
             let retrieved = causal.causal_rag_retrieval(action);
-            println!("[WorldModel] Retrieved {} causal knowledge items", retrieved.len());
+            println!(
+                "[WorldModel] Retrieved {} causal knowledge items",
+                retrieved.len()
+            );
         }
 
         MentalSimulationResult {
@@ -926,7 +968,8 @@ impl WorldModel {
                 format!("Action '{}' will cause state transitions", action),
                 "Physical entities will update positions".to_string(),
                 "Social agents may modify relationships".to_string(),
-            ]}
+            ],
+        }
     }
 
     /// Query the world model
@@ -956,8 +999,11 @@ impl WorldModel {
             query: query.to_string(),
             relevant_entities: relevant_entities.clone(),
             causal_relationships: causal_relationships.clone(),
-            summary: format!("Found {} entities and {} causal relationships",
-                relevant_entities.len(), causal_relationships.len()),
+            summary: format!(
+                "Found {} entities and {} causal relationships",
+                relevant_entities.len(),
+                causal_relationships.len()
+            ),
         }
     }
 
@@ -971,7 +1017,10 @@ impl WorldModel {
             predictions.push(state.clone());
         }
 
-        println!("[WorldModel] Generated {} future state predictions", predictions.len());
+        println!(
+            "[WorldModel] Generated {} future state predictions",
+            predictions.len()
+        );
         predictions
     }
 }
@@ -1010,10 +1059,13 @@ pub struct QueryResult {
 impl WorldModel {
     /// Get entities relevant to current task
     pub fn get_relevant_entities(&self, context: &str) -> Vec<WorldEntity> {
-        self.entities.values()
+        self.entities
+            .values()
             .filter(|e| {
-                e.id.contains(context) ||
-                format!("{:?}", e.entity_type).to_lowercase().contains(&context.to_lowercase())
+                e.id.contains(context)
+                    || format!("{:?}", e.entity_type)
+                        .to_lowercase()
+                        .contains(&context.to_lowercase())
             })
             .cloned()
             .collect()
@@ -1087,12 +1139,7 @@ mod tests {
             id: "test_entity".to_string(),
             entity_type: EntityType::Physical,
             properties: HashMap::new(),
-            position: Some(PhysicalPosition {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-                timestamp: Utc::now(),
-            }),
+            position: Some(PhysicalPosition { x: 0.0, y: 0.0, z: 0.0, timestamp: Utc::now() }),
             relationships: vec![],
             state_history: vec![],
         });

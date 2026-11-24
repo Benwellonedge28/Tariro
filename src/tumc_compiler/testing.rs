@@ -3,10 +3,9 @@
 //! Comprehensive testing infrastructure for TUMC programs including
 //! unit tests, integration tests, snapshot testing, and test harnesses.
 
-
-use std::sync::Arc;
 use std::collections::HashMap;
-use std::path::{ PathBuf};
+use std::path::PathBuf;
+use std::sync::Arc;
 
 /// Test configuration
 #[derive(Debug, Clone)]
@@ -59,7 +58,6 @@ pub struct TestResult {
     /// Panic info if panicked
     pub panic_info: Option<String>,
 }
-
 
 impl std::fmt::Debug for TestSuite {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -128,11 +126,7 @@ pub type TestFn = Arc<dyn Fn() -> Result<(), TestError> + Send + Sync>;
 #[derive(Debug)]
 pub enum TestError {
     /// Assertion failed
-    AssertionFailed {
-        expected: String,
-        actual: String,
-        message: Option<String>,
-    },
+    AssertionFailed { expected: String, actual: String, message: Option<String> },
     /// Panic occurred
     Panic { message: String },
     /// Timeout
@@ -185,11 +179,7 @@ impl Default for TestRunner {
 impl TestRunner {
     /// Create new test runner
     pub fn new(config: TestConfig) -> Self {
-        Self {
-            config,
-            suites: HashMap::new(),
-            results: Vec::new(),
-        }
+        Self { config, suites: HashMap::new(), results: Vec::new() }
     }
 
     /// Register a test suite
@@ -249,9 +239,7 @@ impl TestRunner {
         let start = std::time::Instant::now();
         let name = format!("{}::{}", suite_name, test.name);
 
-        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            (test.func)()
-        }));
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| (test.func)()));
 
         let duration = start.elapsed();
         let passed = match result {
@@ -564,10 +552,7 @@ pub struct PropertyRunner {
 
 impl Default for PropertyRunner {
     fn default() -> Self {
-        Self {
-            iterations: 100,
-            max_size: 1000,
-        }
+        Self { iterations: 100, max_size: 1000 }
     }
 }
 
@@ -598,10 +583,7 @@ impl PropertyRunner {
 
         for i in 0..self.iterations {
             if let Err(e) = f(i) {
-                failures.push(PropertyFailure {
-                    iteration: i,
-                    error: e,
-                });
+                failures.push(PropertyFailure { iteration: i, error: e });
             }
         }
 
@@ -842,10 +824,7 @@ impl SuiteBuilder {
 
     /// Add test
     pub fn test(self, name: &str) -> TestCaseBuilder {
-        TestCaseBuilder {
-            suite: self,
-            test_name: name.to_string(),
-        }
+        TestCaseBuilder { suite: self, test_name: name.to_string() }
     }
 
     /// Add setup

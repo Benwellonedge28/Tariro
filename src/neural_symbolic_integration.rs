@@ -119,7 +119,8 @@ impl NeuralSymbolicBridge {
     }
 
     pub fn align(&mut self, neural_id: &str, symbolic_id: &str, weight: f64) {
-        self.alignment_weights.insert((neural_id.to_string(), symbolic_id.to_string()), weight);
+        self.alignment_weights
+            .insert((neural_id.to_string(), symbolic_id.to_string()), weight);
     }
 }
 
@@ -277,7 +278,10 @@ impl NeuralSymbolicIntegration {
     pub fn embed_concept(&mut self, concept_id: &str, embedding: Vec<f64>) {
         if let Some(concept) = self.concepts.get_mut(concept_id) {
             concept.neural_embedding = Some(embedding);
-            println!("[NeuralSymbolic] Added embedding to concept: {}", concept.name);
+            println!(
+                "[NeuralSymbolic] Added embedding to concept: {}",
+                concept.name
+            );
         }
     }
 
@@ -309,7 +313,11 @@ impl NeuralSymbolicIntegration {
 
             // Apply inference rules
             for rule in &self.reasoning_engine.rules {
-                if rule.antecedents.iter().any(|a| a.contains(&item.clone().unwrap_or_default())) {
+                if rule
+                    .antecedents
+                    .iter()
+                    .any(|a| a.contains(&item.clone().unwrap_or_default()))
+                {
                     derivations.push(Derivation {
                         rule: rule.name.clone(),
                         result: rule.consequent.clone(),
@@ -321,7 +329,10 @@ impl NeuralSymbolicIntegration {
             }
         }
 
-        let final_result = derivations.last().map(|d| d.result.clone()).unwrap_or_default();
+        let final_result = derivations
+            .last()
+            .map(|d| d.result.clone())
+            .unwrap_or_default();
         let confidence = derivations.last().map(|d| d.confidence).unwrap_or(0.0);
         ReasoningResult {
             query: query.to_string(),
@@ -333,7 +344,12 @@ impl NeuralSymbolicIntegration {
 
     /// Perform neural inference
     pub fn neural_infer(&self, input: &[f64], network_id: &str) -> NeuralInferenceResult {
-        let network = self.neural_networks.iter().find(|n| n.layers.first().map(|l| &l.layer_id == network_id).unwrap_or(false));
+        let network = self.neural_networks.iter().find(|n| {
+            n.layers
+                .first()
+                .map(|l| &l.layer_id == network_id)
+                .unwrap_or(false)
+        });
 
         if let Some(net) = network {
             // Simulate forward pass
@@ -361,7 +377,12 @@ impl NeuralSymbolicIntegration {
         }
     }
 
-    fn activate_layer(&self, input: &[f64], _layer: &NeuralLayer, activation: &ActivationType) -> Vec<f64> {
+    fn activate_layer(
+        &self,
+        input: &[f64],
+        _layer: &NeuralLayer,
+        activation: &ActivationType,
+    ) -> Vec<f64> {
         match activation {
             ActivationType::ReLU => input.iter().map(|x| x.max(0.0)).collect(),
             ActivationType::Sigmoid => input.iter().map(|x| 1.0 / (1.0 + (-*x).exp())).collect(),
@@ -394,7 +415,10 @@ impl NeuralSymbolicIntegration {
         HybridReasoningResult {
             query: query.to_string(),
             symbolic_result: symbolic_result.final_result.clone(),
-            neural_result: format!("{:?}", neural_result.output.iter().take(5).collect::<Vec<_>>()),
+            neural_result: format!(
+                "{:?}",
+                neural_result.output.iter().take(5).collect::<Vec<_>>()
+            ),
             fused_result: format!("Combined: {} + Neural", symbolic_result.final_result),
             confidence: fused_confidence,
             explanation: self.generate_explanation(&symbolic_result, &neural_result),
@@ -407,11 +431,15 @@ impl NeuralSymbolicIntegration {
             FusionStrategy::Product => sym * neural,
             FusionStrategy::Maximum => sym.max(neural),
             FusionStrategy::Minimum => sym.min(neural),
-            FusionStrategy::MetaLearning => (sym * 0.6 + neural * 0.4), // Learned weights
+            FusionStrategy::MetaLearning => sym * 0.6 + neural * 0.4, // Learned weights
         }
     }
 
-    fn generate_explanation(&self, symbolic: &ReasoningResult, neural: &NeuralInferenceResult) -> String {
+    fn generate_explanation(
+        &self,
+        symbolic: &ReasoningResult,
+        neural: &NeuralInferenceResult,
+    ) -> String {
         format!(
             "Symbolic reasoning derived '{}' with confidence {}, while neural inference produced output with confidence {}. Results were combined using {} fusion.",
             symbolic.final_result,
@@ -463,15 +491,20 @@ impl NeuralSymbolicIntegration {
     }
 
     fn compute_loss(&self, prediction: &[f64], target: &[f64]) -> f64 {
-        prediction.iter()
+        prediction
+            .iter()
             .zip(target.iter())
             .map(|(p, t)| (p - t).powi(2))
-            .sum::<f64>() / prediction.len() as f64
+            .sum::<f64>()
+            / prediction.len() as f64
     }
 
     /// Extract symbolic rules from neural network
     pub fn extract_rules(&self, network_id: &str) -> Vec<ExtractedRule> {
-        println!("[NeuralSymbolic] Extracting symbolic rules from network: {}", network_id);
+        println!(
+            "[NeuralSymbolic] Extracting symbolic rules from network: {}",
+            network_id
+        );
 
         vec![
             ExtractedRule {
@@ -500,15 +533,15 @@ impl NeuralSymbolicIntegration {
         for concept_id in concept_ids {
             if let Some(concept) = self.concepts.get_mut(concept_id) {
                 // Generate or retrieve embedding
-                let embedding: Vec<f64> = (0..128)
-                    .map(|_| rand_simple())
-                    .collect();
+                let embedding: Vec<f64> = (0..128).map(|_| rand_simple()).collect();
 
                 concept.neural_embedding = Some(embedding.clone());
                 grounded_count += 1;
 
                 // Update bridge
-                self.bridge.neural_to_symbolic.insert(concept_id.clone(), concept.clone());
+                self.bridge
+                    .neural_to_symbolic
+                    .insert(concept_id.clone(), concept.clone());
             }
         }
 
@@ -524,7 +557,9 @@ impl NeuralSymbolicIntegration {
         let source_concept = self.concepts.values().find(|c| c.name == source);
 
         if let Some(source) = source_concept {
-            let relations: Vec<String> = source.relationships.iter()
+            let relations: Vec<String> = source
+                .relationships
+                .iter()
                 .map(|r| format!("{:?}", r.relation_type))
                 .collect();
 
@@ -533,7 +568,12 @@ impl NeuralSymbolicIntegration {
                 target_domain: target_domain.to_string(),
                 mapping: relations.clone(),
                 similarity_score: 0.75,
-                explanation: format!("'{}' relates to '{}' similar to how concepts in {} relate", source.name, relations.join(", "), target_domain),
+                explanation: format!(
+                    "'{}' relates to '{}' similar to how concepts in {} relate",
+                    source.name,
+                    relations.join(", "),
+                    target_domain
+                ),
             }
         } else {
             AnalogyResult {
@@ -547,8 +587,15 @@ impl NeuralSymbolicIntegration {
     }
 
     /// Transfer learning from one domain to another
-    pub fn transfer_learning(&mut self, source_network: &str, target_domain: &str) -> TransferResult {
-        println!("[NeuralSymbolic] Transferring from {} to {}", source_network, target_domain);
+    pub fn transfer_learning(
+        &mut self,
+        source_network: &str,
+        target_domain: &str,
+    ) -> TransferResult {
+        println!(
+            "[NeuralSymbolic] Transferring from {} to {}",
+            source_network, target_domain
+        );
 
         TransferResult {
             source_network: source_network.to_string(),
@@ -565,14 +612,16 @@ impl NeuralSymbolicIntegration {
 
         ReasoningExplanation {
             query: query.to_string(),
-            steps: symbolic_trace.derivations.iter().map(|d| {
-                ReasoningStep {
+            steps: symbolic_trace
+                .derivations
+                .iter()
+                .map(|d| ReasoningStep {
                     step_number: 1,
                     operation: d.rule.clone(),
                     result: d.result.clone(),
                     confidence: d.confidence,
-                }
-            }).collect(),
+                })
+                .collect(),
             final_result: symbolic_trace.final_result,
             alternative_paths: vec![],
         }
@@ -703,7 +752,10 @@ impl NeuralSymbolicIntegration {
     /// Use with world model
     pub fn world_model_integration(&self, state: &str) -> String {
         let symbolic = self.symbolic_reason(state);
-        format!("World model state '{}' reasoned to '{}'", state, symbolic.final_result)
+        format!(
+            "World model state '{}' reasoned to '{}'",
+            state, symbolic.final_result
+        )
     }
 }
 

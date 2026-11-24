@@ -2,10 +2,8 @@
 //!
 //! Mathematical proofs and type-level reasoning for verified knowledge.
 
-
-use crate::knowledge::knowledge_graph::{KnowledgeGraph, EntityId, Entity};
-use std::collections::{HashMap};
-
+use crate::knowledge::knowledge_graph::{Entity, EntityId, KnowledgeGraph};
+use std::collections::HashMap;
 
 // ============================================================================
 // Type System for Knowledge
@@ -23,10 +21,7 @@ pub struct TypeSystem {
 impl TypeSystem {
     /// Create a new type system
     pub fn new() -> Self {
-        let mut system = TypeSystem {
-            types: HashMap::new(),
-            subtypes: HashMap::new(),
-        };
+        let mut system = TypeSystem { types: HashMap::new(), subtypes: HashMap::new() };
         system.init_builtin_types();
         system
     }
@@ -166,15 +161,9 @@ impl TypeSystem {
     /// Check if a value matches a type
     pub fn matches_type(&self, value: &TypedValue, type_name: &str) -> bool {
         match value {
-            TypedValue::Entity(_) => {
-                self.is_subtype("Entity", type_name)
-            }
-            TypedValue::Number(_) => {
-                self.is_subtype("Number", type_name)
-            }
-            TypedValue::Boolean(_) => {
-                self.is_subtype("Boolean", type_name)
-            }
+            TypedValue::Entity(_) => self.is_subtype("Entity", type_name),
+            TypedValue::Number(_) => self.is_subtype("Number", type_name),
+            TypedValue::Boolean(_) => self.is_subtype("Boolean", type_name),
             TypedValue::String(_) => {
                 type_name == "String" || self.is_subtype("Abstract", type_name)
             }
@@ -275,14 +264,15 @@ impl Invariant {
             InvariantCondition::NeverNegative(attribute) => {
                 // Check attribute never negative
                 kb.entities.values().all(|e| {
-                    e.attributes.get(&crate::knowledge::knowledge_graph::Attribute(attribute.clone()))
+                    e.attributes
+                        .get(&crate::knowledge::knowledge_graph::Attribute(
+                            attribute.clone(),
+                        ))
                         .map(|v| v.as_f64().map(|f| f >= 0.0).unwrap_or(true))
                         .unwrap_or(true)
                 })
             }
-            InvariantCondition::MaxRelation(max, _) => {
-                kb.relations.len() <= *max
-            }
+            InvariantCondition::MaxRelation(max, _) => kb.relations.len() <= *max,
             InvariantCondition::Custom(check) => check(kb),
         }
     }
@@ -384,9 +374,7 @@ impl TheoremProver {
             }
         }
 
-        ProofResult::Unproven {
-            reason: "No proof found".to_string(),
-        }
+        ProofResult::Unproven { reason: "No proof found".to_string() }
     }
 
     fn try_conditional_proof(&self, axiom: &Axiom, theorem: &Theorem) -> Option<ProofResult> {
@@ -500,18 +488,16 @@ impl FormalVerifier {
         // No self-loops
         self.invariants.push(Invariant::new(
             "no_self_loops",
-            InvariantCondition::AlwaysTrue(|fact| {
-                fact.subject != fact.object
-            }),
+            InvariantCondition::AlwaysTrue(|fact| fact.subject != fact.object),
         ));
 
         // Probabilities in [0, 1]
         self.invariants.push(Invariant::new(
             "valid_probabilities",
             InvariantCondition::Custom(|kb| {
-                kb.relations.values().all(|r| {
-                    r.confidence.value >= 0.0 && r.confidence.value <= 1.0
-                })
+                kb.relations
+                    .values()
+                    .all(|r| r.confidence.value >= 0.0 && r.confidence.value <= 1.0)
             }),
         ));
 
@@ -590,9 +576,7 @@ impl FormalVerifier {
         for (attr, value) in &entity.attributes {
             let attr_type = &attr.0;
             let value_matches = match value {
-                crate::knowledge::knowledge_graph::Value::String(_) => {
-                    attr_type == "String"
-                }
+                crate::knowledge::knowledge_graph::Value::String(_) => attr_type == "String",
                 crate::knowledge::knowledge_graph::Value::Integer(_) => {
                     self.type_system.is_subtype("Integer", attr_type)
                 }
@@ -663,10 +647,7 @@ pub struct InvariantViolation {
 #[derive(Debug, Clone)]
 pub enum TypeError {
     UnknownType(String),
-    TypeMismatch {
-        value_type: String,
-        expected_type: String,
-    },
+    TypeMismatch { value_type: String, expected_type: String },
 }
 
 impl std::fmt::Display for TypeError {
@@ -674,7 +655,11 @@ impl std::fmt::Display for TypeError {
         match self {
             TypeError::UnknownType(t) => write!(f, "Unknown type: {}", t),
             TypeError::TypeMismatch { value_type, expected_type } => {
-                write!(f, "Type mismatch: {} vs expected {}", value_type, expected_type)
+                write!(
+                    f,
+                    "Type mismatch: {} vs expected {}",
+                    value_type, expected_type
+                )
             }
         }
     }
@@ -715,10 +700,7 @@ mod tests {
 
     #[test]
     fn test_invariant_creation() {
-        let invariant = Invariant::new(
-            "test_invariant",
-            InvariantCondition::AlwaysTrue(|_| true),
-        );
+        let invariant = Invariant::new("test_invariant", InvariantCondition::AlwaysTrue(|_| true));
         assert_eq!(invariant.name, "test_invariant");
     }
 
@@ -741,11 +723,14 @@ mod tests {
     #[test]
     fn test_type_check() {
         let verifier = FormalVerifier::new();
-        let entity = Entity::new("test", crate::knowledge::knowledge_graph::EntityType::Concrete)
-            .with_attribute(
-                crate::knowledge::knowledge_graph::Attribute::new("count"),
-                crate::knowledge::knowledge_graph::Value::Integer(42),
-            );
+        let entity = Entity::new(
+            "test",
+            crate::knowledge::knowledge_graph::EntityType::Concrete,
+        )
+        .with_attribute(
+            crate::knowledge::knowledge_graph::Attribute::new("count"),
+            crate::knowledge::knowledge_graph::Value::Integer(42),
+        );
 
         let result = verifier.type_check(&entity);
         assert!(result.is_ok());

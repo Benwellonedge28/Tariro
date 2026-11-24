@@ -14,29 +14,111 @@ use crate::tumc_compiler::ast;
 #[derive(Debug, Clone, PartialEq)]
 pub enum RustTokenType {
     // Keywords
-    Fn, Let, Mut, Const, Static, If, Else, Match, Loop, While, For, In, Return, Break, Continue,
-    Struct, Enum, Trait, Impl, Type, Use, Mod, Pub, Crate, Super, SelfKeyword, SelfType,
-    Async, Await, Move, Ref, As, Where, Unsafe, Extern, Dyn, Box, Some, None, Ok, Err,
-    True, False,
+    Fn,
+    Let,
+    Mut,
+    Const,
+    Static,
+    If,
+    Else,
+    Match,
+    Loop,
+    While,
+    For,
+    In,
+    Return,
+    Break,
+    Continue,
+    Struct,
+    Enum,
+    Trait,
+    Impl,
+    Type,
+    Use,
+    Mod,
+    Pub,
+    Crate,
+    Super,
+    SelfKeyword,
+    SelfType,
+    Async,
+    Await,
+    Move,
+    Ref,
+    As,
+    Where,
+    Unsafe,
+    Extern,
+    Dyn,
+    Box,
+    Some,
+    None,
+    Ok,
+    Err,
+    True,
+    False,
 
     // Symbols
-    LBrace, RBrace, LParen, RParen, LBracket, RBracket, Semi, Comma, Dot, DotDot, DotDotEq,
-    DotDotDot, Arrow, FatArrow, Colon, DoubleColon, PathSep, Bang, BangEq, Eq, EqEq,
-    Lt, LtEq, Gt, GtEq, Amp, AmpAmp, AmpEq, Bar, BarBar, BarEq, Plus, PlusEq,
-    Minus, MinusEq, Star, StarEq, Slash, SlashEq, Percent, PercentEq, Caret, CaretEq,
-    Dollar, Question, At, Pound, Tilde,
+    LBrace,
+    RBrace,
+    LParen,
+    RParen,
+    LBracket,
+    RBracket,
+    Semi,
+    Comma,
+    Dot,
+    DotDot,
+    DotDotEq,
+    DotDotDot,
+    Arrow,
+    FatArrow,
+    Colon,
+    DoubleColon,
+    PathSep,
+    Bang,
+    BangEq,
+    Eq,
+    EqEq,
+    Lt,
+    LtEq,
+    Gt,
+    GtEq,
+    Amp,
+    AmpAmp,
+    AmpEq,
+    Bar,
+    BarBar,
+    BarEq,
+    Plus,
+    PlusEq,
+    Minus,
+    MinusEq,
+    Star,
+    StarEq,
+    Slash,
+    SlashEq,
+    Percent,
+    PercentEq,
+    Caret,
+    CaretEq,
+    Dollar,
+    Question,
+    At,
+    Pound,
+    Tilde,
 
     // Literals
-    Integer(i64, Option<String>),  // value, suffix
-    Float(f64, Option<String>),    // value, suffix
+    Integer(i64, Option<String>), // value, suffix
+    Float(f64, Option<String>),   // value, suffix
     String(String),
     Char(char),
     Byte(u8),
     ByteString(Vec<u8>),
-    RawString(String, u32),        // content, hash count
+    RawString(String, u32), // content, hash count
     Ident(String),
     Lifetime(String),
-    DocComment(String, bool),      // content, is_block
+    DocComment(String, bool), // content, is_block
     LineComment(String),
 
     // Special
@@ -128,25 +210,35 @@ impl RustLexer {
     fn skip_whitespace(&mut self) {
         while let Some(ch) = self.current_char() {
             match ch {
-                ' ' | '\t' | '\r' | '\n' => { self.advance(); }
+                ' ' | '\t' | '\r' | '\n' => {
+                    self.advance();
+                }
                 '/' => {
                     match self.peek_char(1) {
                         Some('/') => {
                             // Line comment
-                            while self.current_char() != Some('\n') && self.current_char().is_some() {
+                            while self.current_char() != Some('\n') && self.current_char().is_some()
+                            {
                                 self.advance();
                             }
                         }
                         Some('*') => {
                             // Block comment (possibly nested)
                             let mut depth = 1;
-                            self.advance(); self.advance();
+                            self.advance();
+                            self.advance();
                             while depth > 0 && self.current_char().is_some() {
-                                if self.current_char() == Some('/') && self.peek_char(1) == Some('*') {
-                                    self.advance(); self.advance();
+                                if self.current_char() == Some('/')
+                                    && self.peek_char(1) == Some('*')
+                                {
+                                    self.advance();
+                                    self.advance();
                                     depth += 1;
-                                } else if self.current_char() == Some('*') && self.peek_char(1) == Some('/') {
-                                    self.advance(); self.advance();
+                                } else if self.current_char() == Some('*')
+                                    && self.peek_char(1) == Some('/')
+                                {
+                                    self.advance();
+                                    self.advance();
                                     depth -= 1;
                                 } else {
                                     self.advance();
@@ -158,7 +250,10 @@ impl RustLexer {
                 }
                 '#' => {
                     // Shebang or attribute
-                    if self.line == 1 && self.lexeme_str().is_empty() && self.peek_char(1) == Some('!') {
+                    if self.line == 1
+                        && self.lexeme_str().is_empty()
+                        && self.peek_char(1) == Some('!')
+                    {
                         while self.current_char() != Some('\n') && self.current_char().is_some() {
                             self.advance();
                         }
@@ -177,7 +272,11 @@ impl RustLexer {
         if raw {
             // Skip until closing hashes + quote
             while self.current_char().is_some() {
-                if self.source.get(self.pos..).unwrap_or_default().starts_with(&format!("\"{}", "#".repeat(hashes as usize)).chars().collect::<Vec<char>>()) {
+                if self.source.get(self.pos..).unwrap_or_default().starts_with(
+                    &format!("\"{}", "#".repeat(hashes as usize))
+                        .chars()
+                        .collect::<Vec<char>>(),
+                ) {
                     // Skip closing
                     for _ in 0..(hashes + 1) {
                         self.advance();
@@ -211,7 +310,8 @@ impl RustLexer {
                             // Unicode escape
                             self.advance(); // {
                             let mut uni = String::new();
-                            while self.current_char() != Some('}') && self.current_char().is_some() {
+                            while self.current_char() != Some('}') && self.current_char().is_some()
+                            {
                                 uni.push(self.advance().unwrap_or('}'));
                             }
                             self.advance(); // }
@@ -237,9 +337,24 @@ impl RustLexer {
         // Check for hex, octal, or binary
         let base = if first_char == '0' {
             match self.peek_char(1) {
-                Some('x') | Some('X') => { self.advance(); self.advance(); value.push('x'); 16 }
-                Some('o') | Some('O') => { self.advance(); self.advance(); value.push('o'); 8 }
-                Some('b') | Some('B') => { self.advance(); self.advance(); value.push('b'); 2 }
+                Some('x') | Some('X') => {
+                    self.advance();
+                    self.advance();
+                    value.push('x');
+                    16
+                }
+                Some('o') | Some('O') => {
+                    self.advance();
+                    self.advance();
+                    value.push('o');
+                    8
+                }
+                Some('b') | Some('B') => {
+                    self.advance();
+                    self.advance();
+                    value.push('b');
+                    2
+                }
                 _ => 10,
             }
         } else {
@@ -277,8 +392,10 @@ impl RustLexer {
         };
 
         // Floating point check
-        if self.current_char() == Some('.') && self.peek_char(1) != Some('.')
-            && (base == 10 || suffix.is_none()) {
+        if self.current_char() == Some('.')
+            && self.peek_char(1) != Some('.')
+            && (base == 10 || suffix.is_none())
+        {
             value.push(self.advance().unwrap());
             while let Some(ch) = self.current_char() {
                 if ch.is_ascii_digit() {
@@ -326,7 +443,11 @@ impl RustLexer {
         }
 
         // Integer
-        let clean_value = value.replace("_", "").replace("x", "").replace("o", "").replace("b", "");
+        let clean_value = value
+            .replace("_", "")
+            .replace("x", "")
+            .replace("o", "")
+            .replace("b", "");
         let ivalue = i64::from_str_radix(&clean_value, base).unwrap_or(0);
         RustTokenType::Integer(ivalue, suffix)
     }
@@ -419,116 +540,145 @@ impl RustLexer {
                 ']' => RustTokenType::RBracket,
                 ';' => RustTokenType::Semi,
                 ',' => RustTokenType::Comma,
-                '.' => {
-                    match self.current_char() {
-                        Some('.') => {
-                            self.advance();
-                            match self.current_char() {
-                                Some('=') => { self.advance(); RustTokenType::DotDotEq }
-                                Some('.') => { self.advance(); RustTokenType::DotDotDot }
-                                _ => RustTokenType::DotDot
-                            }
-                        }
-                        _ => RustTokenType::Dot,
-                    }
-                }
-                '-' => {
-                    match self.current_char() {
-                        Some('>') => { self.advance(); RustTokenType::Arrow }
-                        Some('=') => { self.advance(); RustTokenType::MinusEq }
-                        _ => RustTokenType::Minus,
-                    }
-                }
-                '=' => {
-                    match self.current_char() {
-                        Some('>') => { self.advance(); RustTokenType::FatArrow }
-                        Some('=') => { self.advance(); RustTokenType::EqEq }
-                        _ => RustTokenType::Eq,
-                    }
-                }
-                '!' => {
-                    match self.current_char() {
-                        Some('=') => { self.advance(); RustTokenType::BangEq }
-                        _ => RustTokenType::Bang,
-                    }
-                }
-                '<' => {
-                    match self.current_char() {
-                        Some('=') => { self.advance(); RustTokenType::LtEq }
-                        Some('<') => {
-                            self.advance();
-                            if self.current_char() == Some('=') {
+                '.' => match self.current_char() {
+                    Some('.') => {
+                        self.advance();
+                        match self.current_char() {
+                            Some('=') => {
                                 self.advance();
-                                RustTokenType::LtEq;
+                                RustTokenType::DotDotEq
                             }
-                            RustTokenType::Lt
-                        }
-                        _ => RustTokenType::Lt,
-                    }
-                }
-                '>' => {
-                    match self.current_char() {
-                        Some('=') => { self.advance(); RustTokenType::GtEq }
-                        Some('>') => {
-                            self.advance();
-                            if self.current_char() == Some('=') {
+                            Some('.') => {
                                 self.advance();
+                                RustTokenType::DotDotDot
                             }
-                            RustTokenType::Gt
+                            _ => RustTokenType::DotDot,
                         }
-                        _ => RustTokenType::Gt,
                     }
-                }
-                '&' => {
-                    match self.current_char() {
-                        Some('&') => { self.advance(); RustTokenType::AmpAmp }
-                        Some('=') => { self.advance(); RustTokenType::AmpEq }
-                        _ => RustTokenType::Amp,
+                    _ => RustTokenType::Dot,
+                },
+                '-' => match self.current_char() {
+                    Some('>') => {
+                        self.advance();
+                        RustTokenType::Arrow
                     }
-                }
-                '|' => {
-                    match self.current_char() {
-                        Some('|') => { self.advance(); RustTokenType::BarBar }
-                        Some('=') => { self.advance(); RustTokenType::BarEq }
-                        _ => RustTokenType::Bar,
+                    Some('=') => {
+                        self.advance();
+                        RustTokenType::MinusEq
                     }
-                }
-                '+' => {
-                    match self.current_char() {
-                        Some('=') => { self.advance(); RustTokenType::PlusEq }
-                        _ => RustTokenType::Plus,
+                    _ => RustTokenType::Minus,
+                },
+                '=' => match self.current_char() {
+                    Some('>') => {
+                        self.advance();
+                        RustTokenType::FatArrow
                     }
-                }
-                '*' => {
-                    match self.current_char() {
-                        Some('=') => { self.advance(); RustTokenType::StarEq }
-                        _ => RustTokenType::Star,
+                    Some('=') => {
+                        self.advance();
+                        RustTokenType::EqEq
                     }
-                }
-                '/' => {
-                    match self.current_char() {
-                        Some('=') => { self.advance(); RustTokenType::SlashEq }
-                        _ => RustTokenType::Slash,
+                    _ => RustTokenType::Eq,
+                },
+                '!' => match self.current_char() {
+                    Some('=') => {
+                        self.advance();
+                        RustTokenType::BangEq
                     }
-                }
-                '%' => {
-                    match self.current_char() {
-                        Some('=') => { self.advance(); RustTokenType::PercentEq }
-                        _ => RustTokenType::Percent,
+                    _ => RustTokenType::Bang,
+                },
+                '<' => match self.current_char() {
+                    Some('=') => {
+                        self.advance();
+                        RustTokenType::LtEq
                     }
-                }
-                '^' => {
-                    match self.current_char() {
-                        Some('=') => { self.advance(); RustTokenType::CaretEq }
-                        _ => RustTokenType::Caret,
+                    Some('<') => {
+                        self.advance();
+                        if self.current_char() == Some('=') {
+                            self.advance();
+                            RustTokenType::LtEq;
+                        }
+                        RustTokenType::Lt
                     }
-                }
-                ':' => {
-                    match self.current_char() {
-                        Some(':') => { self.advance(); RustTokenType::DoubleColon }
-                        _ => RustTokenType::Colon,
+                    _ => RustTokenType::Lt,
+                },
+                '>' => match self.current_char() {
+                    Some('=') => {
+                        self.advance();
+                        RustTokenType::GtEq
                     }
-                }
+                    Some('>') => {
+                        self.advance();
+                        if self.current_char() == Some('=') {
+                            self.advance();
+                        }
+                        RustTokenType::Gt
+                    }
+                    _ => RustTokenType::Gt,
+                },
+                '&' => match self.current_char() {
+                    Some('&') => {
+                        self.advance();
+                        RustTokenType::AmpAmp
+                    }
+                    Some('=') => {
+                        self.advance();
+                        RustTokenType::AmpEq
+                    }
+                    _ => RustTokenType::Amp,
+                },
+                '|' => match self.current_char() {
+                    Some('|') => {
+                        self.advance();
+                        RustTokenType::BarBar
+                    }
+                    Some('=') => {
+                        self.advance();
+                        RustTokenType::BarEq
+                    }
+                    _ => RustTokenType::Bar,
+                },
+                '+' => match self.current_char() {
+                    Some('=') => {
+                        self.advance();
+                        RustTokenType::PlusEq
+                    }
+                    _ => RustTokenType::Plus,
+                },
+                '*' => match self.current_char() {
+                    Some('=') => {
+                        self.advance();
+                        RustTokenType::StarEq
+                    }
+                    _ => RustTokenType::Star,
+                },
+                '/' => match self.current_char() {
+                    Some('=') => {
+                        self.advance();
+                        RustTokenType::SlashEq
+                    }
+                    _ => RustTokenType::Slash,
+                },
+                '%' => match self.current_char() {
+                    Some('=') => {
+                        self.advance();
+                        RustTokenType::PercentEq
+                    }
+                    _ => RustTokenType::Percent,
+                },
+                '^' => match self.current_char() {
+                    Some('=') => {
+                        self.advance();
+                        RustTokenType::CaretEq
+                    }
+                    _ => RustTokenType::Caret,
+                },
+                ':' => match self.current_char() {
+                    Some(':') => {
+                        self.advance();
+                        RustTokenType::DoubleColon
+                    }
+                    _ => RustTokenType::Colon,
+                },
                 '#' => RustTokenType::Pound,
                 '@' => RustTokenType::At,
                 '~' => RustTokenType::Tilde,
@@ -648,7 +798,7 @@ pub enum Type {
     Slice(Box<SliceType>),
     Tuple(Vec<Type>),
     Function(Box<FunctionType>),
-    TraitObject(Vec<Path>, Option<String>),  // bounds, dyn lifetime
+    TraitObject(Vec<Path>, Option<String>), // bounds, dyn lifetime
     ImplTrait(Vec<Path>),
     DynTrait(Box<DynTraitType>),
     Infer,
@@ -728,7 +878,7 @@ pub enum ExprKind {
     SelfValue,
     SelfDeref,
     SelfAddr,
-    Literal(String, Option<String>),  // value, suffix
+    Literal(String, Option<String>), // value, suffix
 
     // Operators
     Unary(Operator, Box<Expr>),
@@ -736,7 +886,7 @@ pub enum ExprKind {
     Logical(LogicalOp, Box<Expr>, Box<Expr>),
     Cast(Box<Expr>, Type),
     TypeCast(Box<Expr>, Type),
-    AsmCast(Box<Expr>, Type, String),  // expr, ty, arch
+    AsmCast(Box<Expr>, Type, String), // expr, ty, arch
 
     // Control flow
     Block(Vec<Stmt>, Option<Box<Expr>>),
@@ -764,7 +914,7 @@ pub enum ExprKind {
     Tuple(Vec<Expr>),
     Array(Vec<Expr>),
     Index(Box<Expr>, Box<Expr>),
-    Range(Option<Box<Expr>>, Option<Box<Expr>>, bool),  // start, end, inclusive
+    Range(Option<Box<Expr>>, Option<Box<Expr>>, bool), // start, end, inclusive
     Field(Box<Expr>, String),
     TupleField(Box<Expr>, usize),
     Struct(Path, Vec<FieldValue>),
@@ -799,13 +949,24 @@ pub enum ExprKind {
 
 #[derive(Debug, Clone)]
 pub enum Operator {
-    Add, Sub, Mul, Div, Rem, BitAnd, BitOr, BitXor, Shl, Shr,
-    Neg, Not,
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Rem,
+    BitAnd,
+    BitOr,
+    BitXor,
+    Shl,
+    Shr,
+    Neg,
+    Not,
 }
 
 #[derive(Debug, Clone)]
 pub enum LogicalOp {
-    And, Or,
+    And,
+    Or,
 }
 
 #[derive(Debug, Clone)]
@@ -834,7 +995,7 @@ pub enum Pat {
     Range(Box<Pat>, Box<Pat>),
     Enum(Path, Option<Box<Pat>>),
     TupleStruct(Path, Vec<Pat>),
-    Struct(Path, Vec<FieldPat>, bool),  // path, fields, dotdot
+    Struct(Path, Vec<FieldPat>, bool), // path, fields, dotdot
     Tuple(Vec<Pat>),
     Slice(Vec<Pat>),
     Or(Vec<Pat>),
@@ -877,7 +1038,9 @@ pub struct MacroInvoke {
 
 #[derive(Debug, Clone)]
 pub enum MacroDelimiter {
-    Paren, Brace, Bracket,
+    Paren,
+    Brace,
+    Bracket,
 }
 
 #[derive(Debug, Clone)]
@@ -911,7 +1074,7 @@ pub struct AsmOptions {
 
 #[derive(Debug, Clone)]
 pub enum Stmt {
-    Let(Pat, Option<Type>, Option<Expr>, Option<Box<Expr>>),  // pattern, type, init, body
+    Let(Pat, Option<Type>, Option<Expr>, Option<Box<Expr>>), // pattern, type, init, body
     Item(Item),
     Expr(Expr),
     Semi(Expr),
@@ -928,16 +1091,16 @@ pub struct Item {
 pub enum ItemKind {
     Import(UseTree),
     Module(String),
-    ExternCrate(String, Option<String>),  // name, alias
+    ExternCrate(String, Option<String>), // name, alias
     Global(String, Type, Expr),
     Function(Function),
     Struct(Struct),
     Enum(Enum),
-    Union(Enum),  // Same structure
+    Union(Enum), // Same structure
     Trait(Trait),
     Impl(Impl),
     TypeAlias(String, Vec<GenericParam>, Type, Option<WhereClause>),
-    ForeignMod(String, Vec<ForeignItem>),  // abi, items
+    ForeignMod(String, Vec<ForeignItem>), // abi, items
     MacroRules(String, Vec<MacroDef>),
 }
 
@@ -952,9 +1115,9 @@ pub struct UseTree {
 
 #[derive(Debug, Clone)]
 pub enum UseTreeKind {
-    Simple(String, Option<String>),  // ident, alias
+    Simple(String, Option<String>), // ident, alias
     Tree(Vec<UseTree>),
-    Rebind(String, String),  // from, to
+    Rebind(String, String), // from, to
 }
 
 #[derive(Debug, Clone)]
@@ -1013,7 +1176,7 @@ pub struct Variant {
 #[derive(Debug, Clone)]
 pub enum VariantData {
     Unit,
-    Tuple(Vec<(Type, bool)>),  // type, mutable
+    Tuple(Vec<(Type, bool)>), // type, mutable
     Struct(Vec<StructField>),
 }
 
@@ -1037,7 +1200,7 @@ pub enum TraitItem {
 #[derive(Debug, Clone)]
 pub struct Impl {
     pub generics: Vec<GenericParam>,
-    pub trait_ty: Option<(Path, Type)>,  // trait, for type
+    pub trait_ty: Option<(Path, Type)>, // trait, for type
     pub self_ty: Type,
     pub items: Vec<ImplItem>,
     pub where_clause: Option<WhereClause>,
@@ -1060,58 +1223,60 @@ pub struct GenericParam {
 #[derive(Debug, Clone)]
 pub enum GenericParamKind {
     Lifetime,
-    Type {
-        default: Option<Type>,
-        bounds: Vec<Type>,
-    },
-    Const {
-        ty: Type,
-        default: Option<Expr>,
-    },
+    Type { default: Option<Type>, bounds: Vec<Type> },
+    Const { ty: Type, default: Option<Expr> },
 }
 
 #[derive(Debug, Clone)]
 pub struct WhereClause {
-    pub predicates: Vec<WherePredicate>}
+    pub predicates: Vec<WherePredicate>,
+}
 
 #[derive(Debug, Clone)]
 pub enum WherePredicate {
     Bound(WhereBoundPredicate),
-    Eq(WhereEqPredicate)}
+    Eq(WhereEqPredicate),
+}
 
 #[derive(Debug, Clone)]
 pub struct WhereBoundPredicate {
     pub bound_lifetimes: Vec<String>,
     pub ty: Type,
-    pub bounds: Vec<Type>}
+    pub bounds: Vec<Type>,
+}
 
 #[derive(Debug, Clone)]
 pub struct WhereEqPredicate {
     pub ty: Type,
-    pub bound: Type}
+    pub bound: Type,
+}
 
 #[derive(Debug, Clone)]
 pub struct Attribute {
     pub path: Path,
     pub tokens: Vec<TokenTree>,
-    pub style: AttrStyle}
+    pub style: AttrStyle,
+}
 
 #[derive(Debug, Clone)]
 pub enum AttrStyle {
-    Doc(bool),  // is_sugared_doc
-    Normal}
+    Doc(bool), // is_sugared_doc
+    Normal,
+}
 
 #[derive(Debug, Clone)]
 pub struct ForeignItem {
     pub name: String,
     pub ty: Type,
-    pub attrs: Vec<Attribute>}
+    pub attrs: Vec<Attribute>,
+}
 
 #[derive(Debug, Clone)]
 pub struct MacroDef {
     pub name: String,
     pub body: Vec<TokenTree>,
-    pub is_builtin: bool}
+    pub is_builtin: bool,
+}
 
 // ============================================================================
 // Parser
@@ -1120,19 +1285,18 @@ pub struct MacroDef {
 pub struct RustParser {
     tokens: Vec<RustToken>,
     pos: usize,
-    errors: Vec<ParseError>}
+    errors: Vec<ParseError>,
+}
 
 #[derive(Debug, Clone)]
 pub struct ParseError {
     pub message: String,
-    pub span: (usize, usize)}
+    pub span: (usize, usize),
+}
 
 impl RustParser {
     pub fn new(tokens: Vec<RustToken>) -> Self {
-        Self {
-            tokens,
-            pos: 0,
-            errors: Vec::new()}
+        Self { tokens, pos: 0, errors: Vec::new() }
     }
 
     fn current(&self) -> &RustToken {
@@ -1170,7 +1334,11 @@ impl RustParser {
         false
     }
 
-    fn expect(&mut self, token_type: RustTokenType, message: &str) -> Result<RustToken, ParseError> {
+    fn expect(
+        &mut self,
+        token_type: RustTokenType,
+        message: &str,
+    ) -> Result<RustToken, ParseError> {
         if self.check(&token_type) {
             Ok(self.advance())
         } else {
@@ -1230,7 +1398,9 @@ impl RustParser {
             }
             RustTokenType::Mod => {
                 self.advance();
-                let name = self.expect(RustTokenType::Ident(String::new()), "module name").ok()?;
+                let name = self
+                    .expect(RustTokenType::Ident(String::new()), "module name")
+                    .ok()?;
                 ItemKind::Module(name.lexeme)
             }
             RustTokenType::Extern => {
@@ -1249,7 +1419,10 @@ impl RustParser {
             }
             RustTokenType::Static | RustTokenType::Const => {
                 let _is_static = self.advance().token_type == RustTokenType::Static;
-                let name = self.expect(RustTokenType::Ident(String::new()), "name").ok()?.lexeme;
+                let name = self
+                    .expect(RustTokenType::Ident(String::new()), "name")
+                    .ok()?
+                    .lexeme;
                 let ty = if self.match_token(&[RustTokenType::Colon]) {
                     self.parse_type().unwrap_or(Type::Infer)
                 } else {
@@ -1265,11 +1438,11 @@ impl RustParser {
                     None
                 };
                 self.match_token(&[RustTokenType::Semi]);
-                ItemKind::Global(name, ty, value.unwrap_or(Expr {
-                    kind: ExprKind::Unit,
-                    ty: None,
-                    span: (0, 0),
-                }))
+                ItemKind::Global(
+                    name,
+                    ty,
+                    value.unwrap_or(Expr { kind: ExprKind::Unit, ty: None, span: (0, 0) }),
+                )
             }
             RustTokenType::Fn => {
                 self.advance();
@@ -1324,7 +1497,10 @@ impl RustParser {
             }
             RustTokenType::Type => {
                 self.advance();
-                let name = self.expect(RustTokenType::Ident(String::new()), "type name").ok()?.lexeme;
+                let name = self
+                    .expect(RustTokenType::Ident(String::new()), "type name")
+                    .ok()?
+                    .lexeme;
                 let generics = self.parse_generics();
                 self.match_token(&[RustTokenType::Eq]);
                 let ty = self.parse_type().unwrap_or(Type::Infer);
@@ -1336,7 +1512,10 @@ impl RustParser {
                 if let RustTokenType::Ident(name) = &self.current().token_type {
                     if name == "macro_rules" {
                         self.advance();
-                        let name = self.expect(RustTokenType::Ident(String::new()), "macro name").ok()?.lexeme;
+                        let name = self
+                            .expect(RustTokenType::Ident(String::new()), "macro name")
+                            .ok()?
+                            .lexeme;
                         let rules = self.parse_macro_rules(&name);
                         ItemKind::MacroRules(name, rules)
                     } else {
@@ -1384,7 +1563,9 @@ impl RustParser {
         };
 
         let content = if self.match_token(&[RustTokenType::LBracket]) {
-            let path = self.parse_path().unwrap_or(Path { segments: vec![], is_absolute: false });
+            let path = self
+                .parse_path()
+                .unwrap_or(Path { segments: vec![], is_absolute: false });
             let mut tokens = Vec::new();
             // Simple: just skip to ]
             while !self.check(&RustTokenType::RBracket) && !self.check(&RustTokenType::Eof) {
@@ -1403,7 +1584,11 @@ impl RustParser {
         let is_absolute = self.match_token(&[RustTokenType::DoubleColon]);
         if self.match_token(&[RustTokenType::Crate]) || self.match_token(&[RustTokenType::Super]) {
             if let RustTokenType::Ident(id) = &self.current().token_type.clone() {
-                segments.push(PathSegment { ident: id.clone(), generic_args: None, turbofish: None });
+                segments.push(PathSegment {
+                    ident: id.clone(),
+                    generic_args: None,
+                    turbofish: None,
+                });
                 self.advance();
             }
         }
@@ -1431,18 +1616,14 @@ impl RustParser {
             UseTreeKind::Tree(trees)
         } else {
             UseTreeKind::Simple(
-                path.as_ref().and_then(|p| p.segments.last().map(|s| s.ident.clone())).unwrap_or_default(),
-                None
+                path.as_ref()
+                    .and_then(|p| p.segments.last().map(|s| s.ident.clone()))
+                    .unwrap_or_default(),
+                None,
             )
         };
         let is_glob = self.match_token(&[RustTokenType::Star]);
-        Some(UseTree {
-            path,
-            prefix: None,
-            tree,
-            is_glob,
-            is_nested: false,
-        })
+        Some(UseTree { path, prefix: None, tree, is_glob, is_nested: false })
     }
 
     fn parse_extern_items(&mut self) -> Vec<ForeignItem> {
@@ -1460,11 +1641,7 @@ impl RustParser {
                 self.match_token(&[RustTokenType::Colon]);
                 let ty = self.parse_type().unwrap_or(Type::Infer);
                 self.match_token(&[RustTokenType::Semi]);
-                items.push(ForeignItem {
-                    name,
-                    ty,
-                    attrs: Vec::new(),
-                });
+                items.push(ForeignItem { name, ty, attrs: Vec::new() });
             }
             self.match_token(&[RustTokenType::RBrace]);
         }
@@ -1551,7 +1728,8 @@ impl RustParser {
                     self.advance();
                     if self.match_token(&[RustTokenType::Colon]) {
                         let mut bounds = Vec::new();
-                        while !self.check(&RustTokenType::Gt) && !self.check(&RustTokenType::Comma) {
+                        while !self.check(&RustTokenType::Gt) && !self.check(&RustTokenType::Comma)
+                        {
                             bounds.push(self.parse_type().unwrap_or(Type::Infer));
                             if !self.match_token(&[RustTokenType::Plus]) {
                                 break;
@@ -1685,7 +1863,9 @@ impl RustParser {
                         Type::Str
                     }
                     _ => {
-                        let path = self.parse_path().unwrap_or(Path { segments: vec![], is_absolute: false });
+                        let path = self
+                            .parse_path()
+                            .unwrap_or(Path { segments: vec![], is_absolute: false });
                         Type::Path(path)
                     }
                 }
@@ -1716,11 +1896,7 @@ impl RustParser {
             None
         };
 
-        Some(Expr {
-            kind: ExprKind::Block(stmts, value),
-            ty: None,
-            span: (0, 0),
-        })
+        Some(Expr { kind: ExprKind::Block(stmts, value), ty: None, span: (0, 0) })
     }
 
     fn parse_stmt(&mut self) -> Option<Stmt> {
@@ -1825,7 +2001,7 @@ impl RustParser {
 
             lhs = Expr {
                 kind: ExprKind::Binary(
-                    Operator::Add,  // Simplified
+                    Operator::Add, // Simplified
                     Box::new(lhs),
                     Box::new(rhs),
                 ),
@@ -1995,15 +2171,16 @@ impl RustParser {
             }
             RustTokenType::Return => {
                 self.advance();
-                let value = if self.check(&RustTokenType::Semi) || self.check(&RustTokenType::RBrace) {
-                    None
-                } else {
-                    Some(Box::new(self.parse_expr().unwrap_or(Expr {
-                        kind: ExprKind::Unit,
-                        ty: None,
-                        span: (0, 0),
-                    })))
-                };
+                let value =
+                    if self.check(&RustTokenType::Semi) || self.check(&RustTokenType::RBrace) {
+                        None
+                    } else {
+                        Some(Box::new(self.parse_expr().unwrap_or(Expr {
+                            kind: ExprKind::Unit,
+                            ty: None,
+                            span: (0, 0),
+                        })))
+                    };
                 ExprKind::Return(value)
             }
             RustTokenType::Break => {
@@ -2068,11 +2245,14 @@ impl RustParser {
                     ty: None,
                     span: (0, 0),
                 }));
-                ExprKind::Block(vec![Stmt::Expr(Expr {
-                    kind: ExprKind::Unit,
-                    ty: None,
-                    span: (0, 0),
-                })], Some(body))
+                ExprKind::Block(
+                    vec![Stmt::Expr(Expr {
+                        kind: ExprKind::Unit,
+                        ty: None,
+                        span: (0, 0),
+                    })],
+                    Some(body),
+                )
             }
             RustTokenType::PathSep => {
                 return self.parse_path_expr();
@@ -2080,20 +2260,12 @@ impl RustParser {
             _ => ExprKind::Unit,
         };
 
-        Some(Expr {
-            kind: expr,
-            ty: None,
-            span: token.span,
-        })
+        Some(Expr { kind: expr, ty: None, span: token.span })
     }
 
     fn parse_path_expr(&mut self) -> Option<Expr> {
         let path = self.parse_path()?;
-        Some(Expr {
-            kind: ExprKind::Path(path),
-            ty: None,
-            span: (0, 0),
-        })
+        Some(Expr { kind: ExprKind::Path(path), ty: None, span: (0, 0) })
     }
 
     fn parse_struct(&mut self) -> Option<Struct> {
@@ -2121,11 +2293,7 @@ impl RustParser {
                 self.match_token(&[RustTokenType::Colon]);
                 let ty = self.parse_type().unwrap_or(Type::Infer);
                 self.match_token(&[RustTokenType::Comma]);
-                fields.push(StructField {
-                    name,
-                    ty,
-                    mutable: false,
-                });
+                fields.push(StructField { name, ty, mutable: false });
             }
             self.match_token(&[RustTokenType::RBrace]);
             fields
@@ -2133,12 +2301,7 @@ impl RustParser {
             Vec::new()
         };
 
-        Some(Struct {
-            name,
-            generics,
-            fields,
-            where_clause: None,
-        })
+        Some(Struct { name, generics, fields, where_clause: None })
     }
 
     fn parse_enum(&mut self) -> Option<Enum> {
@@ -2188,11 +2351,7 @@ impl RustParser {
                         self.match_token(&[RustTokenType::Colon]);
                         let ty = self.parse_type().unwrap_or(Type::Infer);
                         self.match_token(&[RustTokenType::Comma]);
-                        fields.push(StructField {
-                            name: fname,
-                            ty,
-                            mutable: false,
-                        });
+                        fields.push(StructField { name: fname, ty, mutable: false });
                     }
                     self.match_token(&[RustTokenType::RBrace]);
                     VariantData::Struct(fields)
@@ -2200,12 +2359,7 @@ impl RustParser {
                     VariantData::Unit
                 };
 
-                variants.push(Variant {
-                    name,
-                    attrs: Vec::new(),
-                    data,
-                    discriminant: None,
-                });
+                variants.push(Variant { name, attrs: Vec::new(), data, discriminant: None });
 
                 if !self.match_token(&[RustTokenType::Comma]) {
                     break;
@@ -2217,12 +2371,7 @@ impl RustParser {
             Vec::new()
         };
 
-        Some(Enum {
-            name,
-            generics,
-            variants,
-            where_clause: None,
-        })
+        Some(Enum { name, generics, variants, where_clause: None })
     }
 
     fn parse_trait(&mut self) -> Option<Trait> {
@@ -2267,20 +2416,14 @@ impl RustParser {
             Vec::new()
         };
 
-        Some(Trait {
-            name,
-            generics,
-            items,
-            super_traits,
-            where_clause: None,
-        })
+        Some(Trait { name, generics, items, super_traits, where_clause: None })
     }
 
     fn parse_impl(&mut self) -> Option<Impl> {
         let generics = self.parse_generics();
 
         let trait_ty = if self.match_token(&[RustTokenType::For]) {
-            None  // Simplified
+            None // Simplified
         } else {
             None
         };
@@ -2305,13 +2448,7 @@ impl RustParser {
             Vec::new()
         };
 
-        Some(Impl {
-            generics,
-            trait_ty,
-            self_ty,
-            items,
-            where_clause: None,
-        })
+        Some(Impl { generics, trait_ty, self_ty, items, where_clause: None })
     }
 
     fn parse_macro_rules(&mut self, name: &str) -> Vec<MacroDef> {
@@ -2375,13 +2512,21 @@ impl RustAstConverter {
     /// `macro_rules!` definitions).
     pub fn convert_item(&self, item: &Item) -> Option<ast::Item> {
         match &item.kind {
-            ItemKind::Function(func) => Some(ast::Item::Function(
-                self.convert_function(func, &item.vis, &item.attrs),
-            )),
-            ItemKind::Struct(s) => {
-                Some(ast::Item::Struct(self.convert_struct(s, &item.vis, &item.attrs)))
-            }
-            ItemKind::Enum(e) => Some(ast::Item::Enum(self.convert_enum(e, &item.vis, &item.attrs))),
+            ItemKind::Function(func) => Some(ast::Item::Function(self.convert_function(
+                func,
+                &item.vis,
+                &item.attrs,
+            ))),
+            ItemKind::Struct(s) => Some(ast::Item::Struct(self.convert_struct(
+                s,
+                &item.vis,
+                &item.attrs,
+            ))),
+            ItemKind::Enum(e) => Some(ast::Item::Enum(self.convert_enum(
+                e,
+                &item.vis,
+                &item.attrs,
+            ))),
             ItemKind::Trait(t) => Some(ast::Item::Trait(self.convert_trait(t, &item.attrs))),
             ItemKind::Impl(i) => Some(ast::Item::Impl(self.convert_impl(i))),
             ItemKind::Global(name, ty, val) => Some(ast::Item::Constant(ast::Constant {
@@ -2434,7 +2579,11 @@ impl RustAstConverter {
             visibility: self.convert_visibility(vis),
             is_async: false,
             ternary: false,
-            generics: func.generics.iter().map(|g| self.convert_generic(g)).collect(),
+            generics: func
+                .generics
+                .iter()
+                .map(|g| self.convert_generic(g))
+                .collect(),
         }
     }
 
@@ -2516,7 +2665,11 @@ impl RustAstConverter {
                         Some(ast::TraitItem::Function {
                             name: f.name.clone(),
                             sig: ast::FunctionSig {
-                                generics: f.generics.iter().map(|g| self.convert_generic(g)).collect(),
+                                generics: f
+                                    .generics
+                                    .iter()
+                                    .map(|g| self.convert_generic(g))
+                                    .collect(),
                                 parameters: f
                                     .params
                                     .iter()
@@ -2541,18 +2694,19 @@ impl RustAstConverter {
     /// Convert a Rust impl block into the IR impl block.
     fn convert_impl(&self, i: &Impl) -> ast::ImplBlock {
         ast::ImplBlock {
-            trait_name: i.trait_ty.as_ref().map(|(path, _)| self.path_to_string(path)),
+            trait_name: i
+                .trait_ty
+                .as_ref()
+                .map(|(path, _)| self.path_to_string(path)),
             type_name: self.type_to_string(&i.self_ty),
             ty_params: i.generics.iter().map(|g| g.name.clone()).collect(),
             functions: i
                 .items
                 .iter()
                 .filter_map(|item| match item {
-                    ImplItem::Function(f) => Some(self.convert_function(
-                        f,
-                        &RustVisibility::Public,
-                        &[],
-                    )),
+                    ImplItem::Function(f) => {
+                        Some(self.convert_function(f, &RustVisibility::Public, &[]))
+                    }
                     _ => None,
                 })
                 .collect(),
@@ -2588,10 +2742,7 @@ impl RustAstConverter {
             // The IR does not model const generic parameters.
             GenericParamKind::Const { .. } => Vec::new(),
         };
-        ast::GenericParam {
-            name: g.name.clone(),
-            bounds,
-        }
+        ast::GenericParam { name: g.name.clone(), bounds }
     }
 
     /// Convert Rust visibility into the IR visibility.
@@ -2663,7 +2814,11 @@ impl RustAstConverter {
                 ast::AnnType::Tuple(types.iter().map(|t| self.convert_type(t)).collect())
             }
             Type::Function(function) => ast::AnnType::Func(
-                function.params.iter().map(|t| self.convert_type(t)).collect(),
+                function
+                    .params
+                    .iter()
+                    .map(|t| self.convert_type(t))
+                    .collect(),
                 Box::new(self.convert_type(&function.ret)),
             ),
             Type::TraitObject(bounds, _) => ast::AnnType::Named(self.paths_to_string(bounds)),
@@ -2714,12 +2869,12 @@ impl RustAstConverter {
                     "self".to_string(),
                 ))),
             },
-            ExprKind::Literal(value, suffix) => ast::ExprKind::Literal(ast::Literal::Verbatim(
-                match suffix {
+            ExprKind::Literal(value, suffix) => {
+                ast::ExprKind::Literal(ast::Literal::Verbatim(match suffix {
                     Some(suffix) => format!("{}{}", value, suffix),
                     None => value.clone(),
-                },
-            )),
+                }))
+            }
 
             // Operators
             ExprKind::Unary(op, operand) => ast::ExprKind::Unary {
@@ -2788,13 +2943,13 @@ impl RustAstConverter {
                 condition: Box::new(self.convert_expr(cond)),
                 body: self.convert_block_expr(body),
             },
-            ExprKind::For(pat, iter, body) => ast::ExprKind::Block(vec![ast::Stmt::new_at(
-                ast::StmtKind::For(
+            ExprKind::For(pat, iter, body) => {
+                ast::ExprKind::Block(vec![ast::Stmt::new_at(ast::StmtKind::For(
                     self.pattern_name(pat),
                     Box::new(self.convert_expr(iter)),
                     self.convert_block_expr(body),
-                ),
-            )]),
+                ))])
+            }
             ExprKind::Continue(_) => ast::ExprKind::Continue { label: None },
             ExprKind::Break(value, _) => ast::ExprKind::Break {
                 label: None,
@@ -2811,7 +2966,9 @@ impl RustAstConverter {
             },
             ExprKind::MethodCall(method, args, _) => ast::ExprKind::MethodCall {
                 // The Rust AST does not record the receiver of a method call.
-                object: Box::new(ast::Expr::new_at(ast::ExprKind::Literal(ast::Literal::Unit))),
+                object: Box::new(ast::Expr::new_at(ast::ExprKind::Literal(
+                    ast::Literal::Unit,
+                ))),
                 method: method.clone(),
                 arguments: args.iter().map(|a| self.convert_expr(a)).collect(),
             },
@@ -2829,9 +2986,9 @@ impl RustAstConverter {
                 self.convert_block_expr(body),
                 ret.as_ref().map(|t| self.convert_type(t)),
             ),
-            ExprKind::Async(_, body) => ast::ExprKind::Async {
-                body: Box::new(self.convert_expr(body)),
-            },
+            ExprKind::Async(_, body) => {
+                ast::ExprKind::Async { body: Box::new(self.convert_expr(body)) }
+            }
             ExprKind::Await(expr) => ast::ExprKind::Await(Box::new(self.convert_expr(expr))),
             ExprKind::Try(expr) => ast::ExprKind::Try(Box::new(self.convert_expr(expr))),
             ExprKind::TryBlock(stmts) => ast::ExprKind::Block(self.convert_block(stmts, &None)),
@@ -2937,7 +3094,10 @@ impl RustAstConverter {
                 function: Box::new(ast::Expr::new_at(ast::ExprKind::Identifier(
                     "asm".to_string(),
                 ))),
-                arguments: operands.iter().map(|o| self.convert_expr(&o.expr)).collect(),
+                arguments: operands
+                    .iter()
+                    .map(|o| self.convert_expr(&o.expr))
+                    .collect(),
             },
 
             // Types
@@ -3003,7 +3163,9 @@ impl RustAstConverter {
     fn convert_block(&self, stmts: &[Stmt], tail: &Option<Box<Expr>>) -> Vec<ast::Stmt> {
         let mut out: Vec<ast::Stmt> = stmts.iter().map(|s| self.convert_stmt(s)).collect();
         if let Some(tail) = tail {
-            out.push(ast::Stmt::new_at(ast::StmtKind::Expr(self.convert_expr(tail))));
+            out.push(ast::Stmt::new_at(ast::StmtKind::Expr(
+                self.convert_expr(tail),
+            )));
         }
         out
     }
@@ -3012,7 +3174,9 @@ impl RustAstConverter {
     fn convert_block_expr(&self, body: &Expr) -> Vec<ast::Stmt> {
         match &body.kind {
             ExprKind::Block(stmts, tail) => self.convert_block(stmts, tail),
-            _ => vec![ast::Stmt::new_at(ast::StmtKind::Expr(self.convert_expr(body)))],
+            _ => vec![ast::Stmt::new_at(ast::StmtKind::Expr(
+                self.convert_expr(body),
+            ))],
         }
     }
 
@@ -3037,12 +3201,10 @@ impl RustAstConverter {
                 ast::Pattern::As(Box::new(self.convert_pattern(inner)), name.clone())
             }
             Pat::Literal(literal) => ast::Pattern::Literal(self.convert_literal(literal)),
-            Pat::Range(start, end) => {
-                ast::Pattern::Range(
-                    self.pattern_literal(start.as_ref()),
-                    self.pattern_literal(end.as_ref()),
-                )
-            }
+            Pat::Range(start, end) => ast::Pattern::Range(
+                self.pattern_literal(start.as_ref()),
+                self.pattern_literal(end.as_ref()),
+            ),
             Pat::RangeLit(start, end) => {
                 ast::Pattern::Range(self.convert_literal(start), self.convert_literal(end))
             }
@@ -3059,11 +3221,20 @@ impl RustAstConverter {
             },
             Pat::Struct(path, fields, _) => ast::Pattern::Constructor {
                 name: self.path_to_string(path),
-                args: fields.iter().map(|f| self.convert_pattern(&f.pat)).collect(),
+                args: fields
+                    .iter()
+                    .map(|f| self.convert_pattern(&f.pat))
+                    .collect(),
             },
-            Pat::Tuple(pats) => ast::Pattern::Tuple(pats.iter().map(|p| self.convert_pattern(p)).collect()),
-            Pat::Slice(pats) => ast::Pattern::Slice(pats.iter().map(|p| self.convert_pattern(p)).collect()),
-            Pat::Or(pats) => ast::Pattern::Or(pats.iter().map(|p| self.convert_pattern(p)).collect()),
+            Pat::Tuple(pats) => {
+                ast::Pattern::Tuple(pats.iter().map(|p| self.convert_pattern(p)).collect())
+            }
+            Pat::Slice(pats) => {
+                ast::Pattern::Slice(pats.iter().map(|p| self.convert_pattern(p)).collect())
+            }
+            Pat::Or(pats) => {
+                ast::Pattern::Or(pats.iter().map(|p| self.convert_pattern(p)).collect())
+            }
         }
     }
 
@@ -3092,9 +3263,7 @@ impl RustAstConverter {
     fn pattern_expr(&self, pat: &Pat) -> ast::Expr {
         match pat {
             Pat::Bind(name, _, _) => ast::Expr::new_at(ast::ExprKind::Identifier(name.clone())),
-            Pat::Wild | Pat::Rest => {
-                ast::Expr::new_at(ast::ExprKind::Identifier("_".to_string()))
-            }
+            Pat::Wild | Pat::Rest => ast::Expr::new_at(ast::ExprKind::Identifier("_".to_string())),
             Pat::Literal(literal) => {
                 ast::Expr::new_at(ast::ExprKind::Literal(self.convert_literal(literal)))
             }

@@ -20,25 +20,25 @@
 //! └─────────────────────────────────────────────────────────────────┘
 //! ```
 
-pub mod core;
-pub mod ideation;
-pub mod generation;
-pub mod critique;
-pub mod multimodal;
 pub mod attribution;
 pub mod collaboration;
-pub mod style;
+pub mod core;
+pub mod critique;
 pub mod ethics;
+pub mod generation;
+pub mod ideation;
+pub mod multimodal;
+pub mod style;
 
-pub use core::{AuthorshipEngine, AuthorshipConfig, AuthorshipResult, AuthorshipError};
-pub use ideation::{IdeationEngine, CreativeConcept, IdeationResult};
-pub use generation::{GenerationEngine, ContentType};
-pub use critique::{CritiqueEngine, CritiqueReport};
-pub use multimodal::{MultimodalEngine, ModalOutput};
 pub use attribution::{AttributionManager, ProvenanceRecord};
 pub use collaboration::{CollaborationEngine, HumanFeedback};
+pub use core::{AuthorshipConfig, AuthorshipEngine, AuthorshipError, AuthorshipResult};
+pub use critique::{CritiqueEngine, CritiqueReport};
+pub use ethics::{AuthorshipEthics, EthicalViolation, EthicsConfig, EthicsFilter};
+pub use generation::{ContentType, GenerationEngine};
+pub use ideation::{CreativeConcept, IdeationEngine, IdeationResult};
+pub use multimodal::{ModalOutput, MultimodalEngine};
 pub use style::{StyleEngine, WritingStyle};
-pub use ethics::{AuthorshipEthics, EthicsFilter, EthicsConfig, EthicalViolation};
 
 use serde::{Deserialize, Serialize};
 

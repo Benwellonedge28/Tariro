@@ -1,6 +1,5 @@
 // Quantum Dialect - Quantum Circuit Operations
 
-
 use super::*;
 
 /// Quantum dialect operations
@@ -15,10 +14,7 @@ pub enum QuantumOp {
     /// Barrier on qubits
     Barrier(Vec<QubitId>),
     /// Conditional operation
-    If {
-        classical_op: ValueId,
-        quantum_op: Box<QuantumOp>,
-    },
+    If { classical_op: ValueId, quantum_op: Box<QuantumOp> },
     /// Allocate qubit
     Alloc(String),
     /// Deallocate qubit
@@ -33,44 +29,41 @@ pub enum QuantumOp {
     /// Controlled operation
     Controlled(Box<QuantumOp>, Vec<QubitId>), // control qubits, target op
     /// Custom unitary
-    Unitary {
-        matrix: Vec<Vec<Complex>>,
-        qubits: Vec<QubitId>,
-    },
+    Unitary { matrix: Vec<Vec<Complex>>, qubits: Vec<QubitId> },
 }
 
 /// Quantum gate types
 #[derive(Debug, Clone)]
 pub enum QuantumGate {
     /// Single qubit gates
-    H,    // Hadamard
-    X,    // Pauli-X (NOT)
-    Y,    // Pauli-Y
-    Z,    // Pauli-Z
-    S,    // Phase gate
-    T,    // T gate (π/8)
-    Sdg,  // S dagger
-    Tdg,  // T dagger
-    SX,   // √X gate
-    SY,   // √Y gate
-    SZ,   // √Z gate
-    Rx,   // Rotation around X
-    Ry,   // Rotation around Y
-    Rz,   // Rotation around Z
-    P,    // Phase
-    U,    // Universal single-qubit
+    H, // Hadamard
+    X,   // Pauli-X (NOT)
+    Y,   // Pauli-Y
+    Z,   // Pauli-Z
+    S,   // Phase gate
+    T,   // T gate (π/8)
+    Sdg, // S dagger
+    Tdg, // T dagger
+    SX,  // √X gate
+    SY,  // √Y gate
+    SZ,  // √Z gate
+    Rx,  // Rotation around X
+    Ry,  // Rotation around Y
+    Rz,  // Rotation around Z
+    P,   // Phase
+    U,   // Universal single-qubit
     /// Two-qubit gates
-    CX,   // Control-X (CNOT)
-    CY,   // Control-Y
-    CZ,   // Control-Z
+    CX, // Control-X (CNOT)
+    CY,  // Control-Y
+    CZ,  // Control-Z
     SWAP, // SWAP
     ISwap, // ISWAP
-    RZZ,  // RZZ
-    RXX,  // RXX
-    RYY,  // RYY
-    ECR,  // ECR (equatorial)
+    RZZ, // RZZ
+    RXX, // RXX
+    RYY, // RYY
+    ECR, // ECR (equatorial)
     /// Three-qubit gates
-    CCX,  // Toffoli (CCNOT)
+    CCX, // Toffoli (CCNOT)
     CSWAP, // Fredkin (CSWAP)
     /// Multi-qubit gates
     MultiControlX(Vec<QubitId>),
@@ -108,10 +101,7 @@ impl Complex {
     }
 
     pub fn add(&self, other: &Complex) -> Complex {
-        Complex {
-            re: self.re + other.re,
-            im: self.im + other.im,
-        }
+        Complex { re: self.re + other.re, im: self.im + other.im }
     }
 }
 
@@ -150,10 +140,7 @@ impl QuantumState {
         let mut amplitudes = vec![Complex::default(); size];
         amplitudes[0] = Complex::new(1.0, 0.0); // |0...0⟩ state
 
-        Self {
-            num_qubits,
-            amplitudes,
-        }
+        Self { num_qubits, amplitudes }
     }
 
     pub fn apply_gate(&mut self, gate: &[Vec<Complex>], qubits: &[QubitId]) {
@@ -185,10 +172,10 @@ impl QuantumState {
                 }
 
                 let mut val = Complex::default();
-                for (col, &bit) in extracted.iter().enumerate() {
+                for (col, _bit) in extracted.iter().enumerate() {
                     let mut contribution = gate[col][j];
                     contribution.im = -contribution.im; // Conjugate for row
-                    val = val.add(&gate[bit][j].mul(&self.amplitudes[idx]));
+                    val = val.add(&contribution.mul(&self.amplitudes[idx]));
                 }
                 new_amplitudes[i] = new_amplitudes[i].add(&val);
             }
@@ -255,9 +242,7 @@ pub struct QuantumOptimizer {
 
 impl QuantumOptimizer {
     pub fn new() -> Self {
-        Self {
-            commutation_rules: Vec::new(),
-        }
+        Self { commutation_rules: Vec::new() }
     }
 
     /// Optimize circuit by canceling adjacent inverses
@@ -354,10 +339,7 @@ pub struct Circuit {
 
 impl QuantumDialect {
     pub fn new() -> Self {
-        Self {
-            circuits: Vec::new(),
-            state: None,
-        }
+        Self { circuits: Vec::new(), state: None }
     }
 
     pub fn allocate(&mut self, _name: String) -> QubitId {

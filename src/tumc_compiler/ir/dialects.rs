@@ -1,15 +1,15 @@
 // IR Dialects Module - Domain-specific IR levels
 use crate::tumc_compiler::ir::*;
 
-pub mod typed_ptr;
-pub mod linalg;
 pub mod gpu;
+pub mod linalg;
 pub mod quantum;
+pub mod typed_ptr;
 
-pub use typed_ptr::*;
-pub use linalg::*;
 pub use gpu::*;
+pub use linalg::*;
 pub use quantum::*;
+pub use typed_ptr::*;
 
 // ============================================================================
 // Dialect Infrastructure
@@ -64,9 +64,7 @@ pub struct DialectRegistry {
 
 impl DialectRegistry {
     pub fn new() -> Self {
-        Self {
-            dialects: HashMap::new(),
-        }
+        Self { dialects: HashMap::new() }
     }
 
     pub fn register<D: Dialect + 'static>(&mut self, dialect: D) {
@@ -162,11 +160,7 @@ impl AffineMap {
 
     /// Create a map with one result
     pub fn single(dims: usize, symbols: usize, expr: AffineExpr) -> Self {
-        Self {
-            dims,
-            symbols,
-            results: vec![expr],
-        }
+        Self { dims, symbols, results: vec![expr] }
     }
 
     pub fn eval(&self, dim_values: &[i64], sym_values: &[i64]) -> Vec<i64> {
@@ -188,16 +182,25 @@ impl AffineMap {
                 }
                 AffineExpr::Mod(a, b) => {
                     let b_val = eval_expr(b, dims, syms);
-                    if b_val == 0 { 0 } else { eval_expr(a, dims, syms) % b_val }
+                    if b_val == 0 {
+                        0
+                    } else {
+                        eval_expr(a, dims, syms) % b_val
+                    }
                 }
             }
         }
 
         fn div_rem(a: i64, b: i64) -> (i64, i64) {
-            if b == 0 { (0, 0) } else { (a / b, a % b) }
+            if b == 0 {
+                (0, 0)
+            } else {
+                (a / b, a % b)
+            }
         }
 
-        self.results.iter()
+        self.results
+            .iter()
             .map(|r| eval_expr(r, dim_values, sym_values))
             .collect()
     }

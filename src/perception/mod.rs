@@ -9,9 +9,8 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-
-use uuid::Uuid;
 use chrono::Utc;
+use uuid::Uuid;
 
 // ============================================================================
 // Core Types
@@ -202,11 +201,7 @@ pub struct Intent {
 
 impl Intent {
     pub fn new(category: IntentCategory, confidence: f64) -> Self {
-        Self {
-            category,
-            confidence,
-            parameters: HashMap::new(),
-        }
+        Self { category, confidence, parameters: HashMap::new() }
     }
 }
 
@@ -247,20 +242,15 @@ impl IntentCategory {
 /// Sentiment analysis
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Sentiment {
-    pub valence: f64,      // -1.0 (negative) to 1.0 (positive)
-    pub arousal: f64,      // 0.0 (calm) to 1.0 (excited)
-    pub dominance: f64,    // 0.0 (submissive) to 1.0 (dominant)
+    pub valence: f64,   // -1.0 (negative) to 1.0 (positive)
+    pub arousal: f64,   // 0.0 (calm) to 1.0 (excited)
+    pub dominance: f64, // 0.0 (submissive) to 1.0 (dominant)
     pub emotion: Option<EmotionCategory>,
 }
 
 impl Default for Sentiment {
     fn default() -> Self {
-        Self {
-            valence: 0.0,
-            arousal: 0.0,
-            dominance: 0.5,
-            emotion: None,
-        }
+        Self { valence: 0.0, arousal: 0.0, dominance: 0.5, emotion: None }
     }
 }
 
@@ -365,13 +355,7 @@ impl Tokenizer {
         let word = token.text.to_lowercase();
 
         // Simple suffix stripping
-        let lemmas = [
-            ("ing", ""),
-            ("ed", ""),
-            ("ies", "y"),
-            ("es", ""),
-            ("s", ""),
-        ];
+        let lemmas = [("ing", ""), ("ed", ""), ("ies", "y"), ("es", ""), ("s", "")];
 
         for (suffix, replacement) in lemmas {
             if word.ends_with(suffix) && word.len() > suffix.len() + 2 {
@@ -401,7 +385,13 @@ impl EntityExtractor {
                 let word = token.text.to_lowercase();
 
                 // Capitalized words at sentence start or after punctuation = Person/Location
-                if token.text.chars().next().map(|c| c.is_uppercase()).unwrap_or(false) {
+                if token
+                    .text
+                    .chars()
+                    .next()
+                    .map(|c| c.is_uppercase())
+                    .unwrap_or(false)
+                {
                     let entity_type = if word == "i" {
                         EntityType::Person
                     } else if Self::is_location(&word) {
@@ -415,8 +405,14 @@ impl EntityExtractor {
                     // Try to get full entity span
                     let mut end_pos = i;
                     while end_pos + 1 < tokens.len()
-                        && tokens[end_pos + 1].text.chars().next().map(|c| c.is_uppercase()).unwrap_or(false)
-                        && ![".", "!", "?", ",", ";", ":", "-"].contains(&tokens[end_pos + 1].text.as_str())
+                        && tokens[end_pos + 1]
+                            .text
+                            .chars()
+                            .next()
+                            .map(|c| c.is_uppercase())
+                            .unwrap_or(false)
+                        && ![".", "!", "?", ",", ";", ":", "-"]
+                            .contains(&tokens[end_pos + 1].text.as_str())
                     {
                         end_pos += 1;
                     }
@@ -426,12 +422,7 @@ impl EntityExtractor {
                         let end = tokens[end_pos].position + tokens[end_pos].text.len();
                         let name = &text[start..end];
 
-                        entities.push(PerceivedEntity::new(
-                            name,
-                            entity_type,
-                            start,
-                            end,
-                        ));
+                        entities.push(PerceivedEntity::new(name, entity_type, start, end));
                     }
                 }
 
@@ -475,35 +466,55 @@ impl EntityExtractor {
 
     fn is_location(word: &str) -> bool {
         let locations = [
-            "city", "country", "state", "province", "town", "village",
-            "street", "road", "avenue", "building", "room", "floor",
-            "north", "south", "east", "west", "center", "park",
+            "city", "country", "state", "province", "town", "village", "street", "road", "avenue",
+            "building", "room", "floor", "north", "south", "east", "west", "center", "park",
         ];
         locations.contains(&word)
     }
 
     fn is_organization(word: &str) -> bool {
         let orgs = [
-            "company", "inc", "corp", "llc", "ltd", "university",
-            "college", "school", "hospital", "government", "agency",
+            "company",
+            "inc",
+            "corp",
+            "llc",
+            "ltd",
+            "university",
+            "college",
+            "school",
+            "hospital",
+            "government",
+            "agency",
         ];
         orgs.contains(&word)
     }
 
     fn is_action(word: &str) -> bool {
         let actions = [
-            "run", "walk", "eat", "drink", "sleep", "think", "know",
-            "want", "need", "create", "destroy", "find", "give",
-            "take", "make", "do", "say", "see", "hear", "feel",
+            "run", "walk", "eat", "drink", "sleep", "think", "know", "want", "need", "create",
+            "destroy", "find", "give", "take", "make", "do", "say", "see", "hear", "feel",
         ];
         actions.contains(&word)
     }
 
     fn is_concept(word: &str) -> bool {
         let concepts = [
-            "love", "hate", "fear", "hope", "idea", "theory",
-            "knowledge", "wisdom", "truth", "beauty", "justice",
-            "freedom", "right", "wrong", "good", "evil",
+            "love",
+            "hate",
+            "fear",
+            "hope",
+            "idea",
+            "theory",
+            "knowledge",
+            "wisdom",
+            "truth",
+            "beauty",
+            "justice",
+            "freedom",
+            "right",
+            "wrong",
+            "good",
+            "evil",
         ];
         concepts.contains(&word)
     }
@@ -514,7 +525,11 @@ pub struct RelationExtractor;
 
 impl RelationExtractor {
     /// Extract subject-predicate-object relations
-    pub fn extract(_tokens: &[Token], entities: &[PerceivedEntity], text: &str) -> Vec<PerceivedRelation> {
+    pub fn extract(
+        _tokens: &[Token],
+        entities: &[PerceivedEntity],
+        text: &str,
+    ) -> Vec<PerceivedRelation> {
         let mut relations = Vec::new();
 
         // Common predicate patterns
@@ -548,7 +563,9 @@ impl RelationExtractor {
                     let between = &text[e1.end_pos..e2.start_pos].to_lowercase();
 
                     for (pred_start, pred_end, rel_type) in predicate_patterns {
-                        if between.contains(pred_start) && (pred_end.is_empty() || between.contains(pred_end)) {
+                        if between.contains(pred_start)
+                            && (pred_end.is_empty() || between.contains(pred_end))
+                        {
                             relations.push(PerceivedRelation {
                                 subject: e1.name.clone(),
                                 predicate: rel_type.to_string(),
@@ -573,57 +590,89 @@ impl IntentClassifier {
     /// Classify intent from tokens and text
     pub fn classify(tokens: &[Token], text: &str) -> Intent {
         let text_lower = text.to_lowercase();
-        let first_token = tokens.first().map(|t| t.text.to_lowercase()).unwrap_or_default();
+        let first_token = tokens
+            .first()
+            .map(|t| t.text.to_lowercase())
+            .unwrap_or_default();
 
         // Question detection
-        if text.ends_with('?') || first_token == "what" || first_token == "who"
-            || first_token == "where" || first_token == "when" || first_token == "why"
-            || first_token == "how" || first_token == "is" || first_token == "are"
-            || first_token == "do" || first_token == "does" || first_token == "can"
+        if text.ends_with('?')
+            || first_token == "what"
+            || first_token == "who"
+            || first_token == "where"
+            || first_token == "when"
+            || first_token == "why"
+            || first_token == "how"
+            || first_token == "is"
+            || first_token == "are"
+            || first_token == "do"
+            || first_token == "does"
+            || first_token == "can"
         {
             return Intent::new(IntentCategory::Question, 0.9);
         }
 
         // Command detection
-        if first_token == "do" || first_token == "make" || first_token == "create"
-            || first_token == "delete" || first_token == "remove" || first_token == "add"
-            || first_token == "go" || first_token == "run" || first_token == "stop"
-            || first_token == "start" || first_token == "finish" || first_token == "complete"
+        if first_token == "do"
+            || first_token == "make"
+            || first_token == "create"
+            || first_token == "delete"
+            || first_token == "remove"
+            || first_token == "add"
+            || first_token == "go"
+            || first_token == "run"
+            || first_token == "stop"
+            || first_token == "start"
+            || first_token == "finish"
+            || first_token == "complete"
         {
             return Intent::new(IntentCategory::Command, 0.85);
         }
 
         // Greeting detection
-        if first_token == "hello" || first_token == "hi" || first_token == "hey"
-            || first_token == "greetings" || text_lower.contains("good morning")
-            || text_lower.contains("good afternoon") || text_lower.contains("good evening")
+        if first_token == "hello"
+            || first_token == "hi"
+            || first_token == "hey"
+            || first_token == "greetings"
+            || text_lower.contains("good morning")
+            || text_lower.contains("good afternoon")
+            || text_lower.contains("good evening")
         {
             return Intent::new(IntentCategory::Greeting, 0.95);
         }
 
         // Farewell detection
-        if first_token == "goodbye" || first_token == "bye" || first_token == "farewell"
-            || text_lower.contains("see you") || text_lower.contains("talk later")
+        if first_token == "goodbye"
+            || first_token == "bye"
+            || first_token == "farewell"
+            || text_lower.contains("see you")
+            || text_lower.contains("talk later")
         {
             return Intent::new(IntentCategory::Farewell, 0.9);
         }
 
         // Request detection
-        if text_lower.contains("please") || text_lower.contains("could you")
-            || text_lower.contains("would you") || text_lower.contains("can you")
+        if text_lower.contains("please")
+            || text_lower.contains("could you")
+            || text_lower.contains("would you")
+            || text_lower.contains("can you")
         {
             return Intent::new(IntentCategory::Request, 0.8);
         }
 
         // Agreement/Disagreement
-        if text_lower.contains("yes") || text_lower.contains("agree")
-            || text_lower.contains("correct") || text_lower.contains("right")
+        if text_lower.contains("yes")
+            || text_lower.contains("agree")
+            || text_lower.contains("correct")
+            || text_lower.contains("right")
         {
             return Intent::new(IntentCategory::Agreement, 0.8);
         }
 
-        if text_lower.contains("no") || text_lower.contains("disagree")
-            || text_lower.contains("wrong") || text_lower.contains("incorrect")
+        if text_lower.contains("no")
+            || text_lower.contains("disagree")
+            || text_lower.contains("wrong")
+            || text_lower.contains("incorrect")
         {
             return Intent::new(IntentCategory::Disagreement, 0.8);
         }
@@ -643,23 +692,47 @@ impl SentimentAnalyzer {
 
         // Positive words
         let positive_words = [
-            "good", "great", "excellent", "wonderful", "amazing", "fantastic",
-            "love", "like", "happy", "joy", "beautiful", "nice", "best",
-            "perfect", "awesome", "brilliant", "superb", "positive", "yes",
+            "good",
+            "great",
+            "excellent",
+            "wonderful",
+            "amazing",
+            "fantastic",
+            "love",
+            "like",
+            "happy",
+            "joy",
+            "beautiful",
+            "nice",
+            "best",
+            "perfect",
+            "awesome",
+            "brilliant",
+            "superb",
+            "positive",
+            "yes",
         ];
 
         // Negative words
         let negative_words = [
-            "bad", "terrible", "awful", "horrible", "hate", "dislike",
-            "sad", "angry", "ugly", "worst", "poor", "fail", "wrong",
-            "negative", "no", "never", "nothing", "nobody",
+            "bad", "terrible", "awful", "horrible", "hate", "dislike", "sad", "angry", "ugly",
+            "worst", "poor", "fail", "wrong", "negative", "no", "never", "nothing", "nobody",
         ];
 
         // Intensifiers
-        let intensifiers = ["very", "really", "extremely", "absolutely", "completely", "totally"];
+        let intensifiers = [
+            "very",
+            "really",
+            "extremely",
+            "absolutely",
+            "completely",
+            "totally",
+        ];
 
         // Negators
-        let negators = ["not", "never", "no", "don't", "doesn't", "didn't", "won't", "wouldn't"];
+        let negators = [
+            "not", "never", "no", "don't", "doesn't", "didn't", "won't", "wouldn't",
+        ];
 
         let mut valence_score = 0.0;
         let mut word_count = 0;
@@ -673,7 +746,11 @@ impl SentimentAnalyzer {
                 continue;
             }
 
-            let intensity = if intensifiers.contains(&clean_word) { 1.5 } else { 1.0 };
+            let intensity = if intensifiers.contains(&clean_word) {
+                1.5
+            } else {
+                1.0
+            };
 
             if positive_words.contains(&clean_word) {
                 let score = 0.5 * intensity;
@@ -697,8 +774,8 @@ impl SentimentAnalyzer {
         // Arousal based on punctuation and caps
         let exclamation_count = text.chars().filter(|&c| c == '!').count();
         let question_count = text.chars().filter(|&c| c == '?').count();
-        let caps_ratio = text.chars().filter(|c| c.is_uppercase()).count() as f64
-            / text.len().max(1) as f64;
+        let caps_ratio =
+            text.chars().filter(|c| c.is_uppercase()).count() as f64 / text.len().max(1) as f64;
 
         let arousal = ((exclamation_count as f64 * 0.1)
             + (question_count as f64 * 0.05)
@@ -706,12 +783,16 @@ impl SentimentAnalyzer {
             .min(1.0);
 
         // Dominance based on confidence indicators
-        let dominance = if text_lower.contains("should") || text_lower.contains("must")
-            || text_lower.contains("need to") || text_lower.contains("have to")
+        let dominance = if text_lower.contains("should")
+            || text_lower.contains("must")
+            || text_lower.contains("need to")
+            || text_lower.contains("have to")
         {
             0.7
-        } else if text_lower.contains("might") || text_lower.contains("could")
-            || text_lower.contains("perhaps") || text_lower.contains("maybe")
+        } else if text_lower.contains("might")
+            || text_lower.contains("could")
+            || text_lower.contains("perhaps")
+            || text_lower.contains("maybe")
         {
             0.4
         } else {
@@ -721,12 +802,7 @@ impl SentimentAnalyzer {
         // Detect emotion
         let emotion = Self::detect_emotion(valence, arousal);
 
-        Sentiment {
-            valence,
-            arousal,
-            dominance,
-            emotion,
-        }
+        Sentiment { valence, arousal, dominance, emotion }
     }
 
     fn detect_emotion(valence: f64, arousal: f64) -> Option<EmotionCategory> {
@@ -772,10 +848,7 @@ impl PerceptionEngine {
     }
 
     pub fn with_config(config: PerceptionConfig) -> Self {
-        Self {
-            config,
-            stats: PerceptionStats::default(),
-        }
+        Self { config, stats: PerceptionStats::default() }
     }
 
     /// Process text input
@@ -965,7 +1038,9 @@ mod entity_extractor_tests {
         let entities = EntityExtractor::extract(&tokens, "I love truth and justice");
 
         // Should extract concept words
-        assert!(entities.iter().any(|e| e.entity_type == EntityType::Concept));
+        assert!(entities
+            .iter()
+            .any(|e| e.entity_type == EntityType::Concept));
     }
 }
 

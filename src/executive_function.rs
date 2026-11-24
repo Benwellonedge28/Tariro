@@ -7,7 +7,6 @@ use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 
-
 /// The central executive function coordinating all AGI subsystems
 pub struct ExecutiveFunction {
     pub goal_manager: GoalManager,
@@ -33,43 +32,45 @@ impl ExecutiveFunction {
     }
 
     /// Main processing cycle - called every tick
-    pub fn process_cycle(&mut self, perception_input: &PerceptionInput, context: &ProcessingContext) -> ExecutiveDecision {
+    pub fn process_cycle(
+        &mut self,
+        perception_input: &PerceptionInput,
+        context: &ProcessingContext,
+    ) -> ExecutiveDecision {
         println!("[Executive] Starting processing cycle");
 
         // Step 1: Update global state from perception
         self.state_manager.update_from_perception(perception_input);
 
         // Step 2: Update goal priorities based on new input
-        self.goal_manager.update_priorities(&self.state_manager.current_state);
+        self.goal_manager
+            .update_priorities(&self.state_manager.current_state);
 
         // Step 3: Attention selection - what to focus on
         let focus_items = self.attention_controller.select_focus(
             &self.state_manager.current_state,
-            &self.goal_manager.active_goals
+            &self.goal_manager.active_goals,
         );
 
         // Step 4: Metacognitive monitoring
         // The monitor is taken out of the executive for the check, so that the
         // executive can be read while the monitor is written.
-        let mut monitor = std::mem::replace(
-            &mut self.metacognitive_monitor,
-            MetacognitiveMonitor::new(),
-        );
+        let mut monitor =
+            std::mem::replace(&mut self.metacognitive_monitor, MetacognitiveMonitor::new());
         monitor.check_processing(self);
         self.metacognitive_monitor = monitor;
 
         // Step 5: Resource allocation
-        let resources = self.resource_allocator.allocate(
-            &focus_items,
-            &self.state_manager.current_state
-        );
+        let resources = self
+            .resource_allocator
+            .allocate(&focus_items, &self.state_manager.current_state);
 
         // Step 6: Behavior selection
         let selected_behavior = self.behavior_selector.select(
             self.goal_manager.highest_priority_goal(),
             &focus_items,
             &resources,
-            context
+            context,
         );
 
         // Step 7: Decision output
@@ -85,7 +86,10 @@ impl ExecutiveFunction {
         // Step 8: Update state
         self.state_manager.record_decision(&decision);
 
-        println!("[Executive] Cycle complete. Decision confidence: {:.2}", decision.confidence);
+        println!(
+            "[Executive] Cycle complete. Decision confidence: {:.2}",
+            decision.confidence
+        );
         decision
     }
 
@@ -99,7 +103,10 @@ impl ExecutiveFunction {
 
     /// Handle goal from user or internal generation
     pub fn receive_goal(&mut self, goal: &str, priority: f64, goal_type: GoalCategory) {
-        println!("[Executive] Received goal: {} (priority: {:.2})", goal, priority);
+        println!(
+            "[Executive] Received goal: {} (priority: {:.2})",
+            goal, priority
+        );
         self.goal_manager.add_goal(goal, priority, goal_type);
     }
 
@@ -118,9 +125,7 @@ impl ExecutiveFunction {
                 self.resource_allocator.apply_change(change);
                 None
             }
-            SystemMessage::ExternalInterrupt(interrupt) => {
-                self.handle_interrupt(interrupt)
-            }
+            SystemMessage::ExternalInterrupt(interrupt) => self.handle_interrupt(interrupt),
         }
     }
 
@@ -240,16 +245,16 @@ impl GoalManager {
             completed_goals: Vec::new(),
             failed_goals: Vec::new(),
             pending_updates: Vec::new(),
-            goal_hierarchy: GoalHierarchy {
-                root_goals: Vec::new(),
-                hierarchy_levels: 0,
-            },
+            goal_hierarchy: GoalHierarchy { root_goals: Vec::new(), hierarchy_levels: 0 },
         }
     }
 
     pub fn add_goal(&mut self, goal_text: &str, priority: f64, goal_type: GoalCategory) {
         let goal = Goal {
-            id: format!("goal_{}", Utc::now().timestamp_nanos()),
+            id: format!(
+                "goal_{}",
+                Utc::now().timestamp_nanos_opt().unwrap_or_default()
+            ),
             goal_text: goal_text.to_string(),
             goal_type,
             priority,
@@ -280,9 +285,9 @@ impl GoalManager {
     }
 
     pub fn highest_priority_goal(&self) -> Option<&Goal> {
-        self.active_goals.iter().max_by(|a, b| {
-            a.priority.partial_cmp(&b.priority).unwrap()
-        })
+        self.active_goals
+            .iter()
+            .max_by(|a, b| a.priority.partial_cmp(&b.priority).unwrap())
     }
 
     pub fn clarity_of_goals(&self) -> f64 {
@@ -304,9 +309,8 @@ impl GoalManager {
     }
 
     fn sort_by_priority(&mut self) {
-        self.active_goals.sort_by(|a, b| {
-            b.priority.partial_cmp(&a.priority).unwrap()
-        });
+        self.active_goals
+            .sort_by(|a, b| b.priority.partial_cmp(&a.priority).unwrap());
     }
 
     pub fn complete_goal(&mut self, goal_id: &str, outcome: &str) {
@@ -494,7 +498,7 @@ impl BehaviorSelector {
         goal: Option<&Goal>,
         focus_items: &[String],
         resources: &ResourceAllocation,
-        context: &ProcessingContext
+        context: &ProcessingContext,
     ) -> Behavior {
         let mut candidates = Vec::new();
 
@@ -534,7 +538,7 @@ impl BehaviorSelector {
         goal: Option<&Goal>,
         focus_items: &[String],
         resources: &ResourceAllocation,
-        context: &ProcessingContext
+        context: &ProcessingContext,
     ) -> f64 {
         let mut score = 0.0;
 
@@ -548,7 +552,8 @@ impl BehaviorSelector {
         }
 
         // Focus alignment
-        let focus_overlap = focus_items.iter()
+        let focus_overlap = focus_items
+            .iter()
             .filter(|item| template.preconditions.iter().any(|p| p.contains(&**item)))
             .count() as f64;
         score += focus_overlap / (template.preconditions.len().max(1) as f64) * 0.3;
@@ -565,7 +570,12 @@ impl BehaviorSelector {
         (score + template.utility_range.0) / 2.0
     }
 
-    fn instantiate_behavior(&self, name: &str, focus_items: &[String], goal: Option<&Goal>) -> Behavior {
+    fn instantiate_behavior(
+        &self,
+        name: &str,
+        focus_items: &[String],
+        goal: Option<&Goal>,
+    ) -> Behavior {
         let mut params = HashMap::new();
         params.insert("focus".to_string(), focus_items.join(","));
         if let Some(g) = goal {
@@ -582,47 +592,56 @@ impl BehaviorSelector {
     fn default_library() -> HashMap<String, BehaviorTemplate> {
         let mut library = HashMap::new();
 
-        library.insert("perceive".to_string(), BehaviorTemplate {
-            name: "perceive".to_string(),
-            category: BehaviorCategory::Perception,
-            preconditions: vec!["sensory_input".to_string()],
-            effects: vec!["understanding".to_string(), "context".to_string()],
-            utility_range: (0.3, 0.8),
-            resource_requirements: ResourceRequirement {
-                computation: 0.2,
-                memory: 0.1,
-                time: 0.1,
-                energy: 0.1,
+        library.insert(
+            "perceive".to_string(),
+            BehaviorTemplate {
+                name: "perceive".to_string(),
+                category: BehaviorCategory::Perception,
+                preconditions: vec!["sensory_input".to_string()],
+                effects: vec!["understanding".to_string(), "context".to_string()],
+                utility_range: (0.3, 0.8),
+                resource_requirements: ResourceRequirement {
+                    computation: 0.2,
+                    memory: 0.1,
+                    time: 0.1,
+                    energy: 0.1,
+                },
             },
-        });
+        );
 
-        library.insert("reason".to_string(), BehaviorTemplate {
-            name: "reason".to_string(),
-            category: BehaviorCategory::Reasoning,
-            preconditions: vec!["information".to_string()],
-            effects: vec!["insight".to_string(), "decision".to_string()],
-            utility_range: (0.4, 0.9),
-            resource_requirements: ResourceRequirement {
-                computation: 0.5,
-                memory: 0.3,
-                time: 0.3,
-                energy: 0.2,
+        library.insert(
+            "reason".to_string(),
+            BehaviorTemplate {
+                name: "reason".to_string(),
+                category: BehaviorCategory::Reasoning,
+                preconditions: vec!["information".to_string()],
+                effects: vec!["insight".to_string(), "decision".to_string()],
+                utility_range: (0.4, 0.9),
+                resource_requirements: ResourceRequirement {
+                    computation: 0.5,
+                    memory: 0.3,
+                    time: 0.3,
+                    energy: 0.2,
+                },
             },
-        });
+        );
 
-        library.insert("act".to_string(), BehaviorTemplate {
-            name: "act".to_string(),
-            category: BehaviorCategory::Action,
-            preconditions: vec!["decision".to_string(), "capability".to_string()],
-            effects: vec!["state_change".to_string()],
-            utility_range: (0.5, 1.0),
-            resource_requirements: ResourceRequirement {
-                computation: 0.3,
-                memory: 0.1,
-                time: 0.2,
-                energy: 0.4,
+        library.insert(
+            "act".to_string(),
+            BehaviorTemplate {
+                name: "act".to_string(),
+                category: BehaviorCategory::Action,
+                preconditions: vec!["decision".to_string(), "capability".to_string()],
+                effects: vec!["state_change".to_string()],
+                utility_range: (0.5, 1.0),
+                resource_requirements: ResourceRequirement {
+                    computation: 0.3,
+                    memory: 0.1,
+                    time: 0.2,
+                    energy: 0.4,
+                },
             },
-        });
+        );
 
         library
     }
@@ -720,30 +739,15 @@ impl ResourceAllocation {
     }
 
     pub fn maximum() -> Self {
-        ResourceAllocation {
-            computation: 1.0,
-            memory: 1.0,
-            time: 1.0,
-            energy: 1.0,
-        }
+        ResourceAllocation { computation: 1.0, memory: 1.0, time: 1.0, energy: 1.0 }
     }
 }
 
 impl ResourceAllocator {
     pub fn new() -> Self {
         ResourceAllocator {
-            available: ResourcePool {
-                computation: 1.0,
-                memory: 1.0,
-                time: 1.0,
-                energy: 1.0,
-            },
-            allocated: ResourceAllocation {
-                computation: 0.0,
-                memory: 0.0,
-                time: 0.0,
-                energy: 0.0,
-            },
+            available: ResourcePool { computation: 1.0, memory: 1.0, time: 1.0, energy: 1.0 },
+            allocated: ResourceAllocation { computation: 0.0, memory: 0.0, time: 0.0, energy: 0.0 },
         }
     }
 
@@ -776,7 +780,8 @@ impl ResourceAllocator {
                 self.available.computation += change.amount * 0.1;
             }
             "decrease" => {
-                self.available.computation = (self.available.computation - change.amount * 0.1).max(0.1);
+                self.available.computation =
+                    (self.available.computation - change.amount * 0.1).max(0.1);
             }
             _ => {}
         }
@@ -871,7 +876,10 @@ impl GlobalStateManager {
 
     pub fn enter_interrupt_mode(&mut self, interrupt: &Interrupt) {
         self.mode = ProcessingMode::Interrupt;
-        println!("[StateManager] Entered interrupt mode: {:?}", interrupt.interrupt_type);
+        println!(
+            "[StateManager] Entered interrupt mode: {:?}",
+            interrupt.interrupt_type
+        );
     }
 
     pub fn queue_interrupt(&mut self, interrupt: &Interrupt) {
@@ -922,10 +930,7 @@ pub struct PerceptionInput {
 
 impl Default for PerceptionInput {
     fn default() -> Self {
-        PerceptionInput {
-            saliency_items: Vec::new(),
-            raw_sensory: HashMap::new(),
-        }
+        PerceptionInput { saliency_items: Vec::new(), raw_sensory: HashMap::new() }
     }
 }
 
@@ -996,9 +1001,6 @@ fn rand_simple() -> f64 {
         .subsec_nanos();
     nanos as f64 / u32::MAX as f64
 }
-
-
-use std::hash::{ };
 
 trait ChooseRandom {
     type Item;

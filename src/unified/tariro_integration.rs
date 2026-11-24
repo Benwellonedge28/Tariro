@@ -3,12 +3,12 @@
 //! This module provides a unified interface that integrates all 3000+ modules
 //! and engines under the Tariro AGI sovereign entry point.
 
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
-use serde::{Deserialize, Serialize};
 
 pub mod engine_registry;
-pub use engine_registry::{EngineRegistry, EngineMetadata, EngineCategory, EngineStatistics};
+pub use engine_registry::{EngineCategory, EngineMetadata, EngineRegistry, EngineStatistics};
 
 /// System capability levels
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
@@ -243,11 +243,7 @@ impl TariroIntegration {
     }
 
     fn initialize_creativity_engines(&self) -> Result<(), String> {
-        let creativity_engines = vec![
-            "creativity_engine",
-            "theory_of_mind",
-            "creativity",
-        ];
+        let creativity_engines = vec!["creativity_engine", "theory_of_mind", "creativity"];
 
         for engine in creativity_engines {
             self.set_module_status(engine, ModuleStatus::Active);
@@ -318,7 +314,8 @@ impl TariroIntegration {
     }
 
     fn update_active_engines(&mut self) {
-        let count = self.integration_status
+        let count = self
+            .integration_status
             .read()
             .map(|s| s.values().filter(|v| v.initialized).count())
             .unwrap_or(0);
@@ -349,7 +346,8 @@ impl TariroIntegration {
 
     /// Get all available capabilities
     pub fn get_capabilities(&self) -> Vec<EngineMetadata> {
-        self.registry.get_all_engine_names()
+        self.registry
+            .get_all_engine_names()
             .iter()
             .filter_map(|name| self.registry.get_engine(name))
             .collect()
@@ -380,7 +378,8 @@ impl TariroIntegration {
             learning_ready: status.capability_profile.learning >= CapabilityLevel::Advanced,
             security_ready: status.capability_profile.security >= CapabilityLevel::Advanced,
             memory_ready: status.capability_profile.memory >= CapabilityLevel::Advanced,
-            communication_ready: status.capability_profile.communication >= CapabilityLevel::Advanced,
+            communication_ready: status.capability_profile.communication
+                >= CapabilityLevel::Advanced,
             creativity_ready: status.capability_profile.creativity >= CapabilityLevel::Advanced,
         }
     }

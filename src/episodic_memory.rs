@@ -1,10 +1,10 @@
 // Tariro AGI - Episodic Memory Module
 // Long-term memory for experiences and events
 
-use std::collections::{HashMap, VecDeque, BinaryHeap, HashSet};
 use chrono::{DateTime, Utc};
-use std::time::Duration;
 use std::cmp::Ordering;
+use std::collections::{BinaryHeap, HashMap, HashSet, VecDeque};
+use std::time::Duration;
 
 // ============================================================================
 // Episodic Memory Types
@@ -33,8 +33,8 @@ pub struct EpisodicMemory {
     pub importance: f32,
     pub vividness: f32,
     pub accessibility: f32,
-    pub valence: f32,  // Positive/negative
-    pub arousal: f32,  // Emotional intensity
+    pub valence: f32, // Positive/negative
+    pub arousal: f32, // Emotional intensity
 
     // Associations
     pub associated_memories: Vec<String>,
@@ -228,7 +228,9 @@ struct PrioritizedMemory {
 
 impl Ord for PrioritizedMemory {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.priority.partial_cmp(&other.priority).unwrap_or(Ordering::Equal)
+        self.priority
+            .partial_cmp(&other.priority)
+            .unwrap_or(Ordering::Equal)
     }
 }
 
@@ -317,10 +319,7 @@ impl EpisodicMemoryStore {
         for memory in &self.memories {
             let score = self.score_memory(memory, query);
             if score > 0.0 {
-                candidates.push(PrioritizedMemory {
-                    memory: memory.clone(),
-                    priority: score,
-                });
+                candidates.push(PrioritizedMemory { memory: memory.clone(), priority: score });
             }
         }
 
@@ -337,7 +336,8 @@ impl EpisodicMemoryStore {
             let mut memory = pm.memory;
             memory.access_count += 1;
             memory.last_accessed = Some(Utc::now());
-            memory.accessibility = (memory.accessibility + self.config.importance_boost_on_access).min(1.0);
+            memory.accessibility =
+                (memory.accessibility + self.config.importance_boost_on_access).min(1.0);
 
             results.push(memory);
         }
@@ -353,7 +353,10 @@ impl EpisodicMemoryStore {
         score += memory.importance * 0.3;
 
         // Recency weight
-        let age_hours = Utc::now().signed_duration_since(memory.timestamp).num_seconds() as f32 / 3600.0;
+        let age_hours = Utc::now()
+            .signed_duration_since(memory.timestamp)
+            .num_seconds() as f32
+            / 3600.0;
         let recency = (1.0 / (1.0 + age_hours / 24.0)).min(1.0);
         score += recency * 0.2;
 
@@ -373,7 +376,11 @@ impl EpisodicMemoryStore {
         // Content matching
         if let Some(ref keywords) = query.keywords {
             for keyword in keywords {
-                if memory.narrative.to_lowercase().contains(&keyword.to_lowercase()) {
+                if memory
+                    .narrative
+                    .to_lowercase()
+                    .contains(&keyword.to_lowercase())
+                {
                     score += 0.1;
                 }
             }
@@ -382,7 +389,11 @@ impl EpisodicMemoryStore {
         // Entity matching
         if let Some(ref entities) = query.entity_filter {
             for entity in entities {
-                if memory.entities.iter().any(|e| e.name == *entity || e.entity_id == *entity) {
+                if memory
+                    .entities
+                    .iter()
+                    .any(|e| e.name == *entity || e.entity_id == *entity)
+                {
                     score += 0.15;
                 }
             }
@@ -390,8 +401,7 @@ impl EpisodicMemoryStore {
 
         // Temporal proximity
         if let Some(time_range) = &query.temporal_range {
-            let within = memory.timestamp >= time_range.start &&
-                        memory.timestamp <= time_range.end;
+            let within = memory.timestamp >= time_range.start && memory.timestamp <= time_range.end;
             if within {
                 score += 0.2;
             }
@@ -412,7 +422,9 @@ impl EpisodicMemoryStore {
     pub fn search_narrative(&self, pattern: &str, limit: usize) -> Vec<&EpisodicMemory> {
         let pattern_lower = pattern.to_lowercase();
 
-        let mut results: Vec<_> = self.memories.iter()
+        let mut results: Vec<_> = self
+            .memories
+            .iter()
             .filter(|m| m.narrative.to_lowercase().contains(&pattern_lower))
             .collect();
 
@@ -426,18 +438,26 @@ impl EpisodicMemoryStore {
     }
 
     /// Get memories from a specific time period
-    pub fn get_temporal_slice(&self, start: DateTime<Utc>, end: DateTime<Utc>) -> Vec<&EpisodicMemory> {
-        self.memories.iter()
+    pub fn get_temporal_slice(
+        &self,
+        start: DateTime<Utc>,
+        end: DateTime<Utc>,
+    ) -> Vec<&EpisodicMemory> {
+        self.memories
+            .iter()
             .filter(|m| m.timestamp >= start && m.timestamp <= end)
             .collect()
     }
 
     /// Get memories involving specific entities
     pub fn get_memories_with_entities(&self, entities: &[String]) -> Vec<&EpisodicMemory> {
-        self.memories.iter()
+        self.memories
+            .iter()
             .filter(|m| {
                 entities.iter().any(|e| {
-                    m.entities.iter().any(|mem| &mem.name == e || &mem.entity_id == e)
+                    m.entities
+                        .iter()
+                        .any(|mem| &mem.name == e || &mem.entity_id == e)
                 })
             })
             .collect()
@@ -450,7 +470,8 @@ impl EpisodicMemoryStore {
 
     /// Create a new timeline from memories
     pub fn create_timeline(&mut self, timeline_id: &str, name: &str, memory_ids: Vec<String>) {
-        let memories: Vec<_> = memory_ids.iter()
+        let memories: Vec<_> = memory_ids
+            .iter()
             .filter_map(|id| self.memory_index.get(id))
             .map(|&idx| self.memories[idx].timestamp)
             .collect();
@@ -458,13 +479,16 @@ impl EpisodicMemoryStore {
         let start = memories.iter().min().copied();
         let end = memories.iter().max().copied();
 
-        self.timelines.insert(timeline_id.to_string(), Timeline {
-            timeline_id: timeline_id.to_string(),
-            name: name.to_string(),
-            memory_ids,
-            start_time: start.unwrap_or_else(Utc::now),
-            end_time: end,
-        });
+        self.timelines.insert(
+            timeline_id.to_string(),
+            Timeline {
+                timeline_id: timeline_id.to_string(),
+                name: name.to_string(),
+                memory_ids,
+                start_time: start.unwrap_or_else(Utc::now),
+                end_time: end,
+            },
+        );
     }
 
     /// Consolidate memory into more abstract form
@@ -511,11 +535,26 @@ impl EpisodicMemoryStore {
 
         // Simple keyword-based theme extraction
         let theme_keywords = [
-            ("work", vec!["work", "job", "project", "meeting", "deadline"]),
-            ("social", vec!["friend", "family", "party", "conversation", "talk"]),
-            ("learning", vec!["learn", "study", "read", "understand", "discover"]),
-            ("problem", vec!["problem", "issue", "challenge", "difficult", "conflict"]),
-            ("success", vec!["success", "achieved", "won", "accomplished", "happy"]),
+            (
+                "work",
+                vec!["work", "job", "project", "meeting", "deadline"],
+            ),
+            (
+                "social",
+                vec!["friend", "family", "party", "conversation", "talk"],
+            ),
+            (
+                "learning",
+                vec!["learn", "study", "read", "understand", "discover"],
+            ),
+            (
+                "problem",
+                vec!["problem", "issue", "challenge", "difficult", "conflict"],
+            ),
+            (
+                "success",
+                vec!["success", "achieved", "won", "accomplished", "happy"],
+            ),
         ];
 
         for (theme, keywords) in theme_keywords {
@@ -550,7 +589,8 @@ impl EpisodicMemoryStore {
     /// Update emotional clusters
     fn update_emotional_clusters(&mut self, memory: &EpisodicMemory) {
         let emotion = memory.emotional_context.primary_emotion.clone();
-        self.emotional_clusters.entry(emotion)
+        self.emotional_clusters
+            .entry(emotion)
             .or_insert_with(Vec::new)
             .push(memory.memory_id.clone());
     }
@@ -565,18 +605,18 @@ impl EpisodicMemoryStore {
             repetitions: 0,
         };
 
-        self.repetition_schedule.insert(memory.memory_id.clone(), entry);
+        self.repetition_schedule
+            .insert(memory.memory_id.clone(), entry);
     }
 
     /// Get memories due for review
     pub fn get_review_memories(&self) -> Vec<&EpisodicMemory> {
         let now = Utc::now();
 
-        self.repetition_schedule.iter()
+        self.repetition_schedule
+            .iter()
             .filter(|(_, entry)| entry.next_review <= now)
-            .filter_map(|(id, _)| {
-                self.memory_index.get(id).map(|&idx| &self.memories[idx])
-            })
+            .filter_map(|(id, _)| self.memory_index.get(id).map(|&idx| &self.memories[idx]))
             .collect()
     }
 
@@ -586,7 +626,9 @@ impl EpisodicMemoryStore {
         self.stats.total_events += memory.events.len();
         self.stats.total_entities += memory.entities.len();
 
-        *self.stats.memories_by_emotion
+        *self
+            .stats
+            .memories_by_emotion
             .entry(memory.emotional_context.primary_emotion.clone())
             .or_insert(0) += 1;
 
@@ -603,8 +645,9 @@ impl EpisodicMemoryStore {
         let mut lowest_score = f32::MAX;
 
         for (idx, memory) in self.memories.iter().enumerate() {
-            let score = memory.importance * memory.accessibility *
-                       (1.0 - memory.decay_factor * self.stats.total_memories as f32 * 0.001);
+            let score = memory.importance
+                * memory.accessibility
+                * (1.0 - memory.decay_factor * self.stats.total_memories as f32 * 0.001);
 
             if score < lowest_score {
                 lowest_score = score;
@@ -632,7 +675,8 @@ impl EpisodicMemoryStore {
 
     /// Replay a memory sequence
     pub fn replay_sequence(&self, memory_ids: &[String]) -> Vec<EpisodicMemory> {
-        memory_ids.iter()
+        memory_ids
+            .iter()
             .filter_map(|id| self.memory_index.get(id))
             .map(|&idx| self.memories[idx].clone())
             .collect()
@@ -680,7 +724,10 @@ pub struct TemporalRange {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("epmem_{}", now % 1_000_000)
 }
 
@@ -705,15 +752,13 @@ mod tests {
             duration: Some(Duration::from_secs(3600)),
             narrative: "Had a productive meeting about the project".to_string(),
             events: vec![],
-            entities: vec![
-                MemoryEntity {
-                    entity_id: "self".to_string(),
-                    entity_type: EntityType::Self_,
-                    name: "Self".to_string(),
-                    role: "participant".to_string(),
-                    properties: HashMap::new(),
-                }
-            ],
+            entities: vec![MemoryEntity {
+                entity_id: "self".to_string(),
+                entity_type: EntityType::Self_,
+                name: "Self".to_string(),
+                role: "participant".to_string(),
+                properties: HashMap::new(),
+            }],
             locations: vec![],
             emotional_context: EmotionalContext {
                 primary_emotion: "satisfied".to_string(),
@@ -759,15 +804,13 @@ mod tests {
             duration: Some(Duration::from_secs(3600)),
             narrative: "Learned about machine learning".to_string(),
             events: vec![],
-            entities: vec![
-                MemoryEntity {
-                    entity_id: "ml".to_string(),
-                    entity_type: EntityType::Abstract,
-                    name: "ML".to_string(),
-                    role: "topic".to_string(),
-                    properties: HashMap::new(),
-                }
-            ],
+            entities: vec![MemoryEntity {
+                entity_id: "ml".to_string(),
+                entity_type: EntityType::Abstract,
+                name: "ML".to_string(),
+                role: "topic".to_string(),
+                properties: HashMap::new(),
+            }],
             locations: vec![],
             emotional_context: EmotionalContext {
                 primary_emotion: "curious".to_string(),

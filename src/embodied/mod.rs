@@ -7,9 +7,8 @@
 //! - Body schema
 
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap};
+use std::collections::HashMap;
 use uuid::Uuid;
-
 
 // ============================================================================
 // Core Types
@@ -48,10 +47,8 @@ impl Position {
     }
 
     pub fn distance(&self, other: &Position) -> f64 {
-        ((self.x - other.x).powi(2)
-            + (self.y - other.y).powi(2)
-            + (self.z - other.z).powi(2))
-        .sqrt()
+        ((self.x - other.x).powi(2) + (self.y - other.y).powi(2) + (self.z - other.z).powi(2))
+            .sqrt()
     }
 
     pub fn add(&self, other: &Position) -> Self {
@@ -74,11 +71,7 @@ pub struct Orientation {
 impl Orientation {
     pub fn forward(&self) -> Position {
         let yaw_rad = self.yaw.to_radians();
-        Position {
-            x: yaw_rad.sin(),
-            y: 0.0,
-            z: yaw_rad.cos(),
-        }
+        Position { x: yaw_rad.sin(), y: 0.0, z: yaw_rad.cos() }
     }
 }
 
@@ -247,10 +240,7 @@ pub struct SpatialReasoner {
 
 impl SpatialReasoner {
     pub fn new() -> Self {
-        Self {
-            objects: HashMap::new(),
-            relations: Vec::new(),
-        }
+        Self { objects: HashMap::new(), relations: Vec::new() }
     }
 
     /// Add spatial object
@@ -295,7 +285,12 @@ impl SpatialReasoner {
     }
 
     /// Calculate trajectory
-    pub fn calculate_trajectory(&self, start: Position, end: Position, steps: usize) -> Vec<Position> {
+    pub fn calculate_trajectory(
+        &self,
+        start: Position,
+        end: Position,
+        steps: usize,
+    ) -> Vec<Position> {
         let mut trajectory = Vec::new();
 
         for i in 0..=steps {
@@ -327,11 +322,7 @@ pub struct SpatialObject {
 
 impl Default for Orientation {
     fn default() -> Self {
-        Self {
-            yaw: 0.0,
-            pitch: 0.0,
-            roll: 0.0,
-        }
+        Self { yaw: 0.0, pitch: 0.0, roll: 0.0 }
     }
 }
 
@@ -413,13 +404,12 @@ pub enum ToolState {
 #[derive(Debug, Clone)]
 pub struct ToolKnowledge {
     pub tools: HashMap<String, Tool>,
-    pub tool_affordances: HashMap<String, Vec<String>>}
+    pub tool_affordances: HashMap<String, Vec<String>>,
+}
 
 impl ToolKnowledge {
     pub fn new() -> Self {
-        let mut kb = Self {
-            tools: HashMap::new(),
-            tool_affordances: HashMap::new()};
+        let mut kb = Self { tools: HashMap::new(), tool_affordances: HashMap::new() };
         kb.initialize_defaults();
         kb
     }
@@ -520,7 +510,12 @@ impl Environment {
     }
 
     /// Add object to environment
-    pub fn add_object(&mut self, name: &str, position: Position, object_type: EnvironmentObjectType) {
+    pub fn add_object(
+        &mut self,
+        name: &str,
+        position: Position,
+        object_type: EnvironmentObjectType,
+    ) {
         self.objects.insert(
             name.to_string(),
             EnvironmentObject {
@@ -609,11 +604,9 @@ impl EmbodiedCognition {
 
     /// Plan movement to target
     pub fn plan_movement(&mut self, target: Position) -> MovementPlan {
-        let trajectory = self.spatial.calculate_trajectory(
-            self.environment.agent_position,
-            target,
-            10,
-        );
+        let trajectory =
+            self.spatial
+                .calculate_trajectory(self.environment.agent_position, target, 10);
 
         let energy_cost = self.estimate_energy(&trajectory);
         MovementPlan {

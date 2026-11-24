@@ -34,10 +34,7 @@ impl Default for HotReloadConfig {
             debounce_ms: 300,
             preserve_state: true,
             preserve_console: true,
-            extensions: vec![
-                "tumc".to_string(),
-                "rs".to_string(),
-            ],
+            extensions: vec!["tumc".to_string(), "rs".to_string()],
         }
     }
 }
@@ -148,7 +145,11 @@ impl HotReloadManager {
         let mut records = Vec::new();
         for event in events {
             if let Some(ext) = event.path.extension() {
-                if self.config.extensions.contains(&ext.to_string_lossy().to_string()) {
+                if self
+                    .config
+                    .extensions
+                    .contains(&ext.to_string_lossy().to_string())
+                {
                     let record = ChangeRecord {
                         path: event.path.clone(),
                         event: match event.kind {
@@ -361,8 +362,8 @@ impl FileWatcher {
 
     /// Compute file hash
     fn compute_hash(&self, path: &Path) -> u64 {
-        use std::hash::{Hash, Hasher};
         use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
 
         let content = std::fs::read(path).unwrap_or_default();
         let mut hasher = DefaultHasher::new();
@@ -399,10 +400,7 @@ pub struct HotReloadMiddleware {
 impl HotReloadMiddleware {
     /// Create new middleware
     pub fn new(manager: HotReloadManager) -> Self {
-        Self {
-            manager,
-            ws_clients: Arc::new(RwLock::new(Vec::new())),
-        }
+        Self { manager, ws_clients: Arc::new(RwLock::new(Vec::new())) }
     }
 
     /// Register WebSocket client
@@ -415,7 +413,8 @@ impl HotReloadMiddleware {
         let message = serde_json::json!({
             "type": "reload",
             "result": result,
-        }).to_string();
+        })
+        .to_string();
 
         let clients = self.ws_clients.read().unwrap().clone();
         for client in clients {

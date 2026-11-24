@@ -18,7 +18,9 @@ mod tests {
         fn test_lexer_basic_tokens() {
             let source = "fn main() -> i32 { 42 }";
             let lexer = lexer::Lexer::new(source);
-            let tokens = lexer.tokenize().expect("Lexer should tokenize successfully");
+            let tokens = lexer
+                .tokenize()
+                .expect("Lexer should tokenize successfully");
 
             assert!(!tokens.is_empty());
             assert_eq!(tokens[0].kind, lexer::TokenKind::Fn);
@@ -32,8 +34,12 @@ mod tests {
             let lexer = lexer::Lexer::new(source);
             let tokens = lexer.tokenize().expect("Lexer should tokenize numbers");
 
-            assert!(tokens.iter().any(|t| t.kind == lexer::TokenKind::IntLiteral));
-            assert!(tokens.iter().any(|t| t.kind == lexer::TokenKind::FloatLiteral));
+            assert!(tokens
+                .iter()
+                .any(|t| t.kind == lexer::TokenKind::IntLiteral));
+            assert!(tokens
+                .iter()
+                .any(|t| t.kind == lexer::TokenKind::FloatLiteral));
         }
 
         #[test]
@@ -42,12 +48,16 @@ mod tests {
             let lexer = lexer::Lexer::new(source);
             let tokens = lexer.tokenize().expect("Lexer should tokenize strings");
 
-            assert!(tokens.iter().any(|t| t.kind == lexer::TokenKind::StringLiteral));
+            assert!(tokens
+                .iter()
+                .any(|t| t.kind == lexer::TokenKind::StringLiteral));
         }
 
         #[test]
         fn test_lexer_keywords() {
-            let keywords = ["fn", "let", "mut", "if", "else", "loop", "while", "return", "struct", "enum"];
+            let keywords = [
+                "fn", "let", "mut", "if", "else", "loop", "while", "return", "struct", "enum",
+            ];
             for kw in keywords {
                 let source = kw;
                 let lexer = lexer::Lexer::new(source);
@@ -74,16 +84,22 @@ mod tests {
             let tokens = lexer.tokenize().expect("Lexer should handle comments");
 
             // Comments should be filtered out, leaving only the number
-            assert!(tokens.iter().any(|t| matches!(t.kind, lexer::TokenKind::IntLiteral)));
+            assert!(tokens
+                .iter()
+                .any(|t| matches!(t.kind, lexer::TokenKind::IntLiteral)));
         }
 
         #[test]
         fn test_lexer_multiline_comment() {
             let source = "/* This is\na multiline\ncomment */ 42";
             let lexer = lexer::Lexer::new(source);
-            let tokens = lexer.tokenize().expect("Lexer should handle multiline comments");
+            let tokens = lexer
+                .tokenize()
+                .expect("Lexer should handle multiline comments");
 
-            assert!(tokens.iter().any(|t| matches!(t.kind, lexer::TokenKind::IntLiteral)));
+            assert!(tokens
+                .iter()
+                .any(|t| matches!(t.kind, lexer::TokenKind::IntLiteral)));
         }
     }
 
@@ -100,9 +116,7 @@ mod tests {
             let tokens = lexer::Lexer::new(source)
                 .tokenize()
                 .expect("Should tokenize");
-            let ast = parser::Parser::new(tokens)
-                .parse()
-                .expect("Should parse");
+            let ast = parser::Parser::new(tokens).parse().expect("Should parse");
 
             assert!(!ast.items.is_empty());
         }
@@ -297,8 +311,8 @@ mod tests {
                 .check(&ast)
                 .unwrap();
 
-            let optimized = optimizer::Optimizer::new(OptimizationLevel::Standard)
-                .optimize(typed_ast);
+            let optimized =
+                optimizer::Optimizer::new(OptimizationLevel::Standard).optimize(typed_ast);
 
             assert!(!optimized.items.is_empty());
         }
@@ -319,8 +333,8 @@ mod tests {
                 .check(&ast)
                 .unwrap();
 
-            let optimized = optimizer::Optimizer::new(OptimizationLevel::Standard)
-                .optimize(typed_ast);
+            let optimized =
+                optimizer::Optimizer::new(OptimizationLevel::Standard).optimize(typed_ast);
 
             assert!(!optimized.items.is_empty());
         }
@@ -344,8 +358,8 @@ mod tests {
                 .check(&ast)
                 .unwrap();
 
-            let optimized = optimizer::Optimizer::new(OptimizationLevel::Standard)
-                .optimize(typed_ast);
+            let optimized =
+                optimizer::Optimizer::new(OptimizationLevel::Standard).optimize(typed_ast);
 
             let codegen = codegen::CodeGenerator::new(TargetPlatform::Wasm);
             let result = codegen.generate(&optimized);
@@ -418,8 +432,12 @@ mod tests {
         fn test_optimization_levels() {
             let source = "fn main() -> i32 { 1 + 2 + 3 + 4 }";
 
-            for level in [OptimizationLevel::None, OptimizationLevel::Basic,
-                          OptimizationLevel::Standard, OptimizationLevel::Aggressive] {
+            for level in [
+                OptimizationLevel::None,
+                OptimizationLevel::Basic,
+                OptimizationLevel::Standard,
+                OptimizationLevel::Aggressive,
+            ] {
                 let mut compiler = Compiler::new(SourceLanguage::TumcIR, TargetPlatform::Wasm);
                 compiler.set_optimization(level);
 
@@ -435,7 +453,11 @@ mod tests {
             for platform in [TargetPlatform::Wasm, TargetPlatform::TariroBytecode] {
                 let mut compiler = Compiler::new(SourceLanguage::TumcIR, platform);
                 let result = compiler.compile(source);
-                assert!(result.success, "Compilation to {:?} should succeed", platform);
+                assert!(
+                    result.success,
+                    "Compilation to {:?} should succeed",
+                    platform
+                );
             }
         }
     }
@@ -543,12 +565,7 @@ mod tests {
         #[test]
         fn test_macro_pattern_matching() {
             let pattern = macro_system::Pattern::Any(macro_system::TypePattern::Any);
-            let token = lexer::Token::new(
-                lexer::TokenKind::Identifier,
-                "x",
-                0,
-                0,
-            );
+            let token = lexer::Token::new(lexer::TokenKind::Identifier, "x", 0, 0);
 
             assert!(pattern.matches(&token, &mut macro_system::Bindings::new()));
         }
@@ -558,20 +575,16 @@ mod tests {
             let mut env = macro_system::MacroEnv::new();
             env.define_macro(
                 "identity".to_string(),
-                macro_system::MacroDefinition::Declarative(vec![
-                    macro_system::MacroRule {
-                        pattern: macro_system::Pattern::Sequence(vec![
-                            macro_system::Pattern::Literal("$".into()),
-                            macro_system::Pattern::Capture("expr".into()),
-                        ]),
-                        template: macro_system::Template::Expr(
-                            macro_system::CapturedExpr {
-                                name: "expr".into(),
-                                fragment: macro_system::FragmentKind::Expr,
-                            },
-                        ),
-                    },
-                ]),
+                macro_system::MacroDefinition::Declarative(vec![macro_system::MacroRule {
+                    pattern: macro_system::Pattern::Sequence(vec![
+                        macro_system::Pattern::Literal("$".into()),
+                        macro_system::Pattern::Capture("expr".into()),
+                    ]),
+                    template: macro_system::Template::Expr(macro_system::CapturedExpr {
+                        name: "expr".into(),
+                        fragment: macro_system::FragmentKind::Expr,
+                    }),
+                }]),
             );
 
             assert!(env.get_macro("identity").is_some());
@@ -621,18 +634,17 @@ mod tests {
         fn test_large_source_compilation() {
             let mut source = String::new();
             for i in 0..100 {
-                source.push_str(&format!(
-                    "fn function_{}() -> i32 {{ {} }}\n",
-                    i, i * 2
-                ));
+                source.push_str(&format!("fn function_{}() -> i32 {{ {} }}\n", i, i * 2));
             }
 
             let mut compiler = Compiler::new(SourceLanguage::TumcIR, TargetPlatform::Wasm);
             let result = compiler.compile(&source);
 
             assert!(result.success);
-            assert!(result.stats.compilation_time_ms < 1000,
-                    "Compilation should complete within 1 second");
+            assert!(
+                result.stats.compilation_time_ms < 1000,
+                "Compilation should complete within 1 second"
+            );
         }
     }
 }

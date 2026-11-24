@@ -1,9 +1,8 @@
 // Tariro AGI - Hierarchical Task Network (HTN) Planning Module
 // Decomposition-based planning for complex goals
 
-
+use chrono::Utc;
 use std::collections::{HashMap, HashSet, VecDeque};
-use chrono::{ Utc};
 use std::time::Duration;
 
 // ============================================================================
@@ -78,7 +77,7 @@ pub struct NetworkTask {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum TaskType {
     Primitive,
-    Compound(String),  // Method name
+    Compound(String), // Method name
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -108,7 +107,7 @@ pub struct Operator {
     pub name: String,
     pub parameters: Vec<TypedParameter>,
     pub preconditions: Vec<Precondition>,
-    pub effects: Vec<Effect>,  // [positive, negative]
+    pub effects: Vec<Effect>, // [positive, negative]
     pub duration: Duration,
     pub cost: f32,
 }
@@ -124,7 +123,7 @@ pub struct Precondition {
 pub struct Effect {
     pub predicate: String,
     pub arguments: Vec<String>,
-    pub add: bool,  // true = add, false = delete
+    pub add: bool, // true = add, false = delete
 }
 
 // ============================================================================
@@ -138,7 +137,7 @@ pub struct PlanningProblem {
     pub domain_id: String,
     pub objects: Vec<ObjectInstance>,
     pub initial_state: WorldState,
-    pub tasks: Vec<NetworkTask>,  // Top-level tasks
+    pub tasks: Vec<NetworkTask>, // Top-level tasks
     pub goal_state: Option<WorldState>,
     pub constraints: Vec<Constraint>,
     pub optimization: OptimizationGoal,
@@ -158,10 +157,7 @@ pub struct WorldState {
 
 impl WorldState {
     pub fn new() -> Self {
-        Self {
-            facts: HashSet::new(),
-            numeric_facts: HashMap::new(),
-        }
+        Self { facts: HashSet::new(), numeric_facts: HashMap::new() }
     }
 
     pub fn with_facts(mut self, facts: Vec<String>) -> Self {
@@ -172,15 +168,18 @@ impl WorldState {
     }
 
     pub fn add_fact(&mut self, fact: &str) {
-        self.facts.insert(GroundFact { predicate: fact.to_string() });
+        self.facts
+            .insert(GroundFact { predicate: fact.to_string() });
     }
 
     pub fn remove_fact(&mut self, fact: &str) {
-        self.facts.remove(&GroundFact { predicate: fact.to_string() });
+        self.facts
+            .remove(&GroundFact { predicate: fact.to_string() });
     }
 
     pub fn contains(&self, fact: &str) -> bool {
-        self.facts.contains(&GroundFact { predicate: fact.to_string() })
+        self.facts
+            .contains(&GroundFact { predicate: fact.to_string() })
     }
 }
 
@@ -191,9 +190,9 @@ pub struct GroundFact {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum OptimizationGoal {
-    Makespan,     // Minimize total time
-    TotalCost,    // Minimize total cost
-    Both,         // Balance
+    Makespan,  // Minimize total time
+    TotalCost, // Minimize total cost
+    Both,      // Balance
 }
 
 // ============================================================================
@@ -368,7 +367,11 @@ impl HTNPlanner {
         // Plan search
         let result = self.plan_search(initial_state, &domain, problem);
 
-        self.stats.planning_time_ms = Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default().as_millis() as u64;
+        self.stats.planning_time_ms = Utc::now()
+            .signed_duration_since(start_time)
+            .to_std()
+            .unwrap_or_default()
+            .as_millis() as u64;
 
         result
     }
@@ -392,7 +395,9 @@ impl HTNPlanner {
             }
 
             // Get next task
-            let task = state.tasks.pop_front()
+            let task = state
+                .tasks
+                .pop_front()
                 .ok_or(PlanningError::NoTasksRemaining)?;
 
             match task.task_type {
@@ -433,13 +438,16 @@ impl HTNPlanner {
         domain: &HTNDomain,
     ) -> Result<PlanAction, PlanningError> {
         // Find operator
-        let operator = domain.operators.iter()
+        let operator = domain
+            .operators
+            .iter()
             .find(|op| op.name == task.task_id)
             .ok_or(PlanningError::OperatorNotFound)?;
 
         // Check preconditions
         for pre in &operator.preconditions {
-            let holds = pre.negated != state.contains(&self.ground_predicate(&pre.predicate, &task.parameters));
+            let holds = pre.negated
+                != state.contains(&self.ground_predicate(&pre.predicate, &task.parameters));
             if !holds && !pre.negated {
                 return Err(PlanningError::PreconditionNotMet);
             }
@@ -464,7 +472,9 @@ impl HTNPlanner {
         state: &WorldState,
         domain: &'a HTNDomain,
     ) -> Result<Vec<&'a Method>, PlanningError> {
-        let applicable: Vec<_> = domain.methods.iter()
+        let applicable: Vec<_> = domain
+            .methods
+            .iter()
             .filter(|m| m.task.task_name == task.task_id)
             .filter(|m| self.check_preconditions(&m.preconditions, state, task))
             .collect();
@@ -515,13 +525,19 @@ impl HTNPlanner {
         match self.config.heuristic {
             HeuristicType::LevelSum => {
                 // Select method with lowest cost estimate
-                Ok(*methods.iter()
-                    .min_by(|a, b| a.cost.partial_cmp(&b.cost).unwrap_or(std::cmp::Ordering::Equal))
+                Ok(*methods
+                    .iter()
+                    .min_by(|a, b| {
+                        a.cost
+                            .partial_cmp(&b.cost)
+                            .unwrap_or(std::cmp::Ordering::Equal)
+                    })
                     .unwrap())
             }
             HeuristicType::MaxLevel => {
                 // Select method with fewest subtasks
-                Ok(*methods.iter()
+                Ok(*methods
+                    .iter()
                     .min_by_key(|m| m.subtasks.iter().map(|s| s.tasks.len()).sum::<usize>())
                     .unwrap())
             }
@@ -570,7 +586,9 @@ impl HTNPlanner {
         problem: &PlanningProblem,
     ) -> Result<HTNPlan, PlanningError> {
         let total_cost = state.plan.iter().map(|a| a.cost).sum::<f32>();
-        let makespan = state.plan.iter()
+        let makespan = state
+            .plan
+            .iter()
             .map(|a| a.start_time + a.duration)
             .fold(0.0f32, |a, b| a.max(b));
 
@@ -631,7 +649,10 @@ impl std::fmt::Display for PlanningError {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("plan_{}", now % 1_000_000)
 }
 
@@ -647,8 +668,10 @@ mod tests {
 
     #[test]
     fn test_world_state() {
-        let state = WorldState::new()
-            .with_facts(vec!["at(robot, loc1)".to_string(), "clear(loc2)".to_string()]);
+        let state = WorldState::new().with_facts(vec![
+            "at(robot, loc1)".to_string(),
+            "clear(loc2)".to_string(),
+        ]);
 
         assert!(state.contains("at(robot, loc1)"));
         assert!(!state.contains("at(robot, loc2)"));

@@ -14,29 +14,15 @@ pub enum GoAstNode {
     /// Defer statement
     Defer(Expression),
     /// Send channel
-    Send {
-        channel: Expression,
-        value: Expression,
-    },
+    Send { channel: Expression, value: Expression },
     /// Type switch
-    TypeSwitch {
-        assign: Box<AstNode>,
-        cases: Vec<TypeCase>,
-    },
+    TypeSwitch { assign: Box<AstNode>, cases: Vec<TypeCase> },
     /// Type case
-    TypeCase {
-        type_: Option<String>,
-        body: Vec<AstNode>,
-    },
+    TypeCase { type_: Option<String>, body: Vec<AstNode> },
     /// Select statement
-    Select {
-        cases: Vec<SelectCase>,
-    },
+    Select { cases: Vec<SelectCase> },
     /// Select case
-    SelectCase {
-        comm: Option<SendOrRecv>,
-        body: Vec<AstNode>,
-    },
+    SelectCase { comm: Option<SendOrRecv>, body: Vec<AstNode> },
     /// Send or receive for select
     SendOrRecv {
         is_send: bool,
@@ -44,28 +30,15 @@ pub enum GoAstNode {
         value: Option<Expression>,
     },
     /// Function type
-    FunctionType {
-        params: Vec<GoField>,
-        results: Vec<GoField>,
-    },
+    FunctionType { params: Vec<GoField>, results: Vec<GoField> },
     /// Interface type
-    InterfaceType {
-        methods: Vec<GoField>,
-    },
+    InterfaceType { methods: Vec<GoField> },
     /// Struct type
-    StructType {
-        fields: Vec<GoField>,
-    },
+    StructType { fields: Vec<GoField> },
     /// Map type
-    MapType {
-        key: Type,
-        value: Type,
-    },
+    MapType { key: Type, value: Type },
     /// Channel type
-    ChannelType {
-        value: Type,
-        direction: ChannelDir,
-    },
+    ChannelType { value: Type, direction: ChannelDir },
     /// Channel direction
     ChannelDir,
     /// Receive-only channel
@@ -160,25 +133,84 @@ pub enum GoToken {
     InterpretedString(String),
 
     // Keywords
-    Break, Case, Chan, Const, Continue, Default, Defer, Else, Fallthrough,
-    For, Func, Go, Goto, If, Import, Interface, Map, Package, Range, Return,
-    Select, Struct, Switch, Type, Var,
+    Break,
+    Case,
+    Chan,
+    Const,
+    Continue,
+    Default,
+    Defer,
+    Else,
+    Fallthrough,
+    For,
+    Func,
+    Go,
+    Goto,
+    If,
+    Import,
+    Interface,
+    Map,
+    Package,
+    Range,
+    Return,
+    Select,
+    Struct,
+    Switch,
+    Type,
+    Var,
 
     // Operators and delimiters
-    Plus, Minus, Star, Slash, Percent, Caret, Ampersand, Pipe,
-    LeftShift, RightShift, PlusPlus, MinusMinus, Equal, Less, Greater,
-    Bang, Tilde,
+    Plus,
+    Minus,
+    Star,
+    Slash,
+    Percent,
+    Caret,
+    Ampersand,
+    Pipe,
+    LeftShift,
+    RightShift,
+    PlusPlus,
+    MinusMinus,
+    Equal,
+    Less,
+    Greater,
+    Bang,
+    Tilde,
 
     // Assignment operators
-    ColonEqual, PlusEqual, MinusEqual, StarEqual, SlashEqual, PercentEqual,
-    CaretEqual, AmpersandEqual, PipeEqual, LeftShiftEqual, RightShiftEqual,
-    Colon, Dot, Comma, Semicolon, DotDotDot, Arrow,
+    ColonEqual,
+    PlusEqual,
+    MinusEqual,
+    StarEqual,
+    SlashEqual,
+    PercentEqual,
+    CaretEqual,
+    AmpersandEqual,
+    PipeEqual,
+    LeftShiftEqual,
+    RightShiftEqual,
+    Colon,
+    Dot,
+    Comma,
+    Semicolon,
+    DotDotDot,
+    Arrow,
 
     // Comparison operators
-    EqualEqual, NotEqual, LessEqual, GreaterEqual, ChannelSend,
+    EqualEqual,
+    NotEqual,
+    LessEqual,
+    GreaterEqual,
+    ChannelSend,
 
     // Delimiters
-    LeftParen, RightParen, LeftBracket, RightBracket, LeftBrace, RightBrace,
+    LeftParen,
+    RightParen,
+    LeftBracket,
+    RightBracket,
+    LeftBrace,
+    RightBrace,
 
     // Special
     EndOfFile,
@@ -197,12 +229,7 @@ pub struct GoLexer {
 
 impl GoLexer {
     pub fn new(source: &str) -> Self {
-        Self {
-            source: source.to_string(),
-            pos: 0,
-            line: 1,
-            column: 1,
-        }
+        Self { source: source.to_string(), pos: 0, line: 1, column: 1 }
     }
 
     pub fn tokenize(&self) -> Result<Vec<GoToken>, GoLexerError> {
@@ -255,8 +282,7 @@ impl GoLexer {
             if self.source[*pos..].starts_with("/*") {
                 let start = *pos;
                 *pos += 2;
-                while *pos + 1 < self.source.len() &&
-                      !self.source[*pos..].starts_with("*/") {
+                while *pos + 1 < self.source.len() && !self.source[*pos..].starts_with("*/") {
                     *pos += 1;
                 }
                 *pos += 2;
@@ -271,8 +297,11 @@ impl GoLexer {
         }
 
         // Numbers
-        if ch.is_ascii_digit() || (ch == b'.' && *pos + 1 < self.source.len() &&
-            self.source.as_bytes()[*pos + 1].is_ascii_digit()) {
+        if ch.is_ascii_digit()
+            || (ch == b'.'
+                && *pos + 1 < self.source.len()
+                && self.source.as_bytes()[*pos + 1].is_ascii_digit())
+        {
             return self.lex_number(pos);
         }
 
@@ -339,15 +368,15 @@ impl GoLexer {
         let start = *pos;
         let mut has_dot = false;
         let mut has_exp = false;
-        let mut is_hex = false;
         let mut is_imag = false;
 
         // Hexadecimal
         if self.source[*pos..].starts_with("0x") || self.source[*pos..].starts_with("0X") {
             *pos += 2;
-            is_hex = true;
-            while *pos < self.source.len() && (self.source.as_bytes()[*pos].is_ascii_hexdigit() ||
-                self.source.as_bytes()[*pos] == b'_') {
+            while *pos < self.source.len()
+                && (self.source.as_bytes()[*pos].is_ascii_hexdigit()
+                    || self.source.as_bytes()[*pos] == b'_')
+            {
                 *pos += 1;
             }
             let s = &self.source[start..*pos];
@@ -358,8 +387,10 @@ impl GoLexer {
         // Octal
         if self.source[*pos..].starts_with("0o") || self.source[*pos..].starts_with("0O") {
             *pos += 2;
-            while *pos < self.source.len() && (self.source.as_bytes()[*pos].is_ascii_digit() ||
-                self.source.as_bytes()[*pos] == b'_') {
+            while *pos < self.source.len()
+                && (self.source.as_bytes()[*pos].is_ascii_digit()
+                    || self.source.as_bytes()[*pos] == b'_')
+            {
                 *pos += 1;
             }
             let s = &self.source[start..*pos];
@@ -370,8 +401,11 @@ impl GoLexer {
         // Binary
         if self.source[*pos..].starts_with("0b") || self.source[*pos..].starts_with("0B") {
             *pos += 2;
-            while *pos < self.source.len() && (self.source.as_bytes()[*pos] == b'0' ||
-                self.source.as_bytes()[*pos] == b'1' || self.source.as_bytes()[*pos] == b'_') {
+            while *pos < self.source.len()
+                && (self.source.as_bytes()[*pos] == b'0'
+                    || self.source.as_bytes()[*pos] == b'1'
+                    || self.source.as_bytes()[*pos] == b'_')
+            {
                 *pos += 1;
             }
             let s = &self.source[start..*pos];
@@ -380,26 +414,32 @@ impl GoLexer {
         }
 
         // Decimal
-        while *pos < self.source.len() && (self.source.as_bytes()[*pos].is_ascii_digit() ||
-              self.source.as_bytes()[*pos] == b'_') {
+        while *pos < self.source.len()
+            && (self.source.as_bytes()[*pos].is_ascii_digit()
+                || self.source.as_bytes()[*pos] == b'_')
+        {
             *pos += 1;
         }
 
         if *pos < self.source.len() && self.source.as_bytes()[*pos] == b'.' {
             has_dot = true;
             *pos += 1;
-            while *pos < self.source.len() && (self.source.as_bytes()[*pos].is_ascii_digit() ||
-                  self.source.as_bytes()[*pos] == b'_') {
+            while *pos < self.source.len()
+                && (self.source.as_bytes()[*pos].is_ascii_digit()
+                    || self.source.as_bytes()[*pos] == b'_')
+            {
                 *pos += 1;
             }
         }
 
-        if *pos < self.source.len() && (self.source.as_bytes()[*pos] == b'e' ||
-            self.source.as_bytes()[*pos] == b'E') {
+        if *pos < self.source.len()
+            && (self.source.as_bytes()[*pos] == b'e' || self.source.as_bytes()[*pos] == b'E')
+        {
             has_exp = true;
             *pos += 1;
-            if *pos < self.source.len() && (self.source.as_bytes()[*pos] == b'+' ||
-                self.source.as_bytes()[*pos] == b'-') {
+            if *pos < self.source.len()
+                && (self.source.as_bytes()[*pos] == b'+' || self.source.as_bytes()[*pos] == b'-')
+            {
                 *pos += 1;
             }
             while *pos < self.source.len() && self.source.as_bytes()[*pos].is_ascii_digit() {
@@ -473,7 +513,7 @@ impl GoLexer {
                 }
                 let s = &self.source[start..*pos];
                 *pos += 1; // Skip closing quote
-                // Parse rune value
+                           // Parse rune value
                 let value = s.chars().last().map(|c| c as i32).unwrap_or(0);
                 Ok((Some(GoToken::Rune(value)), *pos))
             }
@@ -490,80 +530,198 @@ impl GoLexer {
 
         let token = match ch {
             b'+' => {
-                if self.source[*pos..].starts_with("++") { *pos += 2; GoToken::PlusPlus }
-                else if self.source[*pos..].starts_with("+=") { *pos += 2; GoToken::PlusEqual }
-                else { *pos += 1; GoToken::Plus }
+                if self.source[*pos..].starts_with("++") {
+                    *pos += 2;
+                    GoToken::PlusPlus
+                } else if self.source[*pos..].starts_with("+=") {
+                    *pos += 2;
+                    GoToken::PlusEqual
+                } else {
+                    *pos += 1;
+                    GoToken::Plus
+                }
             }
             b'-' => {
-                if self.source[*pos..].starts_with("--") { *pos += 2; GoToken::MinusMinus }
-                else if self.source[*pos..].starts_with("-=") { *pos += 2; GoToken::MinusEqual }
-                else { *pos += 1; GoToken::Minus }
+                if self.source[*pos..].starts_with("--") {
+                    *pos += 2;
+                    GoToken::MinusMinus
+                } else if self.source[*pos..].starts_with("-=") {
+                    *pos += 2;
+                    GoToken::MinusEqual
+                } else {
+                    *pos += 1;
+                    GoToken::Minus
+                }
             }
             b'*' => {
-                if self.source[*pos..].starts_with("*=") { *pos += 2; GoToken::StarEqual }
-                else { *pos += 1; GoToken::Star }
+                if self.source[*pos..].starts_with("*=") {
+                    *pos += 2;
+                    GoToken::StarEqual
+                } else {
+                    *pos += 1;
+                    GoToken::Star
+                }
             }
             b'/' => {
-                if self.source[*pos..].starts_with("/=") { *pos += 2; GoToken::SlashEqual }
-                else { *pos += 1; GoToken::Slash }
+                if self.source[*pos..].starts_with("/=") {
+                    *pos += 2;
+                    GoToken::SlashEqual
+                } else {
+                    *pos += 1;
+                    GoToken::Slash
+                }
             }
             b'%' => {
-                if self.source[*pos..].starts_with("%=") { *pos += 2; GoToken::PercentEqual }
-                else { *pos += 1; GoToken::Percent }
+                if self.source[*pos..].starts_with("%=") {
+                    *pos += 2;
+                    GoToken::PercentEqual
+                } else {
+                    *pos += 1;
+                    GoToken::Percent
+                }
             }
             b'^' => {
-                if self.source[*pos..].starts_with("^=") { *pos += 2; GoToken::CaretEqual }
-                else { *pos += 1; GoToken::Caret }
+                if self.source[*pos..].starts_with("^=") {
+                    *pos += 2;
+                    GoToken::CaretEqual
+                } else {
+                    *pos += 1;
+                    GoToken::Caret
+                }
             }
             b'&' => {
-                if self.source[*pos..].starts_with("&=") { *pos += 2; GoToken::AmpersandEqual }
-                else if self.source[*pos..].starts_with("&&") { *pos += 2; GoToken::Ampersand }
-                else { *pos += 1; GoToken::Ampersand }
+                if self.source[*pos..].starts_with("&=") {
+                    *pos += 2;
+                    GoToken::AmpersandEqual
+                } else if self.source[*pos..].starts_with("&&") {
+                    *pos += 2;
+                    GoToken::Ampersand
+                } else {
+                    *pos += 1;
+                    GoToken::Ampersand
+                }
             }
             b'|' => {
-                if self.source[*pos..].starts_with("|=") { *pos += 2; GoToken::PipeEqual }
-                else if self.source[*pos..].starts_with("||") { *pos += 2; GoToken::Pipe }
-                else { *pos += 1; GoToken::Pipe }
+                if self.source[*pos..].starts_with("|=") {
+                    *pos += 2;
+                    GoToken::PipeEqual
+                } else if self.source[*pos..].starts_with("||") {
+                    *pos += 2;
+                    GoToken::Pipe
+                } else {
+                    *pos += 1;
+                    GoToken::Pipe
+                }
             }
             b'<' => {
-                if self.source[*pos..].starts_with("<=") { *pos += 2; GoToken::LessEqual }
-                else if self.source[*pos..].starts_with("<-") { *pos += 2; GoToken::Arrow }
-                else if self.source[*pos..].starts_with("<<=") { *pos += 3; GoToken::LeftShiftEqual }
-                else if self.source[*pos..].starts_with("<<") { *pos += 2; GoToken::LeftShift }
-                else { *pos += 1; GoToken::Less }
+                if self.source[*pos..].starts_with("<=") {
+                    *pos += 2;
+                    GoToken::LessEqual
+                } else if self.source[*pos..].starts_with("<-") {
+                    *pos += 2;
+                    GoToken::Arrow
+                } else if self.source[*pos..].starts_with("<<=") {
+                    *pos += 3;
+                    GoToken::LeftShiftEqual
+                } else if self.source[*pos..].starts_with("<<") {
+                    *pos += 2;
+                    GoToken::LeftShift
+                } else {
+                    *pos += 1;
+                    GoToken::Less
+                }
             }
             b'>' => {
-                if self.source[*pos..].starts_with(">=") { *pos += 2; GoToken::GreaterEqual }
-                else if self.source[*pos..].starts_with(">>=") { *pos += 3; GoToken::RightShiftEqual }
-                else if self.source[*pos..].starts_with(">>") { *pos += 2; GoToken::RightShift }
-                else { *pos += 1; GoToken::Greater }
+                if self.source[*pos..].starts_with(">=") {
+                    *pos += 2;
+                    GoToken::GreaterEqual
+                } else if self.source[*pos..].starts_with(">>=") {
+                    *pos += 3;
+                    GoToken::RightShiftEqual
+                } else if self.source[*pos..].starts_with(">>") {
+                    *pos += 2;
+                    GoToken::RightShift
+                } else {
+                    *pos += 1;
+                    GoToken::Greater
+                }
             }
             b'=' => {
-                if self.source[*pos..].starts_with("==") { *pos += 2; GoToken::EqualEqual }
-                else { *pos += 1; GoToken::Equal }
+                if self.source[*pos..].starts_with("==") {
+                    *pos += 2;
+                    GoToken::EqualEqual
+                } else {
+                    *pos += 1;
+                    GoToken::Equal
+                }
             }
             b'!' => {
-                if self.source[*pos..].starts_with("!=") { *pos += 2; GoToken::NotEqual }
-                else { *pos += 1; GoToken::Bang }
+                if self.source[*pos..].starts_with("!=") {
+                    *pos += 2;
+                    GoToken::NotEqual
+                } else {
+                    *pos += 1;
+                    GoToken::Bang
+                }
             }
             b':' => {
-                if self.source[*pos..].starts_with(":=") { *pos += 2; GoToken::ColonEqual }
-                else { *pos += 1; GoToken::Colon }
+                if self.source[*pos..].starts_with(":=") {
+                    *pos += 2;
+                    GoToken::ColonEqual
+                } else {
+                    *pos += 1;
+                    GoToken::Colon
+                }
             }
-            b'(' => { *pos += 1; GoToken::LeftParen }
-            b')' => { *pos += 1; GoToken::RightParen }
-            b'[' => { *pos += 1; GoToken::LeftBracket }
-            b']' => { *pos += 1; GoToken::RightBracket }
-            b'{' => { *pos += 1; GoToken::LeftBrace }
-            b'}' => { *pos += 1; GoToken::RightBrace }
-            b',' => { *pos += 1; GoToken::Comma }
+            b'(' => {
+                *pos += 1;
+                GoToken::LeftParen
+            }
+            b')' => {
+                *pos += 1;
+                GoToken::RightParen
+            }
+            b'[' => {
+                *pos += 1;
+                GoToken::LeftBracket
+            }
+            b']' => {
+                *pos += 1;
+                GoToken::RightBracket
+            }
+            b'{' => {
+                *pos += 1;
+                GoToken::LeftBrace
+            }
+            b'}' => {
+                *pos += 1;
+                GoToken::RightBrace
+            }
+            b',' => {
+                *pos += 1;
+                GoToken::Comma
+            }
             b'.' => {
-                if self.source[*pos..].starts_with("...") { *pos += 3; GoToken::DotDotDot }
-                else { *pos += 1; GoToken::Dot }
+                if self.source[*pos..].starts_with("...") {
+                    *pos += 3;
+                    GoToken::DotDotDot
+                } else {
+                    *pos += 1;
+                    GoToken::Dot
+                }
             }
-            b';' => { *pos += 1; GoToken::Semicolon }
-            b'~' => { *pos += 1; GoToken::Tilde }
-            _ => { *pos += 1; return (None, *pos); }
+            b';' => {
+                *pos += 1;
+                GoToken::Semicolon
+            }
+            b'~' => {
+                *pos += 1;
+                GoToken::Tilde
+            }
+            _ => {
+                *pos += 1;
+                return (None, *pos);
+            }
         };
 
         (Some(token), *pos)
@@ -588,16 +746,14 @@ impl std::error::Error for GoLexerError {}
 /// Go parser implementation
 impl GoParser {
     pub fn new(source: &str) -> Self {
-        Self {
-            source: source.to_string(),
-            tokens: Vec::new(),
-            pos: 0,
-        }
+        Self { source: source.to_string(), tokens: Vec::new(), pos: 0 }
     }
 
     pub fn parse(&mut self) -> Result<Program, GoParseError> {
         let lexer = GoLexer::new(&self.source);
-        self.tokens = lexer.tokenize().map_err(|e| GoParseError::new(&e.message, 0))?;
+        self.tokens = lexer
+            .tokenize()
+            .map_err(|e| GoParseError::new(&e.message, 0))?;
         self.pos = 0;
 
         let mut nodes = Vec::new();
@@ -610,7 +766,10 @@ impl GoParser {
         if self.check(&GoToken::Package) {
             self.advance();
             // Skip package name for now
-            while !matches!(self.current(), GoToken::Semicolon | GoToken::Newline | GoToken::EndOfFile) {
+            while !matches!(
+                self.current(),
+                GoToken::Semicolon | GoToken::Newline | GoToken::EndOfFile
+            ) {
                 self.advance();
             }
             if matches!(self.current(), GoToken::Semicolon) {
@@ -875,10 +1034,13 @@ impl GoParser {
 
         let mut decls = Vec::new();
 
-        while !self.check(&GoToken::Var) && !self.check(&GoToken::Func) &&
-              !self.check(&GoToken::Type) && !self.check(&GoToken::Import) &&
-              !self.check(&GoToken::Package) && !self.is_at_end() {
-
+        while !self.check(&GoToken::Var)
+            && !self.check(&GoToken::Func)
+            && !self.check(&GoToken::Type)
+            && !self.check(&GoToken::Import)
+            && !self.check(&GoToken::Package)
+            && !self.is_at_end()
+        {
             if let GoToken::Ident(name) = self.current().clone() {
                 self.advance();
 
@@ -932,8 +1094,10 @@ impl GoParser {
             return Err(GoParseError::new("Expected variable name", self.pos));
         };
 
-        let _var_type = if matches!(self.current(), GoToken::Ident(_)) && !self.check(&GoToken::Equal) &&
-                        !self.check(&GoToken::ColonEqual) {
+        let _var_type = if matches!(self.current(), GoToken::Ident(_))
+            && !self.check(&GoToken::Equal)
+            && !self.check(&GoToken::ColonEqual)
+        {
             Some(self.parse_type()?)
         } else {
             None
@@ -1004,7 +1168,11 @@ impl GoParser {
                 self.advance();
             }
             self.expect(&GoToken::RightParen)?;
-            paths.iter().map(|p| p.as_str()).collect::<Vec<_>>().join(", ")
+            paths
+                .iter()
+                .map(|p| p.as_str())
+                .collect::<Vec<_>>()
+                .join(", ")
         } else {
             String::new()
         };
@@ -1020,7 +1188,7 @@ impl GoParser {
         self.advance(); // skip go
         let expr = self.parse_expression()?;
         Ok(Some(AstNode::ExpressionStatement(Box::new(
-            Expression::Await(Box::new(expr.into()))
+            Expression::Await(Box::new(expr.into())),
         ))))
     }
 
@@ -1043,9 +1211,18 @@ impl GoParser {
             GoToken::Switch => self.parse_switch(),
             GoToken::Select => self.parse_select(),
             GoToken::Return => self.parse_return(),
-            GoToken::Break => { self.advance(); Ok(Some(AstNode::Break)) }
-            GoToken::Continue => { self.advance(); Ok(Some(AstNode::Continue)) }
-            GoToken::Fallthrough => { self.advance(); Ok(Some(AstNode::Break)) }
+            GoToken::Break => {
+                self.advance();
+                Ok(Some(AstNode::Break))
+            }
+            GoToken::Continue => {
+                self.advance();
+                Ok(Some(AstNode::Continue))
+            }
+            GoToken::Fallthrough => {
+                self.advance();
+                Ok(Some(AstNode::Break))
+            }
             GoToken::Goto => {
                 self.advance();
                 Ok(None)
@@ -1057,8 +1234,11 @@ impl GoParser {
                 // Could be assignment or expression
                 let expr = self.parse_expression()?;
 
-                if self.check(&GoToken::Equal) || self.check(&GoToken::ColonEqual) ||
-                   self.check(&GoToken::PlusEqual) || self.check(&GoToken::MinusEqual) {
+                if self.check(&GoToken::Equal)
+                    || self.check(&GoToken::ColonEqual)
+                    || self.check(&GoToken::PlusEqual)
+                    || self.check(&GoToken::MinusEqual)
+                {
                     let _is_init = matches!(self.current(), GoToken::ColonEqual);
                     self.advance();
                     let value = Box::new(self.parse_expression()?);
@@ -1169,9 +1349,9 @@ impl GoParser {
 
         // Desugar for loop
         Ok(Some(AstNode::Block(vec![
-            init.unwrap_or(AstNode::ExpressionStatement(Box::new(
-                Expression::Literal(crate::tumc_compiler::ast::Literal::Unit)
-            ))),
+            init.unwrap_or(AstNode::ExpressionStatement(Box::new(Expression::Literal(
+                crate::tumc_compiler::ast::Literal::Unit,
+            )))),
             AstNode::While {
                 condition: Box::new(condition),
                 body: {
@@ -1198,7 +1378,9 @@ impl GoParser {
         self.advance(); // skip switch
         self.skip_newlines();
 
-        let _init = if matches!(self.current(), GoToken::Ident(_)) && !self.check(&GoToken::Ident("".to_string())) {
+        let _init = if matches!(self.current(), GoToken::Ident(_))
+            && !self.check(&GoToken::Ident("".to_string()))
+        {
             Some(Box::new(self.parse_simple_statement()?))
         } else {
             None
@@ -1223,8 +1405,11 @@ impl GoParser {
                 self.expect(&GoToken::Colon)?;
 
                 let mut stmts = Vec::new();
-                while !self.check(&GoToken::Case) && !self.check(&GoToken::Default) &&
-                      !self.check(&GoToken::RightBrace) && !self.is_at_end() {
+                while !self.check(&GoToken::Case)
+                    && !self.check(&GoToken::Default)
+                    && !self.check(&GoToken::RightBrace)
+                    && !self.is_at_end()
+                {
                     if let Some(stmt) = self.parse_statement()? {
                         stmts.push(stmt);
                     }
@@ -1242,18 +1427,18 @@ impl GoParser {
                 self.expect(&GoToken::Colon)?;
 
                 let mut stmts = Vec::new();
-                while !self.check(&GoToken::Case) && !self.check(&GoToken::Default) &&
-                      !self.check(&GoToken::RightBrace) && !self.is_at_end() {
+                while !self.check(&GoToken::Case)
+                    && !self.check(&GoToken::Default)
+                    && !self.check(&GoToken::RightBrace)
+                    && !self.is_at_end()
+                {
                     if let Some(stmt) = self.parse_statement()? {
                         stmts.push(stmt);
                     }
                     self.skip_newlines();
                 }
 
-                cases.push(AstNode::SwitchCase {
-                    test: None,
-                    consequent: stmts,
-                });
+                cases.push(AstNode::SwitchCase { test: None, consequent: stmts });
             }
         }
 
@@ -1280,12 +1465,14 @@ impl GoParser {
                 self.expect(&GoToken::Colon)?;
                 let _body = self.parse_block_stmts()?;
 
-                cases.push(AstNode::Block(vec![AstNode::ExpressionStatement(Box::new(
-                    Expression::Call {
-                        function: Box::new(Expression::Identifier("select_case".to_string()).into()),
+                cases.push(AstNode::Block(vec![AstNode::ExpressionStatement(
+                    Box::new(Expression::Call {
+                        function: Box::new(
+                            Expression::Identifier("select_case".to_string()).into(),
+                        ),
                         arguments: vec![],
-                    }
-                ))]));
+                    }),
+                )]));
             } else if self.check(&GoToken::Default) {
                 self.advance();
                 self.expect(&GoToken::Colon)?;
@@ -1373,38 +1560,27 @@ impl GoParser {
 
                     self.expect(&GoToken::RightParen)?;
 
-                    expr = Expression::Call {
-                        function: Box::new(expr.into()),
-                        arguments: args,
-                    };
+                    expr = Expression::Call { function: Box::new(expr.into()), arguments: args };
                 }
                 GoToken::Dot => {
                     self.advance();
                     if let GoToken::Ident(name) = self.current().clone() {
                         self.advance();
-                        expr = Expression::FieldAccess {
-                            object: Box::new(expr.into()),
-                            field: name,
-                        };
+                        expr =
+                            Expression::FieldAccess { object: Box::new(expr.into()), field: name };
                     }
                 }
                 GoToken::LeftBracket => {
                     self.advance();
                     let index = Box::new(self.parse_expression()?);
                     self.expect(&GoToken::RightBracket)?;
-                    expr = Expression::Index {
-                        array: Box::new(expr.into()),
-                        index,
-                    };
+                    expr = Expression::Index { array: Box::new(expr.into()), index };
                 }
                 GoToken::Colon => {
                     // Slice expression
                     self.advance();
                     let index = Box::new(self.parse_expression()?);
-                    expr = Expression::Index {
-                        array: Box::new(expr.into()),
-                        index,
-                    };
+                    expr = Expression::Index { array: Box::new(expr.into()), index };
                 }
                 _ => break,
             }
@@ -1489,11 +1665,7 @@ impl GoParser {
             if let Some(op) = op {
                 self.advance();
                 let right = Box::new(self.parse_multiplicative()?);
-                expr = Expression::BinaryOp {
-                    left: Box::new(expr.into()),
-                    op,
-                    right,
-                };
+                expr = Expression::BinaryOp { left: Box::new(expr.into()), op, right };
             } else {
                 break;
             }
@@ -1519,11 +1691,7 @@ impl GoParser {
             if let Some(op) = op {
                 self.advance();
                 let right = Box::new(self.parse_comparison()?);
-                expr = Expression::BinaryOp {
-                    left: Box::new(expr.into()),
-                    op,
-                    right,
-                };
+                expr = Expression::BinaryOp { left: Box::new(expr.into()), op, right };
             } else {
                 break;
             }
@@ -1549,11 +1717,7 @@ impl GoParser {
             if let Some(op) = op {
                 self.advance();
                 let right = Box::new(self.parse_or()?);
-                expr = Expression::BinaryOp {
-                    left: Box::new(expr.into()),
-                    op,
-                    right,
-                };
+                expr = Expression::BinaryOp { left: Box::new(expr.into()), op, right };
             } else {
                 break;
             }
@@ -1604,19 +1768,23 @@ impl GoParser {
             // catch-all identifier arm below.
             GoToken::Ident(ref s) if s == "true" => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Bool(true)))
+                Ok(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::Bool(true),
+                ))
             }
             GoToken::Ident(ref s) if s == "false" => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Bool(false)))
+                Ok(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::Bool(false),
+                ))
             }
             GoToken::Ident(ref s) if s == "nil" => {
                 self.advance();
                 // The canonical literal set has no null variant; the literal is
                 // kept verbatim so that a lowering pass can still recognise it.
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Verbatim(
-                    "nil".to_string(),
-                )))
+                Ok(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::Verbatim("nil".to_string()),
+                ))
             }
             GoToken::Ident(ref s) if s == "make" => {
                 self.advance();
@@ -1637,31 +1805,43 @@ impl GoParser {
             }
             GoToken::Ident(n) => {
                 self.advance();
-                Ok(Expression::Identifier(n))
+                if n == "nil" {
+                    Ok(Expression::Literal(
+                        crate::tumc_compiler::ast::Literal::Null,
+                    ))
+                } else {
+                    Ok(Expression::Identifier(n))
+                }
             }
             GoToken::Int(n) => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Int(n)))
+                Ok(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::Int(n),
+                ))
             }
             GoToken::Float(n) => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Float(n)))
+                Ok(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::Float(n),
+                ))
             }
             GoToken::InterpretedString(s) | GoToken::RawString(s) => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::String(s)))
+                Ok(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::String(s),
+                ))
             }
             GoToken::True => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Bool(true)))
+                Ok(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::Bool(true),
+                ))
             }
             GoToken::False => {
                 self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Bool(false)))
-            }
-            GoToken::Ident(ref s) if s == "nil" => {
-                self.advance();
-                Ok(Expression::Literal(crate::tumc_compiler::ast::Literal::Null))
+                Ok(Expression::Literal(
+                    crate::tumc_compiler::ast::Literal::Bool(false),
+                ))
             }
             GoToken::LeftParen => {
                 self.advance();
@@ -1722,13 +1902,16 @@ impl GoParser {
 
                 Ok(Expression::Lambda {
                     params,
-                    body: Box::new(body.map_or_else(|| Expression::Block(Vec::new().into()), |b| {
-                        if let AstNode::Block(stmts) = b {
-                            Expression::Block(stmts.into())
-                        } else {
-                            Expression::Block(vec![b].into())
-                        }
-                    })),
+                    body: Box::new(body.map_or_else(
+                        || Expression::Block(Vec::new().into()),
+                        |b| {
+                            if let AstNode::Block(stmts) = b {
+                                Expression::Block(stmts.into())
+                            } else {
+                                Expression::Block(vec![b].into())
+                            }
+                        },
+                    )),
                 })
             }
             GoToken::Make => {
@@ -1750,7 +1933,10 @@ impl GoParser {
             }
             _ => {
                 self.advance();
-                Err(GoParseError::new(&format!("Unexpected token: {:?}", token), self.pos))
+                Err(GoParseError::new(
+                    &format!("Unexpected token: {:?}", token),
+                    self.pos,
+                ))
             }
         }
     }
@@ -1793,13 +1979,16 @@ impl GoParser {
         } else {
             Err(GoParseError::new(
                 &format!("Expected {:?}, found {:?}", token, self.current()),
-                self.pos
+                self.pos,
             ))
         }
     }
 
     fn skip_newlines(&mut self) {
-        while matches!(self.current(), GoToken::Newline | GoToken::Semicolon | GoToken::Comment(_)) {
+        while matches!(
+            self.current(),
+            GoToken::Newline | GoToken::Semicolon | GoToken::Comment(_)
+        ) {
             self.advance();
         }
     }
@@ -1814,10 +2003,7 @@ pub struct GoParseError {
 
 impl GoParseError {
     pub fn new(message: &str, position: usize) -> Self {
-        Self {
-            message: message.to_string(),
-            position,
-        }
+        Self { message: message.to_string(), position }
     }
 }
 
@@ -1836,9 +2022,7 @@ pub struct GoTranspiler {
 
 impl GoTranspiler {
     pub fn new() -> Self {
-        Self {
-            type_env: HashMap::new(),
-        }
+        Self { type_env: HashMap::new() }
     }
 
     pub fn transpile(&mut self, source: &str) -> Result<Program, GoParseError> {

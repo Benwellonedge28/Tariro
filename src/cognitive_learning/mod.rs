@@ -7,11 +7,9 @@
 //! - Imitation Learning
 
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap};
-
+use std::collections::HashMap;
 
 use uuid::Uuid;
-
 
 // ============================================================================
 // Core Types
@@ -214,8 +212,7 @@ impl AnalogicalReasoner {
             return 0.0;
         }
 
-        let object_sim = object_matches.len() as f64
-            / (self.max_candidates as f64).max(1.0);
+        let object_sim = object_matches.len() as f64 / (self.max_candidates as f64).max(1.0);
 
         let aligned_relations = relation_matches.iter().filter(|r| r.aligned).count() as f64;
         let relation_sim = aligned_relations / (relation_matches.len() as f64).max(1.0);
@@ -223,11 +220,7 @@ impl AnalogicalReasoner {
         (object_sim * 0.3 + relation_sim * 0.7).min(1.0)
     }
 
-    pub fn transfer_knowledge(
-        &self,
-        base: &Representation,
-        mapping: &Mapping,
-    ) -> Vec<String> {
+    pub fn transfer_knowledge(&self, base: &Representation, mapping: &Mapping) -> Vec<String> {
         let mut transferred = Vec::new();
 
         for rel in &base.relations {
@@ -235,10 +228,7 @@ impl AnalogicalReasoner {
             let target_target = mapping.base_to_target.get(&rel.target);
 
             if let (Some(ts), Some(tt)) = (target_source, target_target) {
-                transferred.push(format!(
-                    "Inferred: {} relates {} to {}",
-                    rel.name, ts, tt
-                ));
+                transferred.push(format!("Inferred: {} relates {} to {}", rel.name, ts, tt));
             }
         }
 
@@ -302,7 +292,9 @@ impl Theory {
     pub fn explains(&self, observation: &Observation) -> bool {
         self.concepts.iter().any(|_c| {
             self.principles.iter().any(|p| {
-                p.antecedents.iter().any(|a| a.contains(&observation.description))
+                p.antecedents
+                    .iter()
+                    .any(|a| a.contains(&observation.description))
             })
         })
     }
@@ -353,10 +345,7 @@ pub struct ConceptualChangeEngine {
 
 impl ConceptualChangeEngine {
     pub fn new() -> Self {
-        Self {
-            anomaly_threshold: 0.5,
-            stats: LearningStats::default(),
-        }
+        Self { anomaly_threshold: 0.5, stats: LearningStats::default() }
     }
 
     pub fn needs_revision(&self, theory: &Theory, observation: &Observation) -> bool {
@@ -433,10 +422,7 @@ pub struct RLState {
 
 impl RLState {
     pub fn new(id: &str, features: Vec<f64>) -> Self {
-        Self {
-            id: id.to_string(),
-            features,
-        }
+        Self { id: id.to_string(), features }
     }
 }
 
@@ -487,14 +473,21 @@ impl QLearningAgent {
             .unwrap_or(0.0)
     }
 
-    pub fn update(&mut self, state: &RLState, action: &RLAction, reward: f64, next_state: &RLState) {
+    pub fn update(
+        &mut self,
+        state: &RLState,
+        action: &RLAction,
+        reward: f64,
+        next_state: &RLState,
+    ) {
         let current_q = self.get_q(state, action);
         let next_qs = self.q_table.get(&next_state.id);
         let max_next_q = next_qs
             .map(|actions| actions.values().copied().fold(f64::MIN, f64::max))
             .unwrap_or(0.0);
 
-        let new_q = current_q + self.learning_rate * (reward + self.discount_factor * max_next_q - current_q);
+        let new_q = current_q
+            + self.learning_rate * (reward + self.discount_factor * max_next_q - current_q);
 
         self.q_table
             .entry(state.id.clone())
@@ -559,7 +552,8 @@ impl Demonstration {
     }
 
     pub fn add_pair(&mut self, state: RLState, action: RLAction) {
-        self.state_action_pairs.push(StateActionPair { state, action });
+        self.state_action_pairs
+            .push(StateActionPair { state, action });
     }
 }
 
@@ -625,13 +619,13 @@ pub struct BehaviorPolicy {
 
 impl BehaviorPolicy {
     pub fn new() -> Self {
-        Self {
-            state_actions: HashMap::new(),
-        }
+        Self { state_actions: HashMap::new() }
     }
 
     pub fn get_action(&self, state_id: &str) -> Option<&String> {
-        self.state_actions.get(state_id).and_then(|actions| actions.first())
+        self.state_actions
+            .get(state_id)
+            .and_then(|actions| actions.first())
     }
 }
 
@@ -677,10 +671,7 @@ impl LearningSystem {
         if let Some(theory) = current_theory {
             if !self.conceptual_change.needs_revision(
                 theory,
-                &Observation {
-                    description: observation.to_string(),
-                    anomaly_level: 0.5,
-                },
+                &Observation { description: observation.to_string(), anomaly_level: 0.5 },
             ) {
                 return LearningOutcome {
                     learning_type: LearningType::Assimilation,
@@ -691,16 +682,16 @@ impl LearningSystem {
 
             let outcome = self.conceptual_change.revise(
                 theory,
-                &Observation {
-                    description: observation.to_string(),
-                    anomaly_level: 0.5,
-                },
+                &Observation { description: observation.to_string(), anomaly_level: 0.5 },
             );
 
             return LearningOutcome {
                 learning_type: LearningType::Accommodation,
                 success: true,
-                new_knowledge: Some(format!("Theory revised with coherence: {}", outcome.new_coherence)),
+                new_knowledge: Some(format!(
+                    "Theory revised with coherence: {}",
+                    outcome.new_coherence
+                )),
             };
         }
 
@@ -759,14 +750,21 @@ mod analogical_tests {
         let mut reasoner = AnalogicalReasoner::new();
 
         let mut base = Representation::new();
-        base.objects.push(RepresentedObject::new("nucleus", "center"));
-        base.objects.push(RepresentedObject::new("electron", "particle"));
-        base.relations.push(RepresentedRelation::new("orbits", "electron", "nucleus"));
+        base.objects
+            .push(RepresentedObject::new("nucleus", "center"));
+        base.objects
+            .push(RepresentedObject::new("electron", "particle"));
+        base.relations
+            .push(RepresentedRelation::new("orbits", "electron", "nucleus"));
 
         let mut target = Representation::new();
         target.objects.push(RepresentedObject::new("sun", "star"));
-        target.objects.push(RepresentedObject::new("planet", "body"));
-        target.relations.push(RepresentedRelation::new("orbits", "planet", "sun"));
+        target
+            .objects
+            .push(RepresentedObject::new("planet", "body"));
+        target
+            .relations
+            .push(RepresentedRelation::new("orbits", "planet", "sun"));
 
         let mappings = reasoner.find_mappings(&base, &target);
         assert!(!mappings.is_empty() || mappings.is_empty());
@@ -781,10 +779,7 @@ mod conceptual_change_tests {
     fn test_needs_revision() {
         let engine = ConceptualChangeEngine::new();
         let theory = Theory::new("Test");
-        let anomaly = Observation {
-            description: "Anomaly".to_string(),
-            anomaly_level: 0.8,
-        };
+        let anomaly = Observation { description: "Anomaly".to_string(), anomaly_level: 0.8 };
         assert!(engine.needs_revision(&theory, &anomaly));
     }
 
@@ -792,10 +787,7 @@ mod conceptual_change_tests {
     fn test_revision() {
         let mut engine = ConceptualChangeEngine::new();
         let mut theory = Theory::new("Test");
-        let anomaly = Observation {
-            description: "Anomaly".to_string(),
-            anomaly_level: 0.8,
-        };
+        let anomaly = Observation { description: "Anomaly".to_string(), anomaly_level: 0.8 };
 
         let outcome = engine.revise(&mut theory, &anomaly);
         assert!(!outcome.revisions_applied.is_empty());

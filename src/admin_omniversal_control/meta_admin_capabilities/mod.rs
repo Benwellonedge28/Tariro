@@ -6,13 +6,12 @@
 //! the AGI system to manage its own management infrastructure, enabling
 //! self-optimizing, self-healing, and self-evolving administrative functions.
 
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
-
 
 /// Meta-administration task that can be executed by the system
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -610,22 +609,16 @@ impl MetaAdminService {
         let mut capabilities = self.capabilities.write().await;
 
         // Add default meta-capabilities
-        let optimization_cap = MetaCapability::new(
-            "Self-Optimization".to_string(),
-            CapabilityType::Diagnostic,
-        );
+        let optimization_cap =
+            MetaCapability::new("Self-Optimization".to_string(), CapabilityType::Diagnostic);
         capabilities.insert(optimization_cap.id.clone(), optimization_cap);
 
-        let healing_cap = MetaCapability::new(
-            "Self-Healing".to_string(),
-            CapabilityType::Remediation,
-        );
+        let healing_cap =
+            MetaCapability::new("Self-Healing".to_string(), CapabilityType::Remediation);
         capabilities.insert(healing_cap.id.clone(), healing_cap);
 
-        let audit_cap = MetaCapability::new(
-            "Security Audit".to_string(),
-            CapabilityType::Diagnostic,
-        );
+        let audit_cap =
+            MetaCapability::new("Security Audit".to_string(), CapabilityType::Diagnostic);
         capabilities.insert(audit_cap.id.clone(), audit_cap);
     }
 
@@ -650,7 +643,8 @@ impl MetaAdminService {
     pub async fn execute_task(&self, task_id: &str) -> Result<TaskResult, String> {
         let mut tasks = self.tasks.write().await;
 
-        let task = tasks.get_mut(task_id)
+        let task = tasks
+            .get_mut(task_id)
             .ok_or_else(|| format!("Task '{}' not found", task_id))?;
 
         task.start();
@@ -663,15 +657,13 @@ impl MetaAdminService {
             MetaTaskType::SelfHealing => {
                 TaskResult::Success("Self-healing actions completed".to_string())
             }
-            MetaTaskType::SecurityAudit => {
-                TaskResult::Success("Security audit completed. No critical issues found.".to_string())
-            }
-            MetaTaskType::SystemHealthCheck => {
-                TaskResult::Success("System health check completed. All systems operational.".to_string())
-            }
-            _ => {
-                TaskResult::Success(format!("Task '{}' completed", task.task_type.to_string()))
-            }
+            MetaTaskType::SecurityAudit => TaskResult::Success(
+                "Security audit completed. No critical issues found.".to_string(),
+            ),
+            MetaTaskType::SystemHealthCheck => TaskResult::Success(
+                "System health check completed. All systems operational.".to_string(),
+            ),
+            _ => TaskResult::Success(format!("Task '{}' completed", task.task_type.to_string())),
         };
 
         task.complete(result.clone());
@@ -686,7 +678,8 @@ impl MetaAdminService {
     pub async fn list_tasks(&self, status_filter: Option<TaskStatus>) -> Vec<MetaAdminTask> {
         let tasks = self.tasks.read().await;
         match status_filter {
-            Some(status) => tasks.values()
+            Some(status) => tasks
+                .values()
                 .filter(|t| t.status == status)
                 .cloned()
                 .collect(),
@@ -734,7 +727,10 @@ impl MetaAdminService {
         Ok(policy_id)
     }
 
-    pub async fn evaluate_policies(&self, metrics: &HashMap<String, f64>) -> Vec<(String, Vec<PolicyAction>)> {
+    pub async fn evaluate_policies(
+        &self,
+        metrics: &HashMap<String, f64>,
+    ) -> Vec<(String, Vec<PolicyAction>)> {
         let policies = self.policies.read().await;
         let mut triggered = Vec::new();
 
@@ -745,15 +741,22 @@ impl MetaAdminService {
 
             let mut should_trigger = true;
             for condition in &policy.conditions {
-                let metric_value = metrics.get(&condition.target_metric).copied().unwrap_or(0.0);
+                let metric_value = metrics
+                    .get(&condition.target_metric)
+                    .copied()
+                    .unwrap_or(0.0);
 
                 let condition_met = match condition.operator {
                     ComparisonOperator::GreaterThan => metric_value > condition.threshold,
                     ComparisonOperator::GreaterThanOrEqual => metric_value >= condition.threshold,
                     ComparisonOperator::LessThan => metric_value < condition.threshold,
                     ComparisonOperator::LessThanOrEqual => metric_value <= condition.threshold,
-                    ComparisonOperator::Equal => (metric_value - condition.threshold).abs() < f64::EPSILON,
-                    ComparisonOperator::NotEqual => (metric_value - condition.threshold).abs() >= f64::EPSILON,
+                    ComparisonOperator::Equal => {
+                        (metric_value - condition.threshold).abs() < f64::EPSILON
+                    }
+                    ComparisonOperator::NotEqual => {
+                        (metric_value - condition.threshold).abs() >= f64::EPSILON
+                    }
                 };
 
                 if !condition_met {
@@ -809,7 +812,9 @@ impl MetaAdminService {
                 BottleneckType::CPU => OptimizationRecommendation {
                     recommendation_type: RecommendationType::AsyncProcessing,
                     title: "Optimize CPU utilization".to_string(),
-                    description: "Consider implementing async processing or offloading CPU-intensive tasks".to_string(),
+                    description:
+                        "Consider implementing async processing or offloading CPU-intensive tasks"
+                            .to_string(),
                     implementation_steps: vec![
                         "Identify CPU-intensive operations".to_string(),
                         "Implement async/await patterns".to_string(),
@@ -833,8 +838,13 @@ impl MetaAdminService {
                     rollback_plan: Some("Disable caching".to_string()),
                 },
                 _ => OptimizationRecommendation {
-                    recommendation_type: RecommendationType::Custom("General optimization".to_string()),
-                    title: format!("Address {} bottleneck", bottleneck.bottleneck_type.to_string()),
+                    recommendation_type: RecommendationType::Custom(
+                        "General optimization".to_string(),
+                    ),
+                    title: format!(
+                        "Address {} bottleneck",
+                        bottleneck.bottleneck_type.to_string()
+                    ),
                     description: bottleneck.description.clone(),
                     implementation_steps: vec![
                         "Investigate root cause".to_string(),
@@ -853,9 +863,12 @@ impl MetaAdminService {
         analysis.estimated_improvement = if analysis.identified_bottlenecks.is_empty() {
             0.0
         } else {
-            let avg_severity: f32 = analysis.identified_bottlenecks.iter()
+            let avg_severity: f32 = analysis
+                .identified_bottlenecks
+                .iter()
                 .map(|b| b.severity as f32)
-                .sum::<f32>() / analysis.identified_bottlenecks.len() as f32;
+                .sum::<f32>()
+                / analysis.identified_bottlenecks.len() as f32;
             avg_severity * 2.0 // Rough estimation
         };
 
@@ -874,11 +887,10 @@ impl MetaAdminService {
             // Generate healing action based on issue type
             let action = match issue.issue_type {
                 IssueType::PerformanceDegradation => {
-                    let mut healing = HealingAction::new(
-                        ActionType::Restart,
-                        issue.affected_component.clone(),
-                    );
-                    healing.description = "Restart affected component to clear performance issues".to_string();
+                    let mut healing =
+                        HealingAction::new(ActionType::Restart, issue.affected_component.clone());
+                    healing.description =
+                        "Restart affected component to clear performance issues".to_string();
                     healing.steps.push(ActionStep {
                         step_order: 1,
                         command: format!("restart {}", issue.affected_component),
@@ -893,7 +905,8 @@ impl MetaAdminService {
                         ActionType::ClearCache,
                         issue.affected_component.clone(),
                     );
-                    healing.description = "Clear cache and restart to free leaked memory".to_string();
+                    healing.description =
+                        "Clear cache and restart to free leaked memory".to_string();
                     healing.steps.push(ActionStep {
                         step_order: 1,
                         command: format!("clear-cache {}", issue.affected_component),
@@ -933,11 +946,10 @@ impl MetaAdminService {
                     healing
                 }
                 _ => {
-                    let mut healing = HealingAction::new(
-                        ActionType::Restart,
-                        issue.affected_component.clone(),
-                    );
-                    healing.description = format!("Generic restart for {}", issue.issue_type.to_string());
+                    let mut healing =
+                        HealingAction::new(ActionType::Restart, issue.affected_component.clone());
+                    healing.description =
+                        format!("Generic restart for {}", issue.issue_type.to_string());
                     healing.steps.push(ActionStep {
                         step_order: 1,
                         command: format!("restart {}", issue.affected_component),
@@ -1010,10 +1022,9 @@ mod tests {
         metrics.insert("memory_usage".to_string(), 88.0);
         metrics.insert("disk_io".to_string(), 45.0);
 
-        let analysis = service.perform_optimization_analysis(
-            "main_processor".to_string(),
-            metrics,
-        ).await;
+        let analysis = service
+            .perform_optimization_analysis("main_processor".to_string(), metrics)
+            .await;
 
         assert!(!analysis.identified_bottlenecks.is_empty());
         assert!(!analysis.optimization_recommendations.is_empty());
@@ -1023,10 +1034,7 @@ mod tests {
     async fn test_policy_evaluation() {
         let service = MetaAdminService::new();
 
-        let mut policy = MetaAdminPolicy::new(
-            "High CPU Alert".to_string(),
-            PolicyType::Triggered,
-        );
+        let mut policy = MetaAdminPolicy::new("High CPU Alert".to_string(), PolicyType::Triggered);
         policy.conditions.push(PolicyCondition {
             condition_type: ConditionType::MetricThreshold,
             target_metric: "cpu_usage".to_string(),

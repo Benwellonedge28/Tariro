@@ -32,18 +32,14 @@
 //! ```
 
 use crate::tumc_compiler::ast::*;
-use crate::tumc_compiler::lexer::{ Token, TokenKind};
+use crate::tumc_compiler::lexer::{Token, TokenKind};
 use crate::tumc_compiler::SourceLocation;
 use std::collections::VecDeque;
 
 /// The token that marks the end of the token stream.
 static EOF_TOKEN: Token = Token::new(
     TokenKind::Eof,
-    SourceLocation {
-        line: 0,
-        column: 0,
-        offset: 0,
-    },
+    SourceLocation { line: 0, column: 0, offset: 0 },
 );
 
 // ============================================================================
@@ -196,10 +192,7 @@ impl Parser {
 
                 let param_type = self.parse_type()?;
 
-                params.push(FunctionParam {
-                    name: param_name,
-                    ann_type: param_type,
-                });
+                params.push(FunctionParam { name: param_name, ann_type: param_type });
 
                 if self.check(&TokenKind::Comma) {
                     self.advance();
@@ -250,10 +243,7 @@ impl Parser {
 
             while !self.check(&TokenKind::Gt) && !self.is_at_end() {
                 let name = self.expect_identifier()?;
-                generics.push(GenericParam {
-                    name,
-                    bounds: Vec::new(),
-                });
+                generics.push(GenericParam { name, bounds: Vec::new() });
 
                 if self.check(&TokenKind::Comma) {
                     self.advance();
@@ -586,11 +576,7 @@ impl Parser {
 
                 items.push(TraitItem::Function {
                     name: fn_name,
-                    sig: FunctionSig {
-                        generics: Vec::new(),
-                        parameters: params,
-                        return_type,
-                    },
+                    sig: FunctionSig { generics: Vec::new(), parameters: params, return_type },
                 });
             } else {
                 self.advance();
@@ -697,10 +683,7 @@ impl Parser {
                 let param_name = self.expect_identifier()?;
                 self.expect(&TokenKind::Colon, "':' expected")?;
                 let param_type = self.parse_type()?;
-                params.push(FunctionParam {
-                    name: param_name,
-                    ann_type: param_type,
-                });
+                params.push(FunctionParam { name: param_name, ann_type: param_type });
 
                 if self.check(&TokenKind::Comma) {
                     self.advance();
@@ -1036,21 +1019,14 @@ impl Parser {
                 self.advance();
             }
 
-            arms.push(MatchArm {
-                pattern,
-                guard,
-                body,
-            });
+            arms.push(MatchArm { pattern, guard, body });
         }
 
         self.expect(&TokenKind::RBrace, "'}' expected")?;
 
         let span = SourceSpan::new(match_token.location, self.previous().location);
         let expr = Expr::new(
-            ExprKind::Match {
-                discriminant: Box::new(value),
-                arms,
-            },
+            ExprKind::Match { discriminant: Box::new(value), arms },
             span,
         );
         Ok(Stmt::new(StmtKind::Expr(expr), span))
@@ -1074,10 +1050,7 @@ impl Parser {
             let value = Box::new(self.parse_assignment()?);
             let span = expr.span;
             return Ok(Expr::new(
-                ExprKind::Assign {
-                    target: Box::new(expr),
-                    value,
-                },
+                ExprKind::Assign { target: Box::new(expr), value },
                 span,
             ));
         }
@@ -1096,11 +1069,7 @@ impl Parser {
             let value = Box::new(self.parse_assignment()?);
             let span = expr.span;
             return Ok(Expr::new(
-                ExprKind::CompoundAssign {
-                    target: Box::new(expr),
-                    op,
-                    value,
-                },
+                ExprKind::CompoundAssign { target: Box::new(expr), op, value },
                 span,
             ));
         }
@@ -1117,11 +1086,7 @@ impl Parser {
             let rhs = Box::new(self.parse_and()?);
             let span = SourceSpan::new(expr.span.start, rhs.span.end);
             expr = Expr::new(
-                ExprKind::Binary {
-                    op: BinOp::Or,
-                    lhs: Box::new(expr),
-                    rhs,
-                },
+                ExprKind::Binary { op: BinOp::Or, lhs: Box::new(expr), rhs },
                 span,
             );
         }
@@ -1138,11 +1103,7 @@ impl Parser {
             let rhs = Box::new(self.parse_equality()?);
             let span = SourceSpan::new(expr.span.start, rhs.span.end);
             expr = Expr::new(
-                ExprKind::Binary {
-                    op: BinOp::And,
-                    lhs: Box::new(expr),
-                    rhs,
-                },
+                ExprKind::Binary { op: BinOp::And, lhs: Box::new(expr), rhs },
                 span,
             );
         }
@@ -1163,14 +1124,7 @@ impl Parser {
             self.advance();
             let rhs = Box::new(self.parse_comparison()?);
             let span = SourceSpan::new(expr.span.start, rhs.span.end);
-            expr = Expr::new(
-                ExprKind::Binary {
-                    op,
-                    lhs: Box::new(expr),
-                    rhs,
-                },
-                span,
-            );
+            expr = Expr::new(ExprKind::Binary { op, lhs: Box::new(expr), rhs }, span);
         }
 
         Ok(expr)
@@ -1192,14 +1146,7 @@ impl Parser {
             self.advance();
             let rhs = Box::new(self.parse_term()?);
             let span = SourceSpan::new(expr.span.start, rhs.span.end);
-            expr = Expr::new(
-                ExprKind::Binary {
-                    op,
-                    lhs: Box::new(expr),
-                    rhs,
-                },
-                span,
-            );
+            expr = Expr::new(ExprKind::Binary { op, lhs: Box::new(expr), rhs }, span);
         }
 
         Ok(expr)
@@ -1218,14 +1165,7 @@ impl Parser {
             self.advance();
             let rhs = Box::new(self.parse_factor()?);
             let span = SourceSpan::new(expr.span.start, rhs.span.end);
-            expr = Expr::new(
-                ExprKind::Binary {
-                    op,
-                    lhs: Box::new(expr),
-                    rhs,
-                },
-                span,
-            );
+            expr = Expr::new(ExprKind::Binary { op, lhs: Box::new(expr), rhs }, span);
         }
 
         Ok(expr)
@@ -1245,14 +1185,7 @@ impl Parser {
             self.advance();
             let rhs = Box::new(self.parse_unary()?);
             let span = SourceSpan::new(expr.span.start, rhs.span.end);
-            expr = Expr::new(
-                ExprKind::Binary {
-                    op,
-                    lhs: Box::new(expr),
-                    rhs,
-                },
-                span,
-            );
+            expr = Expr::new(ExprKind::Binary { op, lhs: Box::new(expr), rhs }, span);
         }
 
         Ok(expr)
@@ -1260,7 +1193,8 @@ impl Parser {
 
     /// Parse unary
     fn parse_unary(&mut self) -> Result<Expr, ParserError> {
-        if let TokenKind::Minus | TokenKind::Not | TokenKind::BitAnd | TokenKind::Star = &self.peek().kind
+        if let TokenKind::Minus | TokenKind::Not | TokenKind::BitAnd | TokenKind::Star =
+            &self.peek().kind
         {
             let op = match self.peek().kind {
                 TokenKind::Minus => UnOp::Neg,
@@ -1300,10 +1234,7 @@ impl Parser {
                 }
                 self.expect(&TokenKind::RParen, "')' expected")?;
                 expr = Expr::new(
-                    ExprKind::Call {
-                        function: Box::new(expr),
-                        arguments,
-                    },
+                    ExprKind::Call { function: Box::new(expr), arguments },
                     SourceSpan::at(self.previous().location),
                 );
             } else if self.check(&TokenKind::Dot) {
@@ -1323,11 +1254,7 @@ impl Parser {
                 }
                 self.expect(&TokenKind::RParen, "')' expected")?;
                 expr = Expr::new(
-                    ExprKind::MethodCall {
-                        object: Box::new(expr),
-                        method,
-                        arguments,
-                    },
+                    ExprKind::MethodCall { object: Box::new(expr), method, arguments },
                     SourceSpan::at(self.previous().location),
                 );
             } else if self.check(&TokenKind::LBracket) {
@@ -1439,11 +1366,7 @@ impl Parser {
                     None
                 };
                 Ok(Expr::new(
-                    ExprKind::If {
-                        condition,
-                        then_block,
-                        else_expr,
-                    },
+                    ExprKind::If { condition, then_block, else_expr },
                     SourceSpan::at(token.location),
                 ))
             }
@@ -1487,18 +1410,11 @@ impl Parser {
                     if self.check(&TokenKind::Comma) {
                         self.advance();
                     }
-                    arms.push(MatchArm {
-                        pattern,
-                        guard,
-                        body,
-                    });
+                    arms.push(MatchArm { pattern, guard, body });
                 }
                 self.expect(&TokenKind::RBrace, "'}' expected")?;
                 Ok(Expr::new(
-                    ExprKind::Match {
-                        discriminant: value,
-                        arms,
-                    },
+                    ExprKind::Match { discriminant: value, arms },
                     SourceSpan::at(token.location),
                 ))
             }
@@ -1526,10 +1442,7 @@ impl Parser {
                     Some(self.parse_expression()?)
                 };
                 Ok(Expr::new(
-                    ExprKind::Break {
-                        label: None,
-                        value: value.map(Box::new),
-                    },
+                    ExprKind::Break { label: None, value: value.map(Box::new) },
                     SourceSpan::at(token.location),
                 ))
             }
@@ -1643,10 +1556,10 @@ impl Parser {
     fn check_keyword(&self, keyword: &str) -> bool {
         if let TokenKind::Identifier(n) = &self.peek().kind {
             match n.as_str() {
-                "let" | "const" | "if" | "else" | "while" | "for" | "loop" | "return"
-                | "break" | "continue" | "fn" | "struct" | "enum" | "impl" | "trait"
-                | "type" | "pub" | "mod" | "use" | "as" | "match" | "async" | "await"
-                | "mut" | "ref" | "in" | "true" | "false" => n == keyword,
+                "let" | "const" | "if" | "else" | "while" | "for" | "loop" | "return" | "break"
+                | "continue" | "fn" | "struct" | "enum" | "impl" | "trait" | "type" | "pub"
+                | "mod" | "use" | "as" | "match" | "async" | "await" | "mut" | "ref" | "in"
+                | "true" | "false" => n == keyword,
                 _ => false,
             }
         } else {
@@ -1687,10 +1600,7 @@ impl Parser {
 
     /// Create error
     fn error(&self, message: &str) -> ParserError {
-        ParserError {
-            message: message.to_string(),
-            location: self.peek().location,
-        }
+        ParserError { message: message.to_string(), location: self.peek().location }
     }
 
     /// Synchronize to next item
@@ -1779,10 +1689,7 @@ mod tests {
     fn test_parse_let() {
         let program = parse("fn main() { let x = 42; }");
         if let Item::Function(f) = &program.items[0] {
-            assert!(matches!(
-                &f.body[0].kind,
-                StmtKind::Let(_, _, _, _)
-            ));
+            assert!(matches!(&f.body[0].kind, StmtKind::Let(_, _, _, _)));
         } else {
             panic!("Expected function");
         }
@@ -1833,7 +1740,10 @@ mod tests {
         let program = parse("fn test() { let x = 1 + 2 * 3; }");
         if let Item::Function(f) = &program.items[0] {
             if let Stmt::Let { initializer: Some(expr), .. } = &f.body.statements[0] {
-                assert!(matches!(&expr.kind, ExprKind::Binary { op: BinOp::Add, .. }));
+                assert!(matches!(
+                    &expr.kind,
+                    ExprKind::Binary { op: BinOp::Add, .. }
+                ));
             } else {
                 panic!("Expected let with initializer");
             }

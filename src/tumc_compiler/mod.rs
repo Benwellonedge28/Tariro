@@ -31,61 +31,61 @@
 //! - Rust native
 //! - JavaScript/ASM.js
 
-pub mod lexer;
 pub mod ast;
-pub mod parser;
-pub mod type_checker;
-pub mod codegen;
-pub mod optimizer;
-pub mod error;
-pub mod macro_system;
-pub mod tariro_vm;
-pub mod native_codegen;
-pub mod simd_vectorizer;
-pub mod lsp_server;
-pub mod dwarf_debug;
-pub mod derive_system;
-pub mod fuzzing;
-pub mod profiler;
-pub mod wasm_engine;
-pub mod docs;
-pub mod testing;
-pub mod package_manager;
 pub mod build_system;
-pub mod repl;
-pub mod jit;
-pub mod wasi;
-pub mod hotreload;
+pub mod codegen;
 pub mod component;
-pub mod threading;
-pub mod serialization;
-pub mod plugins;
+pub mod derive_system;
+pub mod docs;
+pub mod dwarf_debug;
+pub mod error;
+pub mod frontend;
+pub mod fuzzing;
 pub mod gc;
+pub mod hotreload;
 pub mod i18n;
+pub mod jit;
+pub mod lang_go;
+pub mod lang_python;
+pub mod lang_rust;
+pub mod lang_typescript;
+pub mod lexer;
+pub mod lsp_server;
+pub mod macro_system;
 pub mod metrics;
+pub mod native_codegen;
+pub mod optimizer;
+pub mod package_manager;
+pub mod parser;
+pub mod plugins;
+pub mod profiler;
+pub mod repl;
 pub mod security;
-pub mod target_x86_64;
+pub mod serialization;
+pub mod simd_vectorizer;
 pub mod target_arm64;
+pub mod target_dotnet;
 pub mod target_jvm;
 pub mod target_llvm;
-pub mod frontend;
-pub mod lang_python;
-pub mod lang_typescript;
-pub mod lang_go;
-pub mod lang_rust;
 pub mod target_python;
-pub mod target_dotnet;
+pub mod target_x86_64;
+pub mod tariro_vm;
+pub mod testing;
+pub mod threading;
+pub mod type_checker;
+pub mod wasi;
+pub mod wasm_engine;
 
 // TUMC Advanced Modules (Phase 12)
+pub mod analysis;
 pub mod ir;
 pub mod optimization;
-pub mod analysis;
-pub mod type_system;
 pub mod runtime;
+pub mod specialization;
 pub mod targets;
 pub mod tooling;
+pub mod type_system;
 pub mod verification;
-pub mod specialization;
 
 // TUMC-AGI Integration (Phase 13)
 pub mod agi_integration;
@@ -466,7 +466,10 @@ impl Compiler {
                 format: self.target_format(),
                 diagnostics: Vec::new(),
                 stats: CompilationStats::default(),
-                errors: type_errors.into_iter().map(CompilerError::TypeError).collect(),
+                errors: type_errors
+                    .into_iter()
+                    .map(CompilerError::TypeError)
+                    .collect(),
             };
         }
 
@@ -656,15 +659,13 @@ impl Type {
             Type::String => None, // Pointer + length
             Type::Unit => Some(0),
             Type::Ref(_t) | Type::MutRef(_t) | Type::Ptr(_t) => Some(8), // 64-bit pointer
-            Type::Array(t, len) => {
-                t.size().and_then(|s| len.map(|l| s * l))
-            }
-            Type::Tuple(types) => {
-                types.iter().map(|t| t.size()).sum::<Option<usize>>()
-            }
-            Type::Struct(s) => {
-                s.fields.iter().map(|(_, t)| t.size()).sum::<Option<usize>>()
-            }
+            Type::Array(t, len) => t.size().and_then(|s| len.map(|l| s * l)),
+            Type::Tuple(types) => types.iter().map(|t| t.size()).sum::<Option<usize>>(),
+            Type::Struct(s) => s
+                .fields
+                .iter()
+                .map(|(_, t)| t.size())
+                .sum::<Option<usize>>(),
             _ => None,
         }
     }
@@ -752,7 +753,11 @@ impl Type {
                 format!("fn({}) -> {}", params, f.return_type.name())
             }
             Type::Tuple(types) => {
-                let fields = types.iter().map(|t| t.name()).collect::<Vec<_>>().join(", ");
+                let fields = types
+                    .iter()
+                    .map(|t| t.name())
+                    .collect::<Vec<_>>()
+                    .join(", ");
                 format!("({})", fields)
             }
             Type::Array(t, len) => {
@@ -791,10 +796,7 @@ impl Type {
             (Type::Ref(a), Type::MutRef(b)) if *a == *b => Some(Type::Ref(a.clone())),
             (Type::MutRef(a), Type::Ref(b)) if *a == *b => Some(Type::Ref(a.clone())),
             // Function unification
-            (
-                Type::Function(f1),
-                Type::Function(f2),
-            ) => {
+            (Type::Function(f1), Type::Function(f2)) => {
                 if f1.parameters.len() == f2.parameters.len() {
                     let params: Vec<Type> = f1
                         .parameters
@@ -834,35 +836,81 @@ impl Type {
 #[derive(Debug, Clone)]
 pub enum IRInstruction {
     /// Load immediate value
-    LoadImm { dest: u32, value: i64 },
+    LoadImm {
+        dest: u32,
+        value: i64,
+    },
 
     /// Load from memory
-    Load { dest: u32, base: u32, offset: i32 },
+    Load {
+        dest: u32,
+        base: u32,
+        offset: i32,
+    },
 
     /// Store to memory
-    Store { base: u32, offset: i32, value: u32 },
+    Store {
+        base: u32,
+        offset: i32,
+        value: u32,
+    },
 
     /// Arithmetic operations
-    Add { dest: u32, lhs: u32, rhs: u32 },
-    Sub { dest: u32, lhs: u32, rhs: u32 },
-    Mul { dest: u32, lhs: u32, rhs: u32 },
-    Div { dest: u32, lhs: u32, rhs: u32 },
+    Add {
+        dest: u32,
+        lhs: u32,
+        rhs: u32,
+    },
+    Sub {
+        dest: u32,
+        lhs: u32,
+        rhs: u32,
+    },
+    Mul {
+        dest: u32,
+        lhs: u32,
+        rhs: u32,
+    },
+    Div {
+        dest: u32,
+        lhs: u32,
+        rhs: u32,
+    },
 
     /// Comparison
-    Cmp { dest: u32, lhs: u32, rhs: u32, op: CmpOp },
+    Cmp {
+        dest: u32,
+        lhs: u32,
+        rhs: u32,
+        op: CmpOp,
+    },
 
     /// Jump
-    Jmp { target: u32 },
-    JmpIf { cond: u32, target: u32 },
+    Jmp {
+        target: u32,
+    },
+    JmpIf {
+        cond: u32,
+        target: u32,
+    },
 
     /// Function call
-    Call { dest: u32, func: u32, args: Vec<u32> },
+    Call {
+        dest: u32,
+        func: u32,
+        args: Vec<u32>,
+    },
 
     /// Return
-    Return { value: Option<u32> },
+    Return {
+        value: Option<u32>,
+    },
 
     /// Phi node (for SSA)
-    Phi { dest: u32, branches: Vec<(u32, u32)> },
+    Phi {
+        dest: u32,
+        branches: Vec<(u32, u32)>,
+    },
 }
 
 /// Comparison operation

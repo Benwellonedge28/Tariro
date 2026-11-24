@@ -1,7 +1,6 @@
 //! SIMD vectorization for TUMC
 //! Generates vectorized code using SIMD instructions (SSE, AVX, NEON)
 
-
 use super::ast::*;
 use super::tariro_vm::Value;
 
@@ -129,7 +128,7 @@ pub enum SimdOp {
 
     // Type conversion
     Cast(VectorWidth, LaneType, LaneType), // Cast between lane types
-    Promote(VectorWidth, LaneType),         // e.g., i32 -> i64
+    Promote(VectorWidth, LaneType),        // e.g., i32 -> i64
     Demote(VectorWidth, LaneType),         // e.g., i64 -> i32
     FloatToInt(VectorWidth),
     IntToFloat(VectorWidth),
@@ -269,12 +268,21 @@ impl SimdVectorizer {
     pub fn new(isa: SimdIsa) -> Self {
         let available_widths = match isa {
             SimdIsa::None => vec![],
-            SimdIsa::SSE | SimdIsa::SSE2 | SimdIsa::SSE3 | SimdIsa::SSSE3
-            | SimdIsa::SSE4_1 | SimdIsa::SSE4_2 => vec![VectorWidth::W128],
+            SimdIsa::SSE
+            | SimdIsa::SSE2
+            | SimdIsa::SSE3
+            | SimdIsa::SSSE3
+            | SimdIsa::SSE4_1
+            | SimdIsa::SSE4_2 => vec![VectorWidth::W128],
             SimdIsa::AVX | SimdIsa::AVX2 => vec![VectorWidth::W128, VectorWidth::W256],
             SimdIsa::AVX512 => vec![VectorWidth::W128, VectorWidth::W256, VectorWidth::W512],
             SimdIsa::Neon => vec![VectorWidth::W128],
-            SimdIsa::SVE => vec![VectorWidth::W128, VectorWidth::W256, VectorWidth::W512, VectorWidth::W1024],
+            SimdIsa::SVE => vec![
+                VectorWidth::W128,
+                VectorWidth::W256,
+                VectorWidth::W512,
+                VectorWidth::W1024,
+            ],
         };
 
         SimdVectorizer {
@@ -300,7 +308,8 @@ impl SimdVectorizer {
             let trip_count = self.estimate_trip_count(iterable);
 
             // Check if vectorization is beneficial
-            let can_vectorize = dependencies.iter()
+            let can_vectorize = dependencies
+                .iter()
                 .all(|d| d.can_hoist || d.kind == DependencyKind::LoopIndependent);
 
             // Calculate estimated speedup
@@ -320,7 +329,8 @@ impl SimdVectorizer {
 
             // Determine recommended vector width
             let recommended_width = if let Some(trip) = trip_count {
-                self.available_widths.iter()
+                self.available_widths
+                    .iter()
                     .find(|w| {
                         let lanes = LaneType::I32.lanes(**w);
                         lanes as usize <= trip
@@ -380,7 +390,9 @@ impl SimdVectorizer {
         // Simplified: check for scalar dependencies
         for stmt in body {
             if let StmtKind::Assignment(lhs, rhs) = &stmt.kind {
-                if let (ExprKind::Identifier(name), ExprKind::Identifier(_)) = (&lhs.kind, &rhs.kind) {
+                if let (ExprKind::Identifier(name), ExprKind::Identifier(_)) =
+                    (&lhs.kind, &rhs.kind)
+                {
                     deps.push(Dependency {
                         kind: DependencyKind::Scalar,
                         from: name.clone(),
@@ -437,9 +449,7 @@ impl SimdVectorizer {
             ExprKind::Binary { lhs, rhs, .. } => {
                 1 + self.count_ops_in_expr(lhs) + self.count_ops_in_expr(rhs)
             }
-            ExprKind::Unary { operand, .. } => {
-                1 + self.count_ops_in_expr(operand)
-            }
+            ExprKind::Unary { operand, .. } => 1 + self.count_ops_in_expr(operand),
             ExprKind::Call { arguments, .. } => {
                 arguments.iter().map(|a| self.count_ops_in_expr(a)).sum()
             }
@@ -463,14 +473,19 @@ impl SimdVectorizer {
 
     /// Get maximum vector lanes available
     fn max_lanes(&self) -> usize {
-        self.available_widths.iter()
+        self.available_widths
+            .iter()
             .map(|w| LaneType::I32.lanes(*w))
             .max()
             .unwrap_or(1)
     }
 
     /// Vectorize a loop
-    pub fn vectorize_loop(&mut self, loop_: &Stmt, analysis: &SimdAnalysis) -> Result<Stmt, VectorizeError> {
+    pub fn vectorize_loop(
+        &mut self,
+        loop_: &Stmt,
+        analysis: &SimdAnalysis,
+    ) -> Result<Stmt, VectorizeError> {
         if !analysis.can_vectorize {
             return Err(VectorizeError::CannotVectorize(
                 "Loop has dependencies that prevent vectorization".to_string(),
@@ -486,7 +501,11 @@ impl SimdVectorizer {
     }
 
     /// Create vectorized loop body
-    fn create_vectorized_loop(&mut self, loop_: &Stmt, analysis: &SimdAnalysis) -> Result<Stmt, VectorizeError> {
+    fn create_vectorized_loop(
+        &mut self,
+        loop_: &Stmt,
+        analysis: &SimdAnalysis,
+    ) -> Result<Stmt, VectorizeError> {
         if let StmtKind::For(var, iterable, body) = &loop_.kind {
             let width = analysis.recommended_width;
             let lane_type = analysis.recommended_lanes;
@@ -511,42 +530,48 @@ impl SimdVectorizer {
     }
 
     /// Vectorize a single statement
-    fn vectorize_stmt(&mut self, stmt: &Stmt, width: VectorWidth, lane_type: LaneType) -> Result<Stmt, VectorizeError> {
+    fn vectorize_stmt(
+        &mut self,
+        stmt: &Stmt,
+        width: VectorWidth,
+        lane_type: LaneType,
+    ) -> Result<Stmt, VectorizeError> {
         match &stmt.kind {
-            StmtKind::Expr(expr) => {
-                Ok(Stmt {
-                    kind: StmtKind::Expr(self.vectorize_expr(expr, width, lane_type)?),
-                    span: stmt.span.clone(),
-                })
-            }
-            StmtKind::Assignment(lhs, rhs) => {
-                Ok(Stmt {
-                    kind: StmtKind::Assignment(
-                        lhs.clone(),
-                        Box::new(self.vectorize_expr(rhs, width, lane_type)?),
-                    ),
-                    span: stmt.span.clone(),
-                })
-            }
-            StmtKind::Let(p, t, v, body) => {
-                Ok(Stmt {
-                    kind: StmtKind::Let(
-                        p.clone(),
-                        t.clone(),
-                        v.as_ref()
-                            .map(|e| self.vectorize_expr(e, width, lane_type))
-                            .transpose()?,
-                        body.iter().map(|s| self.vectorize_stmt(s, width, lane_type)).collect::<Result<Vec<_>, _>>()?,
-                    ),
-                    span: stmt.span.clone(),
-                })
-            }
+            StmtKind::Expr(expr) => Ok(Stmt {
+                kind: StmtKind::Expr(self.vectorize_expr(expr, width, lane_type)?),
+                span: stmt.span.clone(),
+            }),
+            StmtKind::Assignment(lhs, rhs) => Ok(Stmt {
+                kind: StmtKind::Assignment(
+                    lhs.clone(),
+                    Box::new(self.vectorize_expr(rhs, width, lane_type)?),
+                ),
+                span: stmt.span.clone(),
+            }),
+            StmtKind::Let(p, t, v, body) => Ok(Stmt {
+                kind: StmtKind::Let(
+                    p.clone(),
+                    t.clone(),
+                    v.as_ref()
+                        .map(|e| self.vectorize_expr(e, width, lane_type))
+                        .transpose()?,
+                    body.iter()
+                        .map(|s| self.vectorize_stmt(s, width, lane_type))
+                        .collect::<Result<Vec<_>, _>>()?,
+                ),
+                span: stmt.span.clone(),
+            }),
             _ => Ok(stmt.clone()),
         }
     }
 
     /// Vectorize an expression
-    fn vectorize_expr(&mut self, expr: &Expr, width: VectorWidth, lane_type: LaneType) -> Result<Expr, VectorizeError> {
+    fn vectorize_expr(
+        &mut self,
+        expr: &Expr,
+        width: VectorWidth,
+        lane_type: LaneType,
+    ) -> Result<Expr, VectorizeError> {
         match &expr.kind {
             ExprKind::Binary { op, lhs, rhs } => {
                 let vlhs = self.vectorize_expr(lhs, width, lane_type)?;
@@ -580,15 +605,13 @@ impl SimdVectorizer {
                 })
             }
             ExprKind::Call { function, arguments } => {
-                let vargs: Result<Vec<Expr>, _> = arguments.iter()
+                let vargs: Result<Vec<Expr>, _> = arguments
+                    .iter()
                     .map(|a| self.vectorize_expr(a, width, lane_type))
                     .collect();
 
                 Ok(Expr {
-                    kind: ExprKind::Call {
-                        function: function.clone(),
-                        arguments: vargs?,
-                    },
+                    kind: ExprKind::Call { function: function.clone(), arguments: vargs? },
                     span: expr.span.clone(),
                     annotations: vec![],
                 })
@@ -600,19 +623,12 @@ impl SimdVectorizer {
     /// Emit SIMD instruction
     pub fn emit_simd_instruction(&self, op: &SimdOp) -> Vec<String> {
         match self.isa {
-            SimdIsa::SSE2 | SimdIsa::SSE3 | SimdIsa::SSSE3
-            | SimdIsa::SSE4_1 | SimdIsa::SSE4_2 => {
+            SimdIsa::SSE2 | SimdIsa::SSE3 | SimdIsa::SSSE3 | SimdIsa::SSE4_1 | SimdIsa::SSE4_2 => {
                 self.emit_sse_instructions(op)
             }
-            SimdIsa::AVX | SimdIsa::AVX2 => {
-                self.emit_avx_instructions(op)
-            }
-            SimdIsa::AVX512 => {
-                self.emit_avx512_instructions(op)
-            }
-            SimdIsa::Neon => {
-                self.emit_neon_instructions(op)
-            }
+            SimdIsa::AVX | SimdIsa::AVX2 => self.emit_avx_instructions(op),
+            SimdIsa::AVX512 => self.emit_avx512_instructions(op),
+            SimdIsa::Neon => self.emit_neon_instructions(op),
             _ => vec![],
         }
     }
@@ -765,7 +781,8 @@ mod tests {
     #[test]
     fn test_simd_instruction_emission() {
         let vectorizer = SimdVectorizer::new(SimdIsa::Neon);
-        let instrs = vectorizer.emit_simd_instruction(&SimdOp::Add(VectorWidth::W128, LaneType::F32));
+        let instrs =
+            vectorizer.emit_simd_instruction(&SimdOp::Add(VectorWidth::W128, LaneType::F32));
         assert!(!instrs.is_empty());
     }
 }

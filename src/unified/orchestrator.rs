@@ -3,17 +3,19 @@
 //! The central orchestrator that coordinates all TUMC compiler modules
 //! with AGI cognitive systems.
 
-use crate::unified::{UnifiedConfig, SystemStatus, ComponentStatus, SystemMetrics, IntentResult, ProcessingMetrics, Intent, IntentType, UnifiedResult};
+use crate::tumc_compiler::agi_integration::AgiInsight;
+use crate::tumc_compiler::ir::Module;
+use crate::tumc_compiler::optimization::OptLevel;
 use crate::unified::cognitive_core::CognitiveCore;
 use crate::unified::compiler_integration::CompilerIntegration;
 use crate::unified::unified_memory::UnifiedMemory;
-use crate::tumc_compiler::optimization::OptLevel;
-use crate::tumc_compiler::ir::Module;
-use crate::tumc_compiler::agi_integration::AgiInsight;
-use serde::{ };
+use crate::unified::{
+    ComponentStatus, Intent, IntentResult, IntentType, ProcessingMetrics, SystemMetrics,
+    SystemStatus, UnifiedConfig, UnifiedResult,
+};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
-use std::time::{Instant};
+use std::time::Instant;
 
 /// Main orchestrator for TUMC-AGI unified system
 pub struct TariroUnifiedOrchestrator {
@@ -44,26 +46,35 @@ impl TariroUnifiedOrchestrator {
         let start_time = Instant::now();
         let mut components = HashMap::new();
 
-        components.insert("cognitive_core".to_string(), ComponentStatus {
-            name: "Cognitive Core".to_string(),
-            initialized: config.enable_cognitive_compiler || config.enable_agi_reasoning,
-            healthy: true,
-            error: None,
-        });
+        components.insert(
+            "cognitive_core".to_string(),
+            ComponentStatus {
+                name: "Cognitive Core".to_string(),
+                initialized: config.enable_cognitive_compiler || config.enable_agi_reasoning,
+                healthy: true,
+                error: None,
+            },
+        );
 
-        components.insert("compiler".to_string(), ComponentStatus {
-            name: "Compiler Integration".to_string(),
-            initialized: true,
-            healthy: true,
-            error: None,
-        });
+        components.insert(
+            "compiler".to_string(),
+            ComponentStatus {
+                name: "Compiler Integration".to_string(),
+                initialized: true,
+                healthy: true,
+                error: None,
+            },
+        );
 
-        components.insert("memory".to_string(), ComponentStatus {
-            name: "Unified Memory".to_string(),
-            initialized: true,
-            healthy: true,
-            error: None,
-        });
+        components.insert(
+            "memory".to_string(),
+            ComponentStatus {
+                name: "Unified Memory".to_string(),
+                initialized: true,
+                healthy: true,
+                error: None,
+            },
+        );
 
         let cognitive_core = if config.enable_cognitive_compiler || config.enable_agi_reasoning {
             Some(CognitiveCore::new(config.clone()))
@@ -95,12 +106,16 @@ impl TariroUnifiedOrchestrator {
 
     /// Initialize all components
     pub fn initialize(&mut self) -> Result<(), String> {
-        println!("Initializing TUMC-AGI Unified System v{}", self.status.version);
+        println!(
+            "Initializing TUMC-AGI Unified System v{}",
+            self.status.version
+        );
 
         // Initialize cognitive core
         if let Some(ref mut cc) = self.cognitive_core {
             cc.initialize()?;
-            self.component_health.insert("cognitive_core".to_string(), true);
+            self.component_health
+                .insert("cognitive_core".to_string(), true);
         }
 
         // Initialize compiler
@@ -137,7 +152,9 @@ impl TariroUnifiedOrchestrator {
         }
 
         // Step 2: Compile with cognitive augmentation
-        let compile_result = self.compiler.compile_with_insights(intent, target, &insights);
+        let compile_result = self
+            .compiler
+            .compile_with_insights(intent, target, &insights);
 
         if compile_result.success {
             output = compile_result.output;
@@ -150,18 +167,20 @@ impl TariroUnifiedOrchestrator {
             let reasoning_steps = insights.len();
             let mut mem = match self.memory.write() {
                 Ok(m) => m,
-                Err(_) => return IntentResult {
-                    success: false,
-                    output: String::new(),
-                    insights,
-                    metrics: ProcessingMetrics {
-                        compilation_time_ms: start.elapsed().as_millis() as u64,
-                        reasoning_steps,
-                        optimizations_applied: 0,
-                        confidence: 0.0,
-                    },
-                    errors: vec!["Memory lock error".to_string()],
-                },
+                Err(_) => {
+                    return IntentResult {
+                        success: false,
+                        output: String::new(),
+                        insights,
+                        metrics: ProcessingMetrics {
+                            compilation_time_ms: start.elapsed().as_millis() as u64,
+                            reasoning_steps,
+                            optimizations_applied: 0,
+                            confidence: 0.0,
+                        },
+                        errors: vec!["Memory lock error".to_string()],
+                    }
+                }
             };
             mem.store_intent(intent, &output, &insights);
         }
@@ -196,7 +215,9 @@ impl TariroUnifiedOrchestrator {
         let mut output = String::new();
 
         // Extract target from context if available
-        let target = intent.context.get("target")
+        let target = intent
+            .context
+            .get("target")
             .map(|s| s.as_str())
             .unwrap_or("wasm");
 
@@ -207,8 +228,8 @@ impl TariroUnifiedOrchestrator {
                     let cog_result = cc.process_intent(&intent.description);
                     if !cog_result.success {
                         if let Some(error) = &cog_result.error {
-                errors.push(error.clone());
-            }
+                            errors.push(error.clone());
+                        }
                     }
                     insights.extend(cog_result.insights);
                 }
@@ -216,8 +237,8 @@ impl TariroUnifiedOrchestrator {
                     let cog_result = cc.process_intent(&intent.description);
                     if !cog_result.success {
                         if let Some(error) = &cog_result.error {
-                        errors.push(error.clone());
-                    }
+                            errors.push(error.clone());
+                        }
                     }
                     insights.extend(cog_result.insights);
                 }
@@ -237,7 +258,9 @@ impl TariroUnifiedOrchestrator {
         // Step 2: Compile with cognitive augmentation based on intent type
         let optimizations_applied = match intent.intent_type {
             IntentType::Compile | IntentType::Optimize => {
-                let compile_result = self.compiler.compile_with_insights(&intent.description, target, &insights);
+                let compile_result =
+                    self.compiler
+                        .compile_with_insights(&intent.description, target, &insights);
                 if compile_result.success {
                     output = compile_result.output;
                 } else {
@@ -247,7 +270,9 @@ impl TariroUnifiedOrchestrator {
             }
             IntentType::Analyze => {
                 // Analyze code
-                let compile_result = self.compiler.compile_with_insights(&intent.description, target, &insights);
+                let compile_result =
+                    self.compiler
+                        .compile_with_insights(&intent.description, target, &insights);
                 if compile_result.success {
                     output = format!("Analysis complete:\n{}", compile_result.output);
                 } else {
@@ -259,7 +284,10 @@ impl TariroUnifiedOrchestrator {
                 // Generate reasoning output
                 output = format!("Reasoning result for: {}", intent.description);
                 insights.iter().for_each(|i| {
-                    output.push_str(&format!("\n- {} (confidence: {:.2})", i.description, i.confidence));
+                    output.push_str(&format!(
+                        "\n- {} (confidence: {:.2})",
+                        i.description, i.confidence
+                    ));
                 });
                 0
             }
@@ -273,7 +301,10 @@ impl TariroUnifiedOrchestrator {
                 0
             }
             _ => {
-                output = format!("Processed intent: {:?} - {}", intent.intent_type, intent.description);
+                output = format!(
+                    "Processed intent: {:?} - {}",
+                    intent.intent_type, intent.description
+                );
                 0
             }
         };
@@ -303,21 +334,9 @@ impl TariroUnifiedOrchestrator {
         };
 
         if errors.is_empty() {
-            Ok(UnifiedResult {
-                success: true,
-                output,
-                insights,
-                metrics,
-                errors: Vec::new(),
-            })
+            Ok(UnifiedResult { success: true, output, insights, metrics, errors: Vec::new() })
         } else {
-            Ok(UnifiedResult {
-                success: false,
-                output,
-                insights,
-                metrics,
-                errors,
-            })
+            Ok(UnifiedResult { success: false, output, insights, metrics, errors })
         }
     }
 

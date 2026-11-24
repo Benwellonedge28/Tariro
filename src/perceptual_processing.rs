@@ -1,9 +1,8 @@
 // Tariro AGI - Perceptual Processing Module
 // Multi-modal perception system for unified sensory integration
 
+use chrono::{DateTime, TimeDelta, Utc};
 use std::collections::{HashMap, VecDeque};
-use std::sync::{ };
-use chrono::{DateTime, Utc, TimeDelta};
 use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
@@ -923,13 +922,14 @@ pub struct MidLevelExtractor {
 
 impl MidLevelExtractor {
     pub fn new() -> Self {
-        Self {
-            region_threshold: 0.5,
-            surface_estimation_enabled: true,
-        }
+        Self { region_threshold: 0.5, surface_estimation_enabled: true }
     }
 
-    pub fn extract_features(&self, data: &VisualData, low_level: &LowLevelVisual) -> MidLevelVisual {
+    pub fn extract_features(
+        &self,
+        data: &VisualData,
+        low_level: &LowLevelVisual,
+    ) -> MidLevelVisual {
         // Region segmentation
         let regions = self.segment_regions(data, low_level);
 
@@ -942,12 +942,7 @@ impl MidLevelExtractor {
         // Motion detection
         let motion_vectors = self.detect_motion(data);
 
-        MidLevelVisual {
-            regions,
-            surfaces,
-            depth_map,
-            motion_vectors,
-        }
+        MidLevelVisual { regions, surfaces, depth_map, motion_vectors }
     }
 
     fn segment_regions(&self, _data: &VisualData, low_level: &LowLevelVisual) -> Vec<ImageRegion> {
@@ -1005,7 +1000,11 @@ impl HighLevelExtractor {
         }
     }
 
-    pub fn extract_features(&self, data: &VisualData, _mid_level: &MidLevelVisual) -> HighLevelVisual {
+    pub fn extract_features(
+        &self,
+        data: &VisualData,
+        _mid_level: &MidLevelVisual,
+    ) -> HighLevelVisual {
         // Use existing objects from data
         let objects = data.objects.clone();
 
@@ -1018,12 +1017,7 @@ impl HighLevelExtractor {
         // Spatial relationships
         let spatial_relationships = self.compute_spatial_relations(&objects);
 
-        HighLevelVisual {
-            objects,
-            scene,
-            actions,
-            spatial_relationships,
-        }
+        HighLevelVisual { objects, scene, actions, spatial_relationships }
     }
 
     fn recognize_actions(&self, _objects: &[VisualObject]) -> Vec<Action> {
@@ -1137,7 +1131,8 @@ impl ObjectTracker {
                     accelerations: vec![],
                     direction: track.velocity.1.atan2(track.velocity.0),
                     speed: (track.velocity.0.powi(2) + track.velocity.1.powi(2)).sqrt(),
-                    trajectory_type: if track.velocity.0.abs() < 0.1 && track.velocity.1.abs() < 0.1 {
+                    trajectory_type: if track.velocity.0.abs() < 0.1 && track.velocity.1.abs() < 0.1
+                    {
                         TrajectoryType::Stationary
                     } else {
                         TrajectoryType::Linear
@@ -1149,7 +1144,12 @@ impl ObjectTracker {
         }
 
         // Remove old tracks
-        self.tracks.retain(|_, track| now.signed_duration_since(track.last_seen).to_std().unwrap_or_default() < self.max_age);
+        self.tracks.retain(|_, track| {
+            now.signed_duration_since(track.last_seen)
+                .to_std()
+                .unwrap_or_default()
+                < self.max_age
+        });
 
         updated_objects
     }
@@ -1228,11 +1228,7 @@ pub struct SpectralAnalyzer {
 
 impl SpectralAnalyzer {
     pub fn new(sample_rate: u32) -> Self {
-        Self {
-            fft_size: 2048,
-            hop_size: 512,
-            sample_rate,
-        }
+        Self { fft_size: 2048, hop_size: 512, sample_rate }
     }
 
     pub fn analyze(&self, waveform: &[f32]) -> SpectralFeatures {
@@ -1323,14 +1319,8 @@ pub struct AcousticModel {
 impl SpeechRecognizer {
     pub fn new() -> Self {
         Self {
-            language_model: Some(LanguageModel {
-                vocab_size: 50000,
-                ngram_order: 3,
-            }),
-            acoustic_model: Some(AcousticModel {
-                hidden_units: 1024,
-                input_dim: 40,
-            }),
+            language_model: Some(LanguageModel { vocab_size: 50000, ngram_order: 3 }),
+            acoustic_model: Some(AcousticModel { hidden_units: 1024, input_dim: 40 }),
         }
     }
 
@@ -1358,9 +1348,7 @@ pub struct SpeakerAnalyzer {
 
 impl SpeakerAnalyzer {
     pub fn new() -> Self {
-        Self {
-            embedding_dim: 512,
-        }
+        Self { embedding_dim: 512 }
     }
 
     pub fn analyze(&self, _features: &SpectralFeatures, prosody: &ProsodicFeatures) -> SpeakerInfo {
@@ -1444,10 +1432,7 @@ pub struct Tokenizer {
 
 impl Tokenizer {
     pub fn new() -> Self {
-        Self {
-            lowercase: true,
-            remove_punctuation: true,
-        }
+        Self { lowercase: true, remove_punctuation: true }
     }
 
     pub fn tokenize(&self, text: &str) -> Vec<Token> {
@@ -1456,7 +1441,9 @@ impl Tokenizer {
 
         for word in text.split_whitespace() {
             let cleaned = if self.remove_punctuation {
-                word.chars().filter(|c| c.is_alphanumeric()).collect::<String>()
+                word.chars()
+                    .filter(|c| c.is_alphanumeric())
+                    .collect::<String>()
             } else {
                 word.to_string()
             };
@@ -1489,9 +1476,18 @@ impl Tokenizer {
             "NUM".to_string()
         } else if word.ends_with("ly") {
             "ADV".to_string()
-        } else if word.ends_with("ing") || word.ends_with("ed") || word.ends_with("es") || word.ends_with("s") {
+        } else if word.ends_with("ing")
+            || word.ends_with("ed")
+            || word.ends_with("es")
+            || word.ends_with("s")
+        {
             "VERB".to_string()
-        } else if word.chars().next().map(|c| c.is_uppercase()).unwrap_or(false) {
+        } else if word
+            .chars()
+            .next()
+            .map(|c| c.is_uppercase())
+            .unwrap_or(false)
+        {
             "PROPN".to_string()
         } else {
             "NOUN".to_string()
@@ -1506,9 +1502,7 @@ pub struct SyntacticParser {
 
 impl SyntacticParser {
     pub fn new() -> Self {
-        Self {
-            parser_type: "constituency".to_string(),
-        }
+        Self { parser_type: "constituency".to_string() }
     }
 
     pub fn parse(&self, tokens: &[Token]) -> SyntacticNode {
@@ -1565,8 +1559,22 @@ pub struct SemanticParser {
 impl SemanticParser {
     pub fn new() -> Self {
         let mut ontology = HashMap::new();
-        ontology.insert("action".to_string(), vec!["create".to_string(), "destroy".to_string(), "move".to_string()]);
-        ontology.insert("entity".to_string(), vec!["person".to_string(), "object".to_string(), "location".to_string()]);
+        ontology.insert(
+            "action".to_string(),
+            vec![
+                "create".to_string(),
+                "destroy".to_string(),
+                "move".to_string(),
+            ],
+        );
+        ontology.insert(
+            "entity".to_string(),
+            vec![
+                "person".to_string(),
+                "object".to_string(),
+                "location".to_string(),
+            ],
+        );
 
         Self { ontology }
     }
@@ -1710,8 +1718,14 @@ impl TemporalAligner {
                         perception_a: *i,
                         perception_b: *i + 1,
                         time_diff: time_diff_std,
-                        alignment_type: self.classify_alignment(&p1.modality, &p2.modality, time_diff),
-                        confidence: 1.0 - (time_diff.num_milliseconds() as f32 / self.max_time_diff.num_milliseconds() as f32),
+                        alignment_type: self.classify_alignment(
+                            &p1.modality,
+                            &p2.modality,
+                            time_diff,
+                        ),
+                        confidence: 1.0
+                            - (time_diff.num_milliseconds() as f32
+                                / self.max_time_diff.num_milliseconds() as f32),
                     });
                 }
             }
@@ -1720,7 +1734,12 @@ impl TemporalAligner {
         alignments
     }
 
-    fn classify_alignment(&self, m1: &Modality, m2: &Modality, time_diff: TimeDelta) -> AlignmentType {
+    fn classify_alignment(
+        &self,
+        m1: &Modality,
+        m2: &Modality,
+        time_diff: TimeDelta,
+    ) -> AlignmentType {
         match (m1, m2) {
             (Modality::Visual, Modality::Auditory) | (Modality::Auditory, Modality::Visual) => {
                 if time_diff < TimeDelta::milliseconds(200) {
@@ -1761,9 +1780,7 @@ pub struct SemanticBinder {
 
 impl SemanticBinder {
     pub fn new() -> Self {
-        Self {
-            semantic_similarity_threshold: 0.6,
-        }
+        Self { semantic_similarity_threshold: 0.6 }
     }
 
     pub fn bind(&self, visual: &VisualObject, auditory: &Option<String>) -> Option<f32> {
@@ -1772,7 +1789,11 @@ impl SemanticBinder {
 
         if let Some(audio_text) = auditory {
             // Simple keyword matching
-            if visual.class_label.to_lowercase().contains(&audio_text.to_lowercase()) {
+            if visual
+                .class_label
+                .to_lowercase()
+                .contains(&audio_text.to_lowercase())
+            {
                 Some(0.9)
             } else {
                 Some(0.3)
@@ -1785,7 +1806,8 @@ impl SemanticBinder {
 
 /// Complementary feature fusion
 pub struct ComplementaryFusion {
-    fusion_weights: HashMap<(Modality, Modality), f32>}
+    fusion_weights: HashMap<(Modality, Modality), f32>,
+}
 
 impl ComplementaryFusion {
     pub fn new() -> Self {
@@ -1794,12 +1816,16 @@ impl ComplementaryFusion {
         weights.insert((Modality::Visual, Modality::Textual), 0.6);
         weights.insert((Modality::Auditory, Modality::Textual), 0.7);
 
-        Self {
-            fusion_weights: weights,
-        }
+        Self { fusion_weights: weights }
     }
 
-    pub fn fuse(&self, features_a: &[f32], features_b: &[f32], m1: &Modality, m2: &Modality) -> Vec<f32> {
+    pub fn fuse(
+        &self,
+        features_a: &[f32],
+        features_b: &[f32],
+        m1: &Modality,
+        m2: &Modality,
+    ) -> Vec<f32> {
         let weight = self
             .fusion_weights
             .get(&(m1.clone(), m2.clone()))
@@ -1859,7 +1885,11 @@ impl AttentionController {
         }
 
         // Find highest attention point
-        if let Some((max_idx, max_val)) = combined_weights.iter().enumerate().max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal)) {
+        if let Some((max_idx, max_val)) = combined_weights
+            .iter()
+            .enumerate()
+            .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
+        {
             self.current_focus = Some(AttentionFocus {
                 modality: Modality::MultiModal,
                 spatial_location: Some((max_idx as f32, max_idx as f32)),
@@ -1897,10 +1927,7 @@ pub struct IttiSaliency {
 
 impl IttiSaliency {
     pub fn new() -> Self {
-        Self {
-            scales: vec![1, 2, 4, 8],
-            center_surround_levels: 4,
-        }
+        Self { scales: vec![1, 2, 4, 8], center_surround_levels: 4 }
     }
 
     pub fn compute(&self, visual_data: &VisualData) -> Vec<f32> {
@@ -1927,7 +1954,9 @@ impl IttiSaliency {
             let x = i % width;
             let center_x = width / 2;
             let center_y = height / 2;
-            let dist = ((x as f32 - center_x as f32).powi(2) + (y as f32 - center_y as f32).powi(2)).sqrt();
+            let dist = ((x as f32 - center_x as f32).powi(2)
+                + (y as f32 - center_y as f32).powi(2))
+            .sqrt();
             let max_dist = ((width as f32 / 2.0).powi(2) + (height as f32 / 2.0).powi(2)).sqrt();
 
             *val = max_intensity * (1.0 - dist / max_dist);
@@ -1944,9 +1973,7 @@ pub struct SpectralSaliency {
 
 impl SpectralSaliency {
     pub fn new() -> Self {
-        Self {
-            fft_size: 256,
-        }
+        Self { fft_size: 256 }
     }
 
     pub fn compute(&self, visual_data: &VisualData) -> Vec<f32> {
@@ -1983,9 +2010,7 @@ pub struct MotionSaliency {
 
 impl MotionSaliency {
     pub fn new() -> Self {
-        Self {
-            motion_threshold: 0.1,
-        }
+        Self { motion_threshold: 0.1 }
     }
 
     pub fn compute(&self, objects: &[VisualObject]) -> Vec<f32> {
@@ -2076,9 +2101,7 @@ impl PerceptualProcessing {
                 let features = self.process_temporal(t);
                 (features, 0.7)
             }
-            SensoryData::Abstract(a) => {
-                (a.feature_vector.clone(), a.confidence)
-            }
+            SensoryData::Abstract(a) => (a.feature_vector.clone(), a.confidence),
         };
 
         // Compute novelty
@@ -2086,9 +2109,12 @@ impl PerceptualProcessing {
 
         // Update attention
         let saliency = self.compute_saliency(&data);
-        self.attention_controller.update(&saliency, &processed_features, now);
+        self.attention_controller
+            .update(&saliency, &processed_features, now);
 
-        let attention_weight = self.attention_controller.get_focus()
+        let attention_weight = self
+            .attention_controller
+            .get_focus()
             .map(|f| f.intensity)
             .unwrap_or(0.5);
 
@@ -2293,7 +2319,11 @@ impl PerceptualProcessing {
             .map(|i| {
                 let sum: f32 = recent.iter().filter_map(|r| r.get(i).copied()).sum();
                 let count = recent.iter().filter(|r| r.get(i).is_some()).count();
-                if count > 0 { sum / count as f32 } else { 0.0 }
+                if count > 0 {
+                    sum / count as f32
+                } else {
+                    0.0
+                }
             })
             .collect();
 
@@ -2315,7 +2345,10 @@ impl PerceptualProcessing {
     }
 
     /// Integrate perceptions across modalities
-    pub fn integrate_cross_modal(&mut self, perceptions: Vec<PerceptualResult>) -> Vec<PerceptualResult> {
+    pub fn integrate_cross_modal(
+        &mut self,
+        perceptions: Vec<PerceptualResult>,
+    ) -> Vec<PerceptualResult> {
         let mut integrated = perceptions.clone();
 
         // Find cross-modal bindings
@@ -2324,7 +2357,14 @@ impl PerceptualProcessing {
 
         for alignment in alignments {
             // Read the two perceptions before either of them is changed.
-            let (source_modality, target_modality, source_id, target_id, source_features, target_features) = {
+            let (
+                source_modality,
+                target_modality,
+                source_id,
+                target_id,
+                source_features,
+                target_features,
+            ) = {
                 let perception_a = match integrated.get(alignment.perception_a) {
                     Some(perception) => perception,
                     None => continue,
@@ -2389,10 +2429,14 @@ impl PerceptualProcessing {
     /// Get recent perceptions
     pub fn get_recent_perceptions(&self, duration: Duration) -> Vec<PerceptualResult> {
         let now = Utc::now();
-        self.context_buffer.recent_perceptions
+        self.context_buffer
+            .recent_perceptions
             .iter()
             .filter(|p| {
-                let time_diff = now.signed_duration_since(p.timestamp).to_std().unwrap_or(Duration::ZERO);
+                let time_diff = now
+                    .signed_duration_since(p.timestamp)
+                    .to_std()
+                    .unwrap_or(Duration::ZERO);
                 time_diff < duration
             })
             .cloned()
@@ -2474,16 +2518,18 @@ impl PerceptualMemory {
     }
 
     pub fn get_recent(&self, count: usize) -> Vec<PerceptualResult> {
-        self.working_memory.iter().rev().take(count).cloned().collect()
+        self.working_memory
+            .iter()
+            .rev()
+            .take(count)
+            .cloned()
+            .collect()
     }
 }
 
 impl ContextBuffer {
     pub fn new(window: Duration) -> Self {
-        Self {
-            recent_perceptions: VecDeque::new(),
-            temporal_window: window,
-        }
+        Self { recent_perceptions: VecDeque::new(), temporal_window: window }
     }
 
     pub fn add(&mut self, perception: PerceptualResult) {
@@ -2501,7 +2547,10 @@ impl ContextBuffer {
     fn prune(&mut self) {
         let now = Utc::now();
         while let Some(front) = self.recent_perceptions.front() {
-            let time_diff = now.signed_duration_since(front.timestamp).to_std().unwrap_or(Duration::ZERO);
+            let time_diff = now
+                .signed_duration_since(front.timestamp)
+                .to_std()
+                .unwrap_or(Duration::ZERO);
             if time_diff > self.temporal_window {
                 self.recent_perceptions.pop_front();
             } else {
@@ -2521,18 +2570,16 @@ impl VisualProcessor {
         let mid_level = self.mid_level.extract_features(data, &low_level);
         let high_level = self.high_level.extract_features(data, &mid_level);
 
-        VisualFeatures {
-            low_level,
-            mid_level,
-            high_level,
-        }
+        VisualFeatures { low_level, mid_level, high_level }
     }
 }
 
 impl AuditoryProcessor {
     pub fn process(&self, data: &AuditoryData) -> AuditoryFeatures {
         let spectral = self.spectral_analyzer.analyze(&data.waveform);
-        let phonemes = self.speech_recognizer.recognize(&spectral, Language::English);
+        let phonemes = self
+            .speech_recognizer
+            .recognize(&spectral, Language::English);
 
         // Prosodic features
         let prosodic = ProsodicFeatures {
@@ -2713,17 +2760,21 @@ mod tests {
         let mut tracker = ObjectTracker::new();
         let now = Utc::now();
 
-        let objects = vec![
-            VisualObject {
-                id: 1,
-                bounding_box: BoundingBox { x: 10.0, y: 10.0, width: 50.0, height: 50.0, confidence: 0.9 },
-                class_label: "person".to_string(),
+        let objects = vec![VisualObject {
+            id: 1,
+            bounding_box: BoundingBox {
+                x: 10.0,
+                y: 10.0,
+                width: 50.0,
+                height: 50.0,
                 confidence: 0.9,
-                attributes: HashMap::new(),
-                relationships: vec![],
-                trajectory: None,
             },
-        ];
+            class_label: "person".to_string(),
+            confidence: 0.9,
+            attributes: HashMap::new(),
+            relationships: vec![],
+            trajectory: None,
+        }];
 
         let tracked = tracker.update(&objects, now);
         assert_eq!(tracked.len(), 1);
@@ -2755,11 +2806,7 @@ mod tests {
             },
         };
 
-        let result = PerceptualResult::new(
-            SensoryData::Visual(visual),
-            vec![0.5; 10],
-            0.9,
-        );
+        let result = PerceptualResult::new(SensoryData::Visual(visual), vec![0.5; 10], 0.9);
 
         memory.add(result);
         assert_eq!(memory.get_recent(1).len(), 1);

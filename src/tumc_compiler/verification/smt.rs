@@ -135,18 +135,14 @@ impl SmtSolverWrapper {
 
     /// Assert an expression
     pub fn assert(&mut self, expr: SmtExpr) {
-        self.assertions.push(SmtAssertion {
-            expr,
-            is_invariant: false,
-        });
+        self.assertions
+            .push(SmtAssertion { expr, is_invariant: false });
     }
 
     /// Assert an invariant
     pub fn assert_invariant(&mut self, expr: SmtExpr) {
-        self.assertions.push(SmtAssertion {
-            expr,
-            is_invariant: true,
-        });
+        self.assertions
+            .push(SmtAssertion { expr, is_invariant: true });
     }
 
     /// Check satisfiability
@@ -195,14 +191,24 @@ impl SmtSolverWrapper {
 
         // Declare variables
         for (name, sort) in &self.declarations {
-            script.push_str(&format!("(declare-fun {} () {})\n", name, sort.to_smt_lib()));
+            script.push_str(&format!(
+                "(declare-fun {} () {})\n",
+                name,
+                sort.to_smt_lib()
+            ));
         }
 
         // Assert expressions
         for assertion in &self.assertions {
             if assertion.is_invariant {
-                script.push_str(&format!("(assert (! {} :named inv-{})\n",
-                    assertion.expr.to_smt_lib(), self.assertions.iter().position(|a| a.expr == assertion.expr).unwrap_or(0)));
+                script.push_str(&format!(
+                    "(assert (! {} :named inv-{})\n",
+                    assertion.expr.to_smt_lib(),
+                    self.assertions
+                        .iter()
+                        .position(|a| a.expr == assertion.expr)
+                        .unwrap_or(0)
+                ));
             } else {
                 script.push_str(&format!("(assert {})\n", assertion.expr.to_smt_lib()));
             }
@@ -227,15 +233,15 @@ impl SmtSolverWrapper {
                 if parts.len() >= 5 {
                     let name = parts[2].trim_start_matches('(').to_string();
                     let value = parts[4].trim_end_matches(')').to_string();
-                    assignments.insert(name, SmtExpr::Const(SmtConst::Int(value.parse().unwrap_or(0))));
+                    assignments.insert(
+                        name,
+                        SmtExpr::Const(SmtConst::Int(value.parse().unwrap_or(0))),
+                    );
                 }
             }
         }
 
-        Some(SmtModel {
-            assignments,
-            unsat_core: None,
-        })
+        Some(SmtModel { assignments, unsat_core: None })
     }
 }
 
@@ -262,7 +268,9 @@ impl SmtExpr {
                 SmtConst::Bool(false) => "false".to_string(),
                 SmtConst::Int(i) => i.to_string(),
                 SmtConst::Real(r) => r.to_string(),
-                SmtConst::BitVec(v, w) => format!("#b{:0>width$}", format!("{:b}", v), width = *w as usize),
+                SmtConst::BitVec(v, w) => {
+                    format!("#b{:0>width$}", format!("{:b}", v), width = *w as usize)
+                }
             },
             SmtExpr::Var(name, _) => name.clone(),
             SmtExpr::App(op, args) => {
@@ -270,19 +278,31 @@ impl SmtExpr {
                 format!("({} {})", op, args_str.join(" "))
             }
             SmtExpr::Ite(cond, then, else_) => {
-                format!("(ite {} {} {})", cond.to_smt_lib(), then.to_smt_lib(), else_.to_smt_lib())
+                format!(
+                    "(ite {} {} {})",
+                    cond.to_smt_lib(),
+                    then.to_smt_lib(),
+                    else_.to_smt_lib()
+                )
             }
             SmtExpr::Let(var, value, body) => {
-                format!("(let (({} {})) {})", var, value.to_smt_lib(), body.to_smt_lib())
+                format!(
+                    "(let (({} {})) {})",
+                    var,
+                    value.to_smt_lib(),
+                    body.to_smt_lib()
+                )
             }
             SmtExpr::Forall(vars, body) => {
-                let var_str: Vec<String> = vars.iter()
+                let var_str: Vec<String> = vars
+                    .iter()
                     .map(|(n, s)| format!("({} {})", n, s.to_smt_lib()))
                     .collect();
                 format!("(forall ({}) {})", var_str.join(" "), body.to_smt_lib())
             }
             SmtExpr::Exists(vars, body) => {
-                let var_str: Vec<String> = vars.iter()
+                let var_str: Vec<String> = vars
+                    .iter()
                     .map(|(n, s)| format!("({} {})", n, s.to_smt_lib()))
                     .collect();
                 format!("(exists ({}) {})", var_str.join(" "), body.to_smt_lib())
@@ -321,9 +341,7 @@ pub struct SmtBuilder {
 
 impl SmtBuilder {
     pub fn new(solver: SmtSolver) -> Self {
-        Self {
-            solver: SmtSolverWrapper::new(solver),
-        }
+        Self { solver: SmtSolverWrapper::new(solver) }
     }
 
     /// Build expression for variable
@@ -435,7 +453,8 @@ impl SmtBuilder {
 
 /// Horn clause solver for program verification
 pub struct HornClauseSolver {
-    solver: SmtSolverWrapper}
+    solver: SmtSolverWrapper,
+}
 
 impl HornClauseSolver {
     pub fn new() -> Self {
@@ -449,9 +468,9 @@ impl HornClauseSolver {
         if body.is_empty() {
             self.solver.assert(head);
         } else {
-            let clause = body
-                .into_iter()
-                .fold(head, |acc, pred| SmtExpr::App("and".to_string(), vec![acc, pred]));
+            let clause = body.into_iter().fold(head, |acc, pred| {
+                SmtExpr::App("and".to_string(), vec![acc, pred])
+            });
             self.solver.assert(clause);
         }
     }

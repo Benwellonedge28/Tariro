@@ -23,9 +23,7 @@ pub enum AliasAnalysisLevel {
 
 impl Default for AliasAnalysis {
     fn default() -> Self {
-        Self {
-            level: AliasAnalysisLevel::TypeBased,
-        }
+        Self { level: AliasAnalysisLevel::TypeBased }
     }
 }
 
@@ -122,7 +120,12 @@ impl AliasAnalysis {
     }
 
     /// Check alias relationship between two memory locations
-    pub fn alias(&self, result: &AliasResult, a: MemoryLocation, b: MemoryLocation) -> AliasResultType {
+    pub fn alias(
+        &self,
+        result: &AliasResult,
+        a: MemoryLocation,
+        b: MemoryLocation,
+    ) -> AliasResultType {
         // Use points-to information if available
         if let Some(pts) = &result.points_to {
             let pts_a = pts.points_to_set(a.value);
@@ -213,19 +216,11 @@ pub struct MemoryLocation {
 
 impl MemoryLocation {
     pub fn new(value: ValueId) -> Self {
-        Self {
-            value,
-            offset: None,
-            size: None,
-        }
+        Self { value, offset: None, size: None }
     }
 
     pub fn with_offset(value: ValueId, offset: i64) -> Self {
-        Self {
-            value,
-            offset: Some(offset),
-            size: None,
-        }
+        Self { value, offset: Some(offset), size: None }
     }
 }
 
@@ -238,10 +233,7 @@ pub struct TypeHierarchy {
 
 impl TypeHierarchy {
     pub fn new() -> Self {
-        Self {
-            types: HashMap::new(),
-            hierarchy: HashMap::new(),
-        }
+        Self { types: HashMap::new(), hierarchy: HashMap::new() }
     }
 
     pub fn build_from_module(&mut self, module: &Module) {
@@ -250,11 +242,10 @@ impl TypeHierarchy {
                 for inst in &block.instructions {
                     if let Operation::Alloca(ty, _) = &inst.op {
                         let type_name = format!("{:?}", ty);
-                        self.types.insert(type_name.clone(), TypeInfo {
-                            name: type_name,
-                            size: ty.size(),
-                            fields: Vec::new(),
-                        });
+                        self.types.insert(
+                            type_name.clone(),
+                            TypeInfo { name: type_name, size: ty.size(), fields: Vec::new() },
+                        );
                     }
                 }
             }

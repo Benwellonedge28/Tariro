@@ -141,7 +141,8 @@ impl SelfModel {
 
     /// Update self-assessment
     pub fn update_assessment(&mut self, capability: &str, score: f64) {
-        self.assessments.insert(capability.to_string(), score.clamp(0.0, 1.0));
+        self.assessments
+            .insert(capability.to_string(), score.clamp(0.0, 1.0));
     }
 }
 
@@ -444,14 +445,16 @@ impl Consciousness {
     /// Generate insight by finding connections
     pub fn generate_insight(&self, pattern: &str) -> Option<Insight> {
         // Find related thoughts in stream
-        let related: Vec<_> = self.stream
+        let related: Vec<_> = self
+            .stream
             .iter()
             .filter(|t| t.content.as_str().contains(pattern))
             .collect();
 
         if related.len() >= 2 {
             // Create connections
-            let connections = related.windows(2)
+            let connections = related
+                .windows(2)
                 .map(|w| ConceptConnection {
                     concept_a: w[0].content.as_str().to_string(),
                     concept_b: w[1].content.as_str().to_string(),
@@ -511,7 +514,8 @@ impl Consciousness {
     /// Observe own reasoning
     pub fn observe_reasoning(&self, reasoning: &str) {
         let thought = Thought::new(ThoughtContent::Metacognition(format!(
-            "Observing reasoning: {}", reasoning
+            "Observing reasoning: {}",
+            reasoning
         )));
 
         // This would be called by the reasoning system

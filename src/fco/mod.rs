@@ -1,9 +1,8 @@
 //! Fundamental Computational Ontology (FCO) - The Infinitistic Bedrock for Googol %
 
-
-use num_complex::Complex64;
 use crate::Infinitism;
 use crate::MukandaraTime;
+use num_complex::Complex64;
 
 /// Mukandara State (MS): Beyond Binary
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -42,7 +41,10 @@ impl QMukandaraState {
 
     /// Adaptive FCO & Dynamic Base Logic Redefinition
     pub async fn redefine_base_logic(&mut self, problem_domain: String) {
-        println!("Dynamically redefining FCO primitives for optimal '{}' problem domain.", problem_domain);
+        println!(
+            "Dynamically redefining FCO primitives for optimal '{}' problem domain.",
+            problem_domain
+        );
     }
 
     /// Harnessing the inherent computational fabric of reality

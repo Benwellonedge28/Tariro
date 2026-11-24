@@ -2,8 +2,8 @@
 //!
 //! Learns from compilation experiences to improve future optimization decisions.
 
-use crate::tumc_compiler::ir::Module;
 use crate::tumc_compiler::agi_integration::{AgiInsight, PerformanceMetrics};
+use crate::tumc_compiler::ir::Module;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 
@@ -78,7 +78,10 @@ impl Default for MetaModel {
         parameters.insert("inline_threshold".to_string(), vec![1.0, 0.5, 0.3]); // Mean, variance, count
         parameters.insert("unroll_factor".to_string(), vec![4.0, 2.0, 0.3]);
         parameters.insert("vectorize_threshold".to_string(), vec![100.0, 50.0, 0.3]);
-        parameters.insert("parallelize_threshold".to_string(), vec![1000.0, 500.0, 0.3]);
+        parameters.insert(
+            "parallelize_threshold".to_string(),
+            vec![1000.0, 500.0, 0.3],
+        );
 
         let mut baselines = HashMap::new();
         baselines.insert("baseline_compile_time".to_string(), 1000.0);
@@ -90,12 +93,7 @@ impl Default for MetaModel {
         confidence.insert("vectorize".to_string(), 0.5);
         confidence.insert("parallelize".to_string(), 0.5);
 
-        Self {
-            parameters,
-            baselines,
-            confidence,
-            history: Vec::new(),
-        }
+        Self { parameters, baselines, confidence, history: Vec::new() }
     }
 }
 
@@ -190,7 +188,10 @@ impl MetaLearningOptimizer {
     }
 
     /// Suggest next optimization
-    pub fn suggest_optimization(&self, context: &OptimizationContext) -> Option<OptimizationSuggestion> {
+    pub fn suggest_optimization(
+        &self,
+        context: &OptimizationContext,
+    ) -> Option<OptimizationSuggestion> {
         // Exploration vs exploitation
         if rand_float() < self.exploration_rate {
             // Random exploration
@@ -252,7 +253,11 @@ impl MetaLearningOptimizer {
         context: &OptimizationContext,
     ) -> f64 {
         // Calculate expected improvement based on learned parameters
-        let baseline = *self.model.baselines.get("baseline_compile_time").unwrap_or(&1000.0);
+        let baseline = *self
+            .model
+            .baselines
+            .get("baseline_compile_time")
+            .unwrap_or(&1000.0);
 
         // Simplified scoring: higher params suggest more aggressive optimization
         let mean = params.first().copied().unwrap_or(1.0);
@@ -297,7 +302,11 @@ impl MetaLearningOptimizer {
         if let Some(params) = self.model.parameters.get_mut(action_type) {
             if decision.outcome.success {
                 // Increase confidence
-                let confidence = self.model.confidence.entry(action_type.clone()).or_insert(0.5);
+                let confidence = self
+                    .model
+                    .confidence
+                    .entry(action_type.clone())
+                    .or_insert(0.5);
                 *confidence = (*confidence * 0.9 + 0.1).min(0.95);
 
                 // Adjust parameters based on improvement
@@ -307,7 +316,11 @@ impl MetaLearningOptimizer {
                 }
             } else {
                 // Decrease confidence
-                let confidence = self.model.confidence.entry(action_type.clone()).or_insert(0.5);
+                let confidence = self
+                    .model
+                    .confidence
+                    .entry(action_type.clone())
+                    .or_insert(0.5);
                 *confidence = (*confidence * 0.9).max(0.1);
             }
         }

@@ -1,6 +1,5 @@
 // GPU Dialect - GPU Kernel Operations
 
-
 use super::*;
 
 /// GPU dialect operations
@@ -14,10 +13,7 @@ pub enum GpuOp {
         args: Vec<ValueId>,
     },
     /// GPU module
-    Module {
-        name: String,
-        kernels: Vec<GpuKernel>,
-    },
+    Module { name: String, kernels: Vec<GpuKernel> },
     /// Allocate GPU memory
     Alloc(ValueId, GpuMemorySpace),
     /// Deallocate GPU memory
@@ -52,7 +48,7 @@ pub enum GpuKernelOp {
     BlockDim(GpuDim),
     GridDim(GpuDim),
     /// Shared memory operations
-    SharedLoad(ValueId, ValueId),  // memref, index
+    SharedLoad(ValueId, ValueId), // memref, index
     SharedStore(ValueId, ValueId, ValueId), // value, memref, index
     /// Synchronization
     Barrier,
@@ -126,11 +122,15 @@ impl Dialect for GpuDialect {
                         // Intrinsic call to get thread index
                         let inst = Instruction::new(
                             Operation::Intrinsic(
-                                format!("llvm.nvvm.read.ptx.s.tid.{}", match dim {
-                                    GpuDim::X => "x",
-                                    GpuDim::Y => "y",
-                                    GpuDim::Z => "z",
-                                }).to_string(),
+                                format!(
+                                    "llvm.nvvm.read.ptx.s.tid.{}",
+                                    match dim {
+                                        GpuDim::X => "x",
+                                        GpuDim::Y => "y",
+                                        GpuDim::Z => "z",
+                                    }
+                                )
+                                .to_string(),
                                 Vec::new(),
                             ),
                             IrType::Uint32,
@@ -140,11 +140,15 @@ impl Dialect for GpuDialect {
                     GpuKernelOp::BlockIdx(dim) => {
                         let inst = Instruction::new(
                             Operation::Intrinsic(
-                                format!("llvm.nvvm.read.ptx.s.ctaid.{}", match dim {
-                                    GpuDim::X => "x",
-                                    GpuDim::Y => "y",
-                                    GpuDim::Z => "z",
-                                }).to_string(),
+                                format!(
+                                    "llvm.nvvm.read.ptx.s.ctaid.{}",
+                                    match dim {
+                                        GpuDim::X => "x",
+                                        GpuDim::Y => "y",
+                                        GpuDim::Z => "z",
+                                    }
+                                )
+                                .to_string(),
                                 Vec::new(),
                             ),
                             IrType::Uint32,
@@ -184,13 +188,15 @@ impl GpuDialect {
         self.kernels.push(kernel);
     }
 
-    pub fn launch(&mut self, kernel: ValueId, grid: (ValueId, ValueId, ValueId), block: (ValueId, ValueId, ValueId), args: Vec<ValueId>) {
-        self.operations.push(GpuOp::Launch {
-            kernel,
-            grid_size: grid,
-            block_size: block,
-            args,
-        });
+    pub fn launch(
+        &mut self,
+        kernel: ValueId,
+        grid: (ValueId, ValueId, ValueId),
+        block: (ValueId, ValueId, ValueId),
+        args: Vec<ValueId>,
+    ) {
+        self.operations
+            .push(GpuOp::Launch { kernel, grid_size: grid, block_size: block, args });
     }
 }
 

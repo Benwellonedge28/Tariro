@@ -1,6 +1,5 @@
 // Linalg Dialect - Linear Algebra Operations
 
-
 use super::*;
 
 /// Linalg operations for tensor/matrix computations
@@ -15,8 +14,8 @@ pub enum LinalgOp {
     },
     /// Matmul operation
     Matmul {
-        lhs: ValueId,   // MxK
-        rhs: ValueId,   // KxN
+        lhs: ValueId,    // MxK
+        rhs: ValueId,    // KxN
         result: ValueId, // MxN
     },
     /// Convolution
@@ -64,7 +63,7 @@ pub struct LinalgArg {
 #[derive(Debug, Clone)]
 pub enum LinalgBodyOp {
     Yield(Vec<ValueId>),
-    Load(ValueId, Vec<ValueId>), // memref, indices
+    Load(ValueId, Vec<ValueId>),           // memref, indices
     Store(ValueId, ValueId, Vec<ValueId>), // value, memref, indices
     Binary(BinOp, ValueId, ValueId),
     Unary(UnOp, ValueId),
@@ -98,7 +97,7 @@ impl Dialect for LinalgDialect {
             let block = BasicBlock::new(BasicBlockId(0));
 
             match op {
-                LinalgOp::Matmul { lhs, rhs, result } => {
+                LinalgOp::Matmul { lhs: _, rhs: _, result: _ } => {
                     // Generate nested loops for matmul
                     func.body.push(block);
                     // Emit loop nest and indexed loads/stores
@@ -119,9 +118,7 @@ pub struct LinalgDialect {
 
 impl LinalgDialect {
     pub fn new() -> Self {
-        Self {
-            operations: Vec::new(),
-        }
+        Self { operations: Vec::new() }
     }
 
     pub fn matmul(&mut self, lhs: ValueId, rhs: ValueId, result: ValueId) {
@@ -136,17 +133,13 @@ impl LinalgDialect {
         strides: (usize, usize),
         padding: (usize, usize, usize, usize),
     ) {
-        self.operations.push(LinalgOp::Conv2D {
-            input,
-            kernel,
-            result,
-            strides,
-            padding,
-        });
+        self.operations
+            .push(LinalgOp::Conv2D { input, kernel, result, strides, padding });
     }
 
     pub fn reduce(&mut self, input: ValueId, init: ValueId, kind: ReductionKind, result: ValueId) {
-        self.operations.push(LinalgOp::Reduce(input, init, kind, result));
+        self.operations
+            .push(LinalgOp::Reduce(input, init, kind, result));
     }
 }
 

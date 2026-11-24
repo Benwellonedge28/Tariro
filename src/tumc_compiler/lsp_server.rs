@@ -1,14 +1,13 @@
 //! TUMC Language Server Protocol (LSP) Implementation
 //! Provides IDE features: autocomplete, go-to-definition, diagnostics, etc.
 
-
 use super::ast::*;
 use super::lexer::{Lexer, Token};
 use super::parser::Parser;
 use super::type_checker::TypeChecker;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::collections::{HashMap};
+use std::collections::HashMap;
 
 /// LSP Server instance
 pub struct LspServer {
@@ -34,7 +33,11 @@ impl LspServer {
     }
 
     /// Handle incoming request
-    pub fn handle_request(&mut self, method: &str, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
+    pub fn handle_request(
+        &mut self,
+        method: &str,
+        params: serde_json::Value,
+    ) -> Result<serde_json::Value, LspError> {
         self.logger.log_request(method);
 
         match method {
@@ -69,9 +72,12 @@ impl LspServer {
     }
 
     /// Handle text document open
-    fn handle_did_open(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
-        let params: DidOpenTextDocumentParams = serde_json::from_value(params)
-            .map_err(|e| LspError::invalid_params(e.to_string()))?;
+    fn handle_did_open(
+        &mut self,
+        params: serde_json::Value,
+    ) -> Result<serde_json::Value, LspError> {
+        let params: DidOpenTextDocumentParams =
+            serde_json::from_value(params).map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
         let text = params.text_document.text;
@@ -92,9 +98,12 @@ impl LspServer {
     }
 
     /// Handle text document change
-    fn handle_did_change(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
-        let params: DidChangeTextDocumentParams = serde_json::from_value(params)
-            .map_err(|e| LspError::invalid_params(e.to_string()))?;
+    fn handle_did_change(
+        &mut self,
+        params: serde_json::Value,
+    ) -> Result<serde_json::Value, LspError> {
+        let params: DidChangeTextDocumentParams =
+            serde_json::from_value(params).map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
 
@@ -103,12 +112,7 @@ impl LspServer {
             for change in params.content_changes {
                 if let Some(range) = change.range {
                     let (start, end) = Self::offset_to_position(&doc.text, &range);
-                    doc.text = format!(
-                        "{}{}{}",
-                        &doc.text[..start],
-                        change.text,
-                        &doc.text[end..]
-                    );
+                    doc.text = format!("{}{}{}", &doc.text[..start], change.text, &doc.text[end..]);
                 } else {
                     doc.text = change.text;
                 }
@@ -128,15 +132,21 @@ impl LspServer {
     }
 
     /// Handle text document save
-    fn handle_did_save(&mut self, _params: serde_json::Value) -> Result<serde_json::Value, LspError> {
+    fn handle_did_save(
+        &mut self,
+        _params: serde_json::Value,
+    ) -> Result<serde_json::Value, LspError> {
         // Could trigger file save diagnostics here
         Ok(serde_json::Value::Null)
     }
 
     /// Handle text document close
-    fn handle_did_close(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
-        let params: DidCloseTextDocumentParams = serde_json::from_value(params)
-            .map_err(|e| LspError::invalid_params(e.to_string()))?;
+    fn handle_did_close(
+        &mut self,
+        params: serde_json::Value,
+    ) -> Result<serde_json::Value, LspError> {
+        let params: DidCloseTextDocumentParams =
+            serde_json::from_value(params).map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         self.documents.remove(&params.text_document.uri);
         self.cache.remove(&params.text_document.uri);
@@ -145,9 +155,12 @@ impl LspServer {
     }
 
     /// Handle completion request
-    fn handle_completion(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
-        let params: CompletionParams = serde_json::from_value(params)
-            .map_err(|e| LspError::invalid_params(e.to_string()))?;
+    fn handle_completion(
+        &mut self,
+        params: serde_json::Value,
+    ) -> Result<serde_json::Value, LspError> {
+        let params: CompletionParams =
+            serde_json::from_value(params).map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
         let position = params.position;
@@ -162,8 +175,8 @@ impl LspServer {
 
     /// Handle hover request
     fn handle_hover(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
-        let params: HoverParams = serde_json::from_value(params)
-            .map_err(|e| LspError::invalid_params(e.to_string()))?;
+        let params: HoverParams =
+            serde_json::from_value(params).map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
         let position = params.position;
@@ -178,9 +191,12 @@ impl LspServer {
     }
 
     /// Handle go-to-definition request
-    fn handle_definition(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
-        let params: DefinitionParams = serde_json::from_value(params)
-            .map_err(|e| LspError::invalid_params(e.to_string()))?;
+    fn handle_definition(
+        &mut self,
+        params: serde_json::Value,
+    ) -> Result<serde_json::Value, LspError> {
+        let params: DefinitionParams =
+            serde_json::from_value(params).map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
         let position = params.position;
@@ -195,9 +211,12 @@ impl LspServer {
     }
 
     /// Handle find-references request
-    fn handle_references(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
-        let params: ReferenceParams = serde_json::from_value(params)
-            .map_err(|e| LspError::invalid_params(e.to_string()))?;
+    fn handle_references(
+        &mut self,
+        params: serde_json::Value,
+    ) -> Result<serde_json::Value, LspError> {
+        let params: ReferenceParams =
+            serde_json::from_value(params).map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
         let position = params.position;
@@ -211,9 +230,12 @@ impl LspServer {
     }
 
     /// Handle document symbols request
-    fn handle_document_symbol(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
-        let params: DocumentSymbolParams = serde_json::from_value(params)
-            .map_err(|e| LspError::invalid_params(e.to_string()))?;
+    fn handle_document_symbol(
+        &mut self,
+        params: serde_json::Value,
+    ) -> Result<serde_json::Value, LspError> {
+        let params: DocumentSymbolParams =
+            serde_json::from_value(params).map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
 
@@ -226,9 +248,12 @@ impl LspServer {
     }
 
     /// Handle diagnostics request
-    fn handle_diagnostics(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
-        let params: DiagnosticsParams = serde_json::from_value(params)
-            .map_err(|e| LspError::invalid_params(e.to_string()))?;
+    fn handle_diagnostics(
+        &mut self,
+        params: serde_json::Value,
+    ) -> Result<serde_json::Value, LspError> {
+        let params: DiagnosticsParams =
+            serde_json::from_value(params).map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
 
@@ -241,9 +266,12 @@ impl LspServer {
     }
 
     /// Handle formatting request
-    fn handle_formatting(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
-        let params: FormattingParams = serde_json::from_value(params)
-            .map_err(|e| LspError::invalid_params(e.to_string()))?;
+    fn handle_formatting(
+        &mut self,
+        params: serde_json::Value,
+    ) -> Result<serde_json::Value, LspError> {
+        let params: FormattingParams =
+            serde_json::from_value(params).map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
 
@@ -252,10 +280,7 @@ impl LspServer {
             let edits = vec![TextEdit {
                 range: Range {
                     start: Position { line: 0, character: 0 },
-                    end: Position {
-                        line: doc.text.lines().count() as u32,
-                        character: 0,
-                    },
+                    end: Position { line: doc.text.lines().count() as u32, character: 0 },
                 },
                 new_text: formatted,
             }];
@@ -266,9 +291,12 @@ impl LspServer {
     }
 
     /// Handle code action request
-    fn handle_code_action(&mut self, params: serde_json::Value) -> Result<serde_json::Value, LspError> {
-        let params: CodeActionParams = serde_json::from_value(params)
-            .map_err(|e| LspError::invalid_params(e.to_string()))?;
+    fn handle_code_action(
+        &mut self,
+        params: serde_json::Value,
+    ) -> Result<serde_json::Value, LspError> {
+        let params: CodeActionParams =
+            serde_json::from_value(params).map_err(|e| LspError::invalid_params(e.to_string()))?;
 
         let uri = params.text_document.uri.clone();
 
@@ -298,21 +326,23 @@ impl LspServer {
         let mut checker = TypeChecker::new();
         let _ = checker.check_program(&ast);
 
-        let diagnostics = checker.errors().iter().map(|e| Diagnostic {
-            range: Range::default(),
-            severity: Some(DiagnosticSeverity::Error),
-            code: Some(NumberOrString::Number(1)),
-            source: Some("TUMC".to_string()),
-            message: e.to_string(),
-            related_information: None,
-        }).collect();
+        let diagnostics = checker
+            .errors()
+            .iter()
+            .map(|e| Diagnostic {
+                range: Range::default(),
+                severity: Some(DiagnosticSeverity::Error),
+                code: Some(NumberOrString::Number(1)),
+                source: Some("TUMC".to_string()),
+                message: e.to_string(),
+                related_information: None,
+            })
+            .collect();
 
-        self.cache.insert(uri.to_string(), CompilationCache {
-            ast,
-            tokens,
-            diagnostics,
-            symbols: HashMap::new(),
-        });
+        self.cache.insert(
+            uri.to_string(),
+            CompilationCache { ast, tokens, diagnostics, symbols: HashMap::new() },
+        );
     }
 
     /// Get completions at position
@@ -320,7 +350,10 @@ impl LspServer {
         let mut completions = Vec::new();
 
         // Add keywords
-        for keyword in &["fn", "let", "if", "else", "while", "for", "struct", "enum", "trait", "impl", "return", "pub", "mod", "use", "const", "static", "type", "match", "loop", "break", "continue"] {
+        for keyword in &[
+            "fn", "let", "if", "else", "while", "for", "struct", "enum", "trait", "impl", "return",
+            "pub", "mod", "use", "const", "static", "type", "match", "loop", "break", "continue",
+        ] {
             completions.push(CompletionItem {
                 label: keyword.to_string(),
                 kind: Some(CompletionItemKind::Keyword),
@@ -330,7 +363,10 @@ impl LspServer {
         }
 
         // Add types
-        for type_name in &["i32", "i64", "f32", "f64", "bool", "char", "String", "Vec", "Option", "Result", "Box", "Rc", "Arc"] {
+        for type_name in &[
+            "i32", "i64", "f32", "f64", "bool", "char", "String", "Vec", "Option", "Result", "Box",
+            "Rc", "Arc",
+        ] {
             completions.push(CompletionItem {
                 label: type_name.to_string(),
                 kind: Some(CompletionItemKind::Class),
@@ -374,7 +410,11 @@ impl LspServer {
     }
 
     /// Get definition locations
-    fn get_definition_locations(&self, ast: &Program, _position: Position) -> Option<Vec<Location>> {
+    fn get_definition_locations(
+        &self,
+        ast: &Program,
+        _position: Position,
+    ) -> Option<Vec<Location>> {
         let mut locations = Vec::new();
 
         for item in &ast.items {
@@ -402,10 +442,8 @@ impl LspServer {
 
         for item in &ast.items {
             if let Item::Function(_func) = item {
-                references.push(Location {
-                    uri: "file:///.tumc".to_string(),
-                    range: Range::default(),
-                });
+                references
+                    .push(Location { uri: "file:///.tumc".to_string(), range: Range::default() });
             }
         }
 
@@ -1105,17 +1143,11 @@ impl LspError {
     }
 
     pub fn invalid_params(msg: String) -> Self {
-        LspError {
-            code: -32602,
-            message: format!("Invalid params: {}", msg),
-        }
+        LspError { code: -32602, message: format!("Invalid params: {}", msg) }
     }
 
     pub fn internal_error(msg: String) -> Self {
-        LspError {
-            code: -32603,
-            message: format!("Internal error: {}", msg),
-        }
+        LspError { code: -32603, message: format!("Internal error: {}", msg) }
     }
 }
 
@@ -1164,14 +1196,22 @@ mod tests {
     #[test]
     fn test_completion_items() {
         let mut server = LspServer::new();
-        let completions = server.get_completions(&Program::default(), Position { line: 0, character: 0 });
+        let completions =
+            server.get_completions(&Program::default(), Position { line: 0, character: 0 });
 
         // Should include keywords
-        let labels: Vec<&str> = completions.iter().filter_map(|c| {
-            c.kind.map(|k| k as i32 == 14).and_then(|is_kw| {
-                if is_kw { Some(c.label.as_str()) } else { None }
+        let labels: Vec<&str> = completions
+            .iter()
+            .filter_map(|c| {
+                c.kind.map(|k| k as i32 == 14).and_then(|is_kw| {
+                    if is_kw {
+                        Some(c.label.as_str())
+                    } else {
+                        None
+                    }
+                })
             })
-        }).collect();
+            .collect();
 
         assert!(labels.contains(&"fn"));
         assert!(labels.contains(&"let"));

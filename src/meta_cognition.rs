@@ -1,9 +1,8 @@
 // Tariro AGI - Meta-Cognition Module
 // Self-awareness, planning, and reflection systems for AGI
 
-use std::collections::{HashMap, VecDeque};
-use std::sync::{ };
 use chrono::{DateTime, Utc};
+use std::collections::{HashMap, VecDeque};
 use std::time::Duration;
 
 // ============================================================================
@@ -211,7 +210,8 @@ impl SelfModel {
             + caps.creativity.to_score()
             + caps.communication.to_score()
             + caps.planning.to_score()
-            + caps.self_reflection.to_score()) / 7.0
+            + caps.self_reflection.to_score())
+            / 7.0
     }
 }
 
@@ -316,28 +316,28 @@ impl HTNPlanner {
         let mut domain_library = HashMap::new();
 
         // Add basic planning methods
-        domain_library.insert("achieve".to_string(), TaskMethod {
-            task: "achieve".to_string(),
-            methods: vec![
-                DecompositionMethod {
-                    name: "direct".to_string(),
-                    preconditions: vec![],
-                    subtasks: vec!["do_action".to_string()],
-                    ordering: vec![],
-                },
-                DecompositionMethod {
-                    name: "hierarchical".to_string(),
-                    preconditions: vec![],
-                    subtasks: vec!["plan".to_string(), "execute".to_string()],
-                    ordering: vec![("plan".to_string(), "execute".to_string())],
-                },
-            ],
-        });
+        domain_library.insert(
+            "achieve".to_string(),
+            TaskMethod {
+                task: "achieve".to_string(),
+                methods: vec![
+                    DecompositionMethod {
+                        name: "direct".to_string(),
+                        preconditions: vec![],
+                        subtasks: vec!["do_action".to_string()],
+                        ordering: vec![],
+                    },
+                    DecompositionMethod {
+                        name: "hierarchical".to_string(),
+                        preconditions: vec![],
+                        subtasks: vec!["plan".to_string(), "execute".to_string()],
+                        ordering: vec![("plan".to_string(), "execute".to_string())],
+                    },
+                ],
+            },
+        );
 
-        Self {
-            domain_library,
-            max_depth: 10,
-        }
+        Self { domain_library, max_depth: 10 }
     }
 
     /// Create a plan to achieve a goal
@@ -459,10 +459,7 @@ pub enum ReflectionType {
 
 impl SelfReflector {
     pub fn new() -> Self {
-        Self {
-            reflection_history: VecDeque::new(),
-            max_history: 100,
-        }
+        Self { reflection_history: VecDeque::new(), max_history: 100 }
     }
 
     /// Reflect on performance
@@ -670,7 +667,8 @@ impl ConfidenceCalibrator {
     /// Adjust confidence based on calibration
     pub fn adjust_confidence(&self, raw_confidence: f32, domain: &str) -> f32 {
         // Simple calibration adjustment
-        let domain_points: Vec<_> = self.calibration_history
+        let domain_points: Vec<_> = self
+            .calibration_history
             .iter()
             .filter(|p| p.domain == domain)
             .collect();
@@ -680,9 +678,11 @@ impl ConfidenceCalibrator {
         }
 
         // Calculate domain-specific bias
-        let bias: f32 = domain_points.iter()
+        let bias: f32 = domain_points
+            .iter()
             .map(|p| p.predicted_confidence - p.actual_confidence)
-            .sum::<f32>() / domain_points.len() as f32;
+            .sum::<f32>()
+            / domain_points.len() as f32;
 
         // Adjust confidence
         (raw_confidence - bias).clamp(0.0, 1.0)
@@ -690,7 +690,8 @@ impl ConfidenceCalibrator {
 
     /// Get confidence interval
     pub fn confidence_interval(&self, confidence: f32, domain: &str) -> (f32, f32) {
-        let domain_points: Vec<_> = self.calibration_history
+        let domain_points: Vec<_> = self
+            .calibration_history
             .iter()
             .filter(|p| p.domain == domain)
             .collect();
@@ -702,7 +703,8 @@ impl ConfidenceCalibrator {
         }
 
         // Calculate interval based on historical errors
-        let errors: Vec<f32> = domain_points.iter()
+        let errors: Vec<f32> = domain_points
+            .iter()
             .map(|p| (p.predicted_confidence - p.actual_confidence).abs())
             .collect();
 
@@ -794,14 +796,22 @@ impl SelfMonitor {
 
     /// Update process progress
     pub fn update_process(&mut self, process_id: &str, progress: f32) {
-        if let Some(process) = self.active_processes.iter_mut().find(|p| p.process_id == process_id) {
+        if let Some(process) = self
+            .active_processes
+            .iter_mut()
+            .find(|p| p.process_id == process_id)
+        {
             process.progress = progress.clamp(0.0, 1.0);
         }
     }
 
     /// Complete a process
     pub fn complete_process(&mut self, process_id: &str, success: bool) {
-        if let Some(process) = self.active_processes.iter_mut().find(|p| p.process_id == process_id) {
+        if let Some(process) = self
+            .active_processes
+            .iter_mut()
+            .find(|p| p.process_id == process_id)
+        {
             process.status = if success {
                 ProcessStatus::Completed
             } else {
@@ -918,7 +928,12 @@ impl MetaCognition {
     /// Update self-belief
     pub fn update_belief(&mut self, belief: &str, confidence: f32, evidence: &[String]) {
         // Check if belief exists
-        if let Some(existing) = self.self_model.beliefs.iter_mut().find(|b| b.belief == belief) {
+        if let Some(existing) = self
+            .self_model
+            .beliefs
+            .iter_mut()
+            .find(|b| b.belief == belief)
+        {
             existing.confidence = confidence;
             existing.evidence.extend(evidence.iter().cloned());
         } else {
@@ -948,17 +963,15 @@ impl MetaCognition {
 
     /// Create a plan
     pub fn create_plan(&self, goal: &str) -> Option<ActionPlan> {
-        let initial_state = WorldState {
-            facts: HashMap::new(),
-            time: Utc::now(),
-        };
+        let initial_state = WorldState { facts: HashMap::new(), time: Utc::now() };
 
         self.planner.plan(goal, &initial_state)
     }
 
     /// Evaluate multiple plans
     pub fn evaluate_plans(&self, plans: &[ActionPlan]) -> Vec<(String, PlanQuality)> {
-        plans.iter()
+        plans
+            .iter()
             .map(|p| (p.id.clone(), self.planner.evaluate_plan(p)))
             .collect()
     }
@@ -970,11 +983,11 @@ impl MetaCognition {
         let decision_id = generate_id();
 
         // Evaluate options
-        let mut evaluated: Vec<_> = options.iter()
+        let mut evaluated: Vec<_> = options
+            .iter()
             .map(|opt| {
-                let score = (opt.expected_value * 0.5
-                    + (1.0 - opt.risk) * 0.3
-                    + opt.feasibility * 0.2);
+                let score =
+                    opt.expected_value * 0.5 + (1.0 - opt.risk) * 0.3 + opt.feasibility * 0.2;
                 (opt.clone(), score)
             })
             .collect();
@@ -997,9 +1010,9 @@ impl MetaCognition {
             decision_id,
             context: context.to_string(),
             options: options.clone(),
-            chosen: chosen.as_ref().and_then(|o| {
-                options.iter().position(|opt| opt.option_id == o.option_id)
-            }),
+            chosen: chosen
+                .as_ref()
+                .and_then(|o| options.iter().position(|opt| opt.option_id == o.option_id)),
             reasoning,
             outcome: None,
             timestamp: Utc::now(),
@@ -1020,12 +1033,8 @@ impl MetaCognition {
     /// Reflect on experience
     pub fn reflect(&mut self, experience: &Experience) -> Vec<String> {
         match experience {
-            Experience::Outcome(outcome) => {
-                self.reflector.reflect_on_performance(outcome)
-            }
-            Experience::Capability(cap, perf) => {
-                self.reflector.reflect_on_capabilities(cap, *perf)
-            }
+            Experience::Outcome(outcome) => self.reflector.reflect_on_performance(outcome),
+            Experience::Capability(cap, perf) => self.reflector.reflect_on_capabilities(cap, *perf),
             Experience::Belief(belief, evidence) => {
                 self.reflector.reflect_on_belief(belief, evidence)
             }
@@ -1034,7 +1043,8 @@ impl MetaCognition {
 
     /// Get reflection insights
     pub fn get_insights(&self) -> Vec<String> {
-        self.reflector.analyze_patterns()
+        self.reflector
+            .analyze_patterns()
             .to_string()
             .lines()
             .map(|s| s.to_string())
@@ -1045,13 +1055,16 @@ impl MetaCognition {
 
     /// Calibrate confidence
     pub fn calibrate_confidence(&mut self, predicted: f32, actual: f32, domain: &str) -> f32 {
-        self.confidence_calibrator.calibrate(predicted, actual, domain);
-        self.confidence_calibrator.adjust_confidence(predicted, domain)
+        self.confidence_calibrator
+            .calibrate(predicted, actual, domain);
+        self.confidence_calibrator
+            .adjust_confidence(predicted, domain)
     }
 
     /// Get confidence interval
     pub fn get_confidence_interval(&self, confidence: f32, domain: &str) -> (f32, f32) {
-        self.confidence_calibrator.confidence_interval(confidence, domain)
+        self.confidence_calibrator
+            .confidence_interval(confidence, domain)
     }
 
     // === Monitoring ===
@@ -1165,10 +1178,7 @@ mod tests {
     #[test]
     fn test_htn_planner() {
         let planner = HTNPlanner::new();
-        let state = WorldState {
-            facts: HashMap::new(),
-            time: Utc::now(),
-        };
+        let state = WorldState { facts: HashMap::new(), time: Utc::now() };
 
         let plan = planner.plan("achieve goal", &state);
         assert!(plan.is_some());

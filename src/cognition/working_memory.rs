@@ -427,7 +427,8 @@ impl WorkingMemory {
 
     /// Find item by content
     pub fn find(&self, content: &str) -> Option<&MentalItem> {
-        self.items.values()
+        self.items
+            .values()
             .find(|item| item.content.as_str().contains(content))
     }
 
@@ -464,7 +465,9 @@ impl WorkingMemory {
     /// Evict least salient item
     fn evict_least_salient(&mut self) {
         // Find item with lowest activation
-        let to_evict = self.items.iter()
+        let to_evict = self
+            .items
+            .iter()
             .min_by(|a, b| a.1.activation.partial_cmp(&b.1.activation).unwrap())
             .map(|(id, _)| id.clone());
 
@@ -562,10 +565,8 @@ mod tests {
 
     #[test]
     fn test_working_memory_eviction() {
-        let mut wm = WorkingMemory::with_config(WorkingMemoryConfig {
-            capacity: 2,
-            ..Default::default()
-        });
+        let mut wm =
+            WorkingMemory::with_config(WorkingMemoryConfig { capacity: 2, ..Default::default() });
 
         for i in 0..5 {
             let item = MentalItem::new(ItemContent::Concept(Concept::new(format!("Item {}", i))));

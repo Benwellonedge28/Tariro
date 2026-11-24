@@ -105,7 +105,7 @@ pub struct FunctionInlining {
 impl Default for FunctionInlining {
     fn default() -> Self {
         Self {
-            threshold: 50,  // Max instruction count to inline
+            threshold: 50, // Max instruction count to inline
             inline_hint: true,
             always_inline: true,
         }
@@ -285,8 +285,9 @@ impl OptimizationPass for DeadFunctionElimination {
     }
 
     fn run(&self, module: &mut Module) -> bool {
-        let mut removed = 0;
-        let mut used_funcs: HashSet<FunctionId> = module.functions.iter()
+        let mut used_funcs: HashSet<FunctionId> = module
+            .functions
+            .iter()
             .filter_map(|f| {
                 if f.name == "main" || f.attributes.hot || f.attributes.no_return {
                     Some(f.id)
@@ -310,9 +311,8 @@ impl OptimizationPass for DeadFunctionElimination {
         // Remove unused functions
         let original_len = module.functions.len();
         module.functions.retain(|f| used_funcs.contains(&f.id));
-        removed = original_len - module.functions.len();
 
-        removed > 0
+        original_len != module.functions.len()
     }
 
     fn description(&self) -> &'static str {

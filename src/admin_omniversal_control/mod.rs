@@ -2,7 +2,6 @@
 //!
 //! This module provides administrative control capabilities for the Tariro AGI system.
 
-
 pub mod advanced_interface_ux;
 pub mod analytics_insights;
 pub mod autonomous_management_configuration;
@@ -15,9 +14,7 @@ pub struct AdminOmniversalControl {
 
 impl AdminOmniversalControl {
     pub fn new() -> Self {
-        AdminOmniversalControl {
-            version: "1.0.0".to_string(),
-        }
+        AdminOmniversalControl { version: "1.0.0".to_string() }
     }
 }
 

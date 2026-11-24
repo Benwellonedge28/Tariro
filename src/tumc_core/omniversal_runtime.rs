@@ -1,4 +1,3 @@
-
 pub struct OmniversalRuntimeManager;
 
 impl OmniversalRuntimeManager {
@@ -15,7 +14,10 @@ impl OmniversalRuntimeManager {
 
         // 1. Target-Specific Code Generation & Synthesis:
         let raw_target_code = self.synthesize_target_code(optimized_usg, target_platform);
-        println!("TUMC: Synthesized raw target code for '{}'.", target_platform);
+        println!(
+            "TUMC: Synthesized raw target code for '{}'.",
+            target_platform
+        );
 
         // 2. POCO-REAF Packaging & Interoperability Layer:
         let packaged_artifact = self.package_with_poco_reaf(raw_target_code, target_platform);
@@ -25,30 +27,55 @@ impl OmniversalRuntimeManager {
         let final_artifact = self.assemble_and_verify_artifact(packaged_artifact);
         println!("TUMC: Final artifact assembled and verified.");
 
-        format!("POCO-REAF-Artifact::{}::(ID:{})", target_platform, final_artifact.len())
+        format!(
+            "POCO-REAF-Artifact::{}::(ID:{})",
+            target_platform,
+            final_artifact.len()
+        )
     }
 
     /// Initiates autonomous deployment of a generated artifact to a specified target environment.
-    pub fn initiate_autonomous_deployment(&self, artifact_reference: &str, deployment_target: &str) -> String {
+    pub fn initiate_autonomous_deployment(
+        &self,
+        artifact_reference: &str,
+        deployment_target: &str,
+    ) -> String {
         println!("TUMC: OmniversalRuntimeManager - Initiating autonomous deployment for artifact '{}' to '{}'", artifact_reference, deployment_target);
 
-        let autonomy_level = self.determine_deployment_autonomy(artifact_reference, deployment_target);
-        println!("TUMC: Deployment autonomy level determined as: {:?}", autonomy_level);
+        let autonomy_level =
+            self.determine_deployment_autonomy(artifact_reference, deployment_target);
+        println!(
+            "TUMC: Deployment autonomy level determined as: {:?}",
+            autonomy_level
+        );
 
         match autonomy_level {
             DeploymentAutonomyLevel::FullAuto => {
-                let deployment_report = self.orchestrate_full_auto_deployment(artifact_reference, deployment_target);
-                println!("TUMC: Full-auto deployment complete: '{}'", deployment_report);
+                let deployment_report =
+                    self.orchestrate_full_auto_deployment(artifact_reference, deployment_target);
+                println!(
+                    "TUMC: Full-auto deployment complete: '{}'",
+                    deployment_report
+                );
                 deployment_report
-            },
+            }
             DeploymentAutonomyLevel::ConfirmOnly => {
-                println!("TUMC: Deployment pending human confirmation for '{}'. Request sent to Samuel.", artifact_reference);
-                format!("Deployment queued for human confirmation. Artifact: '{}', Target: '{}'.", artifact_reference, deployment_target)
-            },
+                println!(
+                    "TUMC: Deployment pending human confirmation for '{}'. Request sent to Samuel.",
+                    artifact_reference
+                );
+                format!(
+                    "Deployment queued for human confirmation. Artifact: '{}', Target: '{}'.",
+                    artifact_reference, deployment_target
+                )
+            }
             DeploymentAutonomyLevel::HumanRequired => {
                 println!("TUMC: Deployment requires full human intervention for '{}'. Manual action required.", artifact_reference);
-                format!("Deployment requires manual human intervention. Artifact: '{}', Target: '{}'.", artifact_reference, deployment_target)
-            },
+                format!(
+                    "Deployment requires manual human intervention. Artifact: '{}', Target: '{}'.",
+                    artifact_reference, deployment_target
+                )
+            }
         }
     }
 
@@ -64,7 +91,11 @@ impl OmniversalRuntimeManager {
         "final_verified_artifact_id".to_string()
     }
 
-    fn determine_deployment_autonomy(&self, _artifact: &str, _target: &str) -> DeploymentAutonomyLevel {
+    fn determine_deployment_autonomy(
+        &self,
+        _artifact: &str,
+        _target: &str,
+    ) -> DeploymentAutonomyLevel {
         DeploymentAutonomyLevel::FullAuto
     }
 

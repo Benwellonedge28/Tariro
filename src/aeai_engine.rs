@@ -5,13 +5,11 @@
 /// autonomously discover and optimize novel solutions for complex problems, including self-architecture generation,
 /// algorithm tuning, and system configuration. (SIMD: parallel evaluation of fitness functions for populations;
 /// RAG: evolutionary computation theory, neuro-evolution, multi-objective optimization).
-
-
 use std::collections::HashMap;
 
+use rand::Rng;
 use std::thread;
 use std::time::Duration;
-use rand::Rng;
 
 // --- Conceptual Structures --- //
 
@@ -20,7 +18,7 @@ use rand::Rng;
 pub struct Individual {
     pub id: String,
     pub genotype: Vec<f64>, // Represents the solution's parameters or configuration
-    pub fitness: f64, // How well the individual performs
+    pub fitness: f64,       // How well the individual performs
     pub generation: u32,
 }
 
@@ -62,7 +60,11 @@ impl AeaiEngine {
     pub fn new() -> Self {
         let mut ect_db = HashMap::new();
         ect_db.insert("Genetic_Algorithms_Principles".to_string(), "Detailed principles of Genetic Algorithms, including selection, crossover, and mutation operators.".to_string());
-        ect_db.insert("Genetic_Programming_for_Code_Synthesis".to_string(), "Using Genetic Programming to evolve executable code or programs automatically.".to_string());
+        ect_db.insert(
+            "Genetic_Programming_for_Code_Synthesis".to_string(),
+            "Using Genetic Programming to evolve executable code or programs automatically."
+                .to_string(),
+        );
 
         let mut ne_db = HashMap::new();
         ne_db.insert("Evolving_Neural_Network_Architectures".to_string(), "Techniques for using evolutionary algorithms to discover optimal neural network architectures.".to_string());
@@ -72,23 +74,39 @@ impl AeaiEngine {
         moo_db.insert("Pareto_Optimality_in_Multi_Objective_Problems".to_string(), "Understanding Pareto optimality and Pareto fronts for problems with multiple conflicting objectives.".to_string());
         moo_db.insert("NSGA_II_Algorithm_for_Multi_Objective_Optimization".to_string(), "The Non-dominated Sorting Genetic Algorithm II for solving multi-objective optimization problems.".to_string());
 
-        AeaiEngine { evolutionary_computation_theory_rag_db: ect_db, neuro_evolution_rag_db: ne_db, multi_objective_optimization_rag_db: moo_db }
+        AeaiEngine {
+            evolutionary_computation_theory_rag_db: ect_db,
+            neuro_evolution_rag_db: ne_db,
+            multi_objective_optimization_rag_db: moo_db,
+        }
     }
 
     /// Initializes an evolutionary population in parallel (conceptual SIMD).
-    pub fn initialize_population_simd(&self, population_size: u32, genotype_length: u32) -> Population {
+    pub fn initialize_population_simd(
+        &self,
+        population_size: u32,
+        genotype_length: u32,
+    ) -> Population {
         println!("  [AEAI]: Initializing population of size {} with genotype length {} (SIMD for parallel initialization).", population_size, genotype_length);
         thread::sleep(Duration::from_millis(150));
         let mut rng = rand::thread_rng();
 
-        let individuals = (0..population_size).map(|i| Individual {
-            id: format!("ind_{}_{}", 0, i),
-            genotype: (0..genotype_length).map(|_| rng.gen_range(-1.0..1.0)).collect(),
-            fitness: 0.0, // Will be evaluated later
-            generation: 0,
-        }).collect();
+        let individuals = (0..population_size)
+            .map(|i| Individual {
+                id: format!("ind_{}_{}", 0, i),
+                genotype: (0..genotype_length)
+                    .map(|_| rng.gen_range(-1.0..1.0))
+                    .collect(),
+                fitness: 0.0, // Will be evaluated later
+                generation: 0,
+            })
+            .collect();
 
-        Population { generation_id: 0, individuals, best_fitness_so_far: f64::NEG_INFINITY }
+        Population {
+            generation_id: 0,
+            individuals,
+            best_fitness_so_far: f64::NEG_INFINITY,
+        }
     }
 
     /// Evaluates the fitness of each individual in the population in parallel (conceptual SIMD).
@@ -117,10 +135,20 @@ impl AeaiEngine {
     }
 
     /// Applies selection, crossover, and mutation operators to evolve the population (conceptual RAG).
-    pub fn apply_selection_crossover_mutation_rag(&self, current_population: &Population) -> Population {
+    pub fn apply_selection_crossover_mutation_rag(
+        &self,
+        current_population: &Population,
+    ) -> Population {
         println!("  [AEAI]: Applying genetic operators for generation {} (RAG for evolutionary computation theory).", current_population.generation_id);
-        if let Some(ect_info) = self.evolutionary_computation_theory_rag_db.get("Genetic_Algorithms_Principles") {
-            format!("ECT RAG insight for genetic operations: {}. Population size: {}", ect_info, current_population.individuals.len());
+        if let Some(ect_info) = self
+            .evolutionary_computation_theory_rag_db
+            .get("Genetic_Algorithms_Principles")
+        {
+            format!(
+                "ECT RAG insight for genetic operations: {}. Population size: {}",
+                ect_info,
+                current_population.individuals.len()
+            );
         }
         thread::sleep(Duration::from_millis(250));
         let mut rng = rand::thread_rng();
@@ -128,8 +156,10 @@ impl AeaiEngine {
         let mut next_generation_individuals = Vec::new();
         // Simulate selection (e.g., elitism, roulette wheel), crossover, mutation
         for _ in 0..current_population.individuals.len() {
-            let parent1 = &current_population.individuals[rng.gen_range(0..current_population.individuals.len())];
-            let parent2 = &current_population.individuals[rng.gen_range(0..current_population.individuals.len())];
+            let parent1 = &current_population.individuals
+                [rng.gen_range(0..current_population.individuals.len())];
+            let parent2 = &current_population.individuals
+                [rng.gen_range(0..current_population.individuals.len())];
 
             let mut child_genotype = parent1.genotype.clone();
             // Simulate simple crossover
@@ -139,13 +169,18 @@ impl AeaiEngine {
             }
 
             // Simulate simple mutation
-            if rng.gen_bool(0.1) { // 10% mutation rate
+            if rng.gen_bool(0.1) {
+                // 10% mutation rate
                 let mutate_index = rng.gen_range(0..child_genotype.len());
                 child_genotype[mutate_index] = rng.gen_range(-1.0..1.0);
             }
 
             next_generation_individuals.push(Individual {
-                id: format!("ind_{}_{}", current_population.generation_id + 1, rng.gen::<u32>()),
+                id: format!(
+                    "ind_{}_{}",
+                    current_population.generation_id + 1,
+                    rng.gen::<u32>()
+                ),
                 genotype: child_genotype,
                 fitness: 0.0, // To be evaluated
                 generation: current_population.generation_id + 1,
@@ -162,16 +197,35 @@ impl AeaiEngine {
     /// Evolves system configurations or architectures to optimize for multiple objectives (conceptual RAG).
     pub fn evolve_system_configuration_rag(&self, current_config_summary: &str) -> String {
         println!("  [AEAI]: Evolving system configuration based on '{}' (RAG for multi-objective optimization and neuro-evolution).", current_config_summary);
-        if let Some(moo_info) = self.multi_objective_optimization_rag_db.get("Pareto_Optimality_in_Multi_Objective_Problems") {
-            format!("MOO RAG insight for config evolution: {}. Current config: '{}'", moo_info, current_config_summary);
+        if let Some(moo_info) = self
+            .multi_objective_optimization_rag_db
+            .get("Pareto_Optimality_in_Multi_Objective_Problems")
+        {
+            format!(
+                "MOO RAG insight for config evolution: {}. Current config: '{}'",
+                moo_info, current_config_summary
+            );
         }
-        if let Some(ne_info) = self.neuro_evolution_rag_db.get("Evolving_Neural_Network_Architectures") {
-            format!("NE RAG insight for config evolution: {}. Current config: '{}'", ne_info, current_config_summary);
+        if let Some(ne_info) = self
+            .neuro_evolution_rag_db
+            .get("Evolving_Neural_Network_Architectures")
+        {
+            format!(
+                "NE RAG insight for config evolution: {}. Current config: '{}'",
+                ne_info, current_config_summary
+            );
         }
         thread::sleep(Duration::from_millis(180));
         let mut rng = rand::thread_rng();
-        let evolved_config = if rng.gen_bool(0.8) { "Optimized_for_Performance_and_Security" } else { "Balanced_Resource_Allocation" };
-        format!("System configuration evolved to achieve: '{}'.", evolved_config)
+        let evolved_config = if rng.gen_bool(0.8) {
+            "Optimized_for_Performance_and_Security"
+        } else {
+            "Balanced_Resource_Allocation"
+        };
+        format!(
+            "System configuration evolved to achieve: '{}'.",
+            evolved_config
+        )
     }
 }
 
@@ -186,7 +240,11 @@ mod tests {
         let mut population = engine.initialize_population_simd(10, 5);
         assert_eq!(population.individuals.len(), 10);
 
-        let fitness_fn = FitnessFunction { name: "latency_test".to_string(), description: "Measures system response time.".to_string(), target_objective: "minimize_latency".to_string() };
+        let fitness_fn = FitnessFunction {
+            name: "latency_test".to_string(),
+            description: "Measures system response time.".to_string(),
+            target_objective: "minimize_latency".to_string(),
+        };
         engine.evaluate_fitness_simd(&mut population, &fitness_fn);
         assert!(population.individuals.iter().all(|i| i.fitness != 0.0));
 
@@ -217,21 +275,33 @@ fn main() {
         target_objective: "maximize_throughput".to_string(),
     };
     aeai_engine.evaluate_fitness_simd(&mut algorithm_population, &throughput_fitness);
-    println!("  Evaluated fitness for generation {}. Best so far: {:.2}.\n", algorithm_population.generation_id, algorithm_population.best_fitness_so_far);
+    println!(
+        "  Evaluated fitness for generation {}. Best so far: {:.2}.\n",
+        algorithm_population.generation_id, algorithm_population.best_fitness_so_far
+    );
 
     // Scenario 3: Evolving the population through selection, crossover, and mutation
     println!("--- Scenario 3: Genetic Operations ---");
-    let mut next_generation = aeai_engine.apply_selection_crossover_mutation_rag(&algorithm_population);
-    println!("  Evolved to next generation {}. New population size: {}.\n", next_generation.generation_id, next_generation.individuals.len());
+    let mut next_generation =
+        aeai_engine.apply_selection_crossover_mutation_rag(&algorithm_population);
+    println!(
+        "  Evolved to next generation {}. New population size: {}.\n",
+        next_generation.generation_id,
+        next_generation.individuals.len()
+    );
 
     // To complete a full evolutionary cycle, one would re-evaluate fitness for `next_generation` and repeat.
     aeai_engine.evaluate_fitness_simd(&mut next_generation, &throughput_fitness);
-    println!("  Evaluated fitness for generation {}. Best so far: {:.2}.\n", next_generation.generation_id, next_generation.best_fitness_so_far);
+    println!(
+        "  Evaluated fitness for generation {}. Best so far: {:.2}.\n",
+        next_generation.generation_id, next_generation.best_fitness_so_far
+    );
 
     // Scenario 4: Evolving system configurations for multi-objective optimization
     println!("--- Scenario 4: System Configuration Evolution ---");
     let initial_system_config_summary = "High_security_low_latency_prioritized_initial_config";
-    let evolved_config_result = aeai_engine.evolve_system_configuration_rag(initial_system_config_summary);
+    let evolved_config_result =
+        aeai_engine.evolve_system_configuration_rag(initial_system_config_summary);
     println!("  {}\n", evolved_config_result);
 
     println!("\nAutonomous Evolutionary Algorithm Integration (AEAI) Demonstration Complete.");

@@ -1,9 +1,8 @@
 // Tariro AGI - Emotional Architecture Module
 // Comprehensive emotional processing system for AGI
 
-use std::collections::{HashMap, VecDeque};
-use std::sync::{ };
 use chrono::{DateTime, Utc};
+use std::collections::{HashMap, VecDeque};
 use std::time::Duration;
 
 // ============================================================================
@@ -76,9 +75,9 @@ impl BasicEmotion {
 /// Dimensional emotion representation using valence-arousal-dominance model
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VADEmotion {
-    pub valence: f32,      // -1.0 (negative) to 1.0 (positive)
-    pub arousal: f32,       // 0.0 (calm) to 1.0 (excited)
-    pub dominance: f32,     // 0.0 (submissive) to 1.0 (dominant)
+    pub valence: f32,   // -1.0 (negative) to 1.0 (positive)
+    pub arousal: f32,   // 0.0 (calm) to 1.0 (excited)
+    pub dominance: f32, // 0.0 (submissive) to 1.0 (dominant)
 }
 
 impl VADEmotion {
@@ -91,11 +90,7 @@ impl VADEmotion {
     }
 
     pub fn neutral() -> Self {
-        Self {
-            valence: 0.0,
-            arousal: 0.5,
-            dominance: 0.5,
-        }
+        Self { valence: 0.0, arousal: 0.5, dominance: 0.5 }
     }
 
     pub fn from_basic(emotion: BasicEmotion) -> Self {
@@ -138,10 +133,10 @@ impl VADEmotion {
 /// Complete emotional state representation
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EmotionalState {
-    pub basic_emotions: [f32; 7],        // Intensity of each basic emotion
-    pub vad: VADEmotion,                  // Dimensional representation
-    pub mood: MoodState,                  // Longer-term mood
-    pub emotional_complexity: f32,        // How mixed/differentiated emotions are
+    pub basic_emotions: [f32; 7],  // Intensity of each basic emotion
+    pub vad: VADEmotion,           // Dimensional representation
+    pub mood: MoodState,           // Longer-term mood
+    pub emotional_complexity: f32, // How mixed/differentiated emotions are
     pub timestamp: DateTime<Utc>,
     pub duration: Duration,
 }
@@ -177,7 +172,10 @@ impl EmotionalState {
     }
 
     pub fn update_duration(&mut self) {
-        self.duration = Utc::now().signed_duration_since(self.timestamp).to_std().unwrap_or(Duration::ZERO);
+        self.duration = Utc::now()
+            .signed_duration_since(self.timestamp)
+            .to_std()
+            .unwrap_or(Duration::ZERO);
     }
 }
 
@@ -306,10 +304,7 @@ impl EmotionDetector {
         weights.insert("voice".to_string(), 0.35);
         weights.insert("facial".to_string(), 0.25);
 
-        Self {
-            threshold: 0.3,
-            confidence_weights: weights,
-        }
+        Self { threshold: 0.3, confidence_weights: weights }
     }
 
     /// Detect emotion from textual content
@@ -319,17 +314,99 @@ impl EmotionDetector {
         // Simple keyword-based emotion detection
         let emotion_scores = [
             // Happiness indicators
-            Self::count_keywords(&text_lower, &["happy", "joy", "love", "great", "wonderful", "excellent", "fantastic", "amazing", "good", "nice"]),
+            Self::count_keywords(
+                &text_lower,
+                &[
+                    "happy",
+                    "joy",
+                    "love",
+                    "great",
+                    "wonderful",
+                    "excellent",
+                    "fantastic",
+                    "amazing",
+                    "good",
+                    "nice",
+                ],
+            ),
             // Sadness indicators
-            Self::count_keywords(&text_lower, &["sad", "unhappy", "depressed", "miserable", "terrible", "awful", "bad", "sorrow", "grief", "disappointed"]),
+            Self::count_keywords(
+                &text_lower,
+                &[
+                    "sad",
+                    "unhappy",
+                    "depressed",
+                    "miserable",
+                    "terrible",
+                    "awful",
+                    "bad",
+                    "sorrow",
+                    "grief",
+                    "disappointed",
+                ],
+            ),
             // Anger indicators
-            Self::count_keywords(&text_lower, &["angry", "mad", "furious", "hate", "annoyed", "frustrated", "upset", "irritated", "rage", "outraged"]),
+            Self::count_keywords(
+                &text_lower,
+                &[
+                    "angry",
+                    "mad",
+                    "furious",
+                    "hate",
+                    "annoyed",
+                    "frustrated",
+                    "upset",
+                    "irritated",
+                    "rage",
+                    "outraged",
+                ],
+            ),
             // Fear indicators
-            Self::count_keywords(&text_lower, &["afraid", "scared", "frightened", "worried", "anxious", "nervous", "terrified", "panic", "dread", "fear"]),
+            Self::count_keywords(
+                &text_lower,
+                &[
+                    "afraid",
+                    "scared",
+                    "frightened",
+                    "worried",
+                    "anxious",
+                    "nervous",
+                    "terrified",
+                    "panic",
+                    "dread",
+                    "fear",
+                ],
+            ),
             // Surprise indicators
-            Self::count_keywords(&text_lower, &["surprised", "amazed", "astonished", "shocked", "unexpected", "wow", "oh", "incredible", "unbelievable"]),
+            Self::count_keywords(
+                &text_lower,
+                &[
+                    "surprised",
+                    "amazed",
+                    "astonished",
+                    "shocked",
+                    "unexpected",
+                    "wow",
+                    "oh",
+                    "incredible",
+                    "unbelievable",
+                ],
+            ),
             // Disgust indicators
-            Self::count_keywords(&text_lower, &["disgusting", "gross", "revolting", "sickening", "nasty", "horrible", "dislike", "repulsed", "vile"]),
+            Self::count_keywords(
+                &text_lower,
+                &[
+                    "disgusting",
+                    "gross",
+                    "revolting",
+                    "sickening",
+                    "nasty",
+                    "horrible",
+                    "dislike",
+                    "repulsed",
+                    "vile",
+                ],
+            ),
         ];
 
         // Find dominant emotion
@@ -355,7 +432,12 @@ impl EmotionDetector {
     }
 
     /// Detect emotion from voice/audio features
-    pub fn detect_from_voice(&self, pitch: f32, intensity: f32, speaking_rate: f32) -> (BasicEmotion, f32) {
+    pub fn detect_from_voice(
+        &self,
+        pitch: f32,
+        intensity: f32,
+        speaking_rate: f32,
+    ) -> (BasicEmotion, f32) {
         let mut scores = [0.0f32; 7];
 
         // High pitch + high intensity + fast speech = Happiness/Surprise
@@ -394,7 +476,12 @@ impl EmotionDetector {
     }
 
     /// Detect emotion from facial features
-    pub fn detect_from_face(&self, smile_intensity: f32, brow_furrow: f32, eye_widening: f32) -> (BasicEmotion, f32) {
+    pub fn detect_from_face(
+        &self,
+        smile_intensity: f32,
+        brow_furrow: f32,
+        eye_widening: f32,
+    ) -> (BasicEmotion, f32) {
         let mut scores = [0.0f32; 7];
 
         // Smile = Happiness
@@ -466,13 +553,13 @@ pub struct EmotionRegulator {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum RegulationStrategy {
-    Suppression,      // Reduce emotional expression
-    Reappraisal,      // Reinterpret situation
-    Acceptance,       // Accept emotional state
-    Attention,        // Shift attention away
-    Rumination,       // Focus on negative (should be avoided)
-    Distraction,      // Engage in different activity
-    SocialSupport,    // Seek help from others
+    Suppression,   // Reduce emotional expression
+    Reappraisal,   // Reinterpret situation
+    Acceptance,    // Accept emotional state
+    Attention,     // Shift attention away
+    Rumination,    // Focus on negative (should be avoided)
+    Distraction,   // Engage in different activity
+    SocialSupport, // Seek help from others
 }
 
 impl EmotionRegulator {
@@ -512,9 +599,9 @@ impl EmotionRegulator {
             RegulationStrategy::Suppression => {
                 // Reduce arousal and expression
                 for emotion in state.basic_emotions.iter_mut() {
-                    *emotion *= (1.0 - self.regulation_strength * 0.3);
+                    *emotion *= 1.0 - self.regulation_strength * 0.3;
                 }
-                state.vad.arousal *= (1.0 - self.regulation_strength * 0.2);
+                state.vad.arousal *= 1.0 - self.regulation_strength * 0.2;
             }
             RegulationStrategy::Reappraisal => {
                 // Shift valence towards positive
@@ -527,13 +614,13 @@ impl EmotionRegulator {
             RegulationStrategy::Attention => {
                 // Reduce intensity
                 for emotion in state.basic_emotions.iter_mut() {
-                    *emotion *= (1.0 - self.regulation_strength * 0.2);
+                    *emotion *= 1.0 - self.regulation_strength * 0.2;
                 }
             }
             RegulationStrategy::Distraction => {
                 // Reduce all emotions towards neutral
                 for emotion in state.basic_emotions.iter_mut() {
-                    *emotion *= (1.0 - self.regulation_strength * 0.4);
+                    *emotion *= 1.0 - self.regulation_strength * 0.4;
                 }
                 state.vad = VADEmotion::neutral();
             }
@@ -713,7 +800,8 @@ impl EmotionalMemory {
 
     /// Retrieve similar emotional memories
     pub fn retrieve_similar(&self, state: &EmotionalState, limit: usize) -> Vec<&EmotionalEpisode> {
-        let mut similarities: Vec<_> = self.episodes
+        let mut similarities: Vec<_> = self
+            .episodes
             .iter()
             .map(|ep| {
                 let distance = state.vad.euclidean_distance(&ep.emotional_state.vad);
@@ -723,7 +811,8 @@ impl EmotionalMemory {
 
         similarities.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap_or(std::cmp::Ordering::Equal));
 
-        similarities.into_iter()
+        similarities
+            .into_iter()
             .take(limit)
             .map(|(ep, _)| ep)
             .collect()
@@ -806,9 +895,9 @@ pub struct EmotionalArchitecture {
 
 #[derive(Debug, Clone)]
 pub struct EmotionalConfig {
-    pub emotional_inertia: f32,        // How slowly emotions change
-    pub mood_baseline: f32,            // Default mood level
-    pub empathy_strength: f32,         // How much we absorb others' emotions
+    pub emotional_inertia: f32, // How slowly emotions change
+    pub mood_baseline: f32,     // Default mood level
+    pub empathy_strength: f32,  // How much we absorb others' emotions
     pub regulation_aggressiveness: f32,
     pub emotional_expressiveness: f32, // How much emotions affect behavior
     pub memory_consolidation_interval: Duration,
@@ -839,23 +928,80 @@ impl SentimentAnalyzer {
     pub fn new() -> Self {
         Self {
             positive_words: vec![
-                "good", "great", "excellent", "amazing", "wonderful", "fantastic",
-                "happy", "joy", "love", "beautiful", "perfect", "best",
-                "awesome", "brilliant", "outstanding", "superb", "terrific"
-            ].into_iter().map(|s| s.to_string()).collect(),
+                "good",
+                "great",
+                "excellent",
+                "amazing",
+                "wonderful",
+                "fantastic",
+                "happy",
+                "joy",
+                "love",
+                "beautiful",
+                "perfect",
+                "best",
+                "awesome",
+                "brilliant",
+                "outstanding",
+                "superb",
+                "terrific",
+            ]
+            .into_iter()
+            .map(|s| s.to_string())
+            .collect(),
             negative_words: vec![
-                "bad", "terrible", "awful", "horrible", "poor", "disappointing",
-                "sad", "angry", "hate", "ugly", "worst", "failure",
-                "pathetic", "useless", "dreadful", "disgusting", "miserable"
-            ].into_iter().map(|s| s.to_string()).collect(),
+                "bad",
+                "terrible",
+                "awful",
+                "horrible",
+                "poor",
+                "disappointing",
+                "sad",
+                "angry",
+                "hate",
+                "ugly",
+                "worst",
+                "failure",
+                "pathetic",
+                "useless",
+                "dreadful",
+                "disgusting",
+                "miserable",
+            ]
+            .into_iter()
+            .map(|s| s.to_string())
+            .collect(),
             intensifiers: vec![
-                "very", "really", "extremely", "absolutely", "completely",
-                "totally", "highly", "incredibly", "particularly"
-            ].into_iter().map(|s| s.to_string()).collect(),
+                "very",
+                "really",
+                "extremely",
+                "absolutely",
+                "completely",
+                "totally",
+                "highly",
+                "incredibly",
+                "particularly",
+            ]
+            .into_iter()
+            .map(|s| s.to_string())
+            .collect(),
             negators: vec![
-                "not", "no", "never", "neither", "nor", "don't", "doesn't",
-                "didn't", "won't", "wouldn't", "couldn't", "shouldn't"
-            ].into_iter().map(|s| s.to_string()).collect(),
+                "not",
+                "no",
+                "never",
+                "neither",
+                "nor",
+                "don't",
+                "doesn't",
+                "didn't",
+                "won't",
+                "wouldn't",
+                "couldn't",
+                "shouldn't",
+            ]
+            .into_iter()
+            .map(|s| s.to_string())
+            .collect(),
         }
     }
 
@@ -930,8 +1076,7 @@ impl SentimentAnalyzer {
         };
 
         // Calculate confidence
-        let confidence = ((positive_count + negative_count) as f32 / total_words)
-            .min(1.0);
+        let confidence = ((positive_count + negative_count) as f32 / total_words).min(1.0);
 
         SentimentResult {
             polarity,
@@ -946,8 +1091,8 @@ impl SentimentAnalyzer {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SentimentResult {
     pub polarity: SentimentPolarity,
-    pub score: f32,        // -1.0 to 1.0
-    pub confidence: f32,   // 0.0 to 1.0
+    pub score: f32,      // -1.0 to 1.0
+    pub confidence: f32, // 0.0 to 1.0
     pub positive_words: usize,
     pub negative_words: usize,
 }
@@ -1067,10 +1212,16 @@ impl EmotionalArchitecture {
         // Map sentiment to emotional state
         match sentiment.polarity {
             SentimentPolarity::Positive => {
-                self.activate_emotion(BasicEmotion::Happiness, sentiment.score.abs() * sentiment.confidence);
+                self.activate_emotion(
+                    BasicEmotion::Happiness,
+                    sentiment.score.abs() * sentiment.confidence,
+                );
             }
             SentimentPolarity::Negative => {
-                self.activate_emotion(BasicEmotion::Sadness, sentiment.score.abs() * sentiment.confidence);
+                self.activate_emotion(
+                    BasicEmotion::Sadness,
+                    sentiment.score.abs() * sentiment.confidence,
+                );
             }
             SentimentPolarity::Neutral => {}
         }
@@ -1082,7 +1233,9 @@ impl EmotionalArchitecture {
 
         if new_mood != self.mood {
             // Check transition probability
-            let transition_exists = self.mood_transitions.iter()
+            let transition_exists = self
+                .mood_transitions
+                .iter()
                 .any(|t| t.from == self.mood && t.to == new_mood);
 
             if transition_exists || self.mood_decay_rate > 0.5 {
@@ -1098,7 +1251,8 @@ impl EmotionalArchitecture {
         let response = self.empathy.understand_others_emotion(other_state);
 
         // Apply emotional contagion
-        self.empathy.apply_contagion(other_state, &mut self.current_state);
+        self.empathy
+            .apply_contagion(other_state, &mut self.current_state);
 
         response
     }
@@ -1307,8 +1461,7 @@ mod tests {
     #[test]
     fn test_empathy_engine() {
         let empathy = EmpathyEngine::new();
-        let other_state = EmotionalState::new()
-            .with_emotion(BasicEmotion::Sadness, 0.8);
+        let other_state = EmotionalState::new().with_emotion(BasicEmotion::Sadness, 0.8);
 
         let response = empathy.understand_others_emotion(&other_state);
         assert!(response.compassion_triggered);
@@ -1318,8 +1471,7 @@ mod tests {
     fn test_emotional_memory() {
         let mut memory = EmotionalMemory::new(10);
 
-        let state = EmotionalState::new()
-            .with_emotion(BasicEmotion::Happiness, 0.8);
+        let state = EmotionalState::new().with_emotion(BasicEmotion::Happiness, 0.8);
 
         memory.store("Test stimulus", &state, "Good outcome");
 
@@ -1329,8 +1481,7 @@ mod tests {
 
     #[test]
     fn test_emotional_regulation() {
-        let mut state = EmotionalState::new()
-            .with_emotion(BasicEmotion::Anger, 0.9);
+        let mut state = EmotionalState::new().with_emotion(BasicEmotion::Anger, 0.9);
 
         let regulator = EmotionRegulator::new();
         regulator.regulate(&mut state);

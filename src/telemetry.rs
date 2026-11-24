@@ -11,33 +11,79 @@ use tokio::sync::mpsc;
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum TelemetryEvent {
     // System Lifecycle
-    SystemInitialized { version: String },
+    SystemInitialized {
+        version: String,
+    },
     SystemStarted,
     SystemShutdown,
-    ServiceInitialized { service_name: String },
-    ServiceShutdown { service_name: String },
+    ServiceInitialized {
+        service_name: String,
+    },
+    ServiceShutdown {
+        service_name: String,
+    },
 
     // Error & Warning
-    ErrorOccurred { message: String, details: Option<String> },
-    SystemHealthWarning { component: String, level: String, message: String },
+    ErrorOccurred {
+        message: String,
+        details: Option<String>,
+    },
+    SystemHealthWarning {
+        component: String,
+        level: String,
+        message: String,
+    },
 
     // AGI Actions & Decisions
-    AGIAction { action_type: String, details: Option<String> },
-    DecisionMade { decision_id: String, confidence: f32, context_summary: String },
-    GoalProgressUpdated { goal_id: String, progress_pct: f32 },
-    FeatureProposed { title: String, source: String },
+    AGIAction {
+        action_type: String,
+        details: Option<String>,
+    },
+    DecisionMade {
+        decision_id: String,
+        confidence: f32,
+        context_summary: String,
+    },
+    GoalProgressUpdated {
+        goal_id: String,
+        progress_pct: f32,
+    },
+    FeatureProposed {
+        title: String,
+        source: String,
+    },
 
     // Policy changes
-    PolicyUpdated { policy_id: String, action: String },
+    PolicyUpdated {
+        policy_id: String,
+        action: String,
+    },
 
     // Learning & Knowledge
-    LearningInsightProcessed { insight_id: String, category: String },
-    KnowledgeAcquired { item_id: String, title: String, category: String },
-    KnowledgeGapIdentified { description: String },
+    LearningInsightProcessed {
+        insight_id: String,
+        category: String,
+    },
+    KnowledgeAcquired {
+        item_id: String,
+        title: String,
+        category: String,
+    },
+    KnowledgeGapIdentified {
+        description: String,
+    },
 
     // Admin & Control
-    AdminCommandIssued { command_id: String, command_type: String, initiator: String },
-    AdminCommandCompleted { command_id: String, status: String, message: String },
+    AdminCommandIssued {
+        command_id: String,
+        command_type: String,
+        initiator: String,
+    },
+    AdminCommandCompleted {
+        command_id: String,
+        status: String,
+        message: String,
+    },
     AutonomyLevelChanged {
         affected_domain: String,
         old_autonomy_level: String,
@@ -47,43 +93,125 @@ pub enum TelemetryEvent {
     },
 
     // Project & Task Management
-    ProjectCreated { project_id: String, project_name: String },
-    ProjectUpdated { project_id: String, project_name: String, new_status: Option<String> },
-    TaskCreated { task_id: String, task_title: String, project_id: String },
-    TaskUpdated { task_id: String, task_title: String, new_status: Option<String> },
-    TaskAssignedToSwarm { swarm_id: String, task_id: String },
+    ProjectCreated {
+        project_id: String,
+        project_name: String,
+    },
+    ProjectUpdated {
+        project_id: String,
+        project_name: String,
+        new_status: Option<String>,
+    },
+    TaskCreated {
+        task_id: String,
+        task_title: String,
+        project_id: String,
+    },
+    TaskUpdated {
+        task_id: String,
+        task_title: String,
+        new_status: Option<String>,
+    },
+    TaskAssignedToSwarm {
+        swarm_id: String,
+        task_id: String,
+    },
 
     // Replication & Deployment
-    ReplicationInitiated { request_id: String, target_name: String, deployment_target: String },
-    ReplicationStatusUpdated { request_id: String, new_status: String },
-    DeploymentCompleted { record_id: String, status: String },
+    ReplicationInitiated {
+        request_id: String,
+        target_name: String,
+        deployment_target: String,
+    },
+    ReplicationStatusUpdated {
+        request_id: String,
+        new_status: String,
+    },
+    DeploymentCompleted {
+        record_id: String,
+        status: String,
+    },
 
     // Multi-Agent & Swarm
-    NanoAgentRegistered { agent_id: String, agent_type: String },
-    AgentStatusUpdated { agent_id: String, new_status: String },
-    SwarmFormed { swarm_id: String, objective: String },
-    SwarmDisbanded { swarm_id: String },
-    AgentTaskAssigned { agent_id: String, task_id: String },
+    NanoAgentRegistered {
+        agent_id: String,
+        agent_type: String,
+    },
+    AgentStatusUpdated {
+        agent_id: String,
+        new_status: String,
+    },
+    SwarmFormed {
+        swarm_id: String,
+        objective: String,
+    },
+    SwarmDisbanded {
+        swarm_id: String,
+    },
+    AgentTaskAssigned {
+        agent_id: String,
+        task_id: String,
+    },
 
     // Network & Communication
-    OmegaNodeRegistered { node_id: String, node_type: String },
-    OmegaNodeStatusUpdated { node_id: String, new_status: String },
-    OmegaChannelCreated { channel_id: String, channel_type: String },
-    OmegaDataTransferred { channel_id: String, data_size_bytes: u64 },
-    MessageSent { sender: String, recipient: String, message_type: String },
-    MessageReceived { sender: String, recipient: String, message_type: String },
+    OmegaNodeRegistered {
+        node_id: String,
+        node_type: String,
+    },
+    OmegaNodeStatusUpdated {
+        node_id: String,
+        new_status: String,
+    },
+    OmegaChannelCreated {
+        channel_id: String,
+        channel_type: String,
+    },
+    OmegaDataTransferred {
+        channel_id: String,
+        data_size_bytes: u64,
+    },
+    MessageSent {
+        sender: String,
+        recipient: String,
+        message_type: String,
+    },
+    MessageReceived {
+        sender: String,
+        recipient: String,
+        message_type: String,
+    },
 
     // External Interactions
-    HttpRequest { method: String, path: String, status_code: u16, user_agent: Option<String> },
-    ExternalCall { service: String, operation: String, details: Option<String> },
-    ContentGenerated { content_type: String, topic: String },
+    HttpRequest {
+        method: String,
+        path: String,
+        status_code: u16,
+        user_agent: Option<String>,
+    },
+    ExternalCall {
+        service: String,
+        operation: String,
+        details: Option<String>,
+    },
+    ContentGenerated {
+        content_type: String,
+        topic: String,
+    },
 
     // Performance & Metrics
-    PerformanceMetricRecorded { metric_name: String, value: f64 },
-    PeriodicCheck { check_name: String },
+    PerformanceMetricRecorded {
+        metric_name: String,
+        value: f64,
+    },
+    PeriodicCheck {
+        check_name: String,
+    },
 
     // Custom events for future extensibility
-    Custom { name: String, payload: serde_json::Value },
+    Custom {
+        name: String,
+        payload: serde_json::Value,
+    },
 }
 
 /// A struct to represent a logged telemetry entry.
@@ -113,10 +241,7 @@ impl TelemetryLogger {
 
     /// Logs a telemetry event.
     pub async fn log_event(&self, event: TelemetryEvent) {
-        let entry = TelemetryLogEntry {
-            timestamp: Utc::now(),
-            event,
-        };
+        let entry = TelemetryLogEntry { timestamp: Utc::now(), event };
         if let Err(e) = self.sender.send(entry.clone()).await {
             eprintln!("TelemetryLogger: Failed to send event {:?}: {}", entry, e);
         }
@@ -127,7 +252,8 @@ impl TelemetryLogger {
         self.log_event(TelemetryEvent::AGIAction {
             action_type: format!("[{}] {}", source, message),
             details: None,
-        }).await;
+        })
+        .await;
     }
 
     /// Log a warning message
@@ -136,7 +262,8 @@ impl TelemetryLogger {
             component: source.to_string(),
             level: "warning".to_string(),
             message: message.to_string(),
-        }).await;
+        })
+        .await;
     }
 
     /// Log an error message
@@ -144,7 +271,8 @@ impl TelemetryLogger {
         self.log_event(TelemetryEvent::ErrorOccurred {
             message: format!("[{}] {}", source, message),
             details: None,
-        }).await;
+        })
+        .await;
     }
 
     async fn process_log_entry(&self, entry: TelemetryLogEntry) {
@@ -157,9 +285,10 @@ impl TelemetryLogger {
 
         // For now, just print it to stdout/stderr
         match &entry.event {
-            TelemetryEvent::ErrorOccurred { message, .. } | TelemetryEvent::SystemHealthWarning { message, .. } => {
+            TelemetryEvent::ErrorOccurred { message: _, .. }
+            | TelemetryEvent::SystemHealthWarning { message: _, .. } => {
                 eprintln!("[TELEMETRY ERROR] {}: {:?}", entry.timestamp, entry.event);
-            },
+            }
             _ => {
                 println!("[TELEMETRY INFO] {}: {:?}", entry.timestamp, entry.event);
             }
@@ -189,7 +318,8 @@ mod tests {
     async fn test_telemetry_logger_logs_multiple_events() {
         let telemetry_logger = TelemetryLogger::new(10);
 
-        let event1 = TelemetryEvent::ServiceInitialized { service_name: "TestService1".to_string() };
+        let event1 =
+            TelemetryEvent::ServiceInitialized { service_name: "TestService1".to_string() };
         let event2 = TelemetryEvent::AGIAction { action_type: "Test".to_string(), details: None };
 
         telemetry_logger.log_event(event1.clone()).await;
@@ -203,7 +333,7 @@ mod tests {
 
         let error_event = TelemetryEvent::ErrorOccurred {
             message: "Critical failure".to_string(),
-            details: Some("Details...".to_string())
+            details: Some("Details...".to_string()),
         };
         telemetry_logger.log_event(error_event.clone()).await;
         // Just verify it doesn't panic

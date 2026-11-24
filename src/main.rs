@@ -23,9 +23,9 @@
 //! println!("{}", status);
 //! ```
 
-use tariro_agi_core::{TariroAGI, VERSION, POCO_REAF, TUMC_NAME};
 use std::process;
-use tracing::{info, error, Level};
+use tariro_agi_core::{TariroAGI, POCO_REAF, TUMC_NAME, VERSION};
+use tracing::{error, info, Level};
 use tracing_subscriber::FmtSubscriber;
 
 /// Initialize logging with tracing
@@ -88,7 +88,7 @@ fn run_demonstration(agi: &mut TariroAGI) {
     info!("\n[1] Standard TUMC Compilation:");
     let result = agi.process_intent(
         "Create a secure microservice for real-time sensor processing",
-        "wasm32-unknown-unknown"
+        "wasm32-unknown-unknown",
     );
     info!("Result: {}", result);
 
@@ -142,7 +142,8 @@ fn run_demonstration(agi: &mut TariroAGI) {
 
 /// Display usage information
 fn print_usage() {
-    println!("
+    println!(
+        "
 Tariro AGI - Universal Meta-Compiler System
 ===========================================
 
@@ -156,7 +157,8 @@ OPTIONS:
     -t, --test          Run system tests
 
 For more information, visit: https://github.com/Benwellonedge28/Tariro
-");
+"
+    );
 }
 
 #[cfg(test)]

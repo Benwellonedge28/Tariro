@@ -3,10 +3,10 @@
 //! Enables the compiler to modify its own code and generate code that
 //! can modify itself at runtime.
 
-use crate::tumc_compiler::ir::{ Function, Instruction, Operation, IrType};
+use crate::tumc_compiler::ir::{Function, Instruction, IrType, Operation};
 
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap};
+use std::collections::HashMap;
 
 /// Self-modification capability
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -124,20 +124,16 @@ impl SelfModifyingGenerator {
             SelfModCodeTemplate {
                 template_name: "adaptive_loop".to_string(),
                 ir_representation: String::new(),
-                runtime_hooks: vec![
-                    RuntimeHook {
-                        hook_type: HookType::OnOptimization,
-                        code: "adjust_unroll_factor()".to_string(),
-                        trigger_condition: "branch_misprediction > threshold".to_string(),
-                    },
-                ],
-                adaptation_rules: vec![
-                    AdaptationRule {
-                        pattern: "loop_iterations < 10".to_string(),
-                        action: "fully_unroll".to_string(),
-                        confidence_threshold: 0.8,
-                    },
-                ],
+                runtime_hooks: vec![RuntimeHook {
+                    hook_type: HookType::OnOptimization,
+                    code: "adjust_unroll_factor()".to_string(),
+                    trigger_condition: "branch_misprediction > threshold".to_string(),
+                }],
+                adaptation_rules: vec![AdaptationRule {
+                    pattern: "loop_iterations < 10".to_string(),
+                    action: "fully_unroll".to_string(),
+                    confidence_threshold: 0.8,
+                }],
             },
         );
 
@@ -158,13 +154,11 @@ impl SelfModifyingGenerator {
                         trigger_condition: "branch_taken".to_string(),
                     },
                 ],
-                adaptation_rules: vec![
-                    AdaptationRule {
-                        pattern: "same_input_twice".to_string(),
-                        action: "cache_result".to_string(),
-                        confidence_threshold: 0.9,
-                    },
-                ],
+                adaptation_rules: vec![AdaptationRule {
+                    pattern: "same_input_twice".to_string(),
+                    action: "cache_result".to_string(),
+                    confidence_threshold: 0.9,
+                }],
             },
         );
 
@@ -173,20 +167,16 @@ impl SelfModifyingGenerator {
             SelfModCodeTemplate {
                 template_name: "hot_swappable_optimization".to_string(),
                 ir_representation: String::new(),
-                runtime_hooks: vec![
-                    RuntimeHook {
-                        hook_type: HookType::OnOptimization,
-                        code: "swap_implementation()".to_string(),
-                        trigger_condition: "performance_degradation".to_string(),
-                    },
-                ],
-                adaptation_rules: vec![
-                    AdaptationRule {
-                        pattern: "cache_miss_rate > 0.3".to_string(),
-                        action: "switch_to_cache_friendly".to_string(),
-                        confidence_threshold: 0.85,
-                    },
-                ],
+                runtime_hooks: vec![RuntimeHook {
+                    hook_type: HookType::OnOptimization,
+                    code: "swap_implementation()".to_string(),
+                    trigger_condition: "performance_degradation".to_string(),
+                }],
+                adaptation_rules: vec![AdaptationRule {
+                    pattern: "cache_miss_rate > 0.3".to_string(),
+                    action: "switch_to_cache_friendly".to_string(),
+                    confidence_threshold: 0.85,
+                }],
             },
         );
 
@@ -311,16 +301,13 @@ impl SelfModifyingGenerator {
         for rule in &template.adaptation_rules {
             code.push_str(&format!(
                 "    fn adapt_if_{}(&self, ctx: &Context) -> bool {{\n",
-                rule.pattern.replace(" ", "_").replace(">", "_gt_").replace("<", "_lt_")
-            ));
-            code.push_str(&format!(
-                "        // Pattern: {}\n",
                 rule.pattern
+                    .replace(" ", "_")
+                    .replace(">", "_gt_")
+                    .replace("<", "_lt_")
             ));
-            code.push_str(&format!(
-                "        // Action: {}\n",
-                rule.action
-            ));
+            code.push_str(&format!("        // Pattern: {}\n", rule.pattern));
+            code.push_str(&format!("        // Action: {}\n", rule.action));
             code.push_str(&format!(
                 "        ctx.confidence >= {} \n",
                 rule.confidence_threshold
@@ -358,7 +345,11 @@ impl SelfModifyingGenerator {
     }
 
     /// Create a strategy for self-modification
-    pub fn create_strategy(&mut self, capability: SelfModCapability, targets: Vec<String>) -> SelfModStrategy {
+    pub fn create_strategy(
+        &mut self,
+        capability: SelfModCapability,
+        targets: Vec<String>,
+    ) -> SelfModStrategy {
         let strategy = SelfModStrategy {
             capability: capability.clone(),
             target_functions: targets,
@@ -372,20 +363,16 @@ impl SelfModifyingGenerator {
 
     fn determine_injection_points(&self, capability: &SelfModCapability) -> Vec<InjectionPoint> {
         match capability {
-            SelfModCapability::RuntimeRewriting => vec![
-                InjectionPoint {
-                    function: String::new(),
-                    position: InjectionPosition::FunctionEntry,
-                    code_to_inject: "// Enable runtime rewriting".to_string(),
-                },
-            ],
-            SelfModCapability::AdaptiveCompilation => vec![
-                InjectionPoint {
-                    function: String::new(),
-                    position: InjectionPosition::LoopHeader,
-                    code_to_inject: "// Add adaptation counters".to_string(),
-                },
-            ],
+            SelfModCapability::RuntimeRewriting => vec![InjectionPoint {
+                function: String::new(),
+                position: InjectionPosition::FunctionEntry,
+                code_to_inject: "// Enable runtime rewriting".to_string(),
+            }],
+            SelfModCapability::AdaptiveCompilation => vec![InjectionPoint {
+                function: String::new(),
+                position: InjectionPosition::LoopHeader,
+                code_to_inject: "// Add adaptation counters".to_string(),
+            }],
             SelfModCapability::LearningCode => vec![
                 InjectionPoint {
                     function: String::new(),
@@ -398,50 +385,40 @@ impl SelfModifyingGenerator {
                     code_to_inject: "// Update learned patterns".to_string(),
                 },
             ],
-            SelfModCapability::HotSwappableOptimization => vec![
-                InjectionPoint {
-                    function: String::new(),
-                    position: InjectionPosition::AfterAllocation,
-                    code_to_inject: "// Setup optimization switching".to_string(),
-                },
-            ],
+            SelfModCapability::HotSwappableOptimization => vec![InjectionPoint {
+                function: String::new(),
+                position: InjectionPosition::AfterAllocation,
+                code_to_inject: "// Setup optimization switching".to_string(),
+            }],
         }
     }
 
     fn get_transformation_rules(&self, capability: &SelfModCapability) -> Vec<TransformRule> {
         match capability {
-            SelfModCapability::RuntimeRewriting => vec![
-                TransformRule {
-                    pattern: "constant_loop_bound".to_string(),
-                    replacement: "runtime_check + unroll".to_string(),
-                    condition: "bound_known_at_runtime".to_string(),
-                    priority: 10,
-                },
-            ],
-            SelfModCapability::AdaptiveCompilation => vec![
-                TransformRule {
-                    pattern: "fixed_algorithm".to_string(),
-                    replacement: "select_algorithm(input)".to_string(),
-                    condition: "multiple_algorithms_available".to_string(),
-                    priority: 8,
-                },
-            ],
-            SelfModCapability::LearningCode => vec![
-                TransformRule {
-                    pattern: "static_branch_prediction".to_string(),
-                    replacement: "learned_prediction".to_string(),
-                    condition: "execution_history_available".to_string(),
-                    priority: 7,
-                },
-            ],
-            SelfModCapability::HotSwappableOptimization => vec![
-                TransformRule {
-                    pattern: "single_implementation".to_string(),
-                    replacement: "implementation_a || implementation_b".to_string(),
-                    condition: "multiple_implementations".to_string(),
-                    priority: 6,
-                },
-            ],
+            SelfModCapability::RuntimeRewriting => vec![TransformRule {
+                pattern: "constant_loop_bound".to_string(),
+                replacement: "runtime_check + unroll".to_string(),
+                condition: "bound_known_at_runtime".to_string(),
+                priority: 10,
+            }],
+            SelfModCapability::AdaptiveCompilation => vec![TransformRule {
+                pattern: "fixed_algorithm".to_string(),
+                replacement: "select_algorithm(input)".to_string(),
+                condition: "multiple_algorithms_available".to_string(),
+                priority: 8,
+            }],
+            SelfModCapability::LearningCode => vec![TransformRule {
+                pattern: "static_branch_prediction".to_string(),
+                replacement: "learned_prediction".to_string(),
+                condition: "execution_history_available".to_string(),
+                priority: 7,
+            }],
+            SelfModCapability::HotSwappableOptimization => vec![TransformRule {
+                pattern: "single_implementation".to_string(),
+                replacement: "implementation_a || implementation_b".to_string(),
+                condition: "multiple_implementations".to_string(),
+                priority: 6,
+            }],
         }
     }
 

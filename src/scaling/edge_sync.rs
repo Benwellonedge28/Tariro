@@ -683,9 +683,7 @@ impl EdgeCloudSync {
             let to_remove: Vec<u64> = self
                 .local_knowledge
                 .iter()
-                .filter(|(_, f)| {
-                    f.subject == removal.subject && f.predicate == removal.predicate
-                })
+                .filter(|(_, f)| f.subject == removal.subject && f.predicate == removal.predicate)
                 .map(|(v, _)| *v)
                 .collect();
 
@@ -696,7 +694,8 @@ impl EdgeCloudSync {
 
         for modification in &delta.modifications {
             self.version += 1;
-            self.local_knowledge.insert(self.version, modification.modified.clone());
+            self.local_knowledge
+                .insert(self.version, modification.modified.clone());
         }
 
         Ok(conflicts)
@@ -740,8 +739,10 @@ impl EdgeCloudSync {
                     Ok(conflict.remote.clone())
                 }
             }
-            ConflictStrategy::Manual => Err(SyncError::ConflictRequiresManualResolution {
-                conflict_id: conflict.id})}
+            ConflictStrategy::Manual => {
+                Err(SyncError::ConflictRequiresManualResolution { conflict_id: conflict.id })
+            }
+        }
     }
 
     /// Aggregate local knowledge (for edge/cloud)
@@ -771,13 +772,20 @@ impl EdgeCloudSync {
     }
 
     /// Pull from endpoint
-    async fn pull_from(&mut self, _endpoint_id: NodeId) -> Result<Option<KnowledgeDelta>, SyncError> {
+    async fn pull_from(
+        &mut self,
+        _endpoint_id: NodeId,
+    ) -> Result<Option<KnowledgeDelta>, SyncError> {
         // Simplified - would use actual network call
         Ok(None)
     }
 
     /// Push to endpoint
-    async fn push_to(&mut self, _endpoint_id: NodeId, _delta: KnowledgeDelta) -> Result<(), SyncError> {
+    async fn push_to(
+        &mut self,
+        _endpoint_id: NodeId,
+        _delta: KnowledgeDelta,
+    ) -> Result<(), SyncError> {
         // Simplified - would use actual network call
         Ok(())
     }

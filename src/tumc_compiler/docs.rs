@@ -100,9 +100,7 @@ impl Default for HtmlTheme {
 impl HtmlRenderer {
     /// Create new HTML renderer
     pub fn new() -> Self {
-        Self {
-            theme: HtmlTheme::default(),
-        }
+        Self { theme: HtmlTheme::default() }
     }
 
     /// Set theme
@@ -145,7 +143,11 @@ impl DocRenderer for HtmlRenderer {
                 html.push_str(&format!(
                     r#"<li><code>@{}</code>{}</li>"#,
                     attr.name,
-                    if value.is_empty() { "".to_string() } else { format!(" = {}", value) }
+                    if value.is_empty() {
+                        "".to_string()
+                    } else {
+                        format!(" = {}", value)
+                    }
                 ));
             }
             html.push_str("</ul></div>");
@@ -177,7 +179,8 @@ impl DocRenderer for HtmlRenderer {
         let mut html = String::new();
 
         // Header
-        html.push_str(r#"<!DOCTYPE html>
+        html.push_str(
+            r#"<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -209,7 +212,8 @@ impl DocRenderer for HtmlRenderer {
 </head>
 <body>
     <h1>TUMC Program Documentation</h1>
-"#);
+"#,
+        );
 
         for item in items {
             html.push_str(&self.render_item(item));
@@ -230,9 +234,7 @@ pub struct MarkdownRenderer {
 impl MarkdownRenderer {
     /// Create new Markdown renderer
     pub fn new() -> Self {
-        Self {
-            include_toc: true,
-        }
+        Self { include_toc: true }
     }
 
     /// Set include TOC
@@ -334,9 +336,7 @@ pub struct LatexRenderer {
 impl LatexRenderer {
     /// Create new LaTeX renderer
     pub fn new() -> Self {
-        Self {
-            document_class: "article".to_string(),
-        }
+        Self { document_class: "article".to_string() }
     }
 }
 
@@ -378,7 +378,8 @@ impl DocRenderer for LatexRenderer {
             self.document_class
         ));
 
-        tex.push_str(r#"
+        tex.push_str(
+            r#"
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{hyperref}
@@ -392,7 +393,8 @@ impl DocRenderer for LatexRenderer {
 
 \maketitle
 
-"#);
+"#,
+        );
 
         for item in items {
             tex.push_str(&self.render_item(item));

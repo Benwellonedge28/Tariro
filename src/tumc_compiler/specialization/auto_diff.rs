@@ -1,9 +1,9 @@
-
 // Auto-Differentiation for Machine Learning and Scientific Computing
 
-use crate::tumc_compiler::ir::{
-    Module, Function, BasicBlock, Instruction, Operation, IrType, BinOp, UnaryOp, ValueId};
 use crate::tumc_compiler::derive_system::Const;
+use crate::tumc_compiler::ir::{
+    BasicBlock, BinOp, Function, Instruction, IrType, Operation, UnaryOp, ValueId,
+};
 use std::collections::HashMap;
 
 /// Differentiation mode
@@ -57,11 +57,7 @@ pub struct AutoDifferentiator {
 
 impl AutoDifferentiator {
     pub fn new(mode: DiffMode) -> Self {
-        Self {
-            mode,
-            tape: Vec::new(),
-            gradient_variables: HashMap::new(),
-        }
+        Self { mode, tape: Vec::new(), gradient_variables: HashMap::new() }
     }
 
     /// Differentiate a function
@@ -130,7 +126,10 @@ impl AutoDifferentiator {
                         results.push(Instruction {
                             op: Operation::Binary(BinOp::Add, lhs_dot, rhs_dot),
                             result_type: inst.result_type.clone(),
-                            result_name: Some(format!("{}_dot", inst.result_name.clone().unwrap_or_default())),
+                            result_name: Some(format!(
+                                "{}_dot",
+                                inst.result_name.clone().unwrap_or_default()
+                            )),
                             ..Default::default()
                         });
                     }
@@ -139,14 +138,19 @@ impl AutoDifferentiator {
                         results.push(Instruction {
                             op: Operation::Binary(BinOp::Sub, lhs_dot, rhs_dot),
                             result_type: inst.result_type.clone(),
-                            result_name: Some(format!("{}_dot", inst.result_name.clone().unwrap_or_default())),
+                            result_name: Some(format!(
+                                "{}_dot",
+                                inst.result_name.clone().unwrap_or_default()
+                            )),
                             ..Default::default()
                         });
                     }
                     BinOp::Mul => {
                         // d(x * y)/dt = x * dy/dt + y * dx/dt
-                        let temp1_name = format!("{}_temp1", inst.result_name.clone().unwrap_or_default());
-                        let temp2_name = format!("{}_temp2", inst.result_name.clone().unwrap_or_default());
+                        let temp1_name =
+                            format!("{}_temp1", inst.result_name.clone().unwrap_or_default());
+                        let temp2_name =
+                            format!("{}_temp2", inst.result_name.clone().unwrap_or_default());
                         let temp1 = scope.id_of(&temp1_name);
                         let temp2 = scope.id_of(&temp2_name);
 
@@ -165,15 +169,21 @@ impl AutoDifferentiator {
                         results.push(Instruction {
                             op: Operation::Binary(BinOp::Add, temp1, temp2),
                             result_type: inst.result_type.clone(),
-                            result_name: Some(format!("{}_dot", inst.result_name.clone().unwrap_or_default())),
+                            result_name: Some(format!(
+                                "{}_dot",
+                                inst.result_name.clone().unwrap_or_default()
+                            )),
                             ..Default::default()
                         });
                     }
                     BinOp::Div => {
                         // d(x / y)/dt = (y * dx/dt - x * dy/dt) / y^2
-                        let temp1_name = format!("{}_temp1", inst.result_name.clone().unwrap_or_default());
-                        let temp2_name = format!("{}_temp2", inst.result_name.clone().unwrap_or_default());
-                        let temp3_name = format!("{}_temp3", inst.result_name.clone().unwrap_or_default());
+                        let temp1_name =
+                            format!("{}_temp1", inst.result_name.clone().unwrap_or_default());
+                        let temp2_name =
+                            format!("{}_temp2", inst.result_name.clone().unwrap_or_default());
+                        let temp3_name =
+                            format!("{}_temp3", inst.result_name.clone().unwrap_or_default());
                         let temp1 = scope.id_of(&temp1_name);
                         let temp2 = scope.id_of(&temp2_name);
                         let temp3 = scope.id_of(&temp3_name);
@@ -205,7 +215,10 @@ impl AutoDifferentiator {
                         results.push(Instruction {
                             op: Operation::Binary(BinOp::Div, temp3, temp1),
                             result_type: inst.result_type.clone(),
-                            result_name: Some(format!("{}_dot", inst.result_name.clone().unwrap_or_default())),
+                            result_name: Some(format!(
+                                "{}_dot",
+                                inst.result_name.clone().unwrap_or_default()
+                            )),
                             ..Default::default()
                         });
                     }
@@ -221,7 +234,10 @@ impl AutoDifferentiator {
                         results.push(Instruction {
                             op: Operation::Unary(UnaryOp::Neg, operand_dot),
                             result_type: inst.result_type.clone(),
-                            result_name: Some(format!("{}_dot", inst.result_name.clone().unwrap_or_default())),
+                            result_name: Some(format!(
+                                "{}_dot",
+                                inst.result_name.clone().unwrap_or_default()
+                            )),
                             ..Default::default()
                         });
                     }
@@ -261,22 +277,18 @@ impl AutoDifferentiator {
         for block in &function.body {
             for inst in &block.instructions {
                 let entry = match &inst.op {
-                    Operation::Binary(op, lhs, rhs) => {
-                        TapeEntry {
-                            operation: format!("{:?}", op),
-                            inputs: vec![lhs.to_string(), rhs.to_string()],
-                            output: inst.result_name.clone().unwrap_or_default(),
-                            adjoint_input: None,
-                        }
-                    }
-                    Operation::Unary(op, operand) => {
-                        TapeEntry {
-                            operation: format!("{:?}", op),
-                            inputs: vec![operand.to_string()],
-                            output: inst.result_name.clone().unwrap_or_default(),
-                            adjoint_input: None,
-                        }
-                    }
+                    Operation::Binary(op, lhs, rhs) => TapeEntry {
+                        operation: format!("{:?}", op),
+                        inputs: vec![lhs.to_string(), rhs.to_string()],
+                        output: inst.result_name.clone().unwrap_or_default(),
+                        adjoint_input: None,
+                    },
+                    Operation::Unary(op, operand) => TapeEntry {
+                        operation: format!("{:?}", op),
+                        inputs: vec![operand.to_string()],
+                        output: inst.result_name.clone().unwrap_or_default(),
+                        adjoint_input: None,
+                    },
                     _ => continue,
                 };
                 tape.push(entry);
@@ -446,11 +458,7 @@ pub struct CheckpointedTape {
 
 impl CheckpointedTape {
     pub fn new(max_size: usize) -> Self {
-        Self {
-            entries: Vec::new(),
-            checkpoints: Vec::new(),
-            max_size,
-        }
+        Self { entries: Vec::new(), checkpoints: Vec::new(), max_size }
     }
 
     /// Record an operation
@@ -501,10 +509,7 @@ pub struct DiffModeSelector {
 
 impl DiffModeSelector {
     pub fn new(input_size: usize, output_size: usize) -> Self {
-        Self {
-            input_size,
-            output_size,
-        }
+        Self { input_size, output_size }
     }
 
     /// Select optimal differentiation mode

@@ -1,13 +1,10 @@
+use std::sync::atomic::{AtomicUsize, Ordering};
 /// Module for an Adaptive RAG/SIMD Optimization Engine in Rust.
 ///
 /// This module conceptually outlines an engine that monitors the performance
 /// of RAG and SIMD components and adaptively adjusts their configurations
 /// to optimize for specific metrics (e.g., speed, accuracy, resource usage).
-
-
-
 use std::sync::Arc;
-use std::sync::atomic::{AtomicUsize, Ordering};
 
 /// Represents current operational metrics collected from RAG/SIMD components.
 #[derive(Debug, Clone)]
@@ -54,8 +51,8 @@ impl Default for AdaptiveSettings {
 /// The Adaptive Optimization Engine.
 pub struct OptimizationEngine {
     current_settings: Arc<AtomicUsize>, // Using AtomicUsize to simulate mutable shared state
-    // In a real system, this would hold actual AdaptiveSettings, updated via ArcSwap or similar
-    // For conceptual purposes, we'll manage it indirectly.
+                                        // In a real system, this would hold actual AdaptiveSettings, updated via ArcSwap or similar
+                                        // For conceptual purposes, we'll manage it indirectly.
 }
 
 impl OptimizationEngine {
@@ -72,7 +69,11 @@ impl OptimizationEngine {
     /// In a real system, this would poll a metrics system.
     pub fn monitor_performance(&self) -> OperationalMetrics {
         // Simulate fluctuating performance
-        let current_time_factor = (std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs() % 10) as f64;
+        let current_time_factor = (std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs()
+            % 10) as f64;
         OperationalMetrics {
             rag_latency_ms: 80.0 + current_time_factor * 2.0,
             rag_accuracy: 0.80 - current_time_factor * 0.01,
@@ -98,7 +99,8 @@ impl OptimizationEngine {
             new_settings.simd_vector_size_hint = 2; // Try smaller vector
         }
         // For demonstration, we'll update current_settings with the new top_k or a derived value.
-        self.current_settings.store(new_settings.rag_top_k_retrieval, Ordering::Relaxed);
+        self.current_settings
+            .store(new_settings.rag_top_k_retrieval, Ordering::Relaxed);
         new_settings
     }
 
@@ -125,7 +127,11 @@ mod tests {
     fn test_adapt_settings_degradation() {
         let engine = OptimizationEngine::new(AdaptiveSettings::default());
         // Simulate degraded metrics
-        let metrics = OperationalMetrics { rag_latency_ms: 110.0, rag_accuracy: 0.70, ..Default::default() };
+        let metrics = OperationalMetrics {
+            rag_latency_ms: 110.0,
+            rag_accuracy: 0.70,
+            ..Default::default()
+        };
         let new_settings = engine.adapt_settings(&metrics);
         assert_eq!(new_settings.rag_top_k_retrieval, 12); // Default 10 + 2
     }
@@ -134,7 +140,11 @@ mod tests {
     fn test_adapt_settings_simd_bottleneck() {
         let engine = OptimizationEngine::new(AdaptiveSettings::default());
         // Simulate SIMD bottleneck
-        let metrics = OperationalMetrics { simd_throughput_ops_sec: 5000.0, cpu_utilization_pct: 85.0, ..Default::default() };
+        let metrics = OperationalMetrics {
+            simd_throughput_ops_sec: 5000.0,
+            cpu_utilization_pct: 85.0,
+            ..Default::default()
+        };
         let new_settings = engine.adapt_settings(&metrics);
         assert_eq!(new_settings.enable_simd, false);
         assert_eq!(new_settings.simd_vector_size_hint, 2);
@@ -144,7 +154,10 @@ mod tests {
 fn main() {
     let initial_settings = AdaptiveSettings::default();
     let engine = OptimizationEngine::new(initial_settings.clone());
-    println!("Adaptive Optimization Engine initialized with: {:?}", initial_settings);
+    println!(
+        "Adaptive Optimization Engine initialized with: {:?}",
+        initial_settings
+    );
 
     // Simulate multiple monitoring and adaptation cycles
     for i in 1..=5 {

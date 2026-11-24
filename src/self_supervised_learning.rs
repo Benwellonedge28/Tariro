@@ -1,9 +1,8 @@
 // Tariro AGI - Self-Supervised Learning Module
 // Learning representations without explicit labels
 
-use std::collections::{HashMap};
 use chrono::{DateTime, Utc};
-
+use std::collections::HashMap;
 
 // ============================================================================
 // Self-Supervised Learning Types
@@ -303,12 +302,7 @@ impl ContrastiveLearner {
     }
 
     /// Compute NT-Xent loss (normalized temperature-scaled cross entropy)
-    pub fn compute_ntxent_loss(
-        &self,
-        z_i: &[f32],
-        z_j: &[f32],
-        temperature: f32,
-    ) -> f32 {
+    pub fn compute_ntxent_loss(&self, z_i: &[f32], z_j: &[f32], temperature: f32) -> f32 {
         let batch_size = z_i.len();
         if batch_size == 0 {
             return 0.0;
@@ -325,46 +319,59 @@ impl ContrastiveLearner {
         let sim_matrix = self.cosine_similarity_matrix(&z, &z);
 
         // Mask out self-similarity
-        let logits: Vec<Vec<f32>> = sim_matrix.into_iter().map(|row| {
-            row.into_iter().map(|v| v / temperature).collect()
-        }).collect();
+        let logits: Vec<Vec<f32>> = sim_matrix
+            .into_iter()
+            .map(|row| row.into_iter().map(|v| v / temperature).collect())
+            .collect();
 
         // Create positive mask
         let positives = self.create_positive_mask(batch_size);
 
         // Compute loss
         let exp_logits = self.exp_normalize(&logits);
-        let _positive_loss = (logits.iter().flatten().zip(positives.iter().flatten()).map(|(l, p)| l * p).sum::<f32>()) / (batch_size as f32 * 2.0);
+        let _positive_loss = (logits
+            .iter()
+            .flatten()
+            .zip(positives.iter().flatten())
+            .map(|(l, p)| l * p)
+            .sum::<f32>())
+            / (batch_size as f32 * 2.0);
 
         // Numerical stability
         let max_log = logits.iter().flatten().fold(f32::MIN, |a, &b| a.max(b));
         let stable_exp: Vec<Vec<f32>> = exp_logits
             .iter()
-            .map(|row| row.iter().map(|x| (x - max_log).exp()).collect::<Vec<f32>>())
+            .map(|row| {
+                row.iter()
+                    .map(|x| (x - max_log).exp())
+                    .collect::<Vec<f32>>()
+            })
             .collect();
-        let sum_exp: Vec<f32> = stable_exp.iter().map(|row| row.iter().sum::<f32>()).collect();
+        let sum_exp: Vec<f32> = stable_exp
+            .iter()
+            .map(|row| row.iter().sum::<f32>())
+            .collect();
 
         // Cross entropy
-        let loss = positives.iter().enumerate()
+        let loss = positives
+            .iter()
+            .enumerate()
             .map(|(i, pos_row)| {
-                pos_row.iter().enumerate()
+                pos_row
+                    .iter()
+                    .enumerate()
                     .filter(|(_, &p)| p > 0.0)
-                    .map(|(j, _)| {
-                        (logits[i][j] - sum_exp[i].ln()).abs()
-                    })
+                    .map(|(j, _)| (logits[i][j] - sum_exp[i].ln()).abs())
                     .sum::<f32>()
             })
-            .sum::<f32>() / (batch_size as f32 * 2.0);
+            .sum::<f32>()
+            / (batch_size as f32 * 2.0);
 
         loss
     }
 
     /// Compute BYOL loss
-    pub fn compute_byol_loss(
-        &self,
-        p_student: &[f32],
-        z_teacher: &[f32],
-    ) -> f32 {
+    pub fn compute_byol_loss(&self, p_student: &[f32], z_teacher: &[f32]) -> f32 {
         let p_norm = self.normalize(p_student);
         let z_norm = self.normalize(z_teacher);
 
@@ -373,12 +380,7 @@ impl ContrastiveLearner {
     }
 
     /// Compute Barlow Twins loss
-    pub fn compute_barlow_twins_loss(
-        &self,
-        z_a: &[f32],
-        z_b: &[f32],
-        lambda: f32,
-    ) -> (f32, f32) {
+    pub fn compute_barlow_twins_loss(&self, z_a: &[f32], z_b: &[f32], lambda: f32) -> (f32, f32) {
         let z_a_norm = self.normalize(z_a);
         let z_b_norm = self.normalize(z_b);
 
@@ -389,7 +391,8 @@ impl ContrastiveLearner {
         // Diagonal loss (invariance)
         let diag_loss: f32 = (0..batch_size)
             .map(|i| (c_matrix[i][i] - 1.0).powi(2))
-            .sum::<f32>() / batch_size as f32;
+            .sum::<f32>()
+            / batch_size as f32;
 
         // Off-diagonal loss (redundancy reduction)
         let off_diag_loss: f32 = (0..batch_size)
@@ -399,7 +402,8 @@ impl ContrastiveLearner {
                     .filter(move |&j| i != j)
                     .map(move |j| row[j].powi(2))
             })
-            .sum::<f32>() / (batch_size * (batch_size - 1)) as f32;
+            .sum::<f32>()
+            / (batch_size * (batch_size - 1)) as f32;
 
         let total_loss = diag_loss + lambda * off_diag_loss;
 
@@ -437,7 +441,7 @@ impl ContrastiveLearner {
 
     /// Compute cosine similarity matrix
     fn cosine_similarity_matrix(&self, a: &[f32], b: &[f32]) -> Vec<Vec<f32>> {
-        let n = a.len() / 2;  // Batch size
+        let n = a.len() / 2; // Batch size
         let mut matrix = vec![vec![0.0; 2 * n]; 2 * n];
 
         for i in 0..(2 * n) {
@@ -474,7 +478,8 @@ impl ContrastiveLearner {
 
     /// Exponential normalization for numerical stability
     fn exp_normalize(&self, logits: &[Vec<f32>]) -> Vec<Vec<f32>> {
-        logits.iter()
+        logits
+            .iter()
             .map(|row| {
                 let max_val = row.iter().fold(f32::MIN, |a, &b| a.max(b));
                 row.iter().map(|x| (x - max_val).exp()).collect()
@@ -600,7 +605,11 @@ impl MaskedAutoencoder {
         // Random mask positions using simple shuffle
         let mut positions: Vec<usize> = (0..seq_len).collect();
         for i in (0..seq_len).rev() {
-            let j = if i > 0 { rand::random::<usize>() % (i + 1) } else { 0 };
+            let j = if i > 0 {
+                rand::random::<usize>() % (i + 1)
+            } else {
+                0
+            };
             positions.swap(i, j);
         }
         let masked_positions: Vec<usize> = positions.into_iter().take(mask_len).collect();
@@ -614,7 +623,8 @@ impl MaskedAutoencoder {
 
     /// Apply mask to input
     pub fn apply_mask(&self, input: &[f32], mask: &[bool]) -> Vec<f32> {
-        input.iter()
+        input
+            .iter()
             .zip(mask.iter())
             .map(|(x, &m)| if m { 0.0 } else { *x })
             .collect()
@@ -627,32 +637,41 @@ impl MaskedAutoencoder {
         reconstructed: &[f32],
         mask: &[bool],
     ) -> f32 {
-        let masked_original: Vec<f32> = original.iter().zip(mask.iter())
+        let masked_original: Vec<f32> = original
+            .iter()
+            .zip(mask.iter())
             .filter(|(_, &m)| m)
             .map(|(x, _)| *x)
             .collect();
 
-        let masked_reconstructed: Vec<f32> = reconstructed.iter().zip(mask.iter())
+        let masked_reconstructed: Vec<f32> = reconstructed
+            .iter()
+            .zip(mask.iter())
             .filter(|(_, &m)| m)
             .map(|(x, _)| *x)
             .collect();
 
         match self.reconstruction_loss {
             ReconstructionLoss::MSE => {
-                masked_original.iter()
+                masked_original
+                    .iter()
                     .zip(masked_reconstructed.iter())
                     .map(|(o, r)| (o - r).powi(2))
-                    .sum::<f32>() / masked_original.len().max(1) as f32
+                    .sum::<f32>()
+                    / masked_original.len().max(1) as f32
             }
             ReconstructionLoss::L1 => {
-                masked_original.iter()
+                masked_original
+                    .iter()
                     .zip(masked_reconstructed.iter())
                     .map(|(o, r)| (o - r).abs())
-                    .sum::<f32>() / masked_original.len().max(1) as f32
+                    .sum::<f32>()
+                    / masked_original.len().max(1) as f32
             }
             ReconstructionLoss::SmoothL1 => {
                 let beta = 1.0;
-                masked_original.iter()
+                masked_original
+                    .iter()
                     .zip(masked_reconstructed.iter())
                     .map(|(o, r)| {
                         let diff = (o - r).abs();
@@ -662,11 +681,13 @@ impl MaskedAutoencoder {
                             diff - beta / 2.0
                         }
                     })
-                    .sum::<f32>() / masked_original.len().max(1) as f32
+                    .sum::<f32>()
+                    / masked_original.len().max(1) as f32
             }
             ReconstructionLoss::Huber => {
                 let delta = 1.0;
-                masked_original.iter()
+                masked_original
+                    .iter()
                     .zip(masked_reconstructed.iter())
                     .map(|(o, r)| {
                         let diff = o - r;
@@ -676,28 +697,33 @@ impl MaskedAutoencoder {
                             delta * (diff.abs() - 0.5 * delta)
                         }
                     })
-                    .sum::<f32>() / masked_original.len().max(1) as f32
+                    .sum::<f32>()
+                    / masked_original.len().max(1) as f32
             }
             ReconstructionLoss::Bernoulli => {
                 // Binary cross entropy
                 let eps = 1e-8;
-                masked_original.iter()
+                masked_original
+                    .iter()
                     .zip(masked_reconstructed.iter())
                     .map(|(o, r)| {
                         let r_clamped = r.clamp(eps, 1.0 - eps);
                         -(o * r_clamped.ln() + (1.0 - o) * (1.0 - r_clamped).ln())
                     })
-                    .sum::<f32>() / masked_original.len().max(1) as f32
+                    .sum::<f32>()
+                    / masked_original.len().max(1) as f32
             }
             ReconstructionLoss::Gaussian => {
                 // Negative log likelihood of Gaussian
-                masked_original.iter()
+                masked_original
+                    .iter()
                     .zip(masked_reconstructed.iter())
                     .map(|(o, r)| {
                         let diff = o - r;
                         0.5 * diff.powi(2)
                     })
-                    .sum::<f32>() / masked_original.len().max(1) as f32
+                    .sum::<f32>()
+                    / masked_original.len().max(1) as f32
             }
         }
     }
@@ -705,7 +731,10 @@ impl MaskedAutoencoder {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("ssl_{}", now % 1_000_000)
 }
 

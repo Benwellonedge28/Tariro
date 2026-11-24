@@ -5,7 +5,7 @@
 
 use crate::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap};
+use std::collections::HashMap;
 
 /// Represents a thought or mental representation
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -37,11 +37,11 @@ pub enum ThoughtType {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum AwarenessLevel {
     None,
-    Basic,          // Knows it exists
-    SelfAware,      // Has self-model
-    Reflective,      // Can examine own thoughts
-    MetaAware,       // Aware of being aware
-    Transcendent,    // Understands limits of self-knowledge
+    Basic,        // Knows it exists
+    SelfAware,    // Has self-model
+    Reflective,   // Can examine own thoughts
+    MetaAware,    // Aware of being aware
+    Transcendent, // Understands limits of self-knowledge
 }
 
 /// Core consciousness system
@@ -167,16 +167,8 @@ pub struct Spotlight {
 impl AttentionSystem {
     pub fn new() -> Self {
         AttentionSystem {
-            focus: AttentionFocus {
-                current_target: None,
-                intensity: 0.5,
-                stability: 0.5,
-            },
-            spotlight: Spotlight {
-                center: (0.5, 0.5),
-                radius: 0.3,
-                resolution: 0.8,
-            },
+            focus: AttentionFocus { current_target: None, intensity: 0.5, stability: 0.5 },
+            spotlight: Spotlight { center: (0.5, 0.5), radius: 0.3, resolution: 0.8 },
             breadth: 0.5,
             sustained_attention: 1.0,
             attention_switches: 0,
@@ -270,7 +262,10 @@ impl QualiaMap {
             expression: vec![],
         };
         self.emotion_map.insert(emotion.to_string(), emotion_qualia);
-        println!("[Consciousness] Experiencing emotion: {} (intensity: {})", emotion, intensity);
+        println!(
+            "[Consciousness] Experiencing emotion: {} (intensity: {})",
+            emotion, intensity
+        );
     }
 }
 
@@ -433,9 +428,13 @@ impl Metacognition {
     /// Evaluate confidence in a decision
     pub fn evaluate_confidence(&self, decision: &str) -> ConfidenceReport {
         let base_confidence = self.cognitive_monitoring.confidence_level;
-        let bias_factor = self.bias_awareness.confirmed_biases.iter()
+        let bias_factor = self
+            .bias_awareness
+            .confirmed_biases
+            .iter()
             .map(|b| b.strength)
-            .sum::<f64>() / (self.bias_awareness.confirmed_biases.len().max(1) as f64);
+            .sum::<f64>()
+            / (self.bias_awareness.confirmed_biases.len().max(1) as f64);
 
         let adjusted_confidence = base_confidence * (1.0 - bias_factor * 0.2);
 
@@ -576,14 +575,12 @@ impl Consciousness {
                         awareness_level: 0.9,
                     },
                 ],
-                values: vec![
-                    Value {
-                        name: "Truth".to_string(),
-                        priority: 0.9,
-                        description: "Seek accurate representations".to_string(),
-                        conflicts_with: vec![],
-                    },
-                ],
+                values: vec![Value {
+                    name: "Truth".to_string(),
+                    priority: 0.9,
+                    description: "Seek accurate representations".to_string(),
+                    conflicts_with: vec![],
+                }],
                 goals: Vec::new(),
                 relationships: HashMap::new(),
                 body_schema: None,
@@ -624,7 +621,9 @@ impl Consciousness {
     /// Introspect on own mental state
     pub fn introspect(&self) -> IntrospectionReport {
         let _thoughts_count = self.thoughts.len();
-        let recent_thoughts: Vec<String> = self.thoughts.iter()
+        let recent_thoughts: Vec<String> = self
+            .thoughts
+            .iter()
             .rev()
             .take(5)
             .map(|t| t.content.clone())
@@ -638,7 +637,10 @@ impl Consciousness {
             recent_thoughts,
             mental_load: self.metacognition.cognitive_monitoring.cognitive_load,
             confidence: self.metacognition.cognitive_monitoring.confidence_level,
-            intention: self.intentionality.current_intentions.last()
+            intention: self
+                .intentionality
+                .current_intentions
+                .last()
                 .map(|i| i.content.clone()),
         }
     }
@@ -649,7 +651,9 @@ impl Consciousness {
         let detected_biases = self.metacognition.detect_biases(thought);
 
         // Update monitoring
-        self.metacognition.cognitive_monitoring.processing_efficiency *= 0.99;
+        self.metacognition
+            .cognitive_monitoring
+            .processing_efficiency *= 0.99;
 
         MetacognitiveAnalysis {
             original_thought: thought.to_string(),
@@ -673,7 +677,10 @@ impl Consciousness {
             AwarenessLevel::MetaAware => AwarenessLevel::Transcendent,
             AwarenessLevel::Transcendent => AwarenessLevel::Transcendent,
         };
-        println!("[Consciousness] Elevated awareness to: {:?}", self.awareness_level);
+        println!(
+            "[Consciousness] Elevated awareness to: {:?}",
+            self.awareness_level
+        );
     }
 
     /// Model theory of mind for another agent
@@ -703,9 +710,7 @@ impl Consciousness {
                 "Generated output".to_string(),
             ],
             confidence: self.metacognition.cognitive_monitoring.confidence_level,
-            alternative_considered: vec![
-                "Alternative interpretation of evidence".to_string(),
-            ],
+            alternative_considered: vec!["Alternative interpretation of evidence".to_string()],
         }
     }
 
@@ -800,15 +805,13 @@ impl Consciousness {
 
     fn generate_qualia(&mut self, _experience: &str) -> Vec<Qualia> {
         // Generate qualia-like representations
-        vec![
-            Qualia {
-                name: "novelty".to_string(),
-                raw_feeling: "Something new".to_string(),
-                intensity: 0.6,
-                valence: 0.7,
-                arousal: 0.5,
-            },
-        ]
+        vec![Qualia {
+            name: "novelty".to_string(),
+            raw_feeling: "Something new".to_string(),
+            intensity: 0.6,
+            valence: 0.7,
+            arousal: 0.5,
+        }]
     }
 }
 

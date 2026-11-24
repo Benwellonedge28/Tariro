@@ -65,28 +65,19 @@ impl SourceSpan {
 
     /// Create a zero-length span at the given location.
     pub fn at(loc: SourceLocation) -> Self {
-        Self {
-            start: loc,
-            end: loc,
-        }
+        Self { start: loc, end: loc }
     }
 
     /// Merge two spans into the smallest span covering both.
     pub fn merge(&self, other: &SourceSpan) -> SourceSpan {
-        SourceSpan {
-            start: self.start,
-            end: other.end,
-        }
+        SourceSpan { start: self.start, end: other.end }
     }
 }
 
 impl Program {
     /// Create a new program
     pub fn new(items: Vec<Item>) -> Self {
-        Self {
-            items,
-            spans: HashMap::new(),
-        }
+        Self { items, spans: HashMap::new() }
     }
 
     /// Count total nodes in AST
@@ -521,26 +512,17 @@ impl Stmt {
 
     /// Create a statement at the default (unknown) location
     pub fn new_at(kind: StmtKind) -> Self {
-        Self {
-            kind,
-            span: Span::default(),
-        }
+        Self { kind, span: Span::default() }
     }
 
     /// Create an expression statement
     pub fn new_expr(expr: Expr) -> Self {
-        Self {
-            kind: StmtKind::Expr(expr),
-            span: Span::default(),
-        }
+        Self { kind: StmtKind::Expr(expr), span: Span::default() }
     }
 
     /// Create a return statement
     pub fn new_return(value: Option<Expr>) -> Self {
-        Self {
-            kind: StmtKind::Return(value),
-            span: Span::default(),
-        }
+        Self { kind: StmtKind::Return(value), span: Span::default() }
     }
 
     /// Count nodes
@@ -783,11 +765,7 @@ impl Default for ExprKind {
 impl Expr {
     /// Create a new expression
     pub fn new(kind: ExprKind, span: Span) -> Self {
-        Self {
-            kind,
-            span,
-            annotations: Vec::new(),
-        }
+        Self { kind, span, annotations: Vec::new() }
     }
 
     /// Create a new expression at the default location
@@ -821,24 +799,14 @@ impl Expr {
     /// Create a binary expression
     pub fn new_binary(op: BinOp, lhs: Expr, rhs: Expr, span: Span) -> Self {
         Self::new(
-            ExprKind::Binary {
-                op,
-                lhs: Box::new(lhs),
-                rhs: Box::new(rhs),
-            },
+            ExprKind::Binary { op, lhs: Box::new(lhs), rhs: Box::new(rhs) },
             span,
         )
     }
 
     /// Create a unary expression
     pub fn new_unary(op: UnOp, operand: Expr, span: Span) -> Self {
-        Self::new(
-            ExprKind::Unary {
-                op,
-                operand: Box::new(operand),
-            },
-            span,
-        )
+        Self::new(ExprKind::Unary { op, operand: Box::new(operand) }, span)
     }
 
     /// Create a method call expression
@@ -856,10 +824,7 @@ impl Expr {
     /// Create a call expression
     pub fn new_call(function: Expr, arguments: Vec<Expr>, span: Span) -> Self {
         Self::new(
-            ExprKind::Call {
-                function: Box::new(function),
-                arguments,
-            },
+            ExprKind::Call { function: Box::new(function), arguments },
             span,
         )
     }
@@ -908,30 +873,16 @@ pub enum ExprKind {
     Path(Vec<String>),
 
     /// Binary operation
-    Binary {
-        op: BinOp,
-        lhs: Box<Expr>,
-        rhs: Box<Expr>,
-    },
+    Binary { op: BinOp, lhs: Box<Expr>, rhs: Box<Expr> },
 
     /// Unary operation
-    Unary {
-        op: UnOp,
-        operand: Box<Expr>,
-    },
+    Unary { op: UnOp, operand: Box<Expr> },
 
     /// Function call
-    Call {
-        function: Box<Expr>,
-        arguments: Vec<Expr>,
-    },
+    Call { function: Box<Expr>, arguments: Vec<Expr> },
 
     /// Method call
-    MethodCall {
-        object: Box<Expr>,
-        method: String,
-        arguments: Vec<Expr>,
-    },
+    MethodCall { object: Box<Expr>, method: String, arguments: Vec<Expr> },
 
     /// If expression
     If {
@@ -941,10 +892,7 @@ pub enum ExprKind {
     },
 
     /// Match expression
-    Match {
-        discriminant: Box<Expr>,
-        arms: Vec<MatchArm>,
-    },
+    Match { discriminant: Box<Expr>, arms: Vec<MatchArm> },
 
     /// Block expression
     Block(Vec<Stmt>),
@@ -983,35 +931,22 @@ pub enum ExprKind {
     Parenthesis(Box<Expr>),
 
     /// Assignment expression (`target = value`)
-    Assign {
-        target: Box<Expr>,
-        value: Box<Expr>,
-    },
+    Assign { target: Box<Expr>, value: Box<Expr> },
 
     /// Compound assignment expression (`target op= value`)
-    CompoundAssign {
-        target: Box<Expr>,
-        op: BinOp,
-        value: Box<Expr>,
-    },
+    CompoundAssign { target: Box<Expr>, op: BinOp, value: Box<Expr> },
 
     /// Loop expression
     Loop(Vec<Stmt>),
 
     /// While loop expression
-    While {
-        condition: Box<Expr>,
-        body: Vec<Stmt>,
-    },
+    While { condition: Box<Expr>, body: Vec<Stmt> },
 
     /// Return expression
     Return(Option<Box<Expr>>),
 
     /// Break expression
-    Break {
-        label: Option<String>,
-        value: Option<Box<Expr>>,
-    },
+    Break { label: Option<String>, value: Option<Box<Expr>> },
 
     /// Continue expression
     Continue { label: Option<String> },
@@ -1020,22 +955,13 @@ pub enum ExprKind {
     Async { body: Box<Expr> },
 
     /// Struct literal
-    Struct {
-        name: String,
-        fields: Vec<(String, Expr)>,
-    },
+    Struct { name: String, fields: Vec<(String, Expr)> },
 
     /// Tuple field access (`tuple.0`)
-    TupleField {
-        object: Box<Expr>,
-        index: usize,
-    },
+    TupleField { object: Box<Expr>, index: usize },
 
     /// Reference expression (`&expr` / `&mut expr`)
-    Ref {
-        mutable: bool,
-        expr: Box<Expr>,
-    },
+    Ref { mutable: bool, expr: Box<Expr> },
 }
 
 impl ExprKind {
@@ -1047,18 +973,12 @@ impl ExprKind {
             ExprKind::Binary { lhs, rhs, .. } => 1 + lhs.node_count() + rhs.node_count(),
             ExprKind::Unary { operand, .. } => 1 + operand.node_count(),
             ExprKind::Call { function, arguments } => {
-                1 + function.node_count()
-                    + arguments.iter().map(|e| e.node_count()).sum::<usize>()
+                1 + function.node_count() + arguments.iter().map(|e| e.node_count()).sum::<usize>()
             }
             ExprKind::MethodCall { object, arguments, .. } => {
-                1 + object.node_count()
-                    + arguments.iter().map(|e| e.node_count()).sum::<usize>()
+                1 + object.node_count() + arguments.iter().map(|e| e.node_count()).sum::<usize>()
             }
-            ExprKind::If {
-                condition,
-                then_block,
-                else_expr,
-            } => {
+            ExprKind::If { condition, then_block, else_expr } => {
                 1 + condition.node_count()
                     + then_block
                         .iter()
@@ -1070,12 +990,9 @@ impl ExprKind {
                         .unwrap_or(0)
             }
             ExprKind::Match { discriminant, arms } => {
-                1 + discriminant.node_count()
-                    + arms.iter().map(|a| a.node_count()).sum::<usize>()
+                1 + discriminant.node_count() + arms.iter().map(|a| a.node_count()).sum::<usize>()
             }
-            ExprKind::Block(stmts) => {
-                1 + stmts.iter().map(|s| s.node_count()).sum::<usize>()
-            }
+            ExprKind::Block(stmts) => 1 + stmts.iter().map(|s| s.node_count()).sum::<usize>(),
             ExprKind::Tuple(elems) | ExprKind::Array(elems) => {
                 1 + elems.iter().map(|e| e.node_count()).sum::<usize>()
             }
@@ -1104,7 +1021,9 @@ impl ExprKind {
                 1 + condition.node_count() + body.iter().map(|s| s.node_count()).sum::<usize>()
             }
             ExprKind::Return(value) => value.as_ref().map(|e| 1 + e.node_count()).unwrap_or(1),
-            ExprKind::Break { value, .. } => value.as_ref().map(|e| 1 + e.node_count()).unwrap_or(1),
+            ExprKind::Break { value, .. } => {
+                value.as_ref().map(|e| 1 + e.node_count()).unwrap_or(1)
+            }
             ExprKind::Continue { .. } => 1,
             ExprKind::Async { body } => 1 + body.node_count(),
             ExprKind::Struct { fields, .. } => {
@@ -1197,15 +1116,16 @@ pub struct Block {
 impl Block {
     /// Create a new block from statements and an optional trailing expression.
     pub fn new(statements: Vec<Stmt>, tail_expr: Option<Expr>) -> Self {
-        Self {
-            statements,
-            tail_expr: tail_expr.map(Box::new),
-        }
+        Self { statements, tail_expr: tail_expr.map(Box::new) }
     }
 
     /// Number of AST nodes contained in this block.
     pub fn node_count(&self) -> usize {
-        1 + self.statements.iter().map(|s| s.node_count()).sum::<usize>()
+        1 + self
+            .statements
+            .iter()
+            .map(|s| s.node_count())
+            .sum::<usize>()
             + self.tail_expr.as_ref().map(|e| e.node_count()).unwrap_or(0)
     }
 }
@@ -1411,7 +1331,11 @@ impl Type {
             Type::Ref(t) | Type::MutRef(t) | Type::Ptr(t) => 1 + t.node_count(),
             Type::Struct(s) => 1 + s.fields.iter().map(|(_, t)| t.node_count()).sum::<usize>(),
             Type::Enum(e) => {
-                1 + e.variants.iter().map(|v| v.fields.iter().map(|t| t.node_count()).sum::<usize>()).sum::<usize>()
+                1 + e
+                    .variants
+                    .iter()
+                    .map(|v| v.fields.iter().map(|t| t.node_count()).sum::<usize>())
+                    .sum::<usize>()
             }
             _ => 1,
         }
@@ -1428,16 +1352,8 @@ mod tests {
 
     fn span() -> SourceSpan {
         SourceSpan {
-            start: SourceLocation {
-                line: 1,
-                column: 1,
-                offset: 0,
-            },
-            end: SourceLocation {
-                line: 1,
-                column: 3,
-                offset: 2,
-            },
+            start: SourceLocation { line: 1, column: 1, offset: 0 },
+            end: SourceLocation { line: 1, column: 3, offset: 2 },
         }
     }
 
@@ -1463,7 +1379,8 @@ mod tests {
 
     #[test]
     fn test_pattern_node_count() {
-        let tuple_pattern = Pattern::Tuple(vec![Pattern::Binding("a".to_string()), Pattern::Wildcard]);
+        let tuple_pattern =
+            Pattern::Tuple(vec![Pattern::Binding("a".to_string()), Pattern::Wildcard]);
         assert_eq!(tuple_pattern.node_count(), 3);
     }
 

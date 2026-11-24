@@ -3,18 +3,13 @@
 //! The main cognitive compiler that integrates all AGI-Compiler components
 //! for intelligent, self-improving compilation.
 
-use crate::tumc_compiler::ir::{Module};
-use crate::tumc_compiler::optimization::{OptimizationManager, OptLevel};
+use crate::tumc_compiler::agi_integration::{AgiCompilerBridge, AgiCompilerConfig, AgiInsight};
+use crate::tumc_compiler::ir::Module;
+use crate::tumc_compiler::optimization::{OptLevel, OptimizationManager};
 use crate::tumc_compiler::verification::Verifier;
-use crate::tumc_compiler::agi_integration::{
-    AgiCompilerConfig, AgiCompilerBridge, AgiInsight, AgiCompilerMetrics,
-    neural_symbolic::NeuralSymbolicEngine,
-    meta_learning::MetaLearningOptimizer,
-    self_modifying::SelfModifyingGenerator,
-    reasoning_engine::CognitiveReasoningEngine};
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap};
-use std::time::{Instant};
+use std::collections::HashMap;
+use std::time::Instant;
 
 /// Compilation mode
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -220,7 +215,11 @@ impl CognitiveCompiler {
                         optimizations_applied: 0,
                     },
                     self_modifications: Vec::new(),
-                    errors: verification_result.errors.iter().map(|e| e.message.clone()).collect(),
+                    errors: verification_result
+                        .errors
+                        .iter()
+                        .map(|e| e.message.clone())
+                        .collect(),
                     compilation_time_ms: start_time.elapsed().as_millis() as u64,
                 };
             }
@@ -247,8 +246,9 @@ impl CognitiveCompiler {
         self.stats.total_insights_generated += insights.len() as u64;
 
         let elapsed = start_time.elapsed().as_millis() as f64;
-        self.stats.average_compilation_time_ms =
-            (self.stats.average_compilation_time_ms * (self.stats.total_compilations - 1) as f64 + elapsed)
+        self.stats.average_compilation_time_ms = (self.stats.average_compilation_time_ms
+            * (self.stats.total_compilations - 1) as f64
+            + elapsed)
             / self.stats.total_compilations as f64;
 
         CognitiveCompilationResult {
@@ -284,7 +284,9 @@ impl CognitiveCompiler {
 
     /// Count instructions in module
     fn count_instructions(&self, module: &Module) -> usize {
-        module.functions.iter()
+        module
+            .functions
+            .iter()
             .map(|f| f.body.iter().map(|b| b.instructions.len()).sum::<usize>())
             .sum()
     }

@@ -1,10 +1,9 @@
 // Tariro AGI - Tool Use Engine Module
 // Enables AGI to use external tools and APIs
 
-use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
+use std::collections::{HashMap, VecDeque};
 use std::time::Duration;
-
 
 // ============================================================================
 // Tool Types
@@ -115,7 +114,8 @@ pub struct ToolUseEngine {
     pub execution_history: VecDeque<ToolExecution>,
     pub tool_permissions: HashMap<String, ToolPermission>,
     pub config: ToolConfig,
-    pub execution_stats: ToolStats}
+    pub execution_stats: ToolStats,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ToolExecution {
@@ -125,7 +125,8 @@ pub struct ToolExecution {
     pub result: Option<ToolResult>,
     pub status: ExecutionStatus,
     pub started_at: DateTime<Utc>,
-    pub completed_at: Option<DateTime<Utc>>}
+    pub completed_at: Option<DateTime<Utc>>,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ExecutionStatus {
@@ -134,7 +135,8 @@ pub enum ExecutionStatus {
     Completed,
     Failed,
     Timeout,
-    Cancelled}
+    Cancelled,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ToolPermission {
@@ -142,7 +144,8 @@ pub struct ToolPermission {
     pub allowed: bool,
     pub restricted_parameters: Vec<String>,
     pub max_usage_per_day: Option<usize>,
-    pub requires_confirmation: bool}
+    pub requires_confirmation: bool,
+}
 
 #[derive(Debug, Clone)]
 pub struct ToolConfig {
@@ -152,7 +155,8 @@ pub struct ToolConfig {
     pub enable_retry: bool,
     pub max_retries: usize,
     pub require_permission: bool,
-    pub sandbox_execution: bool}
+    pub sandbox_execution: bool,
+}
 
 impl Default for ToolConfig {
     fn default() -> Self {
@@ -163,7 +167,8 @@ impl Default for ToolConfig {
             enable_retry: true,
             max_retries: 3,
             require_permission: true,
-            sandbox_execution: true}
+            sandbox_execution: true,
+        }
     }
 }
 
@@ -173,7 +178,8 @@ pub struct ToolStats {
     pub successful_executions: usize,
     pub failed_executions: usize,
     pub average_execution_time: Duration,
-    pub most_used_tools: Vec<(String, usize)>}
+    pub most_used_tools: Vec<(String, usize)>,
+}
 
 impl ToolUseEngine {
     pub fn new() -> Self {
@@ -187,7 +193,9 @@ impl ToolUseEngine {
                 successful_executions: 0,
                 failed_executions: 0,
                 average_execution_time: Duration::from_secs(0),
-                most_used_tools: Vec::new()}};
+                most_used_tools: Vec::new(),
+            },
+        };
 
         engine.register_default_tools();
         engine
@@ -218,14 +226,12 @@ impl ToolUseEngine {
                 required: vec!["query".to_string()],
             },
             output_schema: Schema {
-                fields: vec![
-                    SchemaField {
-                        name: "results".to_string(),
-                        field_type: FieldType::Array,
-                        description: "Search results".to_string(),
-                        default: None,
-                    },
-                ],
+                fields: vec![SchemaField {
+                    name: "results".to_string(),
+                    field_type: FieldType::Array,
+                    description: "Search results".to_string(),
+                    default: None,
+                }],
                 required: vec!["results".to_string()],
             },
             capabilities: vec!["search".to_string(), "information_retrieval".to_string()],
@@ -247,25 +253,21 @@ impl ToolUseEngine {
             description: "Fetch content from URLs".to_string(),
             tool_type: ToolType::WebFetch,
             input_schema: Schema {
-                fields: vec![
-                    SchemaField {
-                        name: "url".to_string(),
-                        field_type: FieldType::String,
-                        description: "URL to fetch".to_string(),
-                        default: None,
-                    },
-                ],
+                fields: vec![SchemaField {
+                    name: "url".to_string(),
+                    field_type: FieldType::String,
+                    description: "URL to fetch".to_string(),
+                    default: None,
+                }],
                 required: vec!["url".to_string()],
             },
             output_schema: Schema {
-                fields: vec![
-                    SchemaField {
-                        name: "content".to_string(),
-                        field_type: FieldType::String,
-                        description: "Fetched content".to_string(),
-                        default: None,
-                    },
-                ],
+                fields: vec![SchemaField {
+                    name: "content".to_string(),
+                    field_type: FieldType::String,
+                    description: "Fetched content".to_string(),
+                    default: None,
+                }],
                 required: vec!["content".to_string()],
             },
             capabilities: vec!["fetch".to_string(), "download".to_string()],
@@ -287,25 +289,21 @@ impl ToolUseEngine {
             description: "Perform mathematical calculations".to_string(),
             tool_type: ToolType::Calculator,
             input_schema: Schema {
-                fields: vec![
-                    SchemaField {
-                        name: "expression".to_string(),
-                        field_type: FieldType::String,
-                        description: "Mathematical expression".to_string(),
-                        default: None,
-                    },
-                ],
+                fields: vec![SchemaField {
+                    name: "expression".to_string(),
+                    field_type: FieldType::String,
+                    description: "Mathematical expression".to_string(),
+                    default: None,
+                }],
                 required: vec!["expression".to_string()],
             },
             output_schema: Schema {
-                fields: vec![
-                    SchemaField {
-                        name: "result".to_string(),
-                        field_type: FieldType::Float,
-                        description: "Calculation result".to_string(),
-                        default: None,
-                    },
-                ],
+                fields: vec![SchemaField {
+                    name: "result".to_string(),
+                    field_type: FieldType::Float,
+                    description: "Calculation result".to_string(),
+                    default: None,
+                }],
                 required: vec!["result".to_string()],
             },
             capabilities: vec!["math".to_string(), "calculation".to_string()],
@@ -357,7 +355,11 @@ impl ToolUseEngine {
                 required: vec!["output".to_string()],
             },
             capabilities: vec!["execution".to_string(), "programming".to_string()],
-            limitations: vec!["sandboxed".to_string(), "time_limit".to_string(), "memory_limit".to_string()],
+            limitations: vec![
+                "sandboxed".to_string(),
+                "time_limit".to_string(),
+                "memory_limit".to_string(),
+            ],
             version: "1.0.0".to_string(),
             auth_required: false,
             rate_limit: Some(RateLimit {
@@ -392,14 +394,12 @@ impl ToolUseEngine {
                 required: vec!["operation".to_string(), "path".to_string()],
             },
             output_schema: Schema {
-                fields: vec![
-                    SchemaField {
-                        name: "content".to_string(),
-                        field_type: FieldType::String,
-                        description: "File content".to_string(),
-                        default: None,
-                    },
-                ],
+                fields: vec![SchemaField {
+                    name: "content".to_string(),
+                    field_type: FieldType::String,
+                    description: "File content".to_string(),
+                    default: None,
+                }],
                 required: vec!["content".to_string()],
             },
             capabilities: vec!["read".to_string(), "write".to_string(), "list".to_string()],
@@ -445,7 +445,10 @@ impl ToolUseEngine {
                     success: false,
                     output: None,
                     error: Some(format!("Tool '{}' not found", request.tool_id)),
-                    execution_time: Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default(),
+                    execution_time: Utc::now()
+                        .signed_duration_since(start_time)
+                        .to_std()
+                        .unwrap_or_default(),
                     retries: 0,
                     timestamp: Utc::now(),
                 };
@@ -461,9 +464,13 @@ impl ToolUseEngine {
                     success: false,
                     output: None,
                     error: Some("Tool use not permitted".to_string()),
-                    execution_time: Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default(),
+                    execution_time: Utc::now()
+                        .signed_duration_since(start_time)
+                        .to_std()
+                        .unwrap_or_default(),
                     retries: 0,
-                    timestamp: Utc::now()};
+                    timestamp: Utc::now(),
+                };
             }
         }
 
@@ -476,7 +483,10 @@ impl ToolUseEngine {
                 success: false,
                 output: None,
                 error: Some(error),
-                execution_time: Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default(),
+                execution_time: Utc::now()
+                    .signed_duration_since(start_time)
+                    .to_std()
+                    .unwrap_or_default(),
                 retries: 0,
                 timestamp: Utc::now(),
             };
@@ -494,7 +504,11 @@ impl ToolUseEngine {
             tool_id: request.tool_id.clone(),
             request,
             result: Some(result.clone()),
-            status: if result.success { ExecutionStatus::Completed } else { ExecutionStatus::Failed },
+            status: if result.success {
+                ExecutionStatus::Completed
+            } else {
+                ExecutionStatus::Failed
+            },
             started_at: start_time,
             completed_at: Some(Utc::now()),
         };
@@ -509,11 +523,16 @@ impl ToolUseEngine {
         result
     }
 
-    async fn execute_tool_logic(&self, tool: &Tool, params: &HashMap<String, ParameterValue>) -> ToolResult {
+    async fn execute_tool_logic(
+        &self,
+        tool: &Tool,
+        params: &HashMap<String, ParameterValue>,
+    ) -> ToolResult {
         // Simplified execution - in production would implement actual tool logic
         match tool.tool_type {
             ToolType::WebSearch => {
-                let _query = params.get("query")
+                let _query = params
+                    .get("query")
                     .map(|p| p.value.as_str().unwrap_or(""))
                     .unwrap_or("");
 
@@ -534,7 +553,8 @@ impl ToolUseEngine {
                 }
             }
             ToolType::Calculator => {
-                let expr = params.get("expression")
+                let expr = params
+                    .get("expression")
                     .map(|p| p.value.as_str().unwrap_or(""))
                     .unwrap_or("");
 
@@ -546,24 +566,26 @@ impl ToolUseEngine {
                     tool_id: tool.tool_id.clone(),
                     success: result.is_some(),
                     output: result.map(|r| serde_json::json!({ "result": r })),
-                    error: if result.is_none() { Some("Invalid expression".to_string()) } else { None },
+                    error: if result.is_none() {
+                        Some("Invalid expression".to_string())
+                    } else {
+                        None
+                    },
                     execution_time: Duration::from_millis(10),
                     retries: 0,
                     timestamp: Utc::now(),
                 }
             }
-            _ => {
-                ToolResult {
-                    request_id: generate_id(),
-                    tool_id: tool.tool_id.clone(),
-                    success: true,
-                    output: Some(serde_json::json!({ "status": "executed" })),
-                    error: None,
-                    execution_time: Duration::from_millis(50),
-                    retries: 0,
-                    timestamp: Utc::now(),
-                }
-            }
+            _ => ToolResult {
+                request_id: generate_id(),
+                tool_id: tool.tool_id.clone(),
+                success: true,
+                output: Some(serde_json::json!({ "status": "executed" })),
+                error: None,
+                execution_time: Duration::from_millis(50),
+                retries: 0,
+                timestamp: Utc::now(),
+            },
         }
     }
 
@@ -577,29 +599,44 @@ impl ToolUseEngine {
         // Basic operations
         if let Some(pos) = expr.find('+') {
             let (a, b) = (&expr[..pos], &expr[pos + 1..]);
-            return self.evaluate_expression(a).zip(self.evaluate_expression(b)).map(|(x, y)| x + y);
+            return self
+                .evaluate_expression(a)
+                .zip(self.evaluate_expression(b))
+                .map(|(x, y)| x + y);
         }
 
         if let Some(pos) = expr.find('-') {
             let (a, b) = (&expr[..pos], &expr[pos + 1..]);
-            return self.evaluate_expression(a).zip(self.evaluate_expression(b)).map(|(x, y)| x - y);
+            return self
+                .evaluate_expression(a)
+                .zip(self.evaluate_expression(b))
+                .map(|(x, y)| x - y);
         }
 
         if let Some(pos) = expr.find('*') {
             let (a, b) = (&expr[..pos], &expr[pos + 1..]);
-            return self.evaluate_expression(a).zip(self.evaluate_expression(b)).map(|(x, y)| x * y);
+            return self
+                .evaluate_expression(a)
+                .zip(self.evaluate_expression(b))
+                .map(|(x, y)| x * y);
         }
 
         if let Some(pos) = expr.find('/') {
             let (a, b) = (&expr[..pos], &expr[pos + 1..]);
-            return self.evaluate_expression(a).zip(self.evaluate_expression(b))
+            return self
+                .evaluate_expression(a)
+                .zip(self.evaluate_expression(b))
                 .and_then(|(x, y)| if y != 0.0 { Some(x / y) } else { None });
         }
 
         None
     }
 
-    fn validate_parameters(&self, params: &HashMap<String, ParameterValue>, schema: &Schema) -> Option<String> {
+    fn validate_parameters(
+        &self,
+        params: &HashMap<String, ParameterValue>,
+        schema: &Schema,
+    ) -> Option<String> {
         // Check required parameters
         for required in &schema.required {
             if !params.contains_key(required) {
@@ -638,14 +675,23 @@ impl ToolUseEngine {
         }
 
         // Update most used
-        if let Some((_, count)) = self.execution_stats.most_used_tools.iter_mut().find(|(id, _)| *id == tool_id) {
+        if let Some((_, count)) = self
+            .execution_stats
+            .most_used_tools
+            .iter_mut()
+            .find(|(id, _)| *id == tool_id)
+        {
             *count += 1;
         } else {
-            self.execution_stats.most_used_tools.push((tool_id.to_string(), 1));
+            self.execution_stats
+                .most_used_tools
+                .push((tool_id.to_string(), 1));
         }
 
         // Sort by count
-        self.execution_stats.most_used_tools.sort_by(|a, b| b.1.cmp(&a.1));
+        self.execution_stats
+            .most_used_tools
+            .sort_by(|a, b| b.1.cmp(&a.1));
         self.execution_stats.most_used_tools.truncate(10);
     }
 
@@ -662,7 +708,10 @@ impl ToolUseEngine {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("tool_{}", now % 1_000_000)
 }
 

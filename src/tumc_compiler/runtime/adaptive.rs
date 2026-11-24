@@ -76,9 +76,11 @@ impl AdaptiveOptimizer {
     /// Record a branch
     pub fn record_branch(&mut self, func_id: FunctionId, inst_idx: usize, taken: bool) {
         let key = (func_id, inst_idx);
-        let profile = self.profile.branch_counts.entry(key).or_insert_with(|| {
-            BranchProfile { taken: 0, not_taken: 0 }
-        });
+        let profile = self
+            .profile
+            .branch_counts
+            .entry(key)
+            .or_insert_with(|| BranchProfile { taken: 0, not_taken: 0 });
         if taken {
             profile.taken += 1;
         } else {
@@ -93,16 +95,17 @@ impl AdaptiveOptimizer {
         if let Some(existing) = observed.iter_mut().find(|o| o.type_name == type_name) {
             existing.count += 1;
         } else {
-            observed.push(ObservedType {
-                type_name,
-                count: 1,
-            });
+            observed.push(ObservedType { type_name, count: 1 });
         }
     }
 
     /// Get invocation count
     pub fn get_invocation_count(&self, func_id: FunctionId) -> usize {
-        self.profile.invocation_counts.get(&func_id).copied().unwrap_or(0)
+        self.profile
+            .invocation_counts
+            .get(&func_id)
+            .copied()
+            .unwrap_or(0)
     }
 
     /// Decide on inlining
@@ -125,7 +128,9 @@ impl AdaptiveOptimizer {
 
     /// Get most common type for a value
     pub fn most_common_type(&self, value: ValueId) -> Option<String> {
-        self.profile.type_feedback.get(&value)?
+        self.profile
+            .type_feedback
+            .get(&value)?
             .iter()
             .max_by_key(|t| t.count)
             .map(|t| t.type_name.clone())
@@ -180,10 +185,7 @@ impl AdaptiveOptimizer {
         }
 
         if specialized_types.len() == 1 {
-            Some(Specialization {
-                param_types: specialized_types,
-                specialized_code: None,
-            })
+            Some(Specialization { param_types: specialized_types, specialized_code: None })
         } else {
             None
         }
@@ -194,10 +196,7 @@ impl AdaptiveOptimizer {
         let count = self.get_invocation_count(func_id);
 
         if count < 1000 {
-            CompilationPlan {
-                tier: 0,
-                optimizations: vec![],
-            }
+            CompilationPlan { tier: 0, optimizations: vec![] }
         } else if count < 10000 {
             CompilationPlan {
                 tier: 1,
@@ -254,15 +253,9 @@ impl CompilationPlanner {
 
     pub fn plan(&self, hotness: f64) -> CompilationPlan {
         if hotness < 0.3 {
-            CompilationPlan {
-                tier: 0,
-                optimizations: vec![],
-            }
+            CompilationPlan { tier: 0, optimizations: vec![] }
         } else if hotness < 0.7 {
-            CompilationPlan {
-                tier: 1,
-                optimizations: vec!["inline".to_string()],
-            }
+            CompilationPlan { tier: 1, optimizations: vec!["inline".to_string()] }
         } else {
             CompilationPlan {
                 tier: 2,
@@ -307,11 +300,7 @@ pub struct DeoptFrame {
 
 impl Deoptimization {
     pub fn new(reason: DeoptReason, pc: usize) -> Self {
-        Self {
-            reason,
-            pc,
-            stack_info: Vec::new(),
-        }
+        Self { reason, pc, stack_info: Vec::new() }
     }
 
     /// Deoptimize to interpreter

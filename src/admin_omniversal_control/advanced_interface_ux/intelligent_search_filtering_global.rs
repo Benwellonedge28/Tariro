@@ -1,6 +1,5 @@
 // src/admin_omniversal_control/advanced_interface_ux/intelligent_search_filtering_global.rs
 
-
 pub struct GlobalSearchEngine;
 
 impl GlobalSearchEngine {

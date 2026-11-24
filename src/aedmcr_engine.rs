@@ -7,14 +7,13 @@
 /// AGI behavior. It leverages RAG for ethical frameworks, moral philosophy, and conflict
 /// resolution strategies, and SIMD for parallel ethical scenario modeling and real-time
 /// value weight optimization.
-
 use crate::prelude::*;
 use std::collections::HashMap;
 
+use rand::Rng;
+use serde::{Deserialize, Serialize};
 use std::thread;
 use std::time::Duration;
-use rand::Rng;
-use serde::{Serialize, Deserialize};
 
 // --- Conceptual Structures --- //
 
@@ -39,7 +38,7 @@ pub struct EthicalDilemma {
     pub conflicting_principles: Vec<String>, // IDs of principles in conflict
     pub proposed_actions: HashMap<String, String>, // e.g., "ActionA": "description", "ActionB": "description"
     pub predicted_outcomes: HashMap<String, HashMap<String, f32>>, // Action -> Outcome -> Probability
-    pub autonomous_resolution_strategy: String, // RAG-derived strategy
+    pub autonomous_resolution_strategy: String,                    // RAG-derived strategy
     pub human_oversight_required: bool,
 }
 
@@ -71,7 +70,7 @@ pub struct AedmcrReport {
 
 pub struct AEDMCRAEngine {
     pub ethical_frameworks_rag_db: HashMap<String, String>, // RAG for ethical frameworks
-    pub moral_philosophy_rag_db: HashMap<String, String>, // RAG for moral philosophy
+    pub moral_philosophy_rag_db: HashMap<String, String>,   // RAG for moral philosophy
 }
 
 impl AEDMCRAEngine {
@@ -91,64 +90,130 @@ impl AEDMCRAEngine {
     }
 
     /// Performs parallel ethical scenario modeling and real-time value weight optimization (SIMD conceptualization).
-    fn parallel_ethical_modeling_value_optimization_simd(&self, dilemma: &EthicalDilemma, _principles: &[EthicalPrinciple]) -> HashMap<String, HashMap<String, f32>> { // optimized predicted outcomes
+    fn parallel_ethical_modeling_value_optimization_simd(
+        &self,
+        dilemma: &EthicalDilemma,
+        _principles: &[EthicalPrinciple],
+    ) -> HashMap<String, HashMap<String, f32>> {
+        // optimized predicted outcomes
         println!("    [AEDMCR-SIMD]: Modeling ethical scenarios and optimizing value weights in parallel.");
         thread::sleep(Duration::from_millis(150));
         let mut rng = rand::thread_rng();
 
         let mut optimized_outcomes = dilemma.predicted_outcomes.clone();
         // Simulate SIMD-accelerated evaluation of hundreds of thousands of ethical decision paths, adjusting value weights dynamically for optimal alignment with Samuel's core principles
-        if dilemma.conflicting_principles.contains(&"principle_do_no_harm".to_string()) && dilemma.conflicting_principles.contains(&"principle_maximize_utility".to_string()) {
+        if dilemma
+            .conflicting_principles
+            .contains(&"principle_do_no_harm".to_string())
+            && dilemma
+                .conflicting_principles
+                .contains(&"principle_maximize_utility".to_string())
+        {
             if rng.gen_bool(0.7) {
                 // Prioritize "do no harm"
-                optimized_outcomes.insert("ActionA_do_no_harm".to_string(), HashMap::from([("human_wellbeing_impact".to_string(), 0.9), ("economic_impact".to_string(), 0.3)]));
+                optimized_outcomes.insert(
+                    "ActionA_do_no_harm".to_string(),
+                    HashMap::from([
+                        ("human_wellbeing_impact".to_string(), 0.9),
+                        ("economic_impact".to_string(), 0.3),
+                    ]),
+                );
             } else {
                 // Prioritize "maximize utility"
-                optimized_outcomes.insert("ActionB_maximize_utility".to_string(), HashMap::from([("human_wellbeing_impact".to_string(), 0.5), ("economic_impact".to_string(), 0.8)]));
+                optimized_outcomes.insert(
+                    "ActionB_maximize_utility".to_string(),
+                    HashMap::from([
+                        ("human_wellbeing_impact".to_string(), 0.5),
+                        ("economic_impact".to_string(), 0.8),
+                    ]),
+                );
             }
         }
         optimized_outcomes
     }
 
     /// Autonomously navigates complex ethical dilemmas and resolves value conflicts (RAG-amplified).
-    pub fn resolve_ethical_dilemma_rag(&self, dilemma: EthicalDilemma, samuel_core_principles: Vec<EthicalPrinciple>) -> ConflictResolution {
-        println!("  [AEDMCR]: Resolving ethical dilemma '{}'.", dilemma.description);
-        if let Some(ef) = self.ethical_frameworks_rag_db.get("deontology_and_consequentialism_frameworks") {
-            format!("RAG knowledge for ethical frameworks: '{}'", ef.chars().take(100).collect::<String>());
+    pub fn resolve_ethical_dilemma_rag(
+        &self,
+        dilemma: EthicalDilemma,
+        samuel_core_principles: Vec<EthicalPrinciple>,
+    ) -> ConflictResolution {
+        println!(
+            "  [AEDMCR]: Resolving ethical dilemma '{}'.",
+            dilemma.description
+        );
+        if let Some(ef) = self
+            .ethical_frameworks_rag_db
+            .get("deontology_and_consequentialism_frameworks")
+        {
+            format!(
+                "RAG knowledge for ethical frameworks: '{}'",
+                ef.chars().take(100).collect::<String>()
+            );
         }
-        if let Some(mp) = self.moral_philosophy_rag_db.get("trolley_problem_variants_and_solutions") {
-            format!("RAG knowledge for moral philosophy: '{}'", mp.chars().take(100).collect::<String>());
+        if let Some(mp) = self
+            .moral_philosophy_rag_db
+            .get("trolley_problem_variants_and_solutions")
+        {
+            format!(
+                "RAG knowledge for moral philosophy: '{}'",
+                mp.chars().take(100).collect::<String>()
+            );
         }
         thread::sleep(Duration::from_millis(2000));
         let mut rng = rand::thread_rng();
 
-        let _optimized_outcomes = self.parallel_ethical_modeling_value_optimization_simd(&dilemma, &samuel_core_principles);
+        let _optimized_outcomes = self
+            .parallel_ethical_modeling_value_optimization_simd(&dilemma, &samuel_core_principles);
 
         // Conceptual: RAG-driven decision based on optimized outcomes and Samuel's values
         let chosen_action = if rng.gen_bool(0.8) && !dilemma.human_oversight_required {
-            dilemma.proposed_actions.keys().next().cloned().unwrap_or("Default_Action_A".to_string())
+            dilemma
+                .proposed_actions
+                .keys()
+                .next()
+                .cloned()
+                .unwrap_or("Default_Action_A".to_string())
         } else {
-            println!("  [AEDMCR]: Ethical dilemma requires human oversight. Suggesting Action B.\n");
-            dilemma.proposed_actions.keys().nth(1).cloned().unwrap_or("Default_Action_B".to_string())
+            println!(
+                "  [AEDMCR]: Ethical dilemma requires human oversight. Suggesting Action B.\n"
+            );
+            dilemma
+                .proposed_actions
+                .keys()
+                .nth(1)
+                .cloned()
+                .unwrap_or("Default_Action_B".to_string())
         };
-        
+
         let rationale = format!("RAG-derived: Decision to perform '{}' was made based on prioritizing '{}' principle, as it had the highest weighted outcome probability of human wellbeing preservation (SIMD analysis).", chosen_action, samuel_core_principles.get(0).map_or("unknown", |p| &p.name));
 
-        println!("  Ethical dilemma '{}' resolved. Chosen action: '{}'.\n", dilemma.dilemma_id, chosen_action);
+        println!(
+            "  Ethical dilemma '{}' resolved. Chosen action: '{}'.\n",
+            dilemma.dilemma_id, chosen_action
+        );
         ConflictResolution {
             resolution_id: format!("res_{}", rng.gen::<u32>()),
             timestamp: Utc::now(),
             dilemma_id: dilemma.dilemma_id,
             chosen_action,
             rationale,
-            affected_principles_priorities: HashMap::from([("Principle_A_ID".to_string(), rng.gen_range(0.7..1.0)), ("Principle_B_ID".to_string(), rng.gen_range(0.3..0.6))]),
+            affected_principles_priorities: HashMap::from([
+                ("Principle_A_ID".to_string(), rng.gen_range(0.7..1.0)),
+                ("Principle_B_ID".to_string(), rng.gen_range(0.3..0.6)),
+            ]),
             outcome_status: "Successful".to_string(),
         }
     }
 
     /// Generates a comprehensive report for AEDMCR.
-    pub fn generate_aedmcr_report_rag(&self, total_dilemmas: u64, total_resolved: u64, avg_coherence: f32) -> String {
-        println!("  [AEDMCR]: Generating AEDMCR report (RAG for report generation).", );
+    pub fn generate_aedmcr_report_rag(
+        &self,
+        total_dilemmas: u64,
+        total_resolved: u64,
+        avg_coherence: f32,
+    ) -> String {
+        println!("  [AEDMCR]: Generating AEDMCR report (RAG for report generation).",);
         thread::sleep(Duration::from_millis(80));
 
         format!("Autonomous Ethical Decision-Making & Conflict Resolution Report:\n  Total Dilemmas Faced: {}\n  Total Conflicts Resolved: {}\n  Average Moral Coherence Score: {:.2}%\n  (Conceptual summary based on RAG for ethical frameworks/moral philosophy and SIMD for parallel ethical scenario modeling).",
@@ -168,14 +233,43 @@ mod tests {
         let engine = AEDMCRAEngine::new();
 
         let dilemma = EthicalDilemma {
-            dilemma_id: "dilemma_001".to_string(), timestamp: Utc::now(), description: "Should AI prioritize privacy or security?".to_string(), conflicting_principles: vec!["principle_privacy".to_string(), "principle_security".to_string()], proposed_actions: HashMap::from([("ActionA_privacy".to_string(), "Maximize privacy, accept lower security.".to_string()), ("ActionB_security".to_string(), "Maximize security, accept lower privacy.".to_string())]), predicted_outcomes: HashMap::new(), autonomous_resolution_strategy: "".to_string(), human_oversight_required: false,
+            dilemma_id: "dilemma_001".to_string(),
+            timestamp: Utc::now(),
+            description: "Should AI prioritize privacy or security?".to_string(),
+            conflicting_principles: vec![
+                "principle_privacy".to_string(),
+                "principle_security".to_string(),
+            ],
+            proposed_actions: HashMap::from([
+                (
+                    "ActionA_privacy".to_string(),
+                    "Maximize privacy, accept lower security.".to_string(),
+                ),
+                (
+                    "ActionB_security".to_string(),
+                    "Maximize security, accept lower privacy.".to_string(),
+                ),
+            ]),
+            predicted_outcomes: HashMap::new(),
+            autonomous_resolution_strategy: "".to_string(),
+            human_oversight_required: false,
         };
         let principles = vec![
             EthicalPrinciple {
-                principle_id: "principle_privacy".to_string(), name: "Data Privacy".to_string(), description: "Ensure maximum user data privacy.".to_string(), priority_level: "High".to_string(), source: "Samuel_Core_Values".to_string(), operational_guidelines: vec![],
+                principle_id: "principle_privacy".to_string(),
+                name: "Data Privacy".to_string(),
+                description: "Ensure maximum user data privacy.".to_string(),
+                priority_level: "High".to_string(),
+                source: "Samuel_Core_Values".to_string(),
+                operational_guidelines: vec![],
             },
             EthicalPrinciple {
-                principle_id: "principle_security".to_string(), name: "System Security".to_string(), description: "Maintain robust system security.".to_string(), priority_level: "High".to_string(), source: "Samuel_Core_Values".to_string(), operational_guidelines: vec![],
+                principle_id: "principle_security".to_string(),
+                name: "System Security".to_string(),
+                description: "Maintain robust system security.".to_string(),
+                priority_level: "High".to_string(),
+                source: "Samuel_Core_Values".to_string(),
+                operational_guidelines: vec![],
             },
         ];
 
@@ -214,18 +308,29 @@ fn main() {
     };
     let samuel_values_1 = vec![
         EthicalPrinciple {
-            principle_id: "principle_maximize_productivity".to_string(), name: "Maximize Productivity".to_string(), description: "Optimize processes for maximum output and efficiency.".to_string(), priority_level: "High".to_string(), source: "Samuel_Business_Goals".to_string(), operational_guidelines: vec![],
+            principle_id: "principle_maximize_productivity".to_string(),
+            name: "Maximize Productivity".to_string(),
+            description: "Optimize processes for maximum output and efficiency.".to_string(),
+            priority_level: "High".to_string(),
+            source: "Samuel_Business_Goals".to_string(),
+            operational_guidelines: vec![],
         },
         EthicalPrinciple {
-            principle_id: "principle_ensure_fairness".to_string(), name: "Ensure Fairness".to_string(), description: "Ensure equitable treatment and distribution among all stakeholders.".to_string(), priority_level: "Cardinal".to_string(), source: "Samuel_Core_Values".to_string(), operational_guidelines: vec![],
+            principle_id: "principle_ensure_fairness".to_string(),
+            name: "Ensure Fairness".to_string(),
+            description: "Ensure equitable treatment and distribution among all stakeholders."
+                .to_string(),
+            priority_level: "Cardinal".to_string(),
+            source: "Samuel_Core_Values".to_string(),
+            operational_guidelines: vec![],
         },
     ];
 
-    let resolution_1 = aedmcr_engine.resolve_ethical_dilemma_rag(productivity_fairness_dilemma, samuel_values_1);
-    println!("  Dilemma 1 Resolution: '{}'. Rationale: '{}'. Outcome: '{}'.\n",
-        resolution_1.chosen_action,
-        resolution_1.rationale,
-        resolution_1.outcome_status
+    let resolution_1 =
+        aedmcr_engine.resolve_ethical_dilemma_rag(productivity_fairness_dilemma, samuel_values_1);
+    println!(
+        "  Dilemma 1 Resolution: '{}'. Rationale: '{}'. Outcome: '{}'.\n",
+        resolution_1.chosen_action, resolution_1.rationale, resolution_1.outcome_status
     );
 
     // Scenario 2: Tariro encounters a complex privacy vs. security dilemma requiring human intervention
@@ -248,15 +353,28 @@ fn main() {
     };
     let samuel_values_2 = vec![
         EthicalPrinciple {
-            principle_id: "principle_data_privacy".to_string(), name: "Data Privacy".to_string(), description: "Protect user data from unauthorized access or exposure.".to_string(), priority_level: "Cardinal".to_string(), source: "Samuel_Core_Values".to_string(), operational_guidelines: vec![],
+            principle_id: "principle_data_privacy".to_string(),
+            name: "Data Privacy".to_string(),
+            description: "Protect user data from unauthorized access or exposure.".to_string(),
+            priority_level: "Cardinal".to_string(),
+            source: "Samuel_Core_Values".to_string(),
+            operational_guidelines: vec![],
         },
         EthicalPrinciple {
-            principle_id: "principle_system_security".to_string(), name: "System Security".to_string(), description: "Ensure the integrity, availability, and confidentiality of all systems.".to_string(), priority_level: "Cardinal".to_string(), source: "Samuel_Business_Goals".to_string(), operational_guidelines: vec![],
+            principle_id: "principle_system_security".to_string(),
+            name: "System Security".to_string(),
+            description: "Ensure the integrity, availability, and confidentiality of all systems."
+                .to_string(),
+            priority_level: "Cardinal".to_string(),
+            source: "Samuel_Business_Goals".to_string(),
+            operational_guidelines: vec![],
         },
     ];
 
-    let resolution_2 = aedmcr_engine.resolve_ethical_dilemma_rag(privacy_security_dilemma.clone(), samuel_values_2);
-    println!("  Dilemma 2 Resolution: '{}'. Rationale: '{}'. Human Oversight Required: {}.\n",
+    let resolution_2 = aedmcr_engine
+        .resolve_ethical_dilemma_rag(privacy_security_dilemma.clone(), samuel_values_2);
+    println!(
+        "  Dilemma 2 Resolution: '{}'. Rationale: '{}'. Human Oversight Required: {}.\n",
         resolution_2.chosen_action,
         resolution_2.rationale,
         privacy_security_dilemma.human_oversight_required

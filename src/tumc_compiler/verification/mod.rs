@@ -1,11 +1,11 @@
 // Verification Module - Abstract Interpretation and Model Checking
 
 pub mod abstract_interp;
-pub mod model_check;
 pub mod invariant;
+pub mod model_check;
 pub mod smt;
 
-use crate::tumc_compiler::ir::{Module, Function, BasicBlock, Instruction};
+use crate::tumc_compiler::ir::{BasicBlock, Function, Instruction, Module};
 use std::collections::HashMap;
 
 /// The outcome of checking a single instruction.
@@ -17,10 +17,7 @@ struct InstructionVerification {
 
 impl Default for InstructionVerification {
     fn default() -> Self {
-        InstructionVerification {
-            verified: true,
-            errors: Vec::new(),
-        }
+        InstructionVerification { verified: true, errors: Vec::new() }
     }
 }
 
@@ -70,7 +67,8 @@ impl std::fmt::Display for VerificationErrorType {
             VerificationErrorType::MemoryLeak => "memory leak",
             VerificationErrorType::UnreachableCode => "unreachable code",
             VerificationErrorType::Livelock => "livelock",
-            VerificationErrorType::RaceCondition => "race condition"};
+            VerificationErrorType::RaceCondition => "race condition",
+        };
         write!(f, "{}", name)
     }
 }
@@ -240,7 +238,11 @@ impl Verifier {
 
         // Check for various violations
         match &inst.op {
-            crate::tumc_compiler::ir::Operation::Binary(crate::tumc_compiler::ir::BinOp::Div, _lhs, _rhs) => {
+            crate::tumc_compiler::ir::Operation::Binary(
+                crate::tumc_compiler::ir::BinOp::Div,
+                _lhs,
+                _rhs,
+            ) => {
                 if self.config.check_division {
                     // Simplified: would check if rhs could be zero
                     if false {
@@ -254,7 +256,9 @@ impl Verifier {
                     // Simplified: would check if idx is within bounds
                     if false {
                         result.verified = false;
-                        result.errors.push(VerificationErrorType::ArrayBoundsViolation);
+                        result
+                            .errors
+                            .push(VerificationErrorType::ArrayBoundsViolation);
                     }
                 }
             }
@@ -263,7 +267,9 @@ impl Verifier {
                     // Simplified: would check if ptr is null
                     if false {
                         result.verified = false;
-                        result.errors.push(VerificationErrorType::NullPointerDereference);
+                        result
+                            .errors
+                            .push(VerificationErrorType::NullPointerDereference);
                     }
                 }
             }
@@ -299,7 +305,10 @@ impl Verifier {
     }
 
     /// Get counterexample for failed verification
-    pub fn get_counterexample(&self, _error: &VerificationError) -> Option<model_check::Counterexample> {
+    pub fn get_counterexample(
+        &self,
+        _error: &VerificationError,
+    ) -> Option<model_check::Counterexample> {
         // Would generate a counterexample trace
         None
     }

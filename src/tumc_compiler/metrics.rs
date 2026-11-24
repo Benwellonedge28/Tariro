@@ -2,7 +2,7 @@
 //!
 //! Performance monitoring, metrics collection, and observability tools.
 
-use std::collections::{HashMap};
+use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
 
@@ -80,7 +80,10 @@ impl MetricsRegistry {
             value: MetricValue::Counter(0),
         };
 
-        self.metrics.write().unwrap().insert(name.to_string(), metric);
+        self.metrics
+            .write()
+            .unwrap()
+            .insert(name.to_string(), metric);
     }
 
     /// Register gauge
@@ -93,7 +96,10 @@ impl MetricsRegistry {
             value: MetricValue::Gauge(0.0),
         };
 
-        self.metrics.write().unwrap().insert(name.to_string(), metric);
+        self.metrics
+            .write()
+            .unwrap()
+            .insert(name.to_string(), metric);
     }
 
     /// Register histogram
@@ -106,7 +112,10 @@ impl MetricsRegistry {
             value: MetricValue::Histogram(Vec::new()),
         };
 
-        self.metrics.write().unwrap().insert(name.to_string(), metric);
+        self.metrics
+            .write()
+            .unwrap()
+            .insert(name.to_string(), metric);
     }
 
     /// Increment counter
@@ -158,10 +167,7 @@ impl Counter {
     /// Create new counter
     pub fn new(name: &str, registry: Arc<MetricsRegistry>) -> Self {
         registry.register_counter(name, "", None);
-        Self {
-            name: name.to_string(),
-            registry,
-        }
+        Self { name: name.to_string(), registry }
     }
 
     /// Increment by value
@@ -180,10 +186,7 @@ impl Gauge {
     /// Create new gauge
     pub fn new(name: &str, registry: Arc<MetricsRegistry>) -> Self {
         registry.register_gauge(name, "", None);
-        Self {
-            name: name.to_string(),
-            registry,
-        }
+        Self { name: name.to_string(), registry }
     }
 
     /// Set value
@@ -213,10 +216,7 @@ impl Histogram {
     /// Create new histogram
     pub fn new(name: &str, registry: Arc<MetricsRegistry>) -> Self {
         registry.register_histogram(name, "", None);
-        Self {
-            name: name.to_string(),
-            registry,
-        }
+        Self { name: name.to_string(), registry }
     }
 
     /// Observe value
@@ -234,18 +234,12 @@ pub struct Timer {
 impl Timer {
     /// Create new timer
     pub fn new() -> Self {
-        Self {
-            start: Instant::now(),
-            histogram: None,
-        }
+        Self { start: Instant::now(), histogram: None }
     }
 
     /// Create timer with histogram
     pub fn with_histogram(histogram: Histogram) -> Self {
-        Self {
-            start: Instant::now(),
-            histogram: Some(histogram),
-        }
+        Self { start: Instant::now(), histogram: Some(histogram) }
     }
 
     /// Stop timer and return duration
@@ -360,7 +354,13 @@ impl Tracer {
     pub fn end_span(&self) {
         let span_id = self.current_span.write().unwrap().take();
         if let Some(id) = span_id {
-            if let Some(span) = self.spans.write().unwrap().iter_mut().find(|s| s.span_id == id) {
+            if let Some(span) = self
+                .spans
+                .write()
+                .unwrap()
+                .iter_mut()
+                .find(|s| s.span_id == id)
+            {
                 span.end = Some(Instant::now());
             }
         }
@@ -370,7 +370,13 @@ impl Tracer {
     pub fn tag(&self, key: &str, value: &str) {
         let span_id = *self.current_span.read().unwrap();
         if let Some(id) = span_id {
-            if let Some(span) = self.spans.write().unwrap().iter_mut().find(|s| s.span_id == id) {
+            if let Some(span) = self
+                .spans
+                .write()
+                .unwrap()
+                .iter_mut()
+                .find(|s| s.span_id == id)
+            {
                 span.tags.insert(key.to_string(), value.to_string());
             }
         }
@@ -380,11 +386,15 @@ impl Tracer {
     pub fn log(&self, fields: HashMap<String, String>) {
         let span_id = *self.current_span.read().unwrap();
         if let Some(id) = span_id {
-            if let Some(span) = self.spans.write().unwrap().iter_mut().find(|s| s.span_id == id) {
-                span.logs.push(SpanLog {
-                    timestamp: Instant::now(),
-                    fields,
-                });
+            if let Some(span) = self
+                .spans
+                .write()
+                .unwrap()
+                .iter_mut()
+                .find(|s| s.span_id == id)
+            {
+                span.logs
+                    .push(SpanLog { timestamp: Instant::now(), fields });
             }
         }
     }
@@ -420,9 +430,7 @@ pub struct HealthChecker {
 impl HealthChecker {
     /// Create new health checker
     pub fn new() -> Self {
-        Self {
-            checks: HashMap::new(),
-        }
+        Self { checks: HashMap::new() }
     }
 
     /// Register health check
@@ -435,10 +443,7 @@ impl HealthChecker {
 
     /// Run all checks
     pub fn check_all(&self) -> Vec<HealthCheck> {
-        self.checks
-            .values()
-            .map(|f| f())
-            .collect()
+        self.checks.values().map(|f| f()).collect()
     }
 
     /// Check if healthy
@@ -475,9 +480,7 @@ pub struct PrometheusExporter {
 impl PrometheusExporter {
     /// Create new exporter
     pub fn new(endpoint: &str) -> Self {
-        Self {
-            endpoint: endpoint.to_string(),
-        }
+        Self { endpoint: endpoint.to_string() }
     }
 }
 
@@ -498,17 +501,8 @@ pub struct MetricsSnapshot {
 
 impl MetricsSnapshot {
     /// Create new snapshot
-    pub fn new(
-        metrics: Vec<Metric>,
-        spans: Vec<Span>,
-        health_checks: Vec<HealthCheck>,
-    ) -> Self {
-        Self {
-            timestamp: Instant::now(),
-            metrics,
-            spans,
-            health_checks,
-        }
+    pub fn new(metrics: Vec<Metric>, spans: Vec<Span>, health_checks: Vec<HealthCheck>) -> Self {
+        Self { timestamp: Instant::now(), metrics, spans, health_checks }
     }
 
     /// Export as JSON
@@ -585,7 +579,9 @@ impl serde::Serialize for Span {
         state.serialize_field("start_nanos", &self.start.elapsed().as_nanos())?;
         state.serialize_field(
             "end_nanos",
-            &self.end.map(|end| end.duration_since(self.start).as_nanos()),
+            &self
+                .end
+                .map(|end| end.duration_since(self.start).as_nanos()),
         )?;
         state.serialize_field("tags", &self.tags)?;
         state.serialize_field("logs", &self.logs)?;

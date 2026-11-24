@@ -5,7 +5,7 @@
 
 use std::sync::RwLock;
 
-use crate::knowledge::knowledge_graph::{KnowledgeGraph, EntityId, Entity, Probability};
+use crate::knowledge::knowledge_graph::{Entity, EntityId, KnowledgeGraph, Probability};
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::sync::Arc;
 
@@ -52,10 +52,7 @@ pub enum Value {
 #[derive(Debug, Clone)]
 pub enum StructuralEquation {
     /// Y = f(X1, X2, ..., Xn, U)
-    Functional {
-        parents: Vec<String>,
-        function: String,
-    },
+    Functional { parents: Vec<String>, function: String },
     /// Linear: Y = a*X + b*Z + U
     Linear {
         parents: Vec<String>,
@@ -63,15 +60,9 @@ pub enum StructuralEquation {
         intercept: f64,
     },
     /// Deterministic: Y is directly determined
-    Deterministic {
-        parents: Vec<String>,
-        value: String,
-    },
+    Deterministic { parents: Vec<String>, value: String },
     /// Probabilistic: Y has a distribution
-    Probabilistic {
-        parents: Vec<String>,
-        distribution: Distribution,
-    },
+    Probabilistic { parents: Vec<String>, distribution: Distribution },
 }
 
 /// Probability distribution
@@ -112,7 +103,8 @@ impl StructuralCausalModel {
 
     /// Add a structural equation
     pub fn add_equation(&mut self, variable: &str, equation: StructuralEquation) {
-        self.equations.insert(variable.to_string(), equation.clone());
+        self.equations
+            .insert(variable.to_string(), equation.clone());
 
         // Update causal graph
         let parents = match &equation {
@@ -165,19 +157,21 @@ pub struct CausalGraph {
     children: HashMap<String, HashSet<String>>,
 
     /// Reverse adjacency list: node -> parents
-    parents: HashMap<String, HashSet<String>>}
+    parents: HashMap<String, HashSet<String>>,
+}
 
 impl CausalGraph {
     /// Create a new causal graph
     pub fn new() -> Self {
-        CausalGraph {
-            children: HashMap::new(),
-            parents: HashMap::new()}
+        CausalGraph { children: HashMap::new(), parents: HashMap::new() }
     }
 
     /// Add a causal edge (cause -> effect)
     pub fn add_edge(&mut self, cause: String, effect: String) {
-        self.children.entry(cause.clone()).or_default().insert(effect.clone());
+        self.children
+            .entry(cause.clone())
+            .or_default()
+            .insert(effect.clone());
         self.parents.entry(effect).or_default().insert(cause);
     }
 
@@ -230,7 +224,13 @@ impl CausalGraph {
     /// Find all backdoor paths from treatment to outcome
     pub fn backdoor_paths(&self, treatment: &str, outcome: &str) -> Vec<Vec<String>> {
         let mut paths = Vec::new();
-        self.find_paths_internal(treatment, outcome, &mut vec![treatment.to_string()], &mut paths, true);
+        self.find_paths_internal(
+            treatment,
+            outcome,
+            &mut vec![treatment.to_string()],
+            &mut paths,
+            true,
+        );
         paths
     }
 
@@ -275,7 +275,13 @@ impl CausalGraph {
     /// Find all frontdoor paths (through mediators)
     pub fn frontdoor_paths(&self, treatment: &str, outcome: &str) -> Vec<Vec<String>> {
         let mut paths = Vec::new();
-        self.find_paths_internal(treatment, outcome, &mut vec![treatment.to_string()], &mut paths, true);
+        self.find_paths_internal(
+            treatment,
+            outcome,
+            &mut vec![treatment.to_string()],
+            &mut paths,
+            true,
+        );
         paths.retain(|p| p.len() > 2); // Frontdoor has mediator
         paths
     }
@@ -388,11 +394,7 @@ pub struct CausalReasoningEngine {
 impl CausalReasoningEngine {
     /// Create a new causal reasoning engine
     pub fn new(kb: Arc<RwLock<KnowledgeGraph>>) -> Self {
-        CausalReasoningEngine {
-            kb,
-            scm: None,
-            calculator: None,
-        }
+        CausalReasoningEngine { kb, scm: None, calculator: None }
     }
 
     /// Build SCM from knowledge graph
@@ -454,7 +456,11 @@ impl CausalReasoningEngine {
         let kb = self.kb.read().unwrap();
 
         // Direct lookup
-        if kb.has_relation(cause, &crate::knowledge::knowledge_graph::Predicate::Causes, effect) {
+        if kb.has_relation(
+            cause,
+            &crate::knowledge::knowledge_graph::Predicate::Causes,
+            effect,
+        ) {
             return Some(true);
         }
 
@@ -518,11 +524,7 @@ impl CausalReasoningEngine {
         let kb = self.kb.read().unwrap();
 
         // Find direct causes
-        let direct_causes: Vec<Entity> = kb
-            .get_causes(effect)
-            .into_iter()
-            .cloned()
-            .collect();
+        let direct_causes: Vec<Entity> = kb.get_causes(effect).into_iter().cloned().collect();
 
         // Build causal chain
         let mut chain = Vec::new();

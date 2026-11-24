@@ -3,15 +3,15 @@
 
 #[cfg(test)]
 mod tests {
-    use crate::prelude::*;
-    use crate::config::AGIConfig;
-    use crate::telemetry::TelemetryEvent;
-    use tokio::sync::mpsc;
-    use async_trait::async_trait;
-    use crate::event_bus::EventBus;
-    use crate::quantum_security::QuantumSecurityManager;
     use crate::autonomy::AutonomyLevel;
+    use crate::config::AGIConfig;
+    use crate::event_bus::EventBus;
+    use crate::prelude::*;
+    use crate::quantum_security::QuantumSecurityManager;
+    use crate::telemetry::TelemetryEvent;
+    use async_trait::async_trait;
     use std::sync::Arc;
+    use tokio::sync::mpsc;
     use tokio::sync::Mutex;
 
     // Simple mock config for tests
@@ -22,9 +22,7 @@ mod tests {
 
     impl Default for TestConfig {
         fn default() -> Self {
-            TestConfig {
-                autonomy_level: AutonomyLevel::FullAuto,
-            }
+            TestConfig { autonomy_level: AutonomyLevel::FullAuto }
         }
     }
 
@@ -79,16 +77,18 @@ mod tests {
         let logger = crate::telemetry::TelemetryLogger::new(tx);
 
         logger.log_info("test_source", "Test info message").await;
-        logger.log_warning("test_source", "Test warning message").await;
+        logger
+            .log_warning("test_source", "Test warning message")
+            .await;
         logger.log_error("test_source", "Test error message").await;
 
         // Verify events were sent
         let mut count = 0;
         while let Some(event) = rx.recv().await {
             match event {
-                TelemetryEvent::InfoLogged { .. } |
-                TelemetryEvent::WarningOccurred { .. } |
-                TelemetryEvent::ErrorOccurred { .. } => count += 1,
+                TelemetryEvent::InfoLogged { .. }
+                | TelemetryEvent::WarningOccurred { .. }
+                | TelemetryEvent::ErrorOccurred { .. } => count += 1,
                 _ => {}
             }
             if count >= 3 {
@@ -119,7 +119,11 @@ mod tests {
     async fn test_config_serialization() {
         let config = AGIConfig::default();
         let serialized = serde_json::to_string(&config).expect("Failed to serialize config");
-        let deserialized: AGIConfig = serde_json::from_str(&serialized).expect("Failed to deserialize config");
-        assert_eq!(config.get_autonomy_level(), deserialized.get_autonomy_level());
+        let deserialized: AGIConfig =
+            serde_json::from_str(&serialized).expect("Failed to deserialize config");
+        assert_eq!(
+            config.get_autonomy_level(),
+            deserialized.get_autonomy_level()
+        );
     }
 }

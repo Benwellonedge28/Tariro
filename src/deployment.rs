@@ -2,7 +2,6 @@
 
 //! Defines entities and functionalities related to the deployment of Tariro AGI components.
 
-
 use chrono::{DateTime, Utc};
 
 use serde::{Deserialize, Serialize};
@@ -17,9 +16,9 @@ pub struct DeploymentRecord {
     pub target: DeploymentTarget,
     pub status: DeploymentStatus,
     pub deployment_date: DateTime<Utc>,
-    pub deployed_by: String, // e.g., "Tariro AGI", "AdminUser_ID"
-    pub logs: Vec<String>, // Simplified logs for now
-    pub atve_passed: bool, // Advanced Threat & Vulnerability Emulation passed
+    pub deployed_by: String,            // e.g., "Tariro AGI", "AdminUser_ID"
+    pub logs: Vec<String>,              // Simplified logs for now
+    pub atve_passed: bool,              // Advanced Threat & Vulnerability Emulation passed
     pub performance_score: Option<f32>, // 0-100 score post-deployment
     pub notes: Option<String>,
 }
@@ -32,9 +31,9 @@ pub enum DeploymentTarget {
     LocalHost,
     OMEGANetwork,
     QuantumSubstrate,
-    BioIntegrated(String),        // Biological system identifier
-    Simulated(String),            // Simulation environment identifier
-    Custom(String),               // For any other specific target
+    BioIntegrated(String), // Biological system identifier
+    Simulated(String),     // Simulation environment identifier
+    Custom(String),        // For any other specific target
 }
 
 impl ToString for DeploymentTarget {
@@ -94,12 +93,16 @@ impl DeploymentManager {
         deployed_by: &str,
         atve_passed: bool,
     ) -> Result<DeploymentRecord, String> {
-        println!("[DeploymentManager] Deploying project {} (v{}) to {:?}...", project_name, version, target);
+        println!(
+            "[DeploymentManager] Deploying project {} (v{}) to {:?}...",
+            project_name, version, target
+        );
 
         // Simulate deployment process
         tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
 
-        let status = if rand::random::<f32>() > 0.1 { // 90% chance of success
+        let status = if rand::random::<f32>() > 0.1 {
+            // 90% chance of success
             DeploymentStatus::Live
         } else {
             DeploymentStatus::Failed
@@ -120,7 +123,10 @@ impl DeploymentManager {
             status: status.clone(),
             deployment_date: Utc::now(),
             deployed_by: deployed_by.to_string(),
-            logs: vec!["Deployment initiated.".to_string(), format!("Final status: {:?}", status.clone())],
+            logs: vec![
+                "Deployment initiated.".to_string(),
+                format!("Final status: {:?}", status.clone()),
+            ],
             atve_passed,
             performance_score,
             notes: None,
@@ -129,14 +135,20 @@ impl DeploymentManager {
         if status == DeploymentStatus::Failed {
             Err(format!("Deployment of {} failed.", project_name))
         } else {
-            println!("[DeploymentManager] Deployment of {} successful. Status: {:?}", project_name, status);
+            println!(
+                "[DeploymentManager] Deployment of {} successful. Status: {:?}",
+                project_name, status
+            );
             Ok(record)
         }
     }
 
     /// Simulates rolling back a deployment.
     pub async fn rollback_deployment(&self, record_id: &str) -> Result<DeploymentRecord, String> {
-        println!("[DeploymentManager] Initiating rollback for deployment record {}...", record_id);
+        println!(
+            "[DeploymentManager] Initiating rollback for deployment record {}...",
+            record_id
+        );
         tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
 
         // In a real system, fetch the actual record and modify it.
@@ -150,7 +162,10 @@ impl DeploymentManager {
             status: DeploymentStatus::RolledBack,
             deployment_date: Utc::now(),
             deployed_by: "Tariro AGI".to_string(),
-            logs: vec!["Rollback initiated.".to_string(), "Previous deployment reverted.".to_string()],
+            logs: vec![
+                "Rollback initiated.".to_string(),
+                "Previous deployment reverted.".to_string(),
+            ],
             atve_passed: true,
             performance_score: None,
             notes: Some(format!("Rolled back from deployment record: {}", record_id)),
@@ -167,14 +182,16 @@ mod tests {
     async fn test_deploy_project_success() {
         let manager = DeploymentManager::new();
         let project_id = Uuid::new_v4().to_string();
-        let record = manager.deploy_project(
-            &project_id,
-            "TestApp",
-            "1.0.0",
-            DeploymentTarget::LocalHost,
-            "test_user",
-            true,
-        ).await;
+        let record = manager
+            .deploy_project(
+                &project_id,
+                "TestApp",
+                "1.0.0",
+                DeploymentTarget::LocalHost,
+                "test_user",
+                true,
+            )
+            .await;
         assert!(record.is_ok());
         let deployment = record.unwrap();
         assert_eq!(deployment.status, DeploymentStatus::Live);
@@ -191,14 +208,16 @@ mod tests {
         // There's a 10% chance of failure, so we'll try a few times.
         let mut failed = false;
         for _ in 0..10 {
-            let record = manager.deploy_project(
-                &project_id,
-                "FailingApp",
-                "1.0.0",
-                DeploymentTarget::LocalHost,
-                "test_user",
-                true,
-            ).await;
+            let record = manager
+                .deploy_project(
+                    &project_id,
+                    "FailingApp",
+                    "1.0.0",
+                    DeploymentTarget::LocalHost,
+                    "test_user",
+                    true,
+                )
+                .await;
             if record.is_err() {
                 failed = true;
                 break;

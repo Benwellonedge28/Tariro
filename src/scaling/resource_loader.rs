@@ -14,7 +14,6 @@
 use crate::scaling::capability::{CapabilityProfile, DeviceTier, FeatureFlags, LoadingStrategy};
 use crate::scaling::{ScalingError, ScalingModuleHandle, SCALING_VERSION};
 use std::collections::{HashMap, HashSet};
-use std::sync::{ };
 
 // ============================================================================
 // Module Types
@@ -212,7 +211,6 @@ pub struct ResourceAwareLoader {
     /// Strict mode (fail on missing optional)
     strict: bool,
 }
-
 
 impl ResourceAwareLoader {
     /// Create a new loader with the given profile
@@ -497,7 +495,12 @@ impl ResourceAwareLoader {
         let mut sorted: Vec<(u8, String)> = self
             .modules
             .values()
-            .map(|module| (module.descriptor.load_priority, module.descriptor.name.to_string()))
+            .map(|module| {
+                (
+                    module.descriptor.load_priority,
+                    module.descriptor.name.to_string(),
+                )
+            })
             .collect();
         sorted.sort_by_key(|(priority, _)| *priority);
 
@@ -607,10 +610,7 @@ impl ResourceAwareLoader {
         if !self.profile.features.has(desc.required_features) {
             return (
                 false,
-                format!(
-                    "Missing required features: {:?}",
-                    desc.required_features
-                ),
+                format!("Missing required features: {:?}", desc.required_features),
             );
         }
 
@@ -642,12 +642,16 @@ impl ResourceAwareLoader {
     }
 
     /// Load a single module internally
-    fn load_module_internal(&mut self, entry: &mut ModuleEntry) -> Result<Option<ScalingModuleHandle>, ScalingError> {
+    fn load_module_internal(
+        &mut self,
+        entry: &mut ModuleEntry,
+    ) -> Result<Option<ScalingModuleHandle>, ScalingError> {
         // If we have an init function, use it
         if let Some(init_fn) = entry.init_fn {
             match init_fn(&self.profile) {
                 Ok(handle) => Ok(Some(handle)),
-                Err(e) => Err(e)}
+                Err(e) => Err(e),
+            }
         } else {
             // Create a default handle
             Ok(Some(ScalingModuleHandle {

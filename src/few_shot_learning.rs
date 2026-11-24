@@ -1,10 +1,9 @@
 // Tariro AGI - Few-Shot Learning Module
 // Learning from few examples
 
-
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap};
 use std::cmp::Ordering;
+use std::collections::HashMap;
 
 // ============================================================================
 // Few-Shot Learning Types
@@ -170,7 +169,8 @@ impl PrototypicalNetworks {
 
         // Group embeddings by class
         for (embedding, label) in support_embeddings.iter().zip(support_labels.iter()) {
-            class_embeddings.entry(label.clone())
+            class_embeddings
+                .entry(label.clone())
                 .or_insert_with(Vec::new)
                 .push(embedding.clone());
         }
@@ -244,13 +244,12 @@ impl PrototypicalNetworks {
         let center = self.compute_mean(embeddings);
 
         // Compute distances and weights
-        let distances: Vec<f32> = embeddings.iter()
+        let distances: Vec<f32> = embeddings
+            .iter()
             .map(|e| self.compute_distance(e, &center))
             .collect();
 
-        let weights: Vec<f32> = distances.iter()
-            .map(|d| 1.0 / (d + 1e-8))
-            .collect();
+        let weights: Vec<f32> = distances.iter().map(|d| 1.0 / (d + 1e-8)).collect();
 
         let total_weight: f32 = weights.iter().sum();
 
@@ -284,9 +283,7 @@ impl PrototypicalNetworks {
         }
 
         let total: f32 = attention_weights.iter().sum();
-        let normalized_weights: Vec<f32> = attention_weights.iter()
-            .map(|w| w / total)
-            .collect();
+        let normalized_weights: Vec<f32> = attention_weights.iter().map(|w| w / total).collect();
 
         let dim = embeddings[0].len();
         let mut proto = vec![0.0; dim];
@@ -309,23 +306,19 @@ impl PrototypicalNetworks {
     /// Compute distance between two embeddings
     pub fn compute_distance(&self, a: &[f32], b: &[f32]) -> f32 {
         match self.distance_metric {
-            DistanceMetric::Euclidean => {
-                a.iter().zip(b.iter())
-                    .map(|(x, y)| (x - y).powi(2))
-                    .sum::<f32>()
-                    .sqrt()
-            }
+            DistanceMetric::Euclidean => a
+                .iter()
+                .zip(b.iter())
+                .map(|(x, y)| (x - y).powi(2))
+                .sum::<f32>()
+                .sqrt(),
             DistanceMetric::Cosine => {
                 let dot = a.iter().zip(b.iter()).map(|(x, y)| x * y).sum::<f32>();
                 let norm_a = a.iter().map(|x| x.powi(2)).sum::<f32>().sqrt();
                 let norm_b = b.iter().map(|x| x.powi(2)).sum::<f32>().sqrt();
                 1.0 - (dot / (norm_a * norm_b + 1e-8))
             }
-            DistanceMetric::Manhattan => {
-                a.iter().zip(b.iter())
-                    .map(|(x, y)| (x - y).abs())
-                    .sum()
-            }
+            DistanceMetric::Manhattan => a.iter().zip(b.iter()).map(|(x, y)| (x - y).abs()).sum(),
             DistanceMetric::Mahalanobis => {
                 // Simplified Mahalanobis (identity covariance)
                 self.compute_distance(a, b)
@@ -344,7 +337,8 @@ impl PrototypicalNetworks {
 
         // Convert distances to probabilities (negative distance = higher prob)
         let mut probs = HashMap::new();
-        let total: f32 = distances.values()
+        let total: f32 = distances
+            .values()
             .map(|d| (-*d / self.config.temperature).exp())
             .sum();
 
@@ -360,16 +354,13 @@ impl PrototypicalNetworks {
     pub fn predict(&self, query_embedding: &[f32]) -> Prediction {
         let probs = self.classify(query_embedding);
 
-        let (predicted_label, confidence) = probs.iter()
+        let (predicted_label, confidence) = probs
+            .iter()
             .max_by(|a, b| a.1.partial_cmp(b.1).unwrap_or(Ordering::Equal))
             .map(|(k, v)| (k.clone(), *v))
             .unwrap_or(("unknown".to_string(), 0.0));
 
-        Prediction {
-            predicted_label,
-            confidence,
-            probabilities: probs,
-        }
+        Prediction { predicted_label, confidence, probabilities: probs }
     }
 
     /// Update prototypes online
@@ -466,7 +457,8 @@ impl MAML {
             let logits = self.forward(params, embedding);
 
             // Cross-entropy (simplified)
-            let loss = -logits.iter()
+            let loss = -logits
+                .iter()
                 .zip(label.as_bytes())
                 .map(|(l, y)| l * (*y as f32))
                 .sum::<f32>();
@@ -493,18 +485,13 @@ impl MAML {
     }
 
     /// Outer loop: meta-update
-    pub fn meta_update(
-        &mut self,
-        task_losses: &[f32],
-        adaptation_params: &[Vec<f32>],
-    ) {
+    pub fn meta_update(&mut self, task_losses: &[f32], adaptation_params: &[Vec<f32>]) {
         // Compute meta-gradient
         let mut meta_grad = vec![0.0; self.meta_parameters.len()];
 
         for (loss, adapted) in task_losses.iter().zip(adaptation_params.iter()) {
-            for (i, (orig, adapted_val)) in self.meta_parameters.iter()
-                .zip(adapted.iter())
-                .enumerate()
+            for (i, (orig, adapted_val)) in
+                self.meta_parameters.iter().zip(adapted.iter()).enumerate()
             {
                 let grad = (adapted_val - orig) / (loss + 1e-8);
                 meta_grad[i] += grad;
@@ -530,7 +517,8 @@ impl MAML {
         let mut adapted_params = self.meta_parameters.clone();
 
         for _ in 0..self.config.inner_steps {
-            let gradients = self.compute_gradients(&adapted_params, support_embeddings, support_labels);
+            let gradients =
+                self.compute_gradients(&adapted_params, support_embeddings, support_labels);
 
             for (i, grad) in gradients.iter().enumerate() {
                 if i < adapted_params.len() {
@@ -562,10 +550,7 @@ impl MAML {
             let output = self.forward(params, embedding);
 
             // Gradient of cross-entropy (simplified)
-            for (i, (out, y)) in output.iter()
-                .zip(label.as_bytes())
-                .enumerate()
-            {
+            for (i, (out, y)) in output.iter().zip(label.as_bytes()).enumerate() {
                 if i < gradients.len() {
                     gradients[i] += out - *y as f32;
                 }
@@ -619,13 +604,9 @@ impl MatchingNetworks {
 
     /// Classify query using attention over support
     pub fn classify(&self, query: &[f32]) -> HashMap<String, f32> {
-        let embeddings: Vec<Vec<f32>> = self.support_set.iter()
-            .map(|(e, _)| e.clone())
-            .collect();
+        let embeddings: Vec<Vec<f32>> = self.support_set.iter().map(|(e, _)| e.clone()).collect();
 
-        let labels: Vec<String> = self.support_set.iter()
-            .map(|(_, l)| l.clone())
-            .collect();
+        let labels: Vec<String> = self.support_set.iter().map(|(_, l)| l.clone()).collect();
 
         // Compute attention weights
         let attention = (self.attention_fn)(query, &embeddings, &DistanceMetric::Euclidean);
@@ -634,8 +615,7 @@ impl MatchingNetworks {
         let mut class_weights: HashMap<String, (f32, f32)> = HashMap::new();
 
         for (weight, label) in attention.iter().zip(labels.iter()) {
-            let entry = class_weights.entry(label.clone())
-                .or_insert((0.0, 0.0));
+            let entry = class_weights.entry(label.clone()).or_insert((0.0, 0.0));
             entry.0 += weight;
             entry.1 += 1.0;
         }
@@ -643,13 +623,15 @@ impl MatchingNetworks {
         // Normalize to probabilities
         let total: f32 = class_weights.values().map(|(w, _)| w).sum();
 
-        class_weights.iter()
+        class_weights
+            .iter()
             .map(|(k, (w, _c))| (k.clone(), w / total))
             .collect()
     }
 
     fn euclidean_distance(a: &[f32], b: &[f32]) -> f32 {
-        a.iter().zip(b.iter())
+        a.iter()
+            .zip(b.iter())
             .map(|(x, y)| (x - y).powi(2))
             .sum::<f32>()
             .sqrt()
@@ -659,16 +641,13 @@ impl MatchingNetworks {
     pub fn predict(&self, query: &[f32]) -> Prediction {
         let probs = self.classify(query);
 
-        let (label, confidence) = probs.iter()
+        let (label, confidence) = probs
+            .iter()
             .max_by(|a, b| a.1.partial_cmp(b.1).unwrap_or(Ordering::Equal))
             .map(|(k, v)| (k.clone(), *v))
             .unwrap_or(("unknown".to_string(), 0.0));
 
-        Prediction {
-            predicted_label: label,
-            confidence,
-            probabilities: probs,
-        }
+        Prediction { predicted_label: label, confidence, probabilities: probs }
     }
 }
 

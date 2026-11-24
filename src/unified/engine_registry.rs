@@ -3,10 +3,10 @@
 //! This module provides a unified registry that ties together all engine modules
 //! under the Tariro AGI system, enabling coordinated access and management.
 
-use std::collections::{HashMap, HashSet};
-use std::sync::{ RwLock};
-use std::time::{Duration, Instant};
 use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, HashSet};
+use std::sync::RwLock;
+use std::time::{Duration, Instant};
 
 /// Engine capability categories
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
@@ -660,8 +660,9 @@ impl EngineRegistry {
                 statistics.total_execution_time += engine_statistics.total_execution_time;
                 statistics.success_count += engine_statistics.success_count;
                 statistics.failure_count += engine_statistics.failure_count;
-                statistics.peak_memory_usage =
-                    statistics.peak_memory_usage.max(engine_statistics.peak_memory_usage);
+                statistics.peak_memory_usage = statistics
+                    .peak_memory_usage
+                    .max(engine_statistics.peak_memory_usage);
             }
             if statistics.invocation_count > 0 {
                 statistics.avg_execution_time = Duration::from_nanos(
@@ -780,11 +781,17 @@ pub enum EngineRegistryError {
 impl std::fmt::Display for EngineRegistryError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            EngineRegistryError::AlreadyRegistered(name) => write!(f, "Engine already registered: {}", name),
-            EngineRegistryError::AlreadyExists(name) => write!(f, "Engine already registered: {}", name),
+            EngineRegistryError::AlreadyRegistered(name) => {
+                write!(f, "Engine already registered: {}", name)
+            }
+            EngineRegistryError::AlreadyExists(name) => {
+                write!(f, "Engine already registered: {}", name)
+            }
             EngineRegistryError::NotFound(name) => write!(f, "Engine not found: {}", name),
             EngineRegistryError::LockError => write!(f, "Engine registry lock poisoned"),
-            EngineRegistryError::ConfigurationError(message) => write!(f, "Engine configuration error: {}", message),
+            EngineRegistryError::ConfigurationError(message) => {
+                write!(f, "Engine configuration error: {}", message)
+            }
         }
     }
 }
@@ -862,8 +869,9 @@ impl EngineStatistics {
         }
 
         // Update average
-        self.avg_execution_time =
-            Duration::from_nanos(self.total_execution_time.as_nanos() as u64 / self.invocation_count);
+        self.avg_execution_time = Duration::from_nanos(
+            self.total_execution_time.as_nanos() as u64 / self.invocation_count,
+        );
 
         // Update peak memory
         if memory_used > self.peak_memory_usage {

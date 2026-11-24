@@ -74,10 +74,7 @@ pub struct IdeationEngine {
 impl IdeationEngine {
     /// Create a new ideation engine
     pub fn new() -> Self {
-        Self {
-            exploration_depth: 3,
-            max_concepts: 5,
-        }
+        Self { exploration_depth: 3, max_concepts: 5 }
     }
 
     /// Generate concepts from a creative prompt
@@ -132,7 +129,8 @@ impl IdeationEngine {
         // Simple title generation - in production would use more sophisticated methods
         let words: Vec<&str> = intent.split_whitespace().collect();
         if words.len() >= 2 {
-            format!("The {} of {}",
+            format!(
+                "The {} of {}",
                 self.capitalize(words[0]),
                 words[1..].join(" ").to_lowercase()
             )

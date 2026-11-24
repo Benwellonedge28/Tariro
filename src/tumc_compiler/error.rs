@@ -1,6 +1,5 @@
 //! Error handling and diagnostic reporting for TUMC compiler
 
-
 use std::fmt;
 
 /// Severity level for diagnostics
@@ -46,12 +45,7 @@ pub struct Span {
 impl Span {
     /// Create a new span
     pub fn new(start_line: usize, start_col: usize, end_line: usize, end_col: usize) -> Self {
-        Span {
-            start_line,
-            start_col,
-            end_line,
-            end_col,
-        }
+        Span { start_line, start_col, end_line, end_col }
     }
 
     /// Create a zero-length span at a point
@@ -97,13 +91,22 @@ impl fmt::Display for Span {
             if self.start_col == self.end_col {
                 write!(f, "{}:{}", self.start_line + 1, self.start_col + 1)
             } else {
-                write!(f, "{}:{}-{}", self.start_line + 1, self.start_col + 1, self.end_col + 1)
+                write!(
+                    f,
+                    "{}:{}-{}",
+                    self.start_line + 1,
+                    self.start_col + 1,
+                    self.end_col + 1
+                )
             }
         } else {
             write!(
-                f, "{}:{}-{}:{}",
-                self.start_line + 1, self.start_col + 1,
-                self.end_line + 1, self.end_col + 1
+                f,
+                "{}:{}-{}:{}",
+                self.start_line + 1,
+                self.start_col + 1,
+                self.end_line + 1,
+                self.end_col + 1
             )
         }
     }
@@ -261,14 +264,24 @@ impl fmt::Display for Suggestion {
         match &self.kind {
             SuggestionKind::Replace => {
                 if let Some(ref span) = self.span {
-                    write!(f, "replace {} with '{}'", span, self.replacement.as_ref().unwrap())
+                    write!(
+                        f,
+                        "replace {} with '{}'",
+                        span,
+                        self.replacement.as_ref().unwrap()
+                    )
                 } else {
                     write!(f, "{}", self.description)
                 }
             }
             SuggestionKind::Insert => {
                 if let Some(ref span) = self.span {
-                    write!(f, "insert at {} '{}'", span, self.replacement.as_ref().unwrap())
+                    write!(
+                        f,
+                        "insert at {} '{}'",
+                        span,
+                        self.replacement.as_ref().unwrap()
+                    )
                 } else {
                     write!(f, "{}", self.description)
                 }
@@ -315,10 +328,7 @@ pub enum ErrorKind {
 
     // Parser errors
     /// Unexpected token
-    UnexpectedToken {
-        expected: String,
-        found: String,
-    },
+    UnexpectedToken { expected: String, found: String },
     /// Unexpected end of input
     UnexpectedEndOfInput,
     /// Expected token not found
@@ -336,19 +346,13 @@ pub enum ErrorKind {
 
     // Type errors
     /// Type mismatch
-    TypeMismatch {
-        expected: String,
-        found: String,
-    },
+    TypeMismatch { expected: String, found: String },
     /// Undefined type
     UndefinedType(String),
     /// Undefined variable
     UndefinedVariable(String),
     /// Unification failure
-    UnificationFailure {
-        left: String,
-        right: String,
-    },
+    UnificationFailure { left: String, right: String },
     /// Cannot infer type
     CannotInferType(String),
     /// Recursive type definition
@@ -483,11 +487,7 @@ pub struct CompileError {
 impl CompileError {
     /// Create a new compile error
     pub fn new(kind: ErrorKind, span: Span) -> Self {
-        CompileError {
-            kind,
-            span,
-            file: None,
-        }
+        CompileError { kind, span, file: None }
     }
 
     /// Create with file name
@@ -543,7 +543,13 @@ impl CompileError {
 
 impl fmt::Display for CompileError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}:{} - {}", self.span, self.file.as_deref().unwrap_or("?"), self.kind)
+        write!(
+            f,
+            "{}:{} - {}",
+            self.span,
+            self.file.as_deref().unwrap_or("?"),
+            self.kind
+        )
     }
 }
 
@@ -565,11 +571,7 @@ pub struct ErrorHandler {
 impl ErrorHandler {
     /// Create new error handler
     pub fn new() -> Self {
-        ErrorHandler {
-            errors: vec![],
-            max_errors: 100,
-            warnings: vec![],
-        }
+        ErrorHandler { errors: vec![], max_errors: 100, warnings: vec![] }
     }
 
     /// Set maximum errors
@@ -665,14 +667,10 @@ mod tests {
 
     #[test]
     fn test_diagnostic_format() {
-        let diag = Diagnostic::new(
-            Severity::Error,
-            Span::point(10, 5),
-            "Test error",
-        )
-        .with_code("E0001")
-        .with_note("This is a note")
-        .with_suggestion(Suggestion::new("Try this instead"));
+        let diag = Diagnostic::new(Severity::Error, Span::point(10, 5), "Test error")
+            .with_code("E0001")
+            .with_note("This is a note")
+            .with_suggestion(Suggestion::new("Try this instead"));
 
         let formatted = diag.format("test.tumc");
         assert!(formatted.contains("E0001"));

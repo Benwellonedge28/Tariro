@@ -150,7 +150,11 @@ impl AttributionManager {
     }
 
     /// Create provenance for a work
-    pub fn create_provenance(&self, concept: &CreativeConcept, iterations: u32) -> ProvenanceRecord {
+    pub fn create_provenance(
+        &self,
+        concept: &CreativeConcept,
+        iterations: u32,
+    ) -> ProvenanceRecord {
         ProvenanceRecord::new(concept, iterations)
     }
 
@@ -170,12 +174,14 @@ impl AttributionManager {
 
         attribution.push_str(&format!(
             "Generated using {} v{}\n",
-            provenance.generation.engine,
-            provenance.generation.version
+            provenance.generation.engine, provenance.generation.version
         ));
 
         if let Some(ref license) = provenance.license.attribution_text {
-            attribution.push_str(&format!("License: {} ({})\n", provenance.license.name, license));
+            attribution.push_str(&format!(
+                "License: {} ({})\n",
+                provenance.license.name, license
+            ));
         }
 
         attribution

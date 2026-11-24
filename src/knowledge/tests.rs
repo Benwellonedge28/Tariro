@@ -5,8 +5,8 @@
 use std::collections::HashMap;
 #[cfg(test)]
 mod knowledge_graph_tests {
-    use super::super::*;
     use super::super::knowledge_graph::*;
+    use super::super::*;
 
     // ==========================================================================
     // Entity Tests
@@ -63,12 +63,9 @@ mod knowledge_graph_tests {
         let fire = Entity::new("Fire", EntityType::Process);
         let smoke = Entity::new("Smoke", EntityType::Event);
 
-        let relation = Relation::new(
-            fire,
-            Predicate::Causes,
-            smoke,
-        ).with_mechanism("Combustion produces smoke".to_string())
-         .with_temporal_delay(10);
+        let relation = Relation::new(fire, Predicate::Causes, smoke)
+            .with_mechanism("Combustion produces smoke".to_string())
+            .with_temporal_delay(10);
 
         assert!(relation.mechanism.is_some());
         assert_eq!(relation.temporal_delay, Some(10));
@@ -98,8 +95,12 @@ mod knowledge_graph_tests {
         let mortality = Entity::new("Mortal", EntityType::Concept);
 
         // Add facts
-        graph.add_fact(socrates.clone(), Predicate::IsA, human.clone()).unwrap();
-        graph.add_fact(human.clone(), Predicate::IsA, mortality.clone()).unwrap();
+        graph
+            .add_fact(socrates.clone(), Predicate::IsA, human.clone())
+            .unwrap();
+        graph
+            .add_fact(human.clone(), Predicate::IsA, mortality.clone())
+            .unwrap();
 
         assert_eq!(graph.stats.total_entities, 3);
         assert_eq!(graph.stats.total_relations, 2);
@@ -113,12 +114,15 @@ mod knowledge_graph_tests {
         let human = Entity::new("Human", EntityType::Concept);
         let mortality = Entity::new("Mortal", EntityType::Concept);
 
-        graph.add_fact(socrates.clone(), Predicate::IsA, human.clone()).unwrap();
-        graph.add_fact(human.clone(), Predicate::IsA, mortality.clone()).unwrap();
+        graph
+            .add_fact(socrates.clone(), Predicate::IsA, human.clone())
+            .unwrap();
+        graph
+            .add_fact(human.clone(), Predicate::IsA, mortality.clone())
+            .unwrap();
 
         // Query for Socrates
-        let query = Query::new()
-            .with_subject(EntityId::new("Socrates"));
+        let query = Query::new().with_subject(EntityId::new("Socrates"));
         let results = graph.query(&query);
 
         assert!(!results.is_empty());
@@ -132,15 +136,15 @@ mod knowledge_graph_tests {
         let b = Entity::new("B", EntityType::Concept);
         let c = Entity::new("C", EntityType::Concept);
 
-        graph.add_fact(a.clone(), Predicate::IsA, b.clone()).unwrap();
-        graph.add_fact(b.clone(), Predicate::IsA, c.clone()).unwrap();
+        graph
+            .add_fact(a.clone(), Predicate::IsA, b.clone())
+            .unwrap();
+        graph
+            .add_fact(b.clone(), Predicate::IsA, c.clone())
+            .unwrap();
 
         // Transitive: A -> B -> C means A -> C
-        let paths = graph.find_paths(
-            &EntityId::new("A"),
-            &EntityId::new("C"),
-            &Predicate::IsA,
-        );
+        let paths = graph.find_paths(&EntityId::new("A"), &EntityId::new("C"), &Predicate::IsA);
 
         assert!(!paths.is_empty());
     }
@@ -153,13 +157,14 @@ mod knowledge_graph_tests {
         let smoke = Entity::new("Smoke", EntityType::Event);
         let alarm = Entity::new("Smoke Alarm", EntityType::Object);
 
-        graph.add_fact(fire.clone(), Predicate::Causes, smoke.clone()).unwrap();
-        graph.add_fact(smoke.clone(), Predicate::Causes, alarm.clone()).unwrap();
+        graph
+            .add_fact(fire.clone(), Predicate::Causes, smoke.clone())
+            .unwrap();
+        graph
+            .add_fact(smoke.clone(), Predicate::Causes, alarm.clone())
+            .unwrap();
 
-        let chain = graph.find_causal_chain(
-            &EntityId::new("Fire"),
-            &EntityId::new("Smoke Alarm"),
-        );
+        let chain = graph.find_causal_chain(&EntityId::new("Fire"), &EntityId::new("Smoke Alarm"));
 
         assert!(chain.is_some());
         assert!(chain.unwrap().len() >= 2);
@@ -187,8 +192,8 @@ mod knowledge_graph_tests {
 
 #[cfg(test)]
 mod reasoning_tests {
-    use super::super::*;
     use super::super::reasoning::*;
+    use super::super::*;
 
     #[test]
     fn test_reasoning_engine_creation() {
@@ -244,8 +249,8 @@ mod reasoning_tests {
 
 #[cfg(test)]
 mod logic_tests {
-    use super::super::*;
     use super::super::logic::*;
+    use super::super::*;
 
     #[test]
     fn test_term_creation() {
@@ -260,7 +265,10 @@ mod logic_tests {
     fn test_literal_creation() {
         let literal = Literal::new(
             Predicate::IsA,
-            vec![Term::Constant("Socrates".to_string()), Term::Variable("X".to_string())],
+            vec![
+                Term::Constant("Socrates".to_string()),
+                Term::Variable("X".to_string()),
+            ],
         );
 
         assert_eq!(literal.predicate, Predicate::IsA);
@@ -278,7 +286,10 @@ mod logic_tests {
             // Body: Human(X)
             vec![Literal::new(
                 Predicate::IsA,
-                vec![Term::Variable("X".to_string()), Term::Constant("Human".to_string())],
+                vec![
+                    Term::Variable("X".to_string()),
+                    Term::Constant("Human".to_string()),
+                ],
             )],
         );
 
@@ -290,18 +301,22 @@ mod logic_tests {
         let mut engine = LogicEngine::new();
 
         // Add fact: Human(Socrates)
-        let fact = Clause::fact(
-            Literal::new(
-                Predicate::IsA,
-                vec![Term::Constant("Socrates".to_string()), Term::Constant("Human".to_string())],
-            )
-        );
+        let fact = Clause::fact(Literal::new(
+            Predicate::IsA,
+            vec![
+                Term::Constant("Socrates".to_string()),
+                Term::Constant("Human".to_string()),
+            ],
+        ));
         engine.add_fact(fact);
 
         // Query: Human(Socrates)?
         let query = Literal::new(
             Predicate::IsA,
-            vec![Term::Constant("Socrates".to_string()), Term::Constant("Human".to_string())],
+            vec![
+                Term::Constant("Socrates".to_string()),
+                Term::Constant("Human".to_string()),
+            ],
         );
 
         let result = engine.query(&query);
@@ -326,18 +341,27 @@ mod logic_tests {
         // Facts
         engine.add_fact(Clause::fact(Literal::new(
             Predicate::IsA,
-            vec![Term::Constant("Socrates".to_string()), Term::Constant("Human".to_string())],
+            vec![
+                Term::Constant("Socrates".to_string()),
+                Term::Constant("Human".to_string()),
+            ],
         )));
 
         engine.add_fact(Clause::fact(Literal::new(
             Predicate::IsA,
-            vec![Term::Constant("Human".to_string()), Term::Constant("Mortal".to_string())],
+            vec![
+                Term::Constant("Human".to_string()),
+                Term::Constant("Mortal".to_string()),
+            ],
         )));
 
         // Query: Mortal(Socrates)?
         let query = Literal::new(
             Predicate::IsA,
-            vec![Term::Constant("Socrates".to_string()), Term::Constant("Mortal".to_string())],
+            vec![
+                Term::Constant("Socrates".to_string()),
+                Term::Constant("Mortal".to_string()),
+            ],
         );
 
         let result = engine.query(&query);
@@ -347,8 +371,8 @@ mod logic_tests {
 
 #[cfg(test)]
 mod causal_tests {
-    use super::super::*;
     use super::super::causal::*;
+    use super::super::*;
 
     #[test]
     fn test_causal_graph_creation() {
@@ -360,10 +384,7 @@ mod causal_tests {
     fn test_causal_node_addition() {
         let mut graph = CausalGraph::new();
 
-        let node = CausalNode::new(
-            "Fire".to_string(),
-            CausalNodeType::Process,
-        );
+        let node = CausalNode::new("Fire".to_string(), CausalNodeType::Process);
 
         graph.add_node(node);
         assert_eq!(graph.nodes.len(), 1);
@@ -400,12 +421,15 @@ mod causal_tests {
         let x = EntityId::new("X");
         let y = EntityId::new("Y");
 
-        model.add_mechanism(x.clone(), Mechanism {
-            name: "Mechanism_X".to_string(),
-            variables: vec![],
-            structural_equation: "X = 1".to_string(),
-            noise: None,
-        });
+        model.add_mechanism(
+            x.clone(),
+            Mechanism {
+                name: "Mechanism_X".to_string(),
+                variables: vec![],
+                structural_equation: "X = 1".to_string(),
+                noise: None,
+            },
+        );
 
         model.add_causal_edge(x.clone(), y.clone());
 
@@ -439,8 +463,8 @@ mod causal_tests {
 
 #[cfg(test)]
 mod commonsense_tests {
-    use super::super::*;
     use super::super::commonsense::*;
+    use super::super::*;
 
     #[test]
     fn test_commonsense_engine_creation() {
@@ -450,16 +474,18 @@ mod commonsense_tests {
 
     #[test]
     fn test_situation_creation() {
-        let situation = Situation::new()
-            .with_entity(EntityDescription {
-                entity_type: "Glass".to_string(),
-                properties: vec!["fragile".to_string(), "full".to_string()],
-                location: Some("edge of table".to_string()),
-                state: Some("unstable".to_string()),
-            });
+        let situation = Situation::new().with_entity(EntityDescription {
+            entity_type: "Glass".to_string(),
+            properties: vec!["fragile".to_string(), "full".to_string()],
+            location: Some("edge of table".to_string()),
+            state: Some("unstable".to_string()),
+        });
 
         assert_eq!(situation.entities.len(), 1);
-        assert_eq!(situation.entities[0].location, Some("edge of table".to_string()));
+        assert_eq!(
+            situation.entities[0].location,
+            Some("edge of table".to_string())
+        );
     }
 
     #[test]
@@ -487,7 +513,10 @@ mod commonsense_tests {
         let rule = CommonSenseRule {
             name: "greeting_response".to_string(),
             category: CommonSenseCategory::Social,
-            antecedents: vec!["person_A_greets".to_string(), "person_B_present".to_string()],
+            antecedents: vec![
+                "person_A_greets".to_string(),
+                "person_B_present".to_string(),
+            ],
             expectation: RuleExpectation {
                 outcomes: vec![Outcome {
                     description: "Person B responds to greeting".to_string(),
@@ -503,8 +532,8 @@ mod commonsense_tests {
 
 #[cfg(test)]
 mod formal_tests {
-    use super::super::*;
     use super::super::formal::*;
+    use super::super::*;
 
     #[test]
     fn test_type_definition() {
@@ -523,10 +552,7 @@ mod formal_tests {
 
     #[test]
     fn test_invariant_creation() {
-        let invariant = Invariant::new(
-            "positive_length".to_string(),
-            "length > 0".to_string(),
-        );
+        let invariant = Invariant::new("positive_length".to_string(), "length > 0".to_string());
 
         assert_eq!(invariant.name, "positive_length");
     }
@@ -549,8 +575,8 @@ mod formal_tests {
 
 #[cfg(test)]
 mod mind_tests {
-    use super::super::*;
     use super::super::mind::*;
+    use super::super::*;
 
     #[test]
     fn test_mind_creation() {
@@ -586,8 +612,7 @@ mod mind_tests {
         );
         mind.learn_fact(fact1).unwrap();
 
-        let query = Query::new()
-            .with_subject(EntityId::new("Socrates"));
+        let query = Query::new().with_subject(EntityId::new("Socrates"));
 
         let result = mind.query(query);
         assert!(result.deductions.is_ok());

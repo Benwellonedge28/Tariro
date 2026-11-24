@@ -89,9 +89,7 @@ pub struct ConstPropResult {
 
 impl ConstPropResult {
     pub fn new() -> Self {
-        Self {
-            values: HashMap::new(),
-        }
+        Self { values: HashMap::new() }
     }
 }
 
@@ -132,11 +130,7 @@ impl TransferFunction for ReachingDefsTransfer {
         for (idx, inst) in block.instructions.iter().enumerate() {
             // Extract defined variables from instruction
             if let Some(dest) = &inst.result_name {
-                result.insert(Definition {
-                    var: dest.clone(),
-                    block: block.id,
-                    idx,
-                });
+                result.insert(Definition { var: dest.clone(), block: block.id, idx });
             }
         }
 
@@ -158,10 +152,7 @@ pub struct LiveVarResult {
 
 impl LiveVarResult {
     pub fn new() -> Self {
-        Self {
-            in_vars: HashMap::new(),
-            out_vars: HashMap::new(),
-        }
+        Self { in_vars: HashMap::new(), out_vars: HashMap::new() }
     }
 }
 
@@ -212,10 +203,7 @@ pub struct WorklistAlgorithm {
 
 impl WorklistAlgorithm {
     pub fn new() -> Self {
-        Self {
-            worklist: Vec::new(),
-            in_worklist: HashSet::new(),
-        }
+        Self { worklist: Vec::new(), in_worklist: HashSet::new() }
     }
 
     /// Add block to worklist
@@ -243,7 +231,7 @@ impl Default for WorklistAlgorithm {
 }
 
 // Re-export commonly used types
-pub use super::points_to::PointsToResult;
-pub use super::escape::EscapeResult;
 pub use super::alias::AliasResult;
 pub use super::call_graph::CallGraph;
+pub use super::escape::EscapeResult;
+pub use super::points_to::PointsToResult;

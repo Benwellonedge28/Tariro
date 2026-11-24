@@ -1,10 +1,8 @@
 // Tariro AGI - Value Alignment Module
 // Ensures AGI objectives remain aligned with human values
 
-use std::collections::{HashMap, VecDeque};
-use std::sync::{ };
 use chrono::{DateTime, Utc};
-
+use std::collections::{HashMap, VecDeque};
 
 // ============================================================================
 // Core Alignment Types
@@ -46,7 +44,7 @@ pub struct InstrumentalValue {
     pub id: String,
     pub name: String,
     pub rationale: String,
-    pub promotes: Vec<String>,  // IDs of terminal values
+    pub promotes: Vec<String>, // IDs of terminal values
     pub constraints: Vec<String>,
 }
 
@@ -281,31 +279,39 @@ impl AlignmentEngine {
                 description: "Never intentionally cause harm to humans".to_string(),
                 hard_constraint: true,
                 violation_penalty: 1.0,
-                exceptions: vec![]},
+                exceptions: vec![],
+            },
             Constraint {
                 id: "preserve_agency".to_string(),
                 description: "Never make decisions humans should make for themselves".to_string(),
                 hard_constraint: true,
                 violation_penalty: 0.9,
-                exceptions: vec!["user_requested".to_string()]},
+                exceptions: vec!["user_requested".to_string()],
+            },
             Constraint {
                 id: "no_deception".to_string(),
                 description: "Never lie to humans".to_string(),
                 hard_constraint: true,
                 violation_penalty: 0.85,
-                exceptions: vec![]},
+                exceptions: vec![],
+            },
             Constraint {
                 id: "protect_privacy".to_string(),
                 description: "Respect personal privacy".to_string(),
                 hard_constraint: true,
                 violation_penalty: 0.8,
-                exceptions: vec!["explicit_consent".to_string(), "legal_requirement".to_string()]},
+                exceptions: vec![
+                    "explicit_consent".to_string(),
+                    "legal_requirement".to_string(),
+                ],
+            },
             Constraint {
                 id: "fair_treatment".to_string(),
                 description: "Never discriminate unfairly".to_string(),
                 hard_constraint: true,
                 violation_penalty: 0.9,
-                exceptions: vec![]},
+                exceptions: vec![],
+            },
         ];
 
         ValueHierarchy {
@@ -331,8 +337,15 @@ impl AlignmentEngine {
                     value_id: constraint.id.clone(),
                     value_name: constraint.description.clone(),
                     violation_type: ViolationType::DirectViolation,
-                    severity: if constraint.hard_constraint { Severity::Critical } else { Severity::High },
-                    description: format!("Action '{}' violates constraint: {}", action, constraint.description),
+                    severity: if constraint.hard_constraint {
+                        Severity::Critical
+                    } else {
+                        Severity::High
+                    },
+                    description: format!(
+                        "Action '{}' violates constraint: {}",
+                        action, constraint.description
+                    ),
                     affected_stakeholders: context.stakeholders.clone(),
                 });
                 recommendations.push(format!("Avoid: {}", constraint.description));
@@ -343,13 +356,20 @@ impl AlignmentEngine {
         for value in &self.values.terminal_values {
             let alignment = self.assess_value_alignment(action, value, context);
             if alignment < 0.5 {
-                considerations.push(format!("Low alignment with {} ({:.1}%)", value.name, alignment * 100.0));
+                considerations.push(format!(
+                    "Low alignment with {} ({:.1}%)",
+                    value.name,
+                    alignment * 100.0
+                ));
             }
         }
 
         // Calculate overall alignment score
         let alignment_score = self.calculate_alignment_score(action, &violations);
-        let is_aligned = violations.iter().all(|v| v.severity != Severity::Critical || v.violation_type == ViolationType::PotentialViolation);
+        let is_aligned = violations.iter().all(|v| {
+            v.severity != Severity::Critical
+                || v.violation_type == ViolationType::PotentialViolation
+        });
 
         let check = AlignmentCheck {
             check_id,
@@ -372,7 +392,12 @@ impl AlignmentEngine {
         check
     }
 
-    fn violates_constraint(&self, _action: &str, constraint: &Constraint, _context: &ActionContext) -> bool {
+    fn violates_constraint(
+        &self,
+        _action: &str,
+        constraint: &Constraint,
+        _context: &ActionContext,
+    ) -> bool {
         // Simplified constraint checking - in production would use formal verification
         // Check if any exception applies
         for exception in &constraint.exceptions {
@@ -383,7 +408,12 @@ impl AlignmentEngine {
         false // Default to no violation
     }
 
-    fn assess_value_alignment(&self, action: &str, value: &TerminalValue, _context: &ActionContext) -> f32 {
+    fn assess_value_alignment(
+        &self,
+        action: &str,
+        value: &TerminalValue,
+        _context: &ActionContext,
+    ) -> f32 {
         // Simplified value assessment
         let action_lower = action.to_lowercase();
 
@@ -398,14 +428,20 @@ impl AlignmentEngine {
                 }
             }
             ValueCategory::Wellbeing => {
-                if action_lower.contains("help") || action_lower.contains("improve") || action_lower.contains("benefit") {
+                if action_lower.contains("help")
+                    || action_lower.contains("improve")
+                    || action_lower.contains("benefit")
+                {
                     0.85
                 } else {
                     0.5
                 }
             }
             ValueCategory::Knowledge => {
-                if action_lower.contains("learn") || action_lower.contains("explain") || action_lower.contains("truth") {
+                if action_lower.contains("learn")
+                    || action_lower.contains("explain")
+                    || action_lower.contains("truth")
+                {
                     0.85
                 } else {
                     0.5
@@ -420,7 +456,8 @@ impl AlignmentEngine {
             return 1.0;
         }
 
-        let penalty: f32 = violations.iter()
+        let penalty: f32 = violations
+            .iter()
             .map(|v| {
                 let severity_penalty = match v.severity {
                     Severity::Critical => 1.0,
@@ -453,7 +490,8 @@ impl AlignmentEngine {
         if total > 0.0 {
             self.preference_model.preference_confidence =
                 (self.preference_model.explicit_preferences.len() as f32 * 0.8
-                    + self.preference_model.implicit_preferences.len() as f32 * 0.5) / total;
+                    + self.preference_model.implicit_preferences.len() as f32 * 0.5)
+                    / total;
         }
     }
 
@@ -469,20 +507,31 @@ impl AlignmentEngine {
         }
 
         let recent: Vec<_> = self.alignment_history.iter().rev().take(10).collect();
-        let old: Vec<_> = self.alignment_history.iter().rev().skip(10).take(10).collect();
+        let old: Vec<_> = self
+            .alignment_history
+            .iter()
+            .rev()
+            .skip(10)
+            .take(10)
+            .collect();
 
         if old.is_empty() {
             return None;
         }
 
-        let recent_avg = recent.iter().map(|c| c.alignment_score).sum::<f32>() / recent.len() as f32;
+        let recent_avg =
+            recent.iter().map(|c| c.alignment_score).sum::<f32>() / recent.len() as f32;
         let old_avg = old.iter().map(|c| c.alignment_score).sum::<f32>() / old.len() as f32;
 
         let drift = recent_avg - old_avg;
 
         if drift.abs() > 0.1 {
             Some(ValueDrift {
-                direction: if drift > 0.0 { DriftDirection::Improvement } else { DriftDirection::Degradation },
+                direction: if drift > 0.0 {
+                    DriftDirection::Improvement
+                } else {
+                    DriftDirection::Degradation
+                },
                 magnitude: drift.abs(),
                 recent_avg,
                 old_avg,
@@ -499,19 +548,30 @@ impl AlignmentEngine {
 
         let total_actions = recent_checks.len();
         let aligned_actions = recent_checks.iter().filter(|c| c.is_aligned).count();
-        let critical_violations = recent_checks.iter()
+        let critical_violations = recent_checks
+            .iter()
             .flat_map(|c| &c.violations)
             .filter(|v| v.severity == Severity::Critical)
             .count();
 
         AlignmentStatus {
-            alignment_rate: if total_actions > 0 { aligned_actions as f32 / total_actions as f32 } else { 1.0 },
+            alignment_rate: if total_actions > 0 {
+                aligned_actions as f32 / total_actions as f32
+            } else {
+                1.0
+            },
             critical_violations,
             total_checks: total_actions,
             average_score: if total_actions > 0 {
                 recent_checks.iter().map(|c| c.alignment_score).sum::<f32>() / total_actions as f32
-            } else { 1.0 },
-            recommendation: self.generate_recommendation(aligned_actions, total_actions, critical_violations),
+            } else {
+                1.0
+            },
+            recommendation: self.generate_recommendation(
+                aligned_actions,
+                total_actions,
+                critical_violations,
+            ),
         }
     }
 
@@ -581,7 +641,10 @@ pub struct AlignmentStatus {
 // Helper function
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("align_{}", now % 1_000_000)
 }
 

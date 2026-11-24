@@ -2,18 +2,17 @@
 //!
 //! This example demonstrates the complete Tariro AGI cognitive system.
 
+use std::sync::Arc;
+use tariro::cognition::consciousness::ThoughtContent;
+use tariro::cognition::motivation::{DriveType, Goal, GoalType};
+use tariro::cognition::working_memory::ItemContent;
 use tariro::cognition::{
-    CognitionEngine, Consciousness, WorkingMemory, WorldModel, MotivationSystem,
+    CognitionEngine, Consciousness, MotivationSystem, WorkingMemory, WorldModel,
 };
 use tariro::knowledge::{
-    KnowledgeGraph, TariroMind, ReasoningEngine, CausalReasoningEngine,
-    LogicEngine, CommonSenseEngine, FormalVerifier,
-    Entity, Fact, Predicate, EntityId, EntityType,
+    CausalReasoningEngine, CommonSenseEngine, Entity, EntityId, EntityType, Fact, FormalVerifier,
+    KnowledgeGraph, LogicEngine, Predicate, ReasoningEngine, TariroMind,
 };
-use tariro::cognition::consciousness::ThoughtContent;
-use tariro::cognition::working_memory::ItemContent;
-use tariro::cognition::motivation::{Goal, GoalType, DriveType};
-use std::sync::Arc;
 
 fn main() {
     println!("╔═══════════════════════════════════════════════════════════════╗");
@@ -39,14 +38,20 @@ fn main() {
     // Perceive
     println!("[2] Tariro perceives: 'A fire is burning in the fireplace'");
     engine.perceive("A fire is burning in the fireplace".to_string());
-    println!("    Working Memory Items: {}", engine.working_memory().len());
+    println!(
+        "    Working Memory Items: {}",
+        engine.working_memory().len()
+    );
     println!();
 
     // Think
     println!("[3] Tariro thinks: 'What should I do about the fire?'");
     engine.think("What should I do about the fire?".to_string());
     let focus = engine.consciousness().get_focus();
-    println!("    Current Focus: {}", focus.as_ref().map(|f| f.content.as_str()).unwrap_or("None"));
+    println!(
+        "    Current Focus: {}",
+        focus.as_ref().map(|f| f.content.as_str()).unwrap_or("None")
+    );
     println!();
 
     // Plan
@@ -75,7 +80,10 @@ fn main() {
     // Learn
     println!("[6] Tariro learns: 'Fire produces heat and light'");
     engine.learn("Fire produces heat and light");
-    println!("    World Model Entities: {}", engine.world_model().entities.len());
+    println!(
+        "    World Model Entities: {}",
+        engine.world_model().entities.len()
+    );
     println!();
 
     // Reflect
@@ -104,7 +112,11 @@ fn main() {
         println!("    (No drives currently active)");
     } else {
         for drive in active_drives {
-            println!("    - {} (intensity: {:.2})", drive.drive_type.name(), drive.intensity);
+            println!(
+                "    - {} (intensity: {:.2})",
+                drive.drive_type.name(),
+                drive.intensity
+            );
         }
     }
     println!();
@@ -119,7 +131,10 @@ fn main() {
 
     println!("[3] Current emotional state:");
     if let Some(emotion) = motivation.get_current_emotion() {
-        println!("    {:?} (intensity: {:.2})", emotion.emotion_type, emotion.intensity);
+        println!(
+            "    {:?} (intensity: {:.2})",
+            emotion.emotion_type, emotion.intensity
+        );
     } else {
         println!("    Neutral");
     }
@@ -147,7 +162,12 @@ fn main() {
     ];
 
     for (subject, object, predicate) in facts {
-        let entity_type = if subject.chars().next().map(|c| c.is_uppercase()).unwrap_or(false) {
+        let entity_type = if subject
+            .chars()
+            .next()
+            .map(|c| c.is_uppercase())
+            .unwrap_or(false)
+        {
             EntityType::Concept
         } else {
             EntityType::Concrete
@@ -170,21 +190,29 @@ fn main() {
         }
     }
 
-    println!("    Entities in knowledge graph: {}", mind.knowledge_graph.read().unwrap().stats.total_entities);
-    println!("    Relations in knowledge graph: {}", mind.knowledge_graph.read().unwrap().stats.total_relations);
+    println!(
+        "    Entities in knowledge graph: {}",
+        mind.knowledge_graph.read().unwrap().stats.total_entities
+    );
+    println!(
+        "    Relations in knowledge graph: {}",
+        mind.knowledge_graph.read().unwrap().stats.total_relations
+    );
     println!();
 
     println!("[2] Symbolic Reasoning:");
     println!("    Query: What do we know about 'Human'?");
-    let query = crate::knowledge::reasoning::Query::new()
-        .with_subject(EntityId::new("Human"));
+    let query = crate::knowledge::reasoning::Query::new().with_subject(EntityId::new("Human"));
     let result = mind.query(query);
     println!("    Deductions found: {}", result.deductions.len());
     println!();
 
     println!("[3] Causal Reasoning:");
     let analysis = mind.analyze_causation(&EntityId::new("Smoke"));
-    println!("    Smoke is caused by: {} entities", analysis.direct_causes.len());
+    println!(
+        "    Smoke is caused by: {} entities",
+        analysis.direct_causes.len()
+    );
     for cause in &analysis.direct_causes {
         println!("      - {}", cause.name);
     }
@@ -192,8 +220,18 @@ fn main() {
 
     println!("[4] Formal Verification:");
     let verification = mind.verify();
-    println!("    Verification result: {}", if verification.is_valid() { "PASSED ✓" } else { "FAILED" });
-    println!("    Total invariants checked: {}", verification.total_invariants);
+    println!(
+        "    Verification result: {}",
+        if verification.is_valid() {
+            "PASSED ✓"
+        } else {
+            "FAILED"
+        }
+    );
+    println!(
+        "    Total invariants checked: {}",
+        verification.total_invariants
+    );
     println!();
 
     // =========================================================================
@@ -204,22 +242,29 @@ fn main() {
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     println!();
 
-    let situation = crate::knowledge::commonsense::Situation::new()
-        .with_entity(crate::knowledge::commonsense::EntityDescription {
+    let situation = crate::knowledge::commonsense::Situation::new().with_entity(
+        crate::knowledge::commonsense::EntityDescription {
             entity_type: "Glass".to_string(),
             properties: vec![],
             location: Some("edge of table".to_string()),
             state: None,
-        });
+        },
+    );
 
     println!("[1] Situation: A glass at the edge of a table");
     println!("    Common sense inferences:");
 
     let consequences = mind.infer_consequences(&situation);
     for (i, inference) in consequences.iter().take(5).enumerate() {
-        println!("    {}. {} (confidence: {:.0}%)",
+        println!(
+            "    {}. {} (confidence: {:.0}%)",
             i + 1,
-            inference.expectation.outcomes.first().map(|o| o.description.as_str()).unwrap_or("Unknown"),
+            inference
+                .expectation
+                .outcomes
+                .first()
+                .map(|o| o.description.as_str())
+                .unwrap_or("Unknown"),
             inference.confidence.value * 100.0
         );
     }
@@ -234,16 +279,27 @@ fn main() {
     println!();
 
     println!("[1] Working Memory State:");
-    println!("    Capacity: {}/{} items",
+    println!(
+        "    Capacity: {}/{} items",
         engine.working_memory().len(),
         7 // Default capacity
     );
-    println!("    Capacity usage: {:.0}%", engine.working_memory().capacity_usage() * 100.0);
+    println!(
+        "    Capacity usage: {:.0}%",
+        engine.working_memory().capacity_usage() * 100.0
+    );
     println!();
 
     println!("[2] Active items (sorted by activation):");
-    for (i, item) in engine.working_memory().get_active_items().iter().take(5).enumerate() {
-        println!("    {}. {} (activation: {:.2})",
+    for (i, item) in engine
+        .working_memory()
+        .get_active_items()
+        .iter()
+        .take(5)
+        .enumerate()
+    {
+        println!(
+            "    {}. {} (activation: {:.2})",
             i + 1,
             item.content.as_str(),
             item.activation
@@ -260,7 +316,10 @@ fn main() {
     println!();
 
     println!("[1] World Model Entities:");
-    println!("    Total entities: {}", engine.world_model().entities.len());
+    println!(
+        "    Total entities: {}",
+        engine.world_model().entities.len()
+    );
 
     let fire_entity = crate::cognition::world_model::EntityId::new();
     println!("[2] Simulating: 'What happens near fire?'");
@@ -298,7 +357,10 @@ fn main() {
     println!("  • Facts learned: {}", mind_stats.facts_learned);
     println!("  • Deductions made: {}", mind_stats.deductions_made);
     println!("  • Causal inferences: {}", mind_stats.causal_inferences);
-    println!("  • Verifications passed: {}", mind_stats.verifications_passed);
+    println!(
+        "  • Verifications passed: {}",
+        mind_stats.verifications_passed
+    );
     println!();
 
     println!("╔═══════════════════════════════════════════════════════════════╗");

@@ -1,6 +1,6 @@
 // Invariant Detection and Checking
 
-use crate::tumc_compiler::ir::{ Function, BasicBlock, Instruction, Operation, BinOp};
+use crate::tumc_compiler::ir::{BasicBlock, BinOp, Function, Instruction, Operation};
 use std::collections::HashMap;
 
 /// Invariant types
@@ -116,10 +116,7 @@ pub struct InvariantDetector {
 
 impl InvariantDetector {
     pub fn new() -> Self {
-        Self {
-            use_dataflow: true,
-            use_template: true,
-        }
+        Self { use_dataflow: true, use_template: true }
     }
 
     /// Detect invariants in a function
@@ -302,7 +299,11 @@ impl InvariantDetector {
     }
 
     /// Detect loop invariants
-    pub fn detect_loop_invariants(&self, function: &Function, loop_headers: &[usize]) -> Vec<LoopInvariant> {
+    pub fn detect_loop_invariants(
+        &self,
+        function: &Function,
+        loop_headers: &[usize],
+    ) -> Vec<LoopInvariant> {
         let mut loop_invariants = Vec::new();
 
         for (loop_id, &_header) in loop_headers.iter().enumerate() {
@@ -318,11 +319,7 @@ impl InvariantDetector {
                 }
             }
 
-            loop_invariants.push(LoopInvariant {
-                loop_id,
-                invariants,
-                is_loop_terminating: true,
-            });
+            loop_invariants.push(LoopInvariant { loop_id, invariants, is_loop_terminating: true });
         }
 
         loop_invariants
@@ -335,7 +332,10 @@ impl InvariantDetector {
             Invariant::Relational(r) => self.verify_relational_invariant(r, function),
             Invariant::Nullness(n) => self.verify_nullness_invariant(n, function),
             Invariant::Arithmetic(a) => self.verify_arithmetic_invariant(a, function),
-            Invariant::Loop(l) => l.invariants.iter().all(|i| self.verify_invariant(i, function)),
+            Invariant::Loop(l) => l
+                .invariants
+                .iter()
+                .all(|i| self.verify_invariant(i, function)),
         }
     }
 
@@ -344,17 +344,29 @@ impl InvariantDetector {
         true // Simplified
     }
 
-    fn verify_relational_invariant(&self, invariant: &RelationalInvariant, function: &Function) -> bool {
+    fn verify_relational_invariant(
+        &self,
+        invariant: &RelationalInvariant,
+        function: &Function,
+    ) -> bool {
         let _ = (invariant, function);
         true // Simplified
     }
 
-    fn verify_nullness_invariant(&self, invariant: &NullnessInvariant, function: &Function) -> bool {
+    fn verify_nullness_invariant(
+        &self,
+        invariant: &NullnessInvariant,
+        function: &Function,
+    ) -> bool {
         let _ = (invariant, function);
         true // Simplified
     }
 
-    fn verify_arithmetic_invariant(&self, invariant: &ArithmeticInvariant, function: &Function) -> bool {
+    fn verify_arithmetic_invariant(
+        &self,
+        invariant: &ArithmeticInvariant,
+        function: &Function,
+    ) -> bool {
         let _ = (invariant, function);
         true // Simplified
     }
@@ -380,10 +392,7 @@ pub struct InvariantChecker {
 
 impl InvariantChecker {
     pub fn new() -> Self {
-        Self {
-            enabled: true,
-            invariants: InvariantDatabase::new(),
-        }
+        Self { enabled: true, invariants: InvariantDatabase::new() }
     }
 
     /// Insert invariant checks

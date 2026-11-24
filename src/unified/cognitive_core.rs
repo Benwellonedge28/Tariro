@@ -3,11 +3,12 @@
 //! The central cognitive processing engine that integrates AGI reasoning
 //! with the TUMC compiler.
 
-use crate::unified::UnifiedConfig;
 use crate::tumc_compiler::agi_integration::{
-    AgiInsight, AgiCompilerConfig, AgiSuggestion, InsightType, TransformType, RiskLevel,
-    AgiCompilerBridge, PerformanceMetrics};
-use crate::tumc_compiler::ir::{Module};
+    AgiCompilerBridge, AgiCompilerConfig, AgiInsight, AgiSuggestion, InsightType,
+    PerformanceMetrics, RiskLevel, TransformType,
+};
+use crate::tumc_compiler::ir::Module;
+use crate::unified::UnifiedConfig;
 
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
@@ -78,9 +79,15 @@ impl CognitiveCore {
     /// Initialize the cognitive core
     pub fn initialize(&mut self) -> Result<(), String> {
         println!("Initializing Cognitive Core...");
-        println!("  - Neural-symbolic reasoning: {}", self.config.enable_agi_reasoning);
+        println!(
+            "  - Neural-symbolic reasoning: {}",
+            self.config.enable_agi_reasoning
+        );
         println!("  - Meta-learning: {}", self.config.enable_meta_learning);
-        println!("  - Self-modification: {}", self.config.enable_self_modification);
+        println!(
+            "  - Self-modification: {}",
+            self.config.enable_self_modification
+        );
         Ok(())
     }
 
@@ -91,7 +98,9 @@ impl CognitiveCore {
 
         // Step 1: Parse intent
         reasoning_steps += 1;
-        self.context.reasoning_history.push(format!("Parsed intent: {}", intent));
+        self.context
+            .reasoning_history
+            .push(format!("Parsed intent: {}", intent));
 
         // Step 2: Generate insights through reasoning
         let insights = self.reason_about_intent(intent);
@@ -102,12 +111,7 @@ impl CognitiveCore {
             self.add_insight(insight.clone());
         }
 
-        CognitiveResult {
-            success: true,
-            insights,
-            reasoning_steps,
-            error: None,
-        }
+        CognitiveResult { success: true, insights, reasoning_steps, error: None }
     }
 
     /// Reason about an intent to generate optimization insights
@@ -118,7 +122,10 @@ impl CognitiveCore {
         let words: Vec<&str> = intent.split_whitespace().collect();
 
         // Detect performance keywords
-        if words.iter().any(|w| matches!(*w, "fast" | "optimize" | "performance")) {
+        if words
+            .iter()
+            .any(|w| matches!(*w, "fast" | "optimize" | "performance"))
+        {
             insights.push(AgiInsight {
                 insight_type: InsightType::Performance,
                 confidence: 0.85,
@@ -137,7 +144,10 @@ impl CognitiveCore {
         }
 
         // Detect memory keywords
-        if words.iter().any(|w| matches!(*w, "memory" | "efficient" | "cache")) {
+        if words
+            .iter()
+            .any(|w| matches!(*w, "memory" | "efficient" | "cache"))
+        {
             insights.push(AgiInsight {
                 insight_type: InsightType::Memory,
                 confidence: 0.80,
@@ -156,7 +166,10 @@ impl CognitiveCore {
         }
 
         // Detect parallelization keywords
-        if words.iter().any(|w| matches!(*w, "parallel" | "concurrent" | "async")) {
+        if words
+            .iter()
+            .any(|w| matches!(*w, "parallel" | "concurrent" | "async"))
+        {
             insights.push(AgiInsight {
                 insight_type: InsightType::Parallelization,
                 confidence: 0.75,
@@ -209,7 +222,12 @@ impl CognitiveCore {
     }
 
     /// Integrate feedback from execution
-    pub fn integrate_feedback(&mut self, insight_id: &str, success: bool, metrics: &PerformanceMetrics) {
+    pub fn integrate_feedback(
+        &mut self,
+        insight_id: &str,
+        success: bool,
+        metrics: &PerformanceMetrics,
+    ) {
         // Update meta-learning
         self.bridge.enable_feedback(insight_id, success, metrics);
 
@@ -229,7 +247,10 @@ impl CognitiveCore {
     /// Finalize the cognitive core
     pub fn finalize(&mut self) {
         // Save learned patterns
-        println!("Saving {} learned patterns", self.context.learned_patterns.len());
+        println!(
+            "Saving {} learned patterns",
+            self.context.learned_patterns.len()
+        );
         self.context.reasoning_history.clear();
     }
 

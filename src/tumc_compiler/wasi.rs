@@ -99,27 +99,36 @@ impl WasiImplementation {
         let mut fds = HashMap::new();
 
         // Initialize standard FDs
-        fds.insert(0, WasiFd {
-            fd: 0,
-            kind: FdKind::Stdin,
-            rights: 0,
-            position: 0,
-            path: None,
-        });
-        fds.insert(1, WasiFd {
-            fd: 1,
-            kind: FdKind::Stdout,
-            rights: 0,
-            position: 0,
-            path: None,
-        });
-        fds.insert(2, WasiFd {
-            fd: 2,
-            kind: FdKind::Stderr,
-            rights: 0,
-            position: 0,
-            path: None,
-        });
+        fds.insert(
+            0,
+            WasiFd {
+                fd: 0,
+                kind: FdKind::Stdin,
+                rights: 0,
+                position: 0,
+                path: None,
+            },
+        );
+        fds.insert(
+            1,
+            WasiFd {
+                fd: 1,
+                kind: FdKind::Stdout,
+                rights: 0,
+                position: 0,
+                path: None,
+            },
+        );
+        fds.insert(
+            2,
+            WasiFd {
+                fd: 2,
+                kind: FdKind::Stderr,
+                rights: 0,
+                position: 0,
+                path: None,
+            },
+        );
 
         Self {
             config,
@@ -185,7 +194,9 @@ impl WasiImplementation {
             match wasi_fd.kind {
                 FdKind::Stdin => {
                     use std::io::Read;
-                    let bytes = std::io::stdin().read(buffer).map_err(|_| WasiError::IoError)?;
+                    let bytes = std::io::stdin()
+                        .read(buffer)
+                        .map_err(|_| WasiError::IoError)?;
                     Ok(bytes)
                 }
                 FdKind::File => {
@@ -503,18 +514,19 @@ pub mod preview2 {
             let id = *next;
             *next += 1;
 
-            self.resource_table.write().unwrap().push(Resource {
-                id,
-                kind,
-                closed: false,
-            });
+            self.resource_table
+                .write()
+                .unwrap()
+                .push(Resource { id, kind, closed: false });
 
             id
         }
 
         /// Get resource
         pub fn get(&self, id: u32) -> Option<Resource> {
-            self.resource_table.read().unwrap()
+            self.resource_table
+                .read()
+                .unwrap()
                 .iter()
                 .find(|r| r.id == id)
                 .cloned()

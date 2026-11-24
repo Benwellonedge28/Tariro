@@ -7,14 +7,13 @@
 /// tasks, effectively growing its own cognitive capabilities. It leverages RAG for AI
 /// architecture patterns and meta-learning algorithms, and SIMD for parallel neural
 /// architecture search and real-time module integration/testing.
-
 use crate::prelude::*;
 use std::collections::HashMap;
 
+use rand::Rng;
+use serde::{Deserialize, Serialize};
 use std::thread;
 use std::time::Duration;
-use rand::Rng;
-use serde::{Serialize, Deserialize};
 
 // --- Conceptual Structures --- //
 
@@ -25,7 +24,7 @@ pub struct GeneratedAIModule {
     pub name: String,
     pub purpose: String, // e.g., "Enhanced_Perception", "Adaptive_Planning"
     pub architecture_description: String, // RAG-derived neural network architecture or algorithm structure
-    pub source_code: String, // Generated Rust code for the module
+    pub source_code: String,              // Generated Rust code for the module
     pub expected_performance_gain: f32,
     pub integration_status: String, // e.g., "Designed", "Tested", "Integrated"
     pub resource_requirements: HashMap<String, f32>, // e.g., "cpu_cores": 4.0, "gpu_vram_gb": 8.0
@@ -52,7 +51,7 @@ pub struct AIModuleIntegrationReport {
     pub integration_date: DateTime<Utc>,
     pub successful: bool,
     pub observed_performance: HashMap<String, f32>, // Actual performance metrics after integration
-    pub impact_on_overall_system: String, // RAG-derived analysis
+    pub impact_on_overall_system: String,           // RAG-derived analysis
     pub rollback_plan_id: String,
 }
 
@@ -91,8 +90,15 @@ impl AAMGIEngine {
     }
 
     /// Performs parallel neural architecture search and real-time module integration/testing (SIMD conceptualization).
-    fn parallel_module_design_and_test_simd(&self, task: &AIModuleGenerationTask) -> (String, HashMap<String, f32>) { // (generated_code, observed_performance)
-        println!("    [AAMGI-SIMD]: Performing parallel architecture search and testing for task '{}'.", task.task_id);
+    fn parallel_module_design_and_test_simd(
+        &self,
+        task: &AIModuleGenerationTask,
+    ) -> (String, HashMap<String, f32>) {
+        // (generated_code, observed_performance)
+        println!(
+            "    [AAMGI-SIMD]: Performing parallel architecture search and testing for task '{}'.",
+            task.task_id
+        );
         thread::sleep(Duration::from_millis(200));
         let mut rng = rand::thread_rng();
 
@@ -108,26 +114,53 @@ impl AAMGIEngine {
     }
 
     /// Enables the AI to autonomously design, test, and deploy new specialized AI modules (RAG-amplified).
-    pub fn autonomous_ai_module_generation_rag(&self, task: AIModuleGenerationTask) -> GeneratedAIModule {
-        println!("  [AAMGI]: Initiating autonomous AI module generation for task '{}'.", task.task_id);
-        if let Some(arch_patterns) = self.ai_architecture_patterns_rag_db.get("cnn_architectures_for_cv") {
-            format!("RAG knowledge for AI architecture patterns: '{}'", arch_patterns.chars().take(100).collect::<String>());
+    pub fn autonomous_ai_module_generation_rag(
+        &self,
+        task: AIModuleGenerationTask,
+    ) -> GeneratedAIModule {
+        println!(
+            "  [AAMGI]: Initiating autonomous AI module generation for task '{}'.",
+            task.task_id
+        );
+        if let Some(arch_patterns) = self
+            .ai_architecture_patterns_rag_db
+            .get("cnn_architectures_for_cv")
+        {
+            format!(
+                "RAG knowledge for AI architecture patterns: '{}'",
+                arch_patterns.chars().take(100).collect::<String>()
+            );
         }
-        if let Some(meta_learn) = self.meta_learning_algorithms_rag_db.get("neural_architecture_search_methods") {
-            format!("RAG knowledge for meta-learning algorithms: '{}'", meta_learn.chars().take(100).collect::<String>());
+        if let Some(meta_learn) = self
+            .meta_learning_algorithms_rag_db
+            .get("neural_architecture_search_methods")
+        {
+            format!(
+                "RAG knowledge for meta-learning algorithms: '{}'",
+                meta_learn.chars().take(100).collect::<String>()
+            );
         }
         thread::sleep(Duration::from_millis(600));
         let mut rng = rand::thread_rng();
 
-        let (generated_code, observed_performance) = self.parallel_module_design_and_test_simd(&task);
+        let (generated_code, observed_performance) =
+            self.parallel_module_design_and_test_simd(&task);
 
-        let expected_gain = observed_performance.get("accuracy").map_or(0.0, |&acc| (acc * 100.0).round());
+        let expected_gain = observed_performance
+            .get("accuracy")
+            .map_or(0.0, |&acc| (acc * 100.0).round());
 
         let module = GeneratedAIModule {
             module_id: format!("aim_{}", rng.gen::<u32>()),
-            name: format!("{}Module", task.desired_capabilities.get(0).unwrap_or(&"Generic".to_string())),
+            name: format!(
+                "{}Module",
+                task.desired_capabilities
+                    .get(0)
+                    .unwrap_or(&"Generic".to_string())
+            ),
             purpose: task.problem_statement.clone(),
-            architecture_description: "Dynamically optimized neural architecture discovered via NAS.".to_string(),
+            architecture_description:
+                "Dynamically optimized neural architecture discovered via NAS.".to_string(),
             source_code: generated_code,
             expected_performance_gain: expected_gain,
             integration_status: "Designed".to_string(),
@@ -136,13 +169,19 @@ impl AAMGIEngine {
                 ("gpu_vram_gb".to_string(), rng.gen_range(1.0..16.0)),
             ]),
         };
-        println!("  Generated AI Module '{}' for task '{}'. Expected gain: {:.0}%.\n", module.name, task.task_id, module.expected_performance_gain);
+        println!(
+            "  Generated AI Module '{}' for task '{}'. Expected gain: {:.0}%.\n",
+            module.name, task.task_id, module.expected_performance_gain
+        );
         module
     }
 
     /// Integrates a newly generated AI module into the main system.
     pub fn integrate_ai_module_rag(&self, module: GeneratedAIModule) -> AIModuleIntegrationReport {
-        println!("  [AAMGI]: Integrating AI module '{}' (ID: '{}') into the system.", module.name, module.module_id);
+        println!(
+            "  [AAMGI]: Integrating AI module '{}' (ID: '{}') into the system.",
+            module.name, module.module_id
+        );
         thread::sleep(Duration::from_millis(400));
         let mut rng = rand::thread_rng();
 
@@ -151,15 +190,27 @@ impl AAMGIEngine {
             module.resource_requirements.clone() // Simply copy for conceptual success
         } else {
             HashMap::from([
-                ("accuracy".to_string(), module.expected_performance_gain / 2.0),
-                ("latency_ms".to_string(), module.resource_requirements.get("latency_ms").map_or(0.0, |&v| v * 2.0)),
+                (
+                    "accuracy".to_string(),
+                    module.expected_performance_gain / 2.0,
+                ),
+                (
+                    "latency_ms".to_string(),
+                    module
+                        .resource_requirements
+                        .get("latency_ms")
+                        .map_or(0.0, |&v| v * 2.0),
+                ),
             ])
         };
 
         let impact = if successful_integration {
             format!("Successfully integrated '{}'. Overall system capability enhanced by {:.0}% for '{}'.", module.name, module.expected_performance_gain, module.purpose)
         } else {
-            format!("Integration of '{}' failed. Rolled back changes. Root cause analysis initiated.", module.name)
+            format!(
+                "Integration of '{}' failed. Rolled back changes. Root cause analysis initiated.",
+                module.name
+            )
         };
 
         let report = AIModuleIntegrationReport {
@@ -173,13 +224,21 @@ impl AAMGIEngine {
             rollback_plan_id: format!("rollback_{}", rng.gen::<u32>()),
         };
 
-        println!("  Integration of '{}' complete. Status: {}.\n", module.name, report.successful);
+        println!(
+            "  Integration of '{}' complete. Status: {}.\n",
+            module.name, report.successful
+        );
         report
     }
 
     /// Generates a comprehensive report for AAMGI.
-    pub fn generate_aamgi_report_rag(&self, total_generated: u64, total_successful: u64, avg_perf_gain: f32) -> String {
-        println!("  [AAMGI]: Generating AAMGI report (RAG for report generation).", );
+    pub fn generate_aamgi_report_rag(
+        &self,
+        total_generated: u64,
+        total_successful: u64,
+        avg_perf_gain: f32,
+    ) -> String {
+        println!("  [AAMGI]: Generating AAMGI report (RAG for report generation).",);
         thread::sleep(Duration::from_millis(80));
 
         format!("Autonomous AI Module Generation & Integration Report:\n  Total Modules Generated: {}\n  Total Successful Integrations: {}\n  Average Performance Improvement: {:.2}%\n  (Conceptual summary based on RAG for architecture patterns/meta-learning and SIMD for parallel NAS).",
@@ -200,7 +259,8 @@ mod tests {
 
         let task = AIModuleGenerationTask {
             task_id: "low_light_perception_enhancement".to_string(),
-            problem_statement: "Need better object recognition in low light conditions.".to_string(),
+            problem_statement: "Need better object recognition in low light conditions."
+                .to_string(),
             desired_capabilities: vec!["high_accuracy_low_light_detection".to_string()],
             constraints: HashMap::new(),
             priority: "High".to_string(),
@@ -238,9 +298,9 @@ fn main() {
 
     let anomaly_module = aamgi_engine.autonomous_ai_module_generation_rag(anomaly_detection_task);
     let anomaly_integration_report = aamgi_engine.integrate_ai_module_rag(anomaly_module);
-    println!("  Anomaly Detection Module Integration Status: {}. Impact: '{}'.\n",
-        anomaly_integration_report.successful,
-        anomaly_integration_report.impact_on_overall_system
+    println!(
+        "  Anomaly Detection Module Integration Status: {}. Impact: '{}'.\n",
+        anomaly_integration_report.successful, anomaly_integration_report.impact_on_overall_system
     );
 
     // Scenario 2: AI generates a module for optimized resource allocation in a dynamic environment
@@ -254,9 +314,11 @@ fn main() {
         solution_candidates_evaluated: 0,
     };
 
-    let resource_module = aamgi_engine.autonomous_ai_module_generation_rag(resource_allocation_task);
+    let resource_module =
+        aamgi_engine.autonomous_ai_module_generation_rag(resource_allocation_task);
     let resource_integration_report = aamgi_engine.integrate_ai_module_rag(resource_module);
-    println!("  Resource Allocation Module Integration Status: {}. Impact: '{}'.\n",
+    println!(
+        "  Resource Allocation Module Integration Status: {}. Impact: '{}'.\n",
         resource_integration_report.successful,
         resource_integration_report.impact_on_overall_system
     );
@@ -266,5 +328,7 @@ fn main() {
     let aamgi_report_summary = aamgi_engine.generate_aamgi_report_rag(10, 8, 18.0);
     println!("  {}\n", aamgi_report_summary);
 
-    println!("\nAutonomous AI Module Generation & Integration (RAG-Driven) Demonstration Complete.");
+    println!(
+        "\nAutonomous AI Module Generation & Integration (RAG-Driven) Demonstration Complete."
+    );
 }

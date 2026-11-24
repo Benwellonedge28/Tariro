@@ -23,9 +23,7 @@ impl Default for JvmVersion {
 
 impl JvmTarget {
     pub fn new() -> Self {
-        Self {
-            version: JvmVersion::default(),
-        }
+        Self { version: JvmVersion::default() }
     }
 
     /// Generate JVM class file
@@ -302,9 +300,7 @@ struct JvmBytecode {
 
 impl JvmBytecode {
     fn new() -> Self {
-        Self {
-            data: Vec::new(),
-        }
+        Self { data: Vec::new() }
     }
 
     fn push_u8(&mut self, val: u8) {

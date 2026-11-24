@@ -71,8 +71,8 @@ impl LoopInvariantCodeMotion {
         // Check if all operands are defined outside the loop
         match &inst.op {
             Operation::Binary(_, lhs, rhs) => {
-                !loop_.blocks.contains(&self.find_block(func, *lhs)) &&
-                !loop_.blocks.contains(&self.find_block(func, *rhs))
+                !loop_.blocks.contains(&self.find_block(func, *lhs))
+                    && !loop_.blocks.contains(&self.find_block(func, *rhs))
             }
             Operation::Unary(_, operand) => {
                 !loop_.blocks.contains(&self.find_block(func, *operand))
@@ -143,10 +143,7 @@ pub struct LoopVectorization {
 
 impl Default for LoopVectorization {
     fn default() -> Self {
-        Self {
-            vector_width: 4,
-            force: false,
-        }
+        Self { vector_width: 4, force: false }
     }
 }
 

@@ -7,14 +7,13 @@
 /// architecture and code-base to improve performance, efficiency, and capability. It
 /// leverages RAG for self-modification guidelines and genetic programming algorithms,
 /// and SIMD for parallel code analysis and real-time code generation/compilation.
-
 use crate::prelude::*;
 use std::collections::HashMap;
 
+use rand::Rng;
+use serde::{Deserialize, Serialize};
 use std::thread;
 use std::time::Duration;
-use rand::Rng;
-use serde::{Serialize, Deserialize};
 
 // --- Conceptual Structures --- //
 
@@ -39,7 +38,7 @@ pub struct OptimizationOpportunity {
     #[serde(with = "chrono::serde::ts_seconds")]
     pub identified_at: DateTime<Utc>,
     pub problem_description: String, // e.g., "High CPU usage in loop at line X"
-    pub suggested_fix: String, // RAG-derived code snippet or architectural change
+    pub suggested_fix: String,       // RAG-derived code snippet or architectural change
     pub expected_gain: HashMap<String, f32>, // e.g., "performance_boost_pct": 15.0
     pub confidence: f32,
 }
@@ -55,7 +54,7 @@ pub struct SelfModificationRecord {
     pub applied_code_diff: String, // Conceptual: git-style diff
     pub new_source_code_hash: String,
     pub post_modification_performance: HashMap<String, f32>,
-    pub status: String, // e.g., "Applied", "RolledBack", "Failed"
+    pub status: String,               // e.g., "Applied", "RolledBack", "Failed"
     pub verification_results: String, // Testing results after modification
 }
 
@@ -94,8 +93,15 @@ impl ACSMOEngine {
     }
 
     /// Performs parallel code analysis and real-time code generation/compilation (SIMD conceptualization).
-    fn parallel_code_evaluation_simd(&self, code_candidates: &[String]) -> HashMap<String, HashMap<String, f32>> { // code_hash -> performance_metrics
-        println!("    [ACSMO-SIMD]: Performing parallel evaluation of {} code candidates.", code_candidates.len());
+    fn parallel_code_evaluation_simd(
+        &self,
+        code_candidates: &[String],
+    ) -> HashMap<String, HashMap<String, f32>> {
+        // code_hash -> performance_metrics
+        println!(
+            "    [ACSMO-SIMD]: Performing parallel evaluation of {} code candidates.",
+            code_candidates.len()
+        );
         thread::sleep(Duration::from_millis(100));
         let mut rng = rand::thread_rng();
 
@@ -112,13 +118,31 @@ impl ACSMOEngine {
     }
 
     /// Enables the AI to autonomously analyze and self-modify its own code for optimization (RAG-amplified).
-    pub fn autonomous_self_modification_rag(&self, ai_core_modules: Vec<AIModule>) -> Vec<SelfModificationRecord> {
-        println!("  [ACSMO]: Initiating autonomous self-modification process on {} AI core modules.", ai_core_modules.len());
-        if let Some(guidelines) = self.self_modification_guidelines_rag_db.get("safe_refactoring_patterns") {
-            format!("RAG knowledge for self-modification guidelines: '{}'", guidelines.chars().take(100).collect::<String>());
+    pub fn autonomous_self_modification_rag(
+        &self,
+        ai_core_modules: Vec<AIModule>,
+    ) -> Vec<SelfModificationRecord> {
+        println!(
+            "  [ACSMO]: Initiating autonomous self-modification process on {} AI core modules.",
+            ai_core_modules.len()
+        );
+        if let Some(guidelines) = self
+            .self_modification_guidelines_rag_db
+            .get("safe_refactoring_patterns")
+        {
+            format!(
+                "RAG knowledge for self-modification guidelines: '{}'",
+                guidelines.chars().take(100).collect::<String>()
+            );
         }
-        if let Some(gp_algo) = self.genetic_programming_algorithms_rag_db.get("syntax_tree_mutation_operators") {
-            format!("RAG knowledge for genetic programming: '{}'", gp_algo.chars().take(100).collect::<String>());
+        if let Some(gp_algo) = self
+            .genetic_programming_algorithms_rag_db
+            .get("syntax_tree_mutation_operators")
+        {
+            format!(
+                "RAG knowledge for genetic programming: '{}'",
+                gp_algo.chars().take(100).collect::<String>()
+            );
         }
         thread::sleep(Duration::from_millis(500));
         let mut rng = rand::thread_rng();
@@ -126,13 +150,28 @@ impl ACSMOEngine {
         let mut modification_records = Vec::new();
 
         for module in ai_core_modules {
-            println!("  Analyzing module '{}' for optimization opportunities.", module.name);
+            println!(
+                "  Analyzing module '{}' for optimization opportunities.",
+                module.name
+            );
             // Conceptual: RAG-driven analysis to identify optimization opportunities
-            if module.performance_metrics.get("cpu_cycles").map_or(false, |&c| c > 500.0) && rng.gen_bool(0.7) {
+            if module
+                .performance_metrics
+                .get("cpu_cycles")
+                .map_or(false, |&c| c > 500.0)
+                && rng.gen_bool(0.7)
+            {
                 let opportunity_id = format!("opt_opp_{}", rng.gen::<u32>());
-                let problem_desc = format!("High CPU usage detected in module '{}' (version {}).", module.name, module.version);
-                let suggested_fix = "Refactor hot loop using SIMD intrinsics for parallel processing.".to_string();
-                let expected_gain = HashMap::from([("performance_boost_pct".to_string(), rng.gen_range(10.0..30.0))]);
+                let problem_desc = format!(
+                    "High CPU usage detected in module '{}' (version {}).",
+                    module.name, module.version
+                );
+                let suggested_fix =
+                    "Refactor hot loop using SIMD intrinsics for parallel processing.".to_string();
+                let expected_gain = HashMap::from([(
+                    "performance_boost_pct".to_string(),
+                    rng.gen_range(10.0..30.0),
+                )]);
 
                 let opportunity = OptimizationOpportunity {
                     opportunity_id: opportunity_id.clone(),
@@ -145,9 +184,15 @@ impl ACSMOEngine {
                 };
 
                 // Conceptual: RAG-driven code generation using genetic programming
-                let code_candidate = format!("// Optimized code for '{}'\n{}", module.name, suggested_fix);
-                let evaluation_results = self.parallel_code_evaluation_simd(&vec![code_candidate.clone()]);
-                let new_performance = evaluation_results.values().next().unwrap_or(&module.performance_metrics).clone();
+                let code_candidate =
+                    format!("// Optimized code for '{}'\n{}", module.name, suggested_fix);
+                let evaluation_results =
+                    self.parallel_code_evaluation_simd(&vec![code_candidate.clone()]);
+                let new_performance = evaluation_results
+                    .values()
+                    .next()
+                    .unwrap_or(&module.performance_metrics)
+                    .clone();
 
                 let applied_diff = format!("--- old\n+++ new\n- old_code\n+ {}\n", code_candidate);
                 let new_hash = format!("hash_new_{}", rng.gen::<u32>());
@@ -161,18 +206,32 @@ impl ACSMOEngine {
                     new_source_code_hash: new_hash,
                     post_modification_performance: new_performance,
                     status: "Applied".to_string(),
-                    verification_results: "All tests passed; performance gain confirmed.".to_string(),
+                    verification_results: "All tests passed; performance gain confirmed."
+                        .to_string(),
                 };
                 modification_records.push(record);
-                println!("  Applied self-modification to module '{}'. Expected gain: {:.1}%.\n", module.name, opportunity.expected_gain.get("performance_boost_pct").copied().unwrap_or(0.0));
+                println!(
+                    "  Applied self-modification to module '{}'. Expected gain: {:.1}%.\n",
+                    module.name,
+                    opportunity
+                        .expected_gain
+                        .get("performance_boost_pct")
+                        .copied()
+                        .unwrap_or(0.0)
+                );
             }
         }
         modification_records
     }
 
     /// Generates a comprehensive report for ACSMO.
-    pub fn generate_acsmo_report_rag(&self, total_cycles: u64, total_changes: u64, avg_perf_gain: f32) -> String {
-        println!("  [ACSMO]: Generating ACSMO report (RAG for report generation).", );
+    pub fn generate_acsmo_report_rag(
+        &self,
+        total_cycles: u64,
+        total_changes: u64,
+        avg_perf_gain: f32,
+    ) -> String {
+        println!("  [ACSMO]: Generating ACSMO report (RAG for report generation).",);
         thread::sleep(Duration::from_millis(80));
 
         format!("Autonomous Code Self-Modification & Optimization Report:\n  Total Optimization Cycles: {}\n  Total Code Changes Applied: {}\n  Average Performance Gain: {:.2}%\n  (Conceptual summary based on RAG for guidelines/GP algorithms and SIMD for parallel code analysis).",
@@ -191,18 +250,19 @@ mod tests {
     fn test_acsmo_engine_flow() {
         let engine = ACSMOEngine::new();
 
-        let modules = vec![
-            AIModule {
-                module_id: "core_logic_v1".to_string(),
-                name: "Core Logic".to_string(),
-                version: "1.0".to_string(),
-                source_code_hash: "hash_cl_1".to_string(),
-                functional_description: "Handles primary decision-making.".to_string(),
-                performance_metrics: HashMap::from([("cpu_cycles".to_string(), 600.0), ("memory_usage_mb".to_string(), 30.0)]),
-                complexity_score: 0.7,
-                dependencies: vec![],
-            },
-        ];
+        let modules = vec![AIModule {
+            module_id: "core_logic_v1".to_string(),
+            name: "Core Logic".to_string(),
+            version: "1.0".to_string(),
+            source_code_hash: "hash_cl_1".to_string(),
+            functional_description: "Handles primary decision-making.".to_string(),
+            performance_metrics: HashMap::from([
+                ("cpu_cycles".to_string(), 600.0),
+                ("memory_usage_mb".to_string(), 30.0),
+            ]),
+            complexity_score: 0.7,
+            dependencies: vec![],
+        }];
 
         let modifications = engine.autonomous_self_modification_rag(modules);
         assert!(!modifications.is_empty());
@@ -214,7 +274,9 @@ mod tests {
 }
 
 fn main() {
-    println!("\n--- Autonomous Code Self-Modification & Optimization (RAG-Driven) Demonstration ---");
+    println!(
+        "\n--- Autonomous Code Self-Modification & Optimization (RAG-Driven) Demonstration ---"
+    );
 
     let acsmo_engine = ACSMOEngine::new();
     let _now = Utc::now();
@@ -226,18 +288,29 @@ fn main() {
         name: "Data Processor".to_string(),
         version: "2.1".to_string(),
         source_code_hash: "hash_dp_v2_1".to_string(),
-        functional_description: "Efficiently filters and transforms incoming sensor data.".to_string(),
-        performance_metrics: HashMap::from([("cpu_cycles".to_string(), 750.0), ("memory_usage_mb".to_string(), 45.0), ("latency_ms".to_string(), 12.0)]),
+        functional_description: "Efficiently filters and transforms incoming sensor data."
+            .to_string(),
+        performance_metrics: HashMap::from([
+            ("cpu_cycles".to_string(), 750.0),
+            ("memory_usage_mb".to_string(), 45.0),
+            ("latency_ms".to_string(), 12.0),
+        ]),
         complexity_score: 0.8,
         dependencies: vec!["sensor_api".to_string()],
     };
 
-    let modifications_1 = acsmo_engine.autonomous_self_modification_rag(vec![data_processor_module]);
+    let modifications_1 =
+        acsmo_engine.autonomous_self_modification_rag(vec![data_processor_module]);
     if !modifications_1.is_empty() {
-        println!("  Optimization applied to '{}'. Status: '{}'. Post-modification CPU: {:.1} cycles.\n",
+        println!(
+            "  Optimization applied to '{}'. Status: '{}'. Post-modification CPU: {:.1} cycles.\n",
             modifications_1[0].module_id,
             modifications_1[0].status,
-            modifications_1[0].post_modification_performance.get("cpu_cycles").copied().unwrap_or(0.0)
+            modifications_1[0]
+                .post_modification_performance
+                .get("cpu_cycles")
+                .copied()
+                .unwrap_or(0.0)
         );
     }
 
@@ -249,12 +322,20 @@ fn main() {
         version: "3.0".to_string(),
         source_code_hash: "hash_de_v3_0".to_string(),
         functional_description: "Evaluates scenarios and makes strategic choices.".to_string(),
-        performance_metrics: HashMap::from([("cpu_cycles".to_string(), 480.0), ("memory_usage_mb".to_string(), 20.0), ("decision_latency_ms".to_string(), 5.0)]),
+        performance_metrics: HashMap::from([
+            ("cpu_cycles".to_string(), 480.0),
+            ("memory_usage_mb".to_string(), 20.0),
+            ("decision_latency_ms".to_string(), 5.0),
+        ]),
         complexity_score: 0.9,
-        dependencies: vec!["perception_module".to_string(), "planning_module".to_string()],
+        dependencies: vec![
+            "perception_module".to_string(),
+            "planning_module".to_string(),
+        ],
     };
     // For this scenario, we assume no modification is made due to lower CPU usage and randomness
-    let modifications_2 = acsmo_engine.autonomous_self_modification_rag(vec![decision_logic_module]);
+    let modifications_2 =
+        acsmo_engine.autonomous_self_modification_rag(vec![decision_logic_module]);
     if modifications_2.is_empty() {
         println!("  No immediate optimization opportunities identified for Decision Engine module based on current metrics.\n");
     }
@@ -264,5 +345,7 @@ fn main() {
     let acsmo_report_summary = acsmo_engine.generate_acsmo_report_rag(10, 5, 20.0);
     println!("  {}\n", acsmo_report_summary);
 
-    println!("\nAutonomous Code Self-Modification & Optimization (RAG-Driven) Demonstration Complete.");
+    println!(
+        "\nAutonomous Code Self-Modification & Optimization (RAG-Driven) Demonstration Complete."
+    );
 }

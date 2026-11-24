@@ -62,32 +62,22 @@ impl DeviceTier {
     /// Get description of the tier
     pub fn description(&self) -> &'static str {
         match self {
-            DeviceTier::Microcontroller => {
-                "Resource-constrained microcontroller (< 64KB RAM)"
-            }
-            DeviceTier::Embedded => {
-                "Embedded system with limited resources (64KB - 16MB RAM)"
-            }
-            DeviceTier::Edge => {
-                "Edge device with full OS (16MB - 4GB RAM)"
-            }
-            DeviceTier::Cloud => {
-                "Cloud server or data center (> 4GB RAM)"
-            }
-            DeviceTier::Planet => {
-                "Geo-distributed planet-scale deployment"
-            }
+            DeviceTier::Microcontroller => "Resource-constrained microcontroller (< 64KB RAM)",
+            DeviceTier::Embedded => "Embedded system with limited resources (64KB - 16MB RAM)",
+            DeviceTier::Edge => "Edge device with full OS (16MB - 4GB RAM)",
+            DeviceTier::Cloud => "Cloud server or data center (> 4GB RAM)",
+            DeviceTier::Planet => "Geo-distributed planet-scale deployment",
         }
     }
 
     /// Get minimum memory requirement for this tier (bytes)
     pub fn minimum_memory(&self) -> u64 {
         match self {
-            DeviceTier::Microcontroller => 8 * 1024,              // 8KB
-            DeviceTier::Embedded => 64 * 1024,                   // 64KB
-            DeviceTier::Edge => 16 * 1024 * 1024,                // 16MB
-            DeviceTier::Cloud => 4 * 1024 * 1024 * 1024,         // 4GB
-            DeviceTier::Planet => 512 * 1024 * 1024 * 1024,      // 512GB
+            DeviceTier::Microcontroller => 8 * 1024,        // 8KB
+            DeviceTier::Embedded => 64 * 1024,              // 64KB
+            DeviceTier::Edge => 16 * 1024 * 1024,           // 16MB
+            DeviceTier::Cloud => 4 * 1024 * 1024 * 1024,    // 4GB
+            DeviceTier::Planet => 512 * 1024 * 1024 * 1024, // 512GB
         }
     }
 
@@ -98,7 +88,10 @@ impl DeviceTier {
 
     /// Check if this tier supports multi-threading
     pub fn supports_multithreading(&self) -> bool {
-        matches!(self, DeviceTier::Edge | DeviceTier::Cloud | DeviceTier::Planet)
+        matches!(
+            self,
+            DeviceTier::Edge | DeviceTier::Cloud | DeviceTier::Planet
+        )
     }
 
     /// Check if this tier supports floating-point operations
@@ -463,8 +456,6 @@ impl CapabilityProfile {
     /// Detect for native (std) environments
     #[cfg(feature = "std")]
     pub fn detect_native() -> Self {
-        
-
         // Try to detect actual system resources
         let memory_total = Self::detect_memory();
         let cpu_count = Self::detect_cpu_count();
@@ -558,7 +549,7 @@ impl CapabilityProfile {
         #[cfg(feature = "sys-info")]
         {
             if let Ok(info) = sys_info::mem_info() {
-                return info.total * 1024; // KB to bytes
+                return info.total; // the crate reports bytes
             }
         }
         // Fallback: assume 4GB
@@ -579,7 +570,9 @@ impl CapabilityProfile {
         }
         #[cfg(not(feature = "num-cpus"))]
         {
-            std::thread::available_parallelism().map(|p| p.get()).unwrap_or(1)
+            std::thread::available_parallelism()
+                .map(|p| p.get())
+                .unwrap_or(1)
         }
     }
 
@@ -616,21 +609,35 @@ impl CapabilityProfile {
     #[cfg(feature = "std")]
     fn detect_os() -> OperatingSystem {
         #[cfg(target_os = "linux")]
-        return OperatingSystem::Linux;
-
+        {
+            OperatingSystem::Linux
+        }
         #[cfg(target_os = "macos")]
-        return OperatingSystem::Macos;
-
+        {
+            OperatingSystem::Macos
+        }
         #[cfg(target_os = "windows")]
-        return OperatingSystem::Windows;
-
+        {
+            OperatingSystem::Windows
+        }
         #[cfg(target_os = "freebsd")]
-        return OperatingSystem::FreeBSD;
-
+        {
+            OperatingSystem::FreeBSD
+        }
         #[cfg(target_os = "fuchsia")]
-        return OperatingSystem::Fuchsia;
-
-        OperatingSystem::Unknown
+        {
+            OperatingSystem::Fuchsia
+        }
+        #[cfg(not(any(
+            target_os = "linux",
+            target_os = "macos",
+            target_os = "windows",
+            target_os = "freebsd",
+            target_os = "fuchsia"
+        )))]
+        {
+            OperatingSystem::Unknown
+        }
     }
 
     #[cfg(not(feature = "std"))]
@@ -641,24 +648,40 @@ impl CapabilityProfile {
     #[cfg(feature = "std")]
     fn detect_architecture() -> Architecture {
         #[cfg(target_arch = "x86_64")]
-        return Architecture::X86_64;
-
+        {
+            Architecture::X86_64
+        }
         #[cfg(target_arch = "aarch64")]
-        return Architecture::Arm64;
-
+        {
+            Architecture::Arm64
+        }
         #[cfg(target_arch = "arm")]
-        return Architecture::Arm;
-
+        {
+            Architecture::Arm
+        }
         #[cfg(target_arch = "riscv32")]
-        return Architecture::Riscv32;
-
+        {
+            Architecture::Riscv32
+        }
         #[cfg(target_arch = "riscv64")]
-        return Architecture::Riscv64;
-
+        {
+            Architecture::Riscv64
+        }
         #[cfg(target_arch = "wasm32")]
-        return Architecture::Wasm32;
-
-        Architecture::Unknown
+        {
+            Architecture::Wasm32
+        }
+        #[cfg(not(any(
+            target_arch = "x86_64",
+            target_arch = "aarch64",
+            target_arch = "arm",
+            target_arch = "riscv32",
+            target_arch = "riscv64",
+            target_arch = "wasm32"
+        )))]
+        {
+            Architecture::Unknown
+        }
     }
 
     #[cfg(not(feature = "std"))]
@@ -669,16 +692,22 @@ impl CapabilityProfile {
     #[cfg(feature = "std")]
     fn detect_has_fpu() -> bool {
         #[cfg(target_arch = "x86_64")]
-        return true;
-
+        {
+            true
+        }
         #[cfg(target_arch = "aarch64")]
-        return true;
-
+        {
+            true
+        }
         #[cfg(target_arch = "arm")]
-        // Most ARM chips have FPU except M0/M1
-        return true;
-
-        false
+        {
+            // Most ARM chips have FPU except M0/M1
+            true
+        }
+        #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64", target_arch = "arm")))]
+        {
+            false
+        }
     }
 
     #[cfg(not(feature = "std"))]
@@ -689,12 +718,17 @@ impl CapabilityProfile {
     #[cfg(feature = "std")]
     fn detect_has_simd() -> bool {
         #[cfg(target_arch = "x86_64")]
-        return true;
-
+        {
+            true
+        }
         #[cfg(target_arch = "aarch64")]
-        return true;
-
-        false
+        {
+            true
+        }
+        #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
+        {
+            false
+        }
     }
 
     #[cfg(not(feature = "std"))]

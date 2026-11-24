@@ -10,9 +10,7 @@ pub struct EscapeAnalysis {
 
 impl Default for EscapeAnalysis {
     fn default() -> Self {
-        Self {
-            context_sensitive: false,
-        }
+        Self { context_sensitive: false }
     }
 }
 
@@ -63,7 +61,9 @@ impl EscapeAnalysis {
         match &inst.op {
             Operation::Alloca(_ty, _) => {
                 // Initially not escaping
-                result.escape_level.insert(inst.result_value(), EscapeLevel::Local);
+                result
+                    .escape_level
+                    .insert(inst.result_value(), EscapeLevel::Local);
             }
             Operation::Store(_, _ptr, val, _) => {
                 // Check if stored value escapes
@@ -128,15 +128,21 @@ impl EscapeAnalysis {
                     .filter_map(|successor| used.get(successor))
                     .flat_map(|values| values.iter())
                     .filter_map(|value| result.escape_level.get(value))
-                    .fold(None, |strongest: Option<&EscapeLevel>, level| match strongest {
-                        Some(current) if !self.is_more_escaped(level, current) => Some(current),
-                        _ => Some(level),
-                    })
+                    .fold(
+                        None,
+                        |strongest: Option<&EscapeLevel>, level| match strongest {
+                            Some(current) if !self.is_more_escaped(level, current) => Some(current),
+                            _ => Some(level),
+                        },
+                    )
                     .cloned();
 
                 if let Some(level) = successor_level {
                     for value in defined.get(&node.block).cloned().unwrap_or_default() {
-                        let current = result.escape_level.entry(value).or_insert(EscapeLevel::Local);
+                        let current = result
+                            .escape_level
+                            .entry(value)
+                            .or_insert(EscapeLevel::Local);
                         if self.is_more_escaped(&level, current) {
                             *current = level.clone();
                             changed = true;
@@ -165,9 +171,7 @@ pub struct EscapeResult {
 
 impl EscapeResult {
     pub fn new() -> Self {
-        Self {
-            function_results: HashMap::new(),
-        }
+        Self { function_results: HashMap::new() }
     }
 
     pub fn can_stack_allocate(&self, value: ValueId) -> bool {
@@ -231,11 +235,8 @@ impl CallGraph {
 
     pub fn build_from_module(&mut self, module: &Module) {
         for func in &module.functions {
-            let node = CallGraphNode {
-                function: func.id,
-                calls: Vec::new(),
-                called_by: Vec::new(),
-            };
+            let node =
+                CallGraphNode { function: func.id, calls: Vec::new(), called_by: Vec::new() };
             self.nodes.insert(func.id, node);
         }
 
@@ -258,11 +259,17 @@ impl CallGraph {
     }
 
     pub fn callees(&self, func: FunctionId) -> Vec<FunctionId> {
-        self.nodes.get(&func).map(|n| n.calls.clone()).unwrap_or_default()
+        self.nodes
+            .get(&func)
+            .map(|n| n.calls.clone())
+            .unwrap_or_default()
     }
 
     pub fn callers(&self, func: FunctionId) -> Vec<FunctionId> {
-        self.nodes.get(&func).map(|n| n.called_by.clone()).unwrap_or_default()
+        self.nodes
+            .get(&func)
+            .map(|n| n.called_by.clone())
+            .unwrap_or_default()
     }
 }
 

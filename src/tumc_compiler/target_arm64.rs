@@ -8,36 +8,234 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Arm64Reg {
     // General purpose 64-bit
-    X0, X1, X2, X3, X4, X5, X6, X7,
-    X8, X9, X10, X11, X12, X13, X14, X15,
-    X16, X17, X18, X19, X20, X21, X22, X23,
-    X24, X25, X26, X27, X28, X29, X30, Xsp, Xzr,
+    X0,
+    X1,
+    X2,
+    X3,
+    X4,
+    X5,
+    X6,
+    X7,
+    X8,
+    X9,
+    X10,
+    X11,
+    X12,
+    X13,
+    X14,
+    X15,
+    X16,
+    X17,
+    X18,
+    X19,
+    X20,
+    X21,
+    X22,
+    X23,
+    X24,
+    X25,
+    X26,
+    X27,
+    X28,
+    X29,
+    X30,
+    Xsp,
+    Xzr,
     // 32-bit general purpose
-    W0, W1, W2, W3, W4, W5, W6, W7,
-    W8, W9, W10, W11, W12, W13, W14, W15,
-    W16, W17, W18, W19, W20, W21, W22, W23,
-    W24, W25, W26, W27, W28, W29, W30, Wsp, Wzr,
+    W0,
+    W1,
+    W2,
+    W3,
+    W4,
+    W5,
+    W6,
+    W7,
+    W8,
+    W9,
+    W10,
+    W11,
+    W12,
+    W13,
+    W14,
+    W15,
+    W16,
+    W17,
+    W18,
+    W19,
+    W20,
+    W21,
+    W22,
+    W23,
+    W24,
+    W25,
+    W26,
+    W27,
+    W28,
+    W29,
+    W30,
+    Wsp,
+    Wzr,
     // SIMD/Floating point
-    B0, B1, B2, B3, B4, B5, B6, B7,
-    B8, B9, B10, B11, B12, B13, B14, B15,
-    B16, B17, B18, B19, B20, B21, B22, B23,
-    B24, B25, B26, B27, B28, B29, B30, B31,
-    H0, H1, H2, H3, H4, H5, H6, H7,
-    H8, H9, H10, H11, H12, H13, H14, H15,
-    H16, H17, H18, H19, H20, H21, H22, H23,
-    H24, H25, H26, H27, H28, H29, H30, H31,
-    S0, S1, S2, S3, S4, S5, S6, S7,
-    S8, S9, S10, S11, S12, S13, S14, S15,
-    S16, S17, S18, S19, S20, S21, S22, S23,
-    S24, S25, S26, S27, S28, S29, S30, S31,
-    D0, D1, D2, D3, D4, D5, D6, D7,
-    D8, D9, D10, D11, D12, D13, D14, D15,
-    D16, D17, D18, D19, D20, D21, D22, D23,
-    D24, D25, D26, D27, D28, D29, D30, D31,
-    Q0, Q1, Q2, Q3, Q4, Q5, Q6, Q7,
-    Q8, Q9, Q10, Q11, Q12, Q13, Q14, Q15,
-    Q16, Q17, Q18, Q19, Q20, Q21, Q22, Q23,
-    Q24, Q25, Q26, Q27, Q28, Q29, Q30, Q31,
+    B0,
+    B1,
+    B2,
+    B3,
+    B4,
+    B5,
+    B6,
+    B7,
+    B8,
+    B9,
+    B10,
+    B11,
+    B12,
+    B13,
+    B14,
+    B15,
+    B16,
+    B17,
+    B18,
+    B19,
+    B20,
+    B21,
+    B22,
+    B23,
+    B24,
+    B25,
+    B26,
+    B27,
+    B28,
+    B29,
+    B30,
+    B31,
+    H0,
+    H1,
+    H2,
+    H3,
+    H4,
+    H5,
+    H6,
+    H7,
+    H8,
+    H9,
+    H10,
+    H11,
+    H12,
+    H13,
+    H14,
+    H15,
+    H16,
+    H17,
+    H18,
+    H19,
+    H20,
+    H21,
+    H22,
+    H23,
+    H24,
+    H25,
+    H26,
+    H27,
+    H28,
+    H29,
+    H30,
+    H31,
+    S0,
+    S1,
+    S2,
+    S3,
+    S4,
+    S5,
+    S6,
+    S7,
+    S8,
+    S9,
+    S10,
+    S11,
+    S12,
+    S13,
+    S14,
+    S15,
+    S16,
+    S17,
+    S18,
+    S19,
+    S20,
+    S21,
+    S22,
+    S23,
+    S24,
+    S25,
+    S26,
+    S27,
+    S28,
+    S29,
+    S30,
+    S31,
+    D0,
+    D1,
+    D2,
+    D3,
+    D4,
+    D5,
+    D6,
+    D7,
+    D8,
+    D9,
+    D10,
+    D11,
+    D12,
+    D13,
+    D14,
+    D15,
+    D16,
+    D17,
+    D18,
+    D19,
+    D20,
+    D21,
+    D22,
+    D23,
+    D24,
+    D25,
+    D26,
+    D27,
+    D28,
+    D29,
+    D30,
+    D31,
+    Q0,
+    Q1,
+    Q2,
+    Q3,
+    Q4,
+    Q5,
+    Q6,
+    Q7,
+    Q8,
+    Q9,
+    Q10,
+    Q11,
+    Q12,
+    Q13,
+    Q14,
+    Q15,
+    Q16,
+    Q17,
+    Q18,
+    Q19,
+    Q20,
+    Q21,
+    Q22,
+    Q23,
+    Q24,
+    Q25,
+    Q26,
+    Q27,
+    Q28,
+    Q29,
+    Q30,
+    Q31,
 }
 
 impl Arm64Reg {
@@ -45,16 +243,16 @@ impl Arm64Reg {
     pub fn encode(&self) -> u8 {
         match self {
             // 64-bit registers
-            Arm64Reg::X0  | Arm64Reg::W0  => 0,
-            Arm64Reg::X1  | Arm64Reg::W1  => 1,
-            Arm64Reg::X2  | Arm64Reg::W2  => 2,
-            Arm64Reg::X3  | Arm64Reg::W3  => 3,
-            Arm64Reg::X4  | Arm64Reg::W4  => 4,
-            Arm64Reg::X5  | Arm64Reg::W5  => 5,
-            Arm64Reg::X6  | Arm64Reg::W6  => 6,
-            Arm64Reg::X7  | Arm64Reg::W7  => 7,
-            Arm64Reg::X8  | Arm64Reg::W8  => 8,
-            Arm64Reg::X9  | Arm64Reg::W9  => 9,
+            Arm64Reg::X0 | Arm64Reg::W0 => 0,
+            Arm64Reg::X1 | Arm64Reg::W1 => 1,
+            Arm64Reg::X2 | Arm64Reg::W2 => 2,
+            Arm64Reg::X3 | Arm64Reg::W3 => 3,
+            Arm64Reg::X4 | Arm64Reg::W4 => 4,
+            Arm64Reg::X5 | Arm64Reg::W5 => 5,
+            Arm64Reg::X6 | Arm64Reg::W6 => 6,
+            Arm64Reg::X7 | Arm64Reg::W7 => 7,
+            Arm64Reg::X8 | Arm64Reg::W8 => 8,
+            Arm64Reg::X9 | Arm64Reg::W9 => 9,
             Arm64Reg::X10 | Arm64Reg::W10 => 10,
             Arm64Reg::X11 | Arm64Reg::W11 => 11,
             Arm64Reg::X12 | Arm64Reg::W12 => 12,
@@ -95,16 +293,16 @@ impl Arm64Reg {
     /// Get 64-bit counterpart
     pub fn to_64bit(&self) -> Self {
         match self {
-            Arm64Reg::W0  => Arm64Reg::X0,
-            Arm64Reg::W1  => Arm64Reg::X1,
-            Arm64Reg::W2  => Arm64Reg::X2,
-            Arm64Reg::W3  => Arm64Reg::X3,
-            Arm64Reg::W4  => Arm64Reg::X4,
-            Arm64Reg::W5  => Arm64Reg::X5,
-            Arm64Reg::W6  => Arm64Reg::X6,
-            Arm64Reg::W7  => Arm64Reg::X7,
-            Arm64Reg::W8  => Arm64Reg::X8,
-            Arm64Reg::W9  => Arm64Reg::X9,
+            Arm64Reg::W0 => Arm64Reg::X0,
+            Arm64Reg::W1 => Arm64Reg::X1,
+            Arm64Reg::W2 => Arm64Reg::X2,
+            Arm64Reg::W3 => Arm64Reg::X3,
+            Arm64Reg::W4 => Arm64Reg::X4,
+            Arm64Reg::W5 => Arm64Reg::X5,
+            Arm64Reg::W6 => Arm64Reg::X6,
+            Arm64Reg::W7 => Arm64Reg::X7,
+            Arm64Reg::W8 => Arm64Reg::X8,
+            Arm64Reg::W9 => Arm64Reg::X9,
             Arm64Reg::W10 => Arm64Reg::X10,
             Arm64Reg::W11 => Arm64Reg::X11,
             Arm64Reg::W12 => Arm64Reg::X12,
@@ -136,21 +334,21 @@ impl Arm64Reg {
 /// ARM64 condition flags
 #[derive(Debug, Clone, Copy)]
 pub enum Cond {
-    Eq,  // Equal
-    Ne,  // Not equal
-    Cs,  // Carry set (unsigned higher or same)
-    Cc,  // Carry clear (unsigned lower)
-    Mi,  // Minus (negative)
-    Pl,  // Plus (positive or zero)
-    Vs,  // Overflow
-    Vc,  // No overflow
-    Hi,  // Unsigned higher
-    Ls,  // Unsigned lower or same
-    Ge,  // Signed greater than or equal
-    Lt,  // Signed less than
-    Gt,  // Signed greater than
-    Le,  // Signed less than or equal
-    Al,  // Always
+    Eq, // Equal
+    Ne, // Not equal
+    Cs, // Carry set (unsigned higher or same)
+    Cc, // Carry clear (unsigned lower)
+    Mi, // Minus (negative)
+    Pl, // Plus (positive or zero)
+    Vs, // Overflow
+    Vc, // No overflow
+    Hi, // Unsigned higher
+    Ls, // Unsigned lower or same
+    Ge, // Signed greater than or equal
+    Lt, // Signed less than
+    Gt, // Signed greater than
+    Le, // Signed less than or equal
+    Al, // Always
 }
 
 impl Cond {
@@ -213,12 +411,7 @@ pub struct Arm64Mem {
 impl Arm64Mem {
     /// Create new memory operand
     pub fn new(base: Arm64Reg, offset: i32) -> Self {
-        Self {
-            base,
-            offset,
-            pre_index: false,
-            post_index: false,
-        }
+        Self { base, offset, pre_index: false, post_index: false }
     }
 
     /// Pre-index variant
@@ -327,12 +520,12 @@ impl Arm64Asm {
             .unwrap_or((imm as u32, 0, 0));
 
         let mut inst = 0u32;
-        inst |= (sf as u32) << 31;            // sf
-        inst |= 0b100100 << 20;               // opc
-        inst |= (shift_encode as u32) << 22;  // shift
-        inst |= (imm12 & 0xFFF) << 10;        // imm12
-        inst |= (rn.encode() as u32) << 5;    // Rn
-        inst |= rd.encode() as u32;           // Rd
+        inst |= (sf as u32) << 31; // sf
+        inst |= 0b100100 << 20; // opc
+        inst |= (shift_encode as u32) << 22; // shift
+        inst |= (imm12 & 0xFFF) << 10; // imm12
+        inst |= (rn.encode() as u32) << 5; // Rn
+        inst |= rd.encode() as u32; // Rd
         self.emit(inst);
     }
 
@@ -344,12 +537,12 @@ impl Arm64Asm {
             .unwrap_or((imm as u32, 0, 0));
 
         let mut inst = 0u32;
-        inst |= (sf as u32) << 31;            // sf
-        inst |= 0b101100 << 20;               // opc
-        inst |= (shift_encode as u32) << 22;  // shift
-        inst |= (imm12 & 0xFFF) << 10;        // imm12
-        inst |= (rn.encode() as u32) << 5;    // Rn
-        inst |= rd.encode() as u32;            // Rd
+        inst |= (sf as u32) << 31; // sf
+        inst |= 0b101100 << 20; // opc
+        inst |= (shift_encode as u32) << 22; // shift
+        inst |= (imm12 & 0xFFF) << 10; // imm12
+        inst |= (rn.encode() as u32) << 5; // Rn
+        inst |= rd.encode() as u32; // Rd
         self.emit(inst);
     }
 
@@ -365,25 +558,32 @@ impl Arm64Asm {
     /// ORR (shifted register)
     pub fn orr_shifted(&mut self, rd: Arm64Reg, rn: Arm64Reg, rm: Arm64Reg, shift: Shift, imm: u8) {
         let mut inst = 0u32;
-        inst |= 1 << 31;                      // sf
-        inst |= 0b011010 << 24;               // opcode
+        inst |= 1 << 31; // sf
+        inst |= 0b011010 << 24; // opcode
         inst |= (shift.encode() as u32) << 22; // shift
-        inst |= (imm as u32) << 10;            // imm6
-        inst |= (rn.encode() as u32) << 5;     // Rn
-        inst |= (rm.encode() as u32) << 16;    // Rm
-        inst |= rd.encode() as u32;            // Rd
+        inst |= (imm as u32) << 10; // imm6
+        inst |= (rn.encode() as u32) << 5; // Rn
+        inst |= (rm.encode() as u32) << 16; // Rm
+        inst |= rd.encode() as u32; // Rd
         self.emit(inst);
     }
 
     /// ORR (32-bit shifted register)
-    pub fn orr_shifted_32(&mut self, rd: Arm64Reg, rn: Arm64Reg, rm: Arm64Reg, shift: Shift, imm: u8) {
+    pub fn orr_shifted_32(
+        &mut self,
+        rd: Arm64Reg,
+        rn: Arm64Reg,
+        rm: Arm64Reg,
+        shift: Shift,
+        imm: u8,
+    ) {
         let mut inst = 0u32;
-        inst |= 0b011010 << 24;               // opcode
+        inst |= 0b011010 << 24; // opcode
         inst |= (shift.encode() as u32) << 22; // shift
-        inst |= (imm as u32) << 10;            // imm6
-        inst |= (rn.encode() as u32) << 5;     // Rn
-        inst |= (rm.encode() as u32) << 16;    // Rm
-        inst |= rd.encode() as u32;            // Rd
+        inst |= (imm as u32) << 10; // imm6
+        inst |= (rn.encode() as u32) << 5; // Rn
+        inst |= (rm.encode() as u32) << 16; // Rm
+        inst |= rd.encode() as u32; // Rd
         self.emit(inst);
     }
 
@@ -490,7 +690,7 @@ impl Arm64Asm {
     /// BR (branch to register)
     pub fn br(&mut self, rn: Arm64Reg) {
         let mut inst = 0u32;
-        inst |= 1 << 31;                      // sf
+        inst |= 1 << 31; // sf
         inst |= 0b1101011 << 23;
         inst |= 0b00000 << 16;
         inst |= (rn.encode() as u32) << 5;
@@ -500,10 +700,10 @@ impl Arm64Asm {
     /// RET
     pub fn ret(&mut self) {
         let mut inst = 0u32;
-        inst |= 1 << 31;                      // sf
+        inst |= 1 << 31; // sf
         inst |= 0b1101011 << 23;
         inst |= 0b00000 << 16;
-        inst |= 0b11111 << 5;                 // X30
+        inst |= 0b11111 << 5; // X30
         self.emit(inst);
     }
 
@@ -517,7 +717,7 @@ impl Arm64Asm {
         inst |= 0b100100 << 24;
         inst |= (rn.encode() as u32) << 5;
         inst |= (rm.encode() as u32) << 16;
-        inst |= 0b11111;                      // Rd = XZR/WZR
+        inst |= 0b11111; // Rd = XZR/WZR
         self.emit(inst);
     }
 
@@ -691,10 +891,7 @@ pub struct Arm64CodeGen {
 impl Arm64CodeGen {
     /// Create new code generator
     pub fn new() -> Self {
-        Self {
-            asm: Arm64Asm::new(),
-            frame: None,
-        }
+        Self { asm: Arm64Asm::new(), frame: None }
     }
 
     /// Begin function
@@ -702,14 +899,20 @@ impl Arm64CodeGen {
         self.frame = Some(frame.clone());
 
         // STP X29, X30, [SP, #-16]!
-        self.asm.stp(Arm64Reg::X29, Arm64Reg::X30, Arm64Reg::Xsp, -16);
+        self.asm
+            .stp(Arm64Reg::X29, Arm64Reg::X30, Arm64Reg::Xsp, -16);
 
         // MOV X29, SP
         self.asm.mov(Arm64Reg::X29, Arm64Reg::Xsp);
 
         // Allocate frame
         if frame.size > 0 {
-            self.asm.sub_imm(Arm64Reg::Xsp, Arm64Reg::Xsp, (frame.size as u16), Some((Shift::Lsl, 0)));
+            self.asm.sub_imm(
+                Arm64Reg::Xsp,
+                Arm64Reg::Xsp,
+                frame.size as u16,
+                Some((Shift::Lsl, 0)),
+            );
         }
 
         // Save callee-saved registers
@@ -733,7 +936,8 @@ impl Arm64CodeGen {
         self.asm.mov(Arm64Reg::Xsp, Arm64Reg::X29);
 
         // LDP X29, X30, [SP], #16
-        self.asm.ldp(Arm64Reg::X29, Arm64Reg::X30, Arm64Reg::Xsp, 16);
+        self.asm
+            .ldp(Arm64Reg::X29, Arm64Reg::X30, Arm64Reg::Xsp, 16);
 
         // RET
         self.asm.ret();

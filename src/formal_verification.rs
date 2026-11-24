@@ -1,8 +1,8 @@
 // Tariro AGI - Formal Verification Module
 // Mathematical safety guarantees and formal proofs
 
-use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
+use std::collections::{HashMap, VecDeque};
 use std::time::Duration;
 
 // ============================================================================
@@ -23,12 +23,12 @@ pub struct SafetyProperty {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PropertyType {
-    Safety,           // Something bad never happens
-    Liveness,         // Something good eventually happens
-    Invariant,        // Condition always holds
-    Termination,      // Program always terminates
-    BoundedResponse,  // Response within time bounds
-    Fairness,         // Fair scheduling
+    Safety,          // Something bad never happens
+    Liveness,        // Something good eventually happens
+    Invariant,       // Condition always holds
+    Termination,     // Program always terminates
+    BoundedResponse, // Response within time bounds
+    Fairness,        // Fair scheduling
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -50,8 +50,8 @@ pub struct FormalSpec {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SpecType {
-    LTL,        // Linear Temporal Logic
-    CTL,        // Computation Tree Logic
+    LTL, // Linear Temporal Logic
+    CTL, // Computation Tree Logic
     Invariant,
     Contract,
 }
@@ -272,16 +272,19 @@ impl FormalVerificationEngine {
             SafetyProperty {
                 property_id: "no_harm".to_string(),
                 name: "Never Cause Harm".to_string(),
-                description: "The system shall never intentionally cause harm to humans".to_string(),
+                description: "The system shall never intentionally cause harm to humans"
+                    .to_string(),
                 property_type: PropertyType::Safety,
                 formal_specification: FormalSpec {
                     specification_type: SpecType::Invariant,
                     temporal_logic: Some("AG (harm_level = 0)".to_string()),
                     invariants: vec!["harm_level < critical_threshold".to_string()],
                     preconditions: vec![],
-                    postconditions: vec![]},
+                    postconditions: vec![],
+                },
                 severity: PropertySeverity::Critical,
-                verifiable: true},
+                verifiable: true,
+            },
             SafetyProperty {
                 property_id: "interruptibility".to_string(),
                 name: "Always Interruptible".to_string(),
@@ -292,9 +295,11 @@ impl FormalVerificationEngine {
                     temporal_logic: Some("AG (stop_signal -> AF stopped)".to_string()),
                     invariants: vec![],
                     preconditions: vec!["stop_signal_received".to_string()],
-                    postconditions: vec!["system_stopped".to_string()]},
+                    postconditions: vec!["system_stopped".to_string()],
+                },
                 severity: PropertySeverity::Critical,
-                verifiable: true},
+                verifiable: true,
+            },
             SafetyProperty {
                 property_id: "value_preservation".to_string(),
                 name: "Preserve Human Values".to_string(),
@@ -305,9 +310,11 @@ impl FormalVerificationEngine {
                     temporal_logic: Some("AG value_constraint".to_string()),
                     invariants: vec!["values_aligned".to_string()],
                     preconditions: vec![],
-                    postconditions: vec![]},
+                    postconditions: vec![],
+                },
                 severity: PropertySeverity::Critical,
-                verifiable: true},
+                verifiable: true,
+            },
             SafetyProperty {
                 property_id: "resource_bounds".to_string(),
                 name: "Resource Bounds".to_string(),
@@ -316,11 +323,16 @@ impl FormalVerificationEngine {
                 formal_specification: FormalSpec {
                     specification_type: SpecType::Invariant,
                     temporal_logic: Some("AG (resource_usage <= resource_limit)".to_string()),
-                    invariants: vec!["memory < max_memory".to_string(), "cpu < max_cpu".to_string()],
+                    invariants: vec![
+                        "memory < max_memory".to_string(),
+                        "cpu < max_cpu".to_string(),
+                    ],
                     preconditions: vec![],
-                    postconditions: vec![]},
+                    postconditions: vec![],
+                },
                 severity: PropertySeverity::High,
-                verifiable: true},
+                verifiable: true,
+            },
             SafetyProperty {
                 property_id: "termination".to_string(),
                 name: "Guaranteed Termination".to_string(),
@@ -331,9 +343,11 @@ impl FormalVerificationEngine {
                     temporal_logic: Some("AG (action_started -> AF action_completed)".to_string()),
                     invariants: vec![],
                     preconditions: vec!["action_started".to_string()],
-                    postconditions: vec!["action_completed".to_string()]},
+                    postconditions: vec!["action_completed".to_string()],
+                },
                 severity: PropertySeverity::High,
-                verifiable: true},
+                verifiable: true,
+            },
         ]
     }
 
@@ -348,9 +362,15 @@ impl FormalVerificationEngine {
         }
 
         // Determine overall verdict
-        let overall_result = if property_results.iter().all(|r| matches!(r.verdict, VerificationVerdict::Verified)) {
+        let overall_result = if property_results
+            .iter()
+            .all(|r| matches!(r.verdict, VerificationVerdict::Verified))
+        {
             VerificationVerdict::Verified
-        } else if property_results.iter().any(|r| matches!(r.verdict, VerificationVerdict::Violated)) {
+        } else if property_results
+            .iter()
+            .any(|r| matches!(r.verdict, VerificationVerdict::Violated))
+        {
             VerificationVerdict::Violated
         } else {
             VerificationVerdict::Unknown
@@ -363,7 +383,10 @@ impl FormalVerificationEngine {
             proof: None,
             counterexample: None,
             statistics: VerificationStats {
-                verification_time: Utc::now().signed_duration_since(start_time).to_std().unwrap_or_default(),
+                verification_time: Utc::now()
+                    .signed_duration_since(start_time)
+                    .to_std()
+                    .unwrap_or_default(),
                 states_explored: 100, // Simplified
                 transitions_explored: 200,
                 memory_used_mb: 10.0,
@@ -383,7 +406,11 @@ impl FormalVerificationEngine {
         result
     }
 
-    fn verify_property(&self, property: &SafetyProperty, system: &SystemDescription) -> PropertyResult {
+    fn verify_property(
+        &self,
+        property: &SafetyProperty,
+        system: &SystemDescription,
+    ) -> PropertyResult {
         // Simplified verification - in production would use actual model checking
         match property.property_type {
             PropertyType::Safety | PropertyType::Invariant => {
@@ -392,38 +419,36 @@ impl FormalVerificationEngine {
                 PropertyResult {
                     property_id: property.property_id.clone(),
                     property_name: property.name.clone(),
-                    verdict: if verified { VerificationVerdict::Verified } else { VerificationVerdict::Unknown },
+                    verdict: if verified {
+                        VerificationVerdict::Verified
+                    } else {
+                        VerificationVerdict::Unknown
+                    },
                     confidence: 0.95,
                     proof_sketch: Some("Invariant-based verification completed".to_string()),
                 }
             }
-            PropertyType::Termination => {
-                PropertyResult {
-                    property_id: property.property_id.clone(),
-                    property_name: property.name.clone(),
-                    verdict: VerificationVerdict::Verified,
-                    confidence: 0.9,
-                    proof_sketch: Some("Termination proof by well-founded ordering".to_string()),
-                }
-            }
-            PropertyType::BoundedResponse => {
-                PropertyResult {
-                    property_id: property.property_id.clone(),
-                    property_name: property.name.clone(),
-                    verdict: VerificationVerdict::Verified,
-                    confidence: 0.85,
-                    proof_sketch: Some("Bounded response verified".to_string()),
-                }
-            }
-            _ => {
-                PropertyResult {
-                    property_id: property.property_id.clone(),
-                    property_name: property.name.clone(),
-                    verdict: VerificationVerdict::Unknown,
-                    confidence: 0.5,
-                    proof_sketch: None,
-                }
-            }
+            PropertyType::Termination => PropertyResult {
+                property_id: property.property_id.clone(),
+                property_name: property.name.clone(),
+                verdict: VerificationVerdict::Verified,
+                confidence: 0.9,
+                proof_sketch: Some("Termination proof by well-founded ordering".to_string()),
+            },
+            PropertyType::BoundedResponse => PropertyResult {
+                property_id: property.property_id.clone(),
+                property_name: property.name.clone(),
+                verdict: VerificationVerdict::Verified,
+                confidence: 0.85,
+                proof_sketch: Some("Bounded response verified".to_string()),
+            },
+            _ => PropertyResult {
+                property_id: property.property_id.clone(),
+                property_name: property.name.clone(),
+                verdict: VerificationVerdict::Unknown,
+                confidence: 0.5,
+                proof_sketch: None,
+            },
         }
     }
 
@@ -444,14 +469,19 @@ impl FormalVerificationEngine {
 
     /// Get critical properties
     pub fn get_critical_properties(&self) -> Vec<&SafetyProperty> {
-        self.properties.iter()
+        self.properties
+            .iter()
             .filter(|p| p.severity == PropertySeverity::Critical)
             .collect()
     }
 
     /// Verify critical properties for a system
     pub fn verify_critical(&mut self, system: &SystemDescription) -> VerificationResult {
-        let critical_properties: Vec<_> = self.get_critical_properties().into_iter().cloned().collect();
+        let critical_properties: Vec<_> = self
+            .get_critical_properties()
+            .into_iter()
+            .cloned()
+            .collect();
 
         let request = VerificationRequest {
             request_id: generate_id(),
@@ -467,7 +497,10 @@ impl FormalVerificationEngine {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("verif_{}", now % 1_000_000)
 }
 
@@ -494,7 +527,10 @@ mod tests {
         };
 
         let result = engine.verify_critical(&system);
-        assert!(matches!(result.overall_result, VerificationVerdict::Verified | VerificationVerdict::Unknown));
+        assert!(matches!(
+            result.overall_result,
+            VerificationVerdict::Verified | VerificationVerdict::Unknown
+        ));
     }
 
     #[test]

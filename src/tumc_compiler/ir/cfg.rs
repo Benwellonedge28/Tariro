@@ -1,7 +1,7 @@
 // Control Flow Graph Implementation
 
-use std::collections::HashMap;
 use super::*;
+use std::collections::HashMap;
 
 /// Control Flow Graph representation
 #[derive(Debug, Clone)]
@@ -24,11 +24,7 @@ pub struct CfgNode {
 
 impl ControlFlowGraph {
     pub fn new() -> Self {
-        Self {
-            nodes: HashMap::new(),
-            entry: BasicBlockId(0),
-            exit: None,
-        }
+        Self { nodes: HashMap::new(), entry: BasicBlockId(0), exit: None }
     }
 
     pub fn from_function(function: &Function) -> Self {
@@ -114,14 +110,25 @@ impl ControlFlowGraph {
     }
 
     pub fn predecessors(&self, block: BasicBlockId) -> &[BasicBlockId] {
-        self.nodes.get(&block).map(|n| n.predecessors.as_slice()).unwrap_or(&[])
+        self.nodes
+            .get(&block)
+            .map(|n| n.predecessors.as_slice())
+            .unwrap_or(&[])
     }
 
     pub fn successors(&self, block: BasicBlockId) -> &[BasicBlockId] {
-        self.nodes.get(&block).map(|n| n.successors.as_slice()).unwrap_or(&[])
+        self.nodes
+            .get(&block)
+            .map(|n| n.successors.as_slice())
+            .unwrap_or(&[])
     }
 
-    pub fn is_dominated_by(&self, block: BasicBlockId, dominator: BasicBlockId, dom_tree: &DominatorTree) -> bool {
+    pub fn is_dominated_by(
+        &self,
+        block: BasicBlockId,
+        dominator: BasicBlockId,
+        dom_tree: &DominatorTree,
+    ) -> bool {
         dom_tree.dominates(dominator, block)
     }
 
@@ -130,7 +137,9 @@ impl ControlFlowGraph {
 
         for (&header, node) in &self.nodes {
             // Check if any predecessor is a back edge
-            let back_edges: Vec<_> = node.predecessors.iter()
+            let back_edges: Vec<_> = node
+                .predecessors
+                .iter()
                 .filter(|&&pred| self.is_back_edge(header, pred))
                 .collect();
 
@@ -307,7 +316,12 @@ impl ControlFlowGraph {
         idom
     }
 
-    fn intersect(&self, idom: &HashMap<BasicBlockId, BasicBlockId>, a: BasicBlockId, b: BasicBlockId) -> BasicBlockId {
+    fn intersect(
+        &self,
+        idom: &HashMap<BasicBlockId, BasicBlockId>,
+        a: BasicBlockId,
+        b: BasicBlockId,
+    ) -> BasicBlockId {
         let mut finger1 = a;
         let mut finger2 = b;
 
@@ -323,7 +337,12 @@ impl ControlFlowGraph {
         finger1
     }
 
-    fn is_strictly_dominated_by(&self, block: BasicBlockId, dominator: BasicBlockId, idom: &HashMap<BasicBlockId, BasicBlockId>) -> bool {
+    fn is_strictly_dominated_by(
+        &self,
+        block: BasicBlockId,
+        dominator: BasicBlockId,
+        idom: &HashMap<BasicBlockId, BasicBlockId>,
+    ) -> bool {
         let mut current = block;
         while let Some(&idom_block) = idom.get(&current) {
             if idom_block == dominator {
@@ -337,7 +356,11 @@ impl ControlFlowGraph {
         false
     }
 
-    pub fn dominance_frontier(&self, block: BasicBlockId, idom: &HashMap<BasicBlockId, BasicBlockId>) -> Vec<BasicBlockId> {
+    pub fn dominance_frontier(
+        &self,
+        block: BasicBlockId,
+        idom: &HashMap<BasicBlockId, BasicBlockId>,
+    ) -> Vec<BasicBlockId> {
         let mut frontier = Vec::new();
 
         for &succ in self.successors(block) {
@@ -365,7 +388,11 @@ impl ControlFlowGraph {
         frontier
     }
 
-    pub fn iterated_dominance_frontier(&self, set: Vec<BasicBlockId>, idom: &HashMap<BasicBlockId, BasicBlockId>) -> Vec<BasicBlockId> {
+    pub fn iterated_dominance_frontier(
+        &self,
+        set: Vec<BasicBlockId>,
+        idom: &HashMap<BasicBlockId, BasicBlockId>,
+    ) -> Vec<BasicBlockId> {
         let mut result = set.clone();
 
         loop {
@@ -533,6 +560,9 @@ mod tests {
         cfg.add_edge(BasicBlockId(1), BasicBlockId(2));
 
         let order = cfg.topological_sort();
-        assert_eq!(order, vec![BasicBlockId(0), BasicBlockId(1), BasicBlockId(2)]);
+        assert_eq!(
+            order,
+            vec![BasicBlockId(0), BasicBlockId(1), BasicBlockId(2)]
+        );
     }
 }

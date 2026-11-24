@@ -34,12 +34,8 @@ impl GradualCast {
     /// Generate casts at typed/untyped boundary
     pub fn generate_cast(from: &GradualType, to: &GradualType) -> Option<CastOp> {
         match (from, to) {
-            (GradualType::Static(_), GradualType::Dynamic) => {
-                Some(CastOp::ToDynamic)
-            }
-            (GradualType::Dynamic, GradualType::Static(_)) => {
-                Some(CastOp::FromDynamic)
-            }
+            (GradualType::Static(_), GradualType::Dynamic) => Some(CastOp::ToDynamic),
+            (GradualType::Dynamic, GradualType::Static(_)) => Some(CastOp::FromDynamic),
             (GradualType::Static(_a), GradualType::Static(_b)) => {
                 // Type-safe cast
                 None
@@ -59,8 +55,8 @@ pub enum CastOp {
 /// Blame tracking for gradual typing
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Blame {
-    Positive,  // Cast was inserted by typed side
-    Negative,  // Cast was inserted by untyped side
+    Positive, // Cast was inserted by typed side
+    Negative, // Cast was inserted by untyped side
 }
 
 impl Blame {
@@ -94,18 +90,12 @@ pub struct Location {
 
 impl BlameTracker {
     pub fn new() -> Self {
-        Self {
-            casts: Vec::new(),
-        }
+        Self { casts: Vec::new() }
     }
 
     pub fn record_cast(&mut self, source: Location, target: Location, blame: Blame) {
-        self.casts.push(CastInfo {
-            source,
-            target,
-            blame,
-            success: true,
-        });
+        self.casts
+            .push(CastInfo { source, target, blame, success: true });
     }
 
     pub fn record_failure(&mut self, blame: Blame) {
@@ -137,8 +127,7 @@ pub fn consistent_subtype(a: &GradualType, b: &GradualType) -> bool {
 
 /// Static gradual typing ground types
 pub static GROUND_TYPES: [&str; 8] = [
-    "int", "float", "bool", "string", "char",
-    "Dynamic", "Unknown", "any",
+    "int", "float", "bool", "string", "char", "Dynamic", "Unknown", "any",
 ];
 
 /// Check if type is a ground type
@@ -147,9 +136,12 @@ pub fn is_ground_type(ty: &GradualType) -> bool {
         GradualType::Static(ty) => {
             matches!(
                 ty,
-                MonoType::Int(_) | MonoType::Float(_) |
-                MonoType::Bool | MonoType::Char | MonoType::String |
-                MonoType::Never
+                MonoType::Int(_)
+                    | MonoType::Float(_)
+                    | MonoType::Bool
+                    | MonoType::Char
+                    | MonoType::String
+                    | MonoType::Never
             )
         }
         GradualType::Dynamic => true,

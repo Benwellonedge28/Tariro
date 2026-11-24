@@ -1,7 +1,10 @@
 // Concurrent GC
 
 use super::*;
-use std::sync::{Arc, Mutex, atomic::{AtomicBool, AtomicUsize, Ordering}};
+use std::sync::{
+    atomic::{AtomicBool, AtomicUsize, Ordering},
+    Arc, Mutex,
+};
 
 /// Concurrent mark-sweep GC
 pub struct ConcurrentMarkSweep {
@@ -188,7 +191,8 @@ impl CardTable {
 
     /// Get dirty cards
     pub fn dirty_cards(&self) -> Vec<usize> {
-        self.cards.iter()
+        self.cards
+            .iter()
             .enumerate()
             .filter(|(_, &c)| c == 1)
             .map(|(i, _)| i)

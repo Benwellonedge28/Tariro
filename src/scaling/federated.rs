@@ -20,7 +20,7 @@
 
 use crate::tumc_compiler::ir::NodeId;
 use serde::{Deserialize, Serialize};
-use std::collections::{ VecDeque};
+use std::collections::VecDeque;
 
 /// Aggregation strategy for federated learning
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
@@ -334,7 +334,11 @@ impl FederatedProtocol {
     }
 
     /// Perform local training
-    pub fn train_local(&mut self, data: &[Sample], config: &TrainingConfig) -> Result<ModelUpdate, FederatedError> {
+    pub fn train_local(
+        &mut self,
+        data: &[Sample],
+        config: &TrainingConfig,
+    ) -> Result<ModelUpdate, FederatedError> {
         if self.local_weights.is_empty() {
             return Err(FederatedError::ModelNotInitialized);
         }
@@ -350,7 +354,12 @@ impl FederatedProtocol {
             let error = self.compute_error(&prediction, &sample.output);
 
             // Compute gradient contribution
-            for (i, (_w, x)) in self.local_weights.iter().zip(sample.input.iter()).enumerate() {
+            for (i, (_w, x)) in self
+                .local_weights
+                .iter()
+                .zip(sample.input.iter())
+                .enumerate()
+            {
                 gradients[i] += error * x * sample.weight / data.len() as f32;
             }
         }
@@ -375,7 +384,10 @@ impl FederatedProtocol {
     }
 
     /// Compress update for transmission
-    pub fn compress_update(&mut self, update: ModelUpdate) -> Result<CompressedUpdate, FederatedError> {
+    pub fn compress_update(
+        &mut self,
+        update: ModelUpdate,
+    ) -> Result<CompressedUpdate, FederatedError> {
         let original_size = update.weights.len() * 4; // f32 = 4 bytes
 
         match self.privacy.technique {
@@ -387,7 +399,11 @@ impl FederatedProtocol {
                     shape: vec![update.weights.len()],
                     compression_type: CompressionType::None,
                     min: update.weights.iter().cloned().fold(f32::INFINITY, f32::min),
-                    max: update.weights.iter().cloned().fold(f32::NEG_INFINITY, f32::max),
+                    max: update
+                        .weights
+                        .iter()
+                        .cloned()
+                        .fold(f32::NEG_INFINITY, f32::max),
                     mean: update.weights.iter().sum::<f32>() / update.weights.len() as f32,
                 },
             }),
@@ -400,7 +416,11 @@ impl FederatedProtocol {
     }
 
     /// Top-K compression
-    fn compress_top_k(&self, update: ModelUpdate, k: usize) -> Result<CompressedUpdate, FederatedError> {
+    fn compress_top_k(
+        &self,
+        update: ModelUpdate,
+        k: usize,
+    ) -> Result<CompressedUpdate, FederatedError> {
         // Find top-K values by magnitude
         let mut indexed: Vec<(usize, f32)> = update
             .weights
@@ -451,11 +471,19 @@ impl FederatedProtocol {
     }
 
     /// Quantization compression
-    fn compress_quantization(&self, update: ModelUpdate, bits: u8) -> Result<CompressedUpdate, FederatedError> {
+    fn compress_quantization(
+        &self,
+        update: ModelUpdate,
+        bits: u8,
+    ) -> Result<CompressedUpdate, FederatedError> {
         let levels = 1u32 << bits as u32;
 
         let min_val = update.weights.iter().cloned().fold(f32::INFINITY, f32::min);
-        let max_val = update.weights.iter().cloned().fold(f32::NEG_INFINITY, f32::max);
+        let max_val = update
+            .weights
+            .iter()
+            .cloned()
+            .fold(f32::NEG_INFINITY, f32::max);
         let range = max_val - min_val;
 
         // Quantize
@@ -496,7 +524,10 @@ impl FederatedProtocol {
     }
 
     /// Decompress update
-    pub fn decompress_update(&self, compressed: &CompressedUpdate) -> Result<Vec<f32>, FederatedError> {
+    pub fn decompress_update(
+        &self,
+        compressed: &CompressedUpdate,
+    ) -> Result<Vec<f32>, FederatedError> {
         match compressed.metadata.compression_type {
             CompressionType::None => Ok(self.deserialize_f32(&compressed.data)),
             CompressionType::TopK => self.decompress_top_k(compressed),
@@ -511,7 +542,9 @@ impl FederatedProtocol {
     fn decompress_top_k(&self, compressed: &CompressedUpdate) -> Result<Vec<f32>, FederatedError> {
         let data = &compressed.data;
         if data.len() < 4 {
-            return Err(FederatedError::DecompressionFailed("Data too short".to_string()));
+            return Err(FederatedError::DecompressionFailed(
+                "Data too short".to_string(),
+            ));
         }
 
         let k = u32::from_le_bytes([data[0], data[1], data[2], data[3]]) as usize;
@@ -544,7 +577,10 @@ impl FederatedProtocol {
     }
 
     /// Decompress quantization
-    fn decompress_quantization(&self, compressed: &CompressedUpdate) -> Result<Vec<f32>, FederatedError> {
+    fn decompress_quantization(
+        &self,
+        compressed: &CompressedUpdate,
+    ) -> Result<Vec<f32>, FederatedError> {
         let levels = 1u32 << 8; // Assume 8 bits
         let range = compressed.metadata.max - compressed.metadata.min;
 
@@ -661,7 +697,8 @@ impl FederatedProtocol {
         if update.len() != self.local_weights.len() {
             return Err(FederatedError::DimensionMismatch {
                 expected: self.local_weights.len(),
-                actual: update.len()});
+                actual: update.len(),
+            });
         }
 
         self.local_weights.copy_from_slice(update);
@@ -847,10 +884,7 @@ mod tests {
         };
 
         let result = federated.receive_update(update);
-        assert!(matches!(
-            result,
-            Err(FederatedError::RoundMismatch { .. })
-        ));
+        assert!(matches!(result, Err(FederatedError::RoundMismatch { .. })));
     }
 
     #[test]

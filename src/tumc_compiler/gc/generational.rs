@@ -52,7 +52,7 @@ impl OldGeneration {
     pub fn new(size: usize, heap_size: usize) -> Option<Self> {
         Some(Self {
             heap: HeapRegion::new(heap_size)?,
-            card_table: vec![0; size / 64],  // 64-byte cards
+            card_table: vec![0; size / 64], // 64-byte cards
             card_size: 64,
         })
     }
@@ -131,7 +131,9 @@ impl GarbageCollector for GenerationalGc {
         self.major_collection();
 
         // Retry
-        self.young_gen.eden.allocate(size)
+        self.young_gen
+            .eden
+            .allocate(size)
             .or_else(|| self.old_gen.heap.allocate(size))
             .unwrap_or(std::ptr::null_mut())
     }

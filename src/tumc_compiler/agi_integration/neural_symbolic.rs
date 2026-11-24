@@ -3,9 +3,8 @@
 //! Combines neural network pattern recognition with symbolic reasoning
 //! for compiler optimization decisions.
 
-use crate::tumc_compiler::ir::{Module, Function, Operation};
+use crate::tumc_compiler::ir::{Function, Module, Operation};
 use serde::{Deserialize, Serialize};
-use std::collections::{ };
 
 /// Neural network layer configuration
 #[derive(Debug, Clone)]
@@ -75,7 +74,10 @@ impl NeuralNetwork {
         }
 
         Self {
-            layers: layers.into_iter().map(|c| NeuralLayer { config: c }).collect(),
+            layers: layers
+                .into_iter()
+                .map(|c| NeuralLayer { config: c })
+                .collect(),
             weights,
             biases,
         }
@@ -110,7 +112,9 @@ impl NeuralNetwork {
     fn apply_activation(&self, values: &[f64], activation: &ActivationFunction) -> Vec<f64> {
         match activation {
             ActivationFunction::Relu => values.iter().map(|&x| x.max(0.0)).collect(),
-            ActivationFunction::Sigmoid => values.iter().map(|&x| 1.0 / (1.0 + (-x).exp())).collect(),
+            ActivationFunction::Sigmoid => {
+                values.iter().map(|&x| 1.0 / (1.0 + (-x).exp())).collect()
+            }
             ActivationFunction::Tanh => values.iter().map(|&x| x.tanh()).collect(),
             ActivationFunction::Softmax => {
                 let max_val = values.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
@@ -143,7 +147,8 @@ impl NeuralNetwork {
             for (neuron_idx, neuron_weights) in self.weights[layer_idx].iter_mut().enumerate() {
                 for (weight_idx, weight) in neuron_weights.iter_mut().enumerate() {
                     if weight_idx < input_data.len() && neuron_idx < layer_deltas.len() {
-                        *weight -= learning_rate * layer_deltas[neuron_idx] * input_data[weight_idx];
+                        *weight -=
+                            learning_rate * layer_deltas[neuron_idx] * input_data[weight_idx];
                     }
                 }
             }
@@ -295,7 +300,10 @@ impl NeuralSymbolicEngine {
     }
 
     /// Analyze a module for optimization opportunities
-    pub fn analyze_module(&mut self, module: &Module) -> Vec<crate::tumc_compiler::agi_integration::AgiInsight> {
+    pub fn analyze_module(
+        &mut self,
+        module: &Module,
+    ) -> Vec<crate::tumc_compiler::agi_integration::AgiInsight> {
         let mut insights = Vec::new();
 
         // Step 1: Neural pattern recognition
@@ -422,9 +430,10 @@ impl NeuralSymbolicEngine {
                     description: format!("{}: {}", rule.name, rule.action),
                     suggestion: crate::tumc_compiler::agi_integration::AgiSuggestion {
                         transform_type: Self::rule_to_transform(&rule.action),
-                        target_location: format!("{}.{:?}",
-                            pattern.location.function,
-                            pattern.location.block),
+                        target_location: format!(
+                            "{}.{:?}",
+                            pattern.location.function, pattern.location.block
+                        ),
                         expected_improvement: 0.1 + pattern.confidence * 0.3,
                         risk_level: crate::tumc_compiler::agi_integration::RiskLevel::Low,
                     },
@@ -442,11 +451,19 @@ impl NeuralSymbolicEngine {
 
     fn rule_matches(&self, pattern: &RecognizedPattern, rule: &SymbolicRule) -> bool {
         match pattern.pattern_type {
-            PatternType::LoopInvariant => rule.name.contains("invariant") || rule.name.contains("loop"),
-            PatternType::RedundantComputation => rule.name.contains("common") || rule.name.contains("redundant"),
+            PatternType::LoopInvariant => {
+                rule.name.contains("invariant") || rule.name.contains("loop")
+            }
+            PatternType::RedundantComputation => {
+                rule.name.contains("common") || rule.name.contains("redundant")
+            }
             PatternType::MemoryBottleneck => rule.name.contains("memory"),
-            PatternType::ParallelizableSection => rule.name.contains("inline") || rule.name.contains("parallel"),
-            PatternType::CacheUnfriendlyAccess => rule.name.contains("cache") || rule.name.contains("memory"),
+            PatternType::ParallelizableSection => {
+                rule.name.contains("inline") || rule.name.contains("parallel")
+            }
+            PatternType::CacheUnfriendlyAccess => {
+                rule.name.contains("cache") || rule.name.contains("memory")
+            }
             _ => false,
         }
     }
@@ -467,20 +484,39 @@ impl NeuralSymbolicEngine {
         }
     }
 
-    fn pattern_to_insight_type(pattern: &PatternType) -> crate::tumc_compiler::agi_integration::InsightType {
+    fn pattern_to_insight_type(
+        pattern: &PatternType,
+    ) -> crate::tumc_compiler::agi_integration::InsightType {
         match pattern {
-            PatternType::LoopInvariant => crate::tumc_compiler::agi_integration::InsightType::Performance,
-            PatternType::RedundantComputation => crate::tumc_compiler::agi_integration::InsightType::Performance,
-            PatternType::MemoryBottleneck => crate::tumc_compiler::agi_integration::InsightType::Memory,
-            PatternType::ParallelizableSection => crate::tumc_compiler::agi_integration::InsightType::Parallelization,
-            PatternType::TypeSpecificOptimization => crate::tumc_compiler::agi_integration::InsightType::Specialization,
-            PatternType::CacheUnfriendlyAccess => crate::tumc_compiler::agi_integration::InsightType::Performance,
-            PatternType::BranchMisprediction => crate::tumc_compiler::agi_integration::InsightType::Performance,
+            PatternType::LoopInvariant => {
+                crate::tumc_compiler::agi_integration::InsightType::Performance
+            }
+            PatternType::RedundantComputation => {
+                crate::tumc_compiler::agi_integration::InsightType::Performance
+            }
+            PatternType::MemoryBottleneck => {
+                crate::tumc_compiler::agi_integration::InsightType::Memory
+            }
+            PatternType::ParallelizableSection => {
+                crate::tumc_compiler::agi_integration::InsightType::Parallelization
+            }
+            PatternType::TypeSpecificOptimization => {
+                crate::tumc_compiler::agi_integration::InsightType::Specialization
+            }
+            PatternType::CacheUnfriendlyAccess => {
+                crate::tumc_compiler::agi_integration::InsightType::Performance
+            }
+            PatternType::BranchMisprediction => {
+                crate::tumc_compiler::agi_integration::InsightType::Performance
+            }
         }
     }
 
     /// Hybrid neural-symbolic reasoning
-    fn hybrid_reasoning(&self, function: &Function) -> Vec<crate::tumc_compiler::agi_integration::AgiInsight> {
+    fn hybrid_reasoning(
+        &self,
+        function: &Function,
+    ) -> Vec<crate::tumc_compiler::agi_integration::AgiInsight> {
         let mut insights = Vec::new();
 
         // Combine neural pattern confidence with symbolic rule priority
@@ -528,7 +564,8 @@ impl NeuralSymbolicEngine {
                 vec![0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0] // Should not recognize
             };
 
-            self.pattern_network.backprop(&pattern.features, &target, 0.01);
+            self.pattern_network
+                .backprop(&pattern.features, &target, 0.01);
         }
     }
 }

@@ -1,8 +1,8 @@
 // Tariro AGI - Intrinsic Motivation Module
 // Internal motivation systems for autonomous learning
 
-use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
+use std::collections::{HashMap, VecDeque};
 use std::time::Duration;
 
 // ============================================================================
@@ -33,16 +33,16 @@ pub struct Motivation {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum MotivationType {
-    Curiosity,         // Drive to explore unknowns
-    Competence,        // Drive to improve skills
-    Autonomy,          // Drive for self-determination
-    Relatedness,       // Drive for connection
-    Purpose,           // Drive for meaning
-    Mastery,          // Drive to master domains
-    Achievement,       // Drive for accomplishments
-    Creativity,        // Drive to create novel things
-    Understanding,     // Drive to comprehend
-    SelfImprovement,   // Drive for self-growth
+    Curiosity,       // Drive to explore unknowns
+    Competence,      // Drive to improve skills
+    Autonomy,        // Drive for self-determination
+    Relatedness,     // Drive for connection
+    Purpose,         // Drive for meaning
+    Mastery,         // Drive to master domains
+    Achievement,     // Drive for accomplishments
+    Creativity,      // Drive to create novel things
+    Understanding,   // Drive to comprehend
+    SelfImprovement, // Drive for self-growth
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -222,44 +222,43 @@ impl IntrinsicMotivationSystem {
         IntrinsicReward {
             total_reward: normalized_reward,
             components,
-            novelty_bonus: if activity.novelty > 0.5 { self.config.novelty_bonus * activity.novelty } else { 0.0 },
+            novelty_bonus: if activity.novelty > 0.5 {
+                self.config.novelty_bonus * activity.novelty
+            } else {
+                0.0
+            },
             challenge_match: self.calculate_challenge_match(activity),
         }
     }
 
-    fn calculate_motivation_reward(&self, motivation: &Motivation, activity: &ActivityMetrics) -> f32 {
+    fn calculate_motivation_reward(
+        &self,
+        motivation: &Motivation,
+        activity: &ActivityMetrics,
+    ) -> f32 {
         match motivation.motivation_type {
-            MotivationType::Curiosity => {
-                activity.novelty * 0.8 + activity.exploration * 0.2
-            }
+            MotivationType::Curiosity => activity.novelty * 0.8 + activity.exploration * 0.2,
             MotivationType::Competence => {
                 if activity.difficulty <= activity.competence_level {
                     activity.completion * 0.7 + activity.quality * 0.3
                 } else {
-                    (activity.completion * 0.5) * ((activity.competence_level / activity.difficulty).max(0.1))
+                    (activity.completion * 0.5)
+                        * ((activity.competence_level / activity.difficulty).max(0.1))
                 }
             }
             MotivationType::Mastery => {
                 activity.progress_toward_mastery * 0.6 + activity.quality * 0.4
             }
-            MotivationType::Creativity => {
-                activity.novelty * 0.5 + activity.originality * 0.5
-            }
-            MotivationType::Autonomy => {
-                activity.self_directed * 0.7 + activity.choice * 0.3
-            }
+            MotivationType::Creativity => activity.novelty * 0.5 + activity.originality * 0.5,
+            MotivationType::Autonomy => activity.self_directed * 0.7 + activity.choice * 0.3,
             MotivationType::Purpose => {
                 activity.meaningful_impact * 0.8 + activity.goal_alignment * 0.2
             }
             MotivationType::Achievement => {
                 activity.completion * 0.5 + activity.difficulty * 0.3 + activity.quality * 0.2
             }
-            MotivationType::Understanding => {
-                activity.comprehension * 0.6 + activity.insight * 0.4
-            }
-            MotivationType::SelfImprovement => {
-                activity.growth * 0.7 + activity.learning * 0.3
-            }
+            MotivationType::Understanding => activity.comprehension * 0.6 + activity.insight * 0.4,
+            MotivationType::SelfImprovement => activity.growth * 0.7 + activity.learning * 0.3,
             MotivationType::Relatedness => {
                 activity.social_connection * 0.6 + activity.relatedness * 0.4
             }
@@ -285,7 +284,11 @@ impl IntrinsicMotivationSystem {
             let urgency = self.calculate_drive_urgency(motivation, activity, reward);
 
             // Update or create drive state
-            if let Some(drive) = self.current_drives.iter_mut().find(|d| d.motivation_type == motivation.motivation_type) {
+            if let Some(drive) = self
+                .current_drives
+                .iter_mut()
+                .find(|d| d.motivation_type == motivation.motivation_type)
+            {
                 drive.current_level = urgency;
                 drive.urgency = urgency;
                 drive.last_updated = Utc::now();
@@ -302,20 +305,32 @@ impl IntrinsicMotivationSystem {
         }
 
         // Sort drives by urgency
-        self.current_drives.sort_by(|a, b| b.urgency.partial_cmp(&a.urgency).unwrap_or(std::cmp::Ordering::Equal));
+        self.current_drives.sort_by(|a, b| {
+            b.urgency
+                .partial_cmp(&a.urgency)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
 
         // Limit concurrent drives
-        self.current_drives.truncate(self.config.max_concurrent_drives);
+        self.current_drives
+            .truncate(self.config.max_concurrent_drives);
     }
 
-    fn calculate_drive_urgency(&self, motivation: &Motivation, _activity: &ActivityMetrics, _reward: &IntrinsicReward) -> f32 {
+    fn calculate_drive_urgency(
+        &self,
+        motivation: &Motivation,
+        _activity: &ActivityMetrics,
+        _reward: &IntrinsicReward,
+    ) -> f32 {
         let base_urgency = motivation.current_strength;
 
         // Apply decay
         let decay_factor = 1.0 - motivation.decay_rate;
 
         // Check reward from cache
-        let cached_reward = self.reward_cache.get(&motivation.motivation_id.clone())
+        let cached_reward = self
+            .reward_cache
+            .get(&motivation.motivation_id.clone())
             .copied()
             .unwrap_or(0.0);
 
@@ -327,17 +342,24 @@ impl IntrinsicMotivationSystem {
 
     /// Satisfy a motivation (reduce its drive)
     pub fn satisfy_motivation(&mut self, motivation_type: &MotivationType, satisfaction: f32) {
-        if let Some(motivation) = self.motivations.iter_mut().find(|m| m.motivation_type == *motivation_type) {
-            motivation.current_strength = (motivation.current_strength - satisfaction * 0.2).max(0.1);
+        if let Some(motivation) = self
+            .motivations
+            .iter_mut()
+            .find(|m| m.motivation_type == *motivation_type)
+        {
+            motivation.current_strength =
+                (motivation.current_strength - satisfaction * 0.2).max(0.1);
         }
 
         // Update reward cache
         let reward_key = format!("{:?}", motivation_type);
         let current = self.reward_cache.get(&reward_key).copied().unwrap_or(0.0);
-        self.reward_cache.insert(reward_key, (current + satisfaction).min(1.0));
+        self.reward_cache
+            .insert(reward_key, (current + satisfaction).min(1.0));
 
         // Remove from active drives if satisfied
-        self.current_drives.retain(|d| d.motivation_type != *motivation_type || d.urgency > 0.2);
+        self.current_drives
+            .retain(|d| d.motivation_type != *motivation_type || d.urgency > 0.2);
     }
 
     /// Record engagement
@@ -362,7 +384,8 @@ impl IntrinsicMotivationSystem {
 
     /// Get dominant motivation
     pub fn get_dominant_motivation(&self) -> MotivationType {
-        self.current_drives.first()
+        self.current_drives
+            .first()
             .map(|d| d.motivation_type)
             .unwrap_or(MotivationType::Curiosity)
     }
@@ -379,23 +402,34 @@ impl IntrinsicMotivationSystem {
             dominant_motivation: self.get_dominant_motivation(),
             total_engagements: self.engagement_history.len(),
             motivations_enabled: self.motivations.iter().filter(|m| m.enabled).count(),
-            average_strength: self.motivations.iter()
+            average_strength: self
+                .motivations
+                .iter()
                 .filter(|m| m.enabled)
                 .map(|m| m.current_strength)
-                .sum::<f32>() / self.motivations.iter().filter(|m| m.enabled).count().max(1) as f32,
+                .sum::<f32>()
+                / self.motivations.iter().filter(|m| m.enabled).count().max(1) as f32,
         }
     }
 
     /// Enable/disable motivation
     pub fn set_motivation_enabled(&mut self, motivation_type: &MotivationType, enabled: bool) {
-        if let Some(motivation) = self.motivations.iter_mut().find(|m| m.motivation_type == *motivation_type) {
+        if let Some(motivation) = self
+            .motivations
+            .iter_mut()
+            .find(|m| m.motivation_type == *motivation_type)
+        {
             motivation.enabled = enabled;
         }
     }
 
     /// Reset motivation strength
     pub fn reset_motivation(&mut self, motivation_type: &MotivationType) {
-        if let Some(motivation) = self.motivations.iter_mut().find(|m| m.motivation_type == *motivation_type) {
+        if let Some(motivation) = self
+            .motivations
+            .iter_mut()
+            .find(|m| m.motivation_type == *motivation_type)
+        {
             motivation.current_strength = motivation.base_strength;
         }
     }
@@ -404,27 +438,27 @@ impl IntrinsicMotivationSystem {
 #[derive(Debug, Clone)]
 pub struct ActivityMetrics {
     pub activity_id: String,
-    pub novelty: f32,                    // 0-1: How new/unexpected
-    pub difficulty: f32,                 // 0-1: Challenge level
-    pub competence_level: f32,          // 0-1: Current ability
-    pub completion: f32,                // 0-1: Task completion
-    pub quality: f32,                   // 0-1: Output quality
-    pub exploration: f32,                // 0-1: Exploratory nature
-    pub originality: f32,                // 0-1: Novel combinations
-    pub self_directed: f32,              // 0-1: Self-chosen
-    pub choice: f32,                     // 0-1: Autonomy in choice
-    pub meaningful_impact: f32,           // 0-1: Impact significance
-    pub goal_alignment: f32,             // 0-1: Aligns with goals
-    pub comprehension: f32,              // 0-1: Understanding gained
-    pub insight: f32,                   // 0-1: New insights
-    pub growth: f32,                    // 0-1: Personal growth
-    pub learning: f32,                   // 0-1: Knowledge gained
-    pub progress_toward_mastery: f32,    // 0-1: Mastery progress
-    pub competence_gain: f32,            // 0-1: Skill improvement
-    pub challenge: f32,                  // 0-1: Challenge level
-    pub intrinsic_reward: f32,           // Calculated reward
-    pub social_connection: f32,          // 0-1: Social connection level
-    pub relatedness: f32,               // 0-1: Relatedness level
+    pub novelty: f32,                 // 0-1: How new/unexpected
+    pub difficulty: f32,              // 0-1: Challenge level
+    pub competence_level: f32,        // 0-1: Current ability
+    pub completion: f32,              // 0-1: Task completion
+    pub quality: f32,                 // 0-1: Output quality
+    pub exploration: f32,             // 0-1: Exploratory nature
+    pub originality: f32,             // 0-1: Novel combinations
+    pub self_directed: f32,           // 0-1: Self-chosen
+    pub choice: f32,                  // 0-1: Autonomy in choice
+    pub meaningful_impact: f32,       // 0-1: Impact significance
+    pub goal_alignment: f32,          // 0-1: Aligns with goals
+    pub comprehension: f32,           // 0-1: Understanding gained
+    pub insight: f32,                 // 0-1: New insights
+    pub growth: f32,                  // 0-1: Personal growth
+    pub learning: f32,                // 0-1: Knowledge gained
+    pub progress_toward_mastery: f32, // 0-1: Mastery progress
+    pub competence_gain: f32,         // 0-1: Skill improvement
+    pub challenge: f32,               // 0-1: Challenge level
+    pub intrinsic_reward: f32,        // Calculated reward
+    pub social_connection: f32,       // 0-1: Social connection level
+    pub relatedness: f32,             // 0-1: Relatedness level
 }
 
 impl ActivityMetrics {
@@ -475,7 +509,10 @@ pub struct MotivationStatus {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("mot_{}", now % 1_000_000)
 }
 

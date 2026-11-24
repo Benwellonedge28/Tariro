@@ -11,9 +11,8 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-
-use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use uuid::Uuid;
 
 // ============================================================================
 // Core Types
@@ -233,10 +232,7 @@ pub struct Predicate {
 
 impl Predicate {
     pub fn new(name: &str, arguments: Vec<String>) -> Self {
-        Self {
-            name: name.to_string(),
-            arguments,
-        }
+        Self { name: name.to_string(), arguments }
     }
 }
 
@@ -422,11 +418,7 @@ pub struct Association {
 
 impl Association {
     pub fn new(target_id: MemoryId, association_type: AssociationType) -> Self {
-        Self {
-            target_id,
-            association_type,
-            strength: 0.5,
-        }
+        Self { target_id, association_type, strength: 0.5 }
     }
 }
 
@@ -687,8 +679,7 @@ impl EpisodicMemory {
                 }
 
                 // Similar emotion
-                let emotion_diff =
-                    (e.emotional_valence - query.emotional_valence).abs()
+                let emotion_diff = (e.emotional_valence - query.emotional_valence).abs()
                     + (e.emotional_arousal - query.emotional_arousal).abs();
                 score += 0.3 * (1.0 - emotion_diff.min(1.0));
 
@@ -801,7 +792,12 @@ impl EpisodicMemory {
             let key = format!(
                 "{}:{:?}",
                 episode.event.event_type.as_str(),
-                episode.event.description.split_whitespace().take(3).collect::<String>()
+                episode
+                    .event
+                    .description
+                    .split_whitespace()
+                    .take(3)
+                    .collect::<String>()
             );
             episode_groups.entry(key).or_default().push(episode);
         }
@@ -819,7 +815,8 @@ impl EpisodicMemory {
                         KnowledgeCategory::Procedural,
                         &format!(
                             "Pattern: {} (observed {} times)",
-                            first.event.description, episodes.len()
+                            first.event.description,
+                            episodes.len()
                         ),
                     );
                     semantic_knowledge.push(knowledge);
@@ -899,15 +896,14 @@ impl SemanticMemory {
         self.knowledge.insert(id.clone(), knowledge);
 
         // Update indices
-        self.name_index
-            .entry(concept)
-            .or_insert_with(|| id.clone());
+        self.name_index.entry(concept).or_insert_with(|| id.clone());
 
-        self.category_index.entry(category).or_default().push(cat_id);
+        self.category_index
+            .entry(category)
+            .or_default()
+            .push(cat_id);
 
-        self.association_graph
-            .entry(id.clone())
-            .or_default();
+        self.association_graph.entry(id.clone()).or_default();
 
         self.stats.knowledge_stored += 1;
         self.stats.total_knowledge += 1;
@@ -922,18 +918,16 @@ impl SemanticMemory {
 
     /// Retrieve by concept name
     pub fn retrieve_by_name(&self, name: &str) -> Option<&SemanticKnowledge> {
-        self.name_index.get(name).and_then(|id| self.knowledge.get(id))
+        self.name_index
+            .get(name)
+            .and_then(|id| self.knowledge.get(id))
     }
 
     /// Retrieve by category
     pub fn retrieve_by_category(&self, category: KnowledgeCategory) -> Vec<&SemanticKnowledge> {
         self.category_index
             .get(&category)
-            .map(|ids| {
-                ids.iter()
-                    .filter_map(|id| self.knowledge.get(id))
-                    .collect()
-            })
+            .map(|ids| ids.iter().filter_map(|id| self.knowledge.get(id)).collect())
             .unwrap_or_default()
     }
 
@@ -951,7 +945,12 @@ impl SemanticMemory {
     }
 
     /// Add association between two knowledge items
-    pub fn add_association(&mut self, source: &MemoryId, target: &MemoryId, assoc_type: AssociationType) {
+    pub fn add_association(
+        &mut self,
+        source: &MemoryId,
+        target: &MemoryId,
+        assoc_type: AssociationType,
+    ) {
         if let Some(assocs) = self.association_graph.get_mut(source) {
             if !assocs.iter().any(|a| &a.target_id == target) {
                 assocs.push(Association::new(target.clone(), assoc_type));
@@ -1060,8 +1059,10 @@ impl SemanticMemory {
         ];
 
         for (concept, category, description) in common_sense_knowledge {
-            let knowledge = SemanticKnowledge::new(concept, category, description)
-                .with_association(Association::new(MemoryId::new(), AssociationType::Associated));
+            let knowledge =
+                SemanticKnowledge::new(concept, category, description).with_association(
+                    Association::new(MemoryId::new(), AssociationType::Associated),
+                );
             let _ = self.store(knowledge);
         }
     }
@@ -1139,7 +1140,9 @@ impl ProceduralMemory {
 
     /// Retrieve by name
     pub fn retrieve_by_name(&self, name: &str) -> Option<&Procedure> {
-        self.name_index.get(name).and_then(|id| self.procedures.get(id))
+        self.name_index
+            .get(name)
+            .and_then(|id| self.procedures.get(id))
     }
 
     /// Retrieve by domain
@@ -1245,7 +1248,10 @@ impl MemorySystem {
     }
 
     /// Store semantic knowledge
-    pub fn store_knowledge(&mut self, knowledge: SemanticKnowledge) -> Result<MemoryId, MemoryError> {
+    pub fn store_knowledge(
+        &mut self,
+        knowledge: SemanticKnowledge,
+    ) -> Result<MemoryId, MemoryError> {
         self.semantic.store(knowledge)
     }
 

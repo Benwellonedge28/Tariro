@@ -2,7 +2,7 @@
 // Mental state attribution and social cognition
 
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap};
+use std::collections::HashMap;
 
 /// Commitment level for intentions
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -401,7 +401,12 @@ impl TheoryOfMindEngine {
     }
 
     /// Create agent model
-    pub fn create_agent(&mut self, agent_id: &str, name: &str, agent_type: AgentType) -> &mut AgentModel {
+    pub fn create_agent(
+        &mut self,
+        agent_id: &str,
+        name: &str,
+        agent_type: AgentType,
+    ) -> &mut AgentModel {
         let agent = AgentModel {
             agent_id: agent_id.to_string(),
             name: name.to_string(),
@@ -450,7 +455,10 @@ impl TheoryOfMindEngine {
     pub fn update_belief(&mut self, agent_id: &str, belief: Belief) {
         if let Some(agent) = self.agents.get_mut(agent_id) {
             // Check if belief exists
-            let existing = agent.beliefs.beliefs.iter()
+            let existing = agent
+                .beliefs
+                .beliefs
+                .iter()
                 .position(|b| b.content == belief.content);
 
             let belief_id = belief.belief_id.clone();
@@ -462,7 +470,8 @@ impl TheoryOfMindEngine {
                 agent.beliefs.beliefs.push(belief);
             }
 
-            agent.beliefs
+            agent
+                .beliefs
                 .belief_strengths
                 .insert(belief_id.clone(), truth_value);
 
@@ -498,13 +507,17 @@ impl TheoryOfMindEngine {
                 ObservationType::Speech | ObservationType::Intention => {
                     // Infer from what was said or intended
                     if obs.content.contains("said") {
-                        inferred_state.beliefs.push(self.extract_belief_from_statement(&obs.content));
+                        inferred_state
+                            .beliefs
+                            .push(self.extract_belief_from_statement(&obs.content));
                     }
                 }
                 ObservationType::Behavior => {
                     // Infer from behavior
                     if obs.content.contains("said") {
-                        inferred_state.beliefs.push(self.extract_belief_from_statement(&obs.content));
+                        inferred_state
+                            .beliefs
+                            .push(self.extract_belief_from_statement(&obs.content));
                         confidence += 0.1;
                     }
                     evidence.push(Evidence {
@@ -515,7 +528,9 @@ impl TheoryOfMindEngine {
                     });
                 }
                 ObservationType::Emotion => {
-                    inferred_state.emotions.push(self.extract_emotion(&obs.content));
+                    inferred_state
+                        .emotions
+                        .push(self.extract_emotion(&obs.content));
                     confidence += 0.15;
                     evidence.push(Evidence {
                         evidence_type: EvidenceType::FacialExpression,
@@ -608,12 +623,7 @@ impl TheoryOfMindEngine {
     }
 
     /// Create nested belief (what agent A thinks agent B believes)
-    pub fn create_nested_belief(
-        &mut self,
-        agent_id: &str,
-        target_agent_id: &str,
-        belief: Belief,
-    ) {
+    pub fn create_nested_belief(&mut self, agent_id: &str, target_agent_id: &str, belief: Belief) {
         if let Some(agent) = self.agents.get_mut(agent_id) {
             agent.beliefs.nested_beliefs.push(NestedBelief {
                 agent_id: target_agent_id.to_string(),
@@ -628,9 +638,9 @@ impl TheoryOfMindEngine {
     /// Model relationship
     pub fn update_relationship(&mut self, agent1: &str, agent2: &str, event: RelationshipEvent) {
         // Find existing relationship
-        let existing = self.relationships.iter()
-            .position(|r| (r.agent1 == agent1 && r.agent2 == agent2) ||
-                        (r.agent1 == agent2 && r.agent2 == agent1));
+        let existing = self.relationships.iter().position(|r| {
+            (r.agent1 == agent1 && r.agent2 == agent2) || (r.agent1 == agent2 && r.agent2 == agent1)
+        });
 
         let impact = event.impact_on_relationship;
 
@@ -653,11 +663,7 @@ impl TheoryOfMindEngine {
     }
 
     /// Predict agent's response
-    pub fn predict_response(
-        &self,
-        agent_id: &str,
-        situation: &str,
-    ) -> PredictedResponse {
+    pub fn predict_response(&self, agent_id: &str, situation: &str) -> PredictedResponse {
         let agent = match self.agents.get(agent_id) {
             Some(a) => a,
             None => return PredictedResponse::default(),
@@ -668,7 +674,8 @@ impl TheoryOfMindEngine {
         let current_intentions = &agent.intentions.intentions;
 
         // Find most relevant desire/intention
-        let relevant_desire = desires.iter()
+        let relevant_desire = desires
+            .iter()
             .find(|d| situation.contains(&d.goal_state))
             .cloned();
 
@@ -696,9 +703,9 @@ impl TheoryOfMindEngine {
 
     /// Get relationship between agents
     pub fn get_relationship(&self, agent1: &str, agent2: &str) -> Option<&Relationship> {
-        self.relationships.iter()
-            .find(|r| (r.agent1 == agent1 && r.agent2 == agent2) ||
-                      (r.agent1 == agent2 && r.agent2 == agent1))
+        self.relationships.iter().find(|r| {
+            (r.agent1 == agent1 && r.agent2 == agent2) || (r.agent1 == agent2 && r.agent2 == agent1)
+        })
     }
 }
 
@@ -778,10 +785,12 @@ pub enum BeliefSource {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("tom_{}", now % 1_000_000)
 }
-
 
 // ============================================================================
 // Tests

@@ -85,10 +85,7 @@ pub struct SwarmService {
 impl SwarmService {
     /// Creates a new `SwarmService`.
     pub fn new() -> Self {
-        SwarmService {
-            nano_agents: HashMap::new(),
-            agent_swarms: HashMap::new(),
-        }
+        SwarmService { nano_agents: HashMap::new(), agent_swarms: HashMap::new() }
     }
 
     /// Registers a new NanoAgent.
@@ -151,7 +148,10 @@ impl SwarmService {
         if let Some(agent) = self.nano_agents.get_mut(agent_id) {
             agent.assigned_task_id = Some(task_id.to_string());
             agent.status = NanoAgentStatus::Busy;
-            println!("[SwarmService] Assigned task {} to agent {}.", task_id, agent_id);
+            println!(
+                "[SwarmService] Assigned task {} to agent {}.",
+                task_id, agent_id
+            );
             Ok(())
         } else {
             Err(format!("NanoAgent with ID {} not found.", agent_id))
@@ -161,7 +161,10 @@ impl SwarmService {
     /// Coordinates tasks among agents in a swarm to achieve the swarm's objective.
     pub fn coordinate_swarm_tasks(&mut self, swarm_id: &str) -> Result<(), String> {
         if let Some(swarm) = self.agent_swarms.get_mut(swarm_id) {
-            println!("[SwarmService] Coordinating tasks for swarm: {}", swarm.name);
+            println!(
+                "[SwarmService] Coordinating tasks for swarm: {}",
+                swarm.name
+            );
             // This is where complex swarm intelligence algorithms would go:
             // - Dynamic task distribution
             // - Conflict resolution
@@ -200,7 +203,11 @@ mod tests {
             status: NanoAgentStatus::Deploying,
             assigned_task_id: None,
             capabilities: vec!["collect_sensor_data".to_string()],
-            resource_footprint: ResourceFootprint { cpu_mhz: 100, memory_mb: 32, network_kbps: 1024 },
+            resource_footprint: ResourceFootprint {
+                cpu_mhz: 100,
+                memory_mb: 32,
+                network_kbps: 1024,
+            },
             creation_date: Utc::now(),
             last_heartbeat: Utc::now(),
             current_location: Some("sensor_array_1".to_string()),
@@ -245,7 +252,11 @@ mod tests {
             status: NanoAgentStatus::Idle,
             assigned_task_id: None,
             capabilities: vec![],
-            resource_footprint: ResourceFootprint { cpu_mhz: 100, memory_mb: 32, network_kbps: 1024 },
+            resource_footprint: ResourceFootprint {
+                cpu_mhz: 100,
+                memory_mb: 32,
+                network_kbps: 1024,
+            },
             creation_date: Utc::now(),
             last_heartbeat: Utc::now(),
             current_location: None,

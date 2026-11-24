@@ -1,4 +1,3 @@
-
 pub mod core_logic;
 
 #[derive(Default)]
@@ -8,8 +7,6 @@ pub struct AdminChatbot {
 
 impl AdminChatbot {
     pub fn new() -> Self {
-        AdminChatbot {
-            core_logic: core_logic::CoreLogic::new(),
-        }
+        AdminChatbot { core_logic: core_logic::CoreLogic::new() }
     }
 }

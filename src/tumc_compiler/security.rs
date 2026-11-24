@@ -102,7 +102,11 @@ impl SecurityManager {
     }
 
     /// Create context for principal
-    pub fn create_context(&mut self, principal_id: &str, trust_level: TrustLevel) -> SecurityContext {
+    pub fn create_context(
+        &mut self,
+        principal_id: &str,
+        trust_level: TrustLevel,
+    ) -> SecurityContext {
         let context = SecurityContext {
             principal_id: principal_id.to_string(),
             permissions: HashSet::new(),
@@ -111,7 +115,8 @@ impl SecurityManager {
             labels: HashSet::new(),
         };
 
-        self.contexts.insert(principal_id.to_string(), context.clone());
+        self.contexts
+            .insert(principal_id.to_string(), context.clone());
         context
     }
 
@@ -189,10 +194,7 @@ impl Default for SecurityPolicy {
         trusted.insert(Permission::Syscall);
         allowed_by_trust.insert(TrustLevel::Trusted, trusted);
 
-        Self {
-            default_deny: true,
-            allowed_by_trust,
-        }
+        Self { default_deny: true, allowed_by_trust }
     }
 }
 
@@ -273,10 +275,7 @@ impl Sandbox {
 
     /// Enter sandbox
     pub fn enter(&self) -> SandboxGuard {
-        SandboxGuard {
-            sandbox: self,
-            start_time: std::time::Instant::now(),
-        }
+        SandboxGuard { sandbox: self, start_time: std::time::Instant::now() }
     }
 }
 
@@ -487,9 +486,7 @@ pub struct SecureString {
 impl SecureString {
     /// Create from string
     pub fn new(s: &str) -> Self {
-        Self {
-            data: s.as_bytes().to_vec(),
-        }
+        Self { data: s.as_bytes().to_vec() }
     }
 
     /// Get as string slice
@@ -520,10 +517,7 @@ pub struct TaintTracker {
 impl TaintTracker {
     /// Create new tracker
     pub fn new() -> Self {
-        Self {
-            sources: HashSet::new(),
-            tainted: HashSet::new(),
-        }
+        Self { sources: HashSet::new(), tainted: HashSet::new() }
     }
 
     /// Mark source as taint source

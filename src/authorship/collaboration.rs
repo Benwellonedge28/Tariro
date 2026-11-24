@@ -110,13 +110,15 @@ pub struct CollaborationEngine {
 impl CollaborationEngine {
     /// Create a new collaboration engine
     pub fn new() -> Self {
-        Self {
-            active_sessions: HashMap::new(),
-        }
+        Self { active_sessions: HashMap::new() }
     }
 
     /// Create a new collaboration session
-    pub fn create_session(&mut self, agi_author: &str, human_participants: Vec<String>) -> CollaborationSession {
+    pub fn create_session(
+        &mut self,
+        agi_author: &str,
+        human_participants: Vec<String>,
+    ) -> CollaborationSession {
         let session_id = uuid::Uuid::new_v4().to_string();
 
         let mut participants = vec![Participant {
@@ -148,10 +150,17 @@ impl CollaborationEngine {
     }
 
     /// Submit human feedback
-    pub fn submit_feedback(&mut self, session_id: &str, feedback: HumanFeedback) -> Result<(), String> {
+    pub fn submit_feedback(
+        &mut self,
+        session_id: &str,
+        feedback: HumanFeedback,
+    ) -> Result<(), String> {
         if let Some(session) = self.active_sessions.get_mut(session_id) {
             session.contributions.push(Contribution {
-                contributor: feedback.human_id.clone().unwrap_or_else(|| "anonymous".to_string()),
+                contributor: feedback
+                    .human_id
+                    .clone()
+                    .unwrap_or_else(|| "anonymous".to_string()),
                 timestamp: chrono::Utc::now(),
                 contribution_type: ContributionType::Feedback,
                 description: feedback.content.clone(),

@@ -119,7 +119,7 @@ pub enum IlOpcode {
     Break,
     Pop,
     Dup,
-   Ldarg(u16),
+    Ldarg(u16),
     Ldarga(u16),
     Starg(u16),
     Ldloc(u16),
@@ -417,23 +417,49 @@ impl IlAssembler {
     }
 
     /// Binary operations
-    pub fn add(&mut self) { self.emit(IlOpcode::Add); }
-    pub fn sub(&mut self) { self.emit(IlOpcode::Sub); }
-    pub fn mul(&mut self) { self.emit(IlOpcode::Mul); }
-    pub fn div(&mut self) { self.emit(IlOpcode::Div); }
-    pub fn rem(&mut self) { self.emit(IlOpcode::Rem); }
+    pub fn add(&mut self) {
+        self.emit(IlOpcode::Add);
+    }
+    pub fn sub(&mut self) {
+        self.emit(IlOpcode::Sub);
+    }
+    pub fn mul(&mut self) {
+        self.emit(IlOpcode::Mul);
+    }
+    pub fn div(&mut self) {
+        self.emit(IlOpcode::Div);
+    }
+    pub fn rem(&mut self) {
+        self.emit(IlOpcode::Rem);
+    }
 
     /// Logical operations
-    pub fn and(&mut self) { self.emit(IlOpcode::And); }
-    pub fn or(&mut self) { self.emit(IlOpcode::Or); }
-    pub fn xor(&mut self) { self.emit(IlOpcode::Xor); }
-    pub fn not(&mut self) { self.emit(IlOpcode::Not); }
-    pub fn neg(&mut self) { self.emit(IlOpcode::Neg); }
+    pub fn and(&mut self) {
+        self.emit(IlOpcode::And);
+    }
+    pub fn or(&mut self) {
+        self.emit(IlOpcode::Or);
+    }
+    pub fn xor(&mut self) {
+        self.emit(IlOpcode::Xor);
+    }
+    pub fn not(&mut self) {
+        self.emit(IlOpcode::Not);
+    }
+    pub fn neg(&mut self) {
+        self.emit(IlOpcode::Neg);
+    }
 
     /// Comparisons
-    pub fn ceq(&mut self) { self.emit(IlOpcode::Ceq); }
-    pub fn cgt(&mut self) { self.emit(IlOpcode::Cgt); }
-    pub fn clt(&mut self) { self.emit(IlOpcode::Clt); }
+    pub fn ceq(&mut self) {
+        self.emit(IlOpcode::Ceq);
+    }
+    pub fn cgt(&mut self) {
+        self.emit(IlOpcode::Cgt);
+    }
+    pub fn clt(&mut self) {
+        self.emit(IlOpcode::Clt);
+    }
 
     /// Branches
     pub fn br(&mut self, label: &str) {
@@ -497,11 +523,7 @@ impl IlAssembler {
             code.extend_from_slice(&inst.bytes());
         }
 
-        IlModule {
-            code,
-            strings: self.strings,
-            constants: self.constants,
-        }
+        IlModule { code, strings: self.strings, constants: self.constants }
     }
 }
 
@@ -595,7 +617,12 @@ impl ClrCodeGen {
     }
 
     /// Define method entry
-    pub fn begin_method(&mut self, _name: &str, _return_type: ClrType, _params: Vec<(String, ClrType)>) {
+    pub fn begin_method(
+        &mut self,
+        _name: &str,
+        _return_type: ClrType,
+        _params: Vec<(String, ClrType)>,
+    ) {
         // Method prologue
         self.locals.clear();
     }
@@ -858,10 +885,14 @@ mod tests {
     #[test]
     fn test_clr_code_gen() {
         let mut gen = ClrCodeGen::new("TestAssembly");
-        gen.begin_method("Add", ClrType::Int32, vec![
-            ("a".to_string(), ClrType::Int32),
-            ("b".to_string(), ClrType::Int32),
-        ]);
+        gen.begin_method(
+            "Add",
+            ClrType::Int32,
+            vec![
+                ("a".to_string(), ClrType::Int32),
+                ("b".to_string(), ClrType::Int32),
+            ],
+        );
         gen.ldarg("a");
         gen.ldarg("b");
         gen.call("int32 Add(int32, int32)");

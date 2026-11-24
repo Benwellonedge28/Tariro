@@ -3,7 +3,6 @@
 //! The mind's internal model of the world - entities, causal relationships,
 //! and the ability to simulate counterfactuals.
 
-
 use std::collections::{HashMap, HashSet};
 use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 
@@ -62,7 +61,6 @@ pub enum RelationshipType {
     /// Any relationship that does not fit the categories above.
     Custom(String),
 }
-
 
 /// An entity in the world model
 #[derive(Debug, Clone)]
@@ -221,23 +219,27 @@ impl CausalGraph {
 
         self.edges.push(relationship);
 
-        self.adjacency.entry(cause_id.clone())
+        self.adjacency
+            .entry(cause_id.clone())
             .or_default()
             .push(effect_id.clone());
 
-        self.reverse_adjacency.entry(effect_id)
+        self.reverse_adjacency
+            .entry(effect_id)
             .or_default()
             .push(cause_id);
     }
 
     pub fn get_causes(&self, entity: &EntityId) -> Vec<&WorldEntity> {
-        self.reverse_adjacency.get(entity)
+        self.reverse_adjacency
+            .get(entity)
             .map(|ids| ids.iter().filter_map(|id| self.nodes.get(id)).collect())
             .unwrap_or_default()
     }
 
     pub fn get_effects(&self, entity: &EntityId) -> Vec<&WorldEntity> {
-        self.adjacency.get(entity)
+        self.adjacency
+            .get(entity)
             .map(|ids| ids.iter().filter_map(|id| self.nodes.get(id)).collect())
             .unwrap_or_default()
     }
@@ -293,10 +295,7 @@ pub struct ImaginationEngine {
 
 impl ImaginationEngine {
     pub fn new() -> Self {
-        ImaginationEngine {
-            max_depth: 10,
-            stats: ImaginationStats::default(),
-        }
+        ImaginationEngine { max_depth: 10, stats: ImaginationStats::default() }
     }
 
     /// Simulate an action and predict consequences
@@ -355,14 +354,7 @@ impl ImaginationEngine {
             });
 
             // Recursively trace
-            self.trace_effects(
-                graph,
-                &effect_entity.id,
-                state,
-                effects,
-                visited,
-                depth + 1,
-            );
+            self.trace_effects(graph, &effect_entity.id, state, effects, visited, depth + 1);
         }
     }
 
@@ -371,9 +363,8 @@ impl ImaginationEngine {
             return 0.5;
         }
 
-        let avg_confidence: f64 = effects.iter()
-            .map(|e| e.confidence)
-            .sum::<f64>() / effects.len() as f64;
+        let avg_confidence: f64 =
+            effects.iter().map(|e| e.confidence).sum::<f64>() / effects.len() as f64;
 
         avg_confidence * (1.0 - (effects.len() as f64 * 0.01)).max(0.5)
     }
@@ -384,7 +375,8 @@ impl ImaginationEngine {
         graph: &mut CausalGraph,
         scenario: &CounterfactualScenario,
     ) -> CounterfactualResult {
-        self.stats.counterfactual_simulations
+        self.stats
+            .counterfactual_simulations
             .fetch_add(1, Ordering::Relaxed);
 
         // Apply hypothetical change
@@ -480,9 +472,7 @@ pub struct SimulatedState {
 
 impl SimulatedState {
     pub fn new() -> Self {
-        SimulatedState {
-            entity_states: HashMap::new(),
-        }
+        SimulatedState { entity_states: HashMap::new() }
     }
 
     pub fn set_state(&mut self, entity: EntityId, key: String, value: PropertyValue) {
@@ -493,12 +483,17 @@ impl SimulatedState {
     }
 
     pub fn get_state(&self, entity: &EntityId, key: &str) -> Option<&PropertyValue> {
-        self.entity_states.get(entity)
+        self.entity_states
+            .get(entity)
             .and_then(|states| states.get(key))
     }
 
     pub fn apply_change(&mut self, change: &HypotheticalChange) {
-        self.set_state(change.target.clone(), change.property.clone(), change.new_value.clone());
+        self.set_state(
+            change.target.clone(),
+            change.property.clone(),
+            change.new_value.clone(),
+        );
     }
 }
 
@@ -575,9 +570,7 @@ pub struct TheoryOfMind {
 
 impl TheoryOfMind {
     pub fn new() -> Self {
-        TheoryOfMind {
-            agent_models: HashMap::new(),
-        }
+        TheoryOfMind { agent_models: HashMap::new() }
     }
 
     /// Create a model of an agent
@@ -613,13 +606,16 @@ impl TheoryOfMind {
 
     /// Understand another agent's perspective
     pub fn perspective_taking(&self, agent_id: &EntityId, topic: &str) -> String {
-        self.agent_models.get(agent_id)
+        self.agent_models
+            .get(agent_id)
             .map(|model| {
                 format!(
                     "From {}'s perspective on {}: {}",
                     agent_id.0,
                     topic,
-                    model.beliefs.get(topic)
+                    model
+                        .beliefs
+                        .get(topic)
                         .map(|v| format!("{:?}", v))
                         .unwrap_or_else(|| "Unknown".to_string())
                 )
@@ -704,19 +700,22 @@ impl WorldModel {
 
     /// Find entities matching a pattern
     pub fn find_entities(&self, pattern: &str) -> Vec<&WorldEntity> {
-        self.entities.values()
+        self.entities
+            .values()
             .filter(|e| e.name.to_lowercase().contains(&pattern.to_lowercase()))
             .collect()
     }
 
     /// Predict what will happen if action is taken
     pub fn predict(&mut self, action: SimulatedAction) -> SimulationResult {
-        self.imagination.simulate_action(&mut self.causal_graph, &action)
+        self.imagination
+            .simulate_action(&mut self.causal_graph, &action)
     }
 
     /// Counterfactual: what if things were different?
     pub fn what_if(&mut self, scenario: CounterfactualScenario) -> CounterfactualResult {
-        self.imagination.counterfactual(&mut self.causal_graph, &scenario)
+        self.imagination
+            .counterfactual(&mut self.causal_graph, &scenario)
     }
 
     /// Get causal predecessors (causes)

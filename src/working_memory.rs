@@ -1,9 +1,8 @@
 // Tariro AGI - Working Memory Module
 // Active working memory with attention mechanisms
 
-
-use std::collections::{HashMap, VecDeque};
 use chrono::{DateTime, Utc};
+use std::collections::{HashMap, VecDeque};
 use std::time::Duration;
 
 // ============================================================================
@@ -170,11 +169,11 @@ pub struct AttentionMechanism {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AttentionType {
-    Selective,      // Focus on one item
-    Sustained,      // Maintain attention
-    Divided,        // Multiple attention streams
-    Executive,      // Top-down control
-    Saliency,       // Bottom-up capture
+    Selective, // Focus on one item
+    Sustained, // Maintain attention
+    Divided,   // Multiple attention streams
+    Executive, // Top-down control
+    Saliency,  // Bottom-up capture
 }
 
 // ============================================================================
@@ -185,7 +184,7 @@ pub enum AttentionType {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MemoryChunk {
     pub chunk_id: String,
-    pub items: Vec<String>,  // Item IDs
+    pub items: Vec<String>, // Item IDs
     pub binding_key: String,
     pub integrated_content: String,
     pub stability: f32,
@@ -328,7 +327,7 @@ pub struct WorkingMemoryConfig {
 impl Default for WorkingMemoryConfig {
     fn default() -> Self {
         Self {
-            capacity: 7,  // Miller's law
+            capacity: 7, // Miller's law
             decay_rate: 0.02,
             rehearsal_benefit: 0.1,
             chunk_size: 4,
@@ -526,7 +525,12 @@ impl WorkingMemoryStore {
         }
 
         // Update goal-related items
-        if let Some(goal) = self.central_executive.current_goals.iter_mut().find(|g| g.active) {
+        if let Some(goal) = self
+            .central_executive
+            .current_goals
+            .iter_mut()
+            .find(|g| g.active)
+        {
             goal.progress += item.activation * 0.01;
         }
     }
@@ -551,7 +555,9 @@ impl WorkingMemoryStore {
         items.sort_by(|a, b| {
             let a_score = a.priority * a.activation;
             let b_score = b.priority * b.activation;
-            b_score.partial_cmp(&a_score).unwrap_or(std::cmp::Ordering::Equal)
+            b_score
+                .partial_cmp(&a_score)
+                .unwrap_or(std::cmp::Ordering::Equal)
         });
 
         items.into_iter().take(limit).collect()
@@ -559,16 +565,15 @@ impl WorkingMemoryStore {
 
     /// Retrieve by content type
     pub fn retrieve_by_type(&self, content_type: &str) -> Vec<&WorkingMemoryItem> {
-        self.items.iter()
-            .filter(|item| {
-                match (&item.content, content_type) {
-                    (WorkingContent::Perceptual(_), "perceptual") => true,
-                    (WorkingContent::Conceptual(_), "conceptual") => true,
-                    (WorkingContent::Procedural(_), "procedural") => true,
-                    (WorkingContent::Episodic(_), "episodic") => true,
-                    (WorkingContent::Affective(_), "affective") => true,
-                    _ => false,
-                }
+        self.items
+            .iter()
+            .filter(|item| match (&item.content, content_type) {
+                (WorkingContent::Perceptual(_), "perceptual") => true,
+                (WorkingContent::Conceptual(_), "conceptual") => true,
+                (WorkingContent::Procedural(_), "procedural") => true,
+                (WorkingContent::Episodic(_), "episodic") => true,
+                (WorkingContent::Affective(_), "affective") => true,
+                _ => false,
             })
             .collect()
     }
@@ -587,7 +592,10 @@ impl WorkingMemoryStore {
             }
 
             self.current_attention_focus = Some(item_id.to_string());
-            self.central_executive.attention_controller.focused_items.push(item_id.to_string());
+            self.central_executive
+                .attention_controller
+                .focused_items
+                .push(item_id.to_string());
 
             Ok(())
         } else {
@@ -598,11 +606,18 @@ impl WorkingMemoryStore {
     /// Clear attention focus
     pub fn clear_focus(&mut self) {
         self.current_attention_focus = None;
-        self.central_executive.attention_controller.focused_items.clear();
+        self.central_executive
+            .attention_controller
+            .focused_items
+            .clear();
     }
 
     /// Form chunk from related items
-    pub fn form_chunk(&mut self, item_ids: &[String], binding_key: &str) -> Result<String, WorkingMemoryError> {
+    pub fn form_chunk(
+        &mut self,
+        item_ids: &[String],
+        binding_key: &str,
+    ) -> Result<String, WorkingMemoryError> {
         if item_ids.len() > self.config.chunk_size {
             return Err(WorkingMemoryError::ChunkTooLarge);
         }
@@ -627,7 +642,8 @@ impl WorkingMemoryStore {
         };
 
         // Store binding
-        self.binding_keys.insert(chunk_id.clone(), binding_key.to_string());
+        self.binding_keys
+            .insert(chunk_id.clone(), binding_key.to_string());
 
         // Update items
         for id in item_ids {
@@ -661,9 +677,9 @@ impl WorkingMemoryStore {
         }
 
         // Decay phonological store
-        self.phonological_loop.phonological_store.retain(|_| {
-            rand::random::<f32>() > self.phonological_loop.decay_rate
-        });
+        self.phonological_loop
+            .phonological_store
+            .retain(|_| rand::random::<f32>() > self.phonological_loop.decay_rate);
     }
 
     /// Remove item
@@ -674,10 +690,7 @@ impl WorkingMemoryStore {
             // Update indices
             self.item_index.remove(item_id);
             for (i, _) in self.items.iter().enumerate() {
-                self.item_index.insert(
-                    self.items[i].item_id.clone(),
-                    i
-                );
+                self.item_index.insert(self.items[i].item_id.clone(), i);
             }
 
             // Remove from attention
@@ -773,7 +786,10 @@ impl std::fmt::Display for WorkingMemoryError {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("wm_{}", now % 1_000_000)
 }
 

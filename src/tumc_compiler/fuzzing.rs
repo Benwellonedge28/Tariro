@@ -5,9 +5,9 @@
 
 use crate::tumc_compiler::optimization::OptLevel;
 use crate::tumc_compiler::*;
-use std::collections::HashSet;
 use rand::rngs::ThreadRng;
 use rand::Rng;
+use std::collections::HashSet;
 
 /// Property-based test for lexer
 pub struct LexerPropertyTest {
@@ -32,11 +32,7 @@ impl Default for LexerPropertyTest {
 impl LexerPropertyTest {
     /// Create new property test
     pub fn new(min_len: usize, max_len: usize) -> Self {
-        Self {
-            min_len,
-            max_len,
-            ..Default::default()
-        }
+        Self { min_len, max_len, ..Default::default() }
     }
 
     /// Generate random source string
@@ -68,11 +64,7 @@ impl LexerPropertyTest {
             }
         }
 
-        FuzzResult {
-            total_iterations: iterations,
-            failures,
-            success: true,
-        }
+        FuzzResult { total_iterations: iterations, failures, success: true }
     }
 }
 
@@ -85,9 +77,7 @@ pub struct ParserPropertyTest {
 impl ParserPropertyTest {
     /// Create new parser property test
     pub fn new() -> Self {
-        Self {
-            token_generators: Vec::new(),
-        }
+        Self { token_generators: Vec::new() }
     }
 
     /// Property: parser should handle valid token sequences
@@ -139,11 +129,7 @@ impl ParserPropertyTest {
             }
         }
 
-        FuzzResult {
-            total_iterations: iterations,
-            failures,
-            success: true,
-        }
+        FuzzResult { total_iterations: iterations, failures, success: true }
     }
 }
 
@@ -172,7 +158,10 @@ impl TypeInferencePropertyTest {
                 if unified != *t {
                     failures.push(PropertyFailure {
                         property: "unification_is_reflexive".to_string(),
-                        description: format!("Type {:?} unify with itself should return same type", t),
+                        description: format!(
+                            "Type {:?} unify with itself should return same type",
+                            t
+                        ),
                     });
                 }
             }
@@ -205,7 +194,10 @@ impl TypeInferencePropertyTest {
                         if r1 != r2 {
                             failures.push(PropertyFailure {
                                 property: "unification_is_symmetric".to_string(),
-                                description: format!("{:?} unify {:?} != {:?} unify {:?}", t1, t2, t2, t1),
+                                description: format!(
+                                    "{:?} unify {:?} != {:?} unify {:?}",
+                                    t1, t2, t2, t1
+                                ),
                             });
                         }
                     }
@@ -213,7 +205,10 @@ impl TypeInferencePropertyTest {
                     _ => {
                         failures.push(PropertyFailure {
                             property: "unification_is_symmetric".to_string(),
-                            description: format!("Unification asymmetry: {:?} vs {:?}", result1, result2),
+                            description: format!(
+                                "Unification asymmetry: {:?} vs {:?}",
+                                result1, result2
+                            ),
                         });
                     }
                 }
@@ -246,7 +241,10 @@ impl TypeInferencePropertyTest {
                                 if r3 != r4 {
                                     failures.push(PropertyFailure {
                                         property: "unification_is_transitive".to_string(),
-                                        description: format!("Transitivity violation: {:?} vs {:?}", r3, r4),
+                                        description: format!(
+                                            "Transitivity violation: {:?} vs {:?}",
+                                            r3, r4
+                                        ),
                                     });
                                 }
                             }
@@ -314,7 +312,10 @@ impl CodegenPropertyTest {
                     .map_err(|e| vec![CompilerError::ParserError(e)])?;
                 let mut type_checker = type_checker::TypeChecker::new();
                 type_checker.check_program(&ast).map_err(|errors| {
-                    errors.into_iter().map(CompilerError::TypeError).collect::<Vec<_>>()
+                    errors
+                        .into_iter()
+                        .map(CompilerError::TypeError)
+                        .collect::<Vec<_>>()
                 })?;
                 let mut ast = ast;
                 let _optimized = optimizer::Optimizer::new(OptLevel::O2).optimize(&mut ast);
@@ -327,11 +328,7 @@ impl CodegenPropertyTest {
             }
         }
 
-        FuzzResult {
-            total_iterations: iterations,
-            failures,
-            success: true,
-        }
+        FuzzResult { total_iterations: iterations, failures, success: true }
     }
 }
 
@@ -398,10 +395,7 @@ impl Default for MutationTester {
 impl MutationTester {
     /// Create new mutation tester
     pub fn new(mutations_per_source: usize) -> Self {
-        Self {
-            mutations_per_source,
-            ..Default::default()
-        }
+        Self { mutations_per_source, ..Default::default() }
     }
 
     /// Apply mutation operator
@@ -469,7 +463,11 @@ impl MutationTester {
         }
 
         let total = killed + survived;
-        let score = if total > 0 { killed as f64 / total as f64 } else { 0.0 };
+        let score = if total > 0 {
+            killed as f64 / total as f64
+        } else {
+            0.0
+        };
 
         MutationResult {
             total_mutations: total,
@@ -635,7 +633,8 @@ impl CoverageGuidedFuzzer {
 
         for i in 0..iterations {
             if let Some(base) = self.get_corpus_entry() {
-                let mutated = MutationTester::default().mutate(base, &MutationOperator::SwapAdjacent);
+                let mutated =
+                    MutationTester::default().mutate(base, &MutationOperator::SwapAdjacent);
                 let (result, new_cov) = target(&mutated);
 
                 if self.add_to_corpus(mutated.clone(), new_cov) {
@@ -653,11 +652,7 @@ impl CoverageGuidedFuzzer {
         }
 
         let success = failures.is_empty();
-        FuzzResult {
-            total_iterations: iterations,
-            failures,
-            success,
-        }
+        FuzzResult { total_iterations: iterations, failures, success }
     }
 }
 

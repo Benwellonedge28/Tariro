@@ -23,10 +23,7 @@ impl MarkSweepGc {
     }
 
     pub fn with_heap_size(size: usize) -> Self {
-        Self::new(HeapConfig {
-            initial_size: size,
-            ..Default::default()
-        })
+        Self::new(HeapConfig { initial_size: size, ..Default::default() })
     }
 }
 
@@ -98,8 +95,7 @@ impl GarbageCollector for MarkSweepGc {
         self.stats.freed_objects += freed;
         self.stats.free_memory = free_memory;
 
-        self.stats.total_collection_time +=
-            start.elapsed().as_millis() as u64;
+        self.stats.total_collection_time += start.elapsed().as_millis() as u64;
     }
 
     fn set_enabled(&mut self, enabled: bool) {
@@ -159,10 +155,7 @@ impl MarkSweepGc {
             if !marked.contains_key(&ptr) {
                 // Object is garbage - free it
                 unsafe {
-                    let layout = std::alloc::Layout::from_size_align_unchecked(
-                        obj_size,
-                        8,
-                    );
+                    let layout = std::alloc::Layout::from_size_align_unchecked(obj_size, 8);
                     std::alloc::dealloc(ptr, layout);
                 }
                 freed += 1;
@@ -193,9 +186,7 @@ pub struct ConservativeMarkSweep {
 
 impl ConservativeMarkSweep {
     pub fn new() -> Self {
-        Self {
-            inner: MarkSweepGc::new(HeapConfig::default()),
-        }
+        Self { inner: MarkSweepGc::new(HeapConfig::default()) }
     }
 }
 

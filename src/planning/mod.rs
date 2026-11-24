@@ -8,10 +8,9 @@
 //! This module provides Tariro's executive function for generating and executing plans.
 
 use serde::{Deserialize, Serialize};
-use std::collections::{ HashMap, HashSet};
 use std::cmp::Ordering;
+use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
-
 
 // ============================================================================
 // Core Types
@@ -95,29 +94,27 @@ impl WorldState {
 
     /// Check preconditions
     pub fn check_preconditions(&self, preconditions: &[Condition]) -> bool {
-        preconditions.iter().all(|cond| self.satisfies_condition(cond))
+        preconditions
+            .iter()
+            .all(|cond| self.satisfies_condition(cond))
     }
 
     fn satisfies_condition(&self, condition: &Condition) -> bool {
         match condition {
             Condition::Fact(fact) => self.holds(fact),
             Condition::NotFact(fact) => !self.holds(fact),
-            Condition::Value(key, op, expected) => {
-                self.values
-                    .get(key)
-                    .map(|v| op(*v, *expected))
-                    .unwrap_or(false)
-            }
+            Condition::Value(key, op, expected) => self
+                .values
+                .get(key)
+                .map(|v| op(*v, *expected))
+                .unwrap_or(false),
         }
     }
 }
 
 impl Clone for WorldState {
     fn clone(&self) -> Self {
-        Self {
-            facts: self.facts.clone(),
-            values: self.values.clone(),
-        }
+        Self { facts: self.facts.clone(), values: self.values.clone() }
     }
 }
 
@@ -210,20 +207,26 @@ impl<'de> Deserialize<'de> for Effect {
         let repr = Repr::deserialize(deserializer)?;
         match repr.kind.as_str() {
             "Add" => Ok(Effect::Add(
-                repr.fact.ok_or_else(|| serde::de::Error::missing_field("fact"))?,
+                repr.fact
+                    .ok_or_else(|| serde::de::Error::missing_field("fact"))?,
             )),
             "Remove" => Ok(Effect::Remove(
-                repr.fact.ok_or_else(|| serde::de::Error::missing_field("fact"))?,
+                repr.fact
+                    .ok_or_else(|| serde::de::Error::missing_field("fact"))?,
             )),
             "SetValue" => {
-                let key = repr.key.ok_or_else(|| serde::de::Error::missing_field("key"))?;
+                let key = repr
+                    .key
+                    .ok_or_else(|| serde::de::Error::missing_field("key"))?;
                 let value = repr
                     .value
                     .ok_or_else(|| serde::de::Error::missing_field("value"))?;
                 Ok(Effect::SetValue(key, value))
             }
             "ModifyValue" => {
-                let key = repr.key.ok_or_else(|| serde::de::Error::missing_field("key"))?;
+                let key = repr
+                    .key
+                    .ok_or_else(|| serde::de::Error::missing_field("key"))?;
                 Ok(Effect::ModifyValue(key, default_modify_value()))
             }
             other => Err(serde::de::Error::unknown_variant(
@@ -283,13 +286,17 @@ impl<'de> Deserialize<'de> for Condition {
         let repr = Repr::deserialize(deserializer)?;
         match repr.kind.as_str() {
             "Fact" => Ok(Condition::Fact(
-                repr.fact.ok_or_else(|| serde::de::Error::missing_field("fact"))?,
+                repr.fact
+                    .ok_or_else(|| serde::de::Error::missing_field("fact"))?,
             )),
             "NotFact" => Ok(Condition::NotFact(
-                repr.fact.ok_or_else(|| serde::de::Error::missing_field("fact"))?,
+                repr.fact
+                    .ok_or_else(|| serde::de::Error::missing_field("fact"))?,
             )),
             "Value" => {
-                let key = repr.key.ok_or_else(|| serde::de::Error::missing_field("key"))?;
+                let key = repr
+                    .key
+                    .ok_or_else(|| serde::de::Error::missing_field("key"))?;
                 let expected = repr
                     .expected
                     .ok_or_else(|| serde::de::Error::missing_field("expected"))?;
@@ -490,10 +497,7 @@ pub struct HTNPlanner {
 
 impl HTNPlanner {
     pub fn new(domain: HTNDomain) -> Self {
-        Self {
-            domain,
-            stats: PlanningStats::default(),
-        }
+        Self { domain, stats: PlanningStats::default() }
     }
 
     /// Plan to achieve goals
@@ -612,10 +616,7 @@ impl Plan {
 
     /// Get action sequence
     pub fn get_actions(&self) -> Vec<String> {
-        self.steps
-            .iter()
-            .flat_map(|s| s.actions.clone())
-            .collect()
+        self.steps.iter().flat_map(|s| s.actions.clone()).collect()
     }
 
     /// Calculate cost
@@ -701,8 +702,8 @@ impl MCTSNode {
         }
 
         let exploitation = self.total_reward / self.visit_count as f64;
-        let exploration = exploration_constant
-            * ((parent_visits as f64).ln() / self.visit_count as f64).sqrt();
+        let exploration =
+            exploration_constant * ((parent_visits as f64).ln() / self.visit_count as f64).sqrt();
 
         exploitation + exploration
     }
@@ -713,20 +714,20 @@ impl MCTSNode {
         }
 
         let parent_visits = self.visit_count;
-        self.children
-            .iter()
-            .max_by(|a, b| {
-                a.ucb1(parent_visits, exploration_constant)
-                    .partial_cmp(&b.ucb1(parent_visits, exploration_constant))
-                    .unwrap_or(Ordering::Equal)
-            })
+        self.children.iter().max_by(|a, b| {
+            a.ucb1(parent_visits, exploration_constant)
+                .partial_cmp(&b.ucb1(parent_visits, exploration_constant))
+                .unwrap_or(Ordering::Equal)
+        })
     }
 
     pub fn expand(&mut self, action: &str, new_state: WorldState) -> &mut MCTSNode {
         let child = MCTSNode::child(new_state, self, action);
         let child_idx = self.children.len();
         self.children.push(child);
-        self.children[child_idx].untried_actions.retain(|a| a != action);
+        self.children[child_idx]
+            .untried_actions
+            .retain(|a| a != action);
         &mut self.children[child_idx]
     }
 
@@ -752,10 +753,7 @@ pub struct Goal {
 
 impl Goal {
     pub fn new(goal_type: GoalType) -> Self {
-        Self {
-            conditions: Vec::new(),
-            goal_type,
-        }
+        Self { conditions: Vec::new(), goal_type }
     }
 
     pub fn with_conditions(mut self, conditions: Vec<Condition>) -> Self {
@@ -785,7 +783,10 @@ pub struct MCTSPlanner {
 }
 
 impl MCTSPlanner {
-    pub fn new(actions: Vec<String>, action_effects: HashMap<String, (Vec<Condition>, Vec<Effect>)>) -> Self {
+    pub fn new(
+        actions: Vec<String>,
+        action_effects: HashMap<String, (Vec<Condition>, Vec<Effect>)>,
+    ) -> Self {
         Self {
             config: MCTSConfig::default(),
             actions,
@@ -870,7 +871,9 @@ impl MCTSPlanner {
     fn select<'a>(&self, node: &'a MCTSNode) -> &'a MCTSNode {
         let mut current = node;
 
-        while !current.children.is_empty() && !current.is_terminal(&Goal::new(GoalType::Achievement)) {
+        while !current.children.is_empty()
+            && !current.is_terminal(&Goal::new(GoalType::Achievement))
+        {
             if let Some(best) = current.best_child(self.config.exploration_constant) {
                 current = best;
             } else {
@@ -1071,10 +1074,7 @@ pub struct CounterfactualReasoner {
 
 impl CounterfactualReasoner {
     pub fn new(domain: HTNDomain) -> Self {
-        Self {
-            domain,
-            stats: PlanningStats::default(),
-        }
+        Self { domain, stats: PlanningStats::default() }
     }
 
     /// Reason about "what if" scenarios
@@ -1260,8 +1260,11 @@ mod action_tests {
     #[test]
     fn test_action_effects() {
         let mut state = WorldState::new();
-        let action = Action::new("move")
-            .with_effect(Effect::Add(Fact::new("at", "robot", Some("location_b"))));
+        let action = Action::new("move").with_effect(Effect::Add(Fact::new(
+            "at",
+            "robot",
+            Some("location_b"),
+        )));
 
         action.apply(&mut state);
 
@@ -1277,8 +1280,11 @@ mod htn_planner_tests {
     fn test_htn_domain() {
         let mut domain = HTNDomain::new();
 
-        let action = Action::new("move_robot")
-            .with_effect(Effect::Add(Fact::new("at", "robot", Some("dest"))));
+        let action = Action::new("move_robot").with_effect(Effect::Add(Fact::new(
+            "at",
+            "robot",
+            Some("dest"),
+        )));
         domain.add_action(action);
 
         assert!(domain.get_action("move_robot").is_some());
@@ -1288,8 +1294,8 @@ mod htn_planner_tests {
     fn test_htn_planning() {
         let mut domain = HTNDomain::new();
 
-        let move_action = Action::new("move")
-            .with_effect(Effect::Add(Fact::new("at", "robot", Some("dest"))));
+        let move_action =
+            Action::new("move").with_effect(Effect::Add(Fact::new("at", "robot", Some("dest"))));
         domain.add_action(move_action);
 
         let mut planner = HTNPlanner::new(domain);

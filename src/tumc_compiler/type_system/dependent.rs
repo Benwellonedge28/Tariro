@@ -46,7 +46,8 @@ impl DepContext {
     }
 
     pub fn lookup(&self, name: &str) -> Option<&DepTypeExpr> {
-        self.vars.iter()
+        self.vars
+            .iter()
             .rev()
             .find(|(n, _)| n == name)
             .map(|(_, t)| t)
@@ -55,9 +56,7 @@ impl DepContext {
 
 impl DependentTypeChecker {
     pub fn new() -> Self {
-        Self {
-            context: DepContext::default(),
-        }
+        Self { context: DepContext::default() }
     }
 
     /// Check if a type is well-formed
@@ -120,22 +119,16 @@ impl DependentTypeChecker {
                 let arg_norm = self.normalize(arg);
                 self.beta_reduce(&f_norm, &arg_norm)
             }
-            DepTypeExpr::Add(a, b) => {
-                match (self.normalize(a), self.normalize(b)) {
-                    (DepTypeExpr::NatLit(x), DepTypeExpr::NatLit(y)) => {
-                        DepTypeExpr::NatLit(x + y)
-                    }
-                    (a, b) => DepTypeExpr::Add(Box::new(a), Box::new(b)),
+            DepTypeExpr::Add(a, b) => match (self.normalize(a), self.normalize(b)) {
+                (DepTypeExpr::NatLit(x), DepTypeExpr::NatLit(y)) => DepTypeExpr::NatLit(x + y),
+                (a, b) => DepTypeExpr::Add(Box::new(a), Box::new(b)),
+            },
+            DepTypeExpr::Sub(a, b) => match (self.normalize(a), self.normalize(b)) {
+                (DepTypeExpr::NatLit(x), DepTypeExpr::NatLit(y)) => {
+                    DepTypeExpr::NatLit(x.saturating_sub(y))
                 }
-            }
-            DepTypeExpr::Sub(a, b) => {
-                match (self.normalize(a), self.normalize(b)) {
-                    (DepTypeExpr::NatLit(x), DepTypeExpr::NatLit(y)) => {
-                        DepTypeExpr::NatLit(x.saturating_sub(y))
-                    }
-                    (a, b) => DepTypeExpr::Sub(Box::new(a), Box::new(b)),
-                }
-            }
+                (a, b) => DepTypeExpr::Sub(Box::new(a), Box::new(b)),
+            },
             _ => expr.clone(),
         }
     }
@@ -143,9 +136,7 @@ impl DependentTypeChecker {
     /// Beta reduction
     fn beta_reduce(&self, f: &DepTypeExpr, arg: &DepTypeExpr) -> DepTypeExpr {
         match f {
-            DepTypeExpr::Lambda(x, _, body) => {
-                self.subst(body, x, arg)
-            }
+            DepTypeExpr::Lambda(x, _, body) => self.subst(body, x, arg),
             _ => DepTypeExpr::App(Box::new(f.clone()), Box::new(arg.clone())),
         }
     }
@@ -155,19 +146,15 @@ impl DependentTypeChecker {
         match expr {
             DepTypeExpr::Var(name) if name == var => replacement.clone(),
             DepTypeExpr::Var(_) => expr.clone(),
-            DepTypeExpr::Lambda(x, ty, body) if x != var => {
-                DepTypeExpr::Lambda(
-                    x.clone(),
-                    Box::new(self.subst(ty, var, replacement)),
-                    Box::new(self.subst(body, var, replacement)),
-                )
-            }
-            DepTypeExpr::App(func, arg) => {
-                DepTypeExpr::App(
-                    Box::new(self.subst(func, var, replacement)),
-                    Box::new(self.subst(arg, var, replacement)),
-                )
-            }
+            DepTypeExpr::Lambda(x, ty, body) if x != var => DepTypeExpr::Lambda(
+                x.clone(),
+                Box::new(self.subst(ty, var, replacement)),
+                Box::new(self.subst(body, var, replacement)),
+            ),
+            DepTypeExpr::App(func, arg) => DepTypeExpr::App(
+                Box::new(self.subst(func, var, replacement)),
+                Box::new(self.subst(arg, var, replacement)),
+            ),
             _ => expr.clone(),
         }
     }
@@ -267,10 +254,7 @@ impl VecType {
     }
 
     pub fn of(element: MonoType, n: u64) -> Self {
-        Self {
-            element,
-            length: DepTypeExpr::NatLit(n),
-        }
+        Self { element, length: DepTypeExpr::NatLit(n) }
     }
 }
 

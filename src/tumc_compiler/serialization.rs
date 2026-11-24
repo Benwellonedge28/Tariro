@@ -3,8 +3,6 @@
 //! High-performance serialization for Tariro types including
 //! binary, JSON, and binary formats.
 
-use std::collections::{ };
-
 /// Serializer trait
 pub trait Serializer: Sized {
     /// Serialize a value
@@ -125,7 +123,9 @@ pub struct MapDeserializer<D: Deserializer> {
 
 impl<D: Deserializer> MapDeserializer<D> {
     /// Get next entry
-    pub fn next<K: Deserialize<D>, V: Deserialize<D>>(self) -> Result<Option<((K, V), Self)>, SerialError> {
+    pub fn next<K: Deserialize<D>, V: Deserialize<D>>(
+        self,
+    ) -> Result<Option<((K, V), Self)>, SerialError> {
         Ok(None)
     }
 }
@@ -174,9 +174,7 @@ pub struct BinarySerializer {
 impl BinarySerializer {
     /// Create new binary serializer
     pub fn new() -> Self {
-        Self {
-            buffer: Vec::new(),
-        }
+        Self { buffer: Vec::new() }
     }
 
     /// Get bytes
@@ -351,11 +349,7 @@ pub struct JsonSerializer {
 impl JsonSerializer {
     /// Create new JSON serializer
     pub fn new() -> Self {
-        Self {
-            buffer: String::new(),
-            pretty: false,
-            indent: 0,
-        }
+        Self { buffer: String::new(), pretty: false, indent: 0 }
     }
 
     /// Enable pretty printing
@@ -494,10 +488,7 @@ pub struct JsonDeserializer {
 impl JsonDeserializer {
     /// Create from string
     pub fn from_str(input: &str) -> Self {
-        Self {
-            input: input.chars().collect(),
-            position: 0,
-        }
+        Self { input: input.chars().collect(), position: 0 }
     }
 
     /// Peek next character
@@ -611,27 +602,39 @@ impl Deserializer for JsonDeserializer {
     }
 
     fn deserialize_i32(self) -> Result<i32, SerialError> {
-        self.deserialize_str()?.parse().map_err(|_| SerialError::InvalidType)
+        self.deserialize_str()?
+            .parse()
+            .map_err(|_| SerialError::InvalidType)
     }
 
     fn deserialize_i64(self) -> Result<i64, SerialError> {
-        self.deserialize_str()?.parse().map_err(|_| SerialError::InvalidType)
+        self.deserialize_str()?
+            .parse()
+            .map_err(|_| SerialError::InvalidType)
     }
 
     fn deserialize_u32(self) -> Result<u32, SerialError> {
-        self.deserialize_str()?.parse().map_err(|_| SerialError::InvalidType)
+        self.deserialize_str()?
+            .parse()
+            .map_err(|_| SerialError::InvalidType)
     }
 
     fn deserialize_u64(self) -> Result<u64, SerialError> {
-        self.deserialize_str()?.parse().map_err(|_| SerialError::InvalidType)
+        self.deserialize_str()?
+            .parse()
+            .map_err(|_| SerialError::InvalidType)
     }
 
     fn deserialize_f32(self) -> Result<f32, SerialError> {
-        self.deserialize_str()?.parse().map_err(|_| SerialError::InvalidType)
+        self.deserialize_str()?
+            .parse()
+            .map_err(|_| SerialError::InvalidType)
     }
 
     fn deserialize_f64(self) -> Result<f64, SerialError> {
-        self.deserialize_str()?.parse().map_err(|_| SerialError::InvalidType)
+        self.deserialize_str()?
+            .parse()
+            .map_err(|_| SerialError::InvalidType)
     }
 }
 

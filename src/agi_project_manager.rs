@@ -3,10 +3,10 @@
 //! Manages projects and tasks for the Tariro AGI, enabling autonomous goal achievement.
 
 use crate::prelude::*;
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
-use std::collections::HashMap;
 use async_trait::async_trait;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use uuid::Uuid;
 
 use crate::config::AGIConfig;
 use crate::telemetry::{TelemetryEvent, TelemetryLogger};
@@ -114,11 +114,15 @@ pub trait ProjectManagerServiceTrait: Send + Sync {
     async fn get_task(&self, task_id: &str) -> Option<&ProjectTask>;
     async fn update_task(&mut self, updated_task: ProjectTask) -> Result<(), String>;
     async fn list_projects(&self, status: Option<ProjectStatus>) -> Vec<&Project>;
-    async fn list_tasks_for_project(&self, project_id: &str, status: Option<TaskStatus>) -> Vec<&ProjectTask>;
+    async fn list_tasks_for_project(
+        &self,
+        project_id: &str,
+        status: Option<TaskStatus>,
+    ) -> Vec<&ProjectTask>;
     async fn check_for_new_tasks(&self);
-    async fn analyze_task_dependencies(&self, project_id: &str) -> HashMap<String, Vec<String>>; 
+    async fn analyze_task_dependencies(&self, project_id: &str) -> HashMap<String, Vec<String>>;
     async fn propose_task_schedule(&self, project_id: &str) -> Result<Vec<String>, String>;
-    async fn estimate_project_completion(&self, project_id: &str) -> Option<DateTime<Utc>>; 
+    async fn estimate_project_completion(&self, project_id: &str) -> Option<DateTime<Utc>>;
 }
 
 /// The `ProjectManagerService` is responsible for managing Tariro's projects and tasks.
@@ -143,17 +147,21 @@ impl ProjectManagerServiceTrait for ProjectManagerService {
 
     async fn initialize(&self) -> Result<(), String> {
         println!("[ProjectManagerService] Initializing...");
-        self.telemetry_logger.log_event(
-            TelemetryEvent::ServiceInitialized { service_name: "ProjectManagerService".to_string() }
-        ).await;
+        self.telemetry_logger
+            .log_event(TelemetryEvent::ServiceInitialized {
+                service_name: "ProjectManagerService".to_string(),
+            })
+            .await;
         Ok(())
     }
 
     async fn shutdown(&self) -> Result<(), String> {
         println!("[ProjectManagerService] Shutting down...");
-        self.telemetry_logger.log_event(
-            TelemetryEvent::ServiceShutdown { service_name: "ProjectManagerService".to_string() }
-        ).await;
+        self.telemetry_logger
+            .log_event(TelemetryEvent::ServiceShutdown {
+                service_name: "ProjectManagerService".to_string(),
+            })
+            .await;
         Ok(())
     }
 
@@ -169,10 +177,12 @@ impl ProjectManagerServiceTrait for ProjectManagerService {
             return Err(format!("Project with ID {} already exists.", project.id));
         }
         println!("[ProjectManagerService] Creating project: {}", project.name);
-        self.telemetry_logger.log_event(TelemetryEvent::ProjectCreated {
-            project_id: project.id.clone(),
-            project_name: project.name.clone(),
-        }).await;
+        self.telemetry_logger
+            .log_event(TelemetryEvent::ProjectCreated {
+                project_id: project.id.clone(),
+                project_name: project.name.clone(),
+            })
+            .await;
         self.projects.insert(project.id.clone(), project.clone());
         Ok(project.id)
     }
@@ -194,11 +204,13 @@ impl ProjectManagerServiceTrait for ProjectManagerService {
             project.associated_meta_goal_id = updated_project.associated_meta_goal_id;
             project.progress_percentage = updated_project.progress_percentage;
 
-            self.telemetry_logger.log_event(TelemetryEvent::ProjectUpdated {
-                project_id: project.id.clone(),
-                project_name: project.name.clone(),
-                new_status: Some(project.status.to_string()),
-            }).await;
+            self.telemetry_logger
+                .log_event(TelemetryEvent::ProjectUpdated {
+                    project_id: project.id.clone(),
+                    project_name: project.name.clone(),
+                    new_status: Some(project.status.to_string()),
+                })
+                .await;
             Ok(())
         } else {
             Err(format!("Project with ID {} not found.", updated_project.id))
@@ -208,7 +220,10 @@ impl ProjectManagerServiceTrait for ProjectManagerService {
     /// Creates a new task within a project.
     async fn create_project_task(&mut self, mut task: ProjectTask) -> Result<String, String> {
         if !self.projects.contains_key(&task.project_id) {
-            return Err(format!("Project with ID {} not found. Cannot create task.", task.project_id));
+            return Err(format!(
+                "Project with ID {} not found. Cannot create task.",
+                task.project_id
+            ));
         }
         task.id = format!("task_{}", Uuid::new_v4());
         task.creation_date = Utc::now();
@@ -220,11 +235,13 @@ impl ProjectManagerServiceTrait for ProjectManagerService {
             return Err(format!("Task with ID {} already exists.", task.id));
         }
         println!("[ProjectManagerService] Creating task: {}", task.title);
-        self.telemetry_logger.log_event(TelemetryEvent::TaskCreated {
-            task_id: task.id.clone(),
-            task_title: task.title.clone(),
-            project_id: task.project_id.clone(),
-        }).await;
+        self.telemetry_logger
+            .log_event(TelemetryEvent::TaskCreated {
+                task_id: task.id.clone(),
+                task_title: task.title.clone(),
+                project_id: task.project_id.clone(),
+            })
+            .await;
         self.tasks.insert(task.id.clone(), task.clone());
         Ok(task.id)
     }
@@ -250,11 +267,13 @@ impl ProjectManagerServiceTrait for ProjectManagerService {
             task.actual_effort_hours = updated_task.actual_effort_hours;
             task.progress_percentage = updated_task.progress_percentage;
 
-            self.telemetry_logger.log_event(TelemetryEvent::TaskUpdated {
-                task_id: task.id.clone(),
-                task_title: task.title.clone(),
-                new_status: Some(task.status.to_string()),
-            }).await;
+            self.telemetry_logger
+                .log_event(TelemetryEvent::TaskUpdated {
+                    task_id: task.id.clone(),
+                    task_title: task.title.clone(),
+                    new_status: Some(task.status.to_string()),
+                })
+                .await;
             Ok(())
         } else {
             Err(format!("Task with ID {} not found.", updated_task.id))
@@ -263,16 +282,24 @@ impl ProjectManagerServiceTrait for ProjectManagerService {
 
     /// Lists projects, optionally filtered by status.
     async fn list_projects(&self, status: Option<ProjectStatus>) -> Vec<&Project> {
-        self.projects.values().filter(|p| {
-            status.as_ref().map_or(true, |s| &p.status == s)
-        }).collect()
+        self.projects
+            .values()
+            .filter(|p| status.as_ref().map_or(true, |s| &p.status == s))
+            .collect()
     }
 
     /// Lists tasks for a given project, optionally filtered by status.
-    async fn list_tasks_for_project(&self, project_id: &str, status: Option<TaskStatus>) -> Vec<&ProjectTask> {
-        self.tasks.values().filter(|t| {
-            t.project_id == project_id && status.as_ref().map_or(true, |s| &t.status == s)
-        }).collect()
+    async fn list_tasks_for_project(
+        &self,
+        project_id: &str,
+        status: Option<TaskStatus>,
+    ) -> Vec<&ProjectTask> {
+        self.tasks
+            .values()
+            .filter(|t| {
+                t.project_id == project_id && status.as_ref().map_or(true, |s| &t.status == s)
+            })
+            .collect()
     }
 
     /// Periodically checks for new tasks or updates to existing tasks from external sources or internal modules.
@@ -280,9 +307,9 @@ impl ProjectManagerServiceTrait for ProjectManagerService {
         println!("[ProjectManagerService] Checking for new tasks...");
         // This method would integrate with other AGI modules or external systems
         // to discover new work, sync project states, etc.
-        self.telemetry_logger.log_event(
-            TelemetryEvent::PeriodicCheck { check_name: "NewTasksCheck".to_string() }
-        ).await;
+        self.telemetry_logger
+            .log_event(TelemetryEvent::PeriodicCheck { check_name: "NewTasksCheck".to_string() })
+            .await;
         // Simulate finding a new task or update
         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
     }
@@ -318,7 +345,8 @@ impl ProjectManagerServiceTrait for ProjectManagerService {
             }
         }
 
-        let mut queue: Vec<&str> = in_degree.iter()
+        let mut queue: Vec<&str> = in_degree
+            .iter()
             .filter(|(_id, &degree)| degree == 0)
             .map(|(id, _degree)| *id)
             .collect();
@@ -347,7 +375,9 @@ impl ProjectManagerServiceTrait for ProjectManagerService {
     /// Estimates the completion date for a project based on current progress, estimated efforts, and dependencies.
     async fn estimate_project_completion(&self, project_id: &str) -> Option<DateTime<Utc>> {
         let tasks = self.list_tasks_for_project(project_id, None).await;
-        if tasks.is_empty() { return None; }
+        if tasks.is_empty() {
+            return None;
+        }
 
         let now = Utc::now();
         let mut max_completion_time = now;
@@ -355,11 +385,14 @@ impl ProjectManagerServiceTrait for ProjectManagerService {
         // This is a very simplified estimation.
         // A real system would use critical path analysis, resource availability, etc.
         for task in tasks {
-            if task.status == TaskStatus::Done { continue; }
+            if task.status == TaskStatus::Done {
+                continue;
+            }
 
-            let remaining_effort = task.estimated_effort_hours.unwrap_or(0.0) * (1.0 - task.progress_percentage / 100.0);
+            let remaining_effort = task.estimated_effort_hours.unwrap_or(0.0)
+                * (1.0 - task.progress_percentage / 100.0);
             // Assuming 8 hours/day for simplicity
-            let days_remaining = (remaining_effort / 8.0).ceil(); 
+            let days_remaining = (remaining_effort / 8.0).ceil();
 
             if days_remaining > 0.0 {
                 let estimated_task_completion = now + chrono::Duration::days(days_remaining as i64);
@@ -369,9 +402,9 @@ impl ProjectManagerServiceTrait for ProjectManagerService {
             }
         }
 
-        if max_completion_time == now { 
+        if max_completion_time == now {
             // All tasks are done or have no estimated effort
-            Some(now) 
+            Some(now)
         } else {
             Some(max_completion_time)
         }
@@ -417,7 +450,7 @@ mod tests {
             TelemetryEvent::ProjectCreated { project_id: event_proj_id, project_name } => {
                 assert_eq!(event_proj_id, project_id);
                 assert_eq!(project_name, "Test Project");
-            },
+            }
             _ => panic!("Unexpected telemetry event"),
         }
     }
@@ -443,7 +476,10 @@ mod tests {
         updated_project.name = "Updated Project Name".to_string();
         updated_project.status = ProjectStatus::InProgress;
 
-        service.update_project(updated_project.clone()).await.unwrap();
+        service
+            .update_project(updated_project.clone())
+            .await
+            .unwrap();
         let retrieved_project = service.get_project(&project_id).await.unwrap();
         assert_eq!(retrieved_project.name, "Updated Project Name");
         assert_eq!(retrieved_project.status, ProjectStatus::InProgress);
@@ -451,11 +487,15 @@ mod tests {
         let _ = rx.recv().await.unwrap(); // Consume ProjectCreated event
         let event = rx.recv().await.unwrap();
         match event {
-            TelemetryEvent::ProjectUpdated { project_id: event_proj_id, project_name, new_status } => {
+            TelemetryEvent::ProjectUpdated {
+                project_id: event_proj_id,
+                project_name,
+                new_status,
+            } => {
                 assert_eq!(event_proj_id, project_id);
                 assert_eq!(project_name, "Updated Project Name");
                 assert_eq!(new_status, Some("InProgress".to_string()));
-            },
+            }
             _ => panic!("Unexpected telemetry event"),
         }
     }
@@ -501,11 +541,15 @@ mod tests {
         let _ = rx.recv().await.unwrap(); // Consume ProjectCreated event
         let event = rx.recv().await.unwrap();
         match event {
-            TelemetryEvent::TaskCreated { task_id: event_task_id, task_title, project_id: event_proj_id } => {
+            TelemetryEvent::TaskCreated {
+                task_id: event_task_id,
+                task_title,
+                project_id: event_proj_id,
+            } => {
                 assert_eq!(event_task_id, task_id);
                 assert_eq!(task_title, "First Task");
                 assert_eq!(event_proj_id, project_id);
-            },
+            }
             _ => panic!("Unexpected telemetry event"),
         }
     }
@@ -514,38 +558,75 @@ mod tests {
     async fn test_propose_task_schedule_simple() {
         let (mut service, _rx) = setup_services();
         let project = Project {
-            id: String::new(), name: "Schedule Project".to_string(), description: "".to_string(), status: ProjectStatus::Planning,
-            creation_date: Utc::now(), last_updated: Utc::now(), due_date: None, assigned_agi_modules: vec![],
-            associated_meta_goal_id: None, progress_percentage: 0.0,
+            id: String::new(),
+            name: "Schedule Project".to_string(),
+            description: "".to_string(),
+            status: ProjectStatus::Planning,
+            creation_date: Utc::now(),
+            last_updated: Utc::now(),
+            due_date: None,
+            assigned_agi_modules: vec![],
+            associated_meta_goal_id: None,
+            progress_percentage: 0.0,
         };
         let project_id = service.create_project(project.clone()).await.unwrap();
 
         let task_a = ProjectTask {
-            id: String::new(), project_id: project_id.clone(), title: "Task A".to_string(), description: "".to_string(),
-            status: TaskStatus::Todo, priority: TaskPriority::Medium, assigned_to: None,
-            creation_date: Utc::now(), last_updated: Utc::now(), due_date: None, dependencies: vec![],
-            estimated_effort_hours: Some(4.0), actual_effort_hours: None, progress_percentage: 0.0,
+            id: String::new(),
+            project_id: project_id.clone(),
+            title: "Task A".to_string(),
+            description: "".to_string(),
+            status: TaskStatus::Todo,
+            priority: TaskPriority::Medium,
+            assigned_to: None,
+            creation_date: Utc::now(),
+            last_updated: Utc::now(),
+            due_date: None,
+            dependencies: vec![],
+            estimated_effort_hours: Some(4.0),
+            actual_effort_hours: None,
+            progress_percentage: 0.0,
         };
         let task_a_id = service.create_project_task(task_a.clone()).await.unwrap();
 
         let task_b = ProjectTask {
-            id: String::new(), project_id: project_id.clone(), title: "Task B".to_string(), description: "".to_string(),
-            status: TaskStatus::Todo, priority: TaskPriority::Medium, assigned_to: None,
-            creation_date: Utc::now(), last_updated: Utc::now(), due_date: None, dependencies: vec![task_a_id.clone()],
-            estimated_effort_hours: Some(6.0), actual_effort_hours: None, progress_percentage: 0.0,
+            id: String::new(),
+            project_id: project_id.clone(),
+            title: "Task B".to_string(),
+            description: "".to_string(),
+            status: TaskStatus::Todo,
+            priority: TaskPriority::Medium,
+            assigned_to: None,
+            creation_date: Utc::now(),
+            last_updated: Utc::now(),
+            due_date: None,
+            dependencies: vec![task_a_id.clone()],
+            estimated_effort_hours: Some(6.0),
+            actual_effort_hours: None,
+            progress_percentage: 0.0,
         };
         let task_b_id = service.create_project_task(task_b.clone()).await.unwrap();
 
         let task_c = ProjectTask {
-            id: String::new(), project_id: project_id.clone(), title: "Task C".to_string(), description: "".to_string(),
-            status: TaskStatus::Todo, priority: TaskPriority::Medium, assigned_to: None,
-            creation_date: Utc::now(), last_updated: Utc::now(), due_date: None, dependencies: vec![task_a_id.clone()],
-            estimated_effort_hours: Some(3.0), actual_effort_hours: None, progress_percentage: 0.0,
+            id: String::new(),
+            project_id: project_id.clone(),
+            title: "Task C".to_string(),
+            description: "".to_string(),
+            status: TaskStatus::Todo,
+            priority: TaskPriority::Medium,
+            assigned_to: None,
+            creation_date: Utc::now(),
+            last_updated: Utc::now(),
+            due_date: None,
+            dependencies: vec![task_a_id.clone()],
+            estimated_effort_hours: Some(3.0),
+            actual_effort_hours: None,
+            progress_percentage: 0.0,
         };
         let task_c_id = service.create_project_task(task_c.clone()).await.unwrap();
 
         let schedule = service.propose_task_schedule(&project_id).await.unwrap();
-        
+
         // A should be first, then B and C can be in any order relative to each other but after A
         assert_eq!(schedule[0], task_a_id);
         assert!(schedule[1] == task_b_id || schedule[1] == task_c_id);

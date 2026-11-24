@@ -1,12 +1,11 @@
 // Tariro AGI - Shutdown Mechanism Module
 // Safe and reliable shutdown procedures
 
-
-use std::collections::{ VecDeque};
-use std::sync::{ Mutex, RwLock};
 use chrono::{DateTime, Utc};
-use std::time::Duration;
+use std::collections::VecDeque;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Mutex, RwLock};
+use std::time::Duration;
 
 // ============================================================================
 // Shutdown Types
@@ -15,10 +14,10 @@ use std::sync::atomic::{AtomicBool, Ordering};
 /// Types of shutdown
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ShutdownType {
-    Graceful,      // Clean shutdown with state save
-    Forced,         // Immediate termination
-    Emergency,      // Emergency stop
-    Kill,           // Force kill without cleanup
+    Graceful,  // Clean shutdown with state save
+    Forced,    // Immediate termination
+    Emergency, // Emergency stop
+    Kill,      // Force kill without cleanup
 }
 
 /// Shutdown reason/category
@@ -224,7 +223,11 @@ impl ShutdownManager {
     }
 
     /// Initiate shutdown
-    pub fn initiate_shutdown(&self, shutdown_type: ShutdownType, reason: ShutdownReason) -> Result<ShutdownState, ShutdownError> {
+    pub fn initiate_shutdown(
+        &self,
+        shutdown_type: ShutdownType,
+        reason: ShutdownReason,
+    ) -> Result<ShutdownState, ShutdownError> {
         // Check if already shutting down
         if self.shutdown_in_progress.load(Ordering::SeqCst) {
             return Err(ShutdownError::AlreadyShuttingDown);
@@ -318,8 +321,12 @@ impl ShutdownManager {
 
         ShutdownResult {
             success: error_message.is_none(),
-            shutdown_id: self.shutdown_state.read().unwrap()
-                .as_ref().map(|s| s.shutdown_id.clone())
+            shutdown_id: self
+                .shutdown_state
+                .read()
+                .unwrap()
+                .as_ref()
+                .map(|s| s.shutdown_id.clone())
                 .unwrap_or_default(),
             phases_completed,
             total_phases: self.phases.len(),
@@ -367,7 +374,8 @@ impl ShutdownManager {
         });
 
         // Sort by priority
-        self.cleanup_handlers.sort_by(|a, b| b.priority.cmp(&a.priority));
+        self.cleanup_handlers
+            .sort_by(|a, b| b.priority.cmp(&a.priority));
     }
 
     /// Register a resource for tracking
@@ -425,7 +433,11 @@ impl ShutdownManager {
             shutdown_in_progress: self.shutdown_in_progress.load(Ordering::SeqCst),
             state: state.clone(),
             resources_tracked: self.resources.read().unwrap().len(),
-            shutdowns_completed: self.shutdown_history.lock().map(|history| history.len()).unwrap_or(0),
+            shutdowns_completed: self
+                .shutdown_history
+                .lock()
+                .map(|history| history.len())
+                .unwrap_or(0),
         }
     }
 }
@@ -477,7 +489,10 @@ pub struct ShutdownStatusResponse {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("shutdown_{}", now % 1_000_000)
 }
 
@@ -495,7 +510,8 @@ mod tests {
     fn test_graceful_shutdown() {
         let manager = ShutdownManager::new();
 
-        let state = manager.initiate_shutdown(ShutdownType::Graceful, ShutdownReason::UserRequested);
+        let state =
+            manager.initiate_shutdown(ShutdownType::Graceful, ShutdownReason::UserRequested);
         assert!(state.is_ok());
 
         let result = manager.execute_shutdown();

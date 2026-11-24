@@ -3,9 +3,9 @@
 //! Performance profiling, benchmarking, and optimization analysis tools
 //! for the TUMC compiler.
 
+use crate::tumc_compiler::{lexer, parser};
 use std::collections::HashMap;
 use std::time::{Duration, Instant};
-use crate::tumc_compiler::{lexer, parser};
 
 /// Compiler phase timing
 #[derive(Debug, Clone)]
@@ -55,11 +55,7 @@ impl<'a> ScopedTimer<'a> {
     /// Start timing a block
     pub fn new(profiler: &'a mut CompilerProfiler, phase: impl Into<String>) -> Self {
         let start = Instant::now();
-        Self {
-            profiler,
-            phase: phase.into(),
-            start,
-        }
+        Self { profiler, phase: phase.into(), start }
     }
 }
 
@@ -134,11 +130,8 @@ impl CompilerProfiler {
     /// Record memory usage
     pub fn record_memory(&mut self, allocated: u64, deallocated: u64) {
         let elapsed = self.start.elapsed();
-        self.memory_samples.push(MemorySample {
-            timestamp: elapsed,
-            allocated,
-            deallocated,
-        });
+        self.memory_samples
+            .push(MemorySample { timestamp: elapsed, allocated, deallocated });
     }
 
     /// End profiling and get report
@@ -178,10 +171,7 @@ impl CompilerProfiler {
         let mut function_calls = self
             .call_counts
             .iter()
-            .map(|(name, count)| FunctionCallStats {
-                function: name.clone(),
-                count: *count,
-            })
+            .map(|(name, count)| FunctionCallStats { function: name.clone(), count: *count })
             .collect::<Vec<_>>();
         function_calls.sort_by(|a, b| b.count.cmp(&a.count));
 
@@ -375,7 +365,12 @@ impl BenchmarkResult {
     pub fn format(&self) -> String {
         format!(
             "{}: {:?} (avg: {:?}, min: {:?}, max: {:?}, std: {:?})",
-            self.name, self.total_time, self.average_time, self.min_time, self.max_time, self.std_dev
+            self.name,
+            self.total_time,
+            self.average_time,
+            self.min_time,
+            self.max_time,
+            self.std_dev
         )
     }
 }
@@ -492,16 +487,14 @@ pub struct RegressionDetector {
 impl RegressionDetector {
     /// Create new detector
     pub fn new(threshold_percent: f64) -> Self {
-        Self {
-            baseline: HashMap::new(),
-            threshold_percent,
-        }
+        Self { baseline: HashMap::new(), threshold_percent }
     }
 
     /// Set baseline
     pub fn set_baseline(&mut self, results: &[BenchmarkResult]) {
         for result in results {
-            self.baseline.insert(result.name.clone(), result.average_time);
+            self.baseline
+                .insert(result.name.clone(), result.average_time);
         }
     }
 
@@ -576,17 +569,22 @@ pub mod benchmarks {
     pub fn run_all_benchmarks() -> Vec<BenchmarkResult> {
         let large_source = format!(
             "fn add(a: i32, b: i32) -> i32 {{ a + b }}\n{}",
-            (0..100).map(|i| format!("fn f{}() -> i32 {{ {} }}\n", i, i)).collect::<String>()
+            (0..100)
+                .map(|i| format!("fn f{}() -> i32 {{ {} }}\n", i, i))
+                .collect::<String>()
         );
 
         let sources = vec![
             ("small", "fn test() -> i32 { 42 }"),
-            ("medium", r#"
+            (
+                "medium",
+                r#"
                 fn fib(n: i32) -> i32 {
                     if n <= 1 { n } else { fib(n - 1) + fib(n - 2) }
                 }
                 fn main() -> i32 { fib(10) }
-            "#),
+            "#,
+            ),
             ("large", large_source.as_str()),
         ];
 

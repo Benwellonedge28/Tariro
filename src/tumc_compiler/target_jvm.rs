@@ -441,37 +441,124 @@ impl JvmOp {
             JvmOp::Astore(v) => vec![0x3A, *v],
             JvmOp::Ret(v) => vec![0xB9, *v],
             JvmOp::Iinc(v1, v2) => vec![0x84, *v1, *v2 as u8],
-            JvmOp::IfEq(v) => vec![0x99, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::IfNe(v) => vec![0x9A, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::IfLt(v) => vec![0x9B, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::IfGe(v) => vec![0x9C, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::IfGt(v) => vec![0x9D, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::IfLe(v) => vec![0x9E, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::IfIcmpEq(v) => vec![0x9F, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::IfIcmpNe(v) => vec![0xA0, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::IfIcmpLt(v) => vec![0xA1, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::IfIcmpGe(v) => vec![0xA2, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::IfIcmpGt(v) => vec![0xA3, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::IfIcmpLe(v) => vec![0xA4, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::IfNull(v) => vec![0xC7, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::IfNonNull(v) => vec![0xC8, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::IfAcmpeq(v) => vec![0xA5, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::IfAcmpne(v) => vec![0xA6, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::Jmp(v) => vec![0xA7, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
+            JvmOp::IfEq(v) => vec![0x99, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::IfNe(v) => vec![0x9A, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::IfLt(v) => vec![0x9B, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::IfGe(v) => vec![0x9C, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::IfGt(v) => vec![0x9D, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::IfLe(v) => vec![0x9E, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::IfIcmpEq(v) => vec![0x9F, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::IfIcmpNe(v) => vec![0xA0, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::IfIcmpLt(v) => vec![0xA1, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::IfIcmpGe(v) => vec![0xA2, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::IfIcmpGt(v) => vec![0xA3, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::IfIcmpLe(v) => vec![0xA4, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::IfNull(v) => vec![0xC7, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::IfNonNull(v) => vec![0xC8, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::IfAcmpeq(v) => vec![0xA5, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::IfAcmpne(v) => vec![0xA6, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::Jmp(v) => vec![0xA7, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
             JvmOp::Ldc(v) => vec![0x12, *v],
-            JvmOp::LdcW(v) => vec![0x13, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::New(v) => vec![0xBB, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
+            JvmOp::LdcW(v) => vec![0x13, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::New(v) => vec![0xBB, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
             JvmOp::Newarray(v) => vec![0xBC, *v],
-            JvmOp::Anewarray(v) => vec![0xBD, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::Checkcast(v) => vec![0xC0, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::Instanceof(v) => vec![0xC1, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::Getstatic(v) => vec![0xB2, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::Putstatic(v) => vec![0xB3, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::Getfield(v) => vec![0xB4, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::Putfield(v) => vec![0xB5, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::Invokevirtual(v) => vec![0xB6, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::Invokespecial(v) => vec![0xB7, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
-            JvmOp::Invokestatic(v) => vec![0xB8, v.to_le_bytes()[0], v.to_le_bytes()[1]].iter().map(|x| *x).collect(),
+            JvmOp::Anewarray(v) => vec![0xBD, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::Checkcast(v) => vec![0xC0, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::Instanceof(v) => vec![0xC1, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::Getstatic(v) => vec![0xB2, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::Putstatic(v) => vec![0xB3, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::Getfield(v) => vec![0xB4, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::Putfield(v) => vec![0xB5, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::Invokevirtual(v) => vec![0xB6, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::Invokespecial(v) => vec![0xB7, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
+            JvmOp::Invokestatic(v) => vec![0xB8, v.to_le_bytes()[0], v.to_le_bytes()[1]]
+                .iter()
+                .map(|x| *x)
+                .collect(),
             _ => vec![],
         }
     }
@@ -659,48 +746,43 @@ impl JvmClassBuilder {
 
     /// Add UTF-8 to constant pool
     pub fn add_utf8(&mut self, s: &str) -> u16 {
-        self.constant_pool.push(ConstantPoolEntry::Utf8(s.to_string()));
+        self.constant_pool
+            .push(ConstantPoolEntry::Utf8(s.to_string()));
         self.constant_pool.len() as u16
     }
 
     /// Add class reference
     pub fn add_class(&mut self, name_index: u16) -> u16 {
-        self.constant_pool.push(ConstantPoolEntry::Class { name_index });
+        self.constant_pool
+            .push(ConstantPoolEntry::Class { name_index });
         self.constant_pool.len() as u16
     }
 
     /// Add string
     pub fn add_string(&mut self, string_index: u16) -> u16 {
-        self.constant_pool.push(ConstantPoolEntry::String { string_index });
+        self.constant_pool
+            .push(ConstantPoolEntry::String { string_index });
         self.constant_pool.len() as u16
     }
 
     /// Add name and type
     pub fn add_name_and_type(&mut self, name_index: u16, descriptor_index: u16) -> u16 {
-        self.constant_pool.push(ConstantPoolEntry::NameAndType {
-            name_index,
-            descriptor_index,
-        });
+        self.constant_pool
+            .push(ConstantPoolEntry::NameAndType { name_index, descriptor_index });
         self.constant_pool.len() as u16
     }
 
     /// Add method reference
     pub fn add_methodref(&mut self, class_index: u16, name_and_type_index: u16) -> u16 {
         self.constant_pool
-            .push(ConstantPoolEntry::Methodref {
-                class_index,
-                name_and_type_index,
-            });
+            .push(ConstantPoolEntry::Methodref { class_index, name_and_type_index });
         self.constant_pool.len() as u16
     }
 
     /// Add field reference
     pub fn add_fieldref(&mut self, class_index: u16, name_and_type_index: u16) -> u16 {
         self.constant_pool
-            .push(ConstantPoolEntry::Fieldref {
-                class_index,
-                name_and_type_index,
-            });
+            .push(ConstantPoolEntry::Fieldref { class_index, name_and_type_index });
         self.constant_pool.len() as u16
     }
 
@@ -771,20 +853,30 @@ impl JvmClassBuilder {
         // Fields
         for field in &self.fields {
             bytes.extend_from_slice(&field.access_flags.to_be_bytes());
-            let name_idx = self.constant_pool.iter().position(|e| {
-                if let ConstantPoolEntry::Utf8(s) = e {
-                    s == &field.name
-                } else {
-                    false
-                }
-            }).unwrap_or(0) as u16 + 1;
-            let desc_idx = self.constant_pool.iter().position(|e| {
-                if let ConstantPoolEntry::Utf8(s) = e {
-                    s == &field.descriptor
-                } else {
-                    false
-                }
-            }).unwrap_or(0) as u16 + 1;
+            let name_idx = self
+                .constant_pool
+                .iter()
+                .position(|e| {
+                    if let ConstantPoolEntry::Utf8(s) = e {
+                        s == &field.name
+                    } else {
+                        false
+                    }
+                })
+                .unwrap_or(0) as u16
+                + 1;
+            let desc_idx = self
+                .constant_pool
+                .iter()
+                .position(|e| {
+                    if let ConstantPoolEntry::Utf8(s) = e {
+                        s == &field.descriptor
+                    } else {
+                        false
+                    }
+                })
+                .unwrap_or(0) as u16
+                + 1;
             bytes.extend_from_slice(&name_idx.to_be_bytes());
             bytes.extend_from_slice(&desc_idx.to_be_bytes());
             bytes.extend_from_slice(&(field.attributes.len() as u16).to_be_bytes());
@@ -837,34 +929,22 @@ impl JvmClassBuilder {
                 bytes.push(0x08);
                 bytes.extend_from_slice(&string_index.to_be_bytes());
             }
-            ConstantPoolEntry::Fieldref {
-                class_index,
-                name_and_type_index,
-            } => {
+            ConstantPoolEntry::Fieldref { class_index, name_and_type_index } => {
                 bytes.push(0x09);
                 bytes.extend_from_slice(&class_index.to_be_bytes());
                 bytes.extend_from_slice(&name_and_type_index.to_be_bytes());
             }
-            ConstantPoolEntry::Methodref {
-                class_index,
-                name_and_type_index,
-            } => {
+            ConstantPoolEntry::Methodref { class_index, name_and_type_index } => {
                 bytes.push(0x0A);
                 bytes.extend_from_slice(&class_index.to_be_bytes());
                 bytes.extend_from_slice(&name_and_type_index.to_be_bytes());
             }
-            ConstantPoolEntry::InterfaceMethodref {
-                class_index,
-                name_and_type_index,
-            } => {
+            ConstantPoolEntry::InterfaceMethodref { class_index, name_and_type_index } => {
                 bytes.push(0x0B);
                 bytes.extend_from_slice(&class_index.to_be_bytes());
                 bytes.extend_from_slice(&name_and_type_index.to_be_bytes());
             }
-            ConstantPoolEntry::NameAndType {
-                name_index,
-                descriptor_index,
-            } => {
+            ConstantPoolEntry::NameAndType { name_index, descriptor_index } => {
                 bytes.push(0x0C);
                 bytes.extend_from_slice(&name_index.to_be_bytes());
                 bytes.extend_from_slice(&descriptor_index.to_be_bytes());
@@ -883,7 +963,7 @@ impl JvmClassBuilder {
 
         if let Some(code) = &method.code {
             bytes.extend_from_slice(&1u16.to_be_bytes()); // 1 attribute
-            // SourceFile attribute
+                                                          // SourceFile attribute
             bytes.extend_from_slice(&3u16.to_be_bytes()); // "Code" index
             let attr_len = 12 + code.code.len();
             bytes.extend_from_slice(&(attr_len as u32).to_be_bytes());

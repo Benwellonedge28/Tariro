@@ -3,7 +3,7 @@
 //! The mind's motivational system - drives, goals, values, and emotions.
 
 use crate::prelude::*;
-use std::collections::{ HashMap, VecDeque};
+use std::collections::{HashMap, VecDeque};
 
 // ============================================================================
 // Drives
@@ -109,7 +109,10 @@ impl DriveType {
     }
 
     pub fn is_primary(&self) -> bool {
-        matches!(self, DriveType::Survival | DriveType::Integrity | DriveType::Security)
+        matches!(
+            self,
+            DriveType::Survival | DriveType::Integrity | DriveType::Security
+        )
     }
 }
 
@@ -276,7 +279,9 @@ impl GoalHierarchy {
 
     /// Select next goal based on strategy
     pub fn select_next_goal(&mut self) -> Option<GoalId> {
-        let candidates: Vec<_> = self.goals.values()
+        let candidates: Vec<_> = self
+            .goals
+            .values()
             .filter(|g| g.state == GoalState::Active)
             .collect();
 
@@ -285,22 +290,19 @@ impl GoalHierarchy {
         }
 
         let selected = match self.strategy {
-            GoalSelectionStrategy::HighestPriority => {
-                candidates.into_iter()
-                    .max_by(|a, b| a.priority.partial_cmp(&b.priority).unwrap())
-                    .map(|g| g.id.clone())
-            }
-            GoalSelectionStrategy::MostUrgent => {
-                candidates.into_iter()
-                    .filter(|g| g.deadline.is_some())
-                    .min_by(|a, b| a.deadline.cmp(&b.deadline))
-                    .map(|g| g.id.clone())
-            }
-            GoalSelectionStrategy::MostProgress => {
-                candidates.into_iter()
-                    .max_by(|a, b| a.progress.partial_cmp(&b.progress).unwrap())
-                    .map(|g| g.id.clone())
-            }
+            GoalSelectionStrategy::HighestPriority => candidates
+                .into_iter()
+                .max_by(|a, b| a.priority.partial_cmp(&b.priority).unwrap())
+                .map(|g| g.id.clone()),
+            GoalSelectionStrategy::MostUrgent => candidates
+                .into_iter()
+                .filter(|g| g.deadline.is_some())
+                .min_by(|a, b| a.deadline.cmp(&b.deadline))
+                .map(|g| g.id.clone()),
+            GoalSelectionStrategy::MostProgress => candidates
+                .into_iter()
+                .max_by(|a, b| a.progress.partial_cmp(&b.progress).unwrap())
+                .map(|g| g.id.clone()),
         };
 
         if let Some(id) = &selected {
@@ -334,7 +336,9 @@ impl GoalHierarchy {
 
     fn check_parent_completion(&mut self, parent_id: &GoalId) {
         if let Some(parent) = self.goals.get(parent_id) {
-            let all_complete = parent.subgoals.iter()
+            let all_complete = parent
+                .subgoals
+                .iter()
                 .filter_map(|sub_id| self.goals.get(sub_id))
                 .all(|sub| sub.state == GoalState::Completed);
 
@@ -346,7 +350,9 @@ impl GoalHierarchy {
 
     /// Get all active goals sorted by priority
     pub fn get_active_goals(&self) -> Vec<&Goal> {
-        let mut active: Vec<_> = self.goals.values()
+        let mut active: Vec<_> = self
+            .goals
+            .values()
             .filter(|g| g.state == GoalState::Active)
             .collect();
 
@@ -430,9 +436,7 @@ pub struct ValueSystem {
 
 impl ValueSystem {
     pub fn new() -> Self {
-        ValueSystem {
-            values: HashMap::new(),
-        }
+        ValueSystem { values: HashMap::new() }
     }
 
     /// Add a value
@@ -449,16 +453,17 @@ impl ValueSystem {
 
     /// Evaluate if an action aligns with values
     pub fn evaluate_action(&self, action: &str) -> ValueAlignment {
-        let aligned_values: Vec<_> = self.values.values()
+        let aligned_values: Vec<_> = self
+            .values
+            .values()
             .filter(|v| action.contains(&v.name))
             .collect();
 
         if aligned_values.is_empty() {
             ValueAlignment::Neutral
         } else {
-            let avg_strength: f64 = aligned_values.iter()
-                .map(|v| v.strength)
-                .sum::<f64>() / aligned_values.len() as f64;
+            let avg_strength: f64 = aligned_values.iter().map(|v| v.strength).sum::<f64>()
+                / aligned_values.len() as f64;
 
             if avg_strength > 0.7 {
                 ValueAlignment::HighlyAligned
@@ -495,8 +500,8 @@ pub enum ValueAlignment {
 pub struct Emotion {
     pub emotion_type: EmotionType,
     pub intensity: f64,
-    pub valence: f64,       // Positive/negative (-1 to 1)
-    pub arousal: f64,        // Activation level (0 to 1)
+    pub valence: f64, // Positive/negative (-1 to 1)
+    pub arousal: f64, // Activation level (0 to 1)
     pub timestamp: DateTime<Utc>,
 }
 
@@ -655,13 +660,16 @@ impl MotivationSystem {
         ];
 
         for (hierarchy, name, strength) in default_values {
-            self.values.add_value(Value::new(name, hierarchy).with_strength(strength));
+            self.values
+                .add_value(Value::new(name, hierarchy).with_strength(strength));
         }
     }
 
     /// Get all active drives
     pub fn get_active_drives(&self) -> Vec<&Drive> {
-        let mut active: Vec<_> = self.drives.values()
+        let mut active: Vec<_> = self
+            .drives
+            .values()
             .filter(|d| d.is_active())
             .chain(self.secondary_drives.values().filter(|d| d.is_active()))
             .collect();
@@ -759,12 +767,16 @@ impl MotivationSystem {
 
     /// Get intrinsic motivation for exploration
     pub fn get_exploration_drive(&self) -> f64 {
-        let curiosity = self.secondary_drives.values()
+        let curiosity = self
+            .secondary_drives
+            .values()
             .find(|d| d.drive_type == DriveType::Curiosity)
             .map(|d| d.intensity)
             .unwrap_or(0.0);
 
-        let understanding = self.secondary_drives.values()
+        let understanding = self
+            .secondary_drives
+            .values()
             .find(|d| d.drive_type == DriveType::Understanding)
             .map(|d| d.intensity)
             .unwrap_or(0.0);
@@ -774,7 +786,8 @@ impl MotivationSystem {
 
     /// Get drive for specific type
     pub fn get_drive(&self, drive_type: DriveType) -> Option<&Drive> {
-        self.drives.values()
+        self.drives
+            .values()
             .chain(self.secondary_drives.values())
             .find(|d| d.drive_type == drive_type)
     }
@@ -814,8 +827,7 @@ mod tests {
 
     #[test]
     fn test_goal_creation() {
-        let goal = Goal::new("Learn Rust", GoalType::Learning)
-            .with_priority(0.8);
+        let goal = Goal::new("Learn Rust", GoalType::Learning).with_priority(0.8);
 
         assert_eq!(goal.description, "Learn Rust");
         assert_eq!(goal.priority, 0.8);
@@ -828,8 +840,7 @@ mod tests {
         let parent = Goal::new("Parent Goal", GoalType::Achievement);
         let parent_id = hierarchy.add_goal(parent);
 
-        let child = Goal::new("Child Goal", GoalType::Learning)
-            .with_parent(parent_id.clone());
+        let child = Goal::new("Child Goal", GoalType::Learning).with_parent(parent_id.clone());
         hierarchy.add_goal(child);
 
         let next = hierarchy.select_next_goal();
@@ -855,6 +866,9 @@ mod tests {
     fn test_value_evaluation() {
         let system = MotivationSystem::new();
         let alignment = system.evaluate_action("Truth and justice");
-        assert!(matches!(alignment, ValueAlignment::HighlyAligned | ValueAlignment::SomewhatAligned));
+        assert!(matches!(
+            alignment,
+            ValueAlignment::HighlyAligned | ValueAlignment::SomewhatAligned
+        ));
     }
 }

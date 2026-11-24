@@ -3,10 +3,10 @@
 //! The main IDE tool that provides file management, terminal execution,
 //! and LSP capabilities to Tariro AGI.
 
-use crate::tools::ide::{IDEToolResponse, IDEAction};
 use crate::tools::ide::file_manager::FileManager;
-use crate::tools::ide::terminal_executor::TerminalExecutor;
 use crate::tools::ide::lsp_client::LSPClient;
+use crate::tools::ide::terminal_executor::TerminalExecutor;
+use crate::tools::ide::{IDEAction, IDEToolResponse};
 use serde::{Deserialize, Serialize};
 use std::time::Instant;
 
@@ -98,19 +98,11 @@ pub struct IDEToolResult {
 
 impl IDEToolResult {
     pub fn ok(output: String) -> Self {
-        Self {
-            success: true,
-            output,
-            error: None,
-        }
+        Self { success: true, output, error: None }
     }
 
     pub fn err(error: String) -> Self {
-        Self {
-            success: false,
-            output: String::new(),
-            error: Some(error),
-        }
+        Self { success: false, output: String::new(), error: Some(error) }
     }
 }
 
@@ -183,7 +175,9 @@ impl IDETool {
                         serde_json::json!({ "content": content, "path": path }),
                         start.elapsed().as_millis() as u64,
                     ),
-                    Err(e) => IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64),
+                    Err(e) => {
+                        IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64)
+                    }
                 }
             }
 
@@ -201,7 +195,9 @@ impl IDETool {
                         serde_json::json!({ "path": path, "bytes_written": content.len() }),
                         start.elapsed().as_millis() as u64,
                     ),
-                    Err(e) => IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64),
+                    Err(e) => {
+                        IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64)
+                    }
                 }
             }
 
@@ -219,7 +215,9 @@ impl IDETool {
                         serde_json::json!({ "path": path, "entries": entries }),
                         start.elapsed().as_millis() as u64,
                     ),
-                    Err(e) => IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64),
+                    Err(e) => {
+                        IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64)
+                    }
                 }
             }
 
@@ -237,7 +235,9 @@ impl IDETool {
                         serde_json::json!({ "path": path }),
                         start.elapsed().as_millis() as u64,
                     ),
-                    Err(e) => IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64),
+                    Err(e) => {
+                        IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64)
+                    }
                 }
             }
 
@@ -255,7 +255,9 @@ impl IDETool {
                         serde_json::json!({ "path": path }),
                         start.elapsed().as_millis() as u64,
                     ),
-                    Err(e) => IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64),
+                    Err(e) => {
+                        IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64)
+                    }
                 }
             }
 
@@ -278,7 +280,10 @@ impl IDETool {
                 }
 
                 let cwd = cwd.unwrap_or_else(|| self.config.workspace_root.clone());
-                match self.terminal.execute(&command, &cwd, self.config.max_terminal_output) {
+                match self
+                    .terminal
+                    .execute(&command, &cwd, self.config.max_terminal_output)
+                {
                     Ok(output) => IDEToolResponse::success(
                         action,
                         serde_json::json!({
@@ -289,7 +294,9 @@ impl IDETool {
                         }),
                         start.elapsed().as_millis() as u64,
                     ),
-                    Err(e) => IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64),
+                    Err(e) => {
+                        IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64)
+                    }
                 }
             }
 
@@ -308,7 +315,9 @@ impl IDETool {
                             serde_json::json!({ "completions": items }),
                             start.elapsed().as_millis() as u64,
                         ),
-                        Err(e) => IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64),
+                        Err(e) => {
+                            IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64)
+                        }
                     }
                 } else {
                     IDEToolResponse::failure(
@@ -334,7 +343,9 @@ impl IDETool {
                             serde_json::json!({ "diagnostics": diagnostics }),
                             start.elapsed().as_millis() as u64,
                         ),
-                        Err(e) => IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64),
+                        Err(e) => {
+                            IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64)
+                        }
                     }
                 } else {
                     IDEToolResponse::failure(
@@ -360,7 +371,9 @@ impl IDETool {
                             serde_json::json!({ "location": location }),
                             start.elapsed().as_millis() as u64,
                         ),
-                        Err(e) => IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64),
+                        Err(e) => {
+                            IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64)
+                        }
                     }
                 } else {
                     IDEToolResponse::failure(
@@ -386,7 +399,9 @@ impl IDETool {
                             serde_json::json!({ "references": references }),
                             start.elapsed().as_millis() as u64,
                         ),
-                        Err(e) => IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64),
+                        Err(e) => {
+                            IDEToolResponse::failure(action, e, start.elapsed().as_millis() as u64)
+                        }
                     }
                 } else {
                     IDEToolResponse::failure(

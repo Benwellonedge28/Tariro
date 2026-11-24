@@ -6,10 +6,10 @@
 //! - Episode construction
 //! - Future projection
 
+use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
-use std::collections::{ VecDeque};
+use std::collections::VecDeque;
 use uuid::Uuid;
-use chrono::{DateTime, Utc, Duration};
 
 // ============================================================================
 // Core Types
@@ -39,10 +39,7 @@ pub struct TimePoint {
 
 impl TimePoint {
     pub fn now() -> Self {
-        Self {
-            timestamp: Utc::now(),
-            certainty: 1.0,
-        }
+        Self { timestamp: Utc::now(), certainty: 1.0 }
     }
 
     pub fn seconds_ago(seconds: i64) -> Self {
@@ -64,11 +61,7 @@ pub struct TimeInterval {
 impl TimeInterval {
     pub fn new(start: TimePoint, end: TimePoint) -> Self {
         let duration = (end.timestamp - start.timestamp).num_seconds();
-        Self {
-            start,
-            end,
-            duration_seconds: duration,
-        }
+        Self { start, end, duration_seconds: duration }
     }
 
     pub fn contains(&self, time: &TimePoint) -> bool {
@@ -79,12 +72,12 @@ impl TimeInterval {
 /// Temporal relation between events
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TemporalRelation {
-    Before,      // A before B
-    After,       // A after B
-    During,      // A during B
-    Overlaps,    // A overlaps B
+    Before,       // A before B
+    After,        // A after B
+    During,       // A during B
+    Overlaps,     // A overlaps B
     Simultaneous, // A at same time as B
-    Within,      // A within B
+    Within,       // A within B
 }
 
 /// Temporal event
@@ -110,10 +103,7 @@ pub struct TemporalReasoner {
 
 impl TemporalReasoner {
     pub fn new() -> Self {
-        Self {
-            clock: Utc::now(),
-            temporal_resolution: 1,
-        }
+        Self { clock: Utc::now(), temporal_resolution: 1 }
     }
 
     /// Get current time
@@ -156,10 +146,7 @@ impl TemporalReasoner {
         } else if lower.contains("yesterday") {
             Some(TimePoint::seconds_ago(86400))
         } else if lower.contains("tomorrow") {
-            Some(TimePoint {
-                timestamp: Utc::now() + Duration::days(1),
-                certainty: 0.9,
-            })
+            Some(TimePoint { timestamp: Utc::now() + Duration::days(1), certainty: 0.9 })
         } else {
             None
         }
@@ -259,7 +246,10 @@ impl EpisodeConstructor {
 
     /// Construct episode from events
     pub fn construct(&mut self, events: Vec<TemporalEvent>) -> Episode {
-        let start = events.first().map(|e| e.time).unwrap_or_else(TimePoint::now);
+        let start = events
+            .first()
+            .map(|e| e.time)
+            .unwrap_or_else(TimePoint::now);
         let end = events.last().map(|e| e.time).unwrap_or_else(TimePoint::now);
 
         let mut episode = Episode::new(start, end);
@@ -279,7 +269,7 @@ impl EpisodeConstructor {
 
         let mut total_gap = 0i64;
         for i in 1..episode.events.len() {
-            total_gap += (episode.events[i].time.timestamp - episode.events[i-1].time.timestamp)
+            total_gap += (episode.events[i].time.timestamp - episode.events[i - 1].time.timestamp)
                 .num_seconds()
                 .abs();
         }
@@ -310,15 +300,17 @@ pub struct Timeline {
 
 impl Timeline {
     pub fn new() -> Self {
-        Self {
-            episodes: Vec::new(),
-            markers: Vec::new(),
-        }
+        Self { episodes: Vec::new(), markers: Vec::new() }
     }
 
     pub fn add_episode(&mut self, episode: Episode) {
         self.episodes.push(episode);
-        self.episodes.sort_by(|a, b| a.time_span.start.timestamp.cmp(&b.time_span.start.timestamp));
+        self.episodes.sort_by(|a, b| {
+            a.time_span
+                .start
+                .timestamp
+                .cmp(&b.time_span.start.timestamp)
+        });
     }
 
     /// Get episode at time

@@ -89,10 +89,16 @@ impl Explanation {
             if !step.evidence.is_empty() {
                 output.push_str(&format!("  Evidence: {}\n", step.evidence.join(", ")));
             }
-            output.push_str(&format!("  Confidence: {:.1}%\n\n", step.confidence * 100.0));
+            output.push_str(&format!(
+                "  Confidence: {:.1}%\n\n",
+                step.confidence * 100.0
+            ));
         }
 
-        output.push_str(&format!("Overall Confidence: {:.1}%\n", self.confidence * 100.0));
+        output.push_str(&format!(
+            "Overall Confidence: {:.1}%\n",
+            self.confidence * 100.0
+        ));
 
         output
     }
@@ -233,11 +239,7 @@ impl Default for ExplainabilityConfig {
 impl ExplainabilitySystem {
     /// Create new explainability system
     pub fn new(config: ExplainabilityConfig) -> Self {
-        Self {
-            traces: HashMap::new(),
-            cache: HashMap::new(),
-            config,
-        }
+        Self { traces: HashMap::new(), cache: HashMap::new(), config }
     }
 
     /// Start a new reasoning trace

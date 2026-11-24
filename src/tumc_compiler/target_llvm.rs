@@ -33,10 +33,10 @@ impl LlvmIntType {
 /// LLVM floating point types
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum LlvmFloatType {
-    Half,   // 16-bit (IEEE 754)
-    Float,  // 32-bit
-    Double, // 64-bit
-    Fp128,  // 128-bit
+    Half,    // 16-bit (IEEE 754)
+    Float,   // 32-bit
+    Double,  // 64-bit
+    Fp128,   // 128-bit
     X86Fp80, // x87 80-bit
 }
 
@@ -283,25 +283,25 @@ pub enum CmpPredicate {
     Slt, // Signed less than
     Sle, // Signed less or equal
     // Floating point comparisons
-    Oeq, // Ordered and equal
-    One, // Ordered and not equal
-    Ogt, // Ordered and greater than
-    Oge, // Ordered and greater or equal
-    Olt, // Ordered and less than
-    Ole, // Ordered and less or equal
-    Ord, // Ordered (no NaNs)
-    Uno, // Unordered (any NaN)
-    Ueq, // Unordered and equal
+    Oeq,  // Ordered and equal
+    One,  // Ordered and not equal
+    Ogt,  // Ordered and greater than
+    Oge,  // Ordered and greater or equal
+    Olt,  // Ordered and less than
+    Ole,  // Ordered and less or equal
+    Ord,  // Ordered (no NaNs)
+    Uno,  // Unordered (any NaN)
+    Ueq,  // Unordered and equal
     Ugt2, // Unordered and greater than
     Uge2, // Unordered and greater or equal
     Ult2, // Unordered and less than
     Ule2, // Unordered and less or equal
     Nglt, // Not greater than
     Ngle, // Not greater than or equal
-    Ngt, // Not greater than
-    Nge, // Not greater than or equal
-    Nlt, // Not less than
-    Nle, // Not less than or equal
+    Ngt,  // Not greater than
+    Nge,  // Not greater than or equal
+    Nlt,  // Not less than
+    Nle,  // Not less than or equal
     Nge2, // Not greater than or equal
     Sgt2, // Signed greater than
 }
@@ -435,7 +435,13 @@ pub enum LlvmInstruction {
     /// Cast
     Cast(LlvmCastOp, LlvmOperand, LlvmType),
     /// Call
-    Call(LlvmType, Option<String>, String, Vec<(LlvmType, LlvmOperand)>, Option<LlvmOperand>),
+    Call(
+        LlvmType,
+        Option<String>,
+        String,
+        Vec<(LlvmType, LlvmOperand)>,
+        Option<LlvmOperand>,
+    ),
     /// Return
     Ret(Option<LlvmOperand>),
     /// Branch
@@ -447,7 +453,13 @@ pub enum LlvmInstruction {
     /// Indirect branch
     IndirectBr(LlvmOperand, Vec<String>),
     /// Invoke
-    Invoke(LlvmType, String, Vec<(LlvmType, LlvmOperand)>, String, String),
+    Invoke(
+        LlvmType,
+        String,
+        Vec<(LlvmType, LlvmOperand)>,
+        String,
+        String,
+    ),
     /// Resume
     Resume(LlvmOperand),
     /// Unreachable
@@ -524,11 +536,7 @@ pub struct LlvmArg {
 impl LlvmArg {
     /// Create new argument
     pub fn new(name: &str, ty: LlvmType) -> Self {
-        Self {
-            name: name.to_string(),
-            ty,
-            attrs: Vec::new(),
-        }
+        Self { name: name.to_string(), ty, attrs: Vec::new() }
     }
 }
 
@@ -804,21 +812,36 @@ impl LlvmIrBuilder {
     pub fn build_add(&mut self, lhs: &str, rhs: &str, ty: &LlvmType) -> String {
         let lhs_op = LlvmOperand::Value(LlvmValue::Named(lhs.to_string()));
         let rhs_op = LlvmOperand::Value(LlvmValue::Named(rhs.to_string()));
-        self.add_instruction(LlvmInstruction::BinOp(BinOp::Add, ty.clone(), lhs_op, rhs_op))
+        self.add_instruction(LlvmInstruction::BinOp(
+            BinOp::Add,
+            ty.clone(),
+            lhs_op,
+            rhs_op,
+        ))
     }
 
     /// Build sub
     pub fn build_sub(&mut self, lhs: &str, rhs: &str, ty: &LlvmType) -> String {
         let lhs_op = LlvmOperand::Value(LlvmValue::Named(lhs.to_string()));
         let rhs_op = LlvmOperand::Value(LlvmValue::Named(rhs.to_string()));
-        self.add_instruction(LlvmInstruction::BinOp(BinOp::Sub, ty.clone(), lhs_op, rhs_op))
+        self.add_instruction(LlvmInstruction::BinOp(
+            BinOp::Sub,
+            ty.clone(),
+            lhs_op,
+            rhs_op,
+        ))
     }
 
     /// Build mul
     pub fn build_mul(&mut self, lhs: &str, rhs: &str, ty: &LlvmType) -> String {
         let lhs_op = LlvmOperand::Value(LlvmValue::Named(lhs.to_string()));
         let rhs_op = LlvmOperand::Value(LlvmValue::Named(rhs.to_string()));
-        self.add_instruction(LlvmInstruction::BinOp(BinOp::Mul, ty.clone(), lhs_op, rhs_op))
+        self.add_instruction(LlvmInstruction::BinOp(
+            BinOp::Mul,
+            ty.clone(),
+            lhs_op,
+            rhs_op,
+        ))
     }
 
     /// Build icmp
@@ -842,7 +865,11 @@ impl LlvmIrBuilder {
     /// Build cond br
     pub fn build_cond_br(&mut self, cond: &str, then_dest: &str, else_dest: &str) {
         let cond_op = LlvmOperand::Value(LlvmValue::Named(cond.to_string()));
-        self.add_instruction(LlvmInstruction::CondBr(cond_op, then_dest.to_string(), else_dest.to_string()));
+        self.add_instruction(LlvmInstruction::CondBr(
+            cond_op,
+            then_dest.to_string(),
+            else_dest.to_string(),
+        ));
     }
 
     /// Build call
@@ -888,10 +915,7 @@ pub struct LlvmPrinter {
 impl LlvmPrinter {
     /// Create new printer
     pub fn new() -> Self {
-        Self {
-            output: String::new(),
-            indent: 0,
-        }
+        Self { output: String::new(), indent: 0 }
     }
 
     /// Print module
@@ -935,7 +959,11 @@ impl LlvmPrinter {
     fn print_global(&mut self, global: &LlvmGlobal) {
         let linkage = global.linkage.to_string();
         let vis = global.visibility.to_string();
-        let linkage_type = if global.constant { "constant" } else { "global" };
+        let linkage_type = if global.constant {
+            "constant"
+        } else {
+            "global"
+        };
         self.line(&format!(
             "@{} = {} {} {} {}",
             global.name,
@@ -998,30 +1026,50 @@ impl LlvmPrinter {
     fn print_instruction(&mut self, inst: &LlvmInstruction) {
         let line = match inst {
             LlvmInstruction::BinOp(op, ty, lhs, rhs) => {
-                format!("{} = {} {} {}, {}", "%", op.to_string(), ty.to_string(), self.operand_to_string(lhs), self.operand_to_string(rhs))
+                format!(
+                    "{} = {} {} {}, {}",
+                    "%",
+                    op.to_string(),
+                    ty.to_string(),
+                    self.operand_to_string(lhs),
+                    self.operand_to_string(rhs)
+                )
             }
             LlvmInstruction::Ret(Some(val)) => {
-                format!("ret {} {}", LlvmType::Int(LlvmIntType::I32).to_string(), self.operand_to_string(val))
+                format!(
+                    "ret {} {}",
+                    LlvmType::Int(LlvmIntType::I32).to_string(),
+                    self.operand_to_string(val)
+                )
             }
             LlvmInstruction::Ret(None) => "ret void".to_string(),
             LlvmInstruction::Br(dest) => format!("br label %{}", dest),
             LlvmInstruction::CondBr(cond, then_dest, else_dest) => {
-                format!("br {} {}, label %{}, label %{}",
+                format!(
+                    "br {} {}, label %{}, label %{}",
                     self.operand_to_string(cond),
                     self.operand_to_string(cond),
                     then_dest,
-                    else_dest)
+                    else_dest
+                )
             }
             LlvmInstruction::Alloca(ty, _) => format!("%alloca = alloca {}", ty.to_string()),
             LlvmInstruction::Load(ty, ptr) => {
-                format!("%load = load {}, {}* {}", ty.to_string(), ty.to_string(), self.operand_to_string(ptr))
+                format!(
+                    "%load = load {}, {}* {}",
+                    ty.to_string(),
+                    ty.to_string(),
+                    self.operand_to_string(ptr)
+                )
             }
             LlvmInstruction::Store(val, ptr) => {
-                format!("store {} {}, {}* {}",
+                format!(
+                    "store {} {}, {}* {}",
                     LlvmType::Int(LlvmIntType::I32).to_string(),
                     self.operand_to_string(val),
                     LlvmType::Int(LlvmIntType::I32).to_string(),
-                    self.operand_to_string(ptr))
+                    self.operand_to_string(ptr)
+                )
             }
             _ => "; unsupported instruction".to_string(),
         };
@@ -1080,7 +1128,10 @@ mod tests {
     fn test_llvm_type_to_string() {
         assert_eq!(LlvmType::Int(LlvmIntType::I32).to_string(), "i32");
         assert_eq!(LlvmType::Float(LlvmFloatType::Double).to_string(), "double");
-        assert_eq!(LlvmType::Pointer(Box::new(LlvmType::Int(LlvmIntType::I8))).to_string(), "i8*");
+        assert_eq!(
+            LlvmType::Pointer(Box::new(LlvmType::Int(LlvmIntType::I8))).to_string(),
+            "i8*"
+        );
     }
 
     #[test]
@@ -1090,7 +1141,10 @@ mod tests {
         func.add_arg(LlvmArg::new("b", LlvmType::Int(LlvmIntType::I32)));
 
         let mut block = LlvmBasicBlock::new("entry");
-        block.add(LlvmInstruction::Alloca(LlvmType::Int(LlvmIntType::I32), None));
+        block.add(LlvmInstruction::Alloca(
+            LlvmType::Int(LlvmIntType::I32),
+            None,
+        ));
         func.add_block(block);
 
         assert_eq!(func.name, "add");
@@ -1100,7 +1154,10 @@ mod tests {
     #[test]
     fn test_module_creation() {
         let mut module = LlvmModule::new("test");
-        module.set_target("x86_64-unknown-linux-gnu", "e-m:e-i64:64-f80:128-n8:16:32:64-S128");
+        module.set_target(
+            "x86_64-unknown-linux-gnu",
+            "e-m:e-i64:64-f80:128-n8:16:32:64-S128",
+        );
 
         let func = LlvmFunction::new("main", LlvmType::Int(LlvmIntType::I32));
         module.add_function(func);

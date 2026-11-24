@@ -1,9 +1,7 @@
 //! DWARF Debug Information Generation for TUMC
 //! Generates DWARF format debug info for debugging support
 
-
-
-use std::collections::{HashMap};
+use std::collections::HashMap;
 
 /// DWARF version
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -62,12 +60,7 @@ pub struct Abbreviation {
 
 impl Abbreviation {
     pub fn new(code: u64, tag: DwarfTag, has_children: bool) -> Self {
-        Abbreviation {
-            code,
-            tag,
-            has_children,
-            attributes: Vec::new(),
-        }
+        Abbreviation { code, tag, has_children, attributes: Vec::new() }
     }
 
     pub fn with_attr(mut self, name: DwarfAttr, form: DwarfForm) -> Self {
@@ -391,7 +384,7 @@ pub enum LocationOp {
     /// Read memory
     Fbreg(i64),
     /// Frame base register
-   Breg(u8, i64),
+    Breg(u8, i64),
     /// Register
     Reg(u8),
     /// Register based
@@ -466,21 +459,45 @@ impl LocationOp {
         let mut bytes = Vec::new();
         match self {
             LocationOp::Nop => bytes.push(0x00),
-            LocationOp::Addr(v) => { bytes.push(0x03); bytes.extend_from_slice(&v.to_le_bytes()); }
+            LocationOp::Addr(v) => {
+                bytes.push(0x03);
+                bytes.extend_from_slice(&v.to_le_bytes());
+            }
             LocationOp::Deref => bytes.push(0x06),
-            LocationOp::Fbreg(o) => { bytes.push(0x91); bytes.extend_from_slice(&encode_sleb128(*o)); }
+            LocationOp::Fbreg(o) => {
+                bytes.push(0x91);
+                bytes.extend_from_slice(&encode_sleb128(*o));
+            }
             LocationOp::Reg(r) => bytes.push(0x50 + r),
-            LocationOp::Regx(r) => { bytes.push(0x90); bytes.extend_from_slice(&encode_uleb128(*r)); }
-            LocationOp::Const1u(v) => { bytes.push(0x10); bytes.push(*v); }
-            LocationOp::Const2u(v) => { bytes.push(0x11); bytes.extend_from_slice(&v.to_le_bytes()); }
-            LocationOp::Const4u(v) => { bytes.push(0x12); bytes.extend_from_slice(&v.to_le_bytes()); }
+            LocationOp::Regx(r) => {
+                bytes.push(0x90);
+                bytes.extend_from_slice(&encode_uleb128(*r));
+            }
+            LocationOp::Const1u(v) => {
+                bytes.push(0x10);
+                bytes.push(*v);
+            }
+            LocationOp::Const2u(v) => {
+                bytes.push(0x11);
+                bytes.extend_from_slice(&v.to_le_bytes());
+            }
+            LocationOp::Const4u(v) => {
+                bytes.push(0x12);
+                bytes.extend_from_slice(&v.to_le_bytes());
+            }
             LocationOp::Plus => bytes.push(0x22),
             LocationOp::Minus => bytes.push(0x23),
             LocationOp::Mul => bytes.push(0x27),
             LocationOp::Eq => bytes.push(0x29),
             LocationOp::Lt => bytes.push(0x2c),
-            LocationOp::Bra(target) => { bytes.push(0x38); bytes.extend_from_slice(&target.to_le_bytes()); }
-            LocationOp::Skip(target) => { bytes.push(0x2f); bytes.extend_from_slice(&target.to_le_bytes()); }
+            LocationOp::Bra(target) => {
+                bytes.push(0x38);
+                bytes.extend_from_slice(&target.to_le_bytes());
+            }
+            LocationOp::Skip(target) => {
+                bytes.push(0x2f);
+                bytes.extend_from_slice(&target.to_le_bytes());
+            }
             LocationOp::Dup => bytes.push(0x12),
             LocationOp::Drop => bytes.push(0x13),
             _ => {}
@@ -720,7 +737,7 @@ impl DwarfGenerator {
                 .with_attr(DwarfAttr::Name, DwarfForm::Strp)
                 .with_attr(DwarfAttr::CompDir, DwarfForm::Strp)
                 .with_attr(DwarfAttr::LowPc, DwarfForm::Addr)
-                .with_attr(DwarfAttr::HighPc, DwarfForm::Addr)
+                .with_attr(DwarfAttr::HighPc, DwarfForm::Addr),
         );
 
         // DW_TAG_base_type
@@ -728,21 +745,21 @@ impl DwarfGenerator {
             Abbreviation::new(2, DwarfTag::BaseType, false)
                 .with_attr(DwarfAttr::Name, DwarfForm::String)
                 .with_attr(DwarfAttr::ByteSize, DwarfForm::Data1)
-                .with_attr(DwarfAttr::Encoding, DwarfForm::Data1)
+                .with_attr(DwarfAttr::Encoding, DwarfForm::Data1),
         );
 
         // DW_TAG_pointer_type
         self.abbreviations.push(
             Abbreviation::new(3, DwarfTag::PointerType, false)
                 .with_attr(DwarfAttr::Type, DwarfForm::Ref4)
-                .with_attr(DwarfAttr::ByteSize, DwarfForm::Data1)
+                .with_attr(DwarfAttr::ByteSize, DwarfForm::Data1),
         );
 
         // DW_TAG_structure_type
         self.abbreviations.push(
             Abbreviation::new(4, DwarfTag::StructureType, true)
                 .with_attr(DwarfAttr::Name, DwarfForm::String)
-                .with_attr(DwarfAttr::ByteSize, DwarfForm::Data4)
+                .with_attr(DwarfAttr::ByteSize, DwarfForm::Data4),
         );
 
         // DW_TAG_member
@@ -750,7 +767,7 @@ impl DwarfGenerator {
             Abbreviation::new(5, DwarfTag::Member, false)
                 .with_attr(DwarfAttr::Name, DwarfForm::String)
                 .with_attr(DwarfAttr::Type, DwarfForm::Ref4)
-                .with_attr(DwarfAttr::DataMemberLocation, DwarfForm::Data1)
+                .with_attr(DwarfAttr::DataMemberLocation, DwarfForm::Data1),
         );
 
         // DW_TAG_subprogram
@@ -760,7 +777,7 @@ impl DwarfGenerator {
                 .with_attr(DwarfAttr::LowPc, DwarfForm::Addr)
                 .with_attr(DwarfAttr::HighPc, DwarfForm::Addr)
                 .with_attr(DwarfAttr::FrameBase, DwarfForm::Exprloc)
-                .with_attr(DwarfAttr::External, DwarfForm::FlagPresent)
+                .with_attr(DwarfAttr::External, DwarfForm::FlagPresent),
         );
 
         // DW_TAG_formal_parameter
@@ -768,7 +785,7 @@ impl DwarfGenerator {
             Abbreviation::new(7, DwarfTag::FormalParameter, false)
                 .with_attr(DwarfAttr::Name, DwarfForm::String)
                 .with_attr(DwarfAttr::Type, DwarfForm::Ref4)
-                .with_attr(DwarfAttr::Location, DwarfForm::Exprloc)
+                .with_attr(DwarfAttr::Location, DwarfForm::Exprloc),
         );
 
         // DW_TAG_variable
@@ -776,14 +793,14 @@ impl DwarfGenerator {
             Abbreviation::new(8, DwarfTag::Variable, false)
                 .with_attr(DwarfAttr::Name, DwarfForm::String)
                 .with_attr(DwarfAttr::Type, DwarfForm::Ref4)
-                .with_attr(DwarfAttr::Location, DwarfForm::Exprloc)
+                .with_attr(DwarfAttr::Location, DwarfForm::Exprloc),
         );
 
         // DW_TAG_enumerator
         self.abbreviations.push(
             Abbreviation::new(9, DwarfTag::Enumerator, false)
                 .with_attr(DwarfAttr::Name, DwarfForm::String)
-                .with_attr(DwarfAttr::ConstValue, DwarfForm::Data8)
+                .with_attr(DwarfAttr::ConstValue, DwarfForm::Data8),
         );
     }
 
@@ -807,10 +824,16 @@ impl DwarfGenerator {
         self.strings.insert(name.to_string(), name_offset);
 
         let mut die = Die::new(DwarfTag::CompileUnit, 1);
-        die.attributes.insert(DwarfAttr::Language, DieAttribute::Data(lang));
-        die.attributes.insert(DwarfAttr::Name, DieAttribute::Strp(self.strings[name]));
-        die.attributes.insert(DwarfAttr::Producer, DieAttribute::String("TUMC 0.1.0".to_string()));
-        die.attributes.insert(DwarfAttr::CompDir, DieAttribute::Strp(0)); // Current directory
+        die.attributes
+            .insert(DwarfAttr::Language, DieAttribute::Data(lang));
+        die.attributes
+            .insert(DwarfAttr::Name, DieAttribute::Strp(self.strings[name]));
+        die.attributes.insert(
+            DwarfAttr::Producer,
+            DieAttribute::String("TUMC 0.1.0".to_string()),
+        );
+        die.attributes
+            .insert(DwarfAttr::CompDir, DieAttribute::Strp(0)); // Current directory
 
         self.compile_unit = Some(die);
         self.compile_unit.as_mut().unwrap()
@@ -819,52 +842,69 @@ impl DwarfGenerator {
     /// Add base type
     pub fn add_base_type(&mut self, name: &str, size: u8, encoding: u8) -> Die {
         let mut die = Die::new(DwarfTag::BaseType, 2);
-        die.attributes.insert(DwarfAttr::Name, DieAttribute::String(name.to_string()));
-        die.attributes.insert(DwarfAttr::ByteSize, DieAttribute::Data(size as u64));
-        die.attributes.insert(DwarfAttr::Encoding, DieAttribute::Data(encoding as u64));
+        die.attributes
+            .insert(DwarfAttr::Name, DieAttribute::String(name.to_string()));
+        die.attributes
+            .insert(DwarfAttr::ByteSize, DieAttribute::Data(size as u64));
+        die.attributes
+            .insert(DwarfAttr::Encoding, DieAttribute::Data(encoding as u64));
         die
     }
 
     /// Add pointer type
     pub fn add_pointer_type(&mut self, pointed_to: u64) -> Die {
         let mut die = Die::new(DwarfTag::PointerType, 3);
-        die.attributes.insert(DwarfAttr::Type, DieAttribute::Ref(pointed_to));
-        die.attributes.insert(DwarfAttr::ByteSize, DieAttribute::Data(8)); // 64-bit pointer
+        die.attributes
+            .insert(DwarfAttr::Type, DieAttribute::Ref(pointed_to));
+        die.attributes
+            .insert(DwarfAttr::ByteSize, DieAttribute::Data(8)); // 64-bit pointer
         die
     }
 
     /// Add structure type
     pub fn add_struct(&mut self, name: &str, size: u32) -> Die {
         let mut die = Die::new(DwarfTag::StructureType, 4);
-        die.attributes.insert(DwarfAttr::Name, DieAttribute::String(name.to_string()));
-        die.attributes.insert(DwarfAttr::ByteSize, DieAttribute::Data(size as u64));
+        die.attributes
+            .insert(DwarfAttr::Name, DieAttribute::String(name.to_string()));
+        die.attributes
+            .insert(DwarfAttr::ByteSize, DieAttribute::Data(size as u64));
         die
     }
 
     /// Add member field
     pub fn add_member(&mut self, name: &str, type_ref: u64, offset: u8) -> Die {
         let mut die = Die::new(DwarfTag::Member, 5);
-        die.attributes.insert(DwarfAttr::Name, DieAttribute::String(name.to_string()));
-        die.attributes.insert(DwarfAttr::Type, DieAttribute::Ref(type_ref));
-        die.attributes.insert(DwarfAttr::DataMemberLocation, DieAttribute::Data(offset as u64));
+        die.attributes
+            .insert(DwarfAttr::Name, DieAttribute::String(name.to_string()));
+        die.attributes
+            .insert(DwarfAttr::Type, DieAttribute::Ref(type_ref));
+        die.attributes.insert(
+            DwarfAttr::DataMemberLocation,
+            DieAttribute::Data(offset as u64),
+        );
         die
     }
 
     /// Add function
     pub fn add_function(&mut self, name: &str, low_pc: u64, high_pc: u64, external: bool) -> Die {
         let mut die = Die::new(DwarfTag::Subprogram, 6);
-        die.attributes.insert(DwarfAttr::Name, DieAttribute::String(name.to_string()));
-        die.attributes.insert(DwarfAttr::LowPc, DieAttribute::Addr(low_pc));
-        die.attributes.insert(DwarfAttr::HighPc, DieAttribute::Addr(high_pc));
+        die.attributes
+            .insert(DwarfAttr::Name, DieAttribute::String(name.to_string()));
+        die.attributes
+            .insert(DwarfAttr::LowPc, DieAttribute::Addr(low_pc));
+        die.attributes
+            .insert(DwarfAttr::HighPc, DieAttribute::Addr(high_pc));
 
         // Frame base location
         let mut loc = Vec::new();
         loc.push(0x9c); // DW_OP_fbreg(0)
         loc.extend_from_slice(&encode_sleb128(0));
-        die.attributes.insert(DwarfAttr::FrameBase, DieAttribute::Exprloc(loc));
+        die.attributes
+            .insert(DwarfAttr::FrameBase, DieAttribute::Exprloc(loc));
 
         if external {
-            die.attributes.insert(DwarfAttr::External, DieAttribute::Flag(true));
+            die.attributes
+                .insert(DwarfAttr::External, DieAttribute::Flag(true));
         }
 
         die
@@ -873,18 +913,24 @@ impl DwarfGenerator {
     /// Add formal parameter
     pub fn add_parameter(&mut self, name: &str, type_ref: u64, location: Vec<u8>) -> Die {
         let mut die = Die::new(DwarfTag::FormalParameter, 7);
-        die.attributes.insert(DwarfAttr::Name, DieAttribute::String(name.to_string()));
-        die.attributes.insert(DwarfAttr::Type, DieAttribute::Ref(type_ref));
-        die.attributes.insert(DwarfAttr::Location, DieAttribute::Exprloc(location));
+        die.attributes
+            .insert(DwarfAttr::Name, DieAttribute::String(name.to_string()));
+        die.attributes
+            .insert(DwarfAttr::Type, DieAttribute::Ref(type_ref));
+        die.attributes
+            .insert(DwarfAttr::Location, DieAttribute::Exprloc(location));
         die
     }
 
     /// Add variable
     pub fn add_variable(&mut self, name: &str, type_ref: u64, location: Vec<u8>) -> Die {
         let mut die = Die::new(DwarfTag::Variable, 8);
-        die.attributes.insert(DwarfAttr::Name, DieAttribute::String(name.to_string()));
-        die.attributes.insert(DwarfAttr::Type, DieAttribute::Ref(type_ref));
-        die.attributes.insert(DwarfAttr::Location, DieAttribute::Exprloc(location));
+        die.attributes
+            .insert(DwarfAttr::Name, DieAttribute::String(name.to_string()));
+        die.attributes
+            .insert(DwarfAttr::Type, DieAttribute::Ref(type_ref));
+        die.attributes
+            .insert(DwarfAttr::Location, DieAttribute::Exprloc(location));
         die
     }
 
@@ -1078,7 +1124,10 @@ impl DwarfGenerator {
         // Update header length
         let header_length = (bytes.len() - header_length_pos - 4) as u32;
         let end_pos = bytes.len();
-        let _ = bytes.splice(header_length_pos..header_length_pos + 4, header_length.to_le_bytes());
+        let _ = bytes.splice(
+            header_length_pos..header_length_pos + 4,
+            header_length.to_le_bytes(),
+        );
         let _ = end_pos;
 
         // Line program

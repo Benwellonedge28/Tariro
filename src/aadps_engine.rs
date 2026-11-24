@@ -6,14 +6,13 @@
 /// project deadlines, and strategic objectives, optimizing for peak productivity and
 /// preventing burnout. It leverages RAG for advanced scheduling algorithms and cognitive load
 /// management, and SIMD for parallel schedule optimization and real-time context adaptation.
-
 use crate::prelude::*;
 use std::collections::HashMap;
 
+use rand::Rng;
+use serde::{Deserialize, Serialize};
 use std::thread;
 use std::time::Duration;
-use rand::Rng;
-use serde::{Serialize, Deserialize};
 
 // --- Conceptual Structures --- //
 
@@ -23,11 +22,11 @@ pub struct DataAsset {
     pub asset_id: String,
     pub name: String,
     pub classification: String, // e.g., "Confidential", "Secret", "Public"
-    pub owner: String, // Samuel or specific entity
+    pub owner: String,          // Samuel or specific entity
     pub storage_location: String, // e.g., "Local", "Cloud_Encrypted", "Distributed_Ledger"
     pub access_policies: HashMap<String, String>, // e.g., "role_read": "admin", "user_modify": "samuel"
-    pub compliance_status: Vec<String>, // e.g., "GDPR", "HIPAA", "CCPA"
-    pub data_lineage_hash: String, // Traceability of data origin and transformations
+    pub compliance_status: Vec<String>,           // e.g., "GDPR", "HIPAA", "CCPA"
+    pub data_lineage_hash: String,                // Traceability of data origin and transformations
 }
 
 /// Represents a privacy event or request.
@@ -89,7 +88,12 @@ impl AADPSEngine {
     }
 
     /// Performs parallel access policy enforcement and real-time data flow monitoring (SIMD conceptualization).
-    fn parallel_policy_enforcement_data_flow_simd(&self, data_assets: &[DataAsset], _access_requests: &[String]) -> Vec<PrivacyEvent> { // handled privacy events
+    fn parallel_policy_enforcement_data_flow_simd(
+        &self,
+        data_assets: &[DataAsset],
+        _access_requests: &[String],
+    ) -> Vec<PrivacyEvent> {
+        // handled privacy events
         println!("    [AADPS-SIMD]: Enforcing access policies and monitoring data flow in parallel for {} assets.", data_assets.len());
         thread::sleep(Duration::from_millis(100));
         let mut rng = rand::thread_rng();
@@ -112,18 +116,39 @@ impl AADPSEngine {
     }
 
     /// Autonomously manages Samuel's data privacy and sovereignty (RAG-amplified).
-    pub fn manage_data_privacy_sovereignty_rag(&self, mut data_assets: Vec<DataAsset>, incoming_requests: Vec<String>, current_jurisdictions: Vec<String>) -> (Vec<DataAsset>, Vec<PrivacyEvent>) {
-        println!("  [AADPS]: Managing data privacy and sovereignty for {} assets.", data_assets.len());
-        if let Some(pet) = self.advanced_privacy_enhancing_technologies_rag_db.get("homomorphic_encryption_for_private_computation") {
-            format!("RAG knowledge for privacy technologies: '{}'", pet.chars().take(100).collect::<String>());
+    pub fn manage_data_privacy_sovereignty_rag(
+        &self,
+        mut data_assets: Vec<DataAsset>,
+        incoming_requests: Vec<String>,
+        current_jurisdictions: Vec<String>,
+    ) -> (Vec<DataAsset>, Vec<PrivacyEvent>) {
+        println!(
+            "  [AADPS]: Managing data privacy and sovereignty for {} assets.",
+            data_assets.len()
+        );
+        if let Some(pet) = self
+            .advanced_privacy_enhancing_technologies_rag_db
+            .get("homomorphic_encryption_for_private_computation")
+        {
+            format!(
+                "RAG knowledge for privacy technologies: '{}'",
+                pet.chars().take(100).collect::<String>()
+            );
         }
-        if let Some(dlp) = self.distributed_ledger_for_data_provenance_rag_db.get("blockchain_for_immutable_data_lineage") {
-            format!("RAG knowledge for data provenance: '{}'", dlp.chars().take(100).collect::<String>());
+        if let Some(dlp) = self
+            .distributed_ledger_for_data_provenance_rag_db
+            .get("blockchain_for_immutable_data_lineage")
+        {
+            format!(
+                "RAG knowledge for data provenance: '{}'",
+                dlp.chars().take(100).collect::<String>()
+            );
         }
         thread::sleep(Duration::from_millis(1500));
         let mut _rng = rand::thread_rng();
 
-        let handled_privacy_events = self.parallel_policy_enforcement_data_flow_simd(&data_assets, &incoming_requests);
+        let handled_privacy_events =
+            self.parallel_policy_enforcement_data_flow_simd(&data_assets, &incoming_requests);
 
         // Conceptual: RAG-driven dynamic policy adaptation and data transformation
         for asset in data_assets.iter_mut() {
@@ -140,13 +165,21 @@ impl AADPSEngine {
             }
         }
 
-        println!("  Managed data privacy and sovereignty. Handled {} privacy events.\n", handled_privacy_events.len());
+        println!(
+            "  Managed data privacy and sovereignty. Handled {} privacy events.\n",
+            handled_privacy_events.len()
+        );
         (data_assets, handled_privacy_events)
     }
 
     /// Generates a comprehensive report for AADPS.
-    pub fn generate_aadps_report_rag(&self, total_events: u64, total_violations_prevented: u64, avg_compliance: f32) -> String {
-        println!("  [AADPS]: Generating AADPS report (RAG for report generation).", );
+    pub fn generate_aadps_report_rag(
+        &self,
+        total_events: u64,
+        total_violations_prevented: u64,
+        avg_compliance: f32,
+    ) -> String {
+        println!("  [AADPS]: Generating AADPS report (RAG for report generation).",);
         thread::sleep(Duration::from_millis(80));
 
         format!("Autonomous Advanced Data Privacy & Sovereignty Report:\n  Total Privacy Events Handled: {}\n  Total Sovereignty Violations Prevented: {}\n  Average Compliance Score: {:.2}%\n  (Conceptual summary based on RAG for privacy-enhancing technologies/distributed ledgers and SIMD for parallel policy enforcement).",
@@ -165,16 +198,30 @@ mod tests {
     fn test_aadps_engine_flow() {
         let engine = AADPSEngine::new();
 
-        let data_assets = vec![
-            DataAsset {
-                asset_id: "asset_doc_001".to_string(), name: "Financial Records 2025".to_string(), classification: "Confidential".to_string(), owner: "Samuel Mukandara".to_string(), storage_location: "Cloud_Encrypted".to_string(), access_policies: HashMap::from([("read_role".to_string(), "admin_only".to_string())]), compliance_status: vec!["GDPR".to_string()], data_lineage_hash: "hash123".to_string(),
-            },
-        ];
+        let data_assets = vec![DataAsset {
+            asset_id: "asset_doc_001".to_string(),
+            name: "Financial Records 2025".to_string(),
+            classification: "Confidential".to_string(),
+            owner: "Samuel Mukandara".to_string(),
+            storage_location: "Cloud_Encrypted".to_string(),
+            access_policies: HashMap::from([("read_role".to_string(), "admin_only".to_string())]),
+            compliance_status: vec!["GDPR".to_string()],
+            data_lineage_hash: "hash123".to_string(),
+        }];
         let incoming_requests = vec!["request_data_access_audit".to_string()];
         let current_jurisdictions = vec!["EU".to_string(), "USA".to_string()];
 
-        let (updated_assets, privacy_events) = engine.manage_data_privacy_sovereignty_rag(data_assets, incoming_requests, current_jurisdictions);
-        assert!(!privacy_events.is_empty() || updated_assets[0].compliance_status.contains(&"GDPR".to_string()));
+        let (updated_assets, privacy_events) = engine.manage_data_privacy_sovereignty_rag(
+            data_assets,
+            incoming_requests,
+            current_jurisdictions,
+        );
+        assert!(
+            !privacy_events.is_empty()
+                || updated_assets[0]
+                    .compliance_status
+                    .contains(&"GDPR".to_string())
+        );
 
         let report = engine.generate_aadps_report_rag(10, 2, 0.98);
         assert!(!report.is_empty());
@@ -206,7 +253,10 @@ fn main() {
             classification: "Confidential".to_string(),
             owner: "Samuel Mukandara".to_string(),
             storage_location: "Local_Encrypted".to_string(),
-            access_policies: HashMap::from([("read_policy".to_string(), "tariro_medical_ai_only".to_string())]),
+            access_policies: HashMap::from([(
+                "read_policy".to_string(),
+                "tariro_medical_ai_only".to_string(),
+            )]),
             compliance_status: vec!["HIPAA".to_string()],
             data_lineage_hash: "hash_health_rec".to_string(),
         },
@@ -220,25 +270,24 @@ fn main() {
         incoming_privacy_requests_eu,
         current_jurisdictions_eu,
     );
-    println!("  Privacy Management Result. Updated asset 1 compliance: {:?}. Privacy Events: {}.\n",
+    println!(
+        "  Privacy Management Result. Updated asset 1 compliance: {:?}. Privacy Events: {}.\n",
         updated_assets_1[0].compliance_status,
         privacy_events_1.len()
     );
 
     // Scenario 2: Corporate project data with mixed US/EU team access, requiring dynamic policy enforcement
     println!("--- Scenario 2: Corporate Project Data & Dynamic Enforcement ---");
-    let corporate_project_assets = vec![
-        DataAsset {
-            asset_id: "asset_proj_design_003".to_string(),
-            name: "Project_Nimbus_Design_Docs".to_string(),
-            classification: "Confidential".to_string(),
-            owner: "Project_Nimbus_Team".to_string(),
-            storage_location: "Cloud_US_Region".to_string(),
-            access_policies: HashMap::from([("read".to_string(), "us_team_only".to_string())]),
-            compliance_status: vec!["CCPA".to_string()],
-            data_lineage_hash: "hash_nimbus_design".to_string(),
-        },
-    ];
+    let corporate_project_assets = vec![DataAsset {
+        asset_id: "asset_proj_design_003".to_string(),
+        name: "Project_Nimbus_Design_Docs".to_string(),
+        classification: "Confidential".to_string(),
+        owner: "Project_Nimbus_Team".to_string(),
+        storage_location: "Cloud_US_Region".to_string(),
+        access_policies: HashMap::from([("read".to_string(), "us_team_only".to_string())]),
+        compliance_status: vec!["CCPA".to_string()],
+        data_lineage_hash: "hash_nimbus_design".to_string(),
+    }];
     let current_jurisdictions_mixed = vec!["EU".to_string(), "USA".to_string()];
     let incoming_privacy_requests_mixed = vec!["eu_team_access_request".to_string()];
 
@@ -247,12 +296,16 @@ fn main() {
         incoming_privacy_requests_mixed,
         current_jurisdictions_mixed,
     );
-    println!("  Corporate Privacy Management Result. Asset 1 compliance: {:?}. Privacy Events: {}.\n",
+    println!(
+        "  Corporate Privacy Management Result. Asset 1 compliance: {:?}. Privacy Events: {}.\n",
         updated_assets_2[0].compliance_status,
         privacy_events_2.len()
     );
     if let Some(event) = privacy_events_2.get(0) {
-        println!("  First Event Action: '{}'. Human Review Needed: {}.\n", event.autonomous_action_taken, event.human_review_needed);
+        println!(
+            "  First Event Action: '{}'. Human Review Needed: {}.\n",
+            event.autonomous_action_taken, event.human_review_needed
+        );
     }
 
     // Scenario 3: Generate a comprehensive AADPS Report
@@ -260,5 +313,7 @@ fn main() {
     let aadps_report_summary = aadps_engine.generate_aadps_report_rag(500, 10, 0.99);
     println!("  {}\n", aadps_report_summary);
 
-    println!("\nAutonomous Advanced Data Privacy & Sovereignty (RAG-Driven) Demonstration Complete.");
+    println!(
+        "\nAutonomous Advanced Data Privacy & Sovereignty (RAG-Driven) Demonstration Complete."
+    );
 }

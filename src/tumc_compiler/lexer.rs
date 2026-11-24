@@ -10,7 +10,7 @@
 //! - JavaScript
 //! - TUMC IR
 
-use crate::tumc_compiler::{SourceLocation, SourceLanguage};
+use crate::tumc_compiler::{SourceLanguage, SourceLocation};
 use std::collections::VecDeque;
 use std::iter::Peekable;
 use std::str::Chars;
@@ -384,20 +384,12 @@ pub struct Token {
 impl Token {
     /// Create a new token
     pub const fn new(kind: TokenKind, location: SourceLocation) -> Self {
-        Self {
-            kind,
-            location,
-            literal: None,
-        }
+        Self { kind, location, literal: None }
     }
 
     /// Create a literal token
     pub fn literal(kind: TokenKind, location: SourceLocation, literal: String) -> Self {
-        Self {
-            kind,
-            location,
-            literal: Some(literal),
-        }
+        Self { kind, location, literal: Some(literal) }
     }
 
     /// Check if token is a keyword
@@ -528,12 +520,10 @@ impl<'a> Lexer<'a> {
             self.scan_token()?;
         }
 
-        let eof_location = SourceLocation {
-            line: self.line,
-            column: self.column,
-            offset: self.position,
-        };
-        self.tokens.push_back(Token::new(TokenKind::Eof, eof_location));
+        let eof_location =
+            SourceLocation { line: self.line, column: self.column, offset: self.position };
+        self.tokens
+            .push_back(Token::new(TokenKind::Eof, eof_location));
 
         Ok(self.tokens.into())
     }
@@ -542,11 +532,8 @@ impl<'a> Lexer<'a> {
     fn scan_token(&mut self) -> Result<(), LexerError> {
         let ch = self.peek();
 
-        let start_location = SourceLocation {
-            line: self.line,
-            column: self.column,
-            offset: self.position,
-        };
+        let start_location =
+            SourceLocation { line: self.line, column: self.column, offset: self.position };
 
         match self.state {
             LexerState::Normal => {
@@ -618,7 +605,8 @@ impl<'a> Lexer<'a> {
                     '=' => {
                         if self.peek_next() == '=' {
                             self.advance();
-                            self.tokens.push_back(Token::new(TokenKind::Eq, start_location));
+                            self.tokens
+                                .push_back(Token::new(TokenKind::Eq, start_location));
                         } else if self.peek_next() == '>' {
                             self.advance();
                             self.tokens
@@ -631,7 +619,8 @@ impl<'a> Lexer<'a> {
                     '!' => {
                         if self.peek_next() == '=' {
                             self.advance();
-                            self.tokens.push_back(Token::new(TokenKind::Ne, start_location));
+                            self.tokens
+                                .push_back(Token::new(TokenKind::Ne, start_location));
                         } else {
                             self.tokens
                                 .push_back(Token::new(TokenKind::Not, start_location));
@@ -640,29 +629,36 @@ impl<'a> Lexer<'a> {
                     '<' => {
                         if self.peek_next() == '=' {
                             self.advance();
-                            self.tokens.push_back(Token::new(TokenKind::Le, start_location));
+                            self.tokens
+                                .push_back(Token::new(TokenKind::Le, start_location));
                         } else if self.peek_next() == '<' {
                             self.advance();
-                            self.tokens.push_back(Token::new(TokenKind::Shl, start_location));
+                            self.tokens
+                                .push_back(Token::new(TokenKind::Shl, start_location));
                         } else {
-                            self.tokens.push_back(Token::new(TokenKind::Lt, start_location));
+                            self.tokens
+                                .push_back(Token::new(TokenKind::Lt, start_location));
                         }
                     }
                     '>' => {
                         if self.peek_next() == '=' {
                             self.advance();
-                            self.tokens.push_back(Token::new(TokenKind::Ge, start_location));
+                            self.tokens
+                                .push_back(Token::new(TokenKind::Ge, start_location));
                         } else if self.peek_next() == '>' {
                             self.advance();
-                            self.tokens.push_back(Token::new(TokenKind::Shr, start_location));
+                            self.tokens
+                                .push_back(Token::new(TokenKind::Shr, start_location));
                         } else {
-                            self.tokens.push_back(Token::new(TokenKind::Gt, start_location));
+                            self.tokens
+                                .push_back(Token::new(TokenKind::Gt, start_location));
                         }
                     }
                     '&' => {
                         if self.peek_next() == '&' {
                             self.advance();
-                            self.tokens.push_back(Token::new(TokenKind::And, start_location));
+                            self.tokens
+                                .push_back(Token::new(TokenKind::And, start_location));
                         } else {
                             self.tokens
                                 .push_back(Token::new(TokenKind::BitAnd, start_location));
@@ -671,7 +667,8 @@ impl<'a> Lexer<'a> {
                     '|' => {
                         if self.peek_next() == '|' {
                             self.advance();
-                            self.tokens.push_back(Token::new(TokenKind::Or, start_location));
+                            self.tokens
+                                .push_back(Token::new(TokenKind::Or, start_location));
                         } else {
                             self.tokens
                                 .push_back(Token::new(TokenKind::BitOr, start_location));
@@ -815,9 +812,7 @@ impl<'a> Lexer<'a> {
                     value.push(c);
                 }
             } else if ch == '\n' {
-                return Err(LexerError::UnterminatedString {
-                    location: start,
-                });
+                return Err(LexerError::UnterminatedString { location: start });
             } else {
                 self.advance();
                 value.push(ch);
@@ -860,8 +855,11 @@ impl<'a> Lexer<'a> {
         if let Some(&'\'') = self.chars.peek() {
             self.advance();
             self.state = LexerState::Normal;
-            self.tokens
-                .push_back(Token::literal(TokenKind::Char(value), start, value.to_string()));
+            self.tokens.push_back(Token::literal(
+                TokenKind::Char(value),
+                start,
+                value.to_string(),
+            ));
             Ok(())
         } else {
             Err(LexerError::UnterminatedChar { location: start })
@@ -887,11 +885,8 @@ impl<'a> Lexer<'a> {
             TokenKind::Comment(comment)
         };
 
-        let location = SourceLocation {
-            line: self.line,
-            column: self.column,
-            offset: self.position,
-        };
+        let location =
+            SourceLocation { line: self.line, column: self.column, offset: self.position };
         self.tokens.push_back(Token::new(kind, location));
     }
 
@@ -934,12 +929,10 @@ impl<'a> Lexer<'a> {
             return Err(LexerError::UnterminatedBlockComment { location: start });
         }
 
-        let location = SourceLocation {
-            line: self.line,
-            column: self.column,
-            offset: self.position,
-        };
-        self.tokens.push_back(Token::new(TokenKind::Comment(comment), location));
+        let location =
+            SourceLocation { line: self.line, column: self.column, offset: self.position };
+        self.tokens
+            .push_back(Token::new(TokenKind::Comment(comment), location));
 
         self.state = LexerState::Normal;
         Ok(())
@@ -1043,30 +1036,26 @@ impl<'a> Lexer<'a> {
             }
 
             // Parse float
-            let float_value: f64 = value.parse().map_err(|_| LexerError::InvalidFloat {
-                value: value.clone(),
-                location: start,
-            })?;
+            let float_value: f64 = value
+                .parse()
+                .map_err(|_| LexerError::InvalidFloat { value: value.clone(), location: start })?;
 
             self.tokens
                 .push_back(Token::literal(TokenKind::Float(float_value), start, value));
         } else {
             // Parse integer
             let clean_value = value.replace('_', "");
-            let int_value: i64 = if clean_value.starts_with("0x") || clean_value.starts_with("0X")
-            {
-                i64::from_str_radix(&clean_value[2..], 16)
-            } else if clean_value.starts_with("0o") || clean_value.starts_with("0O") {
-                i64::from_str_radix(&clean_value[2..], 8)
-            } else if clean_value.starts_with("0b") || clean_value.starts_with("0B") {
-                i64::from_str_radix(&clean_value[2..], 2)
-            } else {
-                clean_value.parse()
-            }
-            .map_err(|_| LexerError::InvalidInteger {
-                value: clean_value,
-                location: start,
-            })?;
+            let int_value: i64 =
+                if clean_value.starts_with("0x") || clean_value.starts_with("0X") {
+                    i64::from_str_radix(&clean_value[2..], 16)
+                } else if clean_value.starts_with("0o") || clean_value.starts_with("0O") {
+                    i64::from_str_radix(&clean_value[2..], 8)
+                } else if clean_value.starts_with("0b") || clean_value.starts_with("0B") {
+                    i64::from_str_radix(&clean_value[2..], 2)
+                } else {
+                    clean_value.parse()
+                }
+                .map_err(|_| LexerError::InvalidInteger { value: clean_value, location: start })?;
 
             self.tokens
                 .push_back(Token::literal(TokenKind::Integer(int_value), start, value));
@@ -1095,7 +1084,8 @@ impl<'a> Lexer<'a> {
 
         // A lone underscore is the wildcard pattern, not an identifier.
         if value == "_" {
-            self.tokens.push_back(Token::new(TokenKind::Underscore, start));
+            self.tokens
+                .push_back(Token::new(TokenKind::Underscore, start));
             return Ok(());
         }
 
@@ -1137,14 +1127,12 @@ impl<'a> Lexer<'a> {
             // JavaScript keywords
             "function" => TokenKind::Fn,
             "var" => TokenKind::Let,
-            "let" | "const" => TokenKind::Let,
             "new" => TokenKind::Struct,
             "extends" => TokenKind::Impl,
             _ => TokenKind::Identifier(value.clone()),
         };
 
-        self.tokens
-            .push_back(Token::literal(token, start, value));
+        self.tokens.push_back(Token::literal(token, start, value));
 
         Ok(())
     }
@@ -1207,16 +1195,32 @@ impl std::fmt::Display for LexerError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             LexerError::UnterminatedString { location } => {
-                write!(f, "Unterminated string at {}:{}", location.line, location.column)
+                write!(
+                    f,
+                    "Unterminated string at {}:{}",
+                    location.line, location.column
+                )
             }
             LexerError::UnterminatedChar { location } => {
-                write!(f, "Unterminated character at {}:{}", location.line, location.column)
+                write!(
+                    f,
+                    "Unterminated character at {}:{}",
+                    location.line, location.column
+                )
             }
             LexerError::EmptyChar { location } => {
-                write!(f, "Empty character literal at {}:{}", location.line, location.column)
+                write!(
+                    f,
+                    "Empty character literal at {}:{}",
+                    location.line, location.column
+                )
             }
             LexerError::UnterminatedBlockComment { location } => {
-                write!(f, "Unterminated block comment at {}:{}", location.line, location.column)
+                write!(
+                    f,
+                    "Unterminated block comment at {}:{}",
+                    location.line, location.column
+                )
             }
             LexerError::InvalidInteger { value, location } => {
                 write!(

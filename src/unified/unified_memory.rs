@@ -6,7 +6,6 @@
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 
-
 /// Memory entry
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MemoryEntry {
@@ -83,7 +82,12 @@ impl UnifiedMemory {
     }
 
     /// Store an intent and its result
-    pub fn store_intent(&mut self, intent: &str, result: &str, insights: &[crate::tumc_compiler::agi_integration::AgiInsight]) {
+    pub fn store_intent(
+        &mut self,
+        intent: &str,
+        result: &str,
+        insights: &[crate::tumc_compiler::agi_integration::AgiInsight],
+    ) {
         // Store in episodic memory
         let entry = MemoryEntry {
             key: format!("intent_{}", current_timestamp()),
@@ -223,11 +227,7 @@ impl UnifiedMemory {
 
     /// Get recent memories
     pub fn get_recent(&self, count: usize) -> Vec<&MemoryEntry> {
-        self.episodic
-            .iter()
-            .rev()
-            .take(count)
-            .collect()
+        self.episodic.iter().rev().take(count).collect()
     }
 
     /// Get memories by type

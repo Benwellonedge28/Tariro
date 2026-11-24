@@ -6,10 +6,10 @@
 //! - Normative reasoning
 //! - Reputation and trust modeling
 
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
-use chrono::Utc;
 
 // ============================================================================
 // Core Types
@@ -116,11 +116,7 @@ pub struct MentalState {
 
 impl Default for MentalState {
     fn default() -> Self {
-        Self {
-            emotion: None,
-            attention: Vec::new(),
-            confidence: 0.5,
-        }
+        Self { emotion: None, attention: Vec::new(), confidence: 0.5 }
     }
 }
 
@@ -189,9 +185,7 @@ impl TheoryOfMind {
         if let (Some(a1), Some(a2)) = (self.agents.get(agent1), self.agents.get(agent2)) {
             return format!(
                 "{} thinks that {} has mental state: {:?}",
-                a1.name,
-                a2.name,
-                a2.mental_state.emotion
+                a1.name, a2.name, a2.mental_state.emotion
             );
         }
         "Unknown recursive ToM".to_string()
@@ -277,10 +271,7 @@ pub struct CulturalKnowledge {
 
 impl CulturalKnowledge {
     pub fn new() -> Self {
-        let mut kb = Self {
-            cultures: HashMap::new(),
-            current_culture: None,
-        };
+        let mut kb = Self { cultures: HashMap::new(), current_culture: None };
         kb.initialize_defaults();
         kb
     }
@@ -322,7 +313,11 @@ impl CulturalKnowledge {
     /// Check if action is normatively appropriate
     pub fn is_appropriate(&self, action: &str) -> bool {
         for norm in self.get_norms() {
-            if norm.description.to_lowercase().contains(&action.to_lowercase()) {
+            if norm
+                .description
+                .to_lowercase()
+                .contains(&action.to_lowercase())
+            {
                 return true;
             }
         }
@@ -404,9 +399,7 @@ pub struct MoralFramework {
 
 impl MoralFramework {
     pub fn new() -> Self {
-        let mut framework = Self {
-            principles: Vec::new(),
-        };
+        let mut framework = Self { principles: Vec::new() };
         framework.initialize_defaults();
         framework
     }
@@ -523,7 +516,8 @@ impl Reputation {
 
         // Recalculate overall
         if !self.dimensions.is_empty() {
-            self.overall_score = self.dimensions.values().sum::<f64>() / self.dimensions.len() as f64;
+            self.overall_score =
+                self.dimensions.values().sum::<f64>() / self.dimensions.len() as f64;
         }
 
         self.history.push(event);
@@ -547,10 +541,7 @@ pub struct TrustModel {
 
 impl TrustModel {
     pub fn new() -> Self {
-        Self {
-            reputations: HashMap::new(),
-            trust_threshold: 0.5,
-        }
+        Self { reputations: HashMap::new(), trust_threshold: 0.5 }
     }
 
     /// Get trust level for agent
@@ -567,7 +558,13 @@ impl TrustModel {
     }
 
     /// Update trust based on interaction
-    pub fn update_trust(&mut self, agent_id: &SocialId, dimension: &str, value: f64, description: &str) {
+    pub fn update_trust(
+        &mut self,
+        agent_id: &SocialId,
+        dimension: &str,
+        value: f64,
+        description: &str,
+    ) {
         let reputation = self
             .reputations
             .entry(agent_id.clone())
@@ -722,7 +719,10 @@ mod normative_tests {
         let reasoner = NormativeReasoner::new();
         let judgment = reasoner.evaluate("help someone", "daily life");
 
-        assert!(matches!(judgment.overall, JudgmentOutcome::Permissible | JudgmentOutcome::ContextDependent));
+        assert!(matches!(
+            judgment.overall,
+            JudgmentOutcome::Permissible | JudgmentOutcome::ContextDependent
+        ));
     }
 }
 

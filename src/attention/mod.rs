@@ -5,13 +5,13 @@
 //! - Broadcasting: Winning content becomes globally accessible
 //! - Coherence: Integrates disparate information into unified experience
 
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
-use std::collections::{ HashMap, VecDeque};
-use std::sync::Arc;
+use std::collections::{HashMap, VecDeque};
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
-use chrono::Utc;
 
 // ============================================================================
 // Core Types
@@ -326,7 +326,11 @@ impl BroadcastChannel {
     }
 
     /// Broadcast content to all subscribers
-    pub async fn broadcast(&self, content: &WorkspaceContent, _recipients: Option<Vec<ModuleType>>) {
+    pub async fn broadcast(
+        &self,
+        content: &WorkspaceContent,
+        _recipients: Option<Vec<ModuleType>>,
+    ) {
         let item = BroadcastItem {
             content_id: content.id.clone(),
             content_type: content.content_type,
@@ -413,11 +417,7 @@ pub struct SubscriberConfig {
 
 impl Default for SubscriberConfig {
     fn default() -> Self {
-        Self {
-            content_types: Vec::new(),
-            max_age_seconds: 300,
-            priority: 5,
-        }
+        Self { content_types: Vec::new(), max_age_seconds: 300, priority: 5 }
     }
 }
 
@@ -546,7 +546,9 @@ impl GlobalWorkspace {
 
     /// Get current focus content
     pub fn get_focus(&self) -> Option<&WorkspaceContent> {
-        self.current_focus.as_ref().and_then(|id| self.contents.get(id))
+        self.current_focus
+            .as_ref()
+            .and_then(|id| self.contents.get(id))
     }
 
     /// Get current focus (mutable)
@@ -583,7 +585,11 @@ impl GlobalWorkspace {
     /// Get all content sorted by salience
     pub fn get_salience_ranking(&self) -> Vec<&WorkspaceContent> {
         let mut contents: Vec<_> = self.contents.values().collect();
-        contents.sort_by(|a, b| b.salience().partial_cmp(&a.salience()).unwrap_or(std::cmp::Ordering::Equal));
+        contents.sort_by(|a, b| {
+            b.salience()
+                .partial_cmp(&a.salience())
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
         contents
     }
 
@@ -601,9 +607,8 @@ impl GlobalWorkspace {
     pub fn prune(&mut self, max_age_seconds: i64) {
         let cutoff = Utc::now() - chrono::Duration::seconds(max_age_seconds);
 
-        self.contents.retain(|_, content| {
-            content.timestamp > cutoff || content.access_count > 0
-        });
+        self.contents
+            .retain(|_, content| content.timestamp > cutoff || content.access_count > 0);
     }
 
     pub fn stats(&self) -> &WorkspaceStats {

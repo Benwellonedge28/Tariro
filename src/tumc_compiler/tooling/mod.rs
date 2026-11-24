@@ -1,14 +1,14 @@
 // Tooling Module - LSP, Debug, Profiler, and Development Tools
 
-pub mod lsp;
 pub mod debug;
+pub mod lsp;
 pub mod profiler;
 
 use crate::tumc_compiler::ir::Module;
 
+pub use debug::{Breakpoint, Debugger, Watchpoint};
 pub use lsp::LspServer;
-pub use debug::{Debugger, Breakpoint, Watchpoint};
-pub use profiler::{Profiler, ProfileData, PerformanceCounter};
+pub use profiler::{PerformanceCounter, ProfileData, Profiler};
 
 /// Tooling configuration
 #[derive(Debug, Clone)]
@@ -42,12 +42,7 @@ pub struct ToolingManager {
 
 impl ToolingManager {
     pub fn new(config: ToolingConfig) -> Self {
-        Self {
-            config,
-            lsp: None,
-            debugger: None,
-            profiler: None,
-        }
+        Self { config, lsp: None, debugger: None, profiler: None }
     }
 
     pub fn start(&mut self, _module: &Module) {

@@ -167,10 +167,7 @@ impl Repl {
             }
         }
 
-        ReplResult {
-            commands_executed: self.history.len(),
-            errors: 0,
-        }
+        ReplResult { commands_executed: self.history.len(), errors: 0 }
     }
 
     /// Handle REPL command
@@ -378,9 +375,9 @@ Expressions:
     /// Get completions for partial input
     pub fn get_completions(&self, partial: &str) -> Vec<String> {
         let keywords = vec![
-            "fn", "let", "mut", "if", "else", "loop", "while", "return",
-            "struct", "enum", "impl", "trait", "pub", "mod", "use",
-            "true", "false", "nil", "i32", "i64", "f32", "f64", "bool",
+            "fn", "let", "mut", "if", "else", "loop", "while", "return", "struct", "enum", "impl",
+            "trait", "pub", "mod", "use", "true", "false", "nil", "i32", "i64", "f32", "f64",
+            "bool",
         ];
 
         let mut completions = Vec::new();
@@ -494,10 +491,7 @@ mod tests {
 
     #[test]
     fn test_repl_with_config() {
-        let config = ReplConfig {
-            show_types: false,
-            ..Default::default()
-        };
+        let config = ReplConfig { show_types: false, ..Default::default() };
         let repl = Repl::with_config(config);
         assert!(!repl.config.show_types);
     }

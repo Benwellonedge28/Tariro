@@ -4,7 +4,6 @@
 //! These are the highest-level objectives that guide Tariro's self-evolution,
 //! learning, and operational decisions.
 
-
 use chrono::{DateTime, Utc};
 
 use serde::{Deserialize, Serialize};
@@ -56,9 +55,7 @@ pub struct MetaGoalManager {
 impl MetaGoalManager {
     /// Creates a new `MetaGoalManager` with an initial set of fundamental meta-goals.
     pub fn new() -> Self {
-        let mut manager = MetaGoalManager {
-            meta_goals: Vec::new(),
-        };
+        let mut manager = MetaGoalManager { meta_goals: Vec::new() };
         manager.initialize_fundamental_goals();
         manager
     }
@@ -185,17 +182,25 @@ impl MetaGoalManager {
 
     /// Lists all active meta-goals.
     pub fn list_active_meta_goals(&self) -> Vec<&MetaGoal> {
-        self.meta_goals.iter().filter(|g| g.status == MetaGoalStatus::Active).collect()
+        self.meta_goals
+            .iter()
+            .filter(|g| g.status == MetaGoalStatus::Active)
+            .collect()
     }
 
     /// Filters meta-goals by impact area.
     pub fn filter_by_impact_area(&self, area: &str) -> Vec<&MetaGoal> {
-        self.meta_goals.iter().filter(|g| g.impact_areas.contains(&area.to_string())).collect()
+        self.meta_goals
+            .iter()
+            .filter(|g| g.impact_areas.contains(&area.to_string()))
+            .collect()
     }
 
     /// Reports on the overall progress of all meta-goals.
     pub fn get_overall_progress(&self) -> f32 {
-        if self.meta_goals.is_empty() { return 0.0; }
+        if self.meta_goals.is_empty() {
+            return 0.0;
+        }
         let total_progress: f32 = self.meta_goals.iter().map(|g| g.progress_percentage).sum();
         total_progress / self.meta_goals.len() as f32
     }
@@ -205,7 +210,10 @@ impl MetaGoalManager {
         let mut relationships = HashMap::new();
         for goal in &self.meta_goals {
             for dep_id in &goal.dependencies {
-                relationships.entry(goal.id.clone()).or_insert_with(Vec::new).push(dep_id.clone());
+                relationships
+                    .entry(goal.id.clone())
+                    .or_insert_with(Vec::new)
+                    .push(dep_id.clone());
             }
         }
         // Further logic could identify circular dependencies, potential conflicts, etc.
@@ -294,7 +302,9 @@ mod tests {
         let manager = MetaGoalManager::new();
         let active_goals = manager.list_active_meta_goals();
         assert!(!active_goals.is_empty());
-        assert!(active_goals.iter().all(|g| g.status == MetaGoalStatus::Active));
+        assert!(active_goals
+            .iter()
+            .all(|g| g.status == MetaGoalStatus::Active));
     }
 
     #[test]

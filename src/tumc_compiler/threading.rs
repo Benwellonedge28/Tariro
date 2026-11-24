@@ -3,10 +3,10 @@
 //! Multi-threading primitives, async runtime, and concurrency utilities.
 
 use std::collections::VecDeque;
+use std::future::Future;
+use std::pin::Pin;
 use std::sync::{Arc, Mutex, RwLock};
 use std::task::{Context, Poll, RawWaker, RawWakerVTable, Waker};
-use std::pin::Pin;
-use std::future::Future;
 use std::thread::JoinHandle;
 
 /// Task scheduler
@@ -177,9 +177,7 @@ pub struct Condvar {
 impl Condvar {
     /// Create new condvar
     pub fn new() -> Self {
-        Self {
-            waiters: Mutex::new(VecDeque::new()),
-        }
+        Self { waiters: Mutex::new(VecDeque::new()) }
     }
 
     /// Wait
@@ -218,10 +216,7 @@ impl<T> Channel<T> {
             notifier: Condvar::new(),
         });
 
-        (
-            Sender { state: state.clone() },
-            Receiver { state },
-        )
+        (Sender { state: state.clone() }, Receiver { state })
     }
 
     /// Create bounded channel
@@ -441,10 +436,7 @@ impl<T> AsyncMutex<T> {
 
     /// Lock the mutex
     pub async fn lock(&self) -> AsyncMutexGuard<'_, T> {
-        AsyncMutexGuard {
-            mutex: self,
-            guard: self.inner.lock().unwrap(),
-        }
+        AsyncMutexGuard { mutex: self, guard: self.inner.lock().unwrap() }
     }
 }
 
@@ -496,9 +488,7 @@ enum OnceCellState<T> {
 impl<T> OnceCell<T> {
     /// Create new once cell
     pub fn new() -> Self {
-        Self {
-            state: Arc::new(RwLock::new(OnceCellState::New)),
-        }
+        Self { state: Arc::new(RwLock::new(OnceCellState::New)) }
     }
 }
 
@@ -560,25 +550,17 @@ pub struct AsyncRwLock<T> {
 impl<T> AsyncRwLock<T> {
     /// Create new async RwLock
     pub fn new(value: T) -> Self {
-        Self {
-            inner: Arc::new(RwLock::new(value)),
-        }
+        Self { inner: Arc::new(RwLock::new(value)) }
     }
 
     /// Read lock
     pub async fn read(&self) -> AsyncRwLockReadGuard<'_, T> {
-        AsyncRwLockReadGuard {
-            lock: self,
-            guard: self.inner.read().unwrap(),
-        }
+        AsyncRwLockReadGuard { lock: self, guard: self.inner.read().unwrap() }
     }
 
     /// Write lock
     pub async fn write(&self) -> AsyncRwLockWriteGuard<'_, T> {
-        AsyncRwLockWriteGuard {
-            lock: self,
-            guard: self.inner.write().unwrap(),
-        }
+        AsyncRwLockWriteGuard { lock: self, guard: self.inner.write().unwrap() }
     }
 }
 
@@ -625,7 +607,7 @@ mod tests {
     #[test]
     fn test_scheduler_spawn() {
         let scheduler = Scheduler::new();
-        let handle = scheduler.spawn(async { });
+        let handle = scheduler.spawn(async {});
         assert!(handle.id.0 > 0);
     }
 

@@ -1,9 +1,8 @@
 // Tariro AGI - Creativity Engine Module
 // Analogical reasoning and creative concept generation
 
-
-use std::collections::{HashMap};
 use std::cmp::Ordering;
+use std::collections::HashMap;
 
 // ============================================================================
 // Creativity Types
@@ -282,11 +281,7 @@ impl CreativityEngine {
     }
 
     /// Find analogical mappings between source and target
-    pub fn find_analogies(
-        &self,
-        source: &Concept,
-        target: &Concept,
-    ) -> Vec<Analogy> {
+    pub fn find_analogies(&self, source: &Concept, target: &Concept) -> Vec<Analogy> {
         let mut analogies = Vec::new();
 
         // Find attribute mappings
@@ -338,13 +333,21 @@ impl CreativityEngine {
         match (&a.value, &b.value) {
             (AttributeValue::Numeric(na), AttributeValue::Numeric(nb)) => {
                 let diff = (na - nb).abs();
-                (1.0 - diff.min(1.0))
+                1.0 - diff.min(1.0)
             }
             (AttributeValue::Categorical(ca), AttributeValue::Categorical(cb)) => {
-                if ca == cb { 1.0 } else { 0.0 }
+                if ca == cb {
+                    1.0
+                } else {
+                    0.0
+                }
             }
             (AttributeValue::Boolean(ba), AttributeValue::Boolean(bb)) => {
-                if ba == bb { 1.0 } else { 0.0 }
+                if ba == bb {
+                    1.0
+                } else {
+                    0.0
+                }
             }
             _ => 0.5,
         }
@@ -354,7 +357,9 @@ impl CreativityEngine {
     fn generate_inference(&self, src_attr: &Attribute, tgt_attr: &Attribute) -> String {
         format!(
             "If {} is {}, then analogous attribute {} might have similar properties",
-            src_attr.name, format!("{:?}", src_attr.value), tgt_attr.name
+            src_attr.name,
+            format!("{:?}", src_attr.value),
+            tgt_attr.name
         )
     }
 
@@ -391,9 +396,8 @@ impl CreativityEngine {
             }
             CombinationStrategy::Systematic => {
                 // Systematically combine all attributes
-                let attributes: Vec<_> = concepts.iter()
-                    .flat_map(|c| c.attributes.iter())
-                    .collect();
+                let attributes: Vec<_> =
+                    concepts.iter().flat_map(|c| c.attributes.iter()).collect();
 
                 for i in 0..attributes.len() {
                     for j in (i + 1)..attributes.len() {
@@ -406,9 +410,7 @@ impl CreativityEngine {
                             ),
                             novelty: 0.6,
                             value: 0.5,
-                            inspiration_sources: concepts.iter()
-                                .map(|c| c.name.clone())
-                                .collect(),
+                            inspiration_sources: concepts.iter().map(|c| c.name.clone()).collect(),
                             generation_process: GenerationProcess {
                                 process_type: ProcessType::Combinational,
                                 steps: vec![],
@@ -432,9 +434,7 @@ impl CreativityEngine {
                         ),
                         novelty: 0.8,
                         value: 0.7,
-                        inspiration_sources: concepts.iter()
-                            .map(|c| c.name.clone())
-                            .collect(),
+                        inspiration_sources: concepts.iter().map(|c| c.name.clone()).collect(),
                         generation_process: GenerationProcess {
                             process_type: ProcessType::Combinational,
                             steps: vec![],
@@ -482,11 +482,7 @@ impl CreativityEngine {
     }
 
     /// Divergent thinking - generate many ideas
-    pub fn divergent_think(
-        &mut self,
-        prompt: &str,
-        quantity_target: usize,
-    ) -> Vec<Idea> {
+    pub fn divergent_think(&mut self, prompt: &str, quantity_target: usize) -> Vec<Idea> {
         let mut ideas = Vec::new();
         let categories = vec!["improvement", "alternative", "extension", "combination"];
 
@@ -506,12 +502,10 @@ impl CreativityEngine {
         // Update divergent thinking metrics
         self.divergent_thinking.fluency = ideas.len();
         self.divergent_thinking.flexibility = categories.len();
-        self.divergent_thinking.originality = ideas.iter()
-            .map(|i| i.novelty)
-            .sum::<f32>() / ideas.len() as f32;
-        self.divergent_thinking.elaboration = ideas.iter()
-            .map(|i| i.elaboration_level)
-            .sum::<usize>();
+        self.divergent_thinking.originality =
+            ideas.iter().map(|i| i.novelty).sum::<f32>() / ideas.len() as f32;
+        self.divergent_thinking.elaboration =
+            ideas.iter().map(|i| i.elaboration_level).sum::<usize>();
         self.divergent_thinking.ideas_generated = ideas.clone();
 
         ideas
@@ -543,7 +537,8 @@ impl CreativityEngine {
         ideas: Vec<Idea>,
         criteria: Vec<EvaluationCriterion>,
     ) -> Vec<RankedIdea> {
-        let mut ranked: Vec<RankedIdea> = ideas.iter()
+        let mut ranked: Vec<RankedIdea> = ideas
+            .iter()
             .map(|idea| {
                 let mut scores = HashMap::new();
                 let mut total_score = 0.0f32;
@@ -579,10 +574,8 @@ impl CreativityEngine {
         // Update convergent thinking
         self.convergent_thinking.criteria = criteria;
         self.convergent_thinking.ranked_ideas = ranked.clone();
-        self.convergent_thinking.best_ideas = ranked.iter()
-            .take(3)
-            .map(|r| r.idea_id.clone())
-            .collect();
+        self.convergent_thinking.best_ideas =
+            ranked.iter().take(3).map(|r| r.idea_id.clone()).collect();
 
         ranked
     }
@@ -595,7 +588,7 @@ impl CreativityEngine {
         // Feasibility is often inversely related to novelty
         let feasibility_score = 1.0 - (novelty_score * 0.3);
 
-        let overall = (novelty_score * 0.4 + value_score * 0.4 + feasibility_score * 0.2);
+        let overall = novelty_score * 0.4 + value_score * 0.4 + feasibility_score * 0.2;
 
         Evaluation {
             novelty_score,
@@ -631,7 +624,9 @@ impl CreativityEngine {
                 }
             }
             Transformation::AbstractionLevel(level) => {
-                new_concept.abstractions = new_concept.abstractions.iter()
+                new_concept.abstractions = new_concept
+                    .abstractions
+                    .iter()
                     .take(level)
                     .cloned()
                     .collect();
@@ -696,7 +691,10 @@ pub enum Transformation {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("crt_{}", now % 1_000_000)
 }
 

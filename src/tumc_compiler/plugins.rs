@@ -2,8 +2,8 @@
 //!
 //! Extensible plugin architecture for extending TUMC compiler functionality.
 
-use std::collections::HashSet;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -173,10 +173,8 @@ impl PluginManager {
             entry: path.to_string_lossy().to_string(),
         };
 
-        let plugin: Arc<dyn Plugin> = Arc::new(DynamicPlugin {
-            metadata,
-            state: PluginState::Loaded,
-        });
+        let plugin: Arc<dyn Plugin> =
+            Arc::new(DynamicPlugin { metadata, state: PluginState::Loaded });
         self.plugins.insert(name.clone(), plugin);
 
         Ok(())
@@ -184,10 +182,7 @@ impl PluginManager {
 
     /// Register hook
     pub fn register_hook(&mut self, event: &str, hook: Arc<dyn PluginHook>) -> &mut Self {
-        self.hooks
-            .entry(event.to_string())
-            .or_default()
-            .push(hook);
+        self.hooks.entry(event.to_string()).or_default().push(hook);
         self
     }
 
@@ -297,10 +292,7 @@ impl PluginPass {
     where
         F: Fn(&str) -> Result<String, PluginError> + Send + Sync + 'static,
     {
-        Self {
-            name: name.to_string(),
-            run: Box::new(run),
-        }
+        Self { name: name.to_string(), run: Box::new(run) }
     }
 
     /// Execute pass
@@ -331,18 +323,12 @@ pub struct ExtensionContext {
 impl ExtensionContext {
     /// Create new context
     pub fn new(source: String) -> Self {
-        Self {
-            compiler_state: HashMap::new(),
-            source,
-            ast: None,
-        }
+        Self { compiler_state: HashMap::new(), source, ast: None }
     }
 
     /// Get state value
     pub fn get_state<T: 'static>(&self, key: &str) -> Option<&T> {
-        self.compiler_state
-            .get(key)
-            .and_then(|v| v.downcast_ref())
+        self.compiler_state.get(key).and_then(|v| v.downcast_ref())
     }
 
     /// Set state value
@@ -413,10 +399,7 @@ impl PluginSandbox {
     /// Create new sandbox
     pub fn new() -> Self {
         Self {
-            allowed_ops: HashSet::from([
-                AllowedOp::ReadFile,
-                AllowedOp::WriteFile,
-            ]),
+            allowed_ops: HashSet::from([AllowedOp::ReadFile, AllowedOp::WriteFile]),
             memory_limit: 128 * 1024 * 1024, // 128MB
             cpu_limit_secs: 30,
         }
@@ -463,10 +446,7 @@ pub struct PluginDiscovery {
 impl PluginDiscovery {
     /// Create new discovery
     pub fn new() -> Self {
-        Self {
-            search_paths: Vec::new(),
-            cache: HashMap::new(),
-        }
+        Self { search_paths: Vec::new(), cache: HashMap::new() }
     }
 
     /// Add search path

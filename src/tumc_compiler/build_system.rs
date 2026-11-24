@@ -3,12 +3,12 @@
 //! Incremental build system for TUMC projects with caching,
 //! parallel compilation, and cross-platform support.
 
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant, SystemTime};
-use serde::{Deserialize, Serialize};
 
 use crate::tumc_compiler::package_manager::{PackageManifest, Version};
 use crate::tumc_compiler::{OptimizationLevel, TargetPlatform};
@@ -166,11 +166,7 @@ pub struct BuildPlan {
 impl BuildPlan {
     /// Create new plan
     pub fn new() -> Self {
-        Self {
-            units: Vec::new(),
-            link_units: Vec::new(),
-            total_units: 0,
-        }
+        Self { units: Vec::new(), link_units: Vec::new(), total_units: 0 }
     }
 
     /// Check if unit needs rebuilding
@@ -236,7 +232,10 @@ impl BuildContext {
         Self {
             config,
             workspace,
-            package: PackageManifest::new("unknown", Version { major: 0, minor: 0, patch: 0, pre: None, build: None }),
+            package: PackageManifest::new(
+                "unknown",
+                Version { major: 0, minor: 0, patch: 0, pre: None, build: None },
+            ),
             targets: Vec::new(),
             dependencies: HashMap::new(),
         }
@@ -249,7 +248,8 @@ impl BuildContext {
         for target in &self.targets {
             for source in &target.sources {
                 let output = self.output_path(target, source);
-                let mut unit = BuildUnit::new(&self.package.name, &target.name, source.clone(), output);
+                let mut unit =
+                    BuildUnit::new(&self.package.name, &target.name, source.clone(), output);
                 unit.compute_fingerprint();
                 plan.units.push(unit);
             }
@@ -265,7 +265,11 @@ impl BuildContext {
         let ext = match self.config.target {
             TargetPlatform::Wasm => "wasm",
             TargetPlatform::Native => {
-                if target.kind == TargetKind::Library { "rlib" } else { "o" }
+                if target.kind == TargetKind::Library {
+                    "rlib"
+                } else {
+                    "o"
+                }
             }
             _ => "o",
         };
@@ -314,10 +318,7 @@ impl BuildDriver {
 
         Self {
             context,
-            cache: BuildCache {
-                fingerprints: HashMap::new(),
-                dir: cache_dir,
-            },
+            cache: BuildCache { fingerprints: HashMap::new(), dir: cache_dir },
             queue: Arc::new(RwLock::new(Vec::new())),
             active: Arc::new(RwLock::new(HashSet::new())),
             results: Arc::new(RwLock::new(Vec::new())),
@@ -416,8 +417,16 @@ impl BuildDriver {
             unit: unit.clone(),
             success: result.success,
             duration: start.elapsed(),
-            output: if result.success { Some(unit.output.clone()) } else { None },
-            error: if result.success { None } else { Some("Compilation failed".to_string()) },
+            output: if result.success {
+                Some(unit.output.clone())
+            } else {
+                None
+            },
+            error: if result.success {
+                None
+            } else {
+                Some("Compilation failed".to_string())
+            },
         }
     }
 
@@ -503,10 +512,7 @@ pub struct BuildScript {
 impl BuildScript {
     /// Create new build script
     pub fn new(script: PathBuf) -> Self {
-        Self {
-            script,
-            env: HashMap::new(),
-        }
+        Self { script, env: HashMap::new() }
     }
 
     /// Set environment variable
@@ -571,10 +577,7 @@ pub struct Watcher {
 impl Watcher {
     /// Create new watcher
     pub fn new() -> Self {
-        Self {
-            paths: Vec::new(),
-            debounce: Duration::from_millis(500),
-        }
+        Self { paths: Vec::new(), debounce: Duration::from_millis(500) }
     }
 
     /// Add path to watch

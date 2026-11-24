@@ -1,10 +1,10 @@
 //! WASM code generation for TUMC compiler
 //! Generates WebAssembly bytecode from parsed and type-checked AST
 
-use super::ast::{ *};
-use super::type_checker::{Type};
+use super::ast::*;
 use super::optimizer::OptimizationLevel;
-use std::collections::{HashMap};
+use super::type_checker::Type;
+use std::collections::HashMap;
 
 /// WASM value types
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -50,7 +50,6 @@ impl WasmType {
 #[derive(Debug, Clone)]
 pub enum WasmInstruction {
     // Control flow
-
     /// `end` — terminates a block or a function body.
     End,
 
@@ -231,17 +230,25 @@ impl WasmFuncType {
         let params = if self.params.is_empty() {
             "".to_string()
         } else {
-            format!(" (param{})", self.params.iter()
-                .map(|t| format!(" {}", t.name()))
-                .collect::<String>())
+            format!(
+                " (param{})",
+                self.params
+                    .iter()
+                    .map(|t| format!(" {}", t.name()))
+                    .collect::<String>()
+            )
         };
 
         let results = if self.results.is_empty() {
             "".to_string()
         } else {
-            format!(" (result{})", self.results.iter()
-                .map(|t| format!(" {}", t.name()))
-                .collect::<String>())
+            format!(
+                " (result{})",
+                self.results
+                    .iter()
+                    .map(|t| format!(" {}", t.name()))
+                    .collect::<String>()
+            )
         };
 
         format!("(func (type {}){} {})", 0, params, results)
@@ -353,7 +360,10 @@ impl CodeGen {
 
     /// Generate code from program
     pub fn generate(&mut self, program: &Program) -> Result<(), String> {
-        println!("TUMC: CodeGen - Generating WASM code for program with {} items", program.items.len());
+        println!(
+            "TUMC: CodeGen - Generating WASM code for program with {} items",
+            program.items.len()
+        );
 
         // Reserve type index 0 for the main function type
         self.module.types.push(WasmFuncType::new(vec![], vec![]));
@@ -372,15 +382,16 @@ impl CodeGen {
         }
 
         // Add memory if needed
-        if self.module.functions.iter().any(|f| matches!(
-            f.body.iter().find(|i| matches!(i, WasmInstruction::MemorySize)),
-            Some(_)
-        )) {
-            self.module.memory = Some(WasmMemory {
-                min_pages: 1,
-                max_pages: Some(256),
-                data: vec![],
-            });
+        if self.module.functions.iter().any(|f| {
+            matches!(
+                f.body
+                    .iter()
+                    .find(|i| matches!(i, WasmInstruction::MemorySize)),
+                Some(_)
+            )
+        }) {
+            self.module.memory =
+                Some(WasmMemory { min_pages: 1, max_pages: Some(256), data: vec![] });
         }
 
         Ok(())
@@ -476,11 +487,9 @@ impl CodeGen {
 
             // Add export if needed
             if func_name == "main" || func_name == "_start" {
-                self.module.exports.push((
-                    func_name.clone(),
-                    WasmExportKind::Function,
-                    func_idx,
-                ));
+                self.module
+                    .exports
+                    .push((func_name.clone(), WasmExportKind::Function, func_idx));
             }
         }
 
@@ -490,9 +499,7 @@ impl CodeGen {
 
     /// Find or create type for function
     fn find_or_create_type(&mut self, func: &Function) -> u32 {
-        let params: Vec<WasmType> = func.params.iter()
-            .map(|_| WasmType::I32)
-            .collect();
+        let params: Vec<WasmType> = func.params.iter().map(|_| WasmType::I32).collect();
 
         let result: Vec<WasmType> = match &func.return_type {
             AnnType::Unit => vec![],
@@ -525,7 +532,10 @@ impl CodeGen {
             offset += 4;
         }
 
-        println!("TUMC: CodeGen - Generated layout for struct '{}': {} bytes", struct_.name, offset);
+        println!(
+            "TUMC: CodeGen - Generated layout for struct '{}': {} bytes",
+            struct_.name, offset
+        );
         Ok(())
     }
 
@@ -544,11 +554,9 @@ impl CodeGen {
             init,
         });
 
-        self.module.exports.push((
-            const_.name.clone(),
-            WasmExportKind::Global,
-            global_idx,
-        ));
+        self.module
+            .exports
+            .push((const_.name.clone(), WasmExportKind::Global, global_idx));
 
         Ok(())
     }
@@ -631,11 +639,14 @@ impl CodeGen {
                 self.next_label += 1;
 
                 // Generate loop header
-                instrs.push(WasmInstruction::Block(WasmType::Empty, vec![
-                    // Check condition
-                    self.generate_expression_to(condition, &mut Vec::new())?,
-                    WasmInstruction::BrIf(loop_label), // Exit if false
-                ]));
+                instrs.push(WasmInstruction::Block(
+                    WasmType::Empty,
+                    vec![
+                        // Check condition
+                        self.generate_expression_to(condition, &mut Vec::new())?,
+                        WasmInstruction::BrIf(loop_label), // Exit if false
+                    ],
+                ));
 
                 // Generate body
                 for s in body {
@@ -705,7 +716,11 @@ impl CodeGen {
     }
 
     /// Generate statement to specific instruction list
-    fn generate_statement_to(&mut self, stmt: &Stmt, instrs: &mut Vec<WasmInstruction>) -> Result<(), String> {
+    fn generate_statement_to(
+        &mut self,
+        stmt: &Stmt,
+        instrs: &mut Vec<WasmInstruction>,
+    ) -> Result<(), String> {
         match &stmt.kind {
             StmtKind::Expr(expr) => {
                 self.generate_expression(expr, instrs)?;
@@ -732,13 +747,21 @@ impl CodeGen {
     }
 
     /// Generate expression to specific instruction list
-    fn generate_expression_to(&self, _expr: &Expr, _instrs: &mut Vec<WasmInstruction>) -> Result<WasmInstruction, String> {
+    fn generate_expression_to(
+        &self,
+        _expr: &Expr,
+        _instrs: &mut Vec<WasmInstruction>,
+    ) -> Result<WasmInstruction, String> {
         // This is a helper - actual generation happens in generate_expression
         Ok(WasmInstruction::Nop)
     }
 
     /// Generate expression
-    fn generate_expression(&mut self, expr: &Expr, instrs: &mut Vec<WasmInstruction>) -> Result<(), String> {
+    fn generate_expression(
+        &mut self,
+        expr: &Expr,
+        instrs: &mut Vec<WasmInstruction>,
+    ) -> Result<(), String> {
         match &expr.kind {
             ExprKind::Literal(lit) => {
                 self.generate_literal(lit, instrs);
@@ -795,7 +818,11 @@ impl CodeGen {
                     }
                 }
 
-                instrs.push(WasmInstruction::If(WasmType::Empty, then_instrs, else_instrs));
+                instrs.push(WasmInstruction::If(
+                    WasmType::Empty,
+                    then_instrs,
+                    else_instrs,
+                ));
             }
 
             ExprKind::Array(elements) => {
@@ -887,7 +914,7 @@ impl CodeGen {
             UnOp::Neg => instrs.push(WasmInstruction::I32Const(0)),
             UnOp::Not => instrs.push(WasmInstruction::I32Eqz),
             UnOp::BitNot => instrs.push(WasmInstruction::I32Const(0)), // Simplified
-            UnOp::Deref => {} // Handled by pointer type
+            UnOp::Deref => {}                                          // Handled by pointer type
         }
     }
 
@@ -913,14 +940,20 @@ impl CodeGen {
         for (idx, ty) in self.module.types.iter().enumerate() {
             output.push_str(&format!("  (type (${}) (func", idx));
             if !ty.params.is_empty() {
-                output.push_str(&ty.params.iter()
-                    .map(|t| format!(" (param {})", t.name()))
-                    .collect::<String>());
+                output.push_str(
+                    &ty.params
+                        .iter()
+                        .map(|t| format!(" (param {})", t.name()))
+                        .collect::<String>(),
+                );
             }
             if !ty.results.is_empty() {
-                output.push_str(&ty.results.iter()
-                    .map(|t| format!(" (result {})", t.name()))
-                    .collect::<String>());
+                output.push_str(
+                    &ty.results
+                        .iter()
+                        .map(|t| format!(" (result {})", t.name()))
+                        .collect::<String>(),
+                );
             }
             output.push_str("))\n");
         }
@@ -948,13 +981,17 @@ impl CodeGen {
 
             // Export
             if func.export {
-                output.push_str(&format!("  (export \"{}\" (func ${}))\n", func.name, func.name));
+                output.push_str(&format!(
+                    "  (export \"{}\" (func ${}))\n",
+                    func.name, func.name
+                ));
             }
         }
 
         // Memory
         if let Some(ref mem) = self.module.memory {
-            output.push_str(&format!("  (memory (export \"memory\") {}",
+            output.push_str(&format!(
+                "  (memory (export \"memory\") {}",
                 if let Some(max) = mem.max_pages {
                     format!("{} {}", mem.min_pages, max)
                 } else {
@@ -1033,29 +1070,38 @@ impl CodeGen {
             WasmInstruction::MemorySize => "memory.size".to_string(),
             WasmInstruction::MemoryGrow => "memory.grow".to_string(),
             WasmInstruction::Block(result_type, instrs) => {
-                let inner = instrs.iter()
+                let inner = instrs
+                    .iter()
                     .map(|i| format!("\n{}{}", prefix, self.format_instruction(i, indent + 1)))
                     .collect::<String>();
                 format!("(block {}{})", result_type.name(), inner)
             }
             WasmInstruction::Loop(result_type, instrs) => {
-                let inner = instrs.iter()
+                let inner = instrs
+                    .iter()
                     .map(|i| format!("\n{}{}", prefix, self.format_instruction(i, indent + 1)))
                     .collect::<String>();
                 format!("(loop {}{})", result_type.name(), inner)
             }
             WasmInstruction::If(result_type, then_instrs, else_instrs) => {
-                let then_inner = then_instrs.iter()
+                let then_inner = then_instrs
+                    .iter()
                     .map(|i| format!("\n{}{}", prefix, self.format_instruction(i, indent + 1)))
                     .collect::<String>();
-                let else_inner = else_instrs.iter()
+                let else_inner = else_instrs
+                    .iter()
                     .map(|i| format!("\n{}{}", prefix, self.format_instruction(i, indent + 1)))
                     .collect::<String>();
-                format!("(if {}{}{}{}{})",
+                format!(
+                    "(if {}{}{}{}{})",
                     result_type.name(),
                     then_inner,
                     if else_instrs.is_empty() { "" } else { "(then" },
-                    if else_instrs.is_empty() { "" } else { else_inner.as_str() },
+                    if else_instrs.is_empty() {
+                        ""
+                    } else {
+                        else_inner.as_str()
+                    },
                     if else_instrs.is_empty() { "" } else { ")" }
                 )
             }
@@ -1076,7 +1122,7 @@ impl CodeGen {
 
         // WASM magic number
         bytes.extend_from_slice(&[0x00, 0x61, 0x73, 0x6d]); // "\0asm"
-        // Version
+                                                            // Version
         bytes.extend_from_slice(&[0x01, 0x00, 0x00, 0x00]);
 
         // Type section

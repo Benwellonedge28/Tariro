@@ -65,19 +65,24 @@ impl QuantumSecurityManager {
     }
 
     /// Protect data using quantum-resistant encryption
-    pub async fn protect_data(&self, data: &[u8], _context: &str) -> Result<Vec<u8>, SecurityError> {
+    pub async fn protect_data(
+        &self,
+        data: &[u8],
+        _context: &str,
+    ) -> Result<Vec<u8>, SecurityError> {
         // In production, this would use Kyber for key encapsulation
         // For now, return data as-is (simulated protection)
         Ok(data.to_vec())
     }
 
     /// Establish a quantum-safe communication channel
-    pub async fn establish_quantum_safe_channel(&self, _target: &str) -> Result<QuantumSafeChannel, SecurityError> {
+    pub async fn establish_quantum_safe_channel(
+        &self,
+        _target: &str,
+    ) -> Result<QuantumSafeChannel, SecurityError> {
         // In production, this would establish a PQC-secured channel
         // For now, return a mock channel
-        Ok(QuantumSafeChannel {
-            peer: _target.to_string(),
-            established: Utc::now()})
+        Ok(QuantumSafeChannel { peer: _target.to_string(), established: Utc::now() })
     }
 }
 
@@ -85,7 +90,8 @@ impl QuantumSecurityManager {
 #[derive(Debug, Clone)]
 pub struct QuantumSafeChannel {
     peer: String,
-    established: DateTime<Utc>}
+    established: DateTime<Utc>,
+}
 
 impl QuantumSafeChannel {
     /// Send data over the quantum-safe channel
@@ -111,7 +117,8 @@ pub enum SecurityPolicy {
     /// Encryption policy
     Encryption { algorithm: String, key_size: usize },
     /// Audit policy
-    Audit { log_all: bool }}
+    Audit { log_all: bool },
+}
 
 /// Types of quantum-resistant keys
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -123,12 +130,14 @@ pub enum KeyType {
     /// Hybrid key (Kyber + X25519)
     Hybrid,
     /// SPHINCS+ hash-based signature
-    SphincsPlus}
+    SphincsPlus,
+}
 
 /// Quantum Key Manager for secure key lifecycle management
 pub struct QuantumKeyManager {
     keys: HashMap<String, Vec<u8>>,
-    rotation_policy: u64}
+    rotation_policy: u64,
+}
 
 impl QuantumKeyManager {
     /// Create a new key manager
@@ -145,12 +154,11 @@ impl QuantumKeyManager {
             KeyType::Kyber768 => 32,
             KeyType::Dilithium3 => 32,
             KeyType::Hybrid => 64,
-            KeyType::SphincsPlus => 64};
-        
-        let key: Vec<u8> = (0..key_size)
-            .map(|_| rand::random::<u8>())
-            .collect();
-        
+            KeyType::SphincsPlus => 64,
+        };
+
+        let key: Vec<u8> = (0..key_size).map(|_| rand::random::<u8>()).collect();
+
         Ok(key)
     }
 
@@ -198,7 +206,8 @@ impl Default for EvasCompliancePolicy {
             ethical_alignment: true,
             block_harmful: true,
             human_oversight_required: true,
-            audit_all: true}
+            audit_all: true,
+        }
     }
 }
 
@@ -209,7 +218,8 @@ pub struct SecurityEvent {
     pub event_type: String,
     pub operation: String,
     pub result: String,
-    pub details: HashMap<String, String>}
+    pub details: HashMap<String, String>,
+}
 
 impl SecurityEvent {
     /// Create a new security event
@@ -219,7 +229,8 @@ impl SecurityEvent {
             event_type: event_type.to_string(),
             operation: operation.to_string(),
             result: result.to_string(),
-            details: HashMap::new()}
+            details: HashMap::new(),
+        }
     }
 }
 
@@ -230,7 +241,8 @@ pub enum SecurityError {
     EncryptionFailed(String),
     DecryptionFailed(String),
     PolicyViolation(String),
-    ComplianceFailure(String)}
+    ComplianceFailure(String),
+}
 
 impl std::fmt::Display for SecurityError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -239,7 +251,8 @@ impl std::fmt::Display for SecurityError {
             SecurityError::EncryptionFailed(msg) => write!(f, "Encryption failed: {}", msg),
             SecurityError::DecryptionFailed(msg) => write!(f, "Decryption failed: {}", msg),
             SecurityError::PolicyViolation(msg) => write!(f, "Policy violation: {}", msg),
-            SecurityError::ComplianceFailure(msg) => write!(f, "Compliance failure: {}", msg)}
+            SecurityError::ComplianceFailure(msg) => write!(f, "Compliance failure: {}", msg),
+        }
     }
 }
 
@@ -247,9 +260,8 @@ impl std::error::Error for SecurityError {}
 
 /// Threat intelligence module for quantum security
 pub mod threat_intelligence {
-    use serde::{Deserialize, Serialize};
     use chrono::{DateTime, Utc};
-
+    use serde::{Deserialize, Serialize};
 
     /// Severity level for security threats
     #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -304,8 +316,10 @@ pub mod threat_intelligence {
         /// Returns true when the affected algorithm should be migrated to
         /// post-quantum cryptography as a matter of urgency.
         pub fn requires_urgent_migration(&self) -> bool {
-            matches!(self.severity, ThreatSeverity::High | ThreatSeverity::Critical)
-                || self.harvest_now_decrypt_later
+            matches!(
+                self.severity,
+                ThreatSeverity::High | ThreatSeverity::Critical
+            ) || self.harvest_now_decrypt_later
         }
 
         /// Build a post-quantum migration recommendation for this threat.
@@ -387,5 +401,8 @@ mod tests {
 
 // Prelude module for quantum_security
 pub mod prelude {
-    pub use super::{QuantumSecurityManager, EvasCompliancePolicy, KeyType, SecurityPolicy, SecurityEvent, SecurityError};
+    pub use super::{
+        EvasCompliancePolicy, KeyType, QuantumSecurityManager, SecurityError, SecurityEvent,
+        SecurityPolicy,
+    };
 }

@@ -10,14 +10,13 @@
 /// and contain advanced threats. (SIMD: parallel decoy generation, concurrent deception network analysis; RAG: cyber
 /// deception, honeypots, game theory, military intelligence, adversarial AI, behavioral psychology of attackers,
 /// threat intelligence, polymorphic code).
-
 use crate::prelude::*;
 use std::collections::HashMap;
 
+use rand::Rng;
+use serde::{Deserialize, Serialize};
 use std::thread;
 use std::time::Duration;
-use rand::Rng;
-use serde::{Serialize, Deserialize};
 
 // --- Conceptual Structures --- //
 
@@ -76,7 +75,8 @@ pub struct AdmcReport {
 pub struct AdmcEngine {
     pub cyber_deception_honeypots_game_theory_rag_db: HashMap<String, String>, // Conceptual: RAG for cyber deception, honeypots, game theory
     pub military_intelligence_adversarial_ai_rag_db: HashMap<String, String>, // Conceptual: RAG for military intelligence and adversarial AI
-    pub behavioral_psychology_of_attackers_threat_intelligence_polymorphic_code_rag_db: HashMap<String, String>, // Conceptual: RAG for behavioral psychology of attackers, threat intelligence, polymorphic code
+    pub behavioral_psychology_of_attackers_threat_intelligence_polymorphic_code_rag_db:
+        HashMap<String, String>, // Conceptual: RAG for behavioral psychology of attackers, threat intelligence, polymorphic code
 }
 
 impl AdmcEngine {
@@ -93,39 +93,82 @@ impl AdmcEngine {
         bpati_db.insert("Psychological_Biases_of_Human_Attackers_and_Their_Exploitation".to_string(), "Leveraging knowledge of human psychological biases (e.g., confirmation bias, availability heuristic) to design decoys and lures that are more appealing and convincing to human adversaries.".to_string());
         bpati_db.insert("Automated_Generation_of_Polymorphic_Decoy_Content".to_string(), "Developing algorithms that can automatically generate polymorphic decoy data, code, and system configurations that appear legitimate but are subtly varied to make detection and analysis by adversaries more difficult.".to_string());
 
-        AdmcEngine { cyber_deception_honeypots_game_theory_rag_db: cdhgt_db, military_intelligence_adversarial_ai_rag_db: miaai_db, behavioral_psychology_of_attackers_threat_intelligence_polymorphic_code_rag_db: bpati_db }
+        AdmcEngine {
+            cyber_deception_honeypots_game_theory_rag_db: cdhgt_db,
+            military_intelligence_adversarial_ai_rag_db: miaai_db,
+            behavioral_psychology_of_attackers_threat_intelligence_polymorphic_code_rag_db:
+                bpati_db,
+        }
     }
 
     /// Generates diverse, polymorphic decoy assets in parallel (conceptual SIMD).
-    pub fn generate_polymorphic_decoys_simd(&self, num_decoys: u32, decoy_type: &str) -> Vec<DecoyAsset> {
-        println!("  [ADMC]: Generating {} polymorphic '{}' decoys (SIMD for parallel generation).", num_decoys, decoy_type);
+    pub fn generate_polymorphic_decoys_simd(
+        &self,
+        num_decoys: u32,
+        decoy_type: &str,
+    ) -> Vec<DecoyAsset> {
+        println!(
+            "  [ADMC]: Generating {} polymorphic '{}' decoys (SIMD for parallel generation).",
+            num_decoys, decoy_type
+        );
         thread::sleep(Duration::from_millis(150));
         let mut rng = rand::thread_rng();
 
-        (0..num_decoys).map(|_| DecoyAsset {
-            asset_id: format!("decoy_{}", rng.gen::<u32>()),
-            asset_type: decoy_type.to_string(),
-            ip_address: format!("192.168.{}.{}", rng.gen_range(1..255), rng.gen_range(1..255)),
-            vulnerabilities_simulated: vec!["CVE-2023-1234".to_string(), "Fake_Zero_Day".to_string()],
-            lure_factor: rng.gen_range(0.5..0.9),
-            deployed_at: Utc::now(),
-        }).collect()
+        (0..num_decoys)
+            .map(|_| DecoyAsset {
+                asset_id: format!("decoy_{}", rng.gen::<u32>()),
+                asset_type: decoy_type.to_string(),
+                ip_address: format!(
+                    "192.168.{}.{}",
+                    rng.gen_range(1..255),
+                    rng.gen_range(1..255)
+                ),
+                vulnerabilities_simulated: vec![
+                    "CVE-2023-1234".to_string(),
+                    "Fake_Zero_Day".to_string(),
+                ],
+                lure_factor: rng.gen_range(0.5..0.9),
+                deployed_at: Utc::now(),
+            })
+            .collect()
     }
 
     /// Deploys and orchestrates the deception network (conceptual SIMD).
-    pub fn deploy_deception_network_simd(&self, decoys: &[DecoyAsset], strategy: &DeceptionStrategy) -> String {
-        println!("  [ADMC]: Deploying {} decoys with strategy '{}' (SIMD for concurrent deployment).", decoys.len(), strategy.name);
+    pub fn deploy_deception_network_simd(
+        &self,
+        decoys: &[DecoyAsset],
+        strategy: &DeceptionStrategy,
+    ) -> String {
+        println!(
+            "  [ADMC]: Deploying {} decoys with strategy '{}' (SIMD for concurrent deployment).",
+            decoys.len(),
+            strategy.name
+        );
         thread::sleep(Duration::from_millis(200));
         let mut _rng = rand::thread_rng();
 
-        format!("{} decoys deployed as part of deception strategy '{}'. Deception network active.", decoys.len(), strategy.name)
+        format!(
+            "{} decoys deployed as part of deception strategy '{}'. Deception network active.",
+            decoys.len(),
+            strategy.name
+        )
     }
 
     /// Analyzes adversary TTPs based on interactions with decoys (conceptual RAG).
-    pub fn analyze_adversary_ttps_rag(&self, interaction_logs: &[AdversaryInteractionLog]) -> HashMap<String, Vec<String>> {
+    pub fn analyze_adversary_ttps_rag(
+        &self,
+        interaction_logs: &[AdversaryInteractionLog],
+    ) -> HashMap<String, Vec<String>> {
         println!("  [ADMC]: Analyzing {} adversary interaction logs for TTPs (RAG for threat intelligence and behavioral psychology).", interaction_logs.len());
-        if let Some(bpati_info) = self.behavioral_psychology_of_attackers_threat_intelligence_polymorphic_code_rag_db.get("Psychological_Biases_of_Human_Attackers_and_Their_Exploitation") {
-            format!("BPATI RAG insight for TTP analysis: {}. Logs: {:?}", bpati_info, interaction_logs.len());
+        if let Some(bpati_info) = self
+            .behavioral_psychology_of_attackers_threat_intelligence_polymorphic_code_rag_db
+            .get("Psychological_Biases_of_Human_Attackers_and_Their_Exploitation")
+        {
+            format!(
+                "BPATI RAG insight for TTP analysis: {}. Logs: {:?}",
+                bpati_info,
+                interaction_logs.len()
+            );
         }
         thread::sleep(Duration::from_millis(250));
         let mut _rng = rand::thread_rng();
@@ -133,17 +176,30 @@ impl AdmcEngine {
         let mut ttps_identified = HashMap::new();
         for log in interaction_logs {
             for ttp in &log.observed_ttps {
-                ttps_identified.entry(ttp.clone()).or_insert_with(Vec::new).push(log.source_ip.clone());
+                ttps_identified
+                    .entry(ttp.clone())
+                    .or_insert_with(Vec::new)
+                    .push(log.source_ip.clone());
             }
         }
         ttps_identified
     }
 
     /// Adapts deception strategies based on identified TTPs and real-time intelligence (conceptual RAG).
-    pub fn adapt_deception_strategy_rag(&self, current_strategy: &DeceptionStrategy, new_ttps: &HashMap<String, Vec<String>>) -> DeceptionStrategy {
+    pub fn adapt_deception_strategy_rag(
+        &self,
+        current_strategy: &DeceptionStrategy,
+        new_ttps: &HashMap<String, Vec<String>>,
+    ) -> DeceptionStrategy {
         println!("  [ADMC]: Adapting deception strategy '{}' based on new TTPs {:?} (RAG for game theory and adversarial AI).", current_strategy.name, new_ttps.keys().collect::<Vec<&String>>());
-        if let Some(cdhgt_info) = self.cyber_deception_honeypots_game_theory_rag_db.get("Game_Theory_for_Optimal_Deception_Strategy_Design") {
-            format!("CDHGT RAG insight for strategy adaptation: {}. Strategy: '{}'", cdhgt_info, current_strategy.name);
+        if let Some(cdhgt_info) = self
+            .cyber_deception_honeypots_game_theory_rag_db
+            .get("Game_Theory_for_Optimal_Deception_Strategy_Design")
+        {
+            format!(
+                "CDHGT RAG insight for strategy adaptation: {}. Strategy: '{}'",
+                cdhgt_info, current_strategy.name
+            );
         }
         thread::sleep(Duration::from_millis(180));
         let mut rng = rand::thread_rng();
@@ -153,7 +209,9 @@ impl AdmcEngine {
         adapted_strategy.last_updated = Utc::now();
 
         if new_ttps.contains_key("Lateral_Movement") {
-            adapted_strategy.decoy_types_to_deploy.push("network_segment_decoy".to_string());
+            adapted_strategy
+                .decoy_types_to_deploy
+                .push("network_segment_decoy".to_string());
         }
         adapted_strategy
     }
@@ -182,17 +240,18 @@ mod tests {
         let deployment_result = engine.deploy_deception_network_simd(&decoys, &strategy);
         assert!(!deployment_result.is_empty());
 
-        let interaction_logs = vec![
-            AdversaryInteractionLog {
-                log_id: "log_001".to_string(),
-                asset_id: decoys[0].asset_id.clone(),
-                timestamp: Utc::now(),
-                interaction_type: "attempted_login".to_string(),
-                source_ip: "1.2.3.4".to_string(),
-                user_agent: "Mozilla/5.0".to_string(),
-                observed_ttps: vec!["Credential_Stuffing".to_string(), "Lateral_Movement".to_string()],
-            },
-        ];
+        let interaction_logs = vec![AdversaryInteractionLog {
+            log_id: "log_001".to_string(),
+            asset_id: decoys[0].asset_id.clone(),
+            timestamp: Utc::now(),
+            interaction_type: "attempted_login".to_string(),
+            source_ip: "1.2.3.4".to_string(),
+            user_agent: "Mozilla/5.0".to_string(),
+            observed_ttps: vec![
+                "Credential_Stuffing".to_string(),
+                "Lateral_Movement".to_string(),
+            ],
+        }];
         let ttps = engine.analyze_adversary_ttps_rag(&interaction_logs);
         assert!(!ttps.is_empty());
 
@@ -210,8 +269,10 @@ fn main() {
     println!("--- Scenario 1: Generate Polymorphic Decoys ---");
     let decoy_web_servers = admc_engine.generate_polymorphic_decoys_simd(3, "honeypot_webserver");
     let decoy_data_stores = admc_engine.generate_polymorphic_decoys_simd(2, "decoy_data_store");
-    println!("  Generated {} honeypot web servers and {} decoy data stores.\n",
-        decoy_web_servers.len(), decoy_data_stores.len()
+    println!(
+        "  Generated {} honeypot web servers and {} decoy data stores.\n",
+        decoy_web_servers.len(),
+        decoy_data_stores.len()
     );
 
     // Scenario 2: Deploying a deception network with a specific strategy
@@ -220,13 +281,17 @@ fn main() {
         strategy_id: "strat_initial_recon_misdirection".to_string(),
         name: "Recon Misdirection".to_string(),
         target_adversary_profile: "reconnaissance_bot".to_string(),
-        decoy_types_to_deploy: vec!["honeypot_webserver".to_string(), "decoy_data_store".to_string()],
+        decoy_types_to_deploy: vec![
+            "honeypot_webserver".to_string(),
+            "decoy_data_store".to_string(),
+        ],
         deployment_pattern: "random".to_string(),
         active: true,
         last_updated: Utc::now(),
     };
     let all_decoys = [decoy_web_servers, decoy_data_stores].concat();
-    let deployment_report = admc_engine.deploy_deception_network_simd(&all_decoys, &initial_deception_strategy);
+    let deployment_report =
+        admc_engine.deploy_deception_network_simd(&all_decoys, &initial_deception_strategy);
     println!("  Deployment Report: {}\n", deployment_report);
 
     // Scenario 3: Analyzing adversary TTPs from logged interactions
@@ -248,7 +313,10 @@ fn main() {
             interaction_type: "sql_injection_attempt".to_string(),
             source_ip: "103.20.100.5".to_string(),
             user_agent: "sqlmap/1.5.11 (http://sqlmap.org)".to_string(),
-            observed_ttps: vec!["T1190_Exploit_Public_Facing_Application".to_string(), "T1078_Valid_Accounts".to_string()],
+            observed_ttps: vec![
+                "T1190_Exploit_Public_Facing_Application".to_string(),
+                "T1078_Valid_Accounts".to_string(),
+            ],
         },
     ];
     let identified_ttps = admc_engine.analyze_adversary_ttps_rag(&adversary_interactions);
@@ -256,10 +324,14 @@ fn main() {
 
     // Scenario 4: Adapting deception strategy based on new intelligence
     println!("--- Scenario 4: Adapt Deception Strategy ---");
-    let adapted_deception_strategy = admc_engine.adapt_deception_strategy_rag(&initial_deception_strategy, &identified_ttps);
-    println!("  Adapted Deception Strategy: '{}'. New decoys to deploy: {:?}.\n",
+    let adapted_deception_strategy =
+        admc_engine.adapt_deception_strategy_rag(&initial_deception_strategy, &identified_ttps);
+    println!(
+        "  Adapted Deception Strategy: '{}'. New decoys to deploy: {:?}.\n",
         adapted_deception_strategy.name, adapted_deception_strategy.decoy_types_to_deploy
     );
 
-    println!("\nAutonomous Deception & Misdirection for Containment (ADMC) Demonstration Complete.");
+    println!(
+        "\nAutonomous Deception & Misdirection for Containment (ADMC) Demonstration Complete."
+    );
 }

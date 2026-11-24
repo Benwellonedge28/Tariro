@@ -14,18 +14,14 @@
 
 use crate::scaling::capability::{CapabilityProfile, DeviceTier};
 use serde::{Deserialize, Serialize};
-use std::collections::{ VecDeque};
+use std::collections::VecDeque;
 
 /// Computation path selection
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ComputationPath {
     /// Minimal reasoning: O(n) simple rules
     /// For microcontrollers and battery-critical operations
-    Minimal {
-        max_depth: u8,
-        beam_width: usize,
-        timeout_ms: u32,
-    },
+    Minimal { max_depth: u8, beam_width: usize, timeout_ms: u32 },
 
     /// Standard reasoning: O(n log n) with backtracking
     /// For embedded devices
@@ -58,11 +54,9 @@ impl ComputationPath {
     /// Get path for device tier
     pub fn for_tier(tier: DeviceTier) -> Self {
         match tier {
-            DeviceTier::Microcontroller => ComputationPath::Minimal {
-                max_depth: 3,
-                beam_width: 2,
-                timeout_ms: 100,
-            },
+            DeviceTier::Microcontroller => {
+                ComputationPath::Minimal { max_depth: 3, beam_width: 2, timeout_ms: 100 }
+            }
             DeviceTier::Embedded => ComputationPath::Standard {
                 max_depth: 8,
                 beam_width: 4,
@@ -188,7 +182,7 @@ impl ResourceMonitor {
     /// Get overall resource score (0.0 - 1.0)
     pub fn resource_score(&self) -> f32 {
         let memory_score = (self.memory_available_mb / 4096.0).min(1.0);
-        let cpu_score = (1.0 - self.cpu_usage_pct / 100.0);
+        let cpu_score = 1.0 - self.cpu_usage_pct / 100.0;
         let network_score = (self.bandwidth_mbps / 1000.0).min(1.0);
 
         (memory_score + cpu_score + network_score) / 3.0
@@ -373,11 +367,7 @@ impl AdaptiveComputation {
         let safety_margin = if self.config.conservative { 0.2 } else { 0.0 };
 
         if score < 0.2 - safety_margin || !profile.tier.supports_dynamic_memory() {
-            ComputationPath::Minimal {
-                max_depth: 3,
-                beam_width: 2,
-                timeout_ms: 100,
-            }
+            ComputationPath::Minimal { max_depth: 3, beam_width: 2, timeout_ms: 100 }
         } else if score < 0.4 - safety_margin || profile.tier == DeviceTier::Embedded {
             ComputationPath::Standard {
                 max_depth: 8,
@@ -423,11 +413,9 @@ impl AdaptiveComputation {
                 look_ahead: 2,
                 timeout_ms: 1000,
             },
-            ComputationPath::Standard { .. } => ComputationPath::Minimal {
-                max_depth: 3,
-                beam_width: 2,
-                timeout_ms: 100,
-            },
+            ComputationPath::Standard { .. } => {
+                ComputationPath::Minimal { max_depth: 3, beam_width: 2, timeout_ms: 100 }
+            }
             ComputationPath::Minimal { .. } => path,
         }
     }
@@ -448,21 +436,22 @@ impl AdaptiveComputation {
             ComputationPath::Minimal { max_depth, beam_width, timeout_ms } => {
                 self.solve_minimal(problem, max_depth, beam_width, timeout_ms)?
             }
-            ComputationPath::Standard {
-                max_depth,
-                beam_width,
-                look_ahead,
-                timeout_ms,
-            } => self.solve_standard(problem, max_depth, beam_width, look_ahead, timeout_ms)?,
+            ComputationPath::Standard { max_depth, beam_width, look_ahead, timeout_ms } => {
+                self.solve_standard(problem, max_depth, beam_width, look_ahead, timeout_ms)?
+            }
             ComputationPath::Deep {
                 max_depth,
                 beam_width,
                 monte_carlo_simulations,
                 timeout_ms,
-            } => self.solve_deep(problem, max_depth, beam_width, monte_carlo_simulations, timeout_ms)?,
-            ComputationPath::Distributed { .. } => {
-                self.solve_distributed(problem)?
-            }
+            } => self.solve_deep(
+                problem,
+                max_depth,
+                beam_width,
+                monte_carlo_simulations,
+                timeout_ms,
+            )?,
+            ComputationPath::Distributed { .. } => self.solve_distributed(problem)?,
         };
 
         let elapsed = start.elapsed().as_millis() as u64;
@@ -513,11 +502,7 @@ impl AdaptiveComputation {
             content: content.into_bytes(),
             quality,
             computation_used: max_depth as u64 * beam_width as u64,
-            path: ComputationPath::Minimal {
-                max_depth,
-                beam_width,
-                timeout_ms: 100,
-            },
+            path: ComputationPath::Minimal { max_depth, beam_width, timeout_ms: 100 },
         })
     }
 
@@ -552,19 +537,16 @@ impl AdaptiveComputation {
             beam = next_beam;
         }
 
-        let best = beam.into_iter().max_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+        let best = beam
+            .into_iter()
+            .max_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
         let (content, quality) = best.unwrap_or((String::new(), 0.0));
 
         Ok(Solution {
             content: content.into_bytes(),
             quality,
             computation_used: (max_depth as u64) * (beam_width as u64) * (look_ahead as u64),
-            path: ComputationPath::Standard {
-                max_depth,
-                beam_width,
-                look_ahead,
-                timeout_ms: 1000,
-            },
+            path: ComputationPath::Standard { max_depth, beam_width, look_ahead, timeout_ms: 1000 },
         })
     }
 
@@ -653,18 +635,10 @@ impl AdaptiveComputation {
 
     /// Get statistics
     pub fn statistics(&self) -> ComputeStats {
-        let avg_quality = self
-            .problem_history
-            .iter()
-            .map(|p| p.quality)
-            .sum::<f32>()
+        let avg_quality = self.problem_history.iter().map(|p| p.quality).sum::<f32>()
             / self.problem_history.len().max(1) as f32;
 
-        let avg_time = self
-            .problem_history
-            .iter()
-            .map(|p| p.time_ms)
-            .sum::<u64>()
+        let avg_time = self.problem_history.iter().map(|p| p.time_ms).sum::<u64>()
             / self.problem_history.len().max(1) as u64;
 
         ComputeStats {
@@ -707,33 +681,25 @@ pub enum ComputeError {
     },
 
     /// Timeout exceeded
-    Timeout {
-        deadline_ms: u64,
-        actual_ms: u64,
-    },
+    Timeout { deadline_ms: u64, actual_ms: u64 },
 
     /// Computation failed
-    ComputationFailed {
-        reason: String,
-    },
+    ComputationFailed { reason: String },
 
     /// Invalid problem
-    InvalidProblem {
-        reason: String,
-    },
+    InvalidProblem { reason: String },
 }
 
 impl std::fmt::Display for ComputeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ComputeError::ProblemTooComplex {
-                estimated_complexity,
-                available_resources,
-            } => write!(
-                f,
-                "Problem complexity {:?} exceeds available resources ({})",
-                estimated_complexity, available_resources
-            ),
+            ComputeError::ProblemTooComplex { estimated_complexity, available_resources } => {
+                write!(
+                    f,
+                    "Problem complexity {:?} exceeds available resources ({})",
+                    estimated_complexity, available_resources
+                )
+            }
             ComputeError::Timeout { deadline_ms, actual_ms } => {
                 write!(
                     f,
@@ -779,10 +745,22 @@ mod tests {
 
     #[test]
     fn test_complexity_estimate() {
-        assert_eq!(ComplexityEstimate::from_size(5), ComplexityEstimate::Trivial);
-        assert_eq!(ComplexityEstimate::from_size(50), ComplexityEstimate::Simple);
-        assert_eq!(ComplexityEstimate::from_size(500), ComplexityEstimate::Moderate);
-        assert_eq!(ComplexityEstimate::from_size(50000), ComplexityEstimate::VeryComplex);
+        assert_eq!(
+            ComplexityEstimate::from_size(5),
+            ComplexityEstimate::Trivial
+        );
+        assert_eq!(
+            ComplexityEstimate::from_size(50),
+            ComplexityEstimate::Simple
+        );
+        assert_eq!(
+            ComplexityEstimate::from_size(500),
+            ComplexityEstimate::Moderate
+        );
+        assert_eq!(
+            ComplexityEstimate::from_size(50000),
+            ComplexityEstimate::VeryComplex
+        );
     }
 
     #[test]

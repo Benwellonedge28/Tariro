@@ -1,10 +1,9 @@
 // Tariro AGI - Compliance Framework
 // Multi-framework regulatory compliance engine
 
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
-use chrono::{DateTime, Utc};
-
 
 // Missing stub types
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -787,7 +786,10 @@ pub enum RiskLevel {
 
 fn generate_id() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
     format!("cmp_{}", now % 1_000_000)
 }
 
@@ -828,7 +830,8 @@ impl ComplianceEngine {
                 FrameworkControl {
                     control_id: "CC1.1".to_string(),
                     name: "Control Environment".to_string(),
-                    description: "Entity demonstrates commitment to integrity and ethical values".to_string(),
+                    description: "Entity demonstrates commitment to integrity and ethical values"
+                        .to_string(),
                     category: ControlCategory::AccessControl,
                     subcategory: "Control Environment".to_string(),
                     control_type: ControlType::Administrative,
@@ -863,7 +866,8 @@ impl ComplianceEngine {
                 Requirement {
                     requirement_id: "CC6.1.1".to_string(),
                     title: "Authentication".to_string(),
-                    description: "Prior to issuing system credentials, confirms user identity".to_string(),
+                    description: "Prior to issuing system credentials, confirms user identity"
+                        .to_string(),
                     severity: RequirementSeverity::High,
                     applicable: true,
                     compensating_controls: vec![],
@@ -872,7 +876,8 @@ impl ComplianceEngine {
                 Requirement {
                     requirement_id: "CC6.6.1".to_string(),
                     title: "Security for Endpoints".to_string(),
-                    description: "Implements controls to prevent or detect unauthorized software".to_string(),
+                    description: "Implements controls to prevent or detect unauthorized software"
+                        .to_string(),
                     severity: RequirementSeverity::High,
                     applicable: true,
                     compensating_controls: vec![],
@@ -886,17 +891,15 @@ impl ComplianceEngine {
                 auditor: "External Auditor".to_string(),
                 scope: vec!["Security".to_string(), "Availability".to_string()],
             },
-            certifications: vec![
-                Certification {
-                    cert_id: "soc2_cert_001".to_string(),
-                    cert_type: CertificationType::SOC2TypeII,
-                    issued_by: "AICPA".to_string(),
-                    issued_date: Utc::now(),
-                    expiry_date: Some(Utc::now()),
-                    status: CertificationStatus::Active,
-                    scope: "Security and Availability".to_string(),
-                },
-            ],
+            certifications: vec![Certification {
+                cert_id: "soc2_cert_001".to_string(),
+                cert_type: CertificationType::SOC2TypeII,
+                issued_by: "AICPA".to_string(),
+                issued_date: Utc::now(),
+                expiry_date: Some(Utc::now()),
+                status: CertificationStatus::Active,
+                scope: "Security and Availability".to_string(),
+            }],
         };
 
         self.frameworks.insert("soc2".to_string(), framework);
@@ -912,7 +915,8 @@ impl ComplianceEngine {
                 FrameworkControl {
                     control_id: "A.5.1".to_string(),
                     name: "Policies for Information Security".to_string(),
-                    description: "Management direction and support for information security".to_string(),
+                    description: "Management direction and support for information security"
+                        .to_string(),
                     category: ControlCategory::AccessControl,
                     subcategory: "Information Security Policies".to_string(),
                     control_type: ControlType::Administrative,
@@ -923,7 +927,8 @@ impl ComplianceEngine {
                 FrameworkControl {
                     control_id: "A.8.1".to_string(),
                     name: "Asset Responsibility".to_string(),
-                    description: "Identification and classification of information assets".to_string(),
+                    description: "Identification and classification of information assets"
+                        .to_string(),
                     category: ControlCategory::DataProtection,
                     subcategory: "Asset Management".to_string(),
                     control_type: ControlType::Administrative,
@@ -934,7 +939,9 @@ impl ComplianceEngine {
                 FrameworkControl {
                     control_id: "A.9.1".to_string(),
                     name: "Access Control Policy".to_string(),
-                    description: "Limit access to information and information processing facilities".to_string(),
+                    description:
+                        "Limit access to information and information processing facilities"
+                            .to_string(),
                     category: ControlCategory::AccessControl,
                     subcategory: "Access Control".to_string(),
                     control_type: ControlType::Technical,
@@ -943,17 +950,15 @@ impl ComplianceEngine {
                     next_review: Some(Utc::now()),
                 },
             ],
-            requirements: vec![
-                Requirement {
-                    requirement_id: "A.9.2.1".to_string(),
-                    title: "User Registration".to_string(),
-                    description: "Formal user registration and de-registration process".to_string(),
-                    severity: RequirementSeverity::High,
-                    applicable: true,
-                    compensating_controls: vec![],
-                    evidence_required: vec!["User registration forms".to_string()],
-                },
-            ],
+            requirements: vec![Requirement {
+                requirement_id: "A.9.2.1".to_string(),
+                title: "User Registration".to_string(),
+                description: "Formal user registration and de-registration process".to_string(),
+                severity: RequirementSeverity::High,
+                applicable: true,
+                compensating_controls: vec![],
+                evidence_required: vec!["User registration forms".to_string()],
+            }],
             mappings: vec![],
             audit_schedule: AuditSchedule {
                 frequency: AuditFrequency::Annually,
@@ -968,8 +973,14 @@ impl ComplianceEngine {
     }
 
     /// Create compliance assessment
-    pub fn create_assessment(&mut self, framework_id: &str, assessment_type: AssessmentType) -> Result<ComplianceAssessment, ComplianceError> {
-        let framework = self.frameworks.get(framework_id)
+    pub fn create_assessment(
+        &mut self,
+        framework_id: &str,
+        assessment_type: AssessmentType,
+    ) -> Result<ComplianceAssessment, ComplianceError> {
+        let framework = self
+            .frameworks
+            .get(framework_id)
             .ok_or(ComplianceError::FrameworkNotFound)?;
 
         let assessment = ComplianceAssessment {
@@ -987,7 +998,10 @@ impl ComplianceEngine {
         };
 
         self.assessments.push(assessment.clone());
-        self.log_event(ComplianceEventType::AssessmentStarted, &assessment.assessment_id);
+        self.log_event(
+            ComplianceEventType::AssessmentStarted,
+            &assessment.assessment_id,
+        );
 
         Ok(assessment)
     }
@@ -1005,14 +1019,16 @@ impl ComplianceEngine {
         self.evidence_store.evidence_items.push(evidence.clone());
 
         // Update chain of custody
-        self.evidence_store.chain_of_custody.push(ChainOfCustodyEntry {
-            entry_id: generate_id(),
-            evidence_id: evidence.evidence_id,
-            action: CustodyAction::Created,
-            performed_by: "system".to_string(),
-            performed_at: Utc::now(),
-            notes: String::new(),
-        });
+        self.evidence_store
+            .chain_of_custody
+            .push(ChainOfCustodyEntry {
+                entry_id: generate_id(),
+                evidence_id: evidence.evidence_id,
+                action: CustodyAction::Created,
+                performed_by: "system".to_string(),
+                performed_at: Utc::now(),
+                notes: String::new(),
+            });
     }
 
     /// Calculate compliance score
@@ -1022,7 +1038,9 @@ impl ComplianceEngine {
             None => return 0.0,
         };
 
-        let implemented = framework.controls.iter()
+        let implemented = framework
+            .controls
+            .iter()
             .filter(|c| c.implementation_status == ImplementationStatus::Implemented)
             .count() as f32;
 
@@ -1040,11 +1058,15 @@ impl ComplianceEngine {
         let framework = self.frameworks.get(framework_id)?;
 
         let compliance_score = self.calculate_compliance_score(framework_id);
-        let controls_implemented = framework.controls.iter()
+        let controls_implemented = framework
+            .controls
+            .iter()
             .filter(|c| c.implementation_status == ImplementationStatus::Implemented)
             .count();
 
-        let findings_count = self.findings.iter()
+        let findings_count = self
+            .findings
+            .iter()
             .filter(|f| {
                 let framework = self.frameworks.get(&f.assessment_id).is_some();
                 framework
@@ -1059,7 +1081,9 @@ impl ComplianceEngine {
             controls_implemented,
             total_controls: framework.controls.len(),
             open_findings: findings_count,
-            certification_status: framework.certifications.iter()
+            certification_status: framework
+                .certifications
+                .iter()
                 .find(|c| c.status == CertificationStatus::Active)
                 .map(|c| c.cert_type.clone()),
         })
@@ -1162,7 +1186,6 @@ pub enum CertificationType {
     HIPAA,
     GDPR,
 }
-
 
 // ============================================================================
 // Tests

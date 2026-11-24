@@ -1,12 +1,12 @@
 // Runtime Module - JIT, Interpreter, Adaptive Optimization
 
-pub mod jit;
-pub mod interpreter;
 pub mod adaptive;
+pub mod interpreter;
+pub mod jit;
 
-pub use jit::*;
-pub use interpreter::*;
 pub use adaptive::*;
+pub use interpreter::*;
+pub use jit::*;
 
 // ============================================================================
 // Runtime Infrastructure
@@ -84,7 +84,11 @@ impl Runtime {
         self.interpreter.execute(func, args)
     }
 
-    fn execute_compiled(&self, _code: &CompiledCode, _args: &[Value]) -> Result<Value, RuntimeError> {
+    fn execute_compiled(
+        &self,
+        _code: &CompiledCode,
+        _args: &[Value],
+    ) -> Result<Value, RuntimeError> {
         // Call compiled code
         Ok(Value::Unit)
     }
@@ -150,17 +154,15 @@ pub struct RuntimeMemory {
 impl RuntimeMemory {
     pub fn new() -> Self {
         Self {
-            stack_size: 8 * 1024 * 1024,  // 8 MB
+            stack_size: 8 * 1024 * 1024, // 8 MB
             guard_pages: 4,
         }
     }
 
     pub fn allocate_stack(&self) -> *mut u8 {
-        let layout = std::alloc::Layout::from_size_align(
-            self.stack_size + self.guard_pages * 4096,
-            4096,
-        )
-        .unwrap();
+        let layout =
+            std::alloc::Layout::from_size_align(self.stack_size + self.guard_pages * 4096, 4096)
+                .unwrap();
         unsafe { std::alloc::alloc(layout) }
     }
 }
