@@ -874,7 +874,6 @@ impl Default for MacroEngine {
 }
 
 /// Token kinds for macros
-
 impl MatcherToken {
     /// Check if this pattern matches an expression
     pub fn matches(&self, expr: &Expr, bindings: &mut TokenBindings) -> bool {

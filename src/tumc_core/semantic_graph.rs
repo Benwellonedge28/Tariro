@@ -1,5 +1,4 @@
 /// Represents a node in the Universal Semantic Graph (USG).
-
 pub struct USGNode {
     pub id: String,
     pub kind: String, // e.g., "Concept", "Operation", "Data", "Constraint", "Actor"

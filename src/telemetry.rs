@@ -285,8 +285,7 @@ impl TelemetryLogger {
 
         // For now, just print it to stdout/stderr
         match &entry.event {
-            TelemetryEvent::ErrorOccurred { message: _, .. }
-            | TelemetryEvent::SystemHealthWarning { message: _, .. } => {
+            TelemetryEvent::ErrorOccurred { .. } | TelemetryEvent::SystemHealthWarning { .. } => {
                 eprintln!("[TELEMETRY ERROR] {}: {:?}", entry.timestamp, entry.event);
             }
             _ => {
