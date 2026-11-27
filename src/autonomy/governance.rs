@@ -272,6 +272,8 @@ impl GovernanceService {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::prelude::*;
+    use std::time::Duration;
     use crate::autonomy::policy_engine::AutonomyLevel;
     use crate::config::AGIConfig;
     use crate::database::DatabaseService;

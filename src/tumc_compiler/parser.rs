@@ -1658,6 +1658,7 @@ impl std::error::Error for ParserError {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tumc_compiler::lexer::Lexer;
 
     fn parse(source: &str) -> Program {
         let tokens = Lexer::new(source).tokenize().unwrap();
